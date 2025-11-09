@@ -1,0 +1,67 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.button {
+  @include transition;
+  border: none;
+  border-radius: $border-radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  background-color: $primary-color;
+  color: white;
+
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+.secondary {
+  background-color: $secondary-color;
+  color: white;
+
+  &:hover {
+    background-color: lighten($secondary-color, 10%);
+  }
+}
+
+.outline {
+  background-color: transparent;
+  border: 2px solid $primary-color;
+  color: $primary-color;
+
+  &:hover {
+    background-color: rgba($primary-color, 0.1);
+  }
+}
+
+.small {
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+}
+
+.medium {
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-base;
+}
+
+.large {
+  padding: $spacing-lg $spacing-xl;
+  font-size: $font-size-lg;
+}
