@@ -6,6 +6,7 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
+  "ignorePatterns": [".next", "node_modules", "out", "dist", "build"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
