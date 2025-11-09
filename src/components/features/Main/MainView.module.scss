@@ -1,0 +1,21 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: $white;
+}
+
+.main {
+  @include flex-column;
+  width: 100%;
+  max-width: 568px;
+  min-height: 100vh;
+  padding: $spacing-lg;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}

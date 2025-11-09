@@ -1,0 +1,43 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: $white;
+}
+
+.main {
+  @include flex-column;
+  @include flex-center;
+  width: 100%;
+  max-width: 568px;
+  min-height: 100vh;
+  padding: $spacing-lg;
+  gap: $spacing-lg;
+
+  @include mobile {
+    padding: $spacing-md;
+  }
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: $neutral-900;
+  text-align: center;
+}
+
+.description {
+  font-size: 18px;
+  color: $neutral-600;
+  text-align: center;
+}
+
+.placeholder {
+  font-size: 16px;
+  color: $neutral-500;
+  text-align: center;
+  margin-top: $spacing-xl;
+}
