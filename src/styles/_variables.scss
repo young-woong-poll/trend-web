@@ -1,9 +1,42 @@
-// Colors
-$primary-color: #0070f3;
-$secondary-color: #1a1a1a;
-$background-color: #ffffff;
-$text-color: #333333;
-$border-color: #e5e5e5;
+// Colors - Primary
+$primary-400: #878ced;
+$primary-500: #636ae8;
+
+// Colors - Secondary
+$secondary-200: #f8cedb;
+$secondary-500: #e8618c;
+$secondary-600: #db2777;
+
+// Colors - Color4 (Purple)
+$color4-500: #7f55e0;
+$color4-600: #5b27d5;
+
+// Colors - Neutral
+$neutral-200: #f3f4f6;
+$neutral-300: #dee1e6;
+$neutral-400: #bcc1ca;
+$neutral-500: #9095a0;
+$neutral-600: #565e6c;
+$neutral-800: #1d2128;
+$neutral-900: #171a1f;
+
+// Colors - Semantic
+$white: #ffffff;
+$error-500: #de3b40;
+$warning-500: #efb034;
+$green-500: #22c55e;
+
+// Colors - Result
+$result-text: #7e22ce;
+$result-border: #a855f7;
+$result-background: #faf5ff;
+
+// Legacy colors (deprecated - use new color system)
+$primary-color: $primary-500;
+$secondary-color: $neutral-900;
+$background-color: $white;
+$text-color: $neutral-900;
+$border-color: $neutral-300;
 
 // Breakpoints
 $breakpoint-mobile: 480px;
