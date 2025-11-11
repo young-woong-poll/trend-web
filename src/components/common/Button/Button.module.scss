@@ -2,7 +2,9 @@
 @use '@/styles/mixins' as *;
 
 .button {
+  @include flex-center;
   @include transition;
+  gap: 8px;
   border: none;
   border-radius: $border-radius-md;
   font-weight: 500;
@@ -20,6 +22,17 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  // 아이콘 스타일 (SVG에 적용)
+  svg {
+    @include transition(transform);
+    flex-shrink: 0;
+  }
+
+  // 화살표 아이콘에만 hover 애니메이션 적용
+  &:hover svg[data-arrow='true'] {
+    transform: translateX(4px);
   }
 }
 
@@ -51,17 +64,35 @@
   }
 }
 
+.gradient {
+  background: linear-gradient(135deg, $btn-left 0%, $btn-right 100%);
+  color: $white;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(127, 85, 224, 0.3);
+
+  &:hover {
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(127, 85, 224, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 .small {
-  padding: $spacing-sm $spacing-md;
-  font-size: $font-size-sm;
+  padding: $spacing-8 $spacing-16;
+  font-size: $font-size-14;
 }
 
 .medium {
-  padding: $spacing-md $spacing-lg;
-  font-size: $font-size-base;
+  padding: $spacing-16 $spacing-24;
+  font-size: $font-size-16;
 }
 
 .large {
-  padding: $spacing-lg $spacing-xl;
-  font-size: $font-size-lg;
+  padding: $spacing-24 $spacing-32;
+  font-size: $font-size-18;
 }

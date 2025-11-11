@@ -2,8 +2,11 @@
 
 import type { FC } from 'react';
 
-import { SurveyCard } from './SurveyCard/SurveyCard';
+import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
+import { Header } from '@/components/common/Header/Header';
+
 import styles from './MainView.module.scss';
+import { SurveyCard } from './SurveyCard/SurveyCard';
 
 export const MainView: FC = () => {
   const handleStartSurvey = () => {
@@ -12,15 +15,36 @@ export const MainView: FC = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <SurveyCard
-          title="대한민국 연애 난제"
-          subtitle="당신의 문제라면?"
-          participantCount={1200}
-          onStart={handleStartSurvey}
-        />
-      </main>
-    </div>
+    <>
+      <Header />
+      <FlexibleLayout>
+        <div className={styles.container}>
+          <SurveyCard
+            title="대한민국 연애 난제"
+            subtitle="당신의 문제라면?"
+            participantCount={1200}
+            onStart={handleStartSurvey}
+          />
+          <SurveyCard
+            title="대한민국 연애 난제"
+            subtitle="당신의 문제라면?"
+            participantCount={1200}
+            onStart={handleStartSurvey}
+          />
+          <SurveyCard
+            title="대한민국 연애 난제"
+            subtitle="당신의 문제라면?"
+            participantCount={1200}
+            onStart={handleStartSurvey}
+          />
+          <SurveyCard
+            title="대한민국 연애 난제"
+            subtitle="당신의 문제라면?"
+            participantCount={1200}
+            onStart={handleStartSurvey}
+          />
+        </div>
+      </FlexibleLayout>
+    </>
   );
 };

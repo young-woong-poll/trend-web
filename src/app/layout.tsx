@@ -1,6 +1,14 @@
-import type { Metadata } from 'next';
+import { Archivo } from 'next/font/google';
 
 import '@/styles/globals.scss';
+
+import type { Metadata } from 'next';
+
+const archivo = Archivo({
+  subsets: ['latin'],
+  variable: '--font-archivo',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Trend Web',
@@ -14,7 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className={archivo.variable}>
+        {children}
+        <div id="portal-root" />
+      </body>
     </html>
   );
 }

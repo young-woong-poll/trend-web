@@ -2,20 +2,12 @@
 @use '@/styles/mixins' as *;
 
 .container {
+  @include flex-column;
   @include flex-center;
   min-height: 100vh;
-  width: 100%;
-  background-color: $white;
-}
+  padding: $spacing-24;
 
-.main {
-  @include flex-column;
-  width: 100%;
-  max-width: 568px;
-  min-height: 100vh;
-  padding: $spacing-lg;
+  gap: $spacing-16;
 
-  @include mobile {
-    padding: $spacing-md;
-  }
+  overflow: scroll;
 }

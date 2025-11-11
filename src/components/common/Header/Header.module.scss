@@ -1,0 +1,44 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  height: 80px;
+  width: 100%;
+  border-bottom: 1px solid $neutral-300;
+}
+
+.title {
+  font-size: $font-size-20;
+  font-weight: 700;
+  color: $color4-600;
+  margin: 0;
+  line-height: $font-size-20;
+}
+
+.subtitle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: $font-size-14;
+  font-weight: 400;
+  color: $neutral-600;
+  margin: 0;
+  line-height: 16px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: $neutral-600;
+}

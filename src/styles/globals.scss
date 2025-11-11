@@ -14,3 +14,17 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+// Scrollbar 숨김 설정
+* {
+  // Firefox
+  scrollbar-width: none;
+
+  // IE, Edge
+  -ms-overflow-style: none;
+
+  // Chrome, Safari, Opera
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
