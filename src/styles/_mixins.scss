@@ -1,6 +1,12 @@
 @use 'variables' as *;
 
 // Media queries
+@mixin se {
+  @media (max-width: $breakpoint-se) {
+    @content;
+  }
+}
+
 @mixin mobile {
   @media (max-width: $breakpoint-mobile) {
     @content;

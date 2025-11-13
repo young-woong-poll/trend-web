@@ -1,0 +1,55 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  position: fixed;
+  bottom: $spacing-24;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  padding: $spacing-16 $spacing-24;
+  background-color: rgba($neutral-800, 0.95);
+  color: $white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  z-index: $z-index-tooltip;
+  max-width: 90%;
+  animation: slideUp 0.3s ease-out;
+
+  @include mobile {
+    bottom: $spacing-16;
+    padding: $spacing-16;
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.message {
+  font-size: $font-size-14;
+  font-weight: 500;
+  line-height: 1.4;
+
+  @include mobile {
+    font-size: $font-size-12;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

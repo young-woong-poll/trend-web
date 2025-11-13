@@ -3,32 +3,56 @@
 
 .container {
   @include flex-column;
-  @include flex-center;
   min-height: 100vh;
-  padding: $spacing-24;
-  gap: $spacing-24;
+  position: relative;
+  padding-top: 7px; // ProgressBar 높이만큼 padding
+}
 
-  @include mobile {
-    padding: $spacing-16;
+.content {
+  width: 100%;
+  padding: 24px 10px;
+  @include flex-column;
+  justify-content: center;
+  padding: 30px 20px;
+  min-height: calc(100vh - 7px); // ProgressBar 높이만큼 빼기
+  overflow: hidden;
+  position: relative;
+}
+
+.cardsWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100%;
+}
+
+.cardContainer {
+  position: absolute;
+  width: calc(100% - 40px);
+  top: 5vh;
+  left: 20px;
+  transition:
+    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.5s ease;
+  will-change: transform, opacity;
+
+  &.previous {
+    transform: translateX(-120%);
+    opacity: 0;
+    pointer-events: none;
   }
-}
 
-.title {
-  font-size: 32px;
-  font-weight: 700;
-  color: $neutral-900;
-  text-align: center;
-}
+  &.active {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 10;
+    pointer-events: auto;
+  }
 
-.description {
-  font-size: 18px;
-  color: $neutral-600;
-  text-align: center;
-}
-
-.placeholder {
-  font-size: 16px;
-  color: $neutral-500;
-  text-align: center;
-  margin-top: $spacing-32;
+  &.next {
+    transform: translateX(120%);
+    opacity: 0;
+    pointer-events: none;
+  }
 }

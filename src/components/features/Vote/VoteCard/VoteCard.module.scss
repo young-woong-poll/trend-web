@@ -1,0 +1,53 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.card {
+  @include flex-column;
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100vh - 50px); // ProgressBar와 여백을 고려한 최대 높이
+  margin: 0 auto;
+  padding: 30px 20px;
+  background-color: $white;
+  border-radius: 16px;
+  overflow-y: auto;
+  box-shadow: 0px 17px 35px #171a1f3d;
+
+  // 스크롤바 숨기기 (선택사항)
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.header {
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: $font-size-24;
+  line-height: 32px;
+  font-weight: 700;
+  color: $neutral-900;
+  word-break: keep-all;
+}
+
+.subtitle {
+  font-size: $font-size-16;
+  color: $neutral-600;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.options {
+  @include flex-column;
+  gap: $spacing-16;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.button {
+  margin-bottom: 20px;
+}

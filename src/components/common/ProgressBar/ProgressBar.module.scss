@@ -1,0 +1,25 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 2;
+  width: 100%;
+  z-index: $z-index-sticky;
+  background-color: $white;
+}
+
+.step {
+  flex: 1;
+  height: 7px;
+  background-color: $neutral-300;
+  @include transition(background-color);
+
+  &.active {
+    background: $color4-500;
+  }
+}

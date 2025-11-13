@@ -1,0 +1,56 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16;
+  width: 100%;
+}
+
+.button {
+  @include flex-column;
+  @include flex-center;
+  gap: $spacing-8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  @include transition(transform, 0.2s);
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: $color4-500;
+  color: $white;
+  @include transition(background-color, 0.2s);
+
+  .button:hover & {
+    background-color: $color4-600;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.label {
+  font-size: $font-size-16;
+  font-weight: 600;
+  color: $color4-500;
+  text-align: center;
+}
