@@ -1,5 +1,6 @@
 import { Archivo } from 'next/font/google';
 
+import { MSWProvider } from '@/providers/MSWProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 
 import type { Metadata } from 'next';
@@ -25,10 +26,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={archivo.variable}>
-        <QueryProvider>
-          {children}
-          <div id="portal-root" />
-        </QueryProvider>
+        <MSWProvider>
+          <QueryProvider>
+            {children}
+            <div id="portal-root" />
+          </QueryProvider>
+        </MSWProvider>
       </body>
     </html>
   );
