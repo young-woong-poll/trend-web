@@ -1,8 +1,11 @@
 import { Archivo } from 'next/font/google';
 
-import '@/styles/globals.scss';
+import { MSWProvider } from '@/providers/MSWProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 import type { Metadata } from 'next';
+
+import '@/styles/globals.scss';
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -23,8 +26,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={archivo.variable}>
-        {children}
-        <div id="portal-root" />
+        <MSWProvider>
+          <QueryProvider>
+            {children}
+            <div id="portal-root" />
+          </QueryProvider>
+        </MSWProvider>
       </body>
     </html>
   );
