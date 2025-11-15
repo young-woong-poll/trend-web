@@ -1,14 +1,12 @@
 'use client';
 
-import type { FC } from 'react';
-
 import { Header } from '@/components/common/Header/Header';
 
-import { CompareSection } from './CompareSection/CompareSection';
-import { ComparisonDetail } from './ComparisonDetail/ComparisonDetail';
-import { QuestionSection } from './QuestionSection/QuestionSection';
+import { CompareLinkCard } from './CompareLinkCard/CompareLinkCard';
+import { ComparisonCard } from './ComparisonCard/ComparisonCard';
+import { CopyUrlCard } from './CopyUrlCard/CopyUrlCard';
 import styles from './ResultView.module.scss';
-import { SaveUrlPrompt } from './SaveUrlPrompt/SaveUrlPrompt';
+import { TypeCard } from './TypeCard/TypeCard';
 
 interface ResultViewProps {
   type: string;
@@ -47,12 +45,12 @@ const mockFriendResults = [
   {
     nickname: '제이제이홈',
     timestamp: '25/10/12 12:00 PM',
-    comment: '어이쿠로 킹아빠도 안써주냐',
+    comment: '어이쿠로 킹아빠도 안써주냐 어이쿠로 킹아빠도 안써주냐 킹아빠도 안써주냐',
   },
   {
     nickname: '웅쓰테고',
     timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
+    comment: '어이쿠로 킹아빠도 안써주냐',
   },
   {
     nickname: '친구te46',
@@ -62,12 +60,12 @@ const mockFriendResults = [
   {
     nickname: '요한',
     timestamp: '25/10/12 12:10 PM',
-    matchRate: 60,
+    comment: '정디 검상 금지',
   },
   {
     nickname: '친구1b2f',
     timestamp: '25/10/12 12:10 PM',
-    matchRate: 20,
+    comment: '정디 검상 금지',
   },
 ];
 
@@ -110,32 +108,23 @@ const mockComparisonDetail = {
   ],
 };
 
-export const ResultView: FC<ResultViewProps> = ({ type }) => (
+export const ResultView = ({ type }: ResultViewProps) => (
   <div className={styles.container}>
     <Header />
+    {type}
     <div className={styles.content}>
-      <p className={styles.subtitle}>당신의 성향은</p>
-      <h1 className={styles.title}>{type}</h1>
+      <TypeCard questions={questions} />
 
-      {questions.map((q, index) => (
-        <QuestionSection
-          key={index}
-          question={q.question}
-          options={q.options}
-          selectedIndex={q.selectedIndex}
-        />
-      ))}
+      <CompareLinkCard friendResults={mockFriendResults} />
 
-      <CompareSection friendResults={mockFriendResults} />
+      <CopyUrlCard />
 
-      <ComparisonDetail
+      <ComparisonCard
         friendNickname={mockComparisonDetail.friendNickname}
         matchCount={mockComparisonDetail.matchCount}
         totalCount={mockComparisonDetail.totalCount}
         comparisons={mockComparisonDetail.comparisons}
       />
-
-      <SaveUrlPrompt />
     </div>
   </div>
 );

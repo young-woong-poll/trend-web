@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 
-import styles from './ComparisonDetail.module.scss';
+import styles from './ComparisonCard.module.scss';
 
 interface ComparisonItem {
   question: string;
@@ -11,14 +11,14 @@ interface ComparisonItem {
   isMatch: boolean;
 }
 
-interface ComparisonDetailProps {
+interface ComparisonCardProps {
   friendNickname: string;
   matchCount: number;
   totalCount: number;
   comparisons: ComparisonItem[];
 }
 
-export const ComparisonDetail: FC<ComparisonDetailProps> = ({
+export const ComparisonCard: FC<ComparisonCardProps> = ({
   friendNickname,
   matchCount,
   totalCount,
@@ -26,10 +26,10 @@ export const ComparisonDetail: FC<ComparisonDetailProps> = ({
 }) => (
   <div className={styles.container}>
     <div className={styles.header}>
-      <h2 className={styles.title}>
-        사랑꾼 <span className={styles.highlight}>{friendNickname}</span>과
+      <h2 className={styles.subtitle}>
+        <span className={styles.highlight}>사랑꾼 {friendNickname}</span>과
       </h2>
-      <h3 className={styles.subtitle}>연애프로 같이봐도 안싸움</h3>
+      <h3 className={styles.title}>연애프로 같이봐도 안싸움</h3>
 
       <div className={styles.matchInfo}>
         <span className={styles.matchLabel}>매칭률</span>
@@ -48,9 +48,7 @@ export const ComparisonDetail: FC<ComparisonDetailProps> = ({
 
     <div className={styles.comparisonList}>
       <div className={styles.tableHeader}>
-        <span className={styles.tableHeaderLabel}>
-          {'{'}-님의{'}'}
-        </span>
+        <span className={styles.tableHeaderLabel}>{'{닉네임}님'}</span>
         <span className={styles.tableHeaderLabel}>사랑꾼 {friendNickname}</span>
       </div>
 
@@ -85,10 +83,10 @@ export const ComparisonDetail: FC<ComparisonDetailProps> = ({
           </div>
 
           <div className={styles.answerRow}>
-            <div className={`${styles.answer} ${!item.isMatch ? styles.myAnswer : ''}`}>
+            <div className={`${styles.answer} ${!item.isMatch ? styles.matched : ''}`}>
               {item.myAnswer}
             </div>
-            <div className={`${styles.answer} ${!item.isMatch ? styles.friendAnswer : ''}`}>
+            <div className={`${styles.answer} ${!item.isMatch ? styles.matched : ''}`}>
               {item.friendAnswer}
             </div>
           </div>

@@ -7,23 +7,10 @@
 }
 
 .content {
-  padding: 40px 24px;
-  max-width: 480px;
+  padding: 40px 16px;
+  max-width: 512px;
   margin: 0 auto;
-}
-
-.subtitle {
-  text-align: center;
-  font-size: 14px;
-  font-weight: 400;
-  color: $neutral-600;
-  margin-bottom: 8px;
-}
-
-.title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: $neutral-900;
-  margin-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
