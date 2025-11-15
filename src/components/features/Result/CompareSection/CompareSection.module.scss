@@ -1,0 +1,199 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 32px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: $neutral-900;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-size: 14px;
+  font-weight: 400;
+  color: $neutral-600;
+  margin-bottom: 24px;
+}
+
+.resultBox {
+  background-color: $neutral-200;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.resultLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: $neutral-900;
+  margin-bottom: 12px;
+}
+
+.emptyMessage {
+  font-size: 14px;
+  font-weight: 400;
+  color: $neutral-500;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.friendList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.friendItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: $neutral-200;
+  }
+}
+
+.friendInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.friendHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.friendNickname {
+  font-size: 15px;
+  font-weight: 600;
+  color: $neutral-900;
+}
+
+.friendTimestamp {
+  font-size: 12px;
+  font-weight: 400;
+  color: $neutral-500;
+}
+
+.friendComment {
+  font-size: 14px;
+  font-weight: 400;
+  color: $neutral-600;
+  margin-bottom: 8px;
+}
+
+.matchBar {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.matchBarItem {
+  height: 6px;
+  flex: 1;
+  border-radius: 3px;
+  background-color: $neutral-300;
+  transition: background-color 0.2s ease;
+
+  &.active {
+    background-color: $primary-500;
+  }
+}
+
+.chevronIcon {
+  flex-shrink: 0;
+  color: $neutral-400;
+  margin-left: 8px;
+}
+
+.inputSection {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: $neutral-900;
+  margin-bottom: 8px;
+}
+
+.helpIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: $neutral-300;
+  color: $neutral-600;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: help;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid $neutral-300;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 400;
+  color: $neutral-900;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &::placeholder {
+    color: $neutral-400;
+  }
+
+  &:focus {
+    border-color: $primary-500;
+  }
+}
+
+.shareButton {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background-color: $primary-500;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: darken($primary-500, 5%);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.shareIcon {
+  flex-shrink: 0;
+}

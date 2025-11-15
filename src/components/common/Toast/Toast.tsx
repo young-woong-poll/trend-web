@@ -20,7 +20,9 @@ interface ToastProps {
 }
 
 export const Toast: FC<ToastProps> = ({ message, icon, isVisible = true }) => {
-  if (!isVisible) return null;
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>

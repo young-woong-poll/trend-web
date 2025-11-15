@@ -2,33 +2,28 @@
 @use '@/styles/mixins' as *;
 
 .container {
-  @include flex-column;
-  @include flex-center;
   min-height: 100vh;
-  padding: $spacing-24;
-  gap: $spacing-24;
+  background-color: #ffffff;
+}
 
-  @include mobile {
-    padding: $spacing-16;
-  }
+.content {
+  padding: 40px 24px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: $neutral-600;
+  margin-bottom: 8px;
 }
 
 .title {
-  font-size: 32px;
+  text-align: center;
+  font-size: 28px;
   font-weight: 700;
   color: $neutral-900;
-  text-align: center;
-}
-
-.description {
-  font-size: 18px;
-  color: $neutral-600;
-  text-align: center;
-}
-
-.placeholder {
-  font-size: 16px;
-  color: $neutral-500;
-  text-align: center;
-  margin-top: $spacing-32;
+  margin-bottom: 48px;
 }
