@@ -16,11 +16,14 @@
     "lefthook:uninstall": "lefthook uninstall"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.9",
+    "axios": "^1.13.2",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.90.2",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
