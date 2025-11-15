@@ -3,8 +3,7 @@
 import type { FC } from 'react';
 
 import CrownIcon from '@/assets/icon/CrownIcon';
-
-import styles from './ResultVoteOption.module.scss';
+import styles from '@/components/features/Vote/ResultVoteOption/ResultVoteOption.module.scss';
 
 interface ResultVoteOptionProps {
   /**

@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 
-import styles from './ProgressBar.module.scss';
+import styles from '@/components/common/ProgressBar/ProgressBar.module.scss';
 
 interface ProgressBarProps {
   currentStep: number;

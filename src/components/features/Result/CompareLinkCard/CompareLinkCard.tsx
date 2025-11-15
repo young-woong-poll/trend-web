@@ -5,8 +5,7 @@ import type { FC } from 'react';
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { Button } from '@/components/common/Button';
-
-import styles from './CompareLinkCard.module.scss';
+import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
 
 interface FriendResult {
   nickname: string;

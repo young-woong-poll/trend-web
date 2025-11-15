@@ -1,12 +1,11 @@
 'use client';
 
 import { Header } from '@/components/common/Header/Header';
-
-import { CompareLinkCard } from './CompareLinkCard/CompareLinkCard';
-import { ComparisonCard } from './ComparisonCard/ComparisonCard';
-import { CopyUrlCard } from './CopyUrlCard/CopyUrlCard';
-import styles from './ResultView.module.scss';
-import { TypeCard } from './TypeCard/TypeCard';
+import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
+import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
+import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
+import styles from '@/components/features/Result/ResultView.module.scss';
+import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 
 interface ResultViewProps {
   type: string;

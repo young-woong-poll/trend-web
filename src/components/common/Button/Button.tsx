@@ -1,6 +1,6 @@
 import React from 'react';
 
-import styles from './Button.module.scss';
+import styles from '@/components/common/Button/Button.module.scss';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'gradient';

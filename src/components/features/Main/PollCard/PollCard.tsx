@@ -1,18 +1,15 @@
-import type { FC } from 'react';
-
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button/Button';
+import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 
-import styles from './SurveyCard.module.scss';
-
-interface SurveyCardProps {
+type TPollCardProps = {
   title: string;
   subtitle: string;
   participantCount: number;
   onStart: () => void;
-}
+};
 
-export const SurveyCard: FC<SurveyCardProps> = ({ title, subtitle, participantCount, onStart }) => {
+export const PollCard = ({ title, subtitle, participantCount, onStart }: TPollCardProps) => {
   const formatCount = (count: number): string => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}K`;
