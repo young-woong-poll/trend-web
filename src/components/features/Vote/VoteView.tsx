@@ -8,9 +8,9 @@ import { ProgressBar } from '@/components/common/ProgressBar';
 import { VoteCard } from './VoteCard';
 import styles from './VoteView.module.scss';
 
-interface VoteViewProps {
+type TVoteViewProps = {
   type?: string;
-}
+};
 
 interface CardData {
   id: number;
@@ -98,7 +98,7 @@ const results = [
   },
 ];
 
-export const VoteView: FC<VoteViewProps> = () => {
+export const VoteView: FC<TVoteViewProps> = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number | null>>({});
 
