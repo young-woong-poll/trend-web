@@ -1,6 +1,6 @@
 'use client';
 
-import styles from './TypeCard.module.scss';
+import styles from '@/components/features/Result/TypeCard/TypeCard.module.scss';
 
 type TypeCardProps = {
   questions: {

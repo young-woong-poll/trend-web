@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 
-import styles from './FlexibleLayout.module.scss';
+import styles from '@/components/common/FlexibleLayout/FlexibleLayout.module.scss';
 
 interface FlexibleLayoutProps {
   children: ReactNode;

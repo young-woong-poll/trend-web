@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 
-import styles from './Toast.module.scss';
+import styles from '@/components/common/Toast/Toast.module.scss';
 
 interface ToastProps {
   /**

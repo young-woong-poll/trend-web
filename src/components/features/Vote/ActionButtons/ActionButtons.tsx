@@ -4,8 +4,7 @@ import type { FC } from 'react';
 
 import CommentIcon from '@/assets/icon/CommentIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
-
-import styles from './ActionButtons.module.scss';
+import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 
 interface ActionButtonsProps {
   /**

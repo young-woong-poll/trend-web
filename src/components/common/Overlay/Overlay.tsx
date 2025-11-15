@@ -2,9 +2,8 @@
 
 import type { FC, ReactNode } from 'react';
 
-import { Portal } from '../Portal/Portal';
-
-import styles from './Overlay.module.scss';
+import styles from '@/components/common/Overlay/Overlay.module.scss';
+import { Portal } from '@/components/common/Portal/Portal';
 
 interface OverlayProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-import styles from './Header.module.scss';
+import styles from '@/components/common/Header/Header.module.scss';
 
 interface HeaderProps {
   title?: string;

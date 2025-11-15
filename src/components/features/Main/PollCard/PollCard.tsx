@@ -1,7 +1,6 @@
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button/Button';
-
-import styles from './PollCard.module.scss';
+import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 
 type TPollCardProps = {
   title: string;

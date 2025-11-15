@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 
-import styles from './ComparisonCard.module.scss';
+import styles from '@/components/features/Result/ComparisonCard/ComparisonCard.module.scss';
 
 interface ComparisonItem {
   question: string;

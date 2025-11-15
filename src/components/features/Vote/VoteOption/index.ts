@@ -1,1 +1,1 @@
-export { VoteOption } from './VoteOption';
+export { VoteOption } from '@/components/features/Vote/VoteOption/VoteOption';

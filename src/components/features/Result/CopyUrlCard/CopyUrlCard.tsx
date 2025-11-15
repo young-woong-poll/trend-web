@@ -4,8 +4,7 @@ import type { FC } from 'react';
 
 import ClipIcon from '@/assets/icon/ClipIcon';
 import { Button } from '@/components/common/Button';
-
-import styles from './CopyUrlCard.module.scss';
+import styles from '@/components/features/Result/CopyUrlCard/CopyUrlCard.module.scss';
 
 interface CopyUrlCardProps {
   onCopyUrl?: () => void;

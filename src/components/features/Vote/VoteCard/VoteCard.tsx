@@ -4,12 +4,10 @@ import type { FC } from 'react';
 
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
-
-import { ActionButtons } from '../ActionButtons';
-import { ResultVoteOption } from '../ResultVoteOption';
-import { VoteOption } from '../VoteOption';
-
-import styles from './VoteCard.module.scss';
+import { ActionButtons } from '@/components/features/Vote/ActionButtons';
+import { ResultVoteOption } from '@/components/features/Vote/ResultVoteOption';
+import styles from '@/components/features/Vote/VoteCard/VoteCard.module.scss';
+import { VoteOption } from '@/components/features/Vote/VoteOption';
 
 interface VoteOptionType {
   id: number;

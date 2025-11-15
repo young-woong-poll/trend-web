@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { Header } from '@/components/common/Header/Header';
-
-import styles from './MainView.module.scss';
-import { PollCard } from './PollCard/PollCard';
+import styles from '@/components/features/Main/MainView.module.scss';
+import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 
 export const MainView: FC = () => {
   const router = useRouter();

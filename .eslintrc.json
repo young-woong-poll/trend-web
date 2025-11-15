@@ -13,7 +13,7 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint", "prettier", "import"],
   "rules": {
     // Prettier
     "prettier/prettier": "error",
@@ -76,6 +76,20 @@
     "arrow-body-style": ["error", "as-needed"],
     "object-shorthand": ["error", "always"],
     "no-param-reassign": "warn",
+
+    // Prevent relative imports
+    "import/no-relative-packages": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["../*", "./*"],
+            "message": "상대 경로 대신 '@/' 절대 경로를 사용하세요."
+          }
+        ]
+      }
+    ],
 
     // Import ordering (using Next.js built-in rules)
     "import/order": [

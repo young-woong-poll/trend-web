@@ -2,7 +2,7 @@
 
 import type { FC } from 'react';
 
-import styles from './VoteOption.module.scss';
+import styles from '@/components/features/Vote/VoteOption/VoteOption.module.scss';
 
 interface VoteOptionProps {
   /**
