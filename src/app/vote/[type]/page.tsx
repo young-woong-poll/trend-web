@@ -1,11 +1,12 @@
 import { VoteView } from '@/components/features/Vote/VoteView';
 
 interface VotePageProps {
-  params: {
+  params: Promise<{
     type: string;
-  };
+  }>;
 }
 
-export default function VotePage({ params }: VotePageProps) {
-  return <VoteView type={params.type} />;
+export default async function VotePage({ params }: VotePageProps) {
+  const { type } = await params;
+  return <VoteView type={type} />;
 }
