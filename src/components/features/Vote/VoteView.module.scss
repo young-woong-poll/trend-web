@@ -5,54 +5,31 @@
   @include flex-column;
   min-height: 100vh;
   position: relative;
-  padding-top: 7px; // ProgressBar 높이만큼 padding
+  overflow: hidden;
 }
 
 .content {
-  width: 100%;
-  padding: 24px 10px;
-  @include flex-column;
-  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 40px;
   padding: 30px 20px;
-  min-height: calc(100vh - 7px); // ProgressBar 높이만큼 빼기
-  overflow: hidden;
-  position: relative;
-}
-
-.cardsWrapper {
-  position: relative;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform;
 }
 
 .cardContainer {
-  position: absolute;
-  width: calc(100% - 40px);
-  top: 5vh;
-  left: 20px;
-  transition:
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.5s ease;
-  will-change: transform, opacity;
+  @include flex-column;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 600px;
+  padding: 30px 20px;
+  background-color: $white;
+  border-radius: 16px;
+  box-shadow: 0px 20px 20px #171a1f3d;
+}
 
-  &.previous {
-    transform: translateX(-120%);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.active {
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 10;
-    pointer-events: auto;
-  }
-
-  &.next {
-    transform: translateX(120%);
-    opacity: 0;
-    pointer-events: none;
-  }
+.button {
+  margin: 24px 0 20px;
+  width: 100%;
 }

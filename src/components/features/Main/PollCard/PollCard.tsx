@@ -5,11 +5,18 @@ import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 type TPollCardProps = {
   title: string;
   subtitle: string;
+  imageUrl: string;
   participantCount: number;
   onStart: () => void;
 };
 
-export const PollCard = ({ title, subtitle, participantCount, onStart }: TPollCardProps) => {
+export const PollCard = ({
+  title,
+  subtitle,
+  imageUrl,
+  participantCount,
+  onStart,
+}: TPollCardProps) => {
   const formatCount = (count: number): string => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}K`;
@@ -18,7 +25,15 @@ export const PollCard = ({ title, subtitle, participantCount, onStart }: TPollCa
   };
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      style={{
+        backgroundImage: `url(${imageUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className={styles.overlay} />
       <h2 className={styles.title}>{title}</h2>
       <p className={styles.subtitle}>{subtitle}</p>
 

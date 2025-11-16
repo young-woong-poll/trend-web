@@ -1,5 +1,6 @@
 import { Archivo } from 'next/font/google';
 
+import { ModalProvider } from '@/contexts/ModalContext';
 import { MSWProvider } from '@/providers/MSWProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body className={archivo.variable}>
         <MSWProvider>
           <QueryProvider>
-            {children}
-            <div id="portal-root" />
+            <ModalProvider>
+              {children}
+              <div id="portal-root" />
+            </ModalProvider>
           </QueryProvider>
         </MSWProvider>
       </body>

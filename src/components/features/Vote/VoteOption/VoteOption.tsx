@@ -5,26 +5,14 @@ import type { FC } from 'react';
 import styles from '@/components/features/Vote/VoteOption/VoteOption.module.scss';
 
 interface VoteOptionProps {
-  /**
-   * 투표 옵션 텍스트
-   */
-  text: string;
-  /**
-   * 배경 이미지 URL
-   */
+  title: string;
   imageUrl: string;
-  /**
-   * 선택 여부
-   */
   isSelected?: boolean;
-  /**
-   * 클릭 이벤트 핸들러
-   */
   onClick?: () => void;
 }
 
 export const VoteOption: FC<VoteOptionProps> = ({
-  text,
+  title,
   imageUrl,
   isSelected = false,
   onClick,
@@ -36,6 +24,6 @@ export const VoteOption: FC<VoteOptionProps> = ({
     style={{ backgroundImage: `url(${imageUrl})` }}
   >
     <div className={styles.overlay} />
-    <span className={styles.text}>{text}</span>
+    <span className={styles.title}>{title}</span>
   </button>
 );

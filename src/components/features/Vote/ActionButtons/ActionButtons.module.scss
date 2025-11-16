@@ -18,12 +18,8 @@
   cursor: pointer;
   @include transition(transform, 0.2s);
 
-  &:hover {
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
+  &:disabled {
+    cursor: default;
   }
 }
 
@@ -36,10 +32,10 @@
   border-radius: 50%;
   background-color: $color4-500;
   color: $white;
-  @include transition(background-color, 0.2s);
 
-  .button:hover & {
-    background-color: $color4-600;
+  .button:disabled & {
+    background-color: $neutral-300;
+    color: #fff;
   }
 
   svg {
@@ -53,4 +49,8 @@
   font-weight: 600;
   color: $color4-500;
   text-align: center;
+
+  .button:disabled & {
+    color: $neutral-300;
+  }
 }

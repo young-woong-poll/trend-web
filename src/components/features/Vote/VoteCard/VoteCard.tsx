@@ -1,131 +1,88 @@
 'use client';
 
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 
-import StartArrowIcon from '@/assets/icon/StartArrowIcon';
-import { Button } from '@/components/common/Button';
-import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { ResultVoteOption } from '@/components/features/Vote/ResultVoteOption';
 import styles from '@/components/features/Vote/VoteCard/VoteCard.module.scss';
 import { VoteOption } from '@/components/features/Vote/VoteOption';
-
-interface VoteOptionType {
-  id: number;
-  text: string;
-  imageUrl: string;
-  // TODO : 제거
-  show?: boolean;
-}
-
-interface VoteResult {
-  optionId: number;
-  voteCount: number;
-  percentage: number;
-}
+import type { TrendOption } from '@/types/trend';
 
 interface VoteCardProps {
-  /**
-   * 카드 제목
-   */
   title: string;
-  /**
-   * 카드 부제목
-   */
-  subtitle: string;
-  /**
-   * 투표 옵션 리스트
-   */
-  options: VoteOptionType[];
-  /**
-   * 선택된 옵션 ID
-   */
-  selectedOptionId: number | null;
-  /**
-   * 옵션 선택 핸들러
-   */
-  onOptionSelect: (id: number) => void;
-  /**
-   * 다음 버튼 클릭 핸들러
-   */
-  onNext: () => void;
-  /**
-   * 댓글 버튼 클릭 핸들러
-   */
-  onCommentClick?: () => void;
-  /**
-   * 링크 복사 버튼 클릭 핸들러
-   */
-  onLinkCopyClick?: () => void;
-  /**
-   * 댓글 수
-   */
-  commentCount?: number;
-  /**
-   * 투표 결과 데이터
-   */
-  results?: VoteResult[];
+  label: string;
+  options: TrendOption[];
+  selectedOptionId: string | null;
+  onOptionSelect: (id: string) => void;
+  voteCountMap: Record<string, number>;
 }
 
 export const VoteCard: FC<VoteCardProps> = ({
   title,
-  subtitle,
+  label,
   options,
   selectedOptionId,
   onOptionSelect,
-  onNext,
-  onCommentClick,
-  onLinkCopyClick,
-  commentCount = 0,
-  results = [],
+  voteCountMap,
 }) => {
-  const getResultForOption = (optionId: number) => results.find((r) => r.optionId === optionId);
+  const [isFlipping, setIsFlipping] = useState(false);
+
+  const handleOptionClick = (optionId: string) => {
+    if (selectedOptionId || isFlipping) {
+      return;
+    } // 이미 선택한 경우 또는 애니메이션 중인 경우 무시
+
+    // 모든 카드 뒤집기 시작
+    setIsFlipping(true);
+
+    // 애니메이션 완료 후 선택 처리
+    setTimeout(() => {
+      onOptionSelect(optionId);
+    }, 300); // flip 애니메이션 시간과 맞춤
+  };
+
+  const voteCounts = options.map((option) => voteCountMap[option.id] || 0);
+  const maxVoteCount = Math.max(...voteCounts);
+  const hasWinner = voteCounts.filter((count) => count === maxVoteCount).length === 1;
 
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <h1 className={styles.title}>{title}</h1>
-        <p className={styles.subtitle}>{subtitle}</p>
+        <p className={styles.label}>{label}</p>
       </div>
 
       <div className={styles.options}>
         {options.map((option) => {
-          if (option.show) {
-            const result = getResultForOption(option.id);
+          const isFlipped = isFlipping || !!selectedOptionId;
 
-            return (
-              <ResultVoteOption
-                key={option.id}
-                text={option.text}
-                imageUrl={option.imageUrl}
-                voteCount={result?.voteCount || 0}
-                percentage={result?.percentage || 0}
-                isSelected={true}
-              />
-            );
-          } else {
-            return (
-              <VoteOption
-                key={option.id}
-                text={option.text}
-                imageUrl={option.imageUrl}
-                isSelected={selectedOptionId === option.id}
-                onClick={() => onOptionSelect(option.id)}
-              />
-            );
-          }
+          return (
+            <div key={option.id} className={styles.flipContainer}>
+              <div className={`${styles.flipInner} ${isFlipped ? styles.flipped : ''}`}>
+                {/* 앞면: VoteOption */}
+                <div className={styles.flipFront}>
+                  <VoteOption
+                    title={option.title}
+                    imageUrl={option.imageUrl}
+                    isSelected={false}
+                    onClick={() => handleOptionClick(option.id)}
+                  />
+                </div>
+
+                {/* 뒷면: ResultVoteOption */}
+                <div className={styles.flipBack}>
+                  <ResultVoteOption
+                    title={option.title}
+                    imageUrl={option.imageUrl}
+                    voteCount={voteCountMap[option.id] || 0}
+                    percentage={50}
+                    showCrown={hasWinner && (voteCountMap[option.id] || 0) === maxVoteCount}
+                  />
+                </div>
+              </div>
+            </div>
+          );
         })}
       </div>
-
-      <Button variant="gradient" height={48} onClick={onNext} fullWidth className={styles.button}>
-        다음
-        <StartArrowIcon />
-      </Button>
-
-      <ActionButtons
-        commentCount={commentCount}
-        onCommentClick={onCommentClick}
-        onLinkCopyClick={onLinkCopyClick}
-      />
     </div>
   );
 };
