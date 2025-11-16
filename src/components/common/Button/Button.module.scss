@@ -51,11 +51,11 @@
 }
 
 .secondary {
-  background-color: $secondary-color;
+  background-color: $neutral-400;
   color: white;
 
   &:hover {
-    background-color: $secondary-color;
+    background-color: $neutral-500;
   }
 }
 
