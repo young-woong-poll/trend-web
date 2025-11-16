@@ -10,7 +10,7 @@ interface ResultVoteOptionProps {
   imageUrl: string;
   voteCount: number;
   percentage: number;
-  isSelected?: boolean;
+  showCrown?: boolean;
 }
 
 export const ResultVoteOption: FC<ResultVoteOptionProps> = ({
@@ -18,10 +18,10 @@ export const ResultVoteOption: FC<ResultVoteOptionProps> = ({
   imageUrl,
   voteCount,
   percentage,
-  isSelected = true,
+  showCrown = false,
 }) => (
   <div className={styles.container}>
-    {isSelected && (
+    {showCrown && (
       <div className={styles.crown}>
         <CrownIcon width={40} height={40} />
       </div>

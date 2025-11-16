@@ -40,6 +40,10 @@ export const VoteCard: FC<VoteCardProps> = ({
     }, 300); // flip 애니메이션 시간과 맞춤
   };
 
+  const voteCounts = options.map((option) => voteCountMap[option.id] || 0);
+  const maxVoteCount = Math.max(...voteCounts);
+  const hasWinner = voteCounts.filter((count) => count === maxVoteCount).length === 1;
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -71,7 +75,7 @@ export const VoteCard: FC<VoteCardProps> = ({
                     imageUrl={option.imageUrl}
                     voteCount={voteCountMap[option.id] || 0}
                     percentage={50}
-                    isSelected={selectedOptionId === option.id}
+                    showCrown={hasWinner && (voteCountMap[option.id] || 0) === maxVoteCount}
                   />
                 </div>
               </div>
