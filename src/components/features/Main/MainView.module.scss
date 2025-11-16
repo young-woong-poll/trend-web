@@ -3,7 +3,6 @@
 
 .container {
   @include flex-column;
-  @include flex-center;
   min-height: 100vh;
   padding: $spacing-24;
 
