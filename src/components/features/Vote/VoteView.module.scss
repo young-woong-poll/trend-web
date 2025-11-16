@@ -5,61 +5,28 @@
   @include flex-column;
   min-height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 .content {
-  width: 100%;
-  padding: 24px 10px;
-  @include flex-column;
-  justify-content: center;
-  align-items: center;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 40px;
   padding: 30px 20px;
-  min-height: calc(100vh - 7px); // ProgressBar 높이만큼 빼기
-  overflow-y: auto;
-  position: relative;
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform;
 }
 
 .cardContainer {
-  position: absolute;
-  width: calc(100% - 40px);
-  top: 5vh;
-  transition:
-    transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.5s ease;
-  will-change: transform, opacity;
   @include flex-column;
-  max-width: 480px;
-  margin: 0 auto;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 600px;
   padding: 30px 20px;
   background-color: $white;
   border-radius: 16px;
-  box-shadow: 0px 17px 35px #171a1f3d;
-
-  // 스크롤바 숨기기
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-
-  &.previous {
-    transform: translateX(-120%);
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.active {
-    transform: translateX(0);
-    opacity: 1;
-    z-index: 10;
-    pointer-events: auto;
-  }
-
-  &.next {
-    transform: translateX(120%);
-    opacity: 0;
-    pointer-events: none;
-  }
+  box-shadow: 0px 20px 20px #171a1f3d;
 }
 
 .button {

@@ -82,17 +82,15 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
           currentStep={currentCardIndex}
           totalSteps={items.length || DEFAULT_NUM_OF_ITEMS}
         />
-        <div className={styles.content}>
+        <div
+          className={styles.content}
+          style={{
+            transform: `translateX(calc(-${currentCardIndex} * 100%))`,
+          }}
+        >
           {items.length > 0 &&
-            items.map((item, index) => (
-              <div
-                key={item.id}
-                className={`${styles.cardContainer} ${
-                  index === currentCardIndex ? styles.active : ''
-                } ${index < currentCardIndex ? styles.previous : ''} ${
-                  index > currentCardIndex ? styles.next : ''
-                }`}
-              >
+            items.map((item) => (
+              <div key={item.id} className={styles.cardContainer}>
                 <VoteCard
                   title={item.title}
                   label={item.label}
