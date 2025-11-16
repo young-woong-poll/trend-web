@@ -11,11 +11,19 @@ export const trendKeys = {
 };
 
 /**
- * Trend 현재 투표 수 조회 Hook
+ * Trend 투표 수를 Map 형태로 조회하는 Hook
  */
 export const useTrendVoteCount = (trendId: string, enabled = true) =>
   useQuery({
     queryKey: trendKeys.voteCount(trendId),
     queryFn: () => trendApi.getTrendVoteCount(trendId),
     enabled,
+    select: (data) =>
+      data.options.reduce(
+        (acc, option) => ({
+          ...acc,
+          [option.id]: option.count,
+        }),
+        {} as Record<string, number>
+      ),
   });

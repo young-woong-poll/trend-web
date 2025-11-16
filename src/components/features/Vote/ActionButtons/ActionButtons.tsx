@@ -7,27 +7,25 @@ import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 
 interface ActionButtonsProps {
-  /**
-   * 댓글 수
-   */
   commentCount: number;
-  /**
-   * 댓글 버튼 클릭 핸들러
-   */
   onCommentClick?: () => void;
-  /**
-   * 링크 복사 버튼 클릭 핸들러
-   */
   onLinkCopyClick?: () => void;
+  commentDisabled?: boolean;
 }
 
 export const ActionButtons: FC<ActionButtonsProps> = ({
   commentCount,
   onCommentClick,
   onLinkCopyClick,
+  commentDisabled = false,
 }) => (
   <div className={styles.container}>
-    <button type="button" className={styles.button} onClick={onCommentClick}>
+    <button
+      type="button"
+      className={styles.button}
+      onClick={onCommentClick}
+      disabled={commentDisabled}
+    >
       <div className={styles.icon}>
         <CommentIcon />
       </div>

@@ -20,8 +20,13 @@
   }
 
   &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    background-color: $neutral-300 !important;
+    color: #fff !important;
+    cursor: default !important;
+
+    &:hover svg[data-arrow='true'] {
+      transform: none;
+    }
   }
 
   // 아이콘 스타일 (SVG에 적용)
@@ -79,6 +84,15 @@
 
   &:active {
     transform: translateY(0);
+  }
+
+  &:disabled {
+    background: $neutral-300 !important;
+    box-shadow: none !important;
+
+    &:hover {
+      transform: none;
+    }
   }
 }
 
