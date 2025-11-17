@@ -7,6 +7,7 @@ interface ConfirmState {
   confirmText?: string;
   cancelText?: string;
   onConfirm?: () => void;
+  onCancel?: () => void;
 }
 
 export const useConfirm = () => {
@@ -25,6 +26,7 @@ export const useConfirm = () => {
       confirmText?: string;
       cancelText?: string;
       onConfirm?: () => void;
+      onCancel?: () => void;
     }
   ) => {
     setConfirmState({
@@ -34,6 +36,7 @@ export const useConfirm = () => {
       confirmText: options?.confirmText || '확인',
       cancelText: options?.cancelText || '취소',
       onConfirm: options?.onConfirm,
+      onCancel: options?.onCancel,
     });
   };
 
@@ -49,6 +52,9 @@ export const useConfirm = () => {
   };
 
   const handleCancel = () => {
+    if (confirmState.onCancel) {
+      confirmState.onCancel();
+    }
     hideConfirm();
   };
 

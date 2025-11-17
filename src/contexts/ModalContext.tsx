@@ -21,6 +21,7 @@ interface ModalContextType {
       confirmText?: string;
       cancelText?: string;
       onConfirm?: () => void;
+      onCancel?: () => void;
     }
   ) => void;
   hideConfirm: () => void;
