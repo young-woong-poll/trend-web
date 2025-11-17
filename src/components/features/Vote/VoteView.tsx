@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
-
-import { useRouter } from 'next/navigation';
+import { useState, type FC } from 'react';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import InfoIcon from '@/assets/icon/InfoIcon';
@@ -23,54 +21,12 @@ type TVoteViewProps = {
 const DEFAULT_NUM_OF_ITEMS = 5;
 
 export const VoteView: FC<TVoteViewProps> = ({ type }) => {
-  const router = useRouter();
-
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string | null>>({});
-  const { showToast, showConfirm, showAlert } = useModal();
+  const { showToast, showAlert } = useModal();
 
   const { data: { items = [] } = {} } = useTrendDisplay(type);
   const { data: voteCountMap = {} } = useTrendVoteCount(type);
-
-  console.log('items : ', items);
-  console.log('voteCountMap : ', voteCountMap);
-
-  // 뒤로가기 이벤트 처리
-  useEffect(() => {
-    let isConfirming = false;
-
-    const handlePopState = () => {
-      if (isConfirming) {
-        return;
-      }
-
-      isConfirming = true;
-
-      showConfirm('투표가 저장되지 않습니다.', {
-        message: '투표를 그만두시겠습니까?',
-        confirmText: '그만두기',
-        cancelText: '취소',
-        onConfirm: () => {
-          isConfirming = true;
-          // popstate 리스너를 제거한 후 뒤로가기
-          window.removeEventListener('popstate', handlePopState);
-          router.back();
-        },
-      });
-
-      // 취소를 누르면 다시 히스토리 추가
-      window.history.pushState(null, '', window.location.href);
-      isConfirming = false;
-    };
-
-    // 페이지 진입 시 히스토리 추가
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [router, showConfirm]);
 
   const handleOptionSelect = (cardId: string, optionId: string) => {
     setSelectedOptions((prev) => ({
@@ -91,9 +47,16 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
         confirmText: '확인',
         cancelText: '나중에 하기',
         onConfirm: (nickname) => {
-          // eslint-disable-next-line no-console
           console.log('모든 투표 완료:', selectedOptions, '닉네임:', nickname);
           // TODO: 결과 페이지로 이동
+          // nickname 매핑 & 결과전송 & uuid 받아오기
+
+          // 일단 결과페이지로 보내고 로딩을 결과페이지에서 보여주기!?
+          // 그러려면 uuid 를 먼저 받아와야하는데!
+        },
+        onCancel: () => {
+          // 결과전송 & uuid 받아오기
+          console.log('onCancel');
         },
       });
     }
