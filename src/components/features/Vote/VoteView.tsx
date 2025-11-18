@@ -95,7 +95,33 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
           return;
         }
 
-        router.push(`/vote/${type}/result`);
+        const voteResults = items.map((item) => {
+          const selectedOptionId = selectedOptions[item.id];
+          const selectedOption = item.options.find((opt) => opt.id === selectedOptionId);
+          return {
+            itemId: item.id,
+            question: item.title,
+            options: item.options.map((opt) => opt.title),
+            selectedOptionId: selectedOptionId || null,
+            selectedOptionTitle: selectedOption?.title || null,
+          };
+        });
+
+        const storageKey = `vote_${type}_${Date.now()}`;
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            type,
+            nickname: trimmed,
+            results: voteResults,
+            timestamp: Date.now(),
+          })
+        );
+
+        localStorage.setItem(`vote_${type}_latest`, storageKey);
+
+        // TODO: 서버에 결과 생성 API 연동 후 resultId로 이동
+        router.push(`/vote/${type}/result?key=${storageKey}`);
       },
     });
   };

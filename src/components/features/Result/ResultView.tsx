@@ -1,5 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
+import { useSearchParams } from 'next/navigation';
+
 import { Header } from '@/components/common/Header/Header';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
@@ -11,7 +15,23 @@ interface ResultViewProps {
   type: string;
 }
 
-const questions = [
+interface VoteResult {
+  itemId: string;
+  question: string;
+  options: string[];
+  selectedOptionId: string | null;
+  selectedOptionTitle: string | null;
+}
+
+interface StoredVoteData {
+  type: string;
+  nickname: string;
+  results: VoteResult[];
+  timestamp: number;
+}
+
+// 기본 questions (fallback용)
+const defaultQuestions = [
   {
     question: '당신은 어떤 이성에게 끌리나요?',
     options: ['안끌리는 모범생', '끌리는 양아치'] as [string, string],
@@ -24,7 +44,7 @@ const questions = [
   },
   {
     question: '연인에게 중요한 것은 무엇인가요?',
-    options: ['평범한데 성격 좋음', '성격보란 얼굴'] as [string, string],
+    options: ['평범한데 성격 좋음', '성격보단 얼굴'] as [string, string],
     selectedIndex: 1,
   },
   {
@@ -107,22 +127,68 @@ const mockComparisonDetail = {
   ],
 };
 
-export const ResultView = ({ type: _type }: ResultViewProps) => (
-  <div className={styles.container}>
-    <Header />
-    <div className={styles.content}>
-      <TypeCard questions={questions} />
+export const ResultView = ({ type: _type }: ResultViewProps) => {
+  const searchParams = useSearchParams();
+  const [voteData, setVoteData] = useState<StoredVoteData | null>(null);
 
-      <CompareLinkCard friendResults={mockFriendResults} />
+  useEffect(() => {
+    const key = searchParams.get('key');
+    const storageKey = key || `vote_${_type}_latest`;
 
-      <CopyUrlCard />
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const data: StoredVoteData = JSON.parse(stored);
+        setVoteData(data);
+      } else {
+        setVoteData(null);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load vote data:', error);
+    }
+  }, [searchParams, _type]);
 
-      <ComparisonCard
-        friendNickname={mockComparisonDetail.friendNickname}
-        matchCount={mockComparisonDetail.matchCount}
-        totalCount={mockComparisonDetail.totalCount}
-        comparisons={mockComparisonDetail.comparisons}
-      />
+  const questions =
+    voteData?.results.map((result) => {
+      const selectedIndex = result.selectedOptionTitle
+        ? result.options.findIndex((opt) => opt === result.selectedOptionTitle)
+        : -1;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        'Question:',
+        result.question,
+        'Selected:',
+        result.selectedOptionTitle,
+        'Index:',
+        selectedIndex
+      );
+
+      return {
+        question: result.question,
+        options: result.options as [string, string],
+        selectedIndex: selectedIndex >= 0 ? selectedIndex : 0,
+      };
+    }) || defaultQuestions;
+
+  return (
+    <div className={styles.container}>
+      <Header />
+      <div className={styles.content}>
+        <TypeCard questions={questions} />
+
+        <CompareLinkCard friendResults={mockFriendResults} />
+
+        <CopyUrlCard />
+
+        <ComparisonCard
+          friendNickname={mockComparisonDetail.friendNickname}
+          matchCount={mockComparisonDetail.matchCount}
+          totalCount={mockComparisonDetail.totalCount}
+          comparisons={mockComparisonDetail.comparisons}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};

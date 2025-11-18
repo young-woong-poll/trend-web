@@ -59,13 +59,13 @@ export const useAlert = () => {
   };
 
   const handleConfirm = (value?: string) => {
-    setAlertState((prev) => {
-      const onConfirmCallback = prev.onConfirm;
-      if (onConfirmCallback) {
+    const onConfirmCallback = alertState.onConfirm;
+    hideAlert();
+    if (onConfirmCallback) {
+      setTimeout(() => {
         onConfirmCallback(value);
-      }
-      return { ...prev, isOpen: false };
-    });
+      }, 0);
+    }
   };
 
   const handleCancel = () => {
