@@ -107,10 +107,9 @@ const mockComparisonDetail = {
   ],
 };
 
-export const ResultView = ({ type }: ResultViewProps) => (
+export const ResultView = ({ type: _type }: ResultViewProps) => (
   <div className={styles.container}>
     <Header />
-    {type}
     <div className={styles.content}>
       <TypeCard questions={questions} />
 

@@ -32,9 +32,6 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
   const { data: { items = [] } = {} } = useTrendDisplay(type);
   const { data: voteCountMap = {} } = useTrendVoteCount(type);
 
-  console.log('items : ', items);
-  console.log('voteCountMap : ', voteCountMap);
-
   // 뒤로가기 이벤트 처리
   useEffect(() => {
     let isConfirming = false;
@@ -82,21 +79,25 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
   const handleNext = () => {
     if (currentCardIndex < items.length - 1) {
       setCurrentCardIndex((prev) => prev + 1);
-    } else {
-      // 마지막 카드에서 닉네임 입력 Alert 표시
-      showAlert('닉네임 입력', {
-        message: '링크를 보낸 친구에게 보여질 이름을 입력해주세요!',
-        inputType: 'text',
-        inputPlaceholder: '닉네임을 입력해주세요',
-        confirmText: '확인',
-        cancelText: '나중에 하기',
-        onConfirm: (nickname) => {
-          // eslint-disable-next-line no-console
-          console.log('모든 투표 완료:', selectedOptions, '닉네임:', nickname);
-          // TODO: 결과 페이지로 이동
-        },
-      });
+      return;
     }
+
+    showAlert('닉네임 입력', {
+      message: '링크를 보낸 친구에게 보여질 이름을 입력해주세요!',
+      inputType: 'text',
+      inputPlaceholder: '닉네임을 입력해주세요',
+      confirmText: '확인',
+      cancelText: '나중에 하기',
+      onConfirm: (nickname) => {
+        const trimmed = nickname?.trim();
+        if (!trimmed) {
+          showToast('닉네임을 입력해주세요');
+          return;
+        }
+
+        router.push(`/vote/${type}/result`);
+      },
+    });
   };
 
   const handleCommentClick = () => {

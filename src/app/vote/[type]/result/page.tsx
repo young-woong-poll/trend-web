@@ -1,11 +1,12 @@
 import { ResultView } from '@/components/features/Result/ResultView';
 
 interface ResultPageProps {
-  params: {
+  params: Promise<{
     type: string;
-  };
+  }>;
 }
 
-export default function ResultPage({ params }: ResultPageProps) {
-  return <ResultView type={params.type} />;
+export default async function ResultPage({ params }: ResultPageProps) {
+  const { type } = await params;
+  return <ResultView type={type} />;
 }
