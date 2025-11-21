@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
+import { useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -27,47 +27,10 @@ export const VoteView: FC<TVoteViewProps> = ({ type }) => {
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string | null>>({});
-  const { showToast, showConfirm, showAlert } = useModal();
+  const { showToast, showAlert } = useModal();
 
   const { data: { items = [] } = {} } = useTrendDisplay(type);
   const { data: voteCountMap = {} } = useTrendVoteCount(type);
-
-  // 뒤로가기 이벤트 처리
-  useEffect(() => {
-    let isConfirming = false;
-
-    const handlePopState = () => {
-      if (isConfirming) {
-        return;
-      }
-
-      isConfirming = true;
-
-      showConfirm('투표가 저장되지 않습니다.', {
-        message: '투표를 그만두시겠습니까?',
-        confirmText: '그만두기',
-        cancelText: '취소',
-        onConfirm: () => {
-          isConfirming = true;
-          // popstate 리스너를 제거한 후 뒤로가기
-          window.removeEventListener('popstate', handlePopState);
-          router.back();
-        },
-      });
-
-      // 취소를 누르면 다시 히스토리 추가
-      window.history.pushState(null, '', window.location.href);
-      isConfirming = false;
-    };
-
-    // 페이지 진입 시 히스토리 추가
-    window.history.pushState(null, '', window.location.href);
-    window.addEventListener('popstate', handlePopState);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-    };
-  }, [router, showConfirm]);
 
   const handleOptionSelect = (cardId: string, optionId: string) => {
     setSelectedOptions((prev) => ({
