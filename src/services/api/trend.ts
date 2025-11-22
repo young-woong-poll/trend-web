@@ -8,6 +8,7 @@ import type { AxiosResponse } from 'axios';
  */
 export const trendApi = {
   /**
+   * TODO API : 변경
    * Trend 현재 투표 수 조회
    * GET /api/v1/trend/${trendId}
    */

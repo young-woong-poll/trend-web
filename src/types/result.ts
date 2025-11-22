@@ -6,7 +6,7 @@
  * Result 생성 요청
  */
 export interface CreateResultRequest {
-  selectedItems: string[];
+  selectedItems: { itemId: string; optionId: string }[];
   invitationId?: string;
   nickname?: string;
 }
