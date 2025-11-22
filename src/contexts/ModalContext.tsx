@@ -4,16 +4,28 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 import { Alert } from '@/components/common/Alert/Alert';
 import { Confirm } from '@/components/common/Confirm/Confirm';
+import { Modal } from '@/components/common/Modal/Modal';
 import { Toast } from '@/components/common/Toast';
 import { useAlert } from '@/hooks/useAlert';
 import { useConfirm } from '@/hooks/useConfirm';
+import { useCustomModal } from '@/hooks/useCustomModal';
 import { useToast } from '@/hooks/useToast';
 
 interface ModalContextType {
   // Toast
   showToast: (message: string, icon?: ReactNode) => void;
   hideToast: () => void;
-  // Confirm
+  // Alert - 알림용 (확인 버튼만)
+  showAlert: (
+    title: string,
+    options?: {
+      message?: string;
+      confirmText?: string;
+      onConfirm?: () => void;
+    }
+  ) => void;
+  hideAlert: () => void;
+  // Confirm - 의사결정용 (확인/취소 버튼)
   showConfirm: (
     title: string,
     options?: {
@@ -21,28 +33,13 @@ interface ModalContextType {
       confirmText?: string;
       cancelText?: string;
       onConfirm?: () => void;
-    }
-  ) => void;
-  hideConfirm: () => void;
-  // Alert
-  showAlert: (
-    title: string,
-    options?: {
-      message?: string;
-      confirmText?: string;
-      cancelText?: string;
-      inputType?: 'text' | 'number';
-      inputPlaceholder?: string;
-      inputValue?: string;
-      inputError?: string;
-      inputMaxLength?: number;
-      onConfirm?: (value?: string) => void;
       onCancel?: () => void;
     }
   ) => void;
-  hideAlert: () => void;
-  updateInputError: (error?: string) => void;
-  updateInputValue: (value: string) => void;
+  hideConfirm: () => void;
+  // CustomModal - 커스텀 content용
+  showModal: (content: ReactNode, options?: { onClose?: () => void }) => void;
+  hideModal: () => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -62,27 +59,20 @@ interface ModalProviderProps {
 export const ModalProvider = ({ children }: ModalProviderProps) => {
   const { toast, showToast, hideToast } = useToast();
   const { confirmState, showConfirm, hideConfirm, handleConfirm, handleCancel } = useConfirm();
-  const {
-    alertState,
-    showAlert,
-    hideAlert,
-    handleConfirm: handleAlertConfirm,
-    handleCancel: handleAlertCancel,
-    updateInputError,
-    updateInputValue,
-  } = useAlert();
+  const { alertState, showAlert, hideAlert, handleConfirm: handleAlertConfirm } = useAlert();
+  const { modalState, showModal, hideModal, handleClose } = useCustomModal();
 
   return (
     <ModalContext.Provider
       value={{
         showToast,
         hideToast,
-        showConfirm,
-        hideConfirm,
         showAlert,
         hideAlert,
-        updateInputError,
-        updateInputValue,
+        showConfirm,
+        hideConfirm,
+        showModal,
+        hideModal,
       }}
     >
       {/* 전역 모달 컴포넌트들 */}
@@ -92,6 +82,15 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
         isVisible={toast.isVisible}
         onClose={hideToast}
       />
+      {/* Alert 컴포넌트들 */}
+      <Alert
+        isOpen={alertState.isOpen}
+        title={alertState.title}
+        message={alertState.message}
+        confirmText={alertState.confirmText}
+        onConfirm={handleAlertConfirm}
+      />
+      {/* Confirm 컴포넌트들 */}
       <Confirm
         isOpen={confirmState.isOpen}
         title={confirmState.title}
@@ -101,21 +100,10 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
         onConfirm={handleConfirm}
         onCancel={handleCancel}
       />
-      <Alert
-        isOpen={alertState.isOpen}
-        title={alertState.title}
-        message={alertState.message}
-        confirmText={alertState.confirmText}
-        cancelText={alertState.cancelText}
-        inputType={alertState.inputType}
-        inputPlaceholder={alertState.inputPlaceholder}
-        inputValue={alertState.inputValue}
-        inputError={alertState.inputError}
-        inputMaxLength={alertState.inputMaxLength}
-        onConfirm={handleAlertConfirm}
-        onCancel={handleAlertCancel}
-        onClose={hideAlert}
-      />
+      {/* CustomModal - 커스텀 content용 */}
+      <Modal isOpen={modalState.isOpen} onClose={handleClose} maxWidth={360}>
+        {modalState.content}
+      </Modal>
       {children}
     </ModalContext.Provider>
   );

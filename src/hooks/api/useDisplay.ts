@@ -29,6 +29,7 @@ export const useTrendDisplay = (trendId: string, enabled = true) =>
     queryKey: displayKeys.trend(trendId),
     queryFn: () => displayApi.getTrendDisplay(trendId),
     enabled,
+    throwOnError: true, // 에러 발생 시 에러 바운더리로 전파
   });
 
 /**

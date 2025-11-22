@@ -5,14 +5,7 @@ interface AlertState {
   title: string;
   message?: string;
   confirmText?: string;
-  cancelText?: string;
-  inputType?: 'text' | 'number';
-  inputPlaceholder?: string;
-  inputValue?: string;
-  inputError?: string;
-  inputMaxLength?: number;
-  onConfirm?: (value?: string) => void;
-  onCancel?: () => void;
+  onConfirm?: () => void;
 }
 
 export const useAlert = () => {
@@ -28,14 +21,7 @@ export const useAlert = () => {
     options?: {
       message?: string;
       confirmText?: string;
-      cancelText?: string;
-      inputType?: 'text' | 'number';
-      inputPlaceholder?: string;
-      inputValue?: string;
-      inputError?: string;
-      inputMaxLength?: number;
-      onConfirm?: (value?: string) => void;
-      onCancel?: () => void;
+      onConfirm?: () => void;
     }
   ) => {
     setAlertState({
@@ -43,14 +29,7 @@ export const useAlert = () => {
       title,
       message: options?.message,
       confirmText: options?.confirmText || '확인',
-      cancelText: options?.cancelText,
-      inputType: options?.inputType,
-      inputPlaceholder: options?.inputPlaceholder,
-      inputValue: options?.inputValue,
-      inputError: options?.inputError,
-      inputMaxLength: options?.inputMaxLength,
       onConfirm: options?.onConfirm,
-      onCancel: options?.onCancel,
     });
   };
 
@@ -58,29 +37,11 @@ export const useAlert = () => {
     setAlertState((prev) => ({ ...prev, isOpen: false }));
   };
 
-  const handleConfirm = (value?: string) => {
-    const onConfirmCallback = alertState.onConfirm;
-    hideAlert();
-    if (onConfirmCallback) {
-      setTimeout(() => {
-        onConfirmCallback(value);
-      }, 0);
-    }
-  };
-
-  const handleCancel = () => {
-    if (alertState.onCancel) {
-      alertState.onCancel();
+  const handleConfirm = () => {
+    if (alertState.onConfirm) {
+      alertState.onConfirm();
     }
     hideAlert();
-  };
-
-  const updateInputError = (error?: string) => {
-    setAlertState((prev) => ({ ...prev, inputError: error }));
-  };
-
-  const updateInputValue = (value: string) => {
-    setAlertState((prev) => ({ ...prev, inputValue: value }));
   };
 
   return {
@@ -88,8 +49,5 @@ export const useAlert = () => {
     showAlert,
     hideAlert,
     handleConfirm,
-    handleCancel,
-    updateInputError,
-    updateInputValue,
   };
 };
