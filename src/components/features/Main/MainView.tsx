@@ -7,15 +7,20 @@ import { useRouter } from 'next/navigation';
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { Header } from '@/components/common/Header/Header';
 import styles from '@/components/features/Main/MainView.module.scss';
+import { MainViewSkeleton } from '@/components/features/Main/MainViewSkeleton';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import { useMainDisplay } from '@/hooks/api';
 
 export const MainView: FC = () => {
   const router = useRouter();
 
-  const { data } = useMainDisplay();
+  const { data, isLoading } = useMainDisplay();
 
   const handleStartSurvey = (pollId: string) => router.push(`/vote/${pollId}`);
+
+  if (isLoading) {
+    return <MainViewSkeleton />;
+  }
 
   return (
     <>
