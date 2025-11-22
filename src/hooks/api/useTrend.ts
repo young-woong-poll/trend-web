@@ -18,6 +18,7 @@ export const useTrendVoteCount = (trendId: string, enabled = true) =>
     queryKey: trendKeys.voteCount(trendId),
     queryFn: () => trendApi.getTrendVoteCount(trendId),
     enabled,
+    throwOnError: true, // 에러 발생 시 에러 바운더리로 전파
     select: (data) =>
       data.options.reduce(
         (acc, option) => ({

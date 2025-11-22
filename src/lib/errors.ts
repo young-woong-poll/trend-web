@@ -21,3 +21,13 @@ export class VoteSubmissionError extends Error {
     this.name = 'VoteSubmissionError';
   }
 }
+
+/**
+ * API 조회 에러
+ */
+export class ApiFetchError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ApiFetchError';
+  }
+}
