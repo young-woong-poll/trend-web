@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { type FC } from 'react';
 
 import { Button } from '@/components/common/Button';
 import styles from '@/components/common/Confirm/Confirm.module.scss';
@@ -21,7 +21,7 @@ export const Confirm: FC<ConfirmProps> = ({
   isOpen,
   title,
   message,
-  confirmText = '그만두기',
+  confirmText = '확인',
   cancelText = '취소',
   onConfirm,
   onCancel,
