@@ -6,14 +6,22 @@
   max-width: 480px;
   width: 100%;
   min-height: 240px;
-}
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease;
 
-.skeleton {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  &:hover {
+    transform: translateY(-4px);
+
+    .card {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
 }
 
 .card {
@@ -24,17 +32,14 @@
   position: relative;
   min-height: 240px;
   overflow: hidden;
-  transition: opacity 0.4s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+}
 
-  &.loading {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.loaded {
-    opacity: 1;
-    pointer-events: auto;
-  }
+.backgroundImage {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
 }
 
 .overlay {

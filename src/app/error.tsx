@@ -11,10 +11,10 @@ import type { AxiosError } from 'axios';
 
 export default function Error({
   error,
-  _reset,
+  reset,
 }: {
   error: Error & { digest?: string };
-  _reset: () => void;
+  reset: () => void;
 }) {
   // 커스텀 에러 메시지 추출
   const getErrorMessage = () => {
@@ -69,8 +69,14 @@ export default function Error({
             voteboxxxxx@gmail.com
           </p>
 
+          <div className={styles.link}>
+            <Button variant="primary" fullWidth height={48} onClick={reset}>
+              다시 시도
+            </Button>
+          </div>
+
           <Link href="/" className={styles.link}>
-            <Button variant="primary" fullWidth height={48}>
+            <Button variant="secondary" fullWidth height={48}>
               홈으로 가기
             </Button>
           </Link>

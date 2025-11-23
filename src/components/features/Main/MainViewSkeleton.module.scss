@@ -1,6 +1,16 @@
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
+.container {
+  @include flex-column;
+  min-height: 100vh;
+  padding: $spacing-24;
+
+  gap: $spacing-16;
+
+  overflow: scroll;
+}
+
 .card {
   position: relative;
   max-width: 480px;
