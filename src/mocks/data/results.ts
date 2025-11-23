@@ -1,4 +1,8 @@
-import type { CreateResultResponse, ResultDisplayResponse } from '@/types/result';
+import type {
+  CreateResultResponse,
+  ResultDisplayResponse,
+  InviteeResultResponse,
+} from '@/types/result';
 
 /**
  * Result 생성 Mock 응답
@@ -107,4 +111,34 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
   compareType: '연애프로 같이봐도 안싸움',
   matchCount: 3,
   totalCount: 5,
+};
+
+export const mockResultInviteeList: InviteeResultResponse = {
+  results: [
+    {
+      nickname: '영수',
+      createdAt: '25/10/12 12:00 PM',
+      compareType: '전생에 나라를 구한 듯',
+    },
+    {
+      nickname: '웅일',
+      createdAt: '25/10/12 12:10 PM',
+      compareType: '어쩌면 운명?',
+    },
+    {
+      nickname: '친구te46',
+      createdAt: '25/10/12 12:10 PM',
+      compareType: '겸상 금지',
+    },
+    {
+      nickname: '요한',
+      createdAt: '25/10/12 12:10 PM',
+      compareType: '겸상 금지',
+    },
+    {
+      nickname: '친구1b2f',
+      createdAt: '25/10/12 12:10 PM',
+      compareType: '겸상 금지',
+    },
+  ],
 };

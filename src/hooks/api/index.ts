@@ -8,6 +8,7 @@ export {
   useMainDisplay,
   useResultDisplay,
   useTrendDisplay,
+  useResultDisplayInvitee,
 } from '@/hooks/api/useDisplay';
 
 // Trend

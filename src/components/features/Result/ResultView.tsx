@@ -11,7 +11,7 @@ import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
-import { useResultDisplay } from '@/hooks/api';
+import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
 
 interface ResultViewProps {
   type: string;
@@ -44,35 +44,6 @@ const defaultQuestions = [
     question: '연인과의 연락 빈도는 어느 정도가 적당한가요?',
     options: ['하루에 두번 전화', '한달에 한번 전화'] as [string, string],
     selectedIndex: 0,
-  },
-];
-
-// 테스트용 친구 결과 데이터
-const mockFriendResults = [
-  {
-    nickname: '제이제이홈',
-    timestamp: '25/10/12 12:00 PM',
-    comment: '어이쿠로 킹아빠도 안써주냐 어이쿠로 킹아빠도 안써주냐 킹아빠도 안써주냐',
-  },
-  {
-    nickname: '웅쓰테고',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '어이쿠로 킹아빠도 안써주냐',
-  },
-  {
-    nickname: '친구te46',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
-  },
-  {
-    nickname: '요한',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
-  },
-  {
-    nickname: '친구1b2f',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
   },
 ];
 
@@ -120,14 +91,15 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
   const id = searchParams.get('id') as string;
   const { showToast } = useModal();
 
-  const { data } = useResultDisplay(id);
+  const { data: myResult } = useResultDisplay(id);
+  const { data: friendResult } = useResultDisplayInvitee(id);
 
   return (
     <div className={styles.container}>
       <Header />
       <div className={styles.content}>
-        <TypeCard questions={data?.trend} selectedOptions={data?.selectedOptions} />
-        <CompareLinkCard friendResults={mockFriendResults} />
+        <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
+        <CompareLinkCard friendResults={friendResult?.results} />
         <CopyUrlCard
           onCopyUrl={async () => {
             const currentUrl = window.location.href;

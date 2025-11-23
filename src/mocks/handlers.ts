@@ -1,6 +1,10 @@
 import { http, HttpResponse } from 'msw';
 
-import { mockResultDisplay, mockResultDisplayWithInvite } from '@/mocks/data/results';
+import {
+  mockResultDisplay,
+  mockResultDisplayWithInvite,
+  mockResultInviteeList,
+} from '@/mocks/data/results';
 import { mockMainDisplay, mockTrendDisplay, mockTrendVoteCount } from '@/mocks/data/trends';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
@@ -54,4 +58,13 @@ export const handlers = [
     // 기본 결과 반환
     return HttpResponse.json(mockResultDisplay);
   }),
+
+  /**
+   * 초대한 친구 결과 목록 조회
+   * GET /api/v1/display/result/:resultId/invitee
+   */
+  http.get(`${baseURL}/api/v1/display/result/:resultId/invitee`, () =>
+    // 기본 결과 반환
+    HttpResponse.json(mockResultInviteeList)
+  ),
 ];

@@ -64,3 +64,16 @@ export interface SelectedItem {
   itemId: string;
   optionId: string;
 }
+
+/**
+ * 초대한 친구 결과 목록 조회
+ */
+export interface InviteeResultResponse {
+  results: InviteeResult[];
+}
+
+export interface InviteeResult {
+  nickname: string;
+  compareType: string;
+  createdAt: string;
+}
