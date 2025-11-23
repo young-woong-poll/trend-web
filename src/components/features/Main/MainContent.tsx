@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { Header } from '@/components/common/Header/Header';
-import styles from '@/components/features/Main/MainView.module.scss';
+import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import type { MainDisplayResponse } from '@/types/trend';
 
