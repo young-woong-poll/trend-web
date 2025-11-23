@@ -10,6 +10,7 @@ export const displayKeys = {
   main: () => [...displayKeys.all, 'main'] as const,
   trend: (trendId: string) => [...displayKeys.all, 'trend', trendId] as const,
   result: (resultId: string) => [...displayKeys.all, 'result', resultId] as const,
+  resultInvitee: (resultId: string) => [...displayKeys.all, 'result', resultId, 'invitee'] as const,
 };
 
 /**
@@ -39,5 +40,12 @@ export const useResultDisplay = (resultId: string, enabled = true) =>
   useQuery({
     queryKey: displayKeys.result(resultId),
     queryFn: () => displayApi.getResultDisplay(resultId),
+    enabled,
+  });
+
+export const useResultDisplayInvitee = (resultId: string, enabled = true) =>
+  useQuery({
+    queryKey: displayKeys.resultInvitee(resultId),
+    queryFn: () => displayApi.getResultDisplayInvitee(resultId),
     enabled,
   });

@@ -25,3 +25,18 @@ export const useCreateResult = () => {
     },
   });
 };
+
+/**
+ * Nickname 설정 Hook
+ */
+export const useNicknameForResult = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ resultId, nickname }: { resultId: string; nickname: string }) =>
+      resultApi.setNickname(resultId, nickname),
+    onSuccess: (data) => {
+      void queryClient.invalidateQueries({ queryKey: displayKeys.result(data.title) });
+    },
+  });
+};

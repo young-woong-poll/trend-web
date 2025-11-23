@@ -1,21 +1,13 @@
 'use client';
 
-import type { FC } from 'react';
-
+import CheckIcon from '@/assets/icon/CheckIcon';
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
-
-interface FriendResult {
-  nickname: string;
-  timestamp: string;
-  comment: string;
-}
-
-interface CompareLinkCardProps {
-  friendResults?: FriendResult[];
-}
+import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
+import { useModal } from '@/contexts/ModalContext';
+import type { InviteeResult } from '@/types/result';
 
 const ArrowIcon = () => (
   <svg
@@ -36,8 +28,21 @@ const ArrowIcon = () => (
   </svg>
 );
 
-export const CompareLinkCard: FC<CompareLinkCardProps> = ({ friendResults = [] }) => {
+export const CompareLinkCard = ({
+  friendResults,
+}: {
+  friendResults?: InviteeResult[] | undefined;
+}) => {
   const hasError = false;
+  const { showToast } = useModal();
+
+  const handleCompareLinkCopy = async () => {
+    const currentUrl = window.location.href;
+    await navigator.clipboard.writeText(currentUrl);
+    showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+  };
+
+  console.log('friendResults:', friendResults);
 
   return (
     <div className={styles.container}>
@@ -48,18 +53,18 @@ export const CompareLinkCard: FC<CompareLinkCardProps> = ({ friendResults = [] }
         친구결과 <span>(최근 10개)</span>
       </h4>
       <div className={styles.resultBox}>
-        {friendResults.length === 0 ? (
+        {friendResults?.length === 0 ? (
           <p className={styles.emptyBox}>친구들이 비교 링크로 투표하면 결과가 나와요</p>
         ) : (
           <ul className={styles.friendList}>
-            {friendResults.map((friend, index) => (
+            {friendResults?.map((friend, index) => (
               <li key={index} className={styles.friendItem}>
                 <div className={styles.friendInfo}>
                   <div className={styles.friendHeader}>
                     <span className={styles.friendNickname}>{friend.nickname}</span>
-                    <span className={styles.friendTimestamp}>{friend.timestamp}</span>
+                    <span className={styles.friendTimestamp}>{friend.createdAt}</span>
                   </div>
-                  <p className={styles.friendComment}>&quot;{friend.comment}&quot;</p>
+                  <p className={styles.friendComment}>&quot;{friend.compareType}&quot;</p>
                 </div>
                 <ArrowIcon />
               </li>
@@ -85,7 +90,7 @@ export const CompareLinkCard: FC<CompareLinkCardProps> = ({ friendResults = [] }
         />
       </div>
 
-      <Button variant="gradient" height={48} onClick={() => {}} fullWidth>
+      <Button variant="gradient" height={48} onClick={handleCompareLinkCopy} fullWidth>
         <ShareIcon />
         비교 링크 복사
       </Button>

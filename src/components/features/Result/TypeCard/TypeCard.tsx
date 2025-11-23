@@ -1,34 +1,34 @@
 'use client';
 
 import styles from '@/components/features/Result/TypeCard/TypeCard.module.scss';
+import type { ResultTrend } from '@/types/result';
 
 type TypeCardProps = {
-  questions: {
-    question: string;
-    options: [string, string];
-    selectedIndex: number;
-  }[];
+  questions: ResultTrend | undefined;
+  selectedOptions: string[] | undefined;
 };
 
-export const TypeCard = ({ questions }: TypeCardProps) => (
-  <div className={styles.content}>
-    <p className={styles.subtitle}>당신의 성향은</p>
-    <h1 className={styles.title}>낭만의 사랑꾼</h1>
+export const TypeCard = ({ questions, selectedOptions }: TypeCardProps) => (
+  <>
+    <div className={styles.content}>
+      <p className={styles.subtitle}>당신의 성향은</p>
+      <h1 className={styles.title}>낭만의 사랑꾼</h1>
 
-    {questions.map(({ question, options, selectedIndex }) => (
-      <div className={styles.section} key={question}>
-        <p className={styles.question}>{question}</p>
-        <div className={styles.options}>
-          {options.map((option, index) => (
-            <button
-              key={option}
-              className={`${styles.option} ${index === selectedIndex ? styles.selected : ''}`}
-            >
-              {option}
-            </button>
-          ))}
+      {questions?.items.map(({ title, options }) => (
+        <div className={styles.section} key={title}>
+          <p className={styles.question}>{title}</p>
+          <div className={styles.options}>
+            {options.map((option, _i) => (
+              <button
+                key={`${option.id}_` + `${_i}`}
+                className={`${styles.option} ${selectedOptions?.includes(option.id) ? styles.selected : ''}`}
+              >
+                {option.title}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
+      ))}
+    </div>
+  </>
 );

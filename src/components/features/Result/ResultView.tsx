@@ -1,36 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import { useSearchParams } from 'next/navigation';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
 import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
+import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
+import { useModal } from '@/contexts/ModalContext';
+import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
 
 interface ResultViewProps {
   type: string;
 }
 
-interface VoteResult {
-  itemId: string;
-  question: string;
-  options: string[];
-  selectedOptionId: string | null;
-  selectedOptionTitle: string | null;
-}
-
-interface StoredVoteData {
-  type: string;
-  nickname: string;
-  results: VoteResult[];
-  timestamp: number;
-}
-
 // 기본 questions (fallback용)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const defaultQuestions = [
   {
     question: '당신은 어떤 이성에게 끌리나요?',
@@ -56,35 +44,6 @@ const defaultQuestions = [
     question: '연인과의 연락 빈도는 어느 정도가 적당한가요?',
     options: ['하루에 두번 전화', '한달에 한번 전화'] as [string, string],
     selectedIndex: 0,
-  },
-];
-
-// 테스트용 친구 결과 데이터
-const mockFriendResults = [
-  {
-    nickname: '제이제이홈',
-    timestamp: '25/10/12 12:00 PM',
-    comment: '어이쿠로 킹아빠도 안써주냐 어이쿠로 킹아빠도 안써주냐 킹아빠도 안써주냐',
-  },
-  {
-    nickname: '웅쓰테고',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '어이쿠로 킹아빠도 안써주냐',
-  },
-  {
-    nickname: '친구te46',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
-  },
-  {
-    nickname: '요한',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
-  },
-  {
-    nickname: '친구1b2f',
-    timestamp: '25/10/12 12:10 PM',
-    comment: '정디 검상 금지',
   },
 ];
 
@@ -129,58 +88,25 @@ const mockComparisonDetail = {
 
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
-  const [voteData, setVoteData] = useState<StoredVoteData | null>(null);
+  const id = searchParams.get('id') as string;
+  const { showToast } = useModal();
 
-  useEffect(() => {
-    const key = searchParams.get('key');
-    const storageKey = key || `vote_${_type}_latest`;
-
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const data: StoredVoteData = JSON.parse(stored);
-        setVoteData(data);
-      } else {
-        setVoteData(null);
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to load vote data:', error);
-    }
-  }, [searchParams, _type]);
-
-  const questions =
-    voteData?.results.map((result) => {
-      const selectedIndex = result.selectedOptionTitle
-        ? result.options.findIndex((opt) => opt === result.selectedOptionTitle)
-        : -1;
-
-      // eslint-disable-next-line no-console
-      console.log(
-        'Question:',
-        result.question,
-        'Selected:',
-        result.selectedOptionTitle,
-        'Index:',
-        selectedIndex
-      );
-
-      return {
-        question: result.question,
-        options: result.options as [string, string],
-        selectedIndex: selectedIndex >= 0 ? selectedIndex : 0,
-      };
-    }) || defaultQuestions;
+  const { data: myResult } = useResultDisplay(id);
+  const { data: friendResult } = useResultDisplayInvitee(id);
 
   return (
     <div className={styles.container}>
       <Header />
       <div className={styles.content}>
-        <TypeCard questions={questions} />
-
-        <CompareLinkCard friendResults={mockFriendResults} />
-
-        <CopyUrlCard />
+        <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
+        <CompareLinkCard friendResults={friendResult?.results} />
+        <CopyUrlCard
+          onCopyUrl={async () => {
+            const currentUrl = window.location.href;
+            await navigator.clipboard.writeText(currentUrl);
+            showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+          }}
+        />
 
         <ComparisonCard
           friendNickname={mockComparisonDetail.friendNickname}

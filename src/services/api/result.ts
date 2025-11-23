@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import type { CreateResultRequest, CreateResultResponse } from '@/types/result';
+import type { CreateResultRequest, CreateResultResponse, ResultTrendItem } from '@/types/result';
 
 import type { AxiosResponse } from 'axios';
 
@@ -15,6 +15,19 @@ export const resultApi = {
     const response: AxiosResponse<CreateResultResponse> = await axiosInstance.post(
       '/api/v1/result',
       data
+    );
+    return response.data;
+  },
+
+  /**
+   * POST /api/v1/result/:resultId/nickname
+   * nickname 업데이트
+   */
+
+  setNickname: async (resultId: string, nickname: string): Promise<ResultTrendItem> => {
+    const response: AxiosResponse<ResultTrendItem> = await axiosInstance.post(
+      `/api/v1/result/${resultId}/nickname`,
+      { nickname }
     );
     return response.data;
   },
