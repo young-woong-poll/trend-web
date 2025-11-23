@@ -6,7 +6,7 @@
  * Result 생성 요청
  */
 export interface CreateResultRequest {
-  selectedItems: { itemId: string; optionId: string }[];
+  selectedItems: SelectedItem[];
   invitationId?: string;
   nickname?: string;
 }
@@ -27,13 +27,11 @@ export interface ResultTrendOption {
 }
 
 /**
- * Result 전시 - Trend 아이템
+ * Result 결과 - Trend 아이템
  */
 export interface ResultTrendItem {
   title: string;
   options: ResultTrendOption[];
-  selected: string;
-  inviterSelected?: string;
 }
 
 /**
@@ -50,9 +48,19 @@ export interface ResultDisplayResponse {
   resultLabel: string;
   resultType: string;
   trend: ResultTrend;
+  selectedOptions?: string[];
+  inviterSelectedOptions?: string[];
   nickname?: string;
   inviterNickname?: string;
   compareType?: string;
   matchCount?: number;
   totalCount?: number;
+}
+
+/**
+ * 투표 선택된 응답들
+ */
+export interface SelectedItem {
+  itemId: string;
+  optionId: string;
 }
