@@ -2,10 +2,13 @@
 
 import type { FC } from 'react';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
+import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
+import { useModal } from '@/contexts/ModalContext';
 
 interface FriendResult {
   nickname: string;
@@ -38,6 +41,13 @@ const ArrowIcon = () => (
 
 export const CompareLinkCard: FC<CompareLinkCardProps> = ({ friendResults = [] }) => {
   const hasError = false;
+  const { showToast } = useModal();
+
+  const handleCompareLinkCopy = async () => {
+    const currentUrl = window.location.href;
+    await navigator.clipboard.writeText(currentUrl);
+    showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+  };
 
   return (
     <div className={styles.container}>
@@ -85,7 +95,7 @@ export const CompareLinkCard: FC<CompareLinkCardProps> = ({ friendResults = [] }
         />
       </div>
 
-      <Button variant="gradient" height={48} onClick={() => {}} fullWidth>
+      <Button variant="gradient" height={48} onClick={handleCompareLinkCopy} fullWidth>
         <ShareIcon />
         비교 링크 복사
       </Button>

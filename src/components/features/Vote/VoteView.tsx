@@ -14,6 +14,7 @@ import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import styles from '@/components/features/Vote/VoteView.module.scss';
+import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useTrendDisplay, useTrendVoteCount } from '@/hooks/api';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -96,7 +97,7 @@ export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
     try {
       const currentUrl = window.location.href;
       await navigator.clipboard.writeText(currentUrl);
-      showToast('투표 링크가 복사되었습니다', <CheckIcon />);
+      showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon />);
     } catch (_error) {
       showToast('링크 복사에 실패했습니다', <InfoIcon />);
     }

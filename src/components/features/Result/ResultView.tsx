@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 
 import { useSearchParams } from 'next/navigation';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
 import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
+import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
+import { useModal } from '@/contexts/ModalContext';
 
 interface ResultViewProps {
   type: string;
@@ -130,6 +133,7 @@ const mockComparisonDetail = {
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
   const [voteData, setVoteData] = useState<StoredVoteData | null>(null);
+  const { showToast } = useModal();
 
   useEffect(() => {
     const key = searchParams.get('key');
@@ -180,7 +184,13 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
 
         <CompareLinkCard friendResults={mockFriendResults} />
 
-        <CopyUrlCard />
+        <CopyUrlCard
+          onCopyUrl={async () => {
+            const currentUrl = window.location.href;
+            await navigator.clipboard.writeText(currentUrl);
+            showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+          }}
+        />
 
         <ComparisonCard
           friendNickname={mockComparisonDetail.friendNickname}
