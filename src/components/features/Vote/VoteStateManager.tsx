@@ -40,7 +40,11 @@ type VoteStateManagerProps = {
   children: ReactNode;
 };
 
-export const VoteStateManager: FC<VoteStateManagerProps> = ({ trendId: _trendId, items, children }) => {
+export const VoteStateManager: FC<VoteStateManagerProps> = ({
+  trendId: _trendId,
+  items,
+  children,
+}) => {
   const searchParams = useSearchParams();
   const compare = searchParams.get('compare');
 
