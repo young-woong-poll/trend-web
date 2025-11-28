@@ -15,6 +15,7 @@ import { useVoteSubmission } from '@/hooks/useVoteSubmission';
 import type { TrendItem } from '@/types/trend';
 
 type VoteState = {
+  items: TrendItem[];
   currentItemIndex: number;
   selectedItemMap: TSelectedItemMap;
   voteCountMap: Record<string, number>;
@@ -113,6 +114,7 @@ export const VoteStateManager: FC<VoteStateManagerProps> = ({ trendId, items, ch
   };
 
   const value: VoteState = {
+    items,
     currentItemIndex,
     selectedItemMap,
     voteCountMap,
