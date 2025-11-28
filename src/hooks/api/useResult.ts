@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { displayKeys } from '@/hooks/api/useDisplay';
 import { resultApi } from '@/services/api/result';
@@ -9,6 +9,7 @@ import type { CreateResultRequest } from '@/types/result';
  */
 export const resultKeys = {
   all: ['result'] as const,
+  exists: (resultId: string) => [...resultKeys.all, 'exists', resultId] as const,
 };
 
 /**
@@ -27,16 +28,26 @@ export const useCreateResult = () => {
 };
 
 /**
+ * Result 존재 여부 확인 Hook
+ */
+export const useCheckResultExists = (resultId: string, enabled = true) =>
+  useQuery({
+    queryKey: resultKeys.exists(resultId),
+    queryFn: () => resultApi.checkResultExists(resultId),
+    enabled,
+  });
+
+/**
  * Nickname 설정 Hook
  */
-export const useNicknameForResult = () => {
+export const useSetNickname = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ resultId, nickname }: { resultId: string; nickname: string }) =>
       resultApi.setNickname(resultId, nickname),
-    onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: displayKeys.result(data.title) });
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: displayKeys.result(variables.resultId) });
     },
   });
 };

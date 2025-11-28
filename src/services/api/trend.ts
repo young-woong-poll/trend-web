@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import type { TrendVoteCountResponse } from '@/types/trend';
+import type { TrendItemOptionsResponse } from '@/types/trend';
 
 import type { AxiosResponse } from 'axios';
 
@@ -8,13 +8,17 @@ import type { AxiosResponse } from 'axios';
  */
 export const trendApi = {
   /**
-   * TODO API : 변경
-   * Trend 현재 투표 수 조회
-   * GET /api/v1/trend/${trendId}
+   * Trend 항목 옵션 카운트 조회
+   * GET /api/v1/trend/{trendId}/item/{itemId}
    */
-  getTrendVoteCount: async (trendId: string): Promise<TrendVoteCountResponse> => {
-    const response: AxiosResponse<TrendVoteCountResponse> = await axiosInstance.get(
-      `/api/v1/trend/${trendId}`
+  getTrendItemOptions: async (
+    trendId: string,
+    itemId: string,
+    size?: number
+  ): Promise<TrendItemOptionsResponse> => {
+    const response: AxiosResponse<TrendItemOptionsResponse> = await axiosInstance.get(
+      `/api/v1/trend/${trendId}/item/${itemId}`,
+      { params: { size } }
     );
     return response.data;
   },

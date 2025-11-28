@@ -7,18 +7,40 @@ import { trendApi } from '@/services/api/trend';
  */
 export const trendKeys = {
   all: ['trend'] as const,
-  voteCount: (trendId: string) => [...trendKeys.all, 'voteCount', trendId] as const,
+  itemOptions: (trendId: string, itemId: string) =>
+    [...trendKeys.all, 'itemOptions', trendId, itemId] as const,
 };
 
 /**
- * Trend 투표 수를 Map 형태로 조회하는 Hook
+ * Trend 항목 옵션 카운트 조회 Hook
  */
-export const useTrendVoteCount = (trendId: string, enabled = true) =>
+export const useTrendItemOptions = (
+  trendId: string,
+  itemId: string,
+  size?: number,
+  enabled = true
+) =>
   useQuery({
-    queryKey: trendKeys.voteCount(trendId),
-    queryFn: () => trendApi.getTrendVoteCount(trendId),
+    queryKey: trendKeys.itemOptions(trendId, itemId),
+    queryFn: () => trendApi.getTrendItemOptions(trendId, itemId, size),
     enabled,
-    throwOnError: true, // 에러 발생 시 에러 바운더리로 전파
+    throwOnError: true,
+  });
+
+/**
+ * Trend 항목 옵션 카운트를 Map 형태로 조회하는 Hook
+ */
+export const useTrendItemOptionsMap = (
+  trendId: string,
+  itemId: string,
+  size?: number,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: trendKeys.itemOptions(trendId, itemId),
+    queryFn: () => trendApi.getTrendItemOptions(trendId, itemId, size),
+    enabled,
+    throwOnError: true,
     select: (data) =>
       data.options.reduce(
         (acc, option) => ({

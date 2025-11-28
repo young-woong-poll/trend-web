@@ -8,6 +8,15 @@ export interface ApiResponse<T> {
 }
 
 /**
+ * Swagger BaseResponse 타입 (서버 응답 래핑)
+ */
+export interface BaseResponse<T> {
+  code: string;
+  message: string;
+  data: T;
+}
+
+/**
  * API 에러 응답 타입
  */
 export interface ApiError {

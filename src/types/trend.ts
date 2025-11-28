@@ -60,3 +60,52 @@ export interface TrendVoteCountOption {
 export interface TrendVoteCountResponse {
   options: TrendVoteCountOption[];
 }
+
+/**
+ * Trend 항목 옵션 카운트 응답 (개별 item)
+ */
+export interface TrendItemOptionsResponse {
+  options: TrendVoteCountOption[];
+}
+
+/**
+ * Admin: Trend 생성 - 라벨 요청
+ */
+export interface LabelRequest {
+  label: string;
+}
+
+/**
+ * Admin: Trend 생성 - 결과 타입 요청
+ */
+export interface ResultTypeRequest {
+  key: string;
+  label: string;
+}
+
+/**
+ * Admin: Trend 생성 - 메타 정보 요청
+ */
+export interface TrendMetaRequest {
+  resultLabel: string;
+  resultType: ResultTypeRequest[];
+  answerType: LabelRequest[];
+}
+
+/**
+ * Admin: Trend 생성 요청
+ */
+export interface CreateTrendRequest {
+  title: string;
+  label: string;
+  imageUrl: string;
+  electionIds: string[];
+  meta: TrendMetaRequest;
+}
+
+/**
+ * Admin: Trend 생성 응답
+ */
+export interface TrendResponse {
+  id: string;
+}

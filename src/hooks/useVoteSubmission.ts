@@ -33,6 +33,7 @@ export const useVoteSubmission = () => {
       }
 
       const { resultId } = await createResult({
+        trendId,
         selectedItems,
         invitationId,
         nickname,

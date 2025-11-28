@@ -9,7 +9,6 @@ import InfoIcon from '@/assets/icon/InfoIcon';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import type { TSelectedItemMap } from '@/components/features/Vote/VoteView';
 import { useModal } from '@/contexts/ModalContext';
-import { useTrendVoteCount } from '@/hooks/api/useTrend';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
 import type { TrendItem } from '@/types/trend';
@@ -41,7 +40,7 @@ type VoteStateManagerProps = {
   children: ReactNode;
 };
 
-export const VoteStateManager: FC<VoteStateManagerProps> = ({ trendId, items, children }) => {
+export const VoteStateManager: FC<VoteStateManagerProps> = ({ trendId: _trendId, items, children }) => {
   const searchParams = useSearchParams();
   const compare = searchParams.get('compare');
 
@@ -49,8 +48,9 @@ export const VoteStateManager: FC<VoteStateManagerProps> = ({ trendId, items, ch
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
   const { showToast, showModal } = useModal();
 
-  // 클라이언트에서 실시간 투표 수 조회
-  const { data: voteCountMap = {} } = useTrendVoteCount(trendId);
+  // TODO: API 스펙 변경으로 인해 투표 수 조회 기능 비활성화
+  // 전체 트렌드의 투표 수를 조회하는 API가 없음
+  const voteCountMap = {};
 
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
