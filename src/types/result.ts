@@ -6,6 +6,7 @@
  * Result 생성 요청
  */
 export interface CreateResultRequest {
+  trendId: string;
   selectedItems: SelectedItem[];
   invitationId?: string;
   nickname?: string;
@@ -76,4 +77,11 @@ export interface InviteeResult {
   nickname: string;
   compareType: string;
   createdAt: string;
+}
+
+/**
+ * Result 존재 여부 확인 응답
+ */
+export interface ResultExistsResponse {
+  exists: boolean;
 }

@@ -13,7 +13,7 @@ interface VoteCardProps {
   options: TrendOption[];
   selectedOptionId: string | null;
   onOptionSelect: (id: string) => void;
-  voteCountMap: Record<string, number>;
+  voteCountMap?: Record<string, number>;
 }
 
 export const VoteCard: FC<VoteCardProps> = ({
@@ -22,27 +22,27 @@ export const VoteCard: FC<VoteCardProps> = ({
   options,
   selectedOptionId,
   onOptionSelect,
-  voteCountMap,
+  voteCountMap = {},
 }) => {
   const [isFlipping, setIsFlipping] = useState(false);
 
   const handleOptionClick = (optionId: string) => {
     if (selectedOptionId || isFlipping) {
       return;
-    } // 이미 선택한 경우 또는 애니메이션 중인 경우 무시
+    }
 
-    // 모든 카드 뒤집기 시작
     setIsFlipping(true);
 
-    // 애니메이션 완료 후 선택 처리
     setTimeout(() => {
       onOptionSelect(optionId);
-    }, 300); // flip 애니메이션 시간과 맞춤
+    }, 300);
   };
 
   const voteCounts = options.map((option) => voteCountMap[option.id] || 0);
-  const maxVoteCount = Math.max(...voteCounts);
+  const maxVoteCount = Math.max(...voteCounts, 0);
   const hasWinner = voteCounts.filter((count) => count === maxVoteCount).length === 1;
+
+  const isFlipped = isFlipping || !!selectedOptionId;
 
   return (
     <div className={styles.card}>
@@ -52,36 +52,32 @@ export const VoteCard: FC<VoteCardProps> = ({
       </div>
 
       <div className={styles.options}>
-        {options.map((option) => {
-          const isFlipped = isFlipping || !!selectedOptionId;
+        {options.map((option) => (
+          <div key={option.id} className={styles.flipContainer}>
+            <div className={`${styles.flipInner} ${isFlipped ? styles.flipped : ''}`}>
+              {/* 앞면: VoteOption */}
+              <div className={styles.flipFront}>
+                <VoteOption
+                  title={option.title}
+                  imageUrl={option.imageUrl}
+                  isSelected={false}
+                  onClick={() => handleOptionClick(option.id)}
+                />
+              </div>
 
-          return (
-            <div key={option.id} className={styles.flipContainer}>
-              <div className={`${styles.flipInner} ${isFlipped ? styles.flipped : ''}`}>
-                {/* 앞면: VoteOption */}
-                <div className={styles.flipFront}>
-                  <VoteOption
-                    title={option.title}
-                    imageUrl={option.imageUrl}
-                    isSelected={false}
-                    onClick={() => handleOptionClick(option.id)}
-                  />
-                </div>
-
-                {/* 뒷면: ResultVoteOption */}
-                <div className={styles.flipBack}>
-                  <ResultVoteOption
-                    title={option.title}
-                    imageUrl={option.imageUrl}
-                    voteCount={voteCountMap[option.id] || 0}
-                    percentage={50}
-                    showCrown={hasWinner && (voteCountMap[option.id] || 0) === maxVoteCount}
-                  />
-                </div>
+              {/* 뒷면: ResultVoteOption */}
+              <div className={styles.flipBack}>
+                <ResultVoteOption
+                  title={option.title}
+                  imageUrl={option.imageUrl}
+                  voteCount={voteCountMap[option.id] || 0}
+                  percentage={50}
+                  showCrown={hasWinner && (voteCountMap[option.id] || 0) === maxVoteCount}
+                />
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );

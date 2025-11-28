@@ -14,9 +14,10 @@ import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import styles from '@/components/features/Vote/VoteView.module.scss';
+import { VoteViewSkeleton } from '@/components/features/Vote/VoteViewSkeleton';
 import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
-import { useTrendDisplay, useTrendVoteCount } from '@/hooks/api';
+import { useTrendDisplay } from '@/hooks/api';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
 
@@ -39,8 +40,11 @@ export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
   const { showToast, showModal } = useModal();
 
-  const { data: { items = [] } = {} } = useTrendDisplay(trendId);
-  const { data: voteCountMap = {} } = useTrendVoteCount(trendId);
+  const { data: { items = [] } = {}, isLoading } = useTrendDisplay(trendId);
+
+  // API 스펙 변경: 전체 투표 수 조회 API 삭제됨
+  // Item별로 개별 조회하도록 변경 필요
+  const voteCountMap = {};
 
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
@@ -102,6 +106,10 @@ export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
       showToast('링크 복사에 실패했습니다', <InfoIcon />);
     }
   };
+
+  if (isLoading) {
+    return <VoteViewSkeleton />;
+  }
 
   return (
     <FlexibleLayout>

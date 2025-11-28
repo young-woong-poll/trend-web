@@ -1,0 +1,44 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  min-height: 100vh;
+  padding: $spacing-24;
+
+  gap: $spacing-16;
+
+  overflow: scroll;
+}
+
+.card {
+  position: relative;
+  max-width: 480px;
+  width: 100%;
+  min-height: 240px;
+}
+
+.content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.textArea {
+  @include flex-column;
+  gap: 8px;
+  margin-top: 76px;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
