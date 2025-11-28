@@ -15,11 +15,17 @@ export async function generateStaticParams() {
   try {
     const mainData = await serverDisplayApi.getMainDisplay();
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!mainData?.trends) {
+      console.warn('[generateStaticParams] No trends data available');
+      return [];
+    }
+
     return mainData.trends.map((trend) => ({
       trendId: trend.id.toString(),
     }));
   } catch (error) {
-    console.error('Failed to generate static params:', error);
+    console.error('[generateStaticParams] Failed to generate static params:', error);
     // 에러 발생 시 빈 배열 반환 (동적 렌더링으로 fallback)
     return [];
   }

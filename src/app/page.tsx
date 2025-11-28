@@ -16,6 +16,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const data = await serverDisplayApi.getMainDisplay();
-  return <MainContent initialData={data} />;
+  try {
+    const data = await serverDisplayApi.getMainDisplay();
+    return <MainContent initialData={data} />;
+  } catch (error) {
+    console.error('[Home] Failed to fetch main display:', error);
+    // 빌드 시점 에러: 빈 데이터로 fallback
+    return <MainContent initialData={{ trends: [] }} />;
+  }
 }
