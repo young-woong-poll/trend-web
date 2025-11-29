@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { mockElectionDetail } from '@/mocks/data/elections';
 import {
   mockResultDisplay,
   mockResultDisplayWithInvite,
@@ -68,5 +69,13 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/result/:resultId/invitee`, () =>
     // 기본 결과 반환
     HttpResponse.json(mockResultInviteeList)
+  ),
+
+  /**
+   * Admin: 선거 상세 조회
+   * GET /admin/api/v1/elections/:electionId
+   */
+  http.get(`${baseURL}/admin/api/v1/elections/:electionId`, () =>
+    HttpResponse.json(mockElectionDetail)
   ),
 ];
