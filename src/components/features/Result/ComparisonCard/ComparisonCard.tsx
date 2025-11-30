@@ -3,33 +3,31 @@
 import type { FC } from 'react';
 
 import styles from '@/components/features/Result/ComparisonCard/ComparisonCard.module.scss';
-
-interface ComparisonItem {
-  question: string;
-  myAnswer: string;
-  friendAnswer: string;
-  isMatch: boolean;
-}
+import type { ComparisonItem } from '@/components/features/Result/ResultView';
 
 interface ComparisonCardProps {
-  friendNickname: string;
+  myName: string | undefined;
+  friendNickname: string | undefined;
   matchCount: number;
   totalCount: number;
-  comparisons: ComparisonItem[];
+  compareType: string | undefined;
+  comparisons: ComparisonItem[] | undefined;
 }
 
 export const ComparisonCard: FC<ComparisonCardProps> = ({
+  myName,
   friendNickname,
   matchCount,
   totalCount,
+  compareType,
   comparisons,
 }) => (
   <div className={styles.container}>
     <div className={styles.header}>
       <h2 className={styles.subtitle}>
-        <span className={styles.highlight}>사랑꾼 {friendNickname}</span>과
+        <span className={styles.highlight}>{friendNickname}</span>과
       </h2>
-      <h3 className={styles.title}>연애프로 같이봐도 안싸움</h3>
+      <h3 className={styles.title}>{compareType}</h3>
 
       <div className={styles.matchInfo}>
         <span className={styles.matchLabel}>매칭률</span>
@@ -48,11 +46,11 @@ export const ComparisonCard: FC<ComparisonCardProps> = ({
 
     <div className={styles.comparisonList}>
       <div className={styles.tableHeader}>
-        <span className={styles.tableHeaderLabel}>{'{닉네임}님'}</span>
+        <span className={styles.tableHeaderLabel}>{myName ? `${myName}님` : '나'}</span>
         <span className={styles.tableHeaderLabel}>사랑꾼 {friendNickname}</span>
       </div>
 
-      {comparisons.map((item, index) => (
+      {comparisons?.map((item, index) => (
         <div key={index} className={styles.comparisonItem}>
           <div className={styles.questionRow}>
             <span className={styles.questionText}>{item.question}</span>
@@ -83,10 +81,10 @@ export const ComparisonCard: FC<ComparisonCardProps> = ({
           </div>
 
           <div className={styles.answerRow}>
-            <div className={`${styles.answer} ${!item.isMatch ? styles.matched : ''}`}>
+            <div className={`${styles.answer} ${item.isMatch ? styles.matched : ''}`}>
               {item.myAnswer}
             </div>
-            <div className={`${styles.answer} ${!item.isMatch ? styles.matched : ''}`}>
+            <div className={`${styles.answer} ${item.isMatch ? styles.matched : ''}`}>
               {item.friendAnswer}
             </div>
           </div>

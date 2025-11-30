@@ -49,9 +49,9 @@ export interface ResultDisplayResponse {
   resultLabel: string;
   resultType: string;
   trend: ResultTrend;
+  nickname?: string;
   selectedOptions?: string[];
   inviterSelectedOptions?: string[];
-  nickname?: string;
   inviterNickname?: string;
   compareType?: string;
   matchCount?: number;
