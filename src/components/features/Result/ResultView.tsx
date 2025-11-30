@@ -88,18 +88,22 @@ const mockComparisonDetail = {
 
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id') as string;
+  const resultId = searchParams.get('id') as string;
   const { showToast } = useModal();
 
-  const { data: myResult } = useResultDisplay(id);
-  const { data: friendResult } = useResultDisplayInvitee(id);
+  const { data: myResult } = useResultDisplay(resultId);
+  const { data: friendResult } = useResultDisplayInvitee(resultId);
 
   return (
     <div className={styles.container}>
       <Header />
       <div className={styles.content}>
         <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
-        <CompareLinkCard friendResults={friendResult?.results} />
+        <CompareLinkCard
+          friendResults={friendResult?.results}
+          myResult={myResult}
+          resultId={resultId}
+        />
         <CopyUrlCard
           onCopyUrl={async () => {
             const currentUrl = window.location.href;

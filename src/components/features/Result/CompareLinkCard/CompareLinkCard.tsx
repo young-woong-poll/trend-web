@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import CheckIcon from '@/assets/icon/CheckIcon';
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
@@ -7,7 +9,8 @@ import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
 import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
-import type { InviteeResult } from '@/types/result';
+import { useSetNickname } from '@/hooks/api/useResult';
+import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
 
 const ArrowIcon = () => (
   <svg
@@ -30,19 +33,31 @@ const ArrowIcon = () => (
 
 export const CompareLinkCard = ({
   friendResults,
+  myResult,
+  resultId,
 }: {
   friendResults?: InviteeResult[] | undefined;
+  myResult: ResultDisplayResponse | undefined;
+  resultId: string;
 }) => {
   const hasError = false;
   const { showToast } = useModal();
+  const { mutateAsync: updateNickname } = useSetNickname();
+  const [name, setName] = useState<string | undefined>(myResult?.nickname);
+  const [needNickname, setNeedNickname] = useState<boolean>(!myResult?.nickname);
 
   const handleCompareLinkCopy = async () => {
     const currentUrl = window.location.href;
     await navigator.clipboard.writeText(currentUrl);
+    if (needNickname && name) {
+      await updateNickname({ resultId, nickname: name });
+      if (myResult) {
+        myResult.nickname = name;
+        setNeedNickname(false);
+      }
+    }
     showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
   };
-
-  console.log('friendResults:', friendResults);
 
   return (
     <div className={styles.container}>
@@ -85,14 +100,23 @@ export const CompareLinkCard = ({
         <input
           id="nickname"
           type="text"
-          placeholder="웅쓰"
+          placeholder="닉네임"
+          disabled={!needNickname}
+          defaultValue={name}
+          onChange={({ target }) => setName(target.value)}
           className={`${styles.input} ${hasError ? styles.error : ''}`}
         />
       </div>
 
-      <Button variant="gradient" height={48} onClick={handleCompareLinkCopy} fullWidth>
+      <Button
+        variant="gradient"
+        height={48}
+        onClick={handleCompareLinkCopy}
+        disabled={!name || (typeof name === 'string' && name.length === 0)}
+        fullWidth
+      >
         <ShareIcon />
-        비교 링크 복사
+        비교 링크 만들기
       </Button>
     </div>
   );
