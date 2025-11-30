@@ -43,6 +43,8 @@ export const handlers = [
     })
   ),
 
+  http.post(`${baseURL}/api/v1/result/:resultId/nickname`, () => HttpResponse.json(true)),
+
   /**
    * Result 전시 조회
    * GET /api/v1/display/result/:resultId

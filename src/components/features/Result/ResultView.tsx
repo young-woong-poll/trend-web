@@ -12,6 +12,7 @@ import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
+import type { ResultDisplayResponse } from '@/types/result';
 
 interface ResultViewProps {
   type: string;
@@ -47,72 +48,76 @@ const defaultQuestions = [
   },
 ];
 
-// 테스트용 비교 상세 데이터
-const mockComparisonDetail = {
-  friendNickname: '해지님',
-  matchCount: 3,
-  totalCount: 5,
-  comparisons: [
-    {
-      question: '선호하는 이성',
-      myAnswer: '안끌리는 모범생',
-      friendAnswer: '안끌리는 모범생',
-      isMatch: true,
-    },
-    {
-      question: '스킨십 시점',
-      myAnswer: '100일 지나고 스킨십',
-      friendAnswer: '사귀기 전에 스킨십',
-      isMatch: false,
-    },
-    {
-      question: '중요한 가치',
-      myAnswer: '성격보단 얼굴',
-      friendAnswer: '성격보단 얼굴',
-      isMatch: true,
-    },
-    {
-      question: '데이트 비용',
-      myAnswer: '돈많은 헌팅남',
-      friendAnswer: '돈많은 헌팅남',
-      isMatch: true,
-    },
-    {
-      question: '연락 빈도',
-      myAnswer: '하루에 두번 전화',
-      friendAnswer: '한달에 한번 전화',
-      isMatch: false,
-    },
-  ],
+export interface ComparisonItem {
+  myAnswer: string;
+  friendAnswer: string;
+  isMatch: boolean;
+  question: string;
+}
+
+const ComparisonWithFriend = ({ myResult }: { myResult: ResultDisplayResponse | undefined }) => {
+  const idTitle: { [key: string]: string } = {};
+
+  myResult?.trend.items.forEach((item) => {
+    item.options.forEach((option) => {
+      idTitle[option.id] = option.title;
+    });
+  });
+
+  return (
+    <ComparisonCard
+      myName={myResult?.nickname}
+      friendNickname={myResult?.inviterNickname}
+      matchCount={myResult?.matchCount ?? 0}
+      totalCount={myResult?.totalCount ?? 0}
+      compareType={myResult?.compareType}
+      comparisons={(() => {
+        const myAnswers = myResult?.selectedOptions;
+        const friendAnswers = myResult?.inviterSelectedOptions;
+        const data: ComparisonItem[] = [];
+        for (let i = 0; i < (myResult?.trend.items.length ?? 0); i += 1) {
+          data.push({
+            question: myResult?.trend.items[i].title ?? '',
+            myAnswer: idTitle[myAnswers ? myAnswers[i] : ''] ?? '',
+            friendAnswer: idTitle[friendAnswers ? friendAnswers[i] : ''] ?? '',
+            isMatch: myAnswers && friendAnswers ? myAnswers[i] === friendAnswers[i] : false,
+          });
+        }
+        return data;
+      })()}
+    />
+  );
 };
 
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id') as string;
+  const resultId = searchParams.get('id') as string;
   const { showToast } = useModal();
 
-  const { data: myResult } = useResultDisplay(id);
-  const { data: friendResult } = useResultDisplayInvitee(id);
+  const { data: myResult } = useResultDisplay(resultId);
+  const { data: resultOfFriends } = useResultDisplayInvitee(resultId);
 
   return (
     <div className={styles.container}>
       <Header />
+
       <div className={styles.content}>
-        <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
-        <CompareLinkCard friendResults={friendResult?.results} />
+        {resultId.includes('invite') ? (
+          <ComparisonWithFriend myResult={myResult as ResultDisplayResponse} />
+        ) : (
+          <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
+        )}
+        <CompareLinkCard
+          friendResults={resultOfFriends?.results}
+          myResult={myResult}
+          resultId={resultId}
+        />
         <CopyUrlCard
           onCopyUrl={async () => {
             const currentUrl = window.location.href;
             await navigator.clipboard.writeText(currentUrl);
             showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
           }}
-        />
-
-        <ComparisonCard
-          friendNickname={mockComparisonDetail.friendNickname}
-          matchCount={mockComparisonDetail.matchCount}
-          totalCount={mockComparisonDetail.totalCount}
-          comparisons={mockComparisonDetail.comparisons}
         />
       </div>
     </div>
