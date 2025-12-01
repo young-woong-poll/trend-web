@@ -117,26 +117,31 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
 export const mockResultInviteeList: InviteeResultResponse = {
   results: [
     {
+      resultId: '4',
       nickname: '영수',
       createdAt: '25/10/12 12:00 PM',
       compareType: '전생에 나라를 구한 듯',
     },
     {
+      resultId: '0',
       nickname: '웅일',
       createdAt: '25/10/12 12:10 PM',
       compareType: '어쩌면 운명?',
     },
     {
+      resultId: '1',
       nickname: '친구te46',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
+      resultId: '2',
       nickname: '요한',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
+      resultId: '3',
       nickname: '친구1b2f',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',

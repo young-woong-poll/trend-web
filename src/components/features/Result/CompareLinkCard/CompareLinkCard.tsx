@@ -7,8 +7,10 @@ import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
+import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
+import { useResultDisplay } from '@/hooks/api';
 import { useSetNickname } from '@/hooks/api/useResult';
 import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
 
@@ -31,20 +33,44 @@ const ArrowIcon = () => (
   </svg>
 );
 
+const ComparisonWithFriendModal = ({
+  resultId,
+  compareId,
+}: {
+  resultId: string;
+  compareId: string;
+}) => {
+  const { data: myResult, isPending, isError } = useResultDisplay(resultId, compareId);
+  const { hideModal } = useModal();
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>에러 발생</div>;
+  }
+
+  return (
+    <div onClick={hideModal}>
+      <ComparisonWithFriend resultWithCompareId={myResult} />
+    </div>
+  );
+};
+
 export const CompareLinkCard = ({
   friendResults,
   myResult,
   resultId,
 }: {
   friendResults?: InviteeResult[] | undefined;
-  myResult: ResultDisplayResponse | undefined;
+  myResult: ResultDisplayResponse;
   resultId: string;
 }) => {
   const hasError = false;
-  const { showToast } = useModal();
+  const { showToast, showModal } = useModal();
   const { mutateAsync: updateNickname, isPending, isSuccess } = useSetNickname();
-  const [name, setName] = useState<string | undefined>(myResult?.nickname);
-  const [needNickname, setNeedNickname] = useState<boolean>(!myResult?.nickname);
+  const [name, setName] = useState<string | undefined>(myResult.nickname);
+  const [needNickname, setNeedNickname] = useState<boolean>(!myResult.nickname);
 
   const handleLinkCopy = async () => {
     const currentUrl = window.location.href;
@@ -57,10 +83,12 @@ export const CompareLinkCard = ({
       return;
     }
     await updateNickname({ resultId, nickname: name });
-    if (myResult) {
-      myResult.nickname = name;
-      setNeedNickname(false);
-    }
+    myResult.nickname = name;
+    setNeedNickname(false);
+  };
+
+  const showComparisonWithFriendModal = (resultId: string, friendResultId: string) => {
+    showModal(<ComparisonWithFriendModal resultId={resultId} compareId={friendResultId} />);
   };
 
   return (
@@ -77,7 +105,11 @@ export const CompareLinkCard = ({
         ) : (
           <ul className={styles.friendList}>
             {friendResults?.map((friend, index) => (
-              <li key={index} className={styles.friendItem}>
+              <li
+                key={index}
+                className={styles.friendItem}
+                onClick={() => showComparisonWithFriendModal(resultId, friend.resultId)}
+              >
                 <div className={styles.friendInfo}>
                   <div className={styles.friendHeader}>
                     <span className={styles.friendNickname}>{friend.nickname}</span>

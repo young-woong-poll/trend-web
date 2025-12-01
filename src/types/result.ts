@@ -74,6 +74,7 @@ export interface InviteeResultResponse {
 }
 
 export interface InviteeResult {
+  resultId: string;
   nickname: string;
   compareType: string;
   createdAt: string;
