@@ -1,5 +1,7 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
+import type { BaseResponse } from '@/types/api';
+
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr',
   timeout: 10000,
@@ -21,7 +23,14 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // BaseResponse 구조에서 data 필드만 추출
+    if (response.data && 'data' in response.data && 'code' in response.data) {
+      const baseResponse = response.data as BaseResponse<unknown>;
+      response.data = baseResponse.data;
+    }
+    return response;
+  },
   (error: AxiosError) => {
     if (error.response) {
       // 서버가 2xx 외의 상태 코드로 응답
