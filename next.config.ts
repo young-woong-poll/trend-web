@@ -6,6 +6,19 @@ const nextConfig: NextConfig = {
   sassOptions: {
     implementation: 'sass',
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'image.votebox.kr',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+    ],
+  },
   // Enable HMR optimizations
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {

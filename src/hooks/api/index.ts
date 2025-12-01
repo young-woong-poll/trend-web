@@ -23,4 +23,4 @@ export {
 } from '@/hooks/api/useResult';
 
 // Admin (접근 제어 필요)
-export { adminKeys, useCreateTrend } from '@/hooks/api/useAdmin';
+export { adminKeys, useCreateTrend, useElection, useFetchElection } from '@/hooks/api/useAdmin';

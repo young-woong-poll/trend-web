@@ -15,7 +15,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => (
     <Header />
     <FlexibleLayout>
       <div className={styles.container}>
-        {initialData?.trends?.map((trend) => (
+        {initialData.trends.map((trend) => (
           <PollCard
             key={trend.id}
             id={trend.id}

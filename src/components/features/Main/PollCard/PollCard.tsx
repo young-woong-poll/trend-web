@@ -21,12 +21,27 @@ export const PollCard = ({ id, title, subtitle, imageUrl, participantCount }: TP
     return count.toString();
   };
 
+  // 유효한 이미지 URL인지 확인
+  const isValidImageUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  // 유효하지 않은 URL인 경우 placeholder 이미지 사용
+  const validImageUrl = isValidImageUrl(imageUrl)
+    ? imageUrl
+    : 'https://picsum.photos/400/300?random=placeholder';
+
   return (
     <Link href={`/vote/${id}`} className={styles.cardWrapper}>
       <div className={styles.card}>
         {/* Next.js Image 컴포넌트 - 자동 최적화 */}
         <Image
-          src={imageUrl}
+          src={validImageUrl}
           alt={title}
           fill
           className={styles.backgroundImage}
