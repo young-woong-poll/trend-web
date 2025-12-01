@@ -5,14 +5,13 @@ import { useSearchParams } from 'next/navigation';
 import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
-import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
+import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
 import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
-import type { ResultDisplayResponse } from '@/types/result';
 
 interface ResultViewProps {
   type: string;
@@ -55,57 +54,32 @@ export interface ComparisonItem {
   question: string;
 }
 
-const ComparisonWithFriend = ({ myResult }: { myResult: ResultDisplayResponse | undefined }) => {
-  const idTitle: { [key: string]: string } = {};
-
-  myResult?.trend.items.forEach((item) => {
-    item.options.forEach((option) => {
-      idTitle[option.id] = option.title;
-    });
-  });
-
-  return (
-    <ComparisonCard
-      myName={myResult?.nickname}
-      friendNickname={myResult?.inviterNickname}
-      matchCount={myResult?.matchCount ?? 0}
-      totalCount={myResult?.totalCount ?? 0}
-      compareType={myResult?.compareType}
-      comparisons={(() => {
-        const myAnswers = myResult?.selectedOptions;
-        const friendAnswers = myResult?.inviterSelectedOptions;
-        const data: ComparisonItem[] = [];
-        for (let i = 0; i < (myResult?.trend.items.length ?? 0); i += 1) {
-          data.push({
-            question: myResult?.trend.items[i].title ?? '',
-            myAnswer: idTitle[myAnswers ? myAnswers[i] : ''] ?? '',
-            friendAnswer: idTitle[friendAnswers ? friendAnswers[i] : ''] ?? '',
-            isMatch: myAnswers && friendAnswers ? myAnswers[i] === friendAnswers[i] : false,
-          });
-        }
-        return data;
-      })()}
-    />
-  );
-};
-
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
   const resultId = searchParams.get('id') as string;
+  const compareId = searchParams.get('compareId') as string;
   const { showToast } = useModal();
 
-  const { data: myResult } = useResultDisplay(resultId);
+  const { data: myResult, isPending, isError } = useResultDisplay(resultId, compareId);
   const { data: resultOfFriends } = useResultDisplayInvitee(resultId);
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error occurred while fetching results.</div>;
+  }
 
   return (
     <div className={styles.container}>
       <Header />
 
       <div className={styles.content}>
-        {resultId.includes('invite') ? (
-          <ComparisonWithFriend myResult={myResult as ResultDisplayResponse} />
+        {compareId ? (
+          <ComparisonWithFriend resultWithCompareId={myResult} />
         ) : (
-          <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
+          <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
         )}
         <CompareLinkCard
           friendResults={resultOfFriends?.results}

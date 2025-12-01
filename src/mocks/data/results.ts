@@ -110,7 +110,7 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
   },
   selectedOptions: ['q1-o1', 'q2-o1', 'q3-o2', 'q4-o2', 'q5-o1'],
   compareSelectedOptions: ['q1-o1', 'q2-o2', 'q3-o2', 'q4-o1', 'q5-o2'],
-  matchCount: 3,
+  matchCount: 2,
   totalCount: 5,
 };
 

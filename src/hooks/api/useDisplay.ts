@@ -36,10 +36,10 @@ export const useTrendDisplay = (trendId: string, enabled = true) =>
 /**
  * Result 전시 조회 Hook
  */
-export const useResultDisplay = (resultId: string, enabled = true) =>
+export const useResultDisplay = (resultId: string, compareId: string, enabled = true) =>
   useQuery({
     queryKey: displayKeys.result(resultId),
-    queryFn: () => displayApi.getResultDisplay(resultId),
+    queryFn: () => displayApi.getResultDisplay({ resultId, compareId }),
     enabled,
   });
 

@@ -49,18 +49,17 @@ export const handlers = [
    * Result 전시 조회
    * GET /api/v1/display/result/:resultId
    */
-  http.get(`${baseURL}/api/v1/display/result/:resultId`, ({ params }) => {
-    const { resultId } = params;
+  http.get(`${baseURL}/api/v1/display/result/:resultId`, ({ request }) => {
+    const url = new URL(request.url);
+    const compareId = url.searchParams.get('compareId');
 
-    // resultId에 'invite'가 포함되어 있으면 초대 비교 결과 반환
-    if (String(resultId).includes('invite')) {
+    if (compareId) {
       return HttpResponse.json(mockResultDisplayWithInvite);
     }
 
     // 기본 결과 반환
     return HttpResponse.json(mockResultDisplay);
   }),
-
   /**
    * 초대한 친구 결과 목록 조회
    * GET /api/v1/display/result/:resultId/invitee
