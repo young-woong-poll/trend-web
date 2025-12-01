@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 
 const axiosInstance: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

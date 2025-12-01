@@ -8,7 +8,7 @@ import {
 } from '@/mocks/data/results';
 import { mockMainDisplay, mockTrendDisplay, mockTrendVoteCount } from '@/mocks/data/trends';
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
 
 /**
  * MSW Handlers

@@ -4,7 +4,7 @@
  */
 
 const API_URL =
-  process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+  process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
 
 export async function serverFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${endpoint}`;
