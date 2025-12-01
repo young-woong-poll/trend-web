@@ -10,6 +10,7 @@ export const adminKeys = {
   all: ['admin'] as const,
   trend: () => [...adminKeys.all, 'trend'] as const,
   election: (electionId: string) => [...adminKeys.all, 'election', electionId] as const,
+  storage: () => [...adminKeys.all, 'storage'] as const,
 };
 
 /**
@@ -37,4 +38,14 @@ export const useElection = (electionId: string) =>
 export const useFetchElection = () =>
   useMutation({
     mutationFn: (electionId: string) => adminApi.getElection(electionId),
+  });
+
+/**
+ * Admin: Pre-signed URL 발급 Hook
+ * 이미지 업로드 시 S3 Pre-signed URL을 받아옴
+ * @returns uploadUrl과 cdnUrl을 포함한 객체
+ */
+export const useGeneratePresignedUrl = () =>
+  useMutation({
+    mutationFn: (filename: string) => adminApi.generatePresignedUrl(filename),
   });
