@@ -21,11 +21,20 @@ export const useCreateTrend = () =>
   });
 
 /**
- * Admin: 선거 상세 조회 Hook
+ * Admin: 선거 상세 조회 Hook (Query)
  */
 export const useElection = (electionId: string) =>
   useQuery({
     queryKey: adminKeys.election(electionId),
     queryFn: () => adminApi.getElection(electionId),
     enabled: !!electionId,
+  });
+
+/**
+ * Admin: 선거 상세 조회 Hook (Mutation)
+ * 사용자 액션에 의해 선거 정보를 가져올 때 사용
+ */
+export const useFetchElection = () =>
+  useMutation({
+    mutationFn: (electionId: string) => adminApi.getElection(electionId),
   });

@@ -220,6 +220,80 @@
   }
 }
 
+.electionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.electionCard {
+  padding: 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.1);
+  }
+}
+
+.electionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.electionId {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  font-family: monospace;
+}
+
+.electionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: #64748b;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  color: #1e293b;
+  flex: 1;
+}
+
+.loading {
+  color: #64748b;
+  font-size: 14px;
+  font-style: italic;
+  margin: 0;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 14px;
+  margin: 0;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;

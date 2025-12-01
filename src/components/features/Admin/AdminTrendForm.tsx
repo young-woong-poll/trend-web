@@ -5,15 +5,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/common/Button';
+import { ImageUpload } from '@/components/common/ImageUpload';
 import styles from '@/components/features/Admin/AdminTrendForm.module.scss';
-import { useCreateTrend } from '@/hooks/api/useAdmin';
-import { useAlert } from '@/hooks/useAlert';
+import { useModal } from '@/contexts/ModalContext';
+import { useCreateTrend, useFetchElection } from '@/hooks/api/useAdmin';
+import type { ElectionDetail } from '@/types/election';
 import type { CreateTrendRequest } from '@/types/trend';
 
 export const AdminTrendForm = () => {
   const router = useRouter();
-  const { showAlert } = useAlert();
+  const { showAlert } = useModal();
   const { mutate: createTrend, isPending } = useCreateTrend();
+  const { mutate: fetchElection, isPending: isFetchingElection } = useFetchElection();
 
   const [formData, setFormData] = useState<CreateTrendRequest>({
     title: '',
@@ -30,6 +33,12 @@ export const AdminTrendForm = () => {
   const [electionIdInput, setElectionIdInput] = useState('');
   const [resultTypeInput, setResultTypeInput] = useState({ key: '', label: '' });
   const [answerTypeInput, setAnswerTypeInput] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  // 선거 ID별 상세 정보 저장
+  const [electionDetails, setElectionDetails] = useState<
+    Record<string, ElectionDetail | 'error' | 'loading'>
+  >({});
 
   const handleInputChange = (field: keyof CreateTrendRequest, value: string) => {
     setFormData((prev) => ({
@@ -52,18 +61,61 @@ export const AdminTrendForm = () => {
     if (!electionIdInput.trim()) {
       return;
     }
+
+    const electionId = electionIdInput.trim();
+
+    // 중복 체크
+    if (formData.electionIds.includes(electionId)) {
+      showAlert('이미 추가된 선거 ID입니다.');
+      return;
+    }
+
+    // 입력 필드를 먼저 비우기
+    setElectionIdInput('');
+
+    // 선거 목록에 추가
     setFormData((prev) => ({
       ...prev,
-      electionIds: [...prev.electionIds, electionIdInput.trim()],
+      electionIds: [...prev.electionIds, electionId],
     }));
-    setElectionIdInput('');
+
+    // 선거 정보 로딩 시작
+    setElectionDetails((prev) => ({
+      ...prev,
+      [electionId]: 'loading',
+    }));
+
+    // React Query Mutation으로 선거 정보 조회
+    fetchElection(electionId, {
+      onSuccess: (data) => {
+        setElectionDetails((prev) => ({
+          ...prev,
+          [electionId]: data,
+        }));
+      },
+      onError: () => {
+        setElectionDetails((prev) => ({
+          ...prev,
+          [electionId]: 'error',
+        }));
+      },
+    });
   };
 
   const removeElectionId = (index: number) => {
+    const electionId = formData.electionIds[index];
+
     setFormData((prev) => ({
       ...prev,
       electionIds: prev.electionIds.filter((_, i) => i !== index),
     }));
+
+    // 선거 정보도 제거
+    setElectionDetails((prev) => {
+      const newDetails = { ...prev };
+      delete newDetails[electionId];
+      return newDetails;
+    });
   };
 
   const addResultType = () => {
@@ -174,18 +226,10 @@ export const AdminTrendForm = () => {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="imageUrl" className={styles.label}>
-              이미지 URL <span className={styles.required}>*</span>
+            <label className={styles.label}>
+              이미지 <span className={styles.required}>*</span>
             </label>
-            <input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-              className={styles.input}
-              placeholder="https://example.com/image.png"
-              required
-            />
+            <ImageUpload value={imageFile} onChange={setImageFile} />
           </div>
         </section>
 
@@ -207,24 +251,70 @@ export const AdminTrendForm = () => {
                 }
               }}
             />
-            <Button type="button" onClick={addElectionId} variant="secondary" height={40}>
-              추가
+            <Button
+              type="button"
+              onClick={addElectionId}
+              variant="secondary"
+              height={40}
+              disabled={isFetchingElection || !electionIdInput.trim()}
+            >
+              {isFetchingElection ? '조회 중...' : '추가'}
             </Button>
           </div>
 
-          <div className={styles.tagList}>
-            {formData.electionIds.map((id, index) => (
-              <div key={index} className={styles.tag}>
-                <span>{id}</span>
-                <button
-                  type="button"
-                  onClick={() => removeElectionId(index)}
-                  className={styles.tagRemove}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
+          <div className={styles.electionList}>
+            {formData.electionIds.map((id, index) => {
+              const detail = electionDetails[id];
+
+              return (
+                <div key={index} className={styles.electionCard}>
+                  <div className={styles.electionHeader}>
+                    <span className={styles.electionId}>ID: {id}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeElectionId(index)}
+                      className={styles.removeButton}
+                    >
+                      삭제
+                    </button>
+                  </div>
+
+                  {detail === 'loading' && (
+                    <div className={styles.electionInfo}>
+                      <p className={styles.loading}>선거 정보를 불러오는 중...</p>
+                    </div>
+                  )}
+
+                  {detail === 'error' && (
+                    <div className={styles.electionInfo}>
+                      <p className={styles.error}>선거 정보를 불러올 수 없습니다</p>
+                    </div>
+                  )}
+
+                  {typeof detail === 'object' && (
+                    <div className={styles.electionInfo}>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>제목:</span>
+                        <span className={styles.infoValue}>{detail.title}</span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>기간:</span>
+                        <span className={styles.infoValue}>
+                          {new Date(detail.period.startTime).toLocaleString('ko-KR')} ~{' '}
+                          {new Date(detail.period.endTime).toLocaleString('ko-KR')}
+                        </span>
+                      </div>
+                      <div className={styles.infoRow}>
+                        <span className={styles.infoLabel}>후보:</span>
+                        <span className={styles.infoValue}>
+                          {detail.candidates.map((c) => c.name).join(', ')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </section>
 
