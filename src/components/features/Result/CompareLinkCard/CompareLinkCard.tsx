@@ -42,21 +42,25 @@ export const CompareLinkCard = ({
 }) => {
   const hasError = false;
   const { showToast } = useModal();
-  const { mutateAsync: updateNickname } = useSetNickname();
+  const { mutateAsync: updateNickname, isPending, isSuccess } = useSetNickname();
   const [name, setName] = useState<string | undefined>(myResult?.nickname);
   const [needNickname, setNeedNickname] = useState<boolean>(!myResult?.nickname);
 
-  const handleCompareLinkCopy = async () => {
+  const handleLinkCopy = async () => {
     const currentUrl = window.location.href;
     await navigator.clipboard.writeText(currentUrl);
-    if (needNickname && name) {
-      await updateNickname({ resultId, nickname: name });
-      if (myResult) {
-        myResult.nickname = name;
-        setNeedNickname(false);
-      }
-    }
     showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+  };
+
+  const handleUpdateNickname = async () => {
+    if (!name) {
+      return;
+    }
+    await updateNickname({ resultId, nickname: name });
+    if (myResult) {
+      myResult.nickname = name;
+      setNeedNickname(false);
+    }
   };
 
   return (
@@ -108,16 +112,26 @@ export const CompareLinkCard = ({
         />
       </div>
 
-      <Button
-        variant="gradient"
-        height={48}
-        onClick={handleCompareLinkCopy}
-        disabled={!name || (typeof name === 'string' && name.length === 0)}
-        fullWidth
-      >
-        <ShareIcon />
-        비교 링크 만들기
-      </Button>
+      {!needNickname || isSuccess ? (
+        <Button variant="gradient" height={48} onClick={handleLinkCopy} fullWidth>
+          <ShareIcon />
+          비교 링크 복사
+        </Button>
+      ) : (
+        <Button
+          variant="gradient"
+          height={48}
+          onClick={async () => {
+            await handleUpdateNickname();
+            await handleLinkCopy();
+          }}
+          disabled={isPending}
+          fullWidth
+        >
+          <ShareIcon />
+          {isPending ? '비교 링크 생성중' : '비교 링크 만들기'}
+        </Button>
+      )}
     </div>
   );
 };
