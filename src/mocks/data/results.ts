@@ -16,8 +16,6 @@ export const mockCreateResult: CreateResultResponse = {
  */
 export const mockResultDisplay: ResultDisplayResponse = {
   nickname: '웅쓰',
-  inviterNickname: '사랑꾼 혜지님',
-  compareType: '연애프로 같이봐도 안싸움',
   resultLabel: '당신의 성향은',
   resultType: '낭만의 사랑꾼',
   trend: {
@@ -67,7 +65,7 @@ export const mockResultDisplay: ResultDisplayResponse = {
  */
 export const mockResultDisplayWithInvite: ResultDisplayResponse = {
   nickname: '웅쓰',
-  inviterNickname: '사랑꾼 혜지님',
+  compareNickname: '사랑꾼 혜지님',
   compareType: '연애프로 같이봐도 안싸움',
   resultLabel: '당신의 성향은',
   resultType: '낭만의 사랑꾼',
@@ -111,7 +109,7 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
     ],
   },
   selectedOptions: ['q1-o1', 'q2-o1', 'q3-o2', 'q4-o2', 'q5-o1'],
-  inviterSelectedOptions: ['q1-o1', 'q2-o2', 'q3-o2', 'q4-o1', 'q5-o2'],
+  compareSelectedOptions: ['q1-o1', 'q2-o2', 'q3-o2', 'q4-o1', 'q5-o2'],
   matchCount: 3,
   totalCount: 5,
 };
