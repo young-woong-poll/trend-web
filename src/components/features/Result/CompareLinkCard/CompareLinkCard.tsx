@@ -69,7 +69,13 @@ export const CompareLinkCard = ({
 }) => {
   const hasError = false;
   const { showToast, showModal } = useModal();
-  const { mutateAsync: updateNickname, isPending, isSuccess } = useSetNickname();
+  const {
+    mutateAsync: updateNickname,
+    isPending,
+    isSuccess,
+    error: updateNameError,
+    isError: hasUpdateNameError,
+  } = useSetNickname();
   const [name, setName] = useState<string | undefined>(myResult.nickname);
   const [needNickname, setNeedNickname] = useState<boolean>(!myResult.nickname);
 
@@ -85,6 +91,10 @@ export const CompareLinkCard = ({
       showToast(error);
     }
     await updateNickname({ resultId, nickname: trimmedValue });
+    if (hasUpdateNameError) {
+      showToast(updateNameError.message);
+      return;
+    }
     myResult.nickname = name;
     setNeedNickname(false);
   };
