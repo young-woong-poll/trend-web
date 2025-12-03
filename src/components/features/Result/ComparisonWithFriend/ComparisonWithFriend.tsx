@@ -1,11 +1,14 @@
 import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
 import type { ComparisonItem } from '@/components/features/Result/ResultView';
+import { fNameRes } from '@/lib/utils';
 import type { ResultDisplayResponse } from '@/types/result';
 
 export const ComparisonWithFriend = ({
   resultWithCompareId,
+  compareId,
 }: {
   resultWithCompareId: ResultDisplayResponse;
+  compareId: string;
 }) => {
   const { trend, selectedOptions, compareSelectedOptions } = resultWithCompareId;
 
@@ -33,7 +36,7 @@ export const ComparisonWithFriend = ({
   return (
     <ComparisonCard
       myName={resultWithCompareId.nickname}
-      friendNickname={resultWithCompareId.compareNickname}
+      friendNickname={fNameRes(resultWithCompareId.compareNickname, compareId)}
       matchCount={resultWithCompareId.matchCount ?? 0}
       totalCount={resultWithCompareId.totalCount ?? 0}
       compareType={resultWithCompareId.compareType}

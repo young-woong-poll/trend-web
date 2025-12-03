@@ -77,7 +77,7 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
 
       <div className={styles.content}>
         {compareId ? (
-          <ComparisonWithFriend resultWithCompareId={myResult} />
+          <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
         ) : (
           <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
         )}

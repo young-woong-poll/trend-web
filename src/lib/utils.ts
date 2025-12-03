@@ -85,3 +85,14 @@ export function validateNickname(value: string): NicknameValidationResult {
 export function isValidNicknameCharacters(value: string): boolean {
   return NICKNAME_REGEX.test(value);
 }
+
+/**
+ * 친구 이름 resolver
+ */
+
+export function fNameRes(name: string | undefined, resultId: string): string {
+  if (!!name) {
+    return name;
+  }
+  return `친구${resultId.slice(-4)}`;
+}

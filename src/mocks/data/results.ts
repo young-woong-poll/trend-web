@@ -117,32 +117,30 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
 export const mockResultInviteeList: InviteeResultResponse = {
   results: [
     {
-      resultId: '4',
+      resultId: 'c5c8b1c3-57c2-4c3d-8f7a-19c2d3ee8c42',
       nickname: '영수',
       createdAt: '25/10/12 12:00 PM',
       compareType: '전생에 나라를 구한 듯',
     },
     {
-      resultId: '0',
+      resultId: 'f0c4d9c7-0e2c-4c8a-9d6d-3b6e4e2af119',
       nickname: '웅일',
       createdAt: '25/10/12 12:10 PM',
       compareType: '어쩌면 운명?',
     },
     {
-      resultId: '1',
-      nickname: '친구te46',
+      resultId: '8a7f32dd-0c57-4e5c-a0c4-2dfd9a8e3bb8',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
-      resultId: '2',
+      resultId: 'e2c9c44f-9f3e-4b8e-a8d9-7a1fa2e4e91d',
       nickname: '요한',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
-      resultId: '3',
-      nickname: '친구1b2f',
+      resultId: '3b1e8d50-46ac-4874-9c06-91c1a7f84725',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },

@@ -12,7 +12,7 @@ import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay } from '@/hooks/api';
 import { useSetNickname } from '@/hooks/api/useResult';
-import { validateNickname } from '@/lib/utils';
+import { fNameRes, validateNickname } from '@/lib/utils';
 import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
 
 const ArrowIcon = () => (
@@ -53,7 +53,7 @@ const ComparisonWithFriendModal = ({
 
   return (
     <div onClick={hideModal}>
-      <ComparisonWithFriend resultWithCompareId={myResult} />
+      <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
     </div>
   );
 };
@@ -124,7 +124,9 @@ export const CompareLinkCard = ({
               >
                 <div className={styles.friendInfo}>
                   <div className={styles.friendHeader}>
-                    <span className={styles.friendNickname}>{friend.nickname}</span>
+                    <span className={styles.friendNickname}>
+                      {fNameRes(friend.nickname, friend.resultId)}
+                    </span>
                     <span className={styles.friendTimestamp}>{friend.createdAt}</span>
                   </div>
                   <p className={styles.friendComment}>&quot;{friend.compareType}&quot;</p>
