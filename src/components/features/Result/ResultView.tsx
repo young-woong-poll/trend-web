@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
+import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
@@ -57,18 +58,26 @@ export interface ComparisonItem {
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
   const resultId = searchParams.get('id') as string;
-  const compareId = searchParams.get('compareId') as string;
+  const compareId = searchParams.get('compareId') as string | undefined;
   const { showToast } = useModal();
 
-  const { data: myResult, isPending, isError } = useResultDisplay(resultId, compareId);
-  const { data: resultOfFriends } = useResultDisplayInvitee(resultId);
+  const {
+    data: myResult,
+    isPending,
+    isError: resultError,
+  } = useResultDisplay(resultId, compareId ?? '');
+  const { data: resultOfFriends, isError: friendResultError } = useResultDisplayInvitee(resultId);
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return (
+      <div className={styles.container}>
+        <Skeleton height={240} width="60%" borderRadius={8} />
+      </div>
+    );
   }
 
-  if (isError) {
-    return <div>Error occurred while fetching results.</div>;
+  if (resultError) {
+    return <div>이 부분을 어떻게 보여줘야할지 </div>;
   }
 
   return (
@@ -81,11 +90,13 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
         ) : (
           <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
         )}
-        <CompareLinkCard
-          friendResults={resultOfFriends?.results}
-          myResult={myResult}
-          resultId={resultId}
-        />
+        {!friendResultError && (
+          <CompareLinkCard
+            friendResults={resultOfFriends?.results}
+            myResult={myResult}
+            resultId={resultId}
+          />
+        )}
         <CopyUrlCard
           onCopyUrl={async () => {
             const currentUrl = window.location.href;
