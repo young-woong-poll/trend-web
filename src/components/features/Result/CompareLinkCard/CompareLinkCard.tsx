@@ -12,6 +12,7 @@ import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay } from '@/hooks/api';
 import { useSetNickname } from '@/hooks/api/useResult';
+import { validateNickname } from '@/lib/utils';
 import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
 
 const ArrowIcon = () => (
@@ -79,10 +80,11 @@ export const CompareLinkCard = ({
   };
 
   const handleUpdateNickname = async () => {
-    if (!name) {
-      return;
+    const { isValid, error, trimmedValue } = validateNickname(name ?? '');
+    if (!isValid && error) {
+      showToast(error);
     }
-    await updateNickname({ resultId, nickname: name });
+    await updateNickname({ resultId, nickname: trimmedValue });
     myResult.nickname = name;
     setNeedNickname(false);
   };
