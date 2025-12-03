@@ -10,7 +10,16 @@ export const ComparisonWithFriend = ({
   resultWithCompareId: ResultDisplayResponse;
   compareId: string;
 }) => {
-  const { trend, selectedOptions, compareSelectedOptions } = resultWithCompareId;
+  const {
+    nickname,
+    compareNickname,
+    trend,
+    selectedOptions,
+    compareSelectedOptions,
+    compareType,
+    totalCount,
+    matchCount,
+  } = resultWithCompareId;
 
   const idTitleMap = trend.items
     .flatMap((item) => item.options)
@@ -19,27 +28,39 @@ export const ComparisonWithFriend = ({
       return acc;
     }, {});
 
-  const comparisons: ComparisonItem[] = trend.items.map((item, index) => {
-    const myOptionId = selectedOptions?.[index];
-    const friendOptionId = compareSelectedOptions?.[index];
+  if (
+    !compareSelectedOptions ||
+    !selectedOptions ||
+    !totalCount ||
+    !matchCount ||
+    !nickname ||
+    compareSelectedOptions.filter((i) => !i).length > 0 ||
+    selectedOptions.filter((i) => !i).length > 0
+  ) {
+    return <p>hasError</p>;
+  }
 
-    const myAnswer = myOptionId ? (idTitleMap[myOptionId] ?? '') : '';
-    const friendAnswer = friendOptionId ? (idTitleMap[friendOptionId] ?? '') : '';
+  const comparisons: ComparisonItem[] = trend.items.map((item, index) => {
+    const myOptionId = selectedOptions[index];
+    const friendOptionId = compareSelectedOptions[index];
+
+    const myAnswer = idTitleMap[myOptionId];
+    const friendAnswer = idTitleMap[friendOptionId];
 
     return {
-      question: item.title ?? '',
+      question: item.title,
       myAnswer,
       friendAnswer,
-      isMatch: !!(myOptionId && friendOptionId && myOptionId === friendOptionId),
+      isMatch: myOptionId === friendOptionId,
     };
   });
   return (
     <ComparisonCard
-      myName={resultWithCompareId.nickname}
-      friendNickname={fNameRes(resultWithCompareId.compareNickname, compareId)}
-      matchCount={resultWithCompareId.matchCount ?? 0}
-      totalCount={resultWithCompareId.totalCount ?? 0}
-      compareType={resultWithCompareId.compareType}
+      myName={nickname}
+      friendNickname={fNameRes(compareNickname, compareId)}
+      matchCount={matchCount}
+      totalCount={totalCount}
+      compareType={compareType}
       comparisons={comparisons}
     />
   );
