@@ -8,26 +8,29 @@ export const mockElectionDetail: ElectionDetailResponse = {
   message: '성공',
   data: {
     id: 1,
-    isUnlimted: true,
-    title: '2024 임원 선거',
-    description: '2024년도 학생회 임원 선거',
-    status: 'OPEN',
-    kind: 'SINGLE',
+    title: 'test',
+    description: 'test',
+    kind: 'DEFAULT',
     allowMultipleVotes: false,
-    period: {
-      startTime: '2024-01-01T09:00:00',
-      endTime: '2024-01-02T18:00:00',
-    },
-    candidates: [
+    status: 'CLOSED',
+    startTime: '2025-11-24T14:50:00',
+    endTime: '2025-11-24T15:20:00',
+    createdAt: '2025-11-24T14:38:44.044',
+    isUnlimited: false,
+    options: [
       {
         id: 1,
-        name: '김철수',
-        description: '성실한 후보',
+        title: 'test1',
+        description: 'test1',
+        imageUrl:
+          'https://image.votebox.kr/uploads/2025/11/24/16e163f259c94991a24c2181fad3fa1a.png',
       },
       {
         id: 2,
-        name: '이영희',
-        description: '혁신적인 후보',
+        title: 'test2',
+        description: 'test2',
+        imageUrl:
+          'https://image.votebox.kr/uploads/2025/11/24/6abfc0810e8a4bcba2252541d37480c0.png',
       },
     ],
   },

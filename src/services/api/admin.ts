@@ -25,9 +25,9 @@ export const adminApi = {
    * Admin: 선거 상세 조회 (Item API)
    * GET /admin/api/v1/item/{itemId}
    */
-  getElection: async (electionId: string): Promise<ElectionDetail> => {
+  getElection: async (itemId: string): Promise<ElectionDetail> => {
     const response: AxiosResponse<ElectionDetailResponse> = await axiosInstance.get(
-      `/admin/api/v1/item/${electionId}`
+      `/admin/api/v1/item/${itemId}`
     );
     return response.data.data;
   },
