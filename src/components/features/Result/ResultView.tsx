@@ -4,15 +4,15 @@ import { useSearchParams } from 'next/navigation';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
+import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
-import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
+import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
 import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
-import type { ResultDisplayResponse } from '@/types/result';
 
 interface ResultViewProps {
   type: string;
@@ -55,63 +55,48 @@ export interface ComparisonItem {
   question: string;
 }
 
-const ComparisonWithFriend = ({ myResult }: { myResult: ResultDisplayResponse | undefined }) => {
-  const idTitle: { [key: string]: string } = {};
-
-  myResult?.trend.items.forEach((item) => {
-    item.options.forEach((option) => {
-      idTitle[option.id] = option.title;
-    });
-  });
-
-  return (
-    <ComparisonCard
-      myName={myResult?.nickname}
-      friendNickname={myResult?.inviterNickname}
-      matchCount={myResult?.matchCount ?? 0}
-      totalCount={myResult?.totalCount ?? 0}
-      compareType={myResult?.compareType}
-      comparisons={(() => {
-        const myAnswers = myResult?.selectedOptions;
-        const friendAnswers = myResult?.inviterSelectedOptions;
-        const data: ComparisonItem[] = [];
-        for (let i = 0; i < (myResult?.trend.items.length ?? 0); i += 1) {
-          data.push({
-            question: myResult?.trend.items[i].title ?? '',
-            myAnswer: idTitle[myAnswers ? myAnswers[i] : ''] ?? '',
-            friendAnswer: idTitle[friendAnswers ? friendAnswers[i] : ''] ?? '',
-            isMatch: myAnswers && friendAnswers ? myAnswers[i] === friendAnswers[i] : false,
-          });
-        }
-        return data;
-      })()}
-    />
-  );
-};
-
 export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
   const resultId = searchParams.get('id') as string;
+  const compareId = searchParams.get('compareId') as string | undefined;
   const { showToast } = useModal();
 
-  const { data: myResult } = useResultDisplay(resultId);
-  const { data: resultOfFriends } = useResultDisplayInvitee(resultId);
+  const {
+    data: myResult,
+    isPending,
+    isError: resultError,
+  } = useResultDisplay(resultId, compareId ?? '');
+  const { data: resultOfFriends, isError: friendResultError } = useResultDisplayInvitee(resultId);
+
+  if (isPending) {
+    return (
+      <div className={styles.container}>
+        <Skeleton height={240} width="60%" borderRadius={8} />
+      </div>
+    );
+  }
+
+  if (resultError) {
+    return <div>이 부분을 어떻게 보여줘야할지 </div>;
+  }
 
   return (
     <div className={styles.container}>
       <Header />
 
       <div className={styles.content}>
-        {resultId.includes('invite') ? (
-          <ComparisonWithFriend myResult={myResult as ResultDisplayResponse} />
+        {compareId ? (
+          <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
         ) : (
-          <TypeCard questions={myResult?.trend} selectedOptions={myResult?.selectedOptions} />
+          <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
         )}
-        <CompareLinkCard
-          friendResults={resultOfFriends?.results}
-          myResult={myResult}
-          resultId={resultId}
-        />
+        {!friendResultError && (
+          <CompareLinkCard
+            friendResults={resultOfFriends?.results}
+            myResult={myResult}
+            resultId={resultId}
+          />
+        )}
         <CopyUrlCard
           onCopyUrl={async () => {
             const currentUrl = window.location.href;

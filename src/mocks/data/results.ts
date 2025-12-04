@@ -16,8 +16,6 @@ export const mockCreateResult: CreateResultResponse = {
  */
 export const mockResultDisplay: ResultDisplayResponse = {
   nickname: '웅쓰',
-  inviterNickname: '사랑꾼 혜지님',
-  compareType: '연애프로 같이봐도 안싸움',
   resultLabel: '당신의 성향은',
   resultType: '낭만의 사랑꾼',
   trend: {
@@ -67,7 +65,7 @@ export const mockResultDisplay: ResultDisplayResponse = {
  */
 export const mockResultDisplayWithInvite: ResultDisplayResponse = {
   nickname: '웅쓰',
-  inviterNickname: '사랑꾼 혜지님',
+  compareNickname: '사랑꾼 혜지님',
   compareType: '연애프로 같이봐도 안싸움',
   resultLabel: '당신의 성향은',
   resultType: '낭만의 사랑꾼',
@@ -111,35 +109,38 @@ export const mockResultDisplayWithInvite: ResultDisplayResponse = {
     ],
   },
   selectedOptions: ['q1-o1', 'q2-o1', 'q3-o2', 'q4-o2', 'q5-o1'],
-  inviterSelectedOptions: ['q1-o1', 'q2-o2', 'q3-o2', 'q4-o1', 'q5-o2'],
-  matchCount: 3,
+  compareSelectedOptions: ['q1-o1', 'q2-o2', 'q3-o2', 'q4-o1', 'q5-o2'],
+  matchCount: 2,
   totalCount: 5,
 };
 
 export const mockResultInviteeList: InviteeResultResponse = {
   results: [
     {
+      resultId: 'c5c8b1c3-57c2-4c3d-8f7a-19c2d3ee8c42',
       nickname: '영수',
       createdAt: '25/10/12 12:00 PM',
       compareType: '전생에 나라를 구한 듯',
     },
     {
+      resultId: 'f0c4d9c7-0e2c-4c8a-9d6d-3b6e4e2af119',
       nickname: '웅일',
       createdAt: '25/10/12 12:10 PM',
       compareType: '어쩌면 운명?',
     },
     {
-      nickname: '친구te46',
+      resultId: '8a7f32dd-0c57-4e5c-a0c4-2dfd9a8e3bb8',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
+      resultId: 'e2c9c44f-9f3e-4b8e-a8d9-7a1fa2e4e91d',
       nickname: '요한',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },
     {
-      nickname: '친구1b2f',
+      resultId: '3b1e8d50-46ac-4874-9c06-91c1a7f84725',
       createdAt: '25/10/12 12:10 PM',
       compareType: '겸상 금지',
     },

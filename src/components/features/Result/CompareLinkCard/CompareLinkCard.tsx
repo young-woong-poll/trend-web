@@ -7,9 +7,12 @@ import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard.module.scss';
+import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
+import { useResultDisplay } from '@/hooks/api';
 import { useSetNickname } from '@/hooks/api/useResult';
+import { fNameRes, validateNickname } from '@/lib/utils';
 import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
 
 const ArrowIcon = () => (
@@ -31,32 +34,73 @@ const ArrowIcon = () => (
   </svg>
 );
 
+const ComparisonWithFriendModal = ({
+  resultId,
+  compareId,
+}: {
+  resultId: string;
+  compareId: string;
+}) => {
+  const { data: myResult, isPending, isError } = useResultDisplay(resultId, compareId);
+  const { hideModal } = useModal();
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>에러 발생</div>;
+  }
+
+  return (
+    <div onClick={hideModal}>
+      <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
+    </div>
+  );
+};
+
 export const CompareLinkCard = ({
   friendResults,
   myResult,
   resultId,
 }: {
   friendResults?: InviteeResult[] | undefined;
-  myResult: ResultDisplayResponse | undefined;
+  myResult: ResultDisplayResponse;
   resultId: string;
 }) => {
   const hasError = false;
-  const { showToast } = useModal();
-  const { mutateAsync: updateNickname } = useSetNickname();
-  const [name, setName] = useState<string | undefined>(myResult?.nickname);
-  const [needNickname, setNeedNickname] = useState<boolean>(!myResult?.nickname);
+  const { showToast, showModal } = useModal();
+  const {
+    mutateAsync: updateNickname,
+    isPending,
+    isSuccess,
+    error: updateNameError,
+    isError: hasUpdateNameError,
+  } = useSetNickname();
+  const [name, setName] = useState<string | undefined>(myResult.nickname);
+  const [needNickname, setNeedNickname] = useState<boolean>(!myResult.nickname);
 
-  const handleCompareLinkCopy = async () => {
+  const handleLinkCopy = async () => {
     const currentUrl = window.location.href;
     await navigator.clipboard.writeText(currentUrl);
-    if (needNickname && name) {
-      await updateNickname({ resultId, nickname: name });
-      if (myResult) {
-        myResult.nickname = name;
-        setNeedNickname(false);
-      }
-    }
     showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+  };
+
+  const handleUpdateNickname = async () => {
+    const { isValid, error, trimmedValue } = validateNickname(name ?? '');
+    if (!isValid && error) {
+      showToast(error);
+    }
+    await updateNickname({ resultId, nickname: trimmedValue });
+    if (hasUpdateNameError) {
+      showToast(updateNameError.message);
+      return;
+    }
+    myResult.nickname = name;
+    setNeedNickname(false);
+  };
+
+  const showComparisonWithFriendModal = (resultId: string, friendResultId: string) => {
+    showModal(<ComparisonWithFriendModal resultId={resultId} compareId={friendResultId} />);
   };
 
   return (
@@ -73,10 +117,16 @@ export const CompareLinkCard = ({
         ) : (
           <ul className={styles.friendList}>
             {friendResults?.map((friend, index) => (
-              <li key={index} className={styles.friendItem}>
+              <li
+                key={index}
+                className={styles.friendItem}
+                onClick={() => showComparisonWithFriendModal(resultId, friend.resultId)}
+              >
                 <div className={styles.friendInfo}>
                   <div className={styles.friendHeader}>
-                    <span className={styles.friendNickname}>{friend.nickname}</span>
+                    <span className={styles.friendNickname}>
+                      {fNameRes(friend.nickname, friend.resultId)}
+                    </span>
                     <span className={styles.friendTimestamp}>{friend.createdAt}</span>
                   </div>
                   <p className={styles.friendComment}>&quot;{friend.compareType}&quot;</p>
@@ -108,16 +158,26 @@ export const CompareLinkCard = ({
         />
       </div>
 
-      <Button
-        variant="gradient"
-        height={48}
-        onClick={handleCompareLinkCopy}
-        disabled={!name || (typeof name === 'string' && name.length === 0)}
-        fullWidth
-      >
-        <ShareIcon />
-        비교 링크 만들기
-      </Button>
+      {!needNickname || isSuccess ? (
+        <Button variant="gradient" height={48} onClick={handleLinkCopy} fullWidth>
+          <ShareIcon />
+          비교 링크 복사
+        </Button>
+      ) : (
+        <Button
+          variant="gradient"
+          height={48}
+          onClick={async () => {
+            await handleUpdateNickname();
+            await handleLinkCopy();
+          }}
+          disabled={isPending}
+          fullWidth
+        >
+          <ShareIcon />
+          {isPending ? '비교 링크 생성중' : '비교 링크 만들기'}
+        </Button>
+      )}
     </div>
   );
 };
