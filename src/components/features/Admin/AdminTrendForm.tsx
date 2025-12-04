@@ -24,7 +24,7 @@ export const AdminTrendForm = () => {
     imageUrl: '',
     electionIds: [],
     meta: {
-      resultLabel: '',
+      resultLabel: '당신의 성향은',
       resultType: [],
       answerType: [],
     },
@@ -33,7 +33,7 @@ export const AdminTrendForm = () => {
   const [electionIdInput, setElectionIdInput] = useState('');
   const [resultTypeInput, setResultTypeInput] = useState({ key: '', label: '' });
   const [answerTypeInput, setAnswerTypeInput] = useState('');
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   // 선거 ID별 상세 정보 저장
   const [electionDetails, setElectionDetails] = useState<
@@ -212,7 +212,7 @@ export const AdminTrendForm = () => {
 
           <div className={styles.field}>
             <label htmlFor="label" className={styles.label}>
-              라벨 <span className={styles.required}>*</span>
+              부제 <span className={styles.required}>*</span>
             </label>
             <input
               id="label"
@@ -229,7 +229,16 @@ export const AdminTrendForm = () => {
             <label className={styles.label}>
               이미지 <span className={styles.required}>*</span>
             </label>
-            <ImageUpload value={imageFile} onChange={setImageFile} />
+            <ImageUpload
+              value={imageUrl}
+              onChange={(cdnUrl) => {
+                setImageUrl(cdnUrl);
+                if (cdnUrl) {
+                  handleInputChange('imageUrl', cdnUrl);
+                }
+              }}
+              uploadOptions={{ prefix: 'trend' }}
+            />
           </div>
         </section>
 
@@ -254,7 +263,7 @@ export const AdminTrendForm = () => {
             <Button
               type="button"
               onClick={addElectionId}
-              variant="secondary"
+              variant="primary"
               height={40}
               disabled={isFetchingElection || !electionIdInput.trim()}
             >
@@ -300,14 +309,14 @@ export const AdminTrendForm = () => {
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>기간:</span>
                         <span className={styles.infoValue}>
-                          {new Date(detail.period.startTime).toLocaleString('ko-KR')} ~{' '}
-                          {new Date(detail.period.endTime).toLocaleString('ko-KR')}
+                          {new Date(detail.startTime).toLocaleString('ko-KR')} ~{' '}
+                          {new Date(detail.endTime).toLocaleString('ko-KR')}
                         </span>
                       </div>
                       <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>후보:</span>
                         <span className={styles.infoValue}>
-                          {detail.candidates.map((c) => c.name).join(', ')}
+                          {detail.options.map((c) => c.title).join(', ')}
                         </span>
                       </div>
                     </div>
@@ -320,12 +329,9 @@ export const AdminTrendForm = () => {
 
         {/* Meta - Result Label */}
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>메타 정보</h2>
+          <h2 className={styles.sectionTitle}>결과 상단문구</h2>
 
           <div className={styles.field}>
-            <label htmlFor="resultLabel" className={styles.label}>
-              결과 라벨 <span className={styles.required}>*</span>
-            </label>
             <input
               id="resultLabel"
               type="text"
@@ -360,7 +366,7 @@ export const AdminTrendForm = () => {
               className={styles.input}
               placeholder="Label (예: 열정 타입)"
             />
-            <Button type="button" onClick={addResultType} variant="secondary" height={40}>
+            <Button type="button" onClick={addResultType} variant="primary" height={40}>
               추가
             </Button>
           </div>
@@ -403,7 +409,7 @@ export const AdminTrendForm = () => {
                 }
               }}
             />
-            <Button type="button" onClick={addAnswerType} variant="secondary" height={40}>
+            <Button type="button" onClick={addAnswerType} variant="primary" height={40}>
               추가
             </Button>
           </div>
@@ -426,16 +432,6 @@ export const AdminTrendForm = () => {
 
         {/* Submit */}
         <div className={styles.actions}>
-          <Button
-            type="button"
-            onClick={() => router.back()}
-            variant="secondary"
-            height={48}
-            fullWidth
-            disabled={isPending}
-          >
-            취소
-          </Button>
           <Button type="submit" variant="gradient" height={48} fullWidth disabled={isPending}>
             {isPending ? '생성 중...' : '트렌드 생성'}
           </Button>

@@ -96,3 +96,20 @@ export function fNameRes(name: string | undefined, resultId: string): string {
   }
   return `친구${resultId.slice(-4)}`;
 }
+
+export interface UploadImageOptions {
+  prefix?: string; // 파일명 prefix (예: 'trend', 'election')
+}
+
+/**
+ * Build filename for image upload
+ * Format: {prefix}_{timestamp}_{random}.{extension}
+ */
+export function buildFileName(file: File, options?: UploadImageOptions): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const prefix = options?.prefix || 'image';
+
+  return `${prefix}_${timestamp}_${random}.${extension}`;
+}

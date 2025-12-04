@@ -5,10 +5,14 @@ import { useCallback, useState, type FC } from 'react';
 import Image from 'next/image';
 
 import styles from '@/components/common/ImageUpload/ImageUpload.module.scss';
+import { useGeneratePresignedUrl } from '@/hooks/api/useAdmin';
+import { buildFileName } from '@/lib/utils';
+import { uploadToS3, type UploadImageOptions } from '@/services/storage';
 
 interface ImageUploadProps {
-  value?: File | null;
-  onChange: (file: File | null) => void;
+  value?: string | null; // CDN URL
+  onChange: (cdnUrl: string | null) => void; // CDN URL 전달
+  uploadOptions?: UploadImageOptions; // 업로드 옵션 (prefix 등)
   maxSize?: number; // bytes (기본: 5MB)
   accept?: string[]; // 허용 확장자 (기본: jpg, jpeg, png, gif, webp)
   disabled?: boolean;
@@ -20,13 +24,23 @@ const DEFAULT_ACCEPT = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 export const ImageUpload: FC<ImageUploadProps> = ({
   value,
   onChange,
+  uploadOptions,
   maxSize = DEFAULT_MAX_SIZE,
   accept = DEFAULT_ACCEPT,
   disabled = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(value || null);
+  const [fileInfo, setFileInfo] = useState<{ name: string; size: number } | null>(null);
+
+  // React Query 훅 사용
+  const { mutateAsync: generatePresignedUrl, isPending: isGeneratingUrl } =
+    useGeneratePresignedUrl();
+  const [isUploadingToS3, setIsUploadingToS3] = useState(false);
+
+  // 전체 업로드 중 상태
+  const isUploading = isGeneratingUrl || isUploadingToS3;
 
   // 파일 검증
   const validateFile = useCallback(
@@ -49,7 +63,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
 
   // 파일 처리
   const handleFile = useCallback(
-    (file: File) => {
+    async (file: File) => {
       const validationError = validateFile(file);
       if (validationError) {
         setError(validationError);
@@ -57,7 +71,9 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       }
 
       setError(null);
-      onChange(file);
+
+      // 파일 정보 저장
+      setFileInfo({ name: file.name, size: file.size });
 
       // 미리보기 생성
       const reader = new FileReader();
@@ -65,8 +81,34 @@ export const ImageUpload: FC<ImageUploadProps> = ({
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // 항상 S3에 업로드
+      try {
+        // 1. 파일명 생성
+        const filename = buildFileName(file, uploadOptions);
+
+        // 2. Pre-signed URL 발급 (React Query 훅 사용)
+        const presignedUrlResponse = await generatePresignedUrl(filename);
+
+        // 3. S3에 업로드
+        setIsUploadingToS3(true);
+        const cdnUrl = await uploadToS3(
+          file,
+          presignedUrlResponse.uploadUrl,
+          presignedUrlResponse.cdnUrl
+        );
+
+        // 4. CDN URL을 onChange로 전달
+        onChange(cdnUrl);
+      } catch (uploadError) {
+        const errorMessage =
+          uploadError instanceof Error ? uploadError.message : '이미지 업로드에 실패했습니다.';
+        setError(errorMessage);
+      } finally {
+        setIsUploadingToS3(false);
+      }
     },
-    [validateFile, onChange]
+    [validateFile, onChange, uploadOptions, generatePresignedUrl]
   );
 
   // 드래그 이벤트
@@ -94,7 +136,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
 
       const files = e.dataTransfer.files;
       if (files.length > 0) {
-        handleFile(files[0]);
+        void handleFile(files[0]);
       }
     },
     [disabled, handleFile]
@@ -105,7 +147,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (files && files.length > 0) {
-        handleFile(files[0]);
+        void handleFile(files[0]);
       }
     },
     [handleFile]
@@ -115,13 +157,14 @@ export const ImageUpload: FC<ImageUploadProps> = ({
   const handleRemove = useCallback(() => {
     onChange(null);
     setPreview(null);
+    setFileInfo(null);
     setError(null);
   }, [onChange]);
 
   return (
     <div className={styles.container}>
       <div
-        className={`${styles.dropzone} ${isDragging ? styles.dragging : ''} ${disabled ? styles.disabled : ''} ${error ? styles.error : ''}`}
+        className={`${styles.dropzone} ${isDragging ? styles.dragging : ''} ${disabled || isUploading ? styles.disabled : ''} ${error ? styles.error : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -137,11 +180,16 @@ export const ImageUpload: FC<ImageUploadProps> = ({
               style={{ objectFit: 'contain' }}
               unoptimized
             />
+            {isUploading && (
+              <div className={styles.uploadingOverlay}>
+                <p>업로드 중...</p>
+              </div>
+            )}
             <button
               type="button"
               onClick={handleRemove}
               className={styles.removeButton}
-              disabled={disabled}
+              disabled={disabled || isUploading}
             >
               ×
             </button>
@@ -153,7 +201,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
               accept={accept.map((ext) => `.${ext}`).join(',')}
               onChange={handleFileSelect}
               className={styles.fileInput}
-              disabled={disabled}
+              disabled={disabled || isUploading}
             />
             <div className={styles.uploadContent}>
               <svg className={styles.uploadIcon} viewBox="0 0 24 24" fill="none">
@@ -192,9 +240,9 @@ export const ImageUpload: FC<ImageUploadProps> = ({
 
       {error && <p className={styles.errorMessage}>{error}</p>}
 
-      {value && (
+      {fileInfo && (
         <p className={styles.fileName}>
-          {value.name} ({(value.size / 1024).toFixed(1)} KB)
+          {fileInfo.name} ({(fileInfo.size / 1024).toFixed(1)} KB)
         </p>
       )}
     </div>
