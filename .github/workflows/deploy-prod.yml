@@ -1,0 +1,49 @@
+name: deploy-prod
+
+on:
+    push:
+        branches:
+            - feature/cicd
+        # tags:
+        #     - 'v*'
+    workflow_dispatch:
+
+jobs:
+    build-and-copy:
+        runs-on: ubuntu-latest
+        if: always()
+        steps:
+          - name: checkout
+            uses: actions/checkout@v4
+        
+          - name: vars
+            id: vars
+            run: |
+                sha_short=$(git rev-parse --short HEAD)
+                sed -i "s/\"version\": \".*\"/\"version\": \"$sha_short\"/" package.json
+        
+          - name: scp-to-ec2
+            uses: appleboy/scp-actions@master
+            with: 
+                host: ${{ secrets.EC2_HOST }}
+                username: ${{ secrets.EC2_USER }}
+                key: ${{ secrets.EC2_SSH_KEY }}
+                source: '*'
+                target: ${{ secrets.EC2_FRONT_PATH }}
+                rm: true
+
+          - name: start service
+            uses: appleboy/ssh-action@master
+            with: 
+                host: ${{ secrets.EC2_HOST }}
+                username: ${{ secrets.EC2_USER }}
+                key: ${{ secrets.EC2_SSH_KEY }}
+                script: |
+                    export NVM_DIR=~/.nvm
+                    source ~/.nvm/nvm.sh
+                    cd ${{ secrets.EC2_FRONT_PATH }}
+                    pnpm install --frozen-lockfile
+                    pnpm build
+                    pm2 start server.js --name trend-web || pm2 restart trend-web
+                    pm2 save
+
