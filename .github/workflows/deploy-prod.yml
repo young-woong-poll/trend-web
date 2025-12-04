@@ -15,6 +15,12 @@ jobs:
         steps:
           - name: checkout
             uses: actions/checkout@v4
+
+          - name: Setup Node.js
+            uses: actions/setup-node@v4
+            with:
+                node-version: '24.11.1' 
+                cache: 'pnpm'
         
           - name: vars
             id: vars
@@ -22,6 +28,9 @@ jobs:
                 sha_short=$(git rev-parse --short HEAD)
                 sed -i "s/\"version\": \".*\"/\"version\": \"$sha_short\"/" package.json
                 echo "NEXT_PUBLIC_API_BASE_URL=https://trend-api.votebox.kr/" > .env
+                pnpm install --frozen-lockfile
+                pnpm build
+          
         
           - name: scp-to-ec2
             uses: appleboy/scp-action@master
@@ -43,8 +52,6 @@ jobs:
                     export NVM_DIR=~/.nvm
                     source ~/.nvm/nvm.sh
                     cd ${{ secrets.EC2_FRONT_PATH }}
-                    pnpm install --frozen-lockfile
-                    pnpm build
                     pm2 start server.js --name trend-web || pm2 restart trend-web
                     pm2 save
 
