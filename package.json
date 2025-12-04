@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
+    "dev:https": "next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -35,6 +36,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.2.1",
     "lefthook": "^2.0.2",
+    "local-ssl-proxy": "^2.0.5",
     "msw": "^2.12.2",
     "prettier": "^3.3.3",
     "sass": "^1.80.0",
