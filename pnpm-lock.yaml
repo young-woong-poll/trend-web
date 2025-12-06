@@ -10,23 +10,26 @@ importers:
     dependencies:
       '@tanstack/react-query':
         specifier: ^5.90.9
-        version: 5.90.9(react@19.2.0)
+        version: 5.90.9(react@19.0.1)
       axios:
         specifier: ^1.13.2
         version: 1.13.2
       next:
-        specifier: ^16.0.7
-        version: 16.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(sass@1.93.3)
+        specifier: 16.0.7
+        version: 16.0.7(react-dom@19.2.0(react@19.0.1))(react@19.0.1)(sass@1.93.3)
       react:
-        specifier: ^19.0.1
-        version: 19.2.0
+        specifier: 19.0.1
+        version: 19.0.1
       react-dom:
         specifier: ^19.0.0
-        version: 19.2.0(react@19.2.0)
+        version: 19.2.0(react@19.0.1)
+      react-hook-form:
+        specifier: ^7.68.0
+        version: 7.68.0(react@19.0.1)
     devDependencies:
       '@tanstack/react-query-devtools':
         specifier: ^5.90.2
-        version: 5.90.2(@tanstack/react-query@5.90.9(react@19.2.0))(react@19.2.0)
+        version: 5.90.2(@tanstack/react-query@5.90.9(react@19.0.1))(react@19.0.1)
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.0
@@ -1723,11 +1726,17 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
+  react-hook-form@7.68.0:
+    resolution: {integrity: sha512-oNN3fjrZ/Xo40SWlHf1yCjlMK417JxoSJVUXQjGdvdRCU07NTFei1i1f8ApUAts+IVh14e4EdakeLEA+BEAs/Q==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
-  react@19.2.0:
-    resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
+  react@19.0.1:
+    resolution: {integrity: sha512-nVRaZCuEyvu69sWrkdwjP6QY57C+lY+uMNNMyWUFJb9Z/JlaBOQus7mSMfGYsblv7R691u6SSJA/dX9IRnyyLQ==}
     engines: {node: '>=0.10.0'}
 
   readdirp@4.1.2:
@@ -2396,16 +2405,16 @@ snapshots:
 
   '@tanstack/query-devtools@5.90.1': {}
 
-  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.9(react@19.2.0))(react@19.2.0)':
+  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.9(react@19.0.1))(react@19.0.1)':
     dependencies:
       '@tanstack/query-devtools': 5.90.1
-      '@tanstack/react-query': 5.90.9(react@19.2.0)
-      react: 19.2.0
+      '@tanstack/react-query': 5.90.9(react@19.0.1)
+      react: 19.0.1
 
-  '@tanstack/react-query@5.90.9(react@19.2.0)':
+  '@tanstack/react-query@5.90.9(react@19.0.1)':
     dependencies:
       '@tanstack/query-core': 5.90.9
-      react: 19.2.0
+      react: 19.0.1
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -3655,15 +3664,15 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  next@16.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(sass@1.93.3):
+  next@16.0.7(react-dom@19.2.0(react@19.0.1))(react@19.0.1)(sass@1.93.3):
     dependencies:
       '@next/env': 16.0.7
       '@swc/helpers': 0.5.15
       caniuse-lite: 1.0.30001754
       postcss: 8.4.31
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      styled-jsx: 5.1.6(react@19.2.0)
+      react: 19.0.1
+      react-dom: 19.2.0(react@19.0.1)
+      styled-jsx: 5.1.6(react@19.0.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.0.7
       '@next/swc-darwin-x64': 16.0.7
@@ -3801,14 +3810,18 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-dom@19.2.0(react@19.2.0):
+  react-dom@19.2.0(react@19.0.1):
     dependencies:
-      react: 19.2.0
+      react: 19.0.1
       scheduler: 0.27.0
+
+  react-hook-form@7.68.0(react@19.0.1):
+    dependencies:
+      react: 19.0.1
 
   react-is@16.13.1: {}
 
-  react@19.2.0: {}
+  react@19.0.1: {}
 
   readdirp@4.1.2: {}
 
@@ -4064,10 +4077,10 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(react@19.2.0):
+  styled-jsx@5.1.6(react@19.0.1):
     dependencies:
       client-only: 0.0.1
-      react: 19.2.0
+      react: 19.0.1
 
   supports-color@7.2.0:
     dependencies:

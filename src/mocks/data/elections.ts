@@ -1,9 +1,9 @@
-import type { ElectionDetailResponse } from '@/types/election';
+import type { ElectionDetail } from '@/types/election';
 
 /**
  * Mock 선거 상세 데이터
  */
-export const mockElectionDetail: ElectionDetailResponse = {
+export const mockElectionDetail: ElectionDetail = {
   code: 'S0000',
   message: '성공',
   data: {

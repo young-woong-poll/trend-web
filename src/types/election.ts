@@ -34,12 +34,3 @@ export interface ElectionDetail {
   isUnlimited: boolean;
   options: Option[];
 }
-
-/**
- * 선거 상세 조회 응답
- */
-export interface ElectionDetailResponse {
-  code: string;
-  message: string;
-  data: ElectionDetail;
-}

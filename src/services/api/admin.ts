@@ -1,5 +1,5 @@
 import axiosInstance from '@/lib/axios';
-import type { ElectionDetail, ElectionDetailResponse } from '@/types/election';
+import type { ElectionDetail } from '@/types/election';
 import type { PresignedUrlResponse } from '@/types/storage';
 import type { CreateTrendRequest, TrendResponse } from '@/types/trend';
 
@@ -26,10 +26,11 @@ export const adminApi = {
    * GET /admin/api/v1/item/{itemId}
    */
   getElection: async (itemId: string): Promise<ElectionDetail> => {
-    const response: AxiosResponse<ElectionDetailResponse> = await axiosInstance.get(
+    const response: AxiosResponse<ElectionDetail> = await axiosInstance.get(
       `/admin/api/v1/item/${itemId}`
     );
-    return response.data.data;
+
+    return response.data;
   },
 
   /**
