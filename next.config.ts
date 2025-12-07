@@ -19,6 +19,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Turbopack configuration (required when using webpack config in Next.js 16)
+  turbopack: {},
   // Enable HMR optimizations
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
