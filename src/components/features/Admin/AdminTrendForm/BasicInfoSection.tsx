@@ -1,15 +1,15 @@
 import type { FC } from 'react';
 
 import { ImageUpload } from '@/components/common/ImageUpload';
+import type { TFormData } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
 import styles from '@/components/features/Admin/AdminTrendForm/BasicInfoSection.module.scss';
-import type { CreateTrendRequest } from '@/types/trend';
 
 import type { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 interface BasicInfoSectionProps {
-  register: UseFormRegister<CreateTrendRequest>;
-  setValue: UseFormSetValue<CreateTrendRequest>;
-  watch: UseFormWatch<CreateTrendRequest>;
+  register: UseFormRegister<TFormData>;
+  setValue: UseFormSetValue<TFormData>;
+  watch: UseFormWatch<TFormData>;
 }
 
 export const BasicInfoSection: FC<BasicInfoSectionProps> = ({ register, setValue, watch }) => {

@@ -1,12 +1,12 @@
 import type { FC } from 'react';
 
+import type { TFormData } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
 import styles from '@/components/features/Admin/AdminTrendForm/ResultLabelSection.module.scss';
-import type { CreateTrendRequest } from '@/types/trend';
 
 import type { UseFormRegister } from 'react-hook-form';
 
 interface ResultLabelSectionProps {
-  register: UseFormRegister<CreateTrendRequest>;
+  register: UseFormRegister<TFormData>;
 }
 
 export const ResultLabelSection: FC<ResultLabelSectionProps> = ({ register }) => (
@@ -17,7 +17,7 @@ export const ResultLabelSection: FC<ResultLabelSectionProps> = ({ register }) =>
       <input
         id="resultLabel"
         type="text"
-        {...register('meta.resultLabel', { required: true })}
+        {...register('resultLabel', { required: true })}
         className={styles.input}
         placeholder="당신의 결과"
       />

@@ -6,14 +6,14 @@ import type { ElectionDetail } from '@/types/election';
 interface ElectionCardProps {
   id: string;
   detail: ElectionDetail;
-  removeElectionId: (electionId: string) => void;
+  handleRemoveClick: (electionId: string) => void;
 }
 
-export const ElectionCard: FC<ElectionCardProps> = ({ id, detail, removeElectionId }) => (
+export const ElectionCard: FC<ElectionCardProps> = ({ id, detail, handleRemoveClick }) => (
   <div className={styles.electionCard}>
     <div className={styles.electionHeader}>
       <span className={styles.electionId}>ID: {id}</span>
-      <button type="button" onClick={() => removeElectionId(id)} className={styles.removeButton}>
+      <button type="button" onClick={() => handleRemoveClick(id)} className={styles.removeButton}>
         삭제
       </button>
     </div>

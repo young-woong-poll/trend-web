@@ -1,33 +1,68 @@
 import { useState, type FC } from 'react';
 
 import { Button } from '@/components/common/Button';
+import type { TFormData } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
 import { ElectionCard } from '@/components/features/Admin/AdminTrendForm/ElectionCard';
 import styles from '@/components/features/Admin/AdminTrendForm/ElectionListSection.module.scss';
-import type { TElectionDataset } from '@/hooks/useElectionList';
+import { useModal } from '@/contexts/ModalContext';
+import { useFetchElection } from '@/hooks/api';
 
+import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 interface ElectionListSectionProps {
-  electionDataset: TElectionDataset;
-  isFetchingElection: boolean;
-  addElectionId: (id: string) => Promise<void>;
-  removeElectionId: (electionId: string) => void;
+  setValue: UseFormSetValue<TFormData>;
+  watch: UseFormWatch<TFormData>;
 }
 
-export const ElectionListSection: FC<ElectionListSectionProps> = ({
-  electionDataset,
-  isFetchingElection,
-  addElectionId,
-  removeElectionId,
-}) => {
-  const [electionIdInput, setElectionIdInput] = useState('');
+export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, watch }) => {
+  const { showAlert } = useModal();
+  const electionIdList = watch('electionIdList');
+  const electionDetailMap = watch('electionDetailMap');
 
-  const handleAdd = async () => {
-    if (electionIdInput.trim()) {
-      await addElectionId(electionIdInput);
-      setElectionIdInput('');
+  const [electionIdInput, setElectionIdInput] = useState('');
+  const electionIdInputTrimmed = electionIdInput.trim();
+
+  const { mutateAsync: fetchElection, isPending } = useFetchElection();
+
+  const handleAddClick = async () => {
+    if (electionIdInputTrimmed) {
+      if (electionIdList.includes(electionIdInputTrimmed)) {
+        showAlert('이미 추가된 선거 ID입니다.');
+
+        return;
+      }
+
+      try {
+        const data = await fetchElection(electionIdInputTrimmed);
+
+        if (data.options.length !== 2) {
+          showAlert(
+            `선거 ID ${electionIdInputTrimmed}의 옵션 개수가 2개가 아닙니다 (현재: ${data.options.length}개)`
+          );
+
+          return;
+        }
+
+        setValue('electionIdList', [...electionIdList, electionIdInputTrimmed]);
+        setValue('electionDetailMap', {
+          ...electionDetailMap,
+          [electionIdInputTrimmed]: data,
+        });
+      } catch {
+        showAlert(`선거 정보를 불러올 수 없습니다`);
+      } finally {
+        setElectionIdInput('');
+      }
     }
   };
 
-  const { electionIdList, electionDetailMap } = electionDataset;
+  const handleRemoveClick = (electionId: string) => {
+    const updatedIdList = electionIdList.filter((id) => id !== electionId);
+    const updatedDetailMap = { ...electionDetailMap };
+    delete updatedDetailMap[electionId];
+
+    setValue('electionIdList', updatedIdList);
+    setValue('electionDetailMap', updatedDetailMap);
+  };
 
   return (
     <section className={styles.section}>
@@ -44,18 +79,18 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({
           onKeyPress={async (e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              await handleAdd();
+              await handleAddClick();
             }
           }}
         />
         <Button
           type="button"
-          onClick={handleAdd}
+          onClick={handleAddClick}
           variant="primary"
           height={40}
-          disabled={isFetchingElection || !electionIdInput.trim()}
+          disabled={isPending || !electionIdInputTrimmed}
         >
-          {isFetchingElection ? '조회 중...' : '추가'}
+          {isPending ? '조회 중...' : '추가'}
         </Button>
       </div>
 
@@ -65,7 +100,7 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({
             key={id}
             id={id}
             detail={electionDetailMap[id]}
-            removeElectionId={removeElectionId}
+            handleRemoveClick={handleRemoveClick}
           />
         ))}
       </div>

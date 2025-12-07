@@ -1,47 +1,37 @@
 import type { FC } from 'react';
 
 import styles from '@/components/features/Admin/AdminTrendForm/CombinationCard.module.scss';
-import { getOptionTitle } from '@/lib/trendCombinations';
-import type { CreateTrendRequest } from '@/types';
-import type { ElectionDetail } from '@/types/election';
-
-import type { UseFormRegister } from 'react-hook-form';
+import type { CombinationItem } from '@/lib/trendCombinations';
 
 interface CombinationCardProps {
-  index: number;
-  combination: string[];
-  register: UseFormRegister<CreateTrendRequest>;
-  electionDetails: ElectionDetail[];
+  combination: CombinationItem[];
   resultTypeLabel: string;
   hasError: boolean;
   handleLabelChange: (key: string, label: string) => void;
 }
 
 export const CombinationCard: FC<CombinationCardProps> = ({
-  index,
   combination,
-  register,
-  electionDetails = [],
   resultTypeLabel,
   hasError,
   handleLabelChange,
 }) => {
-  const key = combination.join('/');
+  const key = combination.map((item) => item.optionId).join('/');
 
   return (
     <div className={styles.combinationCard}>
       <div className={styles.combinationHeader}>
-        <span className={styles.combinationNumber}>#{index + 1}</span>
-        <span className={styles.combinationKey}>{key}</span>
+        Key : <span className={styles.combinationKey}>{key}</span>
       </div>
 
       <div className={styles.combinationOptions}>
-        {combination.map((optionId, electionIndex) => (
-          <div key={electionIndex} className={styles.optionBadge}>
-            <span className={styles.electionTitle}>{electionDetails[electionIndex]?.title}:</span>
-            <span className={styles.optionTitle}>
-              {getOptionTitle(electionDetails, electionIndex, optionId)}
-            </span>
+        {combination.map((combinationItem) => (
+          <div
+            key={`${combinationItem.electionId}-${combinationItem.optionId}`}
+            className={styles.optionBadge}
+          >
+            <span className={styles.electionTitle}>선거제목 : {combinationItem.electionTitle}</span>
+            <span className={styles.optionTitle}>선택항목 : {combinationItem.optionTitle}</span>
           </div>
         ))}
       </div>
