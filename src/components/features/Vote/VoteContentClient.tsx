@@ -86,7 +86,7 @@ export const VoteContentClient: FC<VoteContentClientProps> = ({
   trendId,
   children, // 서버에서 렌더링된 정적 HTML
 }) => {
-  const items = initialTrendData.items || [];
+  const items = initialTrendData.items;
 
   return (
     <VoteStateManager trendId={trendId} items={items}>

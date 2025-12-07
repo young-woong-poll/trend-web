@@ -99,8 +99,9 @@ export const AdminTrendForm = () => {
       showAlert(`트렌드가 생성되었습니다! 제목: ${data.title}`, {
         onConfirm: () => window.location.reload(),
       });
-    } catch (error: any) {
-      showAlert(`트렌드 생성 실패: ${error?.message || '알 수 없는 오류'}`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+      showAlert(`트렌드 생성 실패: ${errorMessage}`);
     }
   };
 

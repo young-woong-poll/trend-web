@@ -67,7 +67,6 @@ export const CompareLinkCard = ({
   myResult: ResultDisplayResponse;
   resultId: string;
 }) => {
-  const hasError = false;
   const { showToast, showModal } = useModal();
   const {
     mutateAsync: updateNickname,
@@ -154,7 +153,7 @@ export const CompareLinkCard = ({
           disabled={!needNickname}
           defaultValue={name}
           onChange={({ target }) => setName(target.value)}
-          className={`${styles.input} ${hasError ? styles.error : ''}`}
+          className={styles.input}
         />
       </div>
 
