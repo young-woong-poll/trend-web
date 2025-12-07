@@ -10,7 +10,7 @@ type TVoteContentProps = {
 };
 
 export const VoteContent: FC<TVoteContentProps> = ({ initialTrendData, trendId }) => {
-  const items = initialTrendData.items || [];
+  const items = initialTrendData.items;
 
   return (
     <FlexibleLayout>
@@ -24,6 +24,7 @@ export const VoteContent: FC<TVoteContentProps> = ({ initialTrendData, trendId }
               <div>
                 {item.options.map((option) => (
                   <div key={option.id}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={option.imageUrl} alt={option.title} loading="lazy" />
                     <span>{option.title}</span>
                   </div>

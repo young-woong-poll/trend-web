@@ -42,7 +42,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: $neutral-200;
+    background: transparent;
     color: $neutral-900;
   }
 }

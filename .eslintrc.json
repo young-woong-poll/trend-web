@@ -6,7 +6,15 @@
     "plugin:prettier/recommended",
     "prettier"
   ],
-  "ignorePatterns": [".next", "node_modules", "out", "dist", "build"],
+  "ignorePatterns": [
+    ".next",
+    "node_modules",
+    "out",
+    "dist",
+    "build",
+    "public/mockServiceWorker.js",
+    "next-env.d.ts"
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
