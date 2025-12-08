@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { mockElectionDetail } from '@/mocks/data/elections';
 import {
   mockResultDisplay,
   mockResultDisplayWithInvite,
@@ -7,7 +8,7 @@ import {
 } from '@/mocks/data/results';
 import { mockMainDisplay, mockTrendDisplay, mockTrendVoteCount } from '@/mocks/data/trends';
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
 
 /**
  * MSW Handlers
@@ -49,18 +50,17 @@ export const handlers = [
    * Result 전시 조회
    * GET /api/v1/display/result/:resultId
    */
-  http.get(`${baseURL}/api/v1/display/result/:resultId`, ({ params }) => {
-    const { resultId } = params;
+  http.get(`${baseURL}/api/v1/display/result/:resultId`, ({ request }) => {
+    const url = new URL(request.url);
+    const compareId = url.searchParams.get('compareId');
 
-    // resultId에 'invite'가 포함되어 있으면 초대 비교 결과 반환
-    if (String(resultId).includes('invite')) {
+    if (compareId) {
       return HttpResponse.json(mockResultDisplayWithInvite);
     }
 
     // 기본 결과 반환
     return HttpResponse.json(mockResultDisplay);
   }),
-
   /**
    * 초대한 친구 결과 목록 조회
    * GET /api/v1/display/result/:resultId/invitee
@@ -68,5 +68,13 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/result/:resultId/invitee`, () =>
     // 기본 결과 반환
     HttpResponse.json(mockResultInviteeList)
+  ),
+
+  /**
+   * Admin: 선거 상세 조회
+   * GET /admin/api/v1/elections/:electionId
+   */
+  http.get(`${baseURL}/admin/api/v1/elections/:electionId`, () =>
+    HttpResponse.json(mockElectionDetail)
   ),
 ];

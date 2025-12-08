@@ -6,6 +6,21 @@ const nextConfig: NextConfig = {
   sassOptions: {
     implementation: 'sass',
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'image.votebox.kr',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+    ],
+  },
+  // Turbopack configuration (required when using webpack config in Next.js 16)
+  turbopack: {},
   // Enable HMR optimizations
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {

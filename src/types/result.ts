@@ -51,8 +51,8 @@ export interface ResultDisplayResponse {
   trend: ResultTrend;
   nickname?: string;
   selectedOptions?: string[];
-  inviterSelectedOptions?: string[];
-  inviterNickname?: string;
+  compareSelectedOptions?: string[];
+  compareNickname?: string;
   compareType?: string;
   matchCount?: number;
   totalCount?: number;
@@ -74,7 +74,8 @@ export interface InviteeResultResponse {
 }
 
 export interface InviteeResult {
-  nickname: string;
+  resultId: string;
+  nickname?: string;
   compareType: string;
   createdAt: string;
 }

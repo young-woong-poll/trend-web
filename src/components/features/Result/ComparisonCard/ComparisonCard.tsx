@@ -47,7 +47,7 @@ export const ComparisonCard: FC<ComparisonCardProps> = ({
     <div className={styles.comparisonList}>
       <div className={styles.tableHeader}>
         <span className={styles.tableHeaderLabel}>{myName ? `${myName}님` : '나'}</span>
-        <span className={styles.tableHeaderLabel}>사랑꾼 {friendNickname}</span>
+        <span className={styles.tableHeaderLabel}>{friendNickname}</span>
       </div>
 
       {comparisons?.map((item, index) => (

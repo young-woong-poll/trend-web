@@ -34,11 +34,10 @@ export const useBlockNavigation = ({ shouldBlock, onBlock }: UseBlockNavigationO
     }
 
     let isConfirming = false;
-    const shouldNavigate = false;
 
     const handlePopState = () => {
-      // 이미 확인 중이거나 네비게이션 허용된 경우 무시
-      if (isConfirming || shouldNavigate) {
+      // 이미 확인 중인 경우 무시
+      if (isConfirming) {
         return;
       }
 

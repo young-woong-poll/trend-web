@@ -33,9 +33,15 @@ export const displayApi = {
    * Result 전시 조회
    * GET /api/v1/display/result/${resultId}
    */
-  getResultDisplay: async (resultId: string): Promise<ResultDisplayResponse> => {
+  getResultDisplay: async ({
+    resultId,
+    compareId,
+  }: {
+    resultId: string;
+    compareId?: string;
+  }): Promise<ResultDisplayResponse> => {
     const response: AxiosResponse<ResultDisplayResponse> = await axiosInstance.get(
-      `/api/v1/display/result/${resultId}`
+      `/api/v1/display/result/${resultId}${compareId ? `?compareId=${compareId}` : ''}`
     );
     return response.data;
   },
