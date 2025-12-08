@@ -33,7 +33,7 @@ jobs:
             run: |
                 sha_short=$(git rev-parse --short HEAD)
                 sed -i "s/\"version\": \".*\"/\"version\": \"$sha_short\"/" package.json
-                echo "NEXT_PUBLIC_API_BASE_URL=https://trend-api.votebox.kr/" > .env
+                echo "NEXT_PUBLIC_API_BASE_URL=https://trend-api.votebox.kr" > .env
                 pnpm install --frozen-lockfile
                 pnpm build
           
