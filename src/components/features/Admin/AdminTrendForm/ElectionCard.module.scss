@@ -17,10 +17,29 @@
 .electionHeader {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid #f1f5f9;
+}
+
+.dragHandle {
+  cursor: grab;
+  padding: 4px 8px;
+  font-size: 18px;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  line-height: 1;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #64748b;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .electionId {
@@ -28,6 +47,7 @@
   font-weight: 600;
   color: #475569;
   font-family: monospace;
+  flex: 1;
 }
 
 .electionInfo {
