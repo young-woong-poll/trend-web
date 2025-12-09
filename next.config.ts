@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'trend-image.votebox.kr',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'picsum.photos',
       },
     ],

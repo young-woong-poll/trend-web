@@ -17,6 +17,9 @@
     "lefthook:uninstall": "lefthook uninstall"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@tanstack/react-query": "^5.90.9",
     "axios": "^1.13.2",
     "next": "16.0.7",

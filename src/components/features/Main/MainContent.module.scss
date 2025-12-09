@@ -10,3 +10,40 @@
 
   overflow: scroll;
 }
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: $spacing-48;
+  text-align: center;
+
+  .icon {
+    width: 120px;
+    height: 120px;
+    margin-bottom: $spacing-32;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $color4-200 0%, $neutral-200 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: $color4-500;
+  }
+
+  .title {
+    font-size: $font-size-24;
+    font-weight: 700;
+    color: $neutral-800;
+    margin-bottom: $spacing-16;
+  }
+
+  .description {
+    font-size: $font-size-16;
+    color: $neutral-500;
+    line-height: 1.6;
+    max-width: 400px;
+  }
+}

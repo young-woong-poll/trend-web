@@ -1,5 +1,21 @@
 import { useState, type FC } from 'react';
 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
 import { Button } from '@/components/common/Button';
 import type { TFormData } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
 import { ElectionCard } from '@/components/features/Admin/AdminTrendForm/ElectionCard';
@@ -22,6 +38,25 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
   const electionIdInputTrimmed = electionIdInput.trim();
 
   const { mutateAsync: fetchElection, isPending } = useFetchElection();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = electionIdList.indexOf(active.id as string);
+      const newIndex = electionIdList.indexOf(over.id as string);
+
+      const newElectionIdList = arrayMove(electionIdList, oldIndex, newIndex);
+      setValue('electionIdList', newElectionIdList);
+    }
+  };
 
   const handleAddClick = async () => {
     if (electionIdInputTrimmed) {
@@ -94,16 +129,20 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
         </Button>
       </div>
 
-      <div className={styles.electionList}>
-        {electionIdList.map((id) => (
-          <ElectionCard
-            key={id}
-            id={id}
-            detail={electionDetailMap[id]}
-            handleRemoveClick={handleRemoveClick}
-          />
-        ))}
-      </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={electionIdList} strategy={verticalListSortingStrategy}>
+          <div className={styles.electionList}>
+            {electionIdList.map((id) => (
+              <ElectionCard
+                key={id}
+                id={id}
+                detail={electionDetailMap[id]}
+                handleRemoveClick={handleRemoveClick}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
     </section>
   );
 };
