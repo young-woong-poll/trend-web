@@ -119,14 +119,22 @@ export const AdminTrendForm = () => {
         {/* 연결된 선거 ID */}
         <ElectionListSection setValue={setValue} watch={watch} />
 
-        {/* 결과 상단문구 */}
-        <ResultLabelSection register={register} />
+        {watch('electionIdList').length === 0 ? (
+          <div className={styles.noElectionBanner}>
+            <p>선거 ID를 입력하시오</p>
+          </div>
+        ) : (
+          <>
+            {/* 결과 상단문구 */}
+            <ResultLabelSection register={register} />
 
-        {/* 결과 타입 */}
-        <ResultTypeSection setValue={setValue} watch={watch} />
+            {/* 결과 타입 */}
+            <ResultTypeSection setValue={setValue} watch={watch} />
 
-        {/* 답변 타입 */}
-        <AnswerTypeSection setValue={setValue} watch={watch} />
+            {/* 답변 타입 */}
+            <AnswerTypeSection setValue={setValue} watch={watch} />
+          </>
+        )}
 
         {/* Submit */}
         <div className={styles.actions}>
