@@ -3,7 +3,7 @@ name: deploy-prod
 on:
     push:
         branches:
-            - feature/cicd
+            - main
         # tags:
         #     - 'v*'
     workflow_dispatch:
