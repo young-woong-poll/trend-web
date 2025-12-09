@@ -12,6 +12,8 @@
     "out",
     "dist",
     "build",
+    "ecosystem.config.js",
+    "server.js",
     "public/mockServiceWorker.js",
     "next-env.d.ts"
   ],
