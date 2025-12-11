@@ -1,6 +1,7 @@
 import { Archivo } from 'next/font/google';
 
 import { ModalProvider } from '@/contexts/ModalContext';
+import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
 import { MSWProvider } from '@/providers/MSWProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 
@@ -15,8 +16,8 @@ const archivo = Archivo({
 });
 
 export const metadata: Metadata = {
-  title: 'Trend Web',
-  description: 'Next.js application with TypeScript, SCSS, ESLint, and Prettier',
+  metadataBase: new URL(SITE_URL),
+  ...COMMON_METADATA,
 };
 
 export default function RootLayout({
