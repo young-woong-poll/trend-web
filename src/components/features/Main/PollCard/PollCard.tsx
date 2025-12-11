@@ -1,9 +1,12 @@
+'use client';
+
+import { type FC, type ReactNode, useState } from 'react';
+
 import Image from 'next/image';
 import Link from 'next/link';
 
-import StartArrowIcon from '@/assets/icon/StartArrowIcon';
-import { Button } from '@/components/common/Button/Button';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
+import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 
 type TPollCardProps = {
   id: string;
@@ -11,9 +14,19 @@ type TPollCardProps = {
   subtitle: string;
   imageUrl: string;
   participantCount: number;
+  children: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
 
-export const PollCard = ({ id, title, subtitle, imageUrl, participantCount }: TPollCardProps) => {
+export const PollCard: FC<TPollCardProps> = ({
+  id,
+  title,
+  subtitle,
+  imageUrl,
+  participantCount,
+  children,
+}) => {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   const formatCount = (count: number): string => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}K`;
@@ -21,50 +34,56 @@ export const PollCard = ({ id, title, subtitle, imageUrl, participantCount }: TP
     return count.toString();
   };
 
-  // 유효한 이미지 URL인지 확인
-  const isValidImageUrl = (url: string): boolean => {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
-
-  // 유효하지 않은 URL인 경우 placeholder 이미지 사용
-  const validImageUrl = isValidImageUrl(imageUrl)
-    ? imageUrl
-    : 'https://picsum.photos/400/300?random=placeholder';
-
   return (
-    <Link href={`/vote/${id}`} className={styles.cardWrapper}>
-      <div className={styles.card}>
-        {/* Next.js Image 컴포넌트 - 자동 최적화 */}
-        <Image
-          src={validImageUrl}
-          alt={title}
-          fill
-          className={styles.backgroundImage}
-          sizes="(max-width: 768px) 100vw, 480px"
-          priority
-        />
+    <>
+      {/* 서버에서 생성된 정적 HTML (SEO용) */}
+      <noscript>{children}</noscript>
 
-        <div className={styles.overlay} />
-        <h2 className={styles.title}>{title}</h2>
-        <p className={styles.subtitle}>{subtitle}</p>
+      {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
+      {!isImageLoaded && <PollCardSkeleton />}
+      <Link
+        href={`/vote/${id}`}
+        className={styles.cardWrapper}
+        style={{ display: isImageLoaded ? 'block' : 'none' }}
+      >
+        <div className={styles.card}>
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className={styles.backgroundImage}
+            sizes="(max-width: 768px) 100vw, 480px"
+            priority
+            onLoad={() => setIsImageLoaded(true)}
+          />
 
-        <div className={styles.participants}>
-          <span className={styles.label}>참여자</span>
-          <span className={styles.count}>{formatCount(participantCount)}</span>
+          <div className={styles.overlay} />
+          <h2 className={styles.title}>{title}</h2>
+          <p className={styles.subtitle}>{subtitle}</p>
+
+          <div className={styles.participants}>
+            <span className={styles.label}>참여자</span>
+            <span className={styles.count}>{formatCount(participantCount)}</span>
+          </div>
+
+          <svg
+            className={styles.arrowIcon}
+            width="24"
+            height="32"
+            viewBox="0 0 24 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 8L15 16L9 24"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </div>
-
-        <Button variant="gradient" width={160} className={styles.startButton}>
-          <span>
-            시작하기
-            <StartArrowIcon />
-          </span>
-        </Button>
-      </div>
-    </Link>
+      </Link>
+    </>
   );
 };

@@ -31,21 +31,76 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
     );
   }
 
+  const formatCount = (count: number): string => {
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
+  };
+
+  // 유효한 이미지 URL인지 확인
+  const isValidImageUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <>
       <Header />
       <FlexibleLayout>
         <div className={styles.container}>
-          {initialData.trends.map((trend) => (
-            <PollCard
-              key={trend.id}
-              id={trend.id}
-              title={trend.title}
-              subtitle={trend.label}
-              imageUrl={trend.imageUrl}
-              participantCount={trend.participantsCount}
-            />
-          ))}
+          {initialData.trends.map((trend) => {
+            const validImageUrl = isValidImageUrl(trend.imageUrl)
+              ? trend.imageUrl
+              : 'https://picsum.photos/400/300?random=placeholder';
+
+            return (
+              <PollCard
+                key={trend.id}
+                id={trend.id}
+                title={trend.title}
+                subtitle={trend.label}
+                imageUrl={validImageUrl}
+                participantCount={trend.participantsCount}
+              >
+                {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
+                <div suppressHydrationWarning className={styles.cardWrapper}>
+                  <a href={`/vote/${trend.id}`}>
+                    <div className={styles.card}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={validImageUrl} alt={trend.title} loading="lazy" />
+                      <h2 className={styles.title}>{trend.title}</h2>
+                      <p className={styles.subtitle}>{trend.label}</p>
+                      <div className={styles.participants}>
+                        <span className={styles.label}>참여자</span>
+                        <span className={styles.count}>{formatCount(trend.participantsCount)}</span>
+                      </div>
+                      <svg
+                        className={styles.arrowIcon}
+                        width="24"
+                        height="32"
+                        viewBox="0 0 24 32"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M9 8L15 16L9 24"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </a>
+                </div>
+              </PollCard>
+            );
+          })}
         </div>
       </FlexibleLayout>
     </>

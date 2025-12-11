@@ -97,13 +97,80 @@
   color: #fff;
 }
 
-.startButton {
+.arrowIcon {
   position: absolute;
-  bottom: 20px;
+  top: 50%;
   right: 24px;
-  padding: 14px 32px;
-  font-size: $font-size-16;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 48px;
+  color: #fff;
+  opacity: 0.7;
   z-index: 2;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+
+  .cardWrapper:hover & {
+    opacity: 1;
+    transform: translateY(-50%) translateX(4px);
+  }
+}
+
+// Skeleton styles
+.skeletonBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, $neutral-200 25%, $neutral-300 50%, $neutral-200 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  z-index: 0;
+}
+
+.skeletonTitle {
+  position: absolute;
+  top: 100px;
+  left: 24px;
+  width: 60%;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  z-index: 2;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonSubtitle {
+  position: absolute;
+  top: 138px;
+  left: 24px;
+  width: 40%;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  z-index: 2;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .branding {
