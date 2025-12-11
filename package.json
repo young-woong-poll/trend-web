@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:html": "bash -c 'npx prettier \"$1\" --parser html > \"$(basename \"$1\")\"' -",
     "type-check": "tsc --noEmit",
     "optimize": "node scripts/optimize.js",
     "prepare": "lefthook install",

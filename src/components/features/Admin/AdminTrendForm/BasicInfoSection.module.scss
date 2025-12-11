@@ -20,12 +20,18 @@
   margin-bottom: 20px;
 }
 
+.labelWithTooltip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
 .label {
   display: block;
   font-size: 14px;
   font-weight: 500;
   color: #334155;
-  margin-bottom: 8px;
 }
 
 .required {
@@ -51,4 +57,57 @@
   &::placeholder {
     color: #94a3b8;
   }
+}
+
+.inputWithButton {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .input {
+    flex: 1;
+  }
+}
+
+.checkButton {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: #667eea;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    background: #5568d3;
+  }
+
+  &:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+}
+
+.successMessage {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.errorMessage {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.warningMessage {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #f59e0b;
+  font-weight: 500;
 }

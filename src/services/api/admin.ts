@@ -46,4 +46,21 @@ export const adminApi = {
     );
     return response.data;
   },
+
+  /**
+   * Admin: Trend ID 중복 체크
+   * GET /admin/api/v1/trend/check?id={trendId}
+   * @param trendId - 체크할 trend ID
+   * @returns exists 여부를 포함한 객체
+   */
+  checkTrendId: async (trendId: string): Promise<{ exists: boolean }> => {
+    const response: AxiosResponse<{
+      code: string;
+      message: string;
+      data: { exists: boolean };
+    }> = await axiosInstance.get('/admin/api/v1/trend/check', {
+      params: { id: trendId },
+    });
+    return response.data.data;
+  },
 };

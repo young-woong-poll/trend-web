@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/common/Button';
@@ -15,7 +17,10 @@ import { generateCombinations } from '@/lib/trendCombinations';
 import type { ElectionDetail } from '@/types';
 import type { LabelRequest } from '@/types/trend';
 
+export type TrendIdCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
+
 export type TFormData = {
+  id: string;
   title: string;
   label: string;
   imageUrl: string;
@@ -29,9 +34,11 @@ export type TFormData = {
 export const AdminTrendForm = () => {
   const { showAlert } = useModal();
   const { mutateAsync: createTrend, isPending } = useCreateTrend();
+  const [trendIdCheckStatus, setTrendIdCheckStatus] = useState<TrendIdCheckStatus>('idle');
 
   const { register, handleSubmit, setValue, watch } = useForm<TFormData>({
     defaultValues: {
+      id: '',
       title: '',
       label: '',
       imageUrl: '',
@@ -44,7 +51,19 @@ export const AdminTrendForm = () => {
   });
 
   const onSubmit = async (data: TFormData) => {
-    const { imageUrl, electionIdList, electionDetailMap, resultType, answerType } = data;
+    const { id, imageUrl, electionIdList, electionDetailMap, resultType, answerType } = data;
+
+    if (!id.trim()) {
+      showAlert('Trend ID를 입력해주세요.');
+
+      return;
+    }
+
+    if (trendIdCheckStatus !== 'available') {
+      showAlert('Trend ID 중복 확인이 필요합니다.');
+
+      return;
+    }
 
     if (!imageUrl) {
       showAlert('썸네일 이미지를 등록해주세요.');
@@ -83,6 +102,7 @@ export const AdminTrendForm = () => {
 
     try {
       const request = {
+        id: data.id.trim(),
         title: data.title,
         label: data.label,
         imageUrl: data.imageUrl,
@@ -114,7 +134,13 @@ export const AdminTrendForm = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         {/* 기본 정보 */}
-        <BasicInfoSection register={register} setValue={setValue} watch={watch} />
+        <BasicInfoSection
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          checkStatus={trendIdCheckStatus}
+          setCheckStatus={setTrendIdCheckStatus}
+        />
 
         {/* 연결된 선거 ID */}
         <ElectionListSection setValue={setValue} watch={watch} />

@@ -49,3 +49,13 @@ export const useGeneratePresignedUrl = () =>
   useMutation({
     mutationFn: (filename: string) => adminApi.generatePresignedUrl(filename),
   });
+
+/**
+ * Admin: Trend ID 중복 체크 Hook
+ * Trend ID가 이미 존재하는지 확인
+ * @returns exists 여부를 포함한 객체
+ */
+export const useCheckTrendId = () =>
+  useMutation({
+    mutationFn: (trendId: string) => adminApi.checkTrendId(trendId),
+  });
