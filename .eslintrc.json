@@ -15,7 +15,8 @@
     "ecosystem.config.js",
     "server.js",
     "public/mockServiceWorker.js",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "scripts/*.js"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
