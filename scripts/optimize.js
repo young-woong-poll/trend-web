@@ -84,7 +84,9 @@ async function optimizeOGImage(filePath) {
   const outputPath = filePath.replace(ext, '.jpg');
 
   console.log(`📏 원본 크기: ${formatBytes(originalSize)}`);
-  console.log(`🎯 목표: ${CONFIG.og.width}x${CONFIG.og.height}, ${formatBytes(CONFIG.og.targetSize)} 이하\n`);
+  console.log(
+    `🎯 목표: ${CONFIG.og.width}x${CONFIG.og.height}, ${formatBytes(CONFIG.og.targetSize)} 이하\n`
+  );
 
   // 여러 품질로 압축 시도
   const results = [];
@@ -145,7 +147,9 @@ async function optimizeOGImage(filePath) {
     results.forEach((r) => fs.unlinkSync(r.path));
 
     console.log(`  ⚠️  목표 크기 미달성`);
-    console.log(`  📦 최소 크기: ${formatBytes(smallestResult.size)} (품질 ${smallestResult.quality}%)`);
+    console.log(
+      `  📦 최소 크기: ${formatBytes(smallestResult.size)} (품질 ${smallestResult.quality}%)`
+    );
     console.log(`  📁 저장: ${path.relative(process.cwd(), outputPath)}\n`);
 
     return null;
@@ -396,7 +400,9 @@ async function main() {
       } else {
         console.log(`  ✓ ${relativePath}`);
       }
-      console.log(`    ${formatBytes(originalSize)} → ${formatBytes(optimizedSize)} (${savedPercent}% 감소)`);
+      console.log(
+        `    ${formatBytes(originalSize)} → ${formatBytes(optimizedSize)} (${savedPercent}% 감소)`
+      );
     });
 
     const totalSaved = results.reduce((sum, r) => sum + r.savedBytes, 0);
