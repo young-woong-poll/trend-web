@@ -2,16 +2,15 @@ module.exports = {
   apps: [
     {
       name: 'trend-web',
-      script: './server.js',
+      script: 'node_modules/.bin/next',
+      args: 'start',
       instances: 1,
       cwd: '.',
       exec_mode: 'cluster',
-      wait_ready: true,
-      listen_timeout: 10000,
-      kill_timeout: 5000,
       max_memory_restart: '4G',
       env_production: {
         NODE_ENV: 'production',
+        PORT: 3000,
       },
     },
   ],
