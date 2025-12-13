@@ -39,7 +39,7 @@ jobs:
 
           - name: Prepare standalone files
             run: |
-                mkdir -p standalone-deploy
+                mkdir -p standalone-deploy/.next
                 cp -r .next/standalone/* standalone-deploy/
                 cp -r .next/static standalone-deploy/.next/static
                 cp -r public standalone-deploy/public
