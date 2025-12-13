@@ -8,7 +8,7 @@ import { displayApi } from '@/services/api/display';
 export const displayKeys = {
   all: ['display'] as const,
   main: () => [...displayKeys.all, 'main'] as const,
-  trend: (trendId: string) => [...displayKeys.all, 'trend', trendId] as const,
+  trend: (trendAlias: string) => [...displayKeys.all, 'trend', trendAlias] as const,
   result: (resultId: string) => [...displayKeys.all, 'result', resultId] as const,
   resultInvitee: (resultId: string) => [...displayKeys.all, 'result', resultId, 'invitee'] as const,
 };
@@ -25,10 +25,10 @@ export const useMainDisplay = () =>
 /**
  * Trend 전시 조회 Hook
  */
-export const useTrendDisplay = (trendId: string, enabled = true) =>
+export const useTrendDisplay = (trendAlias: string, enabled = true) =>
   useQuery({
-    queryKey: displayKeys.trend(trendId),
-    queryFn: () => displayApi.getTrendDisplay(trendId),
+    queryKey: displayKeys.trend(trendAlias),
+    queryFn: () => displayApi.getTrendDisplay(trendAlias),
     enabled,
     throwOnError: true, // 에러 발생 시 에러 바운더리로 전파
   });

@@ -16,8 +16,8 @@ export const serverDisplayApi = {
   /**
    * Trend 전시 조회 (서버 컴포넌트 전용)
    */
-  getTrendDisplay: async (trendId: string): Promise<TrendDisplayResponse> =>
-    serverFetch<TrendDisplayResponse>(`/api/v1/display/trend/${trendId}`, {
+  getTrendDisplay: async (trendAlias: string): Promise<TrendDisplayResponse> =>
+    serverFetch<TrendDisplayResponse>(`/api/v1/display/trend/${trendAlias}`, {
       next: { revalidate: 60 }, // ISR: 60초마다 재검증
     }),
 };
