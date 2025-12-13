@@ -36,17 +36,26 @@ jobs:
                 echo "NEXT_PUBLIC_API_BASE_URL=https://trend-api.votebox.kr" > .env
                 pnpm install --frozen-lockfile
                 pnpm build
+
+          - name: Prepare standalone files
+            run: |
+                mkdir -p standalone-deploy
+                cp -r .next/standalone/* standalone-deploy/
+                cp -r .next/static standalone-deploy/.next/static
+                cp -r public standalone-deploy/public
+                cp ecosystem.config.js standalone-deploy/
           
         
           - name: scp-to-ec2
             uses: appleboy/scp-action@master
-            with: 
+            with:
                 host: ${{ secrets.EC2_HOST }}
                 username: ${{ secrets.EC2_USER }}
                 key: ${{ secrets.EC2_SSH_KEY }}
-                source: '*'
+                source: 'standalone-deploy/*'
                 target: ${{ secrets.EC2_FRONT_PATH }}
                 rm: true
+                strip_components: 1
 
           - name: start service
             uses: appleboy/ssh-action@master
@@ -55,8 +64,6 @@ jobs:
                 username: ${{ secrets.EC2_USER }}
                 key: ${{ secrets.EC2_SSH_KEY }}
                 script: |
-                    export NVM_DIR=~/.nvm
-                    source ~/.nvm/nvm.sh
                     cd ${{ secrets.EC2_FRONT_PATH }}
                     pm2 delete trend-web || true
                     pm2 start ecosystem.config.js --env production
