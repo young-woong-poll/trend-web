@@ -100,6 +100,7 @@ export interface TrendMetaRequest {
  * Admin: Trend 생성 요청
  */
 export interface CreateTrendRequest {
+  alias: string;
   title: string;
   label: string;
   imageUrl: string;
@@ -112,4 +113,5 @@ export interface CreateTrendRequest {
  */
 export interface TrendResponse {
   id: string;
+  alias: string;
 }

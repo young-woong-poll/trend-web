@@ -4,10 +4,11 @@ import { ImageUpload } from '@/components/common/ImageUpload';
 import { Tooltip } from '@/components/common/Tooltip';
 import type {
   TFormData,
-  TrendIdCheckStatus,
+  TrendAliasCheckStatus,
 } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
 import styles from '@/components/features/Admin/AdminTrendForm/BasicInfoSection.module.scss';
-import { useCheckTrendId } from '@/hooks/api/useAdmin';
+import { useModal } from '@/contexts/ModalContext';
+import { useCheckTrendAlias } from '@/hooks/api/useAdmin';
 
 import type { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
@@ -15,8 +16,8 @@ interface BasicInfoSectionProps {
   register: UseFormRegister<TFormData>;
   setValue: UseFormSetValue<TFormData>;
   watch: UseFormWatch<TFormData>;
-  checkStatus: TrendIdCheckStatus;
-  setCheckStatus: (status: TrendIdCheckStatus) => void;
+  checkStatus: TrendAliasCheckStatus;
+  setCheckStatus: (status: TrendAliasCheckStatus) => void;
 }
 
 export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
@@ -27,33 +28,35 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   setCheckStatus,
 }) => {
   const imageUrl = watch('imageUrl');
-  const trendId = watch('id');
+  const trendAlias = watch('alias');
 
-  const { mutateAsync: checkTrendId, isPending } = useCheckTrendId();
+  const { showAlert } = useModal();
+  const { mutateAsync: checkTrendAlias, isPending } = useCheckTrendAlias();
 
-  const handleTrendIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTrendAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // 영문 소문자와 숫자와 하이픈만 허용
     const sanitized = value.replace(/[^a-z0-9-]/g, '');
-    setValue('id', sanitized);
+    setValue('alias', sanitized);
     setCheckStatus('unchecked');
   };
 
   const handleCheckDuplicate = async () => {
-    const trimmedId = trendId.trim();
+    const trimmedAlias = trendAlias.trim();
 
-    if (!trimmedId) {
+    if (!trimmedAlias) {
       return;
     }
 
-    setValue('id', trimmedId);
+    setValue('alias', trimmedAlias);
     setCheckStatus('checking');
 
     try {
-      const result = await checkTrendId(trimmedId);
+      const result = await checkTrendAlias(trimmedAlias);
       setCheckStatus(result.exists ? 'duplicate' : 'available');
-    } catch (error) {
+    } catch (error: any) {
       setCheckStatus('idle');
+      showAlert(`중복 체크에 실패했습니다. ${error?.message}` || '');
       console.error('중복 체크 실패:', error);
     }
   };
@@ -65,7 +68,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
       <div className={styles.field}>
         <div className={styles.labelWithTooltip}>
           <label htmlFor="trendId" className={styles.label}>
-            Trend ID <span className={styles.required}>*</span>
+            Trend Alias <span className={styles.required}>*</span>
           </label>
           <Tooltip content="영문 소문자와 숫자와 하이픈(-)만 입력 가능합니다">
             <span>?</span>
@@ -73,17 +76,17 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
         </div>
         <div className={styles.inputWithButton}>
           <input
-            id="trendId"
+            id="trendAlias"
             type="text"
-            value={trendId}
-            onChange={handleTrendIdChange}
+            value={trendAlias}
+            onChange={handleTrendAliasChange}
             className={styles.input}
             placeholder="love-trend-2025"
           />
           <button
             type="button"
             onClick={handleCheckDuplicate}
-            disabled={!trendId.trim() || isPending}
+            disabled={!trendAlias.trim() || isPending}
             className={styles.checkButton}
           >
             {isPending ? '확인중...' : '중복확인'}
@@ -95,7 +98,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
         {checkStatus === 'duplicate' && (
           <p className={styles.errorMessage}>이미 사용중인 ID입니다</p>
         )}
-        {checkStatus === 'unchecked' && trendId.trim() && (
+        {checkStatus === 'unchecked' && trendAlias.trim() && (
           <p className={styles.warningMessage}>중복 확인이 필요합니다</p>
         )}
       </div>
