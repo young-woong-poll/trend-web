@@ -11,13 +11,13 @@ export const trendApi = {
    * Trend 항목 옵션 카운트 조회
    * GET /api/v1/trend/{trendId}/item/{itemId}
    */
-  getTrendItemOptions: async (
-    trendId: string,
+  getTrendItemOptionsCount: async (
+    trendAlias: string,
     itemId: string,
     size?: number
   ): Promise<TrendItemOptionsResponse> => {
     const response: AxiosResponse<TrendItemOptionsResponse> = await axiosInstance.get(
-      `/api/v1/trend/${trendId}/item/${itemId}`,
+      `/api/v1/trend/${trendAlias}/item/${itemId}`,
       { params: { size } }
     );
     return response.data;

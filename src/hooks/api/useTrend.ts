@@ -14,15 +14,20 @@ export const trendKeys = {
 /**
  * Trend 항목 옵션 카운트 조회 Hook
  */
-export const useTrendItemOptions = (
-  trendId: string,
-  itemId: string,
-  size?: number,
-  enabled = true
-) =>
+export const useTrendItemOptionsCount = ({
+  trendAlias,
+  itemId,
+  enabled = true,
+  size,
+}: {
+  trendAlias: string;
+  itemId: string;
+  enabled?: boolean;
+  size?: number;
+}) =>
   useQuery({
-    queryKey: trendKeys.itemOptions(trendId, itemId),
-    queryFn: () => trendApi.getTrendItemOptions(trendId, itemId, size),
+    queryKey: trendKeys.itemOptions(trendAlias, itemId),
+    queryFn: () => trendApi.getTrendItemOptionsCount(trendAlias, itemId, size),
     enabled,
     throwOnError: true,
   });
@@ -30,7 +35,7 @@ export const useTrendItemOptions = (
 /**
  * Trend 항목 옵션 카운트를 Map 형태로 조회하는 Hook
  */
-export const useTrendItemOptionsMap = (
+export const useTrendItemOptionsCountMap = (
   trendId: string,
   itemId: string,
   size?: number,
@@ -38,7 +43,7 @@ export const useTrendItemOptionsMap = (
 ) =>
   useQuery({
     queryKey: trendKeys.itemOptions(trendId, itemId),
-    queryFn: () => trendApi.getTrendItemOptions(trendId, itemId, size),
+    queryFn: () => trendApi.getTrendItemOptionsCount(trendId, itemId, size),
     enabled,
     throwOnError: true,
     select: (data) =>
