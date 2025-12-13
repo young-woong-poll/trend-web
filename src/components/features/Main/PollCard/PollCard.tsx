@@ -9,7 +9,7 @@ import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 
 type TPollCardProps = {
-  id: string;
+  alias: string;
   title: string;
   subtitle: string;
   imageUrl: string;
@@ -18,7 +18,7 @@ type TPollCardProps = {
 };
 
 export const PollCard: FC<TPollCardProps> = ({
-  id,
+  alias,
   title,
   subtitle,
   imageUrl,
@@ -42,7 +42,7 @@ export const PollCard: FC<TPollCardProps> = ({
       {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
       {!isImageLoaded && <PollCardSkeleton />}
       <Link
-        href={`/vote/${id}`}
+        href={`/vote/${alias}`}
         className={styles.cardWrapper}
         style={{ display: isImageLoaded ? 'block' : 'none' }}
       >

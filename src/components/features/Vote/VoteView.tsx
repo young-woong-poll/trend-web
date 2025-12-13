@@ -1,59 +1,54 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { useState, type FC, type ReactNode } from 'react';
 
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import CheckIcon from '@/assets/icon/CheckIcon';
-import InfoIcon from '@/assets/icon/InfoIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
-import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import styles from '@/components/features/Vote/VoteView.module.scss';
-import { VoteViewSkeleton } from '@/components/features/Vote/VoteViewSkeleton';
-import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
-import { useTrendDisplay } from '@/hooks/api';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
-
-type TVoteViewProps = {
-  trendId: string;
-};
+import type { TrendDisplayResponse } from '@/types/trend';
 
 type TItemId = string;
 type TOptionId = string;
 export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
 
+type VoteContentClientProps = {
+  trendData: TrendDisplayResponse;
+  children: ReactNode;
+};
+
 const DEFAULT_NUM_OF_ITEMS = 5;
 
-export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
+export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-
   const compare = searchParams.get('compare');
+
+  const { trendId, alias, items } = trendData;
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
-  const { showToast, showModal } = useModal();
 
-  const { data: { items = [] } = {}, isLoading } = useTrendDisplay(trendId);
-
-  // API 스펙 변경: 전체 투표 수 조회 API 삭제됨
-  // Item별로 개별 조회하도록 변경 필요
-  const voteCountMap = {};
-
+  const { showModal } = useModal();
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
 
-  const handleOptionSelect = (itemId: string, optionId: string) => {
-    setSelectedItemMap((prev) => ({
-      ...prev,
-      [itemId]: optionId,
-    }));
+  const handleSubmit = async (nickname?: string) => {
+    try {
+      const resultId = await submit(trendId, selectedItemMap, items.length, nickname);
+
+      return router.replace(`/vote/${alias}/result?id=${resultId}`);
+    } catch (err) {
+      handleError(err);
+    }
   };
 
   const handleNext = async () => {
@@ -77,42 +72,11 @@ export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
     await handleSubmit();
   };
 
-  const handleSubmit = async (nickname?: string) => {
-    try {
-      await submit(selectedItemMap, items.length, nickname);
-    } catch (err) {
-      handleError(err);
-    }
-  };
-
-  const handleCommentClick = () => {
-    const currentItem = items[currentItemIndex];
-
-    if (!selectedItemMap[currentItem.id]) {
-      showToast('투표하면 댓글을 확인할 수 있습니다', <InfoIcon />);
-
-      return;
-    }
-    // eslint-disable-next-line no-console
-    console.log('댓글 버튼 클릭');
-  };
-
-  const handleLinkCopyClick = async () => {
-    try {
-      const currentUrl = window.location.href;
-      await navigator.clipboard.writeText(currentUrl);
-      showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon />);
-    } catch (_error) {
-      showToast('링크 복사에 실패했습니다', <InfoIcon />);
-    }
-  };
-
-  if (isLoading) {
-    return <VoteViewSkeleton />;
-  }
-
   return (
-    <FlexibleLayout>
+    <>
+      {/* 서버에서 생성된 정적 HTML (SEO용) - children은 서버에서 렌더링됨 */}
+      <noscript>{children}</noscript>
+
       <div className={styles.container}>
         <ProgressBar
           currentStep={currentItemIndex}
@@ -125,39 +89,46 @@ export const VoteView: FC<TVoteViewProps> = ({ trendId }) => {
           }}
         >
           {items.length > 0 &&
-            items.map((item) => (
-              <div key={item.id} className={styles.cardContainer}>
-                <VoteCard
-                  title={item.title}
-                  label={item.label}
-                  options={item.options}
-                  selectedOptionId={selectedItemMap[item.id] || null}
-                  onOptionSelect={(optionId) => handleOptionSelect(item.id, optionId)}
-                  voteCountMap={voteCountMap}
-                />
+            items.map((item) => {
+              const selectedOptionId = selectedItemMap[item.id] || null;
 
-                <Button
-                  variant="gradient"
-                  height={48}
-                  onClick={handleNext}
-                  fullWidth
-                  className={styles.button}
-                  disabled={!selectedItemMap[item.id]}
-                >
-                  다음
-                  <StartArrowIcon />
-                </Button>
+              const handleOptionSelect = (optionId: string) => {
+                setSelectedItemMap((prev) => ({
+                  ...prev,
+                  [item.id]: optionId,
+                }));
+              };
 
-                <ActionButtons
-                  commentCount={101}
-                  onCommentClick={handleCommentClick}
-                  onLinkCopyClick={handleLinkCopyClick}
-                  commentDisabled={!selectedItemMap[item.id]}
-                />
-              </div>
-            ))}
+              return (
+                <div key={item.id} className={styles.cardContainer}>
+                  <VoteCard
+                    trendAlias={trendData.alias}
+                    itemId={item.id}
+                    title={item.title}
+                    label={item.label}
+                    options={item.options}
+                    selectedOptionId={selectedOptionId}
+                    handleOptionSelect={handleOptionSelect}
+                  />
+
+                  <Button
+                    variant="gradient"
+                    height={48}
+                    fullWidth
+                    className={styles.button}
+                    onClick={handleNext}
+                    disabled={selectedOptionId === null}
+                  >
+                    다음
+                    <StartArrowIcon />
+                  </Button>
+
+                  <ActionButtons commentDisabled={selectedOptionId === null} />
+                </div>
+              );
+            })}
         </div>
       </div>
-    </FlexibleLayout>
+    </>
   );
 };

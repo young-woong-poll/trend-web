@@ -12,7 +12,11 @@ export {
 } from '@/hooks/api/useDisplay';
 
 // Trend
-export { trendKeys, useTrendItemOptions, useTrendItemOptionsMap } from '@/hooks/api/useTrend';
+export {
+  trendKeys,
+  useTrendItemOptionsCount,
+  useTrendItemOptionsCountMap,
+} from '@/hooks/api/useTrend';
 
 // Result
 export {

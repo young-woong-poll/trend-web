@@ -61,7 +61,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
             return (
               <PollCard
                 key={trend.id}
-                id={trend.id}
+                alias={trend.alias}
                 title={trend.title}
                 subtitle={trend.label}
                 imageUrl={validImageUrl}
@@ -69,7 +69,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
               >
                 {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
                 <div suppressHydrationWarning className={styles.cardWrapper}>
-                  <a href={`/vote/${trend.id}`}>
+                  <a href={`/vote/${trend.alias}`}>
                     <div className={styles.card}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={validImageUrl} alt={trend.title} loading="lazy" />

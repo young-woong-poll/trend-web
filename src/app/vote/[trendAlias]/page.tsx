@@ -11,11 +11,8 @@ interface VotePageProps {
   }>;
 }
 
-// ISR: 60초마다 재검증
 export const revalidate = 60;
 
-//빌드 시 생성되지 않은 경로도 런타임에 동적으로 생성 가능
-//사용자가 처음 접근할 때 서버에서 렌더링하고, 이후 캐시됨 (ISR)
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -91,7 +88,7 @@ export default async function VotePage({ params }: VotePageProps) {
     const { trendAlias } = await params;
     const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
 
-    return <VoteContent initialTrendData={trendData} trendId={trendData.trendId} />;
+    return <VoteContent trendData={trendData} />;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[VotePage] Failed to fetch trend data:', error);
