@@ -20,11 +20,11 @@ export const displayApi = {
 
   /**
    * Trend 전시 조회
-   * GET /api/v1/display/trend/${trendId}
+   * GET /api/v1/display/trend/${trendAlias}
    */
-  getTrendDisplay: async (trendId: string): Promise<TrendDisplayResponse> => {
+  getTrendDisplay: async (trendAlias: string): Promise<TrendDisplayResponse> => {
     const response: AxiosResponse<TrendDisplayResponse> = await axiosInstance.get(
-      `/api/v1/display/trend/${trendId}`
+      `/api/v1/display/trend/${trendAlias}`
     );
     return response.data;
   },

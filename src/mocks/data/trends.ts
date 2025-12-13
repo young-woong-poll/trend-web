@@ -11,23 +11,29 @@ export const mockMainDisplay: MainDisplayResponse = {
   trends: [
     {
       id: 'love',
+      alias: 'love',
       title: '대한민국 연애 난제',
       label: '당신의 문제라면?',
       imageUrl: 'https://picsum.photos/400/300?random=1',
+      createdAt: '2024-01-01T00:00:00Z',
       participantsCount: 1200,
     },
     {
       id: 'relationship',
+      alias: 'relationship',
       title: '인간관계 고민',
       label: '당신의 선택은?',
       imageUrl: 'https://picsum.photos/400/300?random=2',
+      createdAt: '2024-01-02T00:00:00Z',
       participantsCount: 850,
     },
     {
       id: 'career',
+      alias: 'career',
       title: '직장생활 딜레마',
       label: '어떻게 하시겠습니까?',
       imageUrl: 'https://picsum.photos/400/300?random=3',
+      createdAt: '2024-01-03T00:00:00Z',
       participantsCount: 2100,
     },
   ],
@@ -37,6 +43,8 @@ export const mockMainDisplay: MainDisplayResponse = {
  * Trend 전시 Mock 데이터
  */
 export const mockTrendDisplay: TrendDisplayResponse = {
+  trendId: 'love',
+  alias: 'love',
   items: [
     {
       id: 'q1',

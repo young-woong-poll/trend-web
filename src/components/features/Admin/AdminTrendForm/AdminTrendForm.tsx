@@ -17,10 +17,10 @@ import { generateCombinations } from '@/lib/trendCombinations';
 import type { ElectionDetail } from '@/types';
 import type { LabelRequest } from '@/types/trend';
 
-export type TrendIdCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
+export type TrendAliasCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
 
 export type TFormData = {
-  id: string;
+  alias: string;
   title: string;
   label: string;
   imageUrl: string;
@@ -34,11 +34,11 @@ export type TFormData = {
 export const AdminTrendForm = () => {
   const { showAlert } = useModal();
   const { mutateAsync: createTrend, isPending } = useCreateTrend();
-  const [trendIdCheckStatus, setTrendIdCheckStatus] = useState<TrendIdCheckStatus>('idle');
+  const [trendAliasCheckStatus, setTrendAliasCheckStatus] = useState<TrendAliasCheckStatus>('idle');
 
   const { register, handleSubmit, setValue, watch } = useForm<TFormData>({
     defaultValues: {
-      id: '',
+      alias: '',
       title: '',
       label: '',
       imageUrl: '',
@@ -51,16 +51,16 @@ export const AdminTrendForm = () => {
   });
 
   const onSubmit = async (data: TFormData) => {
-    const { id, imageUrl, electionIdList, electionDetailMap, resultType, answerType } = data;
+    const { alias, imageUrl, electionIdList, electionDetailMap, resultType, answerType } = data;
 
-    if (!id.trim()) {
-      showAlert('Trend ID를 입력해주세요.');
+    if (!alias.trim()) {
+      showAlert('Trend Alias를 입력해주세요.');
 
       return;
     }
 
-    if (trendIdCheckStatus !== 'available') {
-      showAlert('Trend ID 중복 확인이 필요합니다.');
+    if (trendAliasCheckStatus !== 'available') {
+      showAlert('Trend Alias 중복 확인이 필요합니다.');
 
       return;
     }
@@ -102,7 +102,7 @@ export const AdminTrendForm = () => {
 
     try {
       const request = {
-        id: data.id.trim(),
+        alias: data.alias.trim(),
         title: data.title,
         label: data.label,
         imageUrl: data.imageUrl,
@@ -138,8 +138,8 @@ export const AdminTrendForm = () => {
           register={register}
           setValue={setValue}
           watch={watch}
-          checkStatus={trendIdCheckStatus}
-          setCheckStatus={setTrendIdCheckStatus}
+          checkStatus={trendAliasCheckStatus}
+          setCheckStatus={setTrendAliasCheckStatus}
         />
 
         {/* 연결된 선거 ID */}

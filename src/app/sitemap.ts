@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 동적 트렌드 페이지들
     const trendPages = data.trends.map((trend) => ({
-      url: `${baseUrl}/vote/${trend.id}`,
+      url: `${baseUrl}/vote/${trend.alias}`,
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
       priority: 0.8,

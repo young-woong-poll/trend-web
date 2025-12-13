@@ -7,9 +7,11 @@
  */
 export interface MainTrendItem {
   id: string;
+  alias: string;
   title: string;
   label: string;
   imageUrl: string;
+  createdAt: string;
   participantsCount: number;
 }
 
@@ -43,6 +45,8 @@ export interface TrendItem {
  * Trend 전시 조회 API 응답
  */
 export interface TrendDisplayResponse {
+  trendId: string;
+  alias: string;
   items: TrendItem[];
 }
 
@@ -96,6 +100,7 @@ export interface TrendMetaRequest {
  * Admin: Trend 생성 요청
  */
 export interface CreateTrendRequest {
+  alias: string;
   title: string;
   label: string;
   imageUrl: string;
@@ -108,4 +113,5 @@ export interface CreateTrendRequest {
  */
 export interface TrendResponse {
   id: string;
+  alias: string;
 }

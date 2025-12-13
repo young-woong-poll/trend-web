@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 
 interface VotePageProps {
   params: Promise<{
-    trendId: string;
+    trendAlias: string;
   }>;
 }
 
@@ -32,16 +32,18 @@ export async function generateStaticParams() {
     const validTrends = await Promise.all(
       mainData.trends.map(async (trend) => {
         try {
-          await serverDisplayApi.getTrendDisplay(trend.id);
-          return trend.id.toString();
+          await serverDisplayApi.getTrendDisplay(trend.alias);
+          return trend.alias;
         } catch {
-          console.warn(`[generateStaticParams] Skipping trend ${trend.id} due to API error`);
+          console.warn(`[generateStaticParams] Skipping trend ${trend.alias} due to API error`);
           return null;
         }
       })
     );
 
-    return validTrends.filter((id): id is string => id !== null).map((trendId) => ({ trendId }));
+    return validTrends
+      .filter((alias): alias is string => alias !== null)
+      .map((trendAlias) => ({ trendAlias }));
   } catch (error) {
     console.error('[generateStaticParams] Failed to generate static params:', error);
     // 에러 발생 시 빈 배열 반환 (동적 렌더링으로 fallback)
@@ -51,8 +53,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: VotePageProps): Promise<Metadata> {
   try {
-    const { trendId } = await params;
-    const trendData = await serverDisplayApi.getTrendDisplay(trendId);
+    const { trendAlias } = await params;
+    const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
 
     const firstItem = trendData.items[0];
     const title = firstItem.title;
@@ -86,10 +88,10 @@ export async function generateMetadata({ params }: VotePageProps): Promise<Metad
 
 export default async function VotePage({ params }: VotePageProps) {
   try {
-    const { trendId } = await params;
-    const trendData = await serverDisplayApi.getTrendDisplay(trendId);
+    const { trendAlias } = await params;
+    const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
 
-    return <VoteContent initialTrendData={trendData} trendId={trendId} />;
+    return <VoteContent initialTrendData={trendData} trendId={trendData.trendId} />;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[VotePage] Failed to fetch trend data:', error);
