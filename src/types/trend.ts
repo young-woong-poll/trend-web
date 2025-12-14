@@ -106,16 +106,76 @@ export interface TrendMetaRequest {
 export interface CreateTrendRequest {
   alias: string;
   title: string;
-  label: string;
-  imageUrl: string;
+  label?: string;
+  imageUrl?: string;
   electionIds: string[];
-  meta: TrendMetaRequest;
+  meta?: TrendMetaRequest;
+  isVisible?: boolean;
+}
+
+/**
+ * Admin: Trend 수정 요청
+ */
+export interface UpdateTrendRequest {
+  alias: string;
+  title: string;
+  label?: string;
+  imageUrl?: string;
+  electionIds: string[];
+  meta?: TrendMetaRequest;
+  isVisible?: boolean;
 }
 
 /**
  * Admin: Trend 생성 응답
  */
 export interface TrendResponse {
-  id: string;
+  id: number;
   alias: string;
+}
+
+/**
+ * Trend 메타 정보
+ */
+export interface TrendMeta {
+  resultLabel?: string;
+  resultTypes?: TrendResultType[];
+  compareTypes?: TrendCompareType[];
+}
+
+/**
+ * Trend 결과 타입
+ */
+export interface TrendResultType {
+  key: string;
+  label: string;
+}
+
+/**
+ * Trend 비교 타입
+ */
+export interface TrendCompareType {
+  label: string;
+}
+
+/**
+ * Admin: Trend 응답
+ */
+export interface AdminTrendResponse {
+  id: number;
+  alias: string;
+  title: string;
+  label?: string;
+  imageUrl?: string;
+  electionIds: string[];
+  meta?: TrendMeta;
+  visible: boolean;
+  createdAt: string;
+}
+
+/**
+ * Admin: Trend Alias 중복 체크 응답
+ */
+export interface TrendAliasCheckResponse {
+  exists: boolean;
 }
