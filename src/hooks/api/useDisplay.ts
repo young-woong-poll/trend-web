@@ -11,6 +11,8 @@ export const displayKeys = {
   trend: (trendAlias: string) => [...displayKeys.all, 'trend', trendAlias] as const,
   result: (resultId: string) => [...displayKeys.all, 'result', resultId] as const,
   resultInvitee: (resultId: string) => [...displayKeys.all, 'result', resultId, 'invitee'] as const,
+  comments: (trendId: number, itemId: string, sort: string) =>
+    [...displayKeys.all, 'comments', trendId, itemId, sort] as const,
 };
 
 /**
@@ -47,5 +49,31 @@ export const useResultDisplayInvitee = (resultId: string, enabled = true) =>
   useQuery({
     queryKey: displayKeys.resultInvitee(resultId),
     queryFn: () => displayApi.getResultDisplayInvitee(resultId),
+    enabled,
+  });
+
+/**
+ * 트렌드 아이템 댓글 조회 Hook
+ */
+export const useComments = ({
+  trendId,
+  itemId,
+  sort = 'latest',
+  cursor,
+  size,
+  tkuId,
+  enabled = true,
+}: {
+  trendId: number;
+  itemId: string;
+  sort?: string;
+  cursor?: string;
+  size?: number;
+  tkuId?: string;
+  enabled?: boolean;
+}) =>
+  useQuery({
+    queryKey: displayKeys.comments(trendId, itemId, sort),
+    queryFn: () => displayApi.getComments({ trendId, itemId, sort, cursor, size, tkuId }),
     enabled,
   });

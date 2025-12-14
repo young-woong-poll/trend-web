@@ -1,7 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { adminApi } from '@/services/api/admin';
-import type { CreateTrendRequest } from '@/types/trend';
+import type { CreateTrendRequest, UpdateTrendRequest } from '@/types/trend';
 
 /**
  * Admin Query Keys
@@ -14,12 +14,60 @@ export const adminKeys = {
 };
 
 /**
+ * Admin: 트렌드 목록 조회 Hook
+ */
+export const useTrends = (enabled = true) =>
+  useQuery({
+    queryKey: adminKeys.trend(),
+    queryFn: adminApi.getTrends,
+    enabled,
+  });
+
+/**
  * Admin: Trend 생성 Hook
  */
-export const useCreateTrend = () =>
-  useMutation({
+export const useCreateTrend = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: (data: CreateTrendRequest) => adminApi.createTrend(data),
+    onSuccess: () => {
+      // 트렌드 목록 쿼리 무효화
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+    },
   });
+};
+
+/**
+ * Admin: 트렌드 수정 Hook
+ */
+export const useUpdateTrend = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ trendId, data }: { trendId: number; data: UpdateTrendRequest }) =>
+      adminApi.updateTrend(trendId, data),
+    onSuccess: () => {
+      // 트렌드 목록 쿼리 무효화
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+    },
+  });
+};
+
+/**
+ * Admin: 트렌드 삭제 Hook
+ */
+export const useDeleteTrend = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (trendId: number) => adminApi.deleteTrend(trendId),
+    onSuccess: () => {
+      // 트렌드 목록 쿼리 무효화
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+    },
+  });
+};
 
 /**
  * Admin: 선거 상세 조회 Hook (Query)

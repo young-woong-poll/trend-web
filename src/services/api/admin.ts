@@ -1,7 +1,13 @@
 import axiosInstance from '@/lib/axios';
 import type { ElectionDetail } from '@/types/election';
 import type { PresignedUrlResponse } from '@/types/storage';
-import type { CreateTrendRequest, TrendResponse } from '@/types/trend';
+import type {
+  CreateTrendRequest,
+  TrendResponse,
+  AdminTrendResponse,
+  UpdateTrendRequest,
+  TrendAliasCheckResponse,
+} from '@/types/trend';
 
 import type { AxiosResponse } from 'axios';
 
@@ -49,18 +55,52 @@ export const adminApi = {
 
   /**
    * Admin: Trend ID 중복 체크
-   * GET /admin/api/v1/trend/check?id={alias}
-   * @param alias - 체크할 trend ID
+   * GET /admin/api/v1/trend/check?alias={alias}
+   * @param alias - 체크할 trend alias
    * @returns exists 여부를 포함한 객체
    */
-  checkTrendAlias: async (alias: string): Promise<{ exists: boolean }> => {
+  checkTrendAlias: async (alias: string): Promise<TrendAliasCheckResponse> => {
     const response: AxiosResponse<{
       code: string;
       message: string;
-      data: { exists: boolean };
+      data: TrendAliasCheckResponse;
     }> = await axiosInstance.get('/admin/api/v1/trend/check', {
       params: { alias },
     });
     return response.data.data;
+  },
+
+  /**
+   * Admin: 트렌드 목록 조회
+   * GET /admin/api/v1/trend
+   */
+  getTrends: async (): Promise<AdminTrendResponse[]> => {
+    const response: AxiosResponse<{
+      code: string;
+      message: string;
+      data: AdminTrendResponse[];
+    }> = await axiosInstance.get('/admin/api/v1/trend');
+    return response.data.data;
+  },
+
+  /**
+   * Admin: 트렌드 수정
+   * PUT /admin/api/v1/trend/{trendId}
+   */
+  updateTrend: async (trendId: number, data: UpdateTrendRequest): Promise<AdminTrendResponse> => {
+    const response: AxiosResponse<{
+      code: string;
+      message: string;
+      data: AdminTrendResponse;
+    }> = await axiosInstance.put(`/admin/api/v1/trend/${trendId}`, data);
+    return response.data.data;
+  },
+
+  /**
+   * Admin: 트렌드 삭제
+   * DELETE /admin/api/v1/trend/{trendId}
+   */
+  deleteTrend: async (trendId: number): Promise<void> => {
+    await axiosInstance.delete(`/admin/api/v1/trend/${trendId}`);
   },
 };
