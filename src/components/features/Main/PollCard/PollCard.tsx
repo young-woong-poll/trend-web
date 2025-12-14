@@ -7,11 +7,13 @@ import Link from 'next/link';
 
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
+import { getRelativeTime } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
   title: string;
   subtitle: string;
+  createdAt: string;
   imageUrl: string;
   participantCount: number;
   children: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
@@ -21,6 +23,7 @@ export const PollCard: FC<TPollCardProps> = ({
   alias,
   title,
   subtitle,
+  createdAt,
   imageUrl,
   participantCount,
   children,
@@ -64,6 +67,8 @@ export const PollCard: FC<TPollCardProps> = ({
           <div className={styles.participants}>
             <span className={styles.label}>참여자</span>
             <span className={styles.count}>{formatCount(participantCount)}</span>
+            <span className={styles.dot}>•</span>
+            <span className={styles.date}>{getRelativeTime(createdAt)}</span>
           </div>
 
           <svg

@@ -45,6 +45,10 @@ export const mockMainDisplay: MainDisplayResponse = {
 export const mockTrendDisplay: TrendDisplayResponse = {
   trendId: 'love',
   alias: 'love',
+  title: '대한민국 연애 난제',
+  label: '당신의 연애 스타일은 무엇인가요? 솔직하게 선택해보세요!',
+  imageUrl: 'https://picsum.photos/600/400?random=10',
+  createdAt: '2024-01-01T00:00:00Z',
   items: [
     {
       id: 'q1',

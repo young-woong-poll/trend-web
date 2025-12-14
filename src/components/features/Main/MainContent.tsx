@@ -64,6 +64,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
                 alias={trend.alias}
                 title={trend.title}
                 subtitle={trend.label}
+                createdAt={trend.createdAt}
                 imageUrl={validImageUrl}
                 participantCount={trend.participantsCount}
               >

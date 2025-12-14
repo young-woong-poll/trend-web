@@ -113,3 +113,47 @@ export function buildFileName(file: File, options?: UploadImageOptions): string 
 
   return `${prefix}_${timestamp}_${random}.${extension}`;
 }
+
+/**
+ * Get relative time string (YouTube style)
+ * Examples: "방금 전", "5분전", "3시간전", "2일전", "1주전", "3개월전", "1년전"
+ */
+export function getRelativeTime(dateString: string): string {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  // 음수인 경우 (미래 시간) 방금 전으로 표시
+  if (diffInSeconds < 0) {
+    return '방금 전';
+  }
+
+  const minute = 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+  const week = day * 7;
+  const month = day * 30;
+  const year = day * 365;
+
+  if (diffInSeconds < minute) {
+    return '방금 전';
+  } else if (diffInSeconds < hour) {
+    const minutes = Math.floor(diffInSeconds / minute);
+    return `${minutes}분전`;
+  } else if (diffInSeconds < day) {
+    const hours = Math.floor(diffInSeconds / hour);
+    return `${hours}시간전`;
+  } else if (diffInSeconds < week) {
+    const days = Math.floor(diffInSeconds / day);
+    return `${days}일전`;
+  } else if (diffInSeconds < month) {
+    const weeks = Math.floor(diffInSeconds / week);
+    return `${weeks}주전`;
+  } else if (diffInSeconds < year) {
+    const months = Math.floor(diffInSeconds / month);
+    return `${months}개월전`;
+  } else {
+    const years = Math.floor(diffInSeconds / year);
+    return `${years}년전`;
+  }
+}
