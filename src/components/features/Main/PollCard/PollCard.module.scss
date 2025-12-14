@@ -82,7 +82,7 @@
   left: 24px;
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 4px;
   font-size: $font-size-16;
   z-index: 2;
 }
@@ -94,6 +94,16 @@
 
 .count {
   font-weight: 700;
+  color: #fff;
+}
+
+.dot {
+  font-weight: 400;
+  color: #fff;
+}
+
+.date {
+  font-weight: 400;
   color: #fff;
 }
 
