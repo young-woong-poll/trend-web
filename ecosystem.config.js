@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'trend-web',
-      script: '.next/standalone/server.js',
+      script: 'server.js',
       instances: 1,
       cwd: '.',
       exec_mode: 'cluster',
