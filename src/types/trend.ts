@@ -47,6 +47,10 @@ export interface TrendItem {
 export interface TrendDisplayResponse {
   trendId: string;
   alias: string;
+  title: string;
+  label: string;
+  imageUrl: string;
+  createdAt: string;
   items: TrendItem[];
 }
 
