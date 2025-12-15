@@ -177,9 +177,10 @@ export const serverDisplayApi = {
 3. **nickname 업데이트 시 캐시 무효화** (선택사항):
    - 사용자가 nickname을 설정한 직후에는 `revalidatePath` 사용
    - Server Action에서 nickname 저장 후 캐시 무효화
+
    ```typescript
    // Server Action 예시
-   'use server'
+   'use server';
    import { revalidatePath } from 'next/cache';
 
    export async function updateNickname(resultId: string, nickname: string) {
@@ -293,7 +294,8 @@ export async function generateMetadata({ searchParams }: GenerateMetadataProps):
   if (!resultId) {
     return {
       title: '투표 결과',
-      description: '이번 주 대한민국은 이걸로 싸운다 🔥 투표 결과를 확인하고 친구들과 비교해보세요!',
+      description:
+        '이번 주 대한민국은 이걸로 싸운다 🔥 투표 결과를 확인하고 친구들과 비교해보세요!',
     };
   }
 
@@ -393,12 +395,14 @@ export { generateMetadata } from './metadata';
 **OG 태그 예시**:
 
 비교 링크 (compareId 있음):
+
 ```
 제목: "우웅님의 결과는 철저한 모범생형 | HotPick"
 설명: "우웅님과 나의 취향이 같을까? 🔥 지금 바로 비교해보세요!"
 ```
 
 일반 링크 (compareId 없음):
+
 ```
 제목: "내 결과는 철저한 모범생형 | HotPick"
 설명: "나의 투표 결과를 확인하고 친구들과 비교해보세요! 🔥 너랑 나랑 뇌 구조가 같을까?"
@@ -880,6 +884,7 @@ export const createInvitation = async ({
 #### 서버 컴포넌트 캐싱
 
 **투표 결과 데이터 (`getResultDisplay`)**:
+
 - **특징**: 불변 데이터 (한 번 생성되면 변경 없음)
 - **캐싱**: 긴 시간 캐싱 가능 (`revalidate: 3600` ~ `86400`)
 - **이유**:
@@ -889,6 +894,7 @@ export const createInvitation = async ({
 - **권장**: `revalidate: 3600` (1시간) 또는 `86400` (24시간)
 
 **친구 결과 목록 (`getResultDisplayInvitee`)**:
+
 - **특징**: 가변 데이터 (친구들이 계속 투표 가능)
 - **캐싱**: 짧은 시간 캐싱 (`revalidate: 30`) 또는 no-store
 - **이유**: 실시간으로 친구 결과가 추가됨
