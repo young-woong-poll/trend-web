@@ -10,7 +10,10 @@ import { CommentEditModal } from '@/components/features/Vote/CommentModal/Commen
 import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm';
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
+import { useModal } from '@/contexts/ModalContext';
+import { useLikeComment, useUnlikeComment } from '@/hooks/api/useComment';
 import { useCommentCount } from '@/hooks/api/useCommentList';
+import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
@@ -30,14 +33,16 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const pathname = usePathname();
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
 
-  // 수정 모달 상태
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
   const [editToken, setEditToken] = useState<string>('');
 
-  // 실제 댓글 개수 가져오기
   const commentCount = useCommentCount(trendId, itemId);
+
+  const { showToast } = useModal();
+  const { mutate: likeComment } = useLikeComment();
+  const { mutate: unlikeComment } = useUnlikeComment();
 
   // 라우터 변경 감지하여 모달 닫기
   useEffect(() => {
@@ -68,7 +73,6 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     }
   }, [isOpen]);
 
-  // ESC 키로 닫기
   useEffect(() => {
     const handleEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -99,41 +103,52 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     setSort(newSort);
   };
 
-  // 좋아요 클릭 핸들러 (Step 6에서 실제 구현)
   const handleLikeClick = (commentId: string, liked: boolean) => {
-    // TODO: Step 6에서 좋아요/취소 API 호출 구현
-    // Placeholder for like/unlike functionality
-    void commentId;
-    void liked;
+    const tkuId = getTKUID();
+
+    if (liked) {
+      unlikeComment(
+        { commentId, tkuId },
+        {
+          onError: () => {
+            showToast('좋아요 취소에 실패했습니다');
+          },
+        }
+      );
+    } else {
+      likeComment(
+        { commentId, tkuId },
+        {
+          onError: () => {
+            showToast('좋아요에 실패했습니다');
+          },
+        }
+      );
+    }
   };
 
-  // 댓글 수정 요청 핸들러
   const handleEditRequest = (comment: CommentItem) => {
     setSelectedComment(comment);
     setIsPasswordModalOpen(true);
   };
 
-  // 비밀번호 검증 성공 핸들러
   const handlePasswordVerified = (token: string) => {
     setEditToken(token);
     setIsPasswordModalOpen(false);
     setIsEditModalOpen(true);
   };
 
-  // 비밀번호 모달 닫기 핸들러
   const handlePasswordModalClose = () => {
     setIsPasswordModalOpen(false);
     setSelectedComment(null);
   };
 
-  // 수정 모달 닫기 핸들러
   const handleEditModalClose = () => {
     setIsEditModalOpen(false);
     setSelectedComment(null);
     setEditToken('');
   };
 
-  // 댓글 작성 성공 핸들러
   const handleCommentSuccess = () => {
     // 댓글 작성 성공 시 추가 동작 (필요시)
     // 예: 스크롤을 맨 위로 이동, 정렬을 최신순으로 변경 등

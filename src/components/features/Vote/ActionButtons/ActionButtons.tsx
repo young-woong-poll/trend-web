@@ -8,13 +8,22 @@ import InfoIcon from '@/assets/icon/InfoIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
+import { useCommentCount } from '@/hooks/api/useCommentList';
 
 interface ActionButtonsProps {
+  trendId: number;
+  itemId: string;
   commentDisabled?: boolean;
+  onCommentClick: () => void;
 }
 
-export const ActionButtons: FC<ActionButtonsProps> = ({ commentDisabled = false }) => {
-  const commentCount = 101;
+export const ActionButtons: FC<ActionButtonsProps> = ({
+  trendId,
+  itemId,
+  commentDisabled = false,
+  onCommentClick,
+}) => {
+  const commentCount = useCommentCount(trendId, itemId);
   const { showToast } = useModal();
 
   const handleCommentClick = () => {
@@ -24,8 +33,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ commentDisabled = false 
       return;
     }
 
-    // TODO : 댓글창 open 개발
-    console.log('댓글 버튼 클릭');
+    onCommentClick();
   };
 
   const handleLinkCopyClick = async () => {

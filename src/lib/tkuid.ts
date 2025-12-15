@@ -6,6 +6,7 @@
 const TKUID_KEY = 'tkuid';
 
 function generateUUID(): string {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
