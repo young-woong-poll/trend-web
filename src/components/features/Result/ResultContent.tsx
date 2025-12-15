@@ -42,7 +42,11 @@ export const ResultContent = ({
         {compareId ? (
           <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
         ) : (
-          <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
+          <TypeCard
+            questions={myResult.trend}
+            selectedOptions={myResult.selectedOptions}
+            resultType={myResult.resultType}
+          />
         )}
 
         {/* 친구와 비교하기 - 친구 결과 있을 때만 */}

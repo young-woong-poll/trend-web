@@ -1,18 +1,17 @@
-'use client';
-
 import styles from '@/components/features/Result/TypeCard/TypeCard.module.scss';
 import type { ResultTrend } from '@/types/result';
 
 type TypeCardProps = {
   questions: ResultTrend | undefined;
   selectedOptions: string[] | undefined;
+  resultType: string;
 };
 
-export const TypeCard = ({ questions, selectedOptions }: TypeCardProps) => (
+export const TypeCard = ({ questions, selectedOptions, resultType }: TypeCardProps) => (
   <>
     <div className={styles.content}>
       <p className={styles.subtitle}>당신의 성향은</p>
-      <h1 className={styles.title}>낭만의 사랑꾼</h1>
+      <h1 className={styles.title}>{resultType}</h1>
 
       {questions?.items.map(({ title, options }) => (
         <div className={styles.section} key={title}>

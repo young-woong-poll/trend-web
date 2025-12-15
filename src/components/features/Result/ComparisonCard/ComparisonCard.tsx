@@ -1,5 +1,3 @@
-'use client';
-
 import type { FC } from 'react';
 
 import styles from '@/components/features/Result/ComparisonCard/ComparisonCard.module.scss';

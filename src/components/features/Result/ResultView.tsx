@@ -88,7 +88,11 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
         {compareId ? (
           <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
         ) : (
-          <TypeCard questions={myResult.trend} selectedOptions={myResult.selectedOptions} />
+          <TypeCard
+            questions={myResult.trend}
+            selectedOptions={myResult.selectedOptions}
+            resultType={myResult.resultType}
+          />
         )}
         {!friendResultError && (
           <CompareLinkCard
