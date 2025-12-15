@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Vote/CommentModal/CommentBottomSheet.module.scss';
+import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm';
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { useCommentCount } from '@/hooks/api/useCommentList';
 import type { CommentItem } from '@/types/comment';
@@ -105,6 +106,12 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     void comment;
   };
 
+  // 댓글 작성 성공 핸들러
+  const handleCommentSuccess = () => {
+    // 댓글 작성 성공 시 추가 동작 (필요시)
+    // 예: 스크롤을 맨 위로 이동, 정렬을 최신순으로 변경 등
+  };
+
   return (
     <Portal>
       <div className={styles.dimmed} onClick={handleDimmedClick}>
@@ -155,10 +162,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
           {/* 댓글 작성 폼 (고정 하단) */}
           <div className={styles.commentFormContainer}>
-            {/* TODO: CommentForm 컴포넌트 추가 */}
-            <div className={styles.placeholder}>
-              <p>댓글 작성 폼이 여기에 표시됩니다.</p>
-            </div>
+            <CommentForm trendId={trendId} itemId={itemId} onSuccess={handleCommentSuccess} />
           </div>
         </div>
       </div>
