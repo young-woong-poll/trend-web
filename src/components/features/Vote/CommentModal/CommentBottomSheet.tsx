@@ -20,7 +20,6 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   onClose,
   trendId,
   itemId,
-  trendAlias,
 }) => {
   const pathname = usePathname();
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
