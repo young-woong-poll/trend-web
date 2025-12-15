@@ -6,8 +6,10 @@ import { usePathname } from 'next/navigation';
 
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Vote/CommentModal/CommentBottomSheet.module.scss';
+import { CommentEditModal } from '@/components/features/Vote/CommentModal/CommentEditModal';
 import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm';
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
+import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useCommentCount } from '@/hooks/api/useCommentList';
 import type { CommentItem } from '@/types/comment';
 
@@ -27,6 +29,12 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 }) => {
   const pathname = usePathname();
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
+
+  // 수정 모달 상태
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
+  const [editToken, setEditToken] = useState<string>('');
 
   // 실제 댓글 개수 가져오기
   const commentCount = useCommentCount(trendId, itemId);
@@ -99,11 +107,30 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     void liked;
   };
 
-  // 댓글 수정 요청 핸들러 (Step 5에서 실제 구현)
+  // 댓글 수정 요청 핸들러
   const handleEditRequest = (comment: CommentItem) => {
-    // TODO: Step 5에서 비밀번호 확인 모달 → 수정 모달 플로우 구현
-    // Placeholder for edit functionality
-    void comment;
+    setSelectedComment(comment);
+    setIsPasswordModalOpen(true);
+  };
+
+  // 비밀번호 검증 성공 핸들러
+  const handlePasswordVerified = (token: string) => {
+    setEditToken(token);
+    setIsPasswordModalOpen(false);
+    setIsEditModalOpen(true);
+  };
+
+  // 비밀번호 모달 닫기 핸들러
+  const handlePasswordModalClose = () => {
+    setIsPasswordModalOpen(false);
+    setSelectedComment(null);
+  };
+
+  // 수정 모달 닫기 핸들러
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedComment(null);
+    setEditToken('');
   };
 
   // 댓글 작성 성공 핸들러
@@ -166,6 +193,26 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 비밀번호 확인 모달 */}
+      {selectedComment && (
+        <CommentPasswordModal
+          isOpen={isPasswordModalOpen}
+          onClose={handlePasswordModalClose}
+          commentId={selectedComment.id}
+          onVerified={handlePasswordVerified}
+        />
+      )}
+
+      {/* 댓글 수정 모달 */}
+      {selectedComment && (
+        <CommentEditModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          comment={selectedComment}
+          editToken={editToken}
+        />
+      )}
     </Portal>
   );
 };
