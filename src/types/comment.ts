@@ -29,6 +29,16 @@ export interface UpdateCommentRequest {
 }
 
 /**
+ * 댓글 수정 응답
+ * @note BE 개발자에게 updatedAt을 응답에 포함하도록 요청 필요
+ */
+export interface CommentUpdateResponse {
+  id: string;
+  content: string;
+  updatedAt: string;
+}
+
+/**
  * 댓글 수정 검증 요청
  */
 export interface VerifyCommentRequest {
@@ -62,6 +72,7 @@ export interface CommentItem {
   likeCount: number;
   liked: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 /**

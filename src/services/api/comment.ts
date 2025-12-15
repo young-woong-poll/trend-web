@@ -3,6 +3,7 @@ import type {
   CreateCommentRequest,
   CommentCreateResponse,
   UpdateCommentRequest,
+  CommentUpdateResponse,
   VerifyCommentRequest,
   CommentVerifyResponse,
   CommentLikeResponse,
@@ -29,9 +30,19 @@ export const commentApi = {
   /**
    * 댓글 수정
    * PUT /api/v1/comment/{commentId}
+   *
+   * @returns CommentUpdateResponse - 수정된 댓글의 id, content, updatedAt 포함
+   * @note BE 개발자에게 updatedAt을 응답에 포함하도록 요청 필요
    */
-  updateComment: async (commentId: string, data: UpdateCommentRequest): Promise<void> => {
-    await axiosInstance.put(`/api/v1/comment/${commentId}`, data);
+  updateComment: async (
+    commentId: string,
+    data: UpdateCommentRequest
+  ): Promise<CommentUpdateResponse> => {
+    const response: AxiosResponse<CommentUpdateResponse> = await axiosInstance.put(
+      `/api/v1/comment/${commentId}`,
+      data
+    );
+    return response.data;
   },
 
   /**

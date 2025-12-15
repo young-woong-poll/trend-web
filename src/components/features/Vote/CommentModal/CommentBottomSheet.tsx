@@ -6,6 +6,9 @@ import { usePathname } from 'next/navigation';
 
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Vote/CommentModal/CommentBottomSheet.module.scss';
+import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
+import { useCommentCount } from '@/hooks/api/useCommentList';
+import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
   isOpen: boolean;
@@ -23,7 +26,9 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 }) => {
   const pathname = usePathname();
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
-  const [commentCount] = useState(0); // TODO: 실제 댓글 개수로 대체
+
+  // 실제 댓글 개수 가져오기
+  const commentCount = useCommentCount(trendId, itemId);
 
   // 라우터 변경 감지하여 모달 닫기
   useEffect(() => {
@@ -85,6 +90,21 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     setSort(newSort);
   };
 
+  // 좋아요 클릭 핸들러 (Step 6에서 실제 구현)
+  const handleLikeClick = (commentId: string, liked: boolean) => {
+    // TODO: Step 6에서 좋아요/취소 API 호출 구현
+    // Placeholder for like/unlike functionality
+    void commentId;
+    void liked;
+  };
+
+  // 댓글 수정 요청 핸들러 (Step 5에서 실제 구현)
+  const handleEditRequest = (comment: CommentItem) => {
+    // TODO: Step 5에서 비밀번호 확인 모달 → 수정 모달 플로우 구현
+    // Placeholder for edit functionality
+    void comment;
+  };
+
   return (
     <Portal>
       <div className={styles.dimmed} onClick={handleDimmedClick}>
@@ -124,13 +144,13 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
           {/* 댓글 목록 (스크롤 영역) */}
           <div className={styles.commentListContainer}>
-            {/* TODO: CommentList 컴포넌트 추가 */}
-            <div className={styles.emptyState}>
-              <p>댓글 목록이 여기에 표시됩니다.</p>
-              <p className={styles.hint}>
-                trendId: {trendId}, itemId: {itemId}, sort: {sort}
-              </p>
-            </div>
+            <CommentList
+              trendId={trendId}
+              itemId={itemId}
+              sort={sort}
+              onEditRequest={handleEditRequest}
+              onLikeClick={handleLikeClick}
+            />
           </div>
 
           {/* 댓글 작성 폼 (고정 하단) */}
