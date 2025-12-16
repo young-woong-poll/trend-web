@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import { usePathname } from 'next/navigation';
 
@@ -11,17 +11,16 @@ import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import { useLikeComment, useUnlikeComment } from '@/hooks/api/useComment';
+import { useCommentLike } from '@/hooks/api/useCommentLike';
 import { useCommentCount } from '@/hooks/api/useCommentList';
-import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  trendId: number;
-  itemId: string;
+  trendId: string;
   trendAlias: string;
+  itemId: string;
 }
 
 export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
@@ -38,19 +37,26 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
   const [editToken, setEditToken] = useState<string>('');
 
-  const commentCount = useCommentCount(trendId, itemId);
+  const commentCount = useCommentCount(trendId, itemId, sort);
 
   const { showToast } = useModal();
-  const { mutate: likeComment } = useLikeComment();
-  const { mutate: unlikeComment } = useUnlikeComment();
+  const { handleLikeClick } = useCommentLike(trendId, itemId, sort, {
+    onError: () => {
+      showToast('좋아요 처리에 실패했습니다');
+    },
+  });
+
+  // 이전 pathname을 추적하기 위한 ref
+  const prevPathnameRef = useRef(pathname);
 
   // 라우터 변경 감지하여 모달 닫기
   useEffect(() => {
-    if (isOpen) {
+    // pathname이 실제로 변경되었을 때만 모달 닫기
+    if (prevPathnameRef.current !== pathname && isOpen) {
       onClose();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    prevPathnameRef.current = pathname;
+  }, [pathname, isOpen, onClose]);
 
   // 모달이 열릴 때 body 스크롤 막기
   useEffect(() => {
@@ -101,30 +107,6 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
   const handleSortChange = (newSort: 'popular' | 'latest') => {
     setSort(newSort);
-  };
-
-  const handleLikeClick = (commentId: string, liked: boolean) => {
-    const tkuId = getTKUID();
-
-    if (liked) {
-      unlikeComment(
-        { commentId, tkuId },
-        {
-          onError: () => {
-            showToast('좋아요 취소에 실패했습니다');
-          },
-        }
-      );
-    } else {
-      likeComment(
-        { commentId, tkuId },
-        {
-          onError: () => {
-            showToast('좋아요에 실패했습니다');
-          },
-        }
-      );
-    }
   };
 
   const handleEditRequest = (comment: CommentItem) => {

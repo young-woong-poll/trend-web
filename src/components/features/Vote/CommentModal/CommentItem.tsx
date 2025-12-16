@@ -21,6 +21,8 @@ export const CommentItem: FC<CommentItemProps> = ({ comment, onLikeClick, onEdit
     onEditClick(comment);
   };
 
+  const formatLikeCount = (count: number): string => (count > 999 ? '999+' : count.toString());
+
   return (
     <div className={styles.commentItem}>
       {/* 헤더: 닉네임, 시간 */}
@@ -46,7 +48,7 @@ export const CommentItem: FC<CommentItemProps> = ({ comment, onLikeClick, onEdit
           aria-label={comment.liked ? '좋아요 취소' : '좋아요'}
         >
           <span className={styles.likeIcon}>👍</span>
-          <span className={styles.likeCount}>{comment.likeCount}</span>
+          <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
         <button

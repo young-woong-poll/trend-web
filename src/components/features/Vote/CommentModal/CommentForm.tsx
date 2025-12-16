@@ -82,33 +82,31 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
     const trimmedPassword = password.trim();
     const trimmedContent = content.trim();
 
-    const newErrors: typeof errors = {};
-
     // 닉네임 검증
     const nicknameValidation = validateNickname(trimmedNickname);
     if (!nicknameValidation.isValid) {
-      newErrors.nickname = true;
+      setErrors({ nickname: true });
       showToast(nicknameValidation.error || '닉네임을 입력해주세요');
+      return;
     }
 
     // 비밀번호 검증
     if (!trimmedPassword) {
-      newErrors.password = true;
+      setErrors({ password: true });
       showToast('비밀번호를 입력해주세요');
-    } else if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
-      newErrors.password = true;
+      return;
+    }
+
+    if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
+      setErrors({ password: true });
       showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
+      return;
     }
 
     // 댓글 내용 검증
     if (!trimmedContent) {
-      newErrors.content = true;
+      setErrors({ content: true });
       showToast('댓글 내용을 입력해주세요');
-    }
-
-    // 에러가 있으면 중단
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
       return;
     }
 
