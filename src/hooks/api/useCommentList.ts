@@ -6,12 +6,12 @@ import type { CommentListResponse } from '@/types/comment';
 
 export const commentListKeys = {
   all: ['commentList'] as const,
-  list: (trendId: number, itemId: string, sort: string) =>
+  list: (trendId: string, itemId: string, sort: string) =>
     [...commentListKeys.all, trendId, itemId, sort] as const,
 };
 
 export const useInfiniteCommentList = (
-  trendId: number,
+  trendId: string,
   itemId: string,
   sort: 'latest' | 'popular' = 'latest',
   enabled: boolean = true
@@ -37,8 +37,12 @@ export const useInfiniteCommentList = (
   });
 };
 
-export const useCommentCount = (trendId: number, itemId: string) => {
-  const { data } = useInfiniteCommentList(trendId, itemId, 'latest', true);
+export const useCommentCount = (
+  trendId: string,
+  itemId: string,
+  sort: 'latest' | 'popular' = 'latest'
+) => {
+  const { data } = useInfiniteCommentList(trendId, itemId, sort, true);
 
   return data?.pages[0]?.totalSize ?? 0;
 };

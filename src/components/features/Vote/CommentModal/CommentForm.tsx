@@ -9,7 +9,7 @@ import { validateNickname, isValidNicknameCharacters, NICKNAME_MAX_LENGTH } from
 import type { CreateCommentRequest } from '@/types/comment';
 
 interface CommentFormProps {
-  trendId: number;
+  trendId: string;
   itemId: string;
   onSuccess: () => void;
 }

@@ -13,7 +13,7 @@ import type {
 export const commentKeys = {
   all: ['comment'] as const,
   lists: () => [...commentKeys.all, 'list'] as const,
-  list: (trendId: number, itemId: string, sort: string) =>
+  list: (trendId: string, itemId: string, sort: string) =>
     [...commentKeys.lists(), trendId, itemId, sort] as const,
 };
 

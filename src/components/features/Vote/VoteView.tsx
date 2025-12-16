@@ -38,8 +38,8 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
 
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   const { showModal } = useModal();
   const { submit } = useVoteSubmission();
@@ -138,7 +138,7 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                   </Button>
 
                   <ActionButtons
-                    trendId={Number(trendId)}
+                    trendId={trendId}
                     itemId={item.id}
                     commentDisabled={selectedOptionId === null}
                     onCommentClick={() => handleOpenCommentModal(item.id)}
@@ -154,7 +154,7 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
         <CommentBottomSheet
           isOpen={isCommentModalOpen}
           onClose={handleCloseCommentModal}
-          trendId={Number(trendId)}
+          trendId={trendId}
           itemId={selectedItemForComment}
           trendAlias={alias}
         />

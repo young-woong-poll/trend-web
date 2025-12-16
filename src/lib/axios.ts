@@ -5,6 +5,7 @@ import type { BaseResponse } from '@/types/api';
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr',
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

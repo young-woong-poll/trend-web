@@ -6,7 +6,7 @@
  * 댓글 작성 요청
  */
 export interface CreateCommentRequest {
-  trendId: number;
+  trendId: string;
   itemId: string;
   nickname: string;
   password: string;

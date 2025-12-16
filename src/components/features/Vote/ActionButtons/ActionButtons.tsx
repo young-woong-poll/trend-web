@@ -11,7 +11,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { useCommentCount } from '@/hooks/api/useCommentList';
 
 interface ActionButtonsProps {
-  trendId: number;
+  trendId: string;
   itemId: string;
   commentDisabled?: boolean;
   onCommentClick: () => void;
@@ -23,6 +23,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({
   commentDisabled = false,
   onCommentClick,
 }) => {
+  // TODO : 전체 댓글 개수 가져오는 API 로 변경필요
   const commentCount = useCommentCount(trendId, itemId);
   const { showToast } = useModal();
 

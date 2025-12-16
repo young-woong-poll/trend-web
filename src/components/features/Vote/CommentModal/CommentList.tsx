@@ -8,7 +8,7 @@ import { useInfiniteCommentList } from '@/hooks/api/useCommentList';
 import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentListProps {
-  trendId: number;
+  trendId: string;
   itemId: string;
   sort: 'latest' | 'popular';
   onEditRequest: (comment: CommentItemType) => void;
