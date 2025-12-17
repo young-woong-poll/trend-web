@@ -91,38 +91,36 @@
 // 정렬 탭
 .sortTabs {
   display: flex;
-  gap: 24px;
-  padding-bottom: 12px;
+  gap: 8px;
+  margin-left: auto;
+  margin-right: 12px;
 }
 
 .tab {
-  position: relative;
-  background: none;
-  border: none;
-  padding: 8px 0;
-  font-size: 14px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #999;
+  color: #666;
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 16px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;
 
   &:hover {
-    color: #666;
+    background-color: #e8e8e8;
+    color: #333;
   }
 
   &.active {
-    color: #1a1a1a;
+    color: white;
+    background-color: #1a1a1a;
     font-weight: 600;
+  }
 
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background-color: #1a1a1a;
-    }
+  &:active {
+    transform: scale(0.96);
   }
 }
 

@@ -151,6 +151,25 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           <div className={styles.header}>
             <div className={styles.titleRow}>
               <h2 className={styles.title}>댓글 {commentCount}개</h2>
+
+              {/* 정렬 탭 */}
+              <div className={styles.sortTabs}>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${sort === 'popular' ? styles.active : ''}`}
+                  onClick={() => handleSortChange('popular')}
+                >
+                  인기순
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tab} ${sort === 'latest' ? styles.active : ''}`}
+                  onClick={() => handleSortChange('latest')}
+                >
+                  최신순
+                </button>
+              </div>
+
               <button
                 type="button"
                 className={styles.closeButton}
@@ -158,24 +177,6 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
                 aria-label="닫기"
               >
                 ✕
-              </button>
-            </div>
-
-            {/* 정렬 탭 */}
-            <div className={styles.sortTabs}>
-              <button
-                type="button"
-                className={`${styles.tab} ${sort === 'popular' ? styles.active : ''}`}
-                onClick={() => handleSortChange('popular')}
-              >
-                인기순
-              </button>
-              <button
-                type="button"
-                className={`${styles.tab} ${sort === 'latest' ? styles.active : ''}`}
-                onClick={() => handleSortChange('latest')}
-              >
-                최신순
               </button>
             </div>
           </div>
