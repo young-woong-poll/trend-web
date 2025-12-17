@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
 import { getTKUID } from '@/lib/tkuid';
 import { displayApi } from '@/services/api/display';
@@ -31,6 +31,7 @@ export const useInfiniteCommentList = (
       }),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.nextId ?? undefined,
+    placeholderData: keepPreviousData, // 정렬 변경 시 이전 데이터 유지
     enabled,
     staleTime: 1000 * 60, // 1분
     gcTime: 1000 * 60 * 5, // 5분 (구 cacheTime)

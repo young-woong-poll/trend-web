@@ -48,6 +48,8 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
   // 이전 pathname을 추적하기 위한 ref
   const prevPathnameRef = useRef(pathname);
+  // 댓글 목록 스크롤 컨테이너 ref
+  const commentListContainerRef = useRef<HTMLDivElement>(null);
 
   // 라우터 변경 감지하여 모달 닫기
   useEffect(() => {
@@ -132,8 +134,13 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   };
 
   const handleCommentSuccess = () => {
-    // 댓글 작성 성공 시 추가 동작 (필요시)
-    // 예: 스크롤을 맨 위로 이동, 정렬을 최신순으로 변경 등
+    // 댓글 작성 성공 시 최신순으로 자동 전환 (사용자가 자신의 댓글을 즉시 확인 가능)
+    setSort('latest');
+
+    // 스크롤을 맨 위로 이동
+    if (commentListContainerRef.current) {
+      commentListContainerRef.current.scrollTop = 0;
+    }
   };
 
   return (
@@ -174,7 +181,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           </div>
 
           {/* 댓글 목록 (스크롤 영역) */}
-          <div className={styles.commentListContainer}>
+          <div ref={commentListContainerRef} className={styles.commentListContainer}>
             <CommentList
               trendId={trendId}
               itemId={itemId}

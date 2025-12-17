@@ -49,37 +49,41 @@ export const useCommentLike = (
 
   /**
    * React Query 캐시를 직접 업데이트하여 UI를 즉시 반영
+   * 최신순/인기순 모두 업데이트하여 탭 전환 시에도 좋아요 상태 동기화
    */
   const updateCacheOptimistically = useCallback(
     (commentId: string, liked: boolean, likeCountDelta: number) => {
-      const queryKey = ['commentList', trendId, itemId, sort];
+      // 최신순과 인기순 모두 업데이트
+      (['latest', 'popular'] as const).forEach((sortType) => {
+        const queryKey = ['commentList', trendId, itemId, sortType];
 
-      queryClient.setQueryData<{ pages: CommentListResponse[]; pageParams: unknown[] }>(
-        queryKey,
-        (oldData) => {
-          if (!oldData) {
-            return oldData;
+        queryClient.setQueryData<{ pages: CommentListResponse[]; pageParams: unknown[] }>(
+          queryKey,
+          (oldData) => {
+            if (!oldData) {
+              return oldData;
+            }
+
+            return {
+              ...oldData,
+              pages: oldData.pages.map((page) => ({
+                ...page,
+                comments: page.comments.map((comment) =>
+                  comment.id === commentId
+                    ? {
+                        ...comment,
+                        liked,
+                        likeCount: Math.max(0, comment.likeCount + likeCountDelta),
+                      }
+                    : comment
+                ),
+              })),
+            };
           }
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              comments: page.comments.map((comment) =>
-                comment.id === commentId
-                  ? {
-                      ...comment,
-                      liked,
-                      likeCount: Math.max(0, comment.likeCount + likeCountDelta),
-                    }
-                  : comment
-              ),
-            })),
-          };
-        }
-      );
+        );
+      });
     },
-    [queryClient, trendId, itemId, sort]
+    [queryClient, trendId, itemId]
   );
 
   /**

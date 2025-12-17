@@ -1,7 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { commentListKeys } from '@/hooks/api/useCommentList';
 import { commentApi } from '@/services/api/comment';
 import type {
+  CommentItem,
   CreateCommentRequest,
   UpdateCommentRequest,
   VerifyCommentRequest,
@@ -9,6 +11,7 @@ import type {
 
 /**
  * Comment Query Keys
+ * @deprecated commentListKeys를 사용하세요
  */
 export const commentKeys = {
   all: ['comment'] as const,
@@ -25,10 +28,51 @@ export const useCreateComment = () => {
 
   return useMutation({
     mutationFn: (data: CreateCommentRequest) => commentApi.createComment(data),
-    onSuccess: (_, variables) => {
-      // 댓글 목록 쿼리 무효화
+    onSuccess: (responseData, variables) => {
+      // 서버 응답(id만 있음)과 요청 데이터를 조합하여 완전한 CommentItem 생성
+      const newComment: CommentItem = {
+        id: responseData.id,
+        nickname: variables.nickname,
+        content: variables.content,
+        likeCount: 0, // 새 댓글은 좋아요 0개
+        liked: false, // 새 댓글은 좋아요 안 한 상태
+        createdAt: new Date().toISOString(), // 현재 시간
+      };
+
+      // 최신순: 캐시를 직접 업데이트 (즉시 반영, 로딩 없음)
+      const latestQueryKey = commentListKeys.list(variables.trendId, variables.itemId, 'latest');
+
+      queryClient.setQueryData(latestQueryKey, (old: unknown) => {
+        if (!old || typeof old !== 'object') {
+          return old;
+        }
+
+        const oldData = old as {
+          pages: Array<{
+            comments: CommentItem[];
+            totalSize: number;
+            nextId: string | null;
+          }>;
+          pageParams: unknown[];
+        };
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page, index) =>
+            index === 0
+              ? {
+                  ...page,
+                  comments: [newComment, ...page.comments],
+                  totalSize: page.totalSize + 1,
+                }
+              : page
+          ),
+        };
+      });
+
+      // 인기순: 무효화하여 서버에서 다시 계산된 순서로 불러옴
       void queryClient.invalidateQueries({
-        queryKey: commentKeys.list(variables.trendId, variables.itemId, 'latest'),
+        queryKey: commentListKeys.list(variables.trendId, variables.itemId, 'popular'),
       });
     },
   });
@@ -70,7 +114,7 @@ export const useLikeComment = () => {
       commentApi.likeComment(commentId, tkuId),
     onSuccess: () => {
       // 모든 댓글 목록 쿼리 무효화
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: commentListKeys.all });
     },
   });
 };
@@ -86,7 +130,7 @@ export const useUnlikeComment = () => {
       commentApi.unlikeComment(commentId, tkuId),
     onSuccess: () => {
       // 모든 댓글 목록 쿼리 무효화
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: commentListKeys.all });
     },
   });
 };
