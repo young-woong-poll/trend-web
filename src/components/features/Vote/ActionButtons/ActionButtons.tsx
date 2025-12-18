@@ -61,7 +61,9 @@ export const ActionButtons: FC<ActionButtonsProps> = ({
         <div className={styles.icon}>
           <CommentIcon />
         </div>
-        <span className={styles.label}>{commentCount ? commentCount : '?'}</span>
+        <span className={styles.label}>
+          {commentCount || commentCount === 0 ? commentCount : '?'}
+        </span>
       </button>
 
       <button type="button" className={styles.button} onClick={handleLinkCopyClick}>
