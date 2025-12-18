@@ -66,7 +66,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
       {
         commentId: comment.id,
         data: {
-          editToken,
+          verifyToken: editToken,
           content: trimmedContent,
         },
       },

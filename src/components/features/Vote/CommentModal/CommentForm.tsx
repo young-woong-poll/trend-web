@@ -173,7 +173,7 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
           value={content}
           onChange={handleContentChange}
           maxLength={COMMENT_MAX_LENGTH}
-          rows={3}
+          rows={2}
           disabled={isPending}
         />
         <button

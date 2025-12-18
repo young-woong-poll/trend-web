@@ -24,7 +24,7 @@ export interface CommentCreateResponse {
  * 댓글 수정 요청
  */
 export interface UpdateCommentRequest {
-  editToken: string;
+  verifyToken: string;
   content: string;
 }
 

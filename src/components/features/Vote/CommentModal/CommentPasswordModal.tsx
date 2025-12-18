@@ -63,7 +63,6 @@ export const CommentPasswordModal: FC<CommentPasswordModalProps> = ({
           // 검증 성공
           setPassword('');
           setError(undefined);
-          onClose();
           onVerified(response.editToken);
         },
         onError: () => {
