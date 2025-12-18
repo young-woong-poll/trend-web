@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 
-import CheckIcon from '@/assets/icon/CheckIcon';
 import { Header } from '@/components/common/Header/Header';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
@@ -10,8 +9,6 @@ import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWit
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
 import styles from '@/components/features/Result/ResultView.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
-import { VOTE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
-import { useModal } from '@/contexts/ModalContext';
 import { useResultDisplay, useResultDisplayInvitee } from '@/hooks/api';
 
 interface ResultViewProps {
@@ -59,7 +56,6 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
   const searchParams = useSearchParams();
   const resultId = searchParams.get('id') as string;
   const compareId = searchParams.get('compareId') as string | undefined;
-  const { showToast } = useModal();
 
   const {
     data: myResult,
@@ -101,13 +97,7 @@ export const ResultView = ({ type: _type }: ResultViewProps) => {
             resultId={resultId}
           />
         )}
-        <CopyUrlCard
-          onCopyUrl={async () => {
-            const currentUrl = window.location.href;
-            await navigator.clipboard.writeText(currentUrl);
-            showToast(VOTE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
-          }}
-        />
+        <CopyUrlCard />
       </div>
     </div>
   );

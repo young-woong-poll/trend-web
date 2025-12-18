@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 
 import { notFound } from 'next/navigation';
 
-import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { ResultContent } from '@/components/features/Result/ResultContent';
+import { ResultSkeleton } from '@/components/features/Result/ResultSkeleton/ResultSkeleton';
 import { SITE_NAME, OG_IMAGE } from '@/lib/seo/constants';
 import { serverDisplayApi } from '@/services/api/server/display';
 
@@ -129,9 +129,5 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
 
 // 로딩 UI
 function LoadingFallback() {
-  return (
-    <div style={{ padding: '20px' }}>
-      <Skeleton height={240} width="60%" borderRadius={8} />
-    </div>
-  );
+  return <ResultSkeleton />;
 }
