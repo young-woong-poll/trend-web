@@ -186,11 +186,6 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
           게시
         </button>
       </div>
-
-      {/* 글자 수 카운터 */}
-      <div className={styles.counter}>
-        {content.length} / {COMMENT_MAX_LENGTH}
-      </div>
     </div>
   );
 };
