@@ -216,6 +216,8 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           onClose={handleEditModalClose}
           comment={selectedComment}
           editToken={editToken}
+          trendId={trendId}
+          itemId={itemId}
         />
       )}
     </Portal>

@@ -13,6 +13,8 @@ interface CommentEditModalProps {
   onClose: () => void;
   comment: CommentItem;
   editToken: string;
+  trendId: string;
+  itemId: string;
 }
 
 const COMMENT_MAX_LENGTH = 200;
@@ -22,6 +24,8 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
   onClose,
   comment,
   editToken,
+  trendId,
+  itemId,
 }) => {
   const [content, setContent] = useState(comment.content);
 
@@ -65,6 +69,8 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     updateComment(
       {
         commentId: comment.id,
+        trendId,
+        itemId,
         data: {
           verifyToken: editToken,
           content: trimmedContent,
