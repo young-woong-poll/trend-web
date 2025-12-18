@@ -1,0 +1,96 @@
+@use '@/styles/variables' as *;
+
+// TypeCard Skeleton
+.typeCardSkeleton {
+  border-radius: 10px;
+  box-shadow:
+    0px 2px 5px #171a1f17,
+    0px 0px 2px #171a1f1f;
+  padding: 24px;
+  background-color: #ffffff;
+}
+
+.titleArea {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.titleSubtitle {
+  display: flex;
+  justify-content: center;
+}
+
+.titleMain {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.questionSection {
+  margin-bottom: 24px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.questionText {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.optionsRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+
+  > * {
+    flex: 1;
+    max-width: 180px;
+  }
+}
+
+// CompareLinkCard Skeleton
+.compareLinkCardSkeleton {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow:
+    0px 2px 5px #171a1f17,
+    0px 0px 2px #171a1f1f;
+  padding: 20px 16px 30px;
+}
+
+.compareTitle {
+  margin-bottom: 12px;
+}
+
+.compareDescription {
+  margin-bottom: 24px;
+}
+
+.compareLabel {
+  margin-bottom: 10px;
+}
+
+.emptyBox {
+  width: 100%;
+}
+
+// CopyUrlCard Skeleton
+.copyUrlCardSkeleton {
+  background-color: $neutral-100;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow:
+    0px 2px 5px #171a1f17,
+    0px 0px 2px #171a1f1f;
+}
+
+.copyTitle {
+  margin-bottom: 4px;
+}
+
+.copyDescription {
+  margin-bottom: 20px;
+}
