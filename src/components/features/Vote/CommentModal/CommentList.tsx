@@ -12,6 +12,7 @@ interface CommentListProps {
   itemId: string;
   sort: 'latest' | 'popular';
   onEditRequest: (comment: CommentItemType) => void;
+  onDeleteRequest: (comment: CommentItemType) => void;
   onLikeClick: (commentId: string, liked: boolean) => void;
 }
 
@@ -20,6 +21,7 @@ export const CommentList: FC<CommentListProps> = ({
   itemId,
   sort,
   onEditRequest,
+  onDeleteRequest,
   onLikeClick,
 }) => {
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
@@ -90,6 +92,7 @@ export const CommentList: FC<CommentListProps> = ({
           comment={comment}
           onLikeClick={onLikeClick}
           onEditClick={onEditRequest}
+          onDeleteClick={onDeleteRequest}
         />
       ))}
 

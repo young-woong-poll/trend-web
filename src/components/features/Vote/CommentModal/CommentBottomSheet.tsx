@@ -11,6 +11,7 @@ import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
+import { useDeleteComment } from '@/hooks/api/useComment';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
 import { useCommentCount } from '@/hooks/api/useCommentList';
 import type { CommentItem } from '@/types/comment';
@@ -36,10 +37,12 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
   const [editToken, setEditToken] = useState<string>('');
+  const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
 
   const commentCount = useCommentCount(trendId, itemId, sort);
 
-  const { showToast } = useModal();
+  const { showToast, showConfirm } = useModal();
+  const { mutate: deleteComment } = useDeleteComment();
   const { handleLikeClick } = useCommentLike(trendId, itemId, sort, {
     onError: () => {
       showToast('좋아요 처리에 실패했습니다');
@@ -113,18 +116,67 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
   const handleEditRequest = (comment: CommentItem) => {
     setSelectedComment(comment);
+    setActionType('edit');
+    setIsPasswordModalOpen(true);
+  };
+
+  const handleDeleteRequest = (comment: CommentItem) => {
+    setSelectedComment(comment);
+    setActionType('delete');
     setIsPasswordModalOpen(true);
   };
 
   const handlePasswordVerified = (token: string) => {
     setEditToken(token);
     setIsPasswordModalOpen(false);
-    setIsEditModalOpen(true);
+
+    if (actionType === 'edit') {
+      // 수정 모달 열기
+      setIsEditModalOpen(true);
+      return;
+    }
+
+    // 삭제 확인
+    showConfirm('댓글 삭제', {
+      message: '정말로 이 댓글을 삭제하시겠습니까?',
+      confirmText: '삭제',
+      cancelText: '취소',
+      onConfirm: () => {
+        if (!selectedComment) {
+          return;
+        }
+
+        deleteComment(
+          {
+            commentId: selectedComment.id,
+            trendId,
+            itemId,
+            data: { verifyToken: token },
+          },
+          {
+            onSuccess: () => {
+              showToast('댓글이 삭제되었습니다');
+              setSelectedComment(null);
+              setEditToken('');
+            },
+            onError: () => {
+              showToast('댓글 삭제에 실패했습니다');
+            },
+          }
+        );
+      },
+      onCancel: () => {
+        // 취소한 경우 상태 초기화
+        setSelectedComment(null);
+        setEditToken('');
+      },
+    });
   };
 
   const handlePasswordModalClose = () => {
     setIsPasswordModalOpen(false);
     setSelectedComment(null);
+    setActionType('edit');
   };
 
   const handleEditModalClose = () => {
@@ -188,6 +240,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
               itemId={itemId}
               sort={sort}
               onEditRequest={handleEditRequest}
+              onDeleteRequest={handleDeleteRequest}
               onLikeClick={handleLikeClick}
             />
           </div>
