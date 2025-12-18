@@ -6,7 +6,7 @@
  * 댓글 작성 요청
  */
 export interface CreateCommentRequest {
-  trendId: number;
+  trendId: string;
   itemId: string;
   nickname: string;
   password: string;
@@ -24,8 +24,18 @@ export interface CommentCreateResponse {
  * 댓글 수정 요청
  */
 export interface UpdateCommentRequest {
-  editToken: string;
+  verifyToken: string;
   content: string;
+}
+
+/**
+ * 댓글 수정 응답
+ * @note BE 개발자에게 updatedAt을 응답에 포함하도록 요청 필요
+ */
+export interface CommentUpdateResponse {
+  id: string;
+  content: string;
+  updatedAt: string;
 }
 
 /**
@@ -42,6 +52,20 @@ export interface CommentVerifyResponse {
   editToken: string;
   expiresIn: number;
   expiresAt: string;
+}
+
+/**
+ * 댓글 삭제 요청
+ */
+export interface DeleteCommentRequest {
+  verifyToken: string;
+}
+
+/**
+ * 댓글 개수 조회 응답
+ */
+export interface CommentCountResponse {
+  count: number;
 }
 
 /**
@@ -62,6 +86,7 @@ export interface CommentItem {
   likeCount: number;
   liked: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 /**

@@ -8,13 +8,25 @@ import InfoIcon from '@/assets/icon/InfoIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
+import { useCommentCountQuery } from '@/hooks/api/useComment';
 
 interface ActionButtonsProps {
+  trendId: string;
+  itemId: string;
   commentDisabled?: boolean;
+  onCommentClick: () => void;
 }
 
-export const ActionButtons: FC<ActionButtonsProps> = ({ commentDisabled = false }) => {
-  const commentCount = 101;
+export const ActionButtons: FC<ActionButtonsProps> = ({
+  trendId,
+  itemId,
+  commentDisabled = false,
+  onCommentClick,
+}) => {
+  // TODO : 전체 댓글 개수 가져오는 API 로 변경필요
+  const { data: commentCountData } = useCommentCountQuery(trendId, itemId);
+  const commentCount = commentCountData?.count;
+
   const { showToast } = useModal();
 
   const handleCommentClick = () => {
@@ -24,8 +36,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ commentDisabled = false 
       return;
     }
 
-    // TODO : 댓글창 open 개발
-    console.log('댓글 버튼 클릭');
+    onCommentClick();
   };
 
   const handleLinkCopyClick = async () => {
@@ -50,7 +61,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ commentDisabled = false 
         <div className={styles.icon}>
           <CommentIcon />
         </div>
-        <span className={styles.label}>{commentCount}</span>
+        <span className={styles.label}>{commentCount ? commentCount : '?'}</span>
       </button>
 
       <button type="button" className={styles.button} onClick={handleLinkCopyClick}>

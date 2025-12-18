@@ -1,0 +1,62 @@
+.commentList {
+  display: flex;
+  flex-direction: column;
+}
+
+// 상태 메시지 공통 스타일
+.statusContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+// 로딩 상태
+.statusText {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+// 에러 상태
+.errorText {
+  font-size: 14px;
+  color: #d32f2f;
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
+.errorHint {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+// 빈 목록
+.emptyText {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.emptyHint {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}
+
+// 무한스크롤 트리거
+.observerTarget {
+  padding: 16px 0;
+  text-align: center;
+}
+
+.loadingMore {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}

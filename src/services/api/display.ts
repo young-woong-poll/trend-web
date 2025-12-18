@@ -70,7 +70,7 @@ export const displayApi = {
     size,
     tkuId,
   }: {
-    trendId: number;
+    trendId: string;
     itemId: string;
     sort?: string;
     cursor?: string;

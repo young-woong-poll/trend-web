@@ -41,4 +41,18 @@ export const resultApi = {
   setNickname: async (resultId: string, nickname: string): Promise<void> => {
     await axiosInstance.post(`/api/v1/result/${resultId}/nickname`, { nickname });
   },
+
+  /**
+   * 비교 링크 생성 (닉네임과 resultId 매핑)
+   * POST /api/v1/result/{resultId}/invitation
+   */
+  createInvitation: async ({
+    resultId,
+    nickname,
+  }: {
+    resultId: string;
+    nickname: string;
+  }): Promise<void> => {
+    await axiosInstance.post(`/api/v1/result/${resultId}/invitation`, { nickname });
+  },
 };

@@ -11,7 +11,7 @@ export const displayKeys = {
   trend: (trendAlias: string) => [...displayKeys.all, 'trend', trendAlias] as const,
   result: (resultId: string) => [...displayKeys.all, 'result', resultId] as const,
   resultInvitee: (resultId: string) => [...displayKeys.all, 'result', resultId, 'invitee'] as const,
-  comments: (trendId: number, itemId: string, sort: string) =>
+  comments: (trendId: string, itemId: string, sort: string) =>
     [...displayKeys.all, 'comments', trendId, itemId, sort] as const,
 };
 
@@ -64,9 +64,9 @@ export const useComments = ({
   tkuId,
   enabled = true,
 }: {
-  trendId: number;
+  trendId: string;
   itemId: string;
-  sort?: string;
+  sort?: 'latest' | 'popular';
   cursor?: string;
   size?: number;
   tkuId?: string;

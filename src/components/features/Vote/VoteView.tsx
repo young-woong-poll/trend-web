@@ -8,6 +8,7 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { ActionButtons } from '@/components/features/Vote/ActionButtons';
+import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import styles from '@/components/features/Vote/VoteView.module.scss';
@@ -36,6 +37,9 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
+
+  const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   const { showModal } = useModal();
   const { submit } = useVoteSubmission();
@@ -70,6 +74,16 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
     }
 
     await handleSubmit();
+  };
+
+  const handleOpenCommentModal = (itemId: string) => {
+    setSelectedItemForComment(itemId);
+    setIsCommentModalOpen(true);
+  };
+
+  const handleCloseCommentModal = () => {
+    setIsCommentModalOpen(false);
+    setSelectedItemForComment(null);
   };
 
   return (
@@ -123,12 +137,28 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                     <StartArrowIcon />
                   </Button>
 
-                  <ActionButtons commentDisabled={selectedOptionId === null} />
+                  <ActionButtons
+                    trendId={trendId}
+                    itemId={item.id}
+                    commentDisabled={selectedOptionId === null}
+                    onCommentClick={() => handleOpenCommentModal(item.id)}
+                  />
                 </div>
               );
             })}
         </div>
       </div>
+
+      {/* 댓글 바텀시트 */}
+      {selectedItemForComment && (
+        <CommentBottomSheet
+          isOpen={isCommentModalOpen}
+          onClose={handleCloseCommentModal}
+          trendId={trendId}
+          itemId={selectedItemForComment}
+          trendAlias={alias}
+        />
+      )}
     </>
   );
 };
