@@ -55,6 +55,20 @@ export interface CommentVerifyResponse {
 }
 
 /**
+ * 댓글 삭제 요청
+ */
+export interface DeleteCommentRequest {
+  verifyToken: string;
+}
+
+/**
+ * 댓글 개수 조회 응답
+ */
+export interface CommentCountResponse {
+  count: number;
+}
+
+/**
  * 댓글 좋아요 응답
  */
 export interface CommentLikeResponse {

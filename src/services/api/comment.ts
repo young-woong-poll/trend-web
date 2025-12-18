@@ -6,6 +6,8 @@ import type {
   CommentUpdateResponse,
   VerifyCommentRequest,
   CommentVerifyResponse,
+  DeleteCommentRequest,
+  CommentCountResponse,
   CommentLikeResponse,
 } from '@/types/comment';
 
@@ -89,6 +91,25 @@ export const commentApi = {
           'x-tku-id': tkuId,
         },
       }
+    );
+    return response.data;
+  },
+
+  /**
+   * 댓글 삭제
+   * DELETE /api/v1/comment/{commentId}
+   */
+  deleteComment: async (commentId: string, data: DeleteCommentRequest): Promise<void> => {
+    await axiosInstance.delete(`/api/v1/comment/${commentId}`, { data });
+  },
+
+  /**
+   * 댓글 개수 조회
+   * GET /api/v1/comment/{trendId}/item/{itemId}/count
+   */
+  countComments: async (trendId: string, itemId: string): Promise<CommentCountResponse> => {
+    const response: AxiosResponse<CommentCountResponse> = await axiosInstance.get(
+      `/api/v1/comment/${trendId}/item/${itemId}/count`
     );
     return response.data;
   },

@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { commentListKeys } from '@/hooks/api/useCommentList';
 import { commentApi } from '@/services/api/comment';
@@ -7,6 +7,7 @@ import type {
   CreateCommentRequest,
   UpdateCommentRequest,
   VerifyCommentRequest,
+  DeleteCommentRequest,
 } from '@/types/comment';
 
 /**
@@ -170,3 +171,63 @@ export const useUnlikeComment = () => {
     },
   });
 };
+
+/**
+ * 댓글 삭제 Hook
+ */
+export const useDeleteComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      commentId,
+      data,
+    }: {
+      commentId: string;
+      data: DeleteCommentRequest;
+      trendId: string;
+      itemId: string;
+    }) => commentApi.deleteComment(commentId, data),
+    onSuccess: (_, variables) => {
+      // 최신순과 인기순 모두 캐시에서 삭제된 댓글 제거 (즉시 반영)
+      ['latest', 'popular'].forEach((sort) => {
+        const queryKey = commentListKeys.list(variables.trendId, variables.itemId, sort);
+
+        queryClient.setQueryData(queryKey, (old: unknown) => {
+          if (!old || typeof old !== 'object') {
+            return old;
+          }
+
+          const oldData = old as {
+            pages: Array<{
+              comments: CommentItem[];
+              totalSize: number;
+              nextId: string | null;
+            }>;
+            pageParams: unknown[];
+          };
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              comments: page.comments.filter((comment) => comment.id !== variables.commentId),
+              totalSize: page.totalSize - 1,
+            })),
+          };
+        });
+      });
+    },
+  });
+};
+
+/**
+ * 댓글 개수 조회 Hook
+ */
+export const useCommentCountQuery = (trendId: string, itemId: string, enabled: boolean = true) =>
+  useQuery({
+    queryKey: ['commentCount', trendId, itemId],
+    queryFn: () => commentApi.countComments(trendId, itemId),
+    enabled,
+    staleTime: 1000 * 60, // 1분
+  });
