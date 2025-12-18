@@ -29,7 +29,8 @@ export const useCreateComment = () => {
 
   return useMutation({
     mutationFn: (data: CreateCommentRequest) => commentApi.createComment(data),
-    onSuccess: (responseData, variables) => {
+    onSuccess: async (responseData, variables) => {
+      const { trendId, itemId } = variables;
       // 서버 응답(id만 있음)과 요청 데이터를 조합하여 완전한 CommentItem 생성
       const newComment: CommentItem = {
         id: responseData.id,
@@ -41,7 +42,7 @@ export const useCreateComment = () => {
       };
 
       // 최신순: 캐시를 직접 업데이트 (즉시 반영, 로딩 없음)
-      const latestQueryKey = commentListKeys.list(variables.trendId, variables.itemId, 'latest');
+      const latestQueryKey = commentListKeys.list(trendId, itemId, 'latest');
 
       queryClient.setQueryData(latestQueryKey, (old: unknown) => {
         if (!old || typeof old !== 'object') {
@@ -73,7 +74,11 @@ export const useCreateComment = () => {
 
       // 인기순: 무효화하여 서버에서 다시 계산된 순서로 불러옴
       void queryClient.invalidateQueries({
-        queryKey: commentListKeys.list(variables.trendId, variables.itemId, 'popular'),
+        queryKey: commentListKeys.list(trendId, itemId, 'popular'),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['commentCount', trendId, itemId],
       });
     },
   });
@@ -188,10 +193,11 @@ export const useDeleteComment = () => {
       trendId: string;
       itemId: string;
     }) => commentApi.deleteComment(commentId, data),
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
+      const { trendId, itemId } = variables;
       // 최신순과 인기순 모두 캐시에서 삭제된 댓글 제거 (즉시 반영)
       ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentListKeys.list(variables.trendId, variables.itemId, sort);
+        const queryKey = commentListKeys.list(trendId, itemId, sort);
 
         queryClient.setQueryData(queryKey, (old: unknown) => {
           if (!old || typeof old !== 'object') {
@@ -216,6 +222,10 @@ export const useDeleteComment = () => {
             })),
           };
         });
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['commentCount', trendId, itemId],
       });
     },
   });

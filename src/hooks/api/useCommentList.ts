@@ -37,13 +37,3 @@ export const useInfiniteCommentList = (
     gcTime: 1000 * 60 * 5, // 5분 (구 cacheTime)
   });
 };
-
-export const useCommentCount = (
-  trendId: string,
-  itemId: string,
-  sort: 'latest' | 'popular' = 'latest'
-) => {
-  const { data } = useInfiniteCommentList(trendId, itemId, sort, true);
-
-  return data?.pages[0]?.totalSize ?? 0;
-};

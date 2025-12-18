@@ -11,9 +11,8 @@ import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import { useDeleteComment } from '@/hooks/api/useComment';
+import { useCommentCountQuery, useDeleteComment } from '@/hooks/api/useComment';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
-import { useCommentCount } from '@/hooks/api/useCommentList';
 import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
@@ -39,7 +38,8 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [editToken, setEditToken] = useState<string>('');
   const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
 
-  const commentCount = useCommentCount(trendId, itemId, sort);
+  const { data: commentCountData } = useCommentCountQuery(trendId, itemId);
+  const commentCount = commentCountData?.count;
 
   const { showToast, showConfirm } = useModal();
   const { mutate: deleteComment } = useDeleteComment();
@@ -137,40 +137,42 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
     }
 
     // 삭제 확인
-    showConfirm('댓글 삭제', {
-      message: '정말로 이 댓글을 삭제하시겠습니까?',
-      confirmText: '삭제',
-      cancelText: '취소',
-      onConfirm: () => {
-        if (!selectedComment) {
-          return;
-        }
-
-        deleteComment(
-          {
-            commentId: selectedComment.id,
-            trendId,
-            itemId,
-            data: { verifyToken: token },
-          },
-          {
-            onSuccess: () => {
-              showToast('댓글이 삭제되었습니다');
-              setSelectedComment(null);
-              setEditToken('');
-            },
-            onError: () => {
-              showToast('댓글 삭제에 실패했습니다');
-            },
+    if (actionType === 'delete') {
+      showConfirm('댓글 삭제', {
+        message: '정말로 이 댓글을 삭제하시겠습니까?',
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: () => {
+          if (!selectedComment) {
+            return;
           }
-        );
-      },
-      onCancel: () => {
-        // 취소한 경우 상태 초기화
-        setSelectedComment(null);
-        setEditToken('');
-      },
-    });
+
+          deleteComment(
+            {
+              commentId: selectedComment.id,
+              trendId,
+              itemId,
+              data: { verifyToken: token },
+            },
+            {
+              onSuccess: () => {
+                showToast('댓글이 삭제되었습니다');
+                setSelectedComment(null);
+                setEditToken('');
+              },
+              onError: () => {
+                showToast('댓글 삭제에 실패했습니다');
+              },
+            }
+          );
+        },
+        onCancel: () => {
+          // 취소한 경우 상태 초기화
+          setSelectedComment(null);
+          setEditToken('');
+        },
+      });
+    }
   };
 
   const handlePasswordModalClose = () => {

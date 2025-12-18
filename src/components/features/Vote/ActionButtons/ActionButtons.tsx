@@ -8,7 +8,7 @@ import InfoIcon from '@/assets/icon/InfoIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { useCommentCount } from '@/hooks/api/useCommentList';
+import { useCommentCountQuery } from '@/hooks/api/useComment';
 
 interface ActionButtonsProps {
   trendId: string;
@@ -24,7 +24,9 @@ export const ActionButtons: FC<ActionButtonsProps> = ({
   onCommentClick,
 }) => {
   // TODO : 전체 댓글 개수 가져오는 API 로 변경필요
-  const commentCount = useCommentCount(trendId, itemId);
+  const { data: commentCountData } = useCommentCountQuery(trendId, itemId);
+  const commentCount = commentCountData?.count;
+
   const { showToast } = useModal();
 
   const handleCommentClick = () => {
@@ -59,7 +61,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({
         <div className={styles.icon}>
           <CommentIcon />
         </div>
-        <span className={styles.label}>{commentCount}</span>
+        <span className={styles.label}>{commentCount ? commentCount : '?'}</span>
       </button>
 
       <button type="button" className={styles.button} onClick={handleLinkCopyClick}>
