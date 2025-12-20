@@ -4,6 +4,7 @@ interface ToastState {
   isVisible: boolean;
   message: string;
   icon?: React.ReactNode;
+  onClose?: () => void;
 }
 
 export const useToast = () => {
@@ -11,6 +12,7 @@ export const useToast = () => {
     isVisible: false,
     message: '',
     icon: undefined,
+    onClose: undefined,
   });
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -26,7 +28,7 @@ export const useToast = () => {
   }, []);
 
   const showToast = useCallback(
-    (message: string, icon?: React.ReactNode) => {
+    (message: string, icon?: React.ReactNode, showClose?: boolean) => {
       // 이전 타이머가 있다면 제거
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -36,6 +38,7 @@ export const useToast = () => {
         isVisible: true,
         message,
         icon,
+        onClose: showClose ? hideToast : undefined,
       });
 
       timeoutRef.current = setTimeout(() => {

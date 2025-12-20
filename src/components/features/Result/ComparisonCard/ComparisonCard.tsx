@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 
 import styles from '@/components/features/Result/ComparisonCard/ComparisonCard.module.scss';
-import type { ComparisonItem } from '@/components/features/Result/ResultView';
+import type { ComparisonItem } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 
 interface ComparisonCardProps {
   myName: string | undefined;

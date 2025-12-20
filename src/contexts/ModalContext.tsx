@@ -80,7 +80,7 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
         message={toast.message}
         icon={toast.icon}
         isVisible={toast.isVisible}
-        onClose={hideToast}
+        onClose={toast.onClose}
       />
       {/* Alert 컴포넌트들 */}
       <Alert

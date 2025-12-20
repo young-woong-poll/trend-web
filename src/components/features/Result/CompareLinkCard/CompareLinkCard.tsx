@@ -59,10 +59,12 @@ const ComparisonWithFriendModal = ({
 };
 
 export const CompareLinkCard = ({
+  trendAlias,
   friendResults,
   myResult,
   resultId,
 }: {
+  trendAlias: string;
   friendResults?: InviteeResult[] | undefined;
   myResult: ResultDisplayResponse;
   resultId: string;
@@ -79,9 +81,15 @@ export const CompareLinkCard = ({
   const [needNickname, setNeedNickname] = useState<boolean>(!myResult.nickname);
 
   const handleLinkCopy = async () => {
-    const currentUrl = window.location.href;
-    await navigator.clipboard.writeText(currentUrl);
-    showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+    const compareUrl = `${window.location.origin}/vote/${trendAlias}?compareId=${resultId}`;
+
+    try {
+      await navigator.clipboard.writeText(compareUrl);
+      showToast(COMPARE_LINK_COPIED_SUCCESS_FULL, <CheckIcon width={16} height={16} />);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      showToast('링크 복사에 실패했습니다.');
+    }
   };
 
   const handleUpdateNickname = async () => {
@@ -89,11 +97,13 @@ export const CompareLinkCard = ({
     if (!isValid && error) {
       showToast(error);
     }
+
     await updateNickname({ resultId, nickname: trimmedValue });
     if (hasUpdateNameError) {
       showToast(updateNameError.message);
       return;
     }
+
     myResult.nickname = name;
     setNeedNickname(false);
   };
@@ -150,7 +160,7 @@ export const CompareLinkCard = ({
           id="nickname"
           type="text"
           placeholder="닉네임"
-          disabled={!needNickname}
+          disabled={isPending || !needNickname}
           defaultValue={name}
           onChange={({ target }) => setName(target.value)}
           className={styles.input}

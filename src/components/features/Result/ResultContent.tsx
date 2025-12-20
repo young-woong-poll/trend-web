@@ -2,7 +2,7 @@ import { Header } from '@/components/common/Header/Header';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
-import styles from '@/components/features/Result/ResultView.module.scss';
+import styles from '@/components/features/Result/ResultContent.module.scss';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import type { InviteeResultResponse, ResultDisplayResponse } from '@/types/result';
 
@@ -15,6 +15,7 @@ interface ResultContentProps {
 }
 
 export const ResultContent = ({
+  trendAlias,
   resultId,
   compareId,
   myResult,
@@ -38,6 +39,7 @@ export const ResultContent = ({
       {/* 친구와 비교하기 - 친구 결과 있을 때만 */}
       {friendResults && (
         <CompareLinkCard
+          trendAlias={trendAlias}
           friendResults={friendResults.results}
           myResult={myResult}
           resultId={resultId}
