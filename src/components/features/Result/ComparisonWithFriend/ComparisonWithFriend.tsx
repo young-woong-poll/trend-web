@@ -1,7 +1,13 @@
 import { ComparisonCard } from '@/components/features/Result/ComparisonCard/ComparisonCard';
-import type { ComparisonItem } from '@/components/features/Result/ResultView';
 import { fNameRes } from '@/lib/utils';
 import type { ResultDisplayResponse } from '@/types/result';
+
+export interface ComparisonItem {
+  myAnswer: string;
+  friendAnswer: string;
+  isMatch: boolean;
+  question: string;
+}
 
 export const ComparisonWithFriend = ({
   resultWithCompareId,

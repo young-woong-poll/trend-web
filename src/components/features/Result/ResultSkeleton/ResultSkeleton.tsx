@@ -1,7 +1,7 @@
 import { Header } from '@/components/common/Header/Header';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
+import styles from '@/components/features/Result/ResultContent.module.scss';
 import skeletonStyles from '@/components/features/Result/ResultSkeleton/ResultSkeleton.module.scss';
-import styles from '@/components/features/Result/ResultView.module.scss';
 
 export const ResultSkeleton = () => (
   <div className={styles.container}>
