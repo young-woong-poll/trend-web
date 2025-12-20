@@ -31,7 +31,7 @@ const DEFAULT_NUM_OF_ITEMS = 5;
 export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const compare = searchParams.get('compare');
+  const compareId = searchParams.get('compareId');
 
   const { trendId, alias, items } = trendData;
 
@@ -49,7 +49,9 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
     try {
       const resultId = await submit(trendId, selectedItemMap, items.length, nickname);
 
-      return router.replace(`/vote/${alias}/result?id=${resultId}`);
+      return router.replace(
+        `/vote/${alias}/result?id=${resultId}${compareId ? `&compareId=${compareId}` : ''}`
+      );
     } catch (err) {
       handleError(err);
     }
@@ -62,7 +64,7 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
       return;
     }
 
-    if (!!compare) {
+    if (!!compareId) {
       showModal(
         <NicknameInputModal
           onSubmit={(nickname) => handleSubmit(nickname)}
