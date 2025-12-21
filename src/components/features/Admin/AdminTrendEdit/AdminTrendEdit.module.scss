@@ -1,0 +1,127 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading,
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.125rem;
+  color: #666;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.dangerZone {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: #fff5f5;
+  border: 2px solid #feb2b2;
+  border-radius: 8px;
+}
+
+.dangerTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #c53030;
+  margin: 0 0 0.5rem 0;
+}
+
+.dangerDescription {
+  font-size: 0.9375rem;
+  color: #742a2a;
+  margin: 0 0 1.5rem 0;
+}
+
+.deleteButton {
+  border-color: #fc8181 !important;
+  color: #c53030 !important;
+
+  &:hover:not(:disabled) {
+    background: #fed7d7 !important;
+    border-color: #fc8181 !important;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// 모달 스타일
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 1rem 0;
+}
+
+.modalMessage {
+  font-size: 1rem;
+  color: #666;
+  margin: 0 0 1.5rem 0;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirmButton {
+  background: #c53030 !important;
+  border-color: #c53030 !important;
+
+  &:hover {
+    background: #9b2c2c !important;
+    border-color: #9b2c2c !important;
+  }
+}
+
+// 반응형 - 모바일
+@media (max-width: 768px) {
+  .dangerZone {
+    padding: 1.5rem;
+  }
+
+  .modal {
+    padding: 1.5rem;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+    }
+  }
+}

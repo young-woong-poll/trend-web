@@ -1,0 +1,77 @@
+.row {
+  td {
+    padding: 1rem;
+    vertical-align: middle;
+
+    &:first-child {
+      padding-left: 1.5rem;
+    }
+
+    &:last-child {
+      padding-right: 1.5rem;
+    }
+  }
+}
+
+.thumbnail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.title {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  display: block;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alias {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #495057;
+  background: #f8f9fa;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.visible {
+    background: #d4edda;
+    color: #155724;
+  }
+
+  &.hidden {
+    background: #f8d7da;
+    color: #721c24;
+  }
+}
+
+.date {
+  font-size: 0.875rem;
+  color: #6c757d;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
