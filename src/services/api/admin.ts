@@ -9,8 +9,6 @@ import type {
   TrendAliasCheckResponse,
 } from '@/types/trend';
 
-import type { AxiosResponse } from 'axios';
-
 /**
  * Admin API 서비스
  */
@@ -20,10 +18,7 @@ export const adminApi = {
    * POST /admin/api/v1/trend
    */
   createTrend: async (data: CreateTrendRequest): Promise<TrendResponse> => {
-    const response: AxiosResponse<TrendResponse> = await axiosInstance.post(
-      '/admin/api/v1/trend',
-      data
-    );
+    const response = await axiosInstance.post<TrendResponse>('/admin/api/v1/trend', data);
     return response.data;
   },
 
@@ -32,10 +27,7 @@ export const adminApi = {
    * GET /admin/api/v1/item/{itemId}
    */
   getElection: async (itemId: string): Promise<ElectionDetail> => {
-    const response: AxiosResponse<ElectionDetail> = await axiosInstance.get(
-      `/admin/api/v1/item/${itemId}`
-    );
-
+    const response = await axiosInstance.get<ElectionDetail>(`/admin/api/v1/item/${itemId}`);
     return response.data;
   },
 
@@ -46,7 +38,7 @@ export const adminApi = {
    * @returns uploadUrl과 cdnUrl을 포함한 객체
    */
   generatePresignedUrl: async (filename: string): Promise<PresignedUrlResponse> => {
-    const response: AxiosResponse<PresignedUrlResponse> = await axiosInstance.get(
+    const response = await axiosInstance.get<PresignedUrlResponse>(
       '/admin/api/v1/storage/presigned',
       { params: { filename } }
     );
@@ -60,14 +52,10 @@ export const adminApi = {
    * @returns exists 여부를 포함한 객체
    */
   checkTrendAlias: async (alias: string): Promise<TrendAliasCheckResponse> => {
-    const response: AxiosResponse<{
-      code: string;
-      message: string;
-      data: TrendAliasCheckResponse;
-    }> = await axiosInstance.get('/admin/api/v1/trend/check', {
+    const response = await axiosInstance.get<TrendAliasCheckResponse>('/admin/api/v1/trend/check', {
       params: { alias },
     });
-    return response.data.data;
+    return response.data;
   },
 
   /**
@@ -75,12 +63,8 @@ export const adminApi = {
    * GET /admin/api/v1/trend
    */
   getTrends: async (): Promise<AdminTrendResponse[]> => {
-    const response: AxiosResponse<{
-      code: string;
-      message: string;
-      data: AdminTrendResponse[];
-    }> = await axiosInstance.get('/admin/api/v1/trend');
-    return response.data.data;
+    const response = await axiosInstance.get<AdminTrendResponse[]>('/admin/api/v1/trend');
+    return response.data;
   },
 
   /**
@@ -88,12 +72,11 @@ export const adminApi = {
    * PUT /admin/api/v1/trend/{trendId}
    */
   updateTrend: async (trendId: number, data: UpdateTrendRequest): Promise<AdminTrendResponse> => {
-    const response: AxiosResponse<{
-      code: string;
-      message: string;
-      data: AdminTrendResponse;
-    }> = await axiosInstance.put(`/admin/api/v1/trend/${trendId}`, data);
-    return response.data.data;
+    const response = await axiosInstance.put<AdminTrendResponse>(
+      `/admin/api/v1/trend/${trendId}`,
+      data
+    );
+    return response.data;
   },
 
   /**

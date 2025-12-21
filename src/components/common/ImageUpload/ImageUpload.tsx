@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, type FC } from 'react';
+import { useCallback, useState, useEffect, type FC } from 'react';
 
 import Image from 'next/image';
 
@@ -41,6 +41,11 @@ export const ImageUpload: FC<ImageUploadProps> = ({
 
   // 전체 업로드 중 상태
   const isUploading = isGeneratingUrl || isUploadingToS3;
+
+  // value prop이 변경되면 preview 상태 업데이트
+  useEffect(() => {
+    setPreview(value || null);
+  }, [value]);
 
   // 파일 검증
   const validateFile = useCallback(

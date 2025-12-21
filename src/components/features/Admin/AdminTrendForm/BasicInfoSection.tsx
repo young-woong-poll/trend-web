@@ -18,6 +18,7 @@ interface BasicInfoSectionProps {
   watch: UseFormWatch<TFormData>;
   checkStatus: TrendAliasCheckStatus;
   setCheckStatus: (status: TrendAliasCheckStatus) => void;
+  mode?: 'create' | 'edit';
 }
 
 export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
@@ -26,6 +27,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   watch,
   checkStatus,
   setCheckStatus,
+  mode = 'create',
 }) => {
   const imageUrl = watch('imageUrl');
   const trendAlias = watch('alias');
@@ -80,17 +82,20 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
             type="text"
             value={trendAlias}
             onChange={handleTrendAliasChange}
-            className={styles.input}
+            className={`${styles.input} ${mode === 'edit' ? styles.disabled : ''}`}
             placeholder="love-trend-2025"
+            disabled={mode === 'edit'}
           />
-          <button
-            type="button"
-            onClick={handleCheckDuplicate}
-            disabled={!trendAlias.trim() || isPending}
-            className={styles.checkButton}
-          >
-            {isPending ? '확인중...' : '중복확인'}
-          </button>
+          {mode === 'create' && (
+            <button
+              type="button"
+              onClick={handleCheckDuplicate}
+              disabled={!trendAlias.trim() || isPending}
+              className={styles.checkButton}
+            >
+              {isPending ? '확인중...' : '중복확인'}
+            </button>
+          )}
         </div>
         {checkStatus === 'available' && (
           <p className={styles.successMessage}>사용 가능한 ID입니다</p>

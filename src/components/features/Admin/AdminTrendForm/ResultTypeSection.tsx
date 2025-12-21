@@ -4,6 +4,7 @@ import type { TFormData } from '@/components/features/Admin/AdminTrendForm/Admin
 import { CombinationCard } from '@/components/features/Admin/AdminTrendForm/CombinationCard';
 import styles from '@/components/features/Admin/AdminTrendForm/ResultTypeSection.module.scss';
 import { generateCombinations } from '@/lib/trendCombinations';
+import type { ElectionDetail } from '@/types/election';
 
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
@@ -24,7 +25,10 @@ export const ResultTypeSection: FC<ResultTypeSectionProps> = ({ setValue, watch 
     setValue('resultType', newResultType);
   };
 
-  const electionDetails = electionIdList.map((id) => electionDetailMap[id]);
+  const electionDetails = electionIdList
+    .map((id) => electionDetailMap[id])
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    .filter((detail): detail is ElectionDetail => detail !== undefined);
   const combinations = generateCombinations(electionDetails);
 
   return (
