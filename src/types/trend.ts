@@ -87,8 +87,10 @@ export interface LabelRequest {
  * Admin: Trend 생성 - 결과 타입 요청
  */
 export interface ResultTypeRequest {
-  key: string;
   label: string;
+  description: string;
+  imageUrl: string;
+  tags: string[];
 }
 
 /**
@@ -97,7 +99,6 @@ export interface ResultTypeRequest {
 export interface TrendMetaRequest {
   resultLabel: string;
   resultType: ResultTypeRequest[];
-  answerType: LabelRequest[];
 }
 
 /**
@@ -140,22 +141,16 @@ export interface TrendResponse {
 export interface TrendMeta {
   resultLabel?: string;
   resultTypes?: TrendResultType[];
-  compareTypes?: TrendCompareType[];
 }
 
 /**
  * Trend 결과 타입
  */
 export interface TrendResultType {
-  key: string;
   label: string;
-}
-
-/**
- * Trend 비교 타입
- */
-export interface TrendCompareType {
-  label: string;
+  description: string;
+  imageUrl: string;
+  tags: string[];
 }
 
 /**

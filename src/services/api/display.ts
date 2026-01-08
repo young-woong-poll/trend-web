@@ -13,9 +13,13 @@ export const displayApi = {
    * 메인 전시 조회
    * GET /api/v1/display/main
    */
-  getMainDisplay: async (): Promise<MainDisplayResponse> => {
-    const response: AxiosResponse<MainDisplayResponse> =
-      await axiosInstance.get('/api/v1/display/main');
+  getMainDisplay: async (size?: number): Promise<MainDisplayResponse> => {
+    const response: AxiosResponse<MainDisplayResponse> = await axiosInstance.get(
+      '/api/v1/display/main',
+      {
+        params: size !== undefined ? { size } : undefined,
+      }
+    );
     return response.data;
   },
 
@@ -70,7 +74,7 @@ export const displayApi = {
     size,
     tkuId,
   }: {
-    trendId: string;
+    trendId: number;
     itemId: string;
     sort?: string;
     cursor?: string;

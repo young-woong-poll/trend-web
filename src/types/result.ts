@@ -6,10 +6,8 @@
  * Result 생성 요청
  */
 export interface CreateResultRequest {
-  trendId: string;
+  trendId: number;
   selectedItems: SelectedItem[];
-  invitationId?: string;
-  nickname?: string;
 }
 
 /**
