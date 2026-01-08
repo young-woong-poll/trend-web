@@ -57,7 +57,7 @@
   top: 100px;
   left: 24px;
   font-size: $font-size-24;
-  font-weight: 900;
+  font-weight: $font-weight-bold;
   color: #fff;
   line-height: 1.3;
   margin: 0;
@@ -69,7 +69,7 @@
   top: 138px;
   left: 24px;
   font-size: $font-size-14;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   color: #fff;
   line-height: 1.5;
   margin: 0;
@@ -88,22 +88,22 @@
 }
 
 .label {
-  font-weight: 400;
+  font-weight: $font-weight-regular;
   color: #fff;
 }
 
 .count {
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: #fff;
 }
 
 .dot {
-  font-weight: 400;
+  font-weight: $font-weight-regular;
   color: #fff;
 }
 
 .date {
-  font-weight: 400;
+  font-weight: $font-weight-regular;
   color: #fff;
 }
 
@@ -192,13 +192,13 @@
 
 .brandText {
   font-size: 13px;
-  font-weight: 400;
+  font-weight: $font-weight-regular;
   color: $neutral-500;
 }
 
 .brandLogo {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: $color4-500;
   display: inline-flex;
   align-items: center;

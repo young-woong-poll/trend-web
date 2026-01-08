@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 // Dimmed 배경
 .dimmed {
   position: fixed;
@@ -54,7 +56,7 @@
 
 .title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: #1a1a1a;
   margin: 0;
 }
@@ -105,7 +107,7 @@
 
 .nickname {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: #1a1a1a;
 }
 
@@ -159,7 +161,7 @@
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   cursor: pointer;
   transition: all 0.2s;
 

@@ -28,23 +28,30 @@ $neutral-600: #565e6c;
 $neutral-800: #1d2128;
 $neutral-900: #171a1f;
 
-// Colors - Semantic
-$white: #ffffff;
-$error-500: #de3b40;
-$warning-500: #efb034;
-$green-500: #22c55e;
-
 // Colors - Result
 $result-text: #7e22ce;
 $result-border: #a855f7;
 $result-background: #faf5ff;
 
-// Legacy colors (deprecated - use new color system)
-$primary-color: $primary-500;
-$secondary-color: $neutral-900;
-$background-color: $white;
-$text-color: $neutral-900;
-$border-color: $neutral-300;
+// --------------------------
+// Colors - Semantic
+$white: #ffffff;
+$error: #ff2e2e;
+$warning: #ffc700;
+$success: #636ae8;
+$info: #2e95ff;
+
+$primary-start: #FF00FF;
+$primary-end: #ff4500;
+$attention: #dfff00;
+$bg-primary: #121212;
+$bg-secondary: #1e1e1e;
+$bg-tertiary: #2c2c2c;
+$border-placeholder: #555555;
+$text-secondary: #d1d1d1;
+$text-tertiary: #8a8a8a;
+$disabled: #474a4f;
+
 
 // Breakpoints
 $breakpoint-se: 375px;
@@ -63,7 +70,7 @@ $spacing-48: 48px;
 
 // Typography
 $font-family-base:
-  var(--font-archivo),
+  var(--font-roboto),
   -apple-system,
   BlinkMacSystemFont,
   'Segoe UI',
@@ -79,19 +86,34 @@ $font-family-mono:
   ui-monospace, Menlo, Monaco, 'Cascadia Code', 'Segoe UI Mono', 'Roboto Mono', 'Oxygen Mono',
   'Ubuntu Monospace', 'Source Code Pro', 'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
 
+// Font weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
 // Font sizes
 $font-size-12: 12px;
 $font-size-14: 14px;
 $font-size-16: 16px;
 $font-size-18: 18px;
 $font-size-20: 20px;
+$font-size-22: 22px;
 $font-size-24: 24px;
+$font-size-26: 26px;
+$font-size-28: 28px;
+$font-size-30: 30px;
 $font-size-32: 32px;
+$font-size-36: 36px;
+$font-size-40: 40px;
+$font-size-42: 42px;
+$font-size-48: 48px;
 
 // Border radius
 $border-radius-sm: 4px;
 $border-radius-md: 8px;
 $border-radius-lg: 12px;
+$border-rounded: 9999px;
 
 // Shadows
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 .commentList {
   display: flex;
   flex-direction: column;
@@ -27,7 +29,7 @@
   font-size: 14px;
   color: #d32f2f;
   margin: 0 0 8px;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
 }
 
 .errorHint {

@@ -7,7 +7,7 @@
   gap: 8px;
   border: none;
   border-radius: $border-radius-md;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   cursor: pointer;
   font-family: inherit;
 
@@ -73,7 +73,7 @@
   background: linear-gradient(135deg, $btn-left 0%, $btn-right 100%);
   color: $white;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   box-shadow: 0 4px 12px rgba(127, 85, 224, 0.3);
 
   &:hover {

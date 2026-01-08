@@ -1,4 +1,4 @@
-import { Archivo } from 'next/font/google';
+import { Roboto } from 'next/font/google';
 
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
@@ -9,9 +9,10 @@ import type { Metadata } from 'next';
 
 import '@/styles/globals.scss';
 
-const archivo = Archivo({
+const roboto = Roboto({
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
-  variable: '--font-archivo',
+  variable: '--font-roboto',
   display: 'swap',
 });
 
@@ -27,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={archivo.variable}>
+      <body className={roboto.variable}>
         <MSWProvider>
           <QueryProvider>
             <ModalProvider>
