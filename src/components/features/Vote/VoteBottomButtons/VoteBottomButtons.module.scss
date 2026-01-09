@@ -1,0 +1,79 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.bottomButtons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: stretch;
+  margin-top: 24px;
+}
+
+.commentButton {
+  flex: 0 0 auto;
+  min-width: 100px;
+  height: 48px;
+  background: transparent;
+  border: 2px solid $text-tertiary;
+  border-radius: 8px;
+  color: $text-secondary;
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  @include transition(all, 0.2s);
+
+  &:hover:not(:disabled) {
+    border-color: $text-secondary;
+    background: rgba($text-tertiary, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.nextButton {
+  flex: 1;
+  height: 48px;
+  background: $attention;
+  border: none;
+  border-radius: 8px;
+  color: $bg-primary;
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  @include transition(all, 0.2s);
+
+  svg {
+    width: 20px;
+    height: 20px;
+    @include transition(transform, 0.2s);
+  }
+
+  &:hover:not(:disabled) {
+    background: lighten($attention, 3%);
+    transform: translateY(-2px);
+
+    svg {
+      transform: translateX(4px);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

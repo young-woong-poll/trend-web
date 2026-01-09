@@ -4,15 +4,15 @@ import { useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import StartArrowIcon from '@/assets/icon/StartArrowIcon';
-import { Button } from '@/components/common/Button';
 import { ProgressBar } from '@/components/common/ProgressBar';
-import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
 import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
+import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
+import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
 import { useModal } from '@/contexts/ModalContext';
+import { useCommentCountQuery } from '@/hooks/api/useComment';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
 import type { TrendDisplayResponse } from '@/types/trend';
@@ -94,10 +94,13 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
+        <VoteHeader title={trendData.title} />
+
         <ProgressBar
           currentStep={currentItemIndex}
           totalSteps={items.length || DEFAULT_NUM_OF_ITEMS}
         />
+
         <div
           className={styles.content}
           style={{
@@ -115,6 +118,9 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                 }));
               };
 
+              // eslint-disable-next-line react-hooks/rules-of-hooks
+              const { data: commentCountData } = useCommentCountQuery(trendId, item.id);
+
               return (
                 <div key={item.id} className={styles.cardContainer}>
                   <VoteCard
@@ -127,23 +133,12 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                     handleOptionSelect={handleOptionSelect}
                   />
 
-                  <Button
-                    variant="gradient"
-                    height={48}
-                    fullWidth
-                    className={styles.button}
-                    onClick={handleNext}
-                    disabled={selectedOptionId === null}
-                  >
-                    다음
-                    <StartArrowIcon />
-                  </Button>
-
-                  <ActionButtons
-                    trendId={trendId}
-                    itemId={item.id}
+                  <VoteBottomButtons
+                    commentCount={commentCountData?.count}
                     commentDisabled={selectedOptionId === null}
+                    nextDisabled={selectedOptionId === null}
                     onCommentClick={() => handleOpenCommentModal(item.id)}
+                    onNextClick={handleNext}
                   />
                 </div>
               );
