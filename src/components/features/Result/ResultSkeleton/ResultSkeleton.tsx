@@ -1,11 +1,11 @@
-import { Header } from '@/components/common/Header/Header';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import styles from '@/components/features/Result/ResultContent.module.scss';
 import skeletonStyles from '@/components/features/Result/ResultSkeleton/ResultSkeleton.module.scss';
 
 export const ResultSkeleton = () => (
   <div className={styles.container}>
-    <Header />
+    <MainHeader />
 
     <div className={styles.content}>
       {/* TypeCard / ComparisonCard Skeleton */}

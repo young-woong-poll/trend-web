@@ -1,4 +1,4 @@
-import { Header } from '@/components/common/Header/Header';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
 import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
@@ -22,7 +22,7 @@ export const ResultContent = ({
   friendResults,
 }: ResultContentProps) => (
   <div className={styles.container}>
-    <Header />
+    <MainHeader />
 
     <div className={styles.content}>
       {/* 비교 링크인 경우 비교 결과 표시, 아니면 내 성향 카드 */}

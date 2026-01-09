@@ -5,9 +5,13 @@ import { type FC, type ReactNode, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
+import CopyIcon from '@/assets/icon/CopyIcon';
+import InfoIcon from '@/assets/icon/InfoIcon';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
-import { getRelativeTime } from '@/lib/utils';
+import { useModal } from '@/contexts/ModalContext';
+import { getRelativeTime, isWithin48Hours } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
@@ -29,12 +33,27 @@ export const PollCard: FC<TPollCardProps> = ({
   children,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const { showToast } = useModal();
+  const isNew = isWithin48Hours(createdAt);
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
       return `${(count / 1000).toFixed(1)}K`;
     }
     return count.toString();
+  };
+
+  const handleCopyClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      const trendUrl = `${window.location.origin}/vote/${alias}`;
+      await navigator.clipboard.writeText(trendUrl);
+      showToast('트렌드 링크가 복사되었습니다', <CheckIcon />);
+    } catch (_error) {
+      showToast('링크 복사에 실패했습니다', <InfoIcon />);
+    }
   };
 
   return (
@@ -61,6 +80,20 @@ export const PollCard: FC<TPollCardProps> = ({
           />
 
           <div className={styles.overlay} />
+
+          {/* NEW Badge */}
+          {isNew && <div className={styles.newBadge}>NEW</div>}
+
+          {/* Copy Button */}
+          <button
+            type="button"
+            className={styles.copyButton}
+            onClick={handleCopyClick}
+            aria-label="트렌드 링크 복사"
+          >
+            <CopyIcon width={20} height={20} />
+          </button>
+
           <h2 className={styles.title}>{title}</h2>
           <p className={styles.subtitle}>{subtitle}</p>
 

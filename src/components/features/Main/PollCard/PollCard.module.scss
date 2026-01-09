@@ -5,7 +5,7 @@
   position: relative;
   max-width: 480px;
   width: 100%;
-  min-height: 240px;
+  height: 296px;
   display: block;
   text-decoration: none;
   color: inherit;
@@ -30,7 +30,7 @@
   max-width: 480px;
   width: 100%;
   position: relative;
-  min-height: 240px;
+  height: 296px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.2s ease;
@@ -52,13 +52,61 @@
   z-index: 1;
 }
 
+.newBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #dfff00 0%, #c6e600 100%);
+  border-radius: 4px;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  color: $neutral-900;
+  line-height: 1.2;
+  z-index: 3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.copyButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 8px;
+  color: $white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 3;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus {
+    outline: 2px solid $white;
+    outline-offset: 2px;
+  }
+}
+
 .title {
   position: absolute;
   top: 100px;
   left: 24px;
-  font-size: $font-size-24;
+  right: 24px;
+  font-size: $font-size-20;
   font-weight: $font-weight-bold;
-  color: #fff;
+  color: $white;
   line-height: 1.3;
   margin: 0;
   z-index: 2;
@@ -68,9 +116,10 @@
   position: absolute;
   top: 138px;
   left: 24px;
+  right: 24px;
   font-size: $font-size-14;
-  font-weight: $font-weight-medium;
-  color: #fff;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
   line-height: 1.5;
   margin: 0;
   z-index: 2;
@@ -88,23 +137,27 @@
 }
 
 .label {
-  font-weight: $font-weight-regular;
-  color: #fff;
+  font-size: $font-size-16;
+  font-weight: $font-weight-medium;
+  color: $white;
 }
 
 .count {
+  font-size: $font-size-16;
   font-weight: $font-weight-bold;
-  color: #fff;
+  color: $white;
 }
 
 .dot {
   font-weight: $font-weight-regular;
-  color: #fff;
+  color: $white;
+  display: none;
 }
 
 .date {
   font-weight: $font-weight-regular;
-  color: #fff;
+  color: $white;
+  display: none;
 }
 
 .arrowIcon {

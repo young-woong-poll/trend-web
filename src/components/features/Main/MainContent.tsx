@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
-import { Header } from '@/components/common/Header/Header';
 import styles from '@/components/features/Main/MainContent.module.scss';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import type { MainDisplayResponse } from '@/types/trend';
 
@@ -14,7 +14,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
   if (initialData.trends.length === 0) {
     return (
       <>
-        <Header />
+        <MainHeader />
         <FlexibleLayout>
           <div className={styles.container}>
             <div className={styles.emptyState}>
@@ -50,7 +50,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
 
   return (
     <>
-      <Header />
+      <MainHeader />
       <FlexibleLayout>
         <div className={styles.container}>
           {initialData.trends.map((trend) => {
