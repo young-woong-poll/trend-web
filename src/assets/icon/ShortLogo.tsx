@@ -20,8 +20,8 @@ export default function ShortLogo() {
           y2="106.592"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FF4500" />
-          <stop offset="1" stop-color="#FF00FF" />
+          <stop stopColor="#FF4500" />
+          <stop offset="1" stopColor="#FF00FF" />
         </linearGradient>
       </defs>
     </svg>

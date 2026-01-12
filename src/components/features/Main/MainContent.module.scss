@@ -3,6 +3,7 @@
 
 .container {
   @include flex-column;
+  align-items: center;
   height: 100%;
   padding: $spacing-24;
 

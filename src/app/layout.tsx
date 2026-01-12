@@ -2,7 +2,7 @@ import { Roboto } from 'next/font/google';
 
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
-import { MSWProvider } from '@/providers/MSWProvider';
+import { ClientProviders } from '@/providers/ClientProviders';
 import { QueryProvider } from '@/providers/QueryProvider';
 
 import type { Metadata } from 'next';
@@ -29,14 +29,14 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={roboto.variable}>
-        <MSWProvider>
+        <ClientProviders>
           <QueryProvider>
             <ModalProvider>
               {children}
               <div id="portal-root" />
             </ModalProvider>
           </QueryProvider>
-        </MSWProvider>
+        </ClientProviders>
       </body>
     </html>
   );

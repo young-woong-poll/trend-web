@@ -6,12 +6,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
-import CopyIcon from '@/assets/icon/CopyIcon';
+import CopyDoubleIcon from '@/assets/icon/CopyDoubleIcon';
 import InfoIcon from '@/assets/icon/InfoIcon';
+import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 import { useModal } from '@/contexts/ModalContext';
-import { getRelativeTime, isWithin48Hours } from '@/lib/utils';
+import { isWithin48Hours } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
@@ -63,65 +64,53 @@ export const PollCard: FC<TPollCardProps> = ({
 
       {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
       {!isImageLoaded && <PollCardSkeleton />}
-      <Link
-        href={`/vote/${alias}`}
-        className={styles.cardWrapper}
-        style={{ display: isImageLoaded ? 'block' : 'none' }}
-      >
+      <div className={styles.cardWrapper} style={{ display: isImageLoaded ? 'block' : 'none' }}>
         <div className={styles.card}>
-          <Image
-            src={imageUrl}
-            alt={title}
-            fill
-            className={styles.backgroundImage}
-            sizes="(max-width: 768px) 100vw, 480px"
-            priority
-            onLoad={() => setIsImageLoaded(true)}
-          />
-
-          <div className={styles.overlay} />
+          <div className={styles.imageContainer}>
+            <Image
+              src={imageUrl}
+              alt={title}
+              width={240}
+              height={162}
+              className={styles.backgroundImage}
+              priority
+              onLoad={() => setIsImageLoaded(true)}
+            />
+            <Image
+              src={imageUrl}
+              alt={title}
+              width={240}
+              height={162}
+              className={styles.backgroundImage}
+              priority
+              onLoad={() => setIsImageLoaded(true)}
+            />
+          </div>
 
           {/* NEW Badge */}
           {isNew && <div className={styles.newBadge}>NEW</div>}
 
-          {/* Copy Button */}
-          <button
-            type="button"
-            className={styles.copyButton}
-            onClick={handleCopyClick}
-            aria-label="트렌드 링크 복사"
-          >
-            <CopyIcon width={20} height={20} />
-          </button>
+          <div className={styles.content}>
+            {/* Copy Button */}
+            <button
+              type="button"
+              className={styles.copyButton}
+              onClick={handleCopyClick}
+              aria-label="트렌드 링크 복사"
+            >
+              <CopyDoubleIcon width={24} height={24} />
+            </button>
 
-          <h2 className={styles.title}>{title}</h2>
-          <p className={styles.subtitle}>{subtitle}</p>
+            <h2 className={styles.title}>{title}</h2>
+            <p className={styles.subtitle}>{subtitle}</p>
 
-          <div className={styles.participants}>
-            <span className={styles.label}>참여자</span>
-            <span className={styles.count}>{formatCount(participantCount)}</span>
-            <span className={styles.dot}>•</span>
-            <span className={styles.date}>{getRelativeTime(createdAt)}</span>
+            <p className={styles.count}>참여자 {formatCount(participantCount)}</p>
+            <Link href={`/vote/${alias}`} className={styles.button}>
+              <span>참여</span> <StartArrowIcon width={20} height={20} />
+            </Link>
           </div>
-
-          <svg
-            className={styles.arrowIcon}
-            width="24"
-            height="32"
-            viewBox="0 0 24 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9 8L15 16L9 24"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
         </div>
-      </Link>
+      </div>
     </>
   );
 };

@@ -2,16 +2,14 @@
 
 import { useState, type FC, type ReactNode } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
-import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
 import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
-import { useModal } from '@/contexts/ModalContext';
 import { useCommentCountQuery } from '@/hooks/api/useComment';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
@@ -30,8 +28,6 @@ const DEFAULT_NUM_OF_ITEMS = 5;
 
 export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const compareId = searchParams.get('compareId');
 
   const { trendId, alias, items } = trendData;
 
@@ -41,17 +37,14 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
   const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-  const { showModal } = useModal();
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
 
-  const handleSubmit = async (nickname?: string) => {
+  const handleSubmit = async () => {
     try {
-      const resultId = await submit(trendId, selectedItemMap, items.length, nickname);
+      const resultId = await submit(trendId, selectedItemMap, items.length);
 
-      return router.replace(
-        `/vote/${alias}/result?id=${resultId}${compareId ? `&compareId=${compareId}` : ''}`
-      );
+      return router.replace(`/vote/${alias}/result?id=${resultId}`);
     } catch (err) {
       handleError(err);
     }
@@ -60,17 +53,6 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
   const handleNext = async () => {
     if (currentItemIndex < items.length - 1) {
       setCurrentItemIndex((prev) => prev + 1);
-
-      return;
-    }
-
-    if (!!compareId) {
-      showModal(
-        <NicknameInputModal
-          onSubmit={(nickname) => handleSubmit(nickname)}
-          onSkip={() => handleSubmit()}
-        />
-      );
 
       return;
     }
@@ -127,7 +109,6 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                     trendAlias={trendData.alias}
                     itemId={item.id}
                     title={item.title}
-                    label={item.label}
                     options={item.options}
                     selectedOptionId={selectedOptionId}
                     handleOptionSelect={handleOptionSelect}

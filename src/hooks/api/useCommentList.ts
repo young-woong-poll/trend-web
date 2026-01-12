@@ -1,15 +1,24 @@
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
+import { commentListKeys, commentQueries } from '@/lib/react-query/queries';
 import { getTKUID } from '@/lib/tkuid';
-import { displayApi } from '@/services/api/display';
-import type { CommentListResponse } from '@/types/comment';
 
-export const commentListKeys = {
-  all: ['commentList'] as const,
-  list: (trendId: string, itemId: string, sort: string) =>
-    [...commentListKeys.all, trendId, itemId, sort] as const,
-};
+// commentListKeys를 @/lib/react-query/queries에서 re-export
+export { commentListKeys };
 
+/**
+ * 댓글 무한 스크롤 목록 조회 Hook
+ *
+ * @example
+ * ```tsx
+ * const { data, fetchNextPage, hasNextPage } = useInfiniteCommentList('123', 'item1', 'latest');
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({
+ *   queryKey: commentQueries.infiniteList({ trendId: '123', itemId: 'item1', sort: 'latest' }).queryKey
+ * });
+ * ```
+ */
 export const useInfiniteCommentList = (
   trendId: string,
   itemId: string,
@@ -18,22 +27,10 @@ export const useInfiniteCommentList = (
 ) => {
   const tkuId = getTKUID();
 
-  return useInfiniteQuery<CommentListResponse, Error>({
-    queryKey: commentListKeys.list(trendId, itemId, sort),
-    queryFn: async ({ pageParam }) =>
-      displayApi.getComments({
-        trendId,
-        itemId,
-        sort,
-        cursor: pageParam as string | undefined,
-        size: 20, // 20개씩 로드
-        tkuId,
-      }),
-    initialPageParam: undefined,
-    getNextPageParam: (lastPage) => lastPage.nextId ?? undefined,
-    placeholderData: keepPreviousData, // 정렬 변경 시 이전 데이터 유지
+  return useInfiniteQuery({
+    ...commentQueries.infiniteList({ trendId, itemId, sort, size: 20, tkuId }),
+    placeholderData: keepPreviousData,
     enabled,
-    staleTime: 1000 * 60, // 1분
-    gcTime: 1000 * 60 * 5, // 5분 (구 cacheTime)
+    gcTime: 1000 * 60 * 5,
   });
 };

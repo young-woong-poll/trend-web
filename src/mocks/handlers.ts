@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { getMockCommentListResponse } from '@/mocks/data/comments';
 import { mockElectionDetail } from '@/mocks/data/elections';
 import {
   mockResultDisplay,
@@ -69,6 +70,20 @@ export const handlers = [
     // 기본 결과 반환
     HttpResponse.json(mockResultInviteeList)
   ),
+
+  /**
+   * 트렌드 아이템 댓글 조회
+   * GET /api/v1/display/trend/:trendId/item/:itemId/comment
+   */
+  http.get(`${baseURL}/api/v1/display/trend/:trendId/item/:itemId/comment`, ({ request }) => {
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor') ?? undefined;
+    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+    const sort = (url.searchParams.get('sort') ?? 'latest') as 'latest' | 'popular';
+
+    const response = getMockCommentListResponse(cursor, size, sort);
+    return HttpResponse.json(response);
+  }),
 
   /**
    * Admin: 선거 상세 조회

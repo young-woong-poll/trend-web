@@ -8,15 +8,10 @@ import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss
 export const MainHeader: FC = () => (
   <header className={styles.header}>
     <div className={styles.logoContainer}>
-      <Image
-        src={mainLogo1x}
-        alt="HotPick"
-        className={styles.logo}
-        priority
-        width={90}
-        height={32}
-      />
+      <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
     </div>
-    <p className={styles.text}>이번주 대한민국은 이걸로 싸운다</p>
+    <p className={styles.text}>
+      <i>이번주 대한민국은 이걸로 싸운다</i>
+    </p>
   </header>
 );

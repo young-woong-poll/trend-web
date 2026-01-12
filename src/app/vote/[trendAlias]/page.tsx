@@ -1,7 +1,10 @@
 import { notFound } from 'next/navigation';
 
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+
 import { VoteContent } from '@/components/features/Vote/VoteContent';
-import { serverDisplayApi } from '@/services/api/server/display';
+import { createServerQueryClient } from '@/lib/react-query';
+import { displayQueries } from '@/lib/react-query/queries';
 
 interface VotePageProps {
   params: Promise<{
@@ -17,15 +20,22 @@ export { generateStaticParams } from '@/app/vote/[trendAlias]/params';
 export { generateMetadata } from '@/app/vote/[trendAlias]/metadata';
 
 export default async function VotePage({ params }: VotePageProps) {
-  try {
-    const { trendAlias } = await params;
-    const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
+  const queryClient = createServerQueryClient();
+  const { trendAlias } = await params;
 
-    return <VoteContent trendData={trendData} />;
+  const trendQuery = displayQueries.trend(trendAlias);
+
+  try {
+    await queryClient.prefetchQuery(trendQuery);
+
+    return (
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <VoteContent trendAlias={trendAlias} />
+      </HydrationBoundary>
+    );
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[VotePage] Failed to fetch trend data:', error);
-    // 에러 발생 시 404 페이지로 처리
     notFound();
   }
 }

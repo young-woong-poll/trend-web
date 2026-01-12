@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { useQuery } from '@tanstack/react-query';
+
 import CheckIcon from '@/assets/icon/CheckIcon';
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
@@ -10,7 +12,7 @@ import styles from '@/components/features/Result/CompareLinkCard/CompareLinkCard
 import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
 import { COMPARE_LINK_COPIED_SUCCESS_FULL } from '@/constants/text';
 import { useModal } from '@/contexts/ModalContext';
-import { useResultDisplay } from '@/hooks/api';
+import { displayQueries } from '@/lib/react-query/queries';
 import { useSetNickname } from '@/hooks/api/useResult';
 import { fNameRes, validateNickname } from '@/lib/utils';
 import type { InviteeResult, ResultDisplayResponse } from '@/types/result';
@@ -41,7 +43,7 @@ const ComparisonWithFriendModal = ({
   resultId: string;
   compareId: string;
 }) => {
-  const { data: myResult, isPending, isError } = useResultDisplay(resultId, compareId);
+  const { data: myResult, isPending, isError } = useQuery(displayQueries.result(resultId, compareId));
   const { hideModal } = useModal();
 
   if (isPending) {

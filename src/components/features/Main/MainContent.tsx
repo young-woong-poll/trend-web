@@ -1,17 +1,20 @@
+'use client';
+
 import type { FC } from 'react';
+
+import { useQuery } from '@tanstack/react-query';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
-import type { MainDisplayResponse } from '@/types/trend';
+import { displayQueries } from '@/lib/react-query/queries';
 
-type TMainContentProps = {
-  initialData: MainDisplayResponse;
-};
+export const MainContent: FC = () => {
+  const { data } = useQuery(displayQueries.main());
 
-export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
-  if (initialData.trends.length === 0) {
+  // undefined 체크는 타입 안정성을 위한 것
+  if (!data || data.trends.length === 0) {
     return (
       <>
         <MainHeader />
@@ -53,7 +56,7 @@ export const MainContent: FC<TMainContentProps> = ({ initialData }) => {
       <MainHeader />
       <FlexibleLayout>
         <div className={styles.container}>
-          {initialData.trends.map((trend) => {
+          {data.trends.map((trend) => {
             const validImageUrl = isValidImageUrl(trend.imageUrl)
               ? trend.imageUrl
               : 'https://picsum.photos/400/300?random=placeholder';

@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
+    "dev:msw": "NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true next dev --turbo",
     "dev:3001": "next dev --turbo --port 3001",
     "dev:https": "next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
+    "dev:msw:https": "NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",

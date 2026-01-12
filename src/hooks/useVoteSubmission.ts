@@ -16,8 +16,7 @@ export const useVoteSubmission = () => {
   const submit = async (
     trendId: string,
     selectedItemMap: TSelectedItemMap,
-    totalItemCount: number,
-    nickname: string = ''
+    totalItemCount: number
   ) => {
     try {
       const selectedItems = Object.entries(selectedItemMap)

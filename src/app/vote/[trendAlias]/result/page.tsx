@@ -1,10 +1,13 @@
 import { Suspense } from 'react';
 
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { notFound, redirect } from 'next/navigation';
 
 import { createResultMetadata, defaultMetadata } from '@/app/vote/[trendAlias]/result/metadata';
 import { ResultContent } from '@/components/features/Result/ResultContent';
 import { ResultSkeleton } from '@/components/features/Result/ResultSkeleton/ResultSkeleton';
+import { createServerQueryClient } from '@/lib/react-query';
+import { displayQueries } from '@/lib/react-query/queries';
 import { serverDisplayApi } from '@/services/api/server/display';
 
 interface ResultPageProps {
@@ -37,6 +40,7 @@ export async function generateMetadata({ searchParams }: ResultPageProps) {
 }
 
 export default async function ResultPage({ params, searchParams }: ResultPageProps) {
+  const queryClient = createServerQueryClient();
   const { trendAlias } = await params;
   const { id: resultId, compareId } = await searchParams;
 
@@ -44,30 +48,32 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
     redirect('/');
   }
 
+  // 쿼리 옵션 객체들 - 어떤 쿼리키를 사용하는지 명확함
+  const resultQuery = displayQueries.result(resultId, compareId);
+  const inviteeQuery = displayQueries.resultInvitee(resultId);
+
   try {
-    const [myResult, friendResults] = await Promise.all([
-      serverDisplayApi.getResultDisplay({ resultId, compareId }),
-      serverDisplayApi.getResultDisplayInvitee(resultId).catch(() => null), // 실패해도 계속 진행
+    // 병렬로 prefetch - 쿼리 옵션 객체를 직접 전달
+    await Promise.all([
+      queryClient.prefetchQuery(resultQuery),
+      queryClient.prefetchQuery(inviteeQuery).catch(() => {
+        console.warn('[ResultPage] Failed to prefetch invitee results');
+      }),
     ]);
 
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <ResultContent
-          trendAlias={trendAlias}
-          resultId={resultId}
-          compareId={compareId}
-          myResult={myResult}
-          friendResults={friendResults}
-        />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ResultContent trendAlias={trendAlias} resultId={resultId} compareId={compareId} />
+        </HydrationBoundary>
       </Suspense>
     );
   } catch (error) {
-    console.error('Result fetch error:', error);
+    console.error('[ResultPage] Result fetch error:', error);
     notFound();
   }
 }
 
-// 로딩 UI
 function LoadingFallback() {
   return <ResultSkeleton />;
 }

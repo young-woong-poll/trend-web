@@ -1,16 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { displayKeys } from '@/hooks/api/useDisplay';
+import { queryKeys } from '@/lib/react-query';
+import { resultQueries } from '@/lib/react-query/queries';
 import { resultApi } from '@/services/api/result';
 import type { CreateResultRequest } from '@/types/result';
 
 /**
  * Result Query Keys
+ * @deprecated resultKeys는 더 이상 사용되지 않습니다.
+ * 대신 @/lib/react-query의 queryKeys를 사용하세요.
  */
-export const resultKeys = {
-  all: ['result'] as const,
-  exists: (resultId: string) => [...resultKeys.all, 'exists', resultId] as const,
-};
+export const resultKeys = queryKeys.result;
 
 /**
  * Result 생성 Hook
@@ -21,19 +21,25 @@ export const useCreateResult = () => {
   return useMutation({
     mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
     onSuccess: (data) => {
-      // 생성된 result의 display 쿼리를 prefetch하거나 무효화할 수 있습니다
-      void queryClient.invalidateQueries({ queryKey: displayKeys.result(data.resultId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.display.result(data.resultId) });
     },
   });
 };
 
 /**
  * Result 존재 여부 확인 Hook
+ *
+ * @example
+ * ```tsx
+ * const { data } = useCheckResultExists('result-123');
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({ queryKey: resultQueries.exists('result-123').queryKey });
+ * ```
  */
 export const useCheckResultExists = (resultId: string, enabled = true) =>
   useQuery({
-    queryKey: resultKeys.exists(resultId),
-    queryFn: () => resultApi.checkResultExists(resultId),
+    ...resultQueries.exists(resultId),
     enabled,
   });
 
@@ -47,7 +53,9 @@ export const useSetNickname = () => {
     mutationFn: ({ resultId, nickname }: { resultId: string; nickname: string }) =>
       resultApi.setNickname(resultId, nickname),
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: displayKeys.result(variables.resultId) });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.display.result(variables.resultId),
+      });
     },
   });
 };

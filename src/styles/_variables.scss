@@ -44,6 +44,9 @@ $info: #2e95ff;
 $primary-start: #ff00ff;
 $primary-end: #ff4500;
 $attention: #dfff00;
+
+$primary-gradient: linear-gradient(90deg, $primary-start 0%, $primary-end 100%);
+
 $bg-primary: #121212;
 $bg-secondary: #1e1e1e;
 $bg-tertiary: #2c2c2c;
