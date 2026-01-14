@@ -4,67 +4,16 @@
 .wrapper {
   position: relative;
   width: 100%;
-  height: 400px;
-
-  @include se {
-    height: 320px;
-  }
-}
-
-.skeleton {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.imageCard {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  @include transition(all, 0.3s);
-
-  &.loading {
-    opacity: 0;
-  }
-
-  &.loaded {
-    opacity: 1;
-  }
-
-  &.clickable {
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba($primary-start, 0.2);
-    }
-
-    &:active {
-      transform: translateY(-2px);
-    }
-  }
+  max-width: 480px;
+  height: 232px;
 
   &.selected {
-    position: relative;
-
     &::before {
       content: '';
       position: absolute;
-      inset: -3px;
-      border-radius: 16px;
-      padding: 3px;
+      inset: -2px;
+      border-radius: 10px;
       background: linear-gradient(135deg, $primary-start 0%, $primary-end 100%);
-      -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
       z-index: 0;
       animation: borderGlow 0.3s ease-in;
     }
@@ -82,6 +31,54 @@
   }
 }
 
+.skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.imageCard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  @include transition(all, 0.3s);
+
+  &.loading {
+    opacity: 0;
+  }
+
+  &.loaded {
+    opacity: 1;
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+
+    &:active {
+      transform: translateY(-2px);
+    }
+  }
+
+  &.hasVoted {
+    display: flex;
+    flex-direction: column;
+
+    .backgroundImage {
+      height: 170px;
+      flex-shrink: 0;
+    }
+  }
+}
+
 .backgroundImage {
   width: 100%;
   height: 100%;
@@ -91,32 +88,32 @@
 
 .labelOverlay {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  padding: 8px 16px;
+  top: 24px;
+  left: 0;
+  width: auto;
+  min-width: 106px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
   background: rgba($bg-primary, 0.75);
   backdrop-filter: blur(8px);
-  border-radius: 8px;
+  border-radius: 0;
   color: $white;
-  font-size: $font-size-18;
-  font-weight: $font-weight-semibold;
+  font-size: $font-size-20;
+  font-weight: $font-weight-bold;
+  white-space: nowrap;
   z-index: 2;
-
-  @include se {
-    font-size: $font-size-16;
-    padding: 6px 12px;
-  }
 }
 
 .voteResultBar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 12px 16px;
-  background: rgba($bg-secondary, 0.92);
-  backdrop-filter: blur(12px);
-  border-radius: 0 0 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 16px 16px 0;
+  background: $bg-secondary;
   z-index: 2;
   animation: resultBarSlideIn 0.4s ease-out 0.1s both;
 
@@ -135,16 +132,15 @@
 .progressGradient {
   width: 100%;
   height: 8px;
-  background: $bg-tertiary;
-  border-radius: 4px;
+  background: $white;
+  border-radius: 9999px;
   overflow: hidden;
-  margin-bottom: 8px;
 }
 
 .progressFill {
   height: 100%;
   background: linear-gradient(90deg, $primary-start 0%, $primary-end 100%);
-  border-radius: 4px;
+  border-radius: 9999px;
   @include transition(width, 0.6s, cubic-bezier(0.4, 0, 0.2, 1));
 }
 
@@ -152,16 +148,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 8px;
+  padding: 0 4px;
 }
 
 .voteCount {
   color: $text-secondary;
   font-size: $font-size-14;
-  font-weight: $font-weight-medium;
+  font-weight: $font-weight-regular;
 }
 
 .percentage {
   color: $white;
-  font-size: $font-size-16;
-  font-weight: $font-weight-bold;
+  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
 }

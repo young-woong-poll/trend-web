@@ -40,29 +40,51 @@ export const VoteCard: FC<VoteCardProps> = ({
   const hasVoted = !!selectedOptionId;
 
   return (
-    <div className={styles.card}>
-      <div className={styles.questionText}>{title}</div>
+    <div className={styles.cardWrapper}>
+      <div className={`${styles.card} ${hasVoted ? styles.cardFlipped : ''}`}>
+        {/* 앞면: 투표 전 */}
+        <div className={styles.cardFront}>
+          <div className={styles.questionText}>{title}</div>
+          <div className={styles.optionsContainer}>
+            {options.map((option) => (
+              <VoteOptionCard
+                key={option.id}
+                option={option}
+                isSelected={false}
+                hasVoted={false}
+                voteCount={0}
+                percentage={0}
+                onClick={() => handleOptionClick(option.id)}
+              />
+            ))}
+          </div>
+        </div>
 
-      <div className={styles.optionsContainer}>
-        {options.map((option) => {
-          const isSelected = selectedOptionId === option.id;
-          const voteCount = optionCounts.find((opt) => opt.id === option.id)?.count || 0;
-          const displayVoteCount = isSelected ? voteCount + 1 : voteCount;
-          const percentage =
-            totalVotes === 0 ? 0 : Math.round((displayVoteCount / totalVotes) * 100);
+        {/* 뒷면: 투표 후 결과 */}
+        <div className={styles.cardBack}>
+          <div className={styles.questionText}>{title}</div>
+          <div className={styles.optionsContainer}>
+            {options.map((option) => {
+              const isSelected = selectedOptionId === option.id;
+              const voteCount = optionCounts.find((opt) => opt.id === option.id)?.count || 0;
+              const displayVoteCount = isSelected ? voteCount + 1 : voteCount;
+              const percentage =
+                totalVotes === 0 ? 0 : Math.round((displayVoteCount / totalVotes) * 100);
 
-          return (
-            <VoteOptionCard
-              key={option.id}
-              option={option}
-              isSelected={isSelected}
-              hasVoted={hasVoted}
-              voteCount={displayVoteCount}
-              percentage={percentage}
-              onClick={() => handleOptionClick(option.id)}
-            />
-          );
-        })}
+              return (
+                <VoteOptionCard
+                  key={option.id}
+                  option={option}
+                  isSelected={isSelected}
+                  hasVoted={true}
+                  voteCount={displayVoteCount}
+                  percentage={percentage}
+                  onClick={() => {}}
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type FC } from 'react';
 
 import { usePathname } from 'next/navigation';
 
+import ClockIcon from '@/assets/icon/ClockIcon';
+import UpIcon from '@/assets/icon/UpIcon';
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Vote/CommentModal/CommentBottomSheet.module.scss';
 import { CommentEditModal } from '@/components/features/Vote/CommentModal/CommentEditModal';
@@ -53,6 +55,61 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const prevPathnameRef = useRef(pathname);
   // 댓글 목록 스크롤 컨테이너 ref
   const commentListContainerRef = useRef<HTMLDivElement>(null);
+  // 스크롤 가능 여부 및 바닥 도달 여부
+  const [canScroll, setCanScroll] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  // 스크롤 상태 확인
+  const checkScrollState = () => {
+    const container = commentListContainerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const hasScrollableContent = container.scrollHeight > container.clientHeight;
+    const isBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 10;
+
+    setCanScroll(hasScrollableContent);
+    setIsAtBottom(isBottom || !hasScrollableContent);
+  };
+
+  // 스크롤 이벤트 및 리사이즈 감지
+  useEffect(() => {
+    const container = commentListContainerRef.current;
+    if (!container || !isOpen) {
+      return;
+    }
+
+    // 초기 상태 확인 (약간의 딜레이 후 확인)
+    const initialCheck = setTimeout(() => {
+      checkScrollState();
+    }, 100);
+
+    // ResizeObserver로 콘텐츠 크기 변화 감지
+    const resizeObserver = new ResizeObserver(() => {
+      checkScrollState();
+    });
+    resizeObserver.observe(container);
+
+    // MutationObserver로 자식 요소 변화 감지 (댓글 로드 시)
+    const mutationObserver = new MutationObserver(() => {
+      checkScrollState();
+    });
+    mutationObserver.observe(container, { childList: true, subtree: true });
+
+    // 스크롤 이벤트 리스너
+    const handleScroll = () => {
+      checkScrollState();
+    };
+    container.addEventListener('scroll', handleScroll);
+
+    return () => {
+      clearTimeout(initialCheck);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [isOpen]);
 
   // 라우터 변경 감지하여 모달 닫기
   useEffect(() => {
@@ -213,6 +270,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
                   className={`${styles.tab} ${sort === 'popular' ? styles.active : ''}`}
                   onClick={() => handleSortChange('popular')}
                 >
+                  <UpIcon />
                   인기순
                 </button>
                 <button
@@ -220,6 +278,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
                   className={`${styles.tab} ${sort === 'latest' ? styles.active : ''}`}
                   onClick={() => handleSortChange('latest')}
                 >
+                  <ClockIcon />
                   최신순
                 </button>
               </div>
@@ -236,14 +295,22 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           </div>
 
           {/* 댓글 목록 (스크롤 영역) */}
-          <div ref={commentListContainerRef} className={styles.commentListContainer}>
-            <CommentList
-              trendId={trendId}
-              itemId={itemId}
-              sort={sort}
-              onEditRequest={handleEditRequest}
-              onDeleteRequest={handleDeleteRequest}
-              onLikeClick={handleLikeClick}
+          <div className={styles.commentListWrapper}>
+            <div ref={commentListContainerRef} className={styles.commentListContainer}>
+              <CommentList
+                trendId={trendId}
+                itemId={itemId}
+                sort={sort}
+                onEditRequest={handleEditRequest}
+                onDeleteRequest={handleDeleteRequest}
+                onLikeClick={handleLikeClick}
+              />
+            </div>
+
+            {/* 스크롤 가능 시 blur 오버레이 */}
+            <div
+              className={styles.scrollBlurOverlay}
+              style={{ opacity: canScroll && !isAtBottom ? 1 : 0 }}
             />
           </div>
 

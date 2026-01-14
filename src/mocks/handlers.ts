@@ -29,10 +29,32 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/trend/:trendId`, () => HttpResponse.json(mockTrendDisplay)),
 
   /**
+   * Trend 항목 옵션 카운트 조회
+   * GET /api/v1/trend/:trendAlias/item/:itemId
+   * NOTE: 더 구체적인 패턴이므로 /api/v1/trend/:trendId 보다 먼저 정의해야 함
+   */
+  http.get(`${baseURL}/api/v1/trend/:trendAlias/item/:itemId`, ({ params }) => {
+    const { itemId } = params;
+    // 해당 itemId에 맞는 옵션들만 필터링
+    const filteredOptions = mockTrendVoteCount.options.filter((option) =>
+      option.id.startsWith(String(itemId))
+    );
+    return HttpResponse.json({ options: filteredOptions });
+  }),
+
+  /**
    * Trend 현재 투표 수 조회
    * GET /api/v1/trend/:trendId
    */
   http.get(`${baseURL}/api/v1/trend/:trendId`, () => HttpResponse.json(mockTrendVoteCount)),
+
+  /**
+   * 댓글 개수 조회
+   * GET /api/v1/comment/:trendId/item/:itemId/count
+   */
+  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
+    HttpResponse.json({ count: Math.floor(Math.random() * 50) + 5 })
+  ),
 
   /**
    * Result 생성

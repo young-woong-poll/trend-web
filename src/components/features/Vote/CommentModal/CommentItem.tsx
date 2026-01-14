@@ -2,6 +2,7 @@
 
 import { type FC } from 'react';
 
+import LikeIcon from '@/assets/icon/LikeIcon';
 import styles from '@/components/features/Vote/CommentModal/CommentItem.module.scss';
 import { getRelativeTime } from '@/lib/utils';
 import type { CommentItem as CommentItemType } from '@/types/comment';
@@ -57,7 +58,7 @@ export const CommentItem: FC<CommentItemProps> = ({
           onClick={handleLikeClick}
           aria-label={comment.liked ? '좋아요 취소' : '좋아요'}
         >
-          <span className={styles.likeIcon}>👍</span>
+          <LikeIcon filled={comment.liked} className={styles.likeIcon} />
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 

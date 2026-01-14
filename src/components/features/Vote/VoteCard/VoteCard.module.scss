@@ -1,29 +1,56 @@
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
+.cardWrapper {
+  width: 100%;
+  max-width: 568px;
+  @include flex-column;
+  align-items: center;
+}
+
 .card {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 480px;
+}
+
+.cardFlipped {
+  transform: rotateY(180deg);
+}
+
+.cardFront,
+.cardBack {
   @include flex-column;
   width: 100%;
   gap: 24px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.cardFront {
+  position: relative;
+}
+
+.cardBack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: rotateY(180deg);
 }
 
 .questionText {
-  font-size: $font-size-22;
-  line-height: 30px;
-  font-weight: $font-weight-bold;
+  font-size: $font-size-20;
+  line-height: 28px;
+  font-weight: $font-weight-medium;
   color: $white;
-  text-align: center;
+  text-align: left;
   word-break: keep-all;
-  padding: 0 16px;
-
-  @include se {
-    font-size: $font-size-20;
-    line-height: 28px;
-  }
 }
 
 .optionsContainer {
   @include flex-column;
-  gap: 20px;
+  gap: 16px;
   width: 100%;
 }

@@ -83,47 +83,49 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
           totalSteps={items.length || DEFAULT_NUM_OF_ITEMS}
         />
 
-        <div
-          className={styles.content}
-          style={{
-            transform: `translateX(calc(-${currentItemIndex} * 100%))`,
-          }}
-        >
-          {items.length > 0 &&
-            items.map((item) => {
-              const selectedOptionId = selectedItemMap[item.id] || null;
+        <div className={styles.contentWrapper}>
+          <div
+            className={styles.content}
+            style={{
+              transform: `translateX(calc(-${currentItemIndex} * 100%))`,
+            }}
+          >
+            {items.length > 0 &&
+              items.map((item) => {
+                const selectedOptionId = selectedItemMap[item.id] || null;
 
-              const handleOptionSelect = (optionId: string) => {
-                setSelectedItemMap((prev) => ({
-                  ...prev,
-                  [item.id]: optionId,
-                }));
-              };
+                const handleOptionSelect = (optionId: string) => {
+                  setSelectedItemMap((prev) => ({
+                    ...prev,
+                    [item.id]: optionId,
+                  }));
+                };
 
-              // eslint-disable-next-line react-hooks/rules-of-hooks
-              const { data: commentCountData } = useCommentCountQuery(trendId, item.id);
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const { data: commentCountData } = useCommentCountQuery(trendId, item.id);
 
-              return (
-                <div key={item.id} className={styles.cardContainer}>
-                  <VoteCard
-                    trendAlias={trendData.alias}
-                    itemId={item.id}
-                    title={item.title}
-                    options={item.options}
-                    selectedOptionId={selectedOptionId}
-                    handleOptionSelect={handleOptionSelect}
-                  />
+                return (
+                  <div key={item.id} className={styles.cardContainer}>
+                    <VoteCard
+                      trendAlias={trendData.alias}
+                      itemId={item.id}
+                      title={item.title}
+                      options={item.options}
+                      selectedOptionId={selectedOptionId}
+                      handleOptionSelect={handleOptionSelect}
+                    />
 
-                  <VoteBottomButtons
-                    commentCount={commentCountData?.count}
-                    commentDisabled={selectedOptionId === null}
-                    nextDisabled={selectedOptionId === null}
-                    onCommentClick={() => handleOpenCommentModal(item.id)}
-                    onNextClick={handleNext}
-                  />
-                </div>
-              );
-            })}
+                    <VoteBottomButtons
+                      commentCount={commentCountData?.count}
+                      commentDisabled={selectedOptionId === null}
+                      nextDisabled={selectedOptionId === null}
+                      onCommentClick={() => handleOpenCommentModal(item.id)}
+                      onNextClick={handleNext}
+                    />
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
 

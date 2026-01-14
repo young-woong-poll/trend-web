@@ -1,5 +1,3 @@
-import { useSearchParams } from 'next/navigation';
-
 import type { TSelectedItemMap } from '@/components/features/Vote/VoteView';
 import { useCreateResult } from '@/hooks/api';
 import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
@@ -8,9 +6,6 @@ import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
  * 투표 결과 제출 Hook
  */
 export const useVoteSubmission = () => {
-  const searchParams = useSearchParams();
-
-  const invitationId = searchParams.get('compare') || '';
   const { mutateAsync: createResult, isPending } = useCreateResult();
 
   const submit = async (
@@ -28,10 +23,8 @@ export const useVoteSubmission = () => {
       }
 
       const { resultId } = await createResult({
-        trendId,
+        trendId: Number(trendId),
         selectedItems,
-        invitationId,
-        nickname,
       });
 
       return resultId;

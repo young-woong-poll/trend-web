@@ -5,17 +5,17 @@
   display: flex;
   gap: 12px;
   width: 100%;
+  max-width: 480px;
+  margin: 24px auto 0;
   align-items: stretch;
-  margin-top: 24px;
 }
 
 .commentButton {
-  flex: 0 0 auto;
-  min-width: 100px;
+  flex: 1;
   height: 48px;
   background: transparent;
   border: 2px solid $text-tertiary;
-  border-radius: 8px;
+  border-radius: 9999px;
   color: $text-secondary;
   font-size: $font-size-16;
   font-weight: $font-weight-semibold;
@@ -38,11 +38,11 @@
 }
 
 .nextButton {
-  flex: 1;
+  flex: 2;
   height: 48px;
   background: $attention;
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px;
   color: $bg-primary;
   font-size: $font-size-16;
   font-weight: $font-weight-bold;

@@ -2,18 +2,16 @@
 @use '@/styles/mixins' as *;
 
 .voteHeader {
-  position: sticky;
-  top: 4px;
-  z-index: calc($z-index-sticky - 1);
-  padding: 16px 20px;
+  height: 48px;
   background: $bg-primary;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
 
   .logo {
-    width: 32px;
-    height: 42px;
+    width: 23px;
+    height: 30px;
     flex-shrink: 0;
 
     svg {
@@ -23,18 +21,13 @@
   }
 
   .title {
-    font-size: $font-size-22;
+    font-size: $font-size-16;
     font-weight: $font-weight-bold;
     background: linear-gradient(135deg, $primary-start 0%, $primary-end 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    line-height: 30px;
+    line-height: 1.2;
     word-break: keep-all;
-
-    @include se {
-      font-size: $font-size-18;
-      line-height: 26px;
-    }
   }
 }

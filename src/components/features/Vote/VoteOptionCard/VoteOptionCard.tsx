@@ -27,15 +27,15 @@ export const VoteOptionCard: FC<VoteOptionCardProps> = ({
   const isImageLoaded = useImagePreload(option.imageUrl);
 
   return (
-    <div className={styles.wrapper}>
-      {!isImageLoaded && <Skeleton height={400} borderRadius={16} className={styles.skeleton} />}
+    <div className={`${styles.wrapper} ${isSelected && hasVoted ? styles.selected : ''}`}>
+      {!isImageLoaded && <Skeleton height={232} borderRadius={8} className={styles.skeleton} />}
 
       <div
         className={`
           ${styles.imageCard}
-          ${isSelected && hasVoted ? styles.selected : ''}
           ${!isImageLoaded ? styles.loading : styles.loaded}
           ${!hasVoted ? styles.clickable : ''}
+          ${hasVoted ? styles.hasVoted : ''}
         `}
         onClick={!hasVoted ? onClick : undefined}
       >
