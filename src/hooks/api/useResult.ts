@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/react-query';
 import { resultQueries } from '@/lib/react-query/queries';
 import { resultApi } from '@/services/api/result';
-import type { CreateResultRequest } from '@/types/result';
 
 /**
  * Result Query Keys
@@ -11,20 +10,6 @@ import type { CreateResultRequest } from '@/types/result';
  * 대신 @/lib/react-query의 queryKeys를 사용하세요.
  */
 export const resultKeys = queryKeys.result;
-
-/**
- * Result 생성 Hook
- */
-export const useCreateResult = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
-    onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.display.result(data.resultId) });
-    },
-  });
-};
 
 /**
  * Result 존재 여부 확인 Hook

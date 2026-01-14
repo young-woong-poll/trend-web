@@ -17,11 +17,11 @@ export const displayQueries = {
   /**
    * 메인 전시 쿼리 옵션
    */
-  main: (size?: number) =>
+  main: (params?: { size?: number; page?: number; sort?: 'latest' | 'popular' }) =>
     queryOptions<MainDisplayResponse>({
-      queryKey: queryKeys.display.main(size),
+      queryKey: queryKeys.display.main(params),
       queryFn: () =>
-        isServer() ? serverDisplayApi.getMainDisplay() : displayApi.getMainDisplay(size),
+        isServer() ? serverDisplayApi.getMainDisplay(params) : displayApi.getMainDisplay(params),
       staleTime: CACHE_TIMES.DISPLAY.MAIN * 1000,
     }),
 

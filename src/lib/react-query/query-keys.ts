@@ -12,7 +12,8 @@ export const queryKeys = {
   // Display 관련
   display: {
     all: ['display'] as const,
-    main: (size?: number) => [...queryKeys.display.all, 'main', { size }] as const,
+    main: (params?: { size?: number; page?: number; sort?: 'latest' | 'popular' }) =>
+      [...queryKeys.display.all, 'main', params] as const,
     trend: (trendAlias: string) => [...queryKeys.display.all, 'trend', trendAlias] as const,
     result: (resultId: string, compareId?: string) =>
       [...queryKeys.display.all, 'result', resultId, { compareId }] as const,

@@ -15,15 +15,20 @@ type TVoteContentProps = {
 export const VoteContent: FC<TVoteContentProps> = ({ trendAlias }) => {
   const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
 
-  // 서버에서 prefetch되므로 data는 항상 존재
+  // 데이터 로딩 중이거나 없는 경우
   if (!trendData) {
-    return null; // 또는 Skeleton UI
+    return (
+      <FlexibleLayout>
+        <div>Loading...</div>
+      </FlexibleLayout>
+    );
   }
 
   const items = trendData.items;
+
   return (
     <FlexibleLayout>
-      <VoteView trendData={trendData}>
+      <VoteView trendAlias={trendAlias}>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         <div suppressHydrationWarning>
           {items.map((item) => (

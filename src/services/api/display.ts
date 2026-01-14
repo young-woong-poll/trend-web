@@ -13,11 +13,15 @@ export const displayApi = {
    * 메인 전시 조회
    * GET /api/v1/display/main
    */
-  getMainDisplay: async (size?: number): Promise<MainDisplayResponse> => {
+  getMainDisplay: async (params?: {
+    size?: number;
+    page?: number;
+    sort?: 'latest' | 'popular';
+  }): Promise<MainDisplayResponse> => {
     const response: AxiosResponse<MainDisplayResponse> = await axiosInstance.get(
       '/api/v1/display/main',
       {
-        params: size !== undefined ? { size } : undefined,
+        params: params ? { size: params.size, page: params.page, sort: params.sort } : undefined,
       }
     );
     return response.data;

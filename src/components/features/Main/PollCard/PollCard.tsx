@@ -21,7 +21,7 @@ type TPollCardProps = {
   createdAt: string;
   imageUrl: string;
   participantCount: number;
-  children: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
+  children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
 
 export const PollCard: FC<TPollCardProps> = ({
@@ -31,7 +31,6 @@ export const PollCard: FC<TPollCardProps> = ({
   createdAt,
   imageUrl,
   participantCount,
-  children,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const { showToast } = useModal();
@@ -59,9 +58,6 @@ export const PollCard: FC<TPollCardProps> = ({
 
   return (
     <>
-      {/* 서버에서 생성된 정적 HTML (SEO용) */}
-      <noscript>{children}</noscript>
-
       {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
       {!isImageLoaded && <PollCardSkeleton />}
       <div className={styles.cardWrapper} style={{ display: isImageLoaded ? 'block' : 'none' }}>

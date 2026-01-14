@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { commentListKeys, commentQueries } from '@/lib/react-query/queries';
 import { commentApi } from '@/services/api/comment';
@@ -224,19 +224,3 @@ export const useDeleteComment = () => {
   });
 };
 
-/**
- * 댓글 개수 조회 Hook
- *
- * @example
- * ```tsx
- * const { data } = useCommentCountQuery('123', 'item1');
- *
- * // 쿼리키 접근
- * queryClient.invalidateQueries({ queryKey: commentQueries.count(123, 'item1').queryKey });
- * ```
- */
-export const useCommentCountQuery = (trendId: string, itemId: string, enabled: boolean = true) =>
-  useQuery({
-    ...commentQueries.count(Number(trendId), itemId),
-    enabled,
-  });

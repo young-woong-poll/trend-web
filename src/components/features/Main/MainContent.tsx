@@ -1,78 +1,46 @@
-'use client';
-
 import type { FC } from 'react';
-
-import { useQuery } from '@tanstack/react-query';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { PollCard } from '@/components/features/Main/PollCard/PollCard';
-import { displayQueries } from '@/lib/react-query/queries';
+import { MainView } from '@/components/features/Main/MainView';
+import type { MainDisplayResponse } from '@/types/trend';
 
-export const MainContent: FC = () => {
-  const { data } = useQuery(displayQueries.main());
+type TMainContentProps = {
+  data?: MainDisplayResponse;
+};
 
-  // undefined 체크는 타입 안정성을 위한 것
-  if (!data || data.trends.length === 0) {
-    return (
-      <>
-        <MainHeader />
-        <FlexibleLayout>
-          <div className={styles.container}>
-            <div className={styles.emptyState}>
-              <div className={styles.icon}>📊</div>
-              <h2 className={styles.title}>아직 진행중인 트렌드가 없어요</h2>
-              <p className={styles.description}>
-                새로운 트렌드 투표가 시작되면 여기에 표시됩니다.
-                <br />곧 흥미로운 주제로 찾아뵙겠습니다!
-              </p>
-            </div>
-          </div>
-        </FlexibleLayout>
-      </>
-    );
+const formatCount = (count: number): string => {
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K`;
   }
+  return count.toString();
+};
 
-  const formatCount = (count: number): string => {
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
-  };
+const isValidImageUrl = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
 
-  // 유효한 이미지 URL인지 확인
-  const isValidImageUrl = (url: string): boolean => {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
+export const MainContent: FC<TMainContentProps> = ({ data }) => (
+  <>
+    <MainHeader />
+    <FlexibleLayout>
+      <MainView initialData={data}>
+        {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
+        {data && data.trends.length > 0 && (
+          <div className={styles.container}>
+            {data.trends.map((trend) => {
+              const validImageUrl = isValidImageUrl(trend.imageUrl)
+                ? trend.imageUrl
+                : 'https://picsum.photos/400/300?random=placeholder';
 
-  return (
-    <>
-      <MainHeader />
-      <FlexibleLayout>
-        <div className={styles.container}>
-          {data.trends.map((trend) => {
-            const validImageUrl = isValidImageUrl(trend.imageUrl)
-              ? trend.imageUrl
-              : 'https://picsum.photos/400/300?random=placeholder';
-
-            return (
-              <PollCard
-                key={trend.id}
-                alias={trend.alias}
-                title={trend.title}
-                subtitle={trend.label}
-                createdAt={trend.createdAt}
-                imageUrl={validImageUrl}
-                participantCount={trend.participantsCount}
-              >
-                {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
-                <div suppressHydrationWarning className={styles.cardWrapper}>
+              return (
+                <div key={trend.id} className={styles.cardWrapper}>
                   <a href={`/vote/${trend.alias}`}>
                     <div className={styles.card}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,11 +70,11 @@ export const MainContent: FC = () => {
                     </div>
                   </a>
                 </div>
-              </PollCard>
-            );
-          })}
-        </div>
-      </FlexibleLayout>
-    </>
-  );
-};
+              );
+            })}
+          </div>
+        )}
+      </MainView>
+    </FlexibleLayout>
+  </>
+);

@@ -15,22 +15,20 @@ export default async function Home() {
 
   try {
     await queryClient.prefetchQuery(mainQuery);
-    const data = queryClient.getQueryData<MainDisplayResponse>(mainQuery.queryKey);
-
-    return (
-      <>
-        {data && <StructuredData data={generateMainStructuredData(data)} />}
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <MainContent />
-        </HydrationBoundary>
-      </>
-    );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[Home] Failed to fetch main display:', error);
-    return (
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <MainContent />
-      </HydrationBoundary>
-    );
+    // 서버에서 실패해도 클라이언트에서 재시도
   }
+
+  const data = queryClient.getQueryData<MainDisplayResponse>(mainQuery.queryKey);
+
+  return (
+    <>
+      {data && <StructuredData data={generateMainStructuredData(data)} />}
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <MainContent data={data} />
+      </HydrationBoundary>
+    </>
+  );
 }

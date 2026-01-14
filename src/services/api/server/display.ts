@@ -9,10 +9,28 @@ export const serverDisplayApi = {
   /**
    * 메인 전시 조회 (서버 컴포넌트 전용)
    */
-  getMainDisplay: async (): Promise<MainDisplayResponse> =>
-    serverFetch<MainDisplayResponse>('/api/v1/display/main', {
+  getMainDisplay: async (params?: {
+    size?: number;
+    page?: number;
+    sort?: 'latest' | 'popular';
+  }): Promise<MainDisplayResponse> => {
+    const searchParams = new URLSearchParams();
+    if (params?.size !== undefined) {
+      searchParams.set('size', String(params.size));
+    }
+    if (params?.page !== undefined) {
+      searchParams.set('page', String(params.page));
+    }
+    if (params?.sort) {
+      searchParams.set('sort', params.sort);
+    }
+    const queryString = searchParams.toString();
+    const url = queryString ? `/api/v1/display/main?${queryString}` : '/api/v1/display/main';
+
+    return serverFetch<MainDisplayResponse>(url, {
       next: { revalidate: 60 }, // ISR: 60초마다 재검증
-    }),
+    });
+  },
 
   /**
    * Trend 전시 조회 (서버 컴포넌트 전용)

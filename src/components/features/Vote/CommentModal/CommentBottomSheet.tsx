@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type FC } from 'react';
 
 import { usePathname } from 'next/navigation';
 
+import { useQuery } from '@tanstack/react-query';
+
 import ClockIcon from '@/assets/icon/ClockIcon';
 import UpIcon from '@/assets/icon/UpIcon';
 import { Portal } from '@/components/common/Portal/Portal';
@@ -13,8 +15,9 @@ import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import { useCommentCountQuery, useDeleteComment } from '@/hooks/api/useComment';
+import { useDeleteComment } from '@/hooks/api/useComment';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
+import { commentQueries } from '@/lib/react-query/queries';
 import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
@@ -40,7 +43,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [editToken, setEditToken] = useState<string>('');
   const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
 
-  const { data: commentCountData } = useCommentCountQuery(trendId, itemId);
+  const { data: commentCountData } = useQuery(commentQueries.count(Number(trendId), itemId));
   const commentCount = commentCountData?.count;
 
   const { showToast, showConfirm } = useModal();

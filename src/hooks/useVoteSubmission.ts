@@ -1,12 +1,23 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import type { TSelectedItemMap } from '@/components/features/Vote/VoteView';
-import { useCreateResult } from '@/hooks/api';
 import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
+import { queryKeys } from '@/lib/react-query';
+import { resultApi } from '@/services/api/result';
+import type { CreateResultRequest } from '@/types/result';
 
 /**
  * 투표 결과 제출 Hook
  */
 export const useVoteSubmission = () => {
-  const { mutateAsync: createResult, isPending } = useCreateResult();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: createResult, isPending } = useMutation({
+    mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
+    onSuccess: (data) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.display.result(data.resultId) });
+    },
+  });
 
   const submit = async (
     trendId: string,

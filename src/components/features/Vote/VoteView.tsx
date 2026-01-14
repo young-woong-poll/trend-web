@@ -4,32 +4,33 @@ import { useState, type FC, type ReactNode } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { useQuery } from '@tanstack/react-query';
+
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
 import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
-import { useCommentCountQuery } from '@/hooks/api/useComment';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
-import type { TrendDisplayResponse } from '@/types/trend';
+import { commentQueries, displayQueries } from '@/lib/react-query/queries';
 
 type TItemId = string;
 type TOptionId = string;
 export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
 
-type VoteContentClientProps = {
-  trendData: TrendDisplayResponse;
+type VoteViewProps = {
+  trendAlias: string;
   children: ReactNode;
 };
 
 const DEFAULT_NUM_OF_ITEMS = 5;
 
-export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) => {
+export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
   const router = useRouter();
 
-  const { trendId, alias, items } = trendData;
+  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
@@ -39,6 +40,13 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
 
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
+
+  // HydrationBoundary로 prefetch되어 있으므로 trendData는 항상 존재
+  if (!trendData) {
+    return null;
+  }
+
+  const { trendId, alias, items } = trendData;
 
   const handleSubmit = async () => {
     try {
@@ -102,7 +110,9 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
                 };
 
                 // eslint-disable-next-line react-hooks/rules-of-hooks
-                const { data: commentCountData } = useCommentCountQuery(trendId, item.id);
+                const { data: commentCountData } = useQuery(
+                  commentQueries.count(Number(trendId), item.id)
+                );
 
                 return (
                   <div key={item.id} className={styles.cardContainer}>
