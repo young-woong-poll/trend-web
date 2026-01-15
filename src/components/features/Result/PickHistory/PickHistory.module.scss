@@ -2,29 +2,35 @@
 @use '@/styles/mixins' as *;
 
 .container {
-  background-color: $bg-secondary;
+  background-color: $bg-primary;
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
+  border: 1px solid $border-placeholder;
 }
 
 .title {
-  font-size: $font-size-14;
-  font-weight: $font-weight-bold;
+  font-size: $font-size-16;
+  font-weight: $font-weight-regular;
   color: $white;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   letter-spacing: 0.5px;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  height: 72px;
+  gap: 24px;
+  border-bottom: 1px solid $border-placeholder;
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .imageWrapper {
@@ -55,6 +61,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 20px;
 }
 
 .answer {
@@ -64,11 +71,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 22px;
 }
 
 .percent {
   flex-shrink: 0;
-  font-size: $font-size-16;
-  font-weight: $font-weight-bold;
+  font-size: $font-size-18;
+  font-weight: $font-weight-medium;
   color: $white;
+  line-height: 28px;
+
+  &.highlight {
+    color: $attention;
+  }
 }

@@ -55,7 +55,6 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
     );
   } catch (error) {
     console.error('[ResultPage] Result fetch error:', error);
-    notFound();
   }
 }
 

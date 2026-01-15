@@ -34,7 +34,7 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
 
       <div className={styles.content}>
         {/* 유형 카드 (대중성 지수 포함) */}
-        <TypeCard resultType={resultData.resultType} selectedOptions={resultData.selectedOptions} />
+        <TypeCard selectedOptions={resultData.selectedOptions} />
 
         {/* MY PICK HISTORY */}
         <PickHistory selectedOptions={resultData.selectedOptions} />

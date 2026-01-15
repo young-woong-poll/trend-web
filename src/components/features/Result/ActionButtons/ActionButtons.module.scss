@@ -10,7 +10,7 @@
 
 .primaryButton {
   border-radius: $border-rounded;
-  font-weight: $font-weight-semibold;
+  font-weight: $font-weight-regular;
   font-size: $font-size-16;
 
   svg {
@@ -21,13 +21,16 @@
 
 .secondaryButton {
   border-radius: $border-rounded;
-  font-weight: $font-weight-medium;
-  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
+  font-size: $font-size-16;
   border-color: $text-tertiary;
   color: $text-secondary;
 
   &:hover {
-    background-color: rgba($white, 0.1);
+    background-color: $bg-primary;
+    transform: translateY(-2px);
+    border-color: $text-tertiary;
+    color: $text-secondary;
   }
 
   svg {

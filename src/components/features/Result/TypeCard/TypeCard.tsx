@@ -1,15 +1,26 @@
 import Image from 'next/image';
 
 import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
+import { Tooltip } from '@/components/common/Tooltip';
 import styles from '@/components/features/Result/TypeCard/TypeCard.module.scss';
-import type { ResultType, SelectedOption } from '@/types/result';
+import { RESULT_TYPE_DATA } from '@/constants/data';
+import type { SelectedOption } from '@/types/result';
+
+const POPULARITY_TOOLTIP_CONTENT = `5개 투표에서 내가 선택한 옵션의 득표율 평균값입니다.
+(100%에 가까울수록 대한민국 국룰 취향!)
+
+다른 사람들이 투표하면 수치가 변경됩니다.`;
 
 type TypeCardProps = {
-  resultType: ResultType;
   selectedOptions: SelectedOption[];
 };
 
-export const TypeCard = ({ resultType, selectedOptions }: TypeCardProps) => {
+export const TypeCard = ({ selectedOptions }: TypeCardProps) => {
+  // percent > 50인 항목 개수로 유형 결정
+  const majorityCount = selectedOptions.filter((opt) => opt.percent > 50).length;
+  const typeIndex = Math.max(0, Math.min(5, 5 - majorityCount));
+  const resultType = RESULT_TYPE_DATA[typeIndex];
+
   // 대중성 지수 계산: 모든 selectedOption의 percent 평균
   const popularityIndex =
     selectedOptions.length > 0
@@ -26,7 +37,7 @@ export const TypeCard = ({ resultType, selectedOptions }: TypeCardProps) => {
         <div className={styles.imageWrapper}>
           <Image
             src={resultType.imageUrl}
-            alt={resultType.label}
+            alt={resultType.title}
             width={160}
             height={160}
             className={styles.resultImage}
@@ -34,7 +45,7 @@ export const TypeCard = ({ resultType, selectedOptions }: TypeCardProps) => {
         </div>
       )}
 
-      <h1 className={styles.title}>{resultType.label}</h1>
+      <h1 className={styles.title}>{resultType.title}</h1>
 
       {resultType.description && <p className={styles.description}>{resultType.description}</p>}
 
@@ -50,14 +61,21 @@ export const TypeCard = ({ resultType, selectedOptions }: TypeCardProps) => {
 
       {/* 대중성 지수 */}
       <div className={styles.popularitySection}>
-        <div className={styles.popularityHeader}>
-          <span className={styles.popularityLabel}>대중성 지수</span>
-          <HelpCircleIcon width={16} height={16} stroke="#8a8a8a" />
+        <div className={styles.popularityHeaderWrapper}>
+          <div className={styles.popularityHeader}>
+            <span className={styles.popularityLabel}>대중성 지수</span>
+            <Tooltip content={POPULARITY_TOOLTIP_CONTENT}>
+              <HelpCircleIcon width={16} height={16} stroke="#8a8a8a" />
+            </Tooltip>
+          </div>
+          <span className={styles.popularityPercent}>{popularityIndex}%</span>
         </div>
-        <span className={styles.popularityPercent}>{popularityIndex}%</span>
 
         <div className={styles.sliderContainer}>
-          <div className={styles.sliderTrack}>
+          <div className={styles.sliderTrackWrapper}>
+            <div className={styles.sliderTrack}>
+              <div className={styles.sliderFill} style={{ width: `${popularityIndex}%` }} />
+            </div>
             <div className={styles.sliderThumb} style={{ left: `${popularityIndex}%` }} />
           </div>
           <div className={styles.sliderLabels}>

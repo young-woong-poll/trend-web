@@ -31,7 +31,9 @@ export const PickHistory: FC<PickHistoryProps> = ({ selectedOptions }) => (
             <p className={styles.question}>{option.itemTitle}</p>
             <p className={styles.answer}>{option.optionTitle}</p>
           </div>
-          <span className={styles.percent}>{Math.round(option.percent)}%</span>
+          <span className={`${styles.percent}${option.percent > 50 ? ` ${styles.highlight}` : ''}`}>
+            {Math.round(option.percent)}%
+          </span>
         </div>
       ))}
     </div>

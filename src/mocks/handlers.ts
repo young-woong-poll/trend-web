@@ -8,6 +8,15 @@ import { mockMainDisplay, mockTrendDisplay, mockTrendVoteCount } from '@/mocks/d
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
 
 /**
+ * BaseResponse 형식으로 응답 래핑
+ */
+const wrapResponse = <T>(data: T) => ({
+  code: 'SUCCESS',
+  message: '성공',
+  data,
+});
+
+/**
  * MSW Handlers
  * API 엔드포인트별로 Mock 응답을 정의합니다
  */
@@ -16,13 +25,17 @@ export const handlers = [
    * 메인 전시 조회
    * GET /api/v1/display/main
    */
-  http.get(`${baseURL}/api/v1/display/main`, () => HttpResponse.json(mockMainDisplay)),
+  http.get(`${baseURL}/api/v1/display/main`, () =>
+    HttpResponse.json(wrapResponse(mockMainDisplay))
+  ),
 
   /**
    * Trend 전시 조회
    * GET /api/v1/display/trend/:trendId
    */
-  http.get(`${baseURL}/api/v1/display/trend/:trendId`, () => HttpResponse.json(mockTrendDisplay)),
+  http.get(`${baseURL}/api/v1/display/trend/:trendId`, () =>
+    HttpResponse.json(wrapResponse(mockTrendDisplay))
+  ),
 
   /**
    * Trend 항목 옵션 카운트 조회
@@ -35,21 +48,23 @@ export const handlers = [
     const filteredOptions = mockTrendVoteCount.options.filter((option) =>
       option.id.startsWith(String(itemId))
     );
-    return HttpResponse.json({ options: filteredOptions });
+    return HttpResponse.json(wrapResponse({ options: filteredOptions }));
   }),
 
   /**
    * Trend 현재 투표 수 조회
    * GET /api/v1/trend/:trendId
    */
-  http.get(`${baseURL}/api/v1/trend/:trendId`, () => HttpResponse.json(mockTrendVoteCount)),
+  http.get(`${baseURL}/api/v1/trend/:trendId`, () =>
+    HttpResponse.json(wrapResponse(mockTrendVoteCount))
+  ),
 
   /**
    * 댓글 개수 조회
    * GET /api/v1/comment/:trendId/item/:itemId/count
    */
   http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
-    HttpResponse.json({ count: Math.floor(Math.random() * 50) + 5 })
+    HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
   ),
 
   /**
@@ -57,9 +72,11 @@ export const handlers = [
    * POST /api/v1/result
    */
   http.post(`${baseURL}/api/v1/result`, async () =>
-    HttpResponse.json({
-      resultId: `result-${Date.now()}`,
-    })
+    HttpResponse.json(
+      wrapResponse({
+        resultId: `result-${Date.now()}`,
+      })
+    )
   ),
 
   /**
@@ -67,7 +84,7 @@ export const handlers = [
    * GET /api/v1/display/result/:resultId
    */
   http.get(`${baseURL}/api/v1/display/result/:resultId`, () =>
-    HttpResponse.json(mockResultDisplay)
+    HttpResponse.json(wrapResponse(mockResultDisplay))
   ),
 
   /**
@@ -81,7 +98,7 @@ export const handlers = [
     const sort = (url.searchParams.get('sort') ?? 'latest') as 'latest' | 'popular';
 
     const response = getMockCommentListResponse(cursor, size, sort);
-    return HttpResponse.json(response);
+    return HttpResponse.json(wrapResponse(response));
   }),
 
   /**
@@ -89,6 +106,6 @@ export const handlers = [
    * GET /admin/api/v1/elections/:electionId
    */
   http.get(`${baseURL}/admin/api/v1/elections/:electionId`, () =>
-    HttpResponse.json(mockElectionDetail)
+    HttpResponse.json(wrapResponse(mockElectionDetail))
   ),
 ];

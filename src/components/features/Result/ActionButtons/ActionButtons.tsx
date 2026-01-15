@@ -34,7 +34,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
       <Button
         variant="gradient"
         fullWidth
-        height={52}
+        height={48}
         onClick={handleSaveType}
         className={styles.primaryButton}
       >
@@ -44,7 +44,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
       <Button
         variant="outline"
         fullWidth
-        height={52}
+        height={48}
         onClick={handleShareVote}
         className={styles.secondaryButton}
       >
