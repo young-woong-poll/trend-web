@@ -1,8 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/react-query';
 import { resultQueries } from '@/lib/react-query/queries';
-import { resultApi } from '@/services/api/result';
 
 /**
  * Result Query Keys
@@ -27,20 +26,3 @@ export const useCheckResultExists = (resultId: string, enabled = true) =>
     ...resultQueries.exists(resultId),
     enabled,
   });
-
-/**
- * Nickname 설정 Hook
- */
-export const useSetNickname = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ resultId, nickname }: { resultId: string; nickname: string }) =>
-      resultApi.setNickname(resultId, nickname),
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.display.result(variables.resultId),
-      });
-    },
-  });
-};

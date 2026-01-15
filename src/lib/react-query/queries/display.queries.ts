@@ -5,7 +5,7 @@ import { CACHE_TIMES } from '@/services/api/constants/cache';
 import { displayApi } from '@/services/api/display';
 import { serverDisplayApi } from '@/services/api/server/display';
 import type { CommentListResponse } from '@/types/comment';
-import type { InviteeResultResponse, ResultDisplayResponse } from '@/types/result';
+import type { ResultDisplayResponse } from '@/types/result';
 import type { MainDisplayResponse, TrendDisplayResponse } from '@/types/trend';
 
 /**
@@ -41,27 +41,14 @@ export const displayQueries = {
   /**
    * Result 전시 쿼리 옵션
    */
-  result: (resultId: string, compareId?: string) =>
+  result: (resultId: string) =>
     queryOptions<ResultDisplayResponse>({
-      queryKey: queryKeys.display.result(resultId, compareId),
+      queryKey: queryKeys.display.result(resultId),
       queryFn: () =>
         isServer()
-          ? serverDisplayApi.getResultDisplay({ resultId, compareId })
-          : displayApi.getResultDisplay({ resultId, compareId }),
+          ? serverDisplayApi.getResultDisplay(resultId)
+          : displayApi.getResultDisplay(resultId),
       staleTime: CACHE_TIMES.DISPLAY.RESULT * 1000,
-    }),
-
-  /**
-   * Result Invitee 쿼리 옵션
-   */
-  resultInvitee: (resultId: string) =>
-    queryOptions<InviteeResultResponse>({
-      queryKey: queryKeys.display.resultInvitee(resultId),
-      queryFn: () =>
-        isServer()
-          ? serverDisplayApi.getResultDisplayInvitee(resultId)
-          : displayApi.getResultDisplayInvitee(resultId),
-      staleTime: CACHE_TIMES.DISPLAY.RESULT_INVITEE * 1000,
     }),
 
   /**

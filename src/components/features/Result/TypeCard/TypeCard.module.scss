@@ -1,72 +1,124 @@
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
-.content {
-  border-radius: 10px;
-  box-shadow:
-    0px 2px 5px #171a1f17,
-    0px 0px 2px #171a1f1f;
-  padding: 24px;
+.card {
+  background-color: $bg-secondary;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
 }
 
 .subtitle {
-  text-align: center;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: $font-size-14;
   font-weight: $font-weight-regular;
-  color: $neutral-600;
+  color: $text-secondary;
+  margin-bottom: 16px;
+}
+
+.imageWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.resultImage {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
 }
 
 .title {
-  text-align: center;
-  font-size: 30px;
-  line-height: 36px;
+  font-size: $font-size-28;
   font-weight: $font-weight-bold;
-  color: $neutral-900;
-  margin-bottom: 20px;
+  color: $white;
+  margin-bottom: 12px;
+  line-height: 1.3;
 }
 
-.section {
+.description {
+  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.tags {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 24px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
 }
 
-.question {
-  text-align: center;
-  font-size: 16px;
-  line-height: 24px;
+.tag {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-rounded;
+  font-size: $font-size-14;
   font-weight: $font-weight-medium;
-  color: $neutral-900;
+  color: $white;
+  background-color: transparent;
+}
+
+// 대중성 지수 섹션
+.popularitySection {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid $border-placeholder;
+  text-align: left;
+}
+
+.popularityHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.popularityLabel {
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.popularityPercent {
+  display: block;
+  font-size: $font-size-24;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: 12px;
+}
+
+.sliderContainer {
+  width: 100%;
+}
+
+.sliderTrack {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(90deg, $primary-start 0%, $primary-end 100%);
+  border-radius: 4px;
   margin-bottom: 8px;
 }
 
-.options {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
+.sliderThumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: $white;
+  border: 2px solid $bg-secondary;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.option {
-  flex: 1;
-  max-width: 180px;
-  padding: 16px 24px;
-  border-radius: 10px;
-  border: 2px solid $neutral-300;
-  background-color: #ffffff;
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: $font-weight-semibold;
-  color: $neutral-600;
-  transition: all 0.2s ease;
-  word-break: keep-all;
-
-  &.selected {
-    border-color: $result-border;
-    background-color: $result-background;
-    color: $result-text;
-    font-weight: $font-weight-semibold;
-  }
+.sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-12;
+  font-weight: $font-weight-regular;
+  color: $text-tertiary;
 }

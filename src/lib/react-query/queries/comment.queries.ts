@@ -1,8 +1,8 @@
 import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/react-query/query-keys';
-import { CACHE_TIMES } from '@/services/api/constants/cache';
 import { commentApi } from '@/services/api/comment';
+import { CACHE_TIMES } from '@/services/api/constants/cache';
 import { displayApi } from '@/services/api/display';
 import type { CommentCountResponse, CommentListResponse } from '@/types/comment';
 

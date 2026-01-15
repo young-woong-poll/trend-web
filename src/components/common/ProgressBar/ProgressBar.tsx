@@ -19,28 +19,26 @@ const interpolateColor = (percent: number) => {
   return `rgb(${r}, ${g}, ${b})`;
 };
 
-export const ProgressBar: FC<ProgressBarProps> = ({ currentStep, totalSteps }) => {
-  return (
-    <div className={styles.container}>
-      {Array.from({ length: totalSteps }).map((_, index) => {
-        const isActive = index <= currentStep;
-        const startPercent = (index / totalSteps) * 100;
-        const endPercent = ((index + 1) / totalSteps) * 100;
+export const ProgressBar: FC<ProgressBarProps> = ({ currentStep, totalSteps }) => (
+  <div className={styles.container}>
+    {Array.from({ length: totalSteps }).map((_, index) => {
+      const isActive = index <= currentStep;
+      const startPercent = (index / totalSteps) * 100;
+      const endPercent = ((index + 1) / totalSteps) * 100;
 
-        return (
-          <div
-            key={index}
-            className={`${styles.step} ${isActive ? styles.active : ''}`}
-            style={
-              isActive
-                ? {
-                    background: `linear-gradient(90deg, ${interpolateColor(startPercent)} 0%, ${interpolateColor(endPercent)} 100%)`,
-                  }
-                : undefined
-            }
-          />
-        );
-      })}
-    </div>
-  );
-};
+      return (
+        <div
+          key={index}
+          className={`${styles.step} ${isActive ? styles.active : ''}`}
+          style={
+            isActive
+              ? {
+                  background: `linear-gradient(90deg, ${interpolateColor(startPercent)} 0%, ${interpolateColor(endPercent)} 100%)`,
+                }
+              : undefined
+          }
+        />
+      );
+    })}
+  </div>
+);

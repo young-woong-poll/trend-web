@@ -12,7 +12,7 @@
  */
 
 // Result Mutations (로직이 있으므로 유지)
-export { resultKeys, useCheckResultExists, useSetNickname } from '@/hooks/api/useResult';
+export { resultKeys, useCheckResultExists } from '@/hooks/api/useResult';
 
 // Admin (접근 제어 필요)
 export { adminKeys, useCreateTrend, useElection, useFetchElection } from '@/hooks/api/useAdmin';

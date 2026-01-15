@@ -15,10 +15,7 @@ export const queryKeys = {
     main: (params?: { size?: number; page?: number; sort?: 'latest' | 'popular' }) =>
       [...queryKeys.display.all, 'main', params] as const,
     trend: (trendAlias: string) => [...queryKeys.display.all, 'trend', trendAlias] as const,
-    result: (resultId: string, compareId?: string) =>
-      [...queryKeys.display.all, 'result', resultId, { compareId }] as const,
-    resultInvitee: (resultId: string) =>
-      [...queryKeys.display.all, 'result', resultId, 'invitee'] as const,
+    result: (resultId: string) => [...queryKeys.display.all, 'result', resultId] as const,
     comments: (trendId: string, itemId: string, sort: string) =>
       [...queryKeys.display.all, 'comments', trendId, itemId, sort] as const,
   },

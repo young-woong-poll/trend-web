@@ -14,7 +14,6 @@ export const CACHE_TIMES = {
     MAIN: 60, // 60초 - 메인 페이지 (자주 변경)
     TREND: 60, // 60초 - 트렌드 페이지 (자주 변경)
     RESULT: 3600, // 1시간 - 투표 결과 (불변 데이터)
-    RESULT_INVITEE: 30, // 30초 - 초대 결과 (자주 업데이트)
   },
 
   // Trend API 캐싱
