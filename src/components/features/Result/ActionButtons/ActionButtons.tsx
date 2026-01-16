@@ -2,18 +2,24 @@
 
 import type { FC } from 'react';
 
+import Link from 'next/link';
+
 import CameraIcon from '@/assets/icon/CameraIcon';
 import CheckIcon from '@/assets/icon/CheckIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
+import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
+import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
+import type { MainTrendItem } from '@/types/trend';
 
 interface ActionButtonsProps {
   trendAlias: string;
+  nextTrend: MainTrendItem | null;
 }
 
-export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
+export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend }) => {
   const { showToast } = useModal();
 
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사
@@ -51,6 +57,24 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
         <LinkIcon />
         투표 공유하기
       </Button>
+
+      {nextTrend && (
+        <div className={styles.nextVoteSection}>
+          <p className={styles.nextVoteLabel}>다음 투표 하러가기</p>
+          <PollCard
+            alias={nextTrend.alias}
+            title={nextTrend.title}
+            subtitle={nextTrend.label}
+            createdAt={nextTrend.createdAt}
+            imageUrl={nextTrend.imageUrl}
+            participantCount={nextTrend.participantsCount}
+          />
+        </div>
+      )}
+      <Link href="/" className={styles.backToMainButton}>
+        더 많은 투표 보기
+        <StartArrowIcon width={20} height={20} />
+      </Link>
     </div>
   );
 };

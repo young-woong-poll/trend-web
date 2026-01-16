@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { useQuery } from '@tanstack/react-query';
 
 import { ActionButtons } from '@/components/features/Result/ActionButtons/ActionButtons';
@@ -22,6 +24,19 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
   // 서버에서 prefetch한 데이터를 캐시에서 읽음
   const { data: resultData } = useQuery(displayQueries.result(resultId));
   const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
+  const { data: mainData } = useQuery(displayQueries.main());
+
+  // 다음 트렌드 계산
+  const nextTrend = useMemo(() => {
+    if (!mainData?.trends) {
+      return null;
+    }
+    const currentIndex = mainData.trends.findIndex((t) => t.alias === trendAlias);
+    if (currentIndex === -1 || currentIndex >= mainData.trends.length - 1) {
+      return null;
+    }
+    return mainData.trends[currentIndex + 1];
+  }, [mainData, trendAlias]);
 
   // 서버에서 prefetch되므로 data는 항상 존재
   if (!resultData || !trendData) {
@@ -40,7 +55,7 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
         <PickHistory selectedOptions={resultData.selectedOptions} />
 
         {/* 하단 버튼 영역 */}
-        <ActionButtons trendAlias={trendAlias} />
+        <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />
       </div>
     </div>
   );
