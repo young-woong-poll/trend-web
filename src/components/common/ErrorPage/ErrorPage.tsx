@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import styles from '@/app/error.module.scss';
 import { Button } from '@/components/common/Button';
-import { Header } from '@/components/common/Header/Header';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 
 interface ErrorPageProps {
   message: string;
@@ -12,7 +12,7 @@ interface ErrorPageProps {
 
 export const ErrorPage = ({ message, showRetry = false, onRetry }: ErrorPageProps) => (
   <div className={styles.page}>
-    <Header />
+    <MainHeader />
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.iconWrapper}>

@@ -83,7 +83,7 @@
   width: calc(100% - 24px);
   text-align: center;
   font-size: $font-size-32;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: $white;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   z-index: 1;

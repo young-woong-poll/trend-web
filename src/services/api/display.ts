@@ -1,6 +1,6 @@
 import axiosInstance from '@/lib/axios';
 import type { CommentListResponse } from '@/types/comment';
-import type { ResultDisplayResponse, InviteeResultResponse } from '@/types/result';
+import type { ResultDisplayResponse } from '@/types/result';
 import type { MainDisplayResponse, TrendDisplayResponse } from '@/types/trend';
 
 import type { AxiosResponse } from 'axios';
@@ -13,9 +13,17 @@ export const displayApi = {
    * 메인 전시 조회
    * GET /api/v1/display/main
    */
-  getMainDisplay: async (): Promise<MainDisplayResponse> => {
-    const response: AxiosResponse<MainDisplayResponse> =
-      await axiosInstance.get('/api/v1/display/main');
+  getMainDisplay: async (params?: {
+    size?: number;
+    page?: number;
+    sort?: 'latest' | 'popular';
+  }): Promise<MainDisplayResponse> => {
+    const response: AxiosResponse<MainDisplayResponse> = await axiosInstance.get(
+      '/api/v1/display/main',
+      {
+        params: params ? { size: params.size, page: params.page, sort: params.sort } : undefined,
+      }
+    );
     return response.data;
   },
 
@@ -34,26 +42,9 @@ export const displayApi = {
    * Result 전시 조회
    * GET /api/v1/display/result/${resultId}
    */
-  getResultDisplay: async ({
-    resultId,
-    compareId,
-  }: {
-    resultId: string;
-    compareId?: string;
-  }): Promise<ResultDisplayResponse> => {
+  getResultDisplay: async (resultId: string): Promise<ResultDisplayResponse> => {
     const response: AxiosResponse<ResultDisplayResponse> = await axiosInstance.get(
-      `/api/v1/display/result/${resultId}${compareId ? `?compareId=${compareId}` : ''}`
-    );
-    return response.data;
-  },
-
-  /**
-   * 초대한 친구 결과 목록 조회
-   * GET /api/v1/display/result/${resultId}/invitee
-   */
-  getResultDisplayInvitee: async (resultId: string): Promise<InviteeResultResponse> => {
-    const response: AxiosResponse<InviteeResultResponse> = await axiosInstance.get(
-      `/api/v1/display/result/${resultId}/invitee`
+      `/api/v1/display/result/${resultId}`
     );
     return response.data;
   },
@@ -70,7 +61,7 @@ export const displayApi = {
     size,
     tkuId,
   }: {
-    trendId: string;
+    trendId: number;
     itemId: string;
     sort?: string;
     cursor?: string;

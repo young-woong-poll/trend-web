@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'picsum.photos',
       },
+      {
+        protocol: 'https',
+        hostname: 'oogqjrgao2pait6w.public.blob.vercel-storage.com',
+      },
     ],
   },
   // Turbopack configuration (required when using webpack config in Next.js 16)

@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 // BottomSheet 스타일
 
 .dimmed {
@@ -24,15 +26,17 @@
 
 .bottomSheet {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   margin: 0 auto;
-  background-color: white;
+  background-color: $bg-secondary;
+  color: #fff;
   border-radius: 24px 24px 0 0;
-  height: 70vh;
+  height: 80vh;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease-out;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid $border-placeholder;
 }
 
 @keyframes slideUp {
@@ -48,7 +52,7 @@
 .header {
   flex-shrink: 0;
   padding: 20px 20px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid $border-placeholder;
 }
 
 .titleRow {
@@ -60,8 +64,8 @@
 
 .title {
   font-size: 18px;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-weight: $font-weight-bold;
+  color: #fff;
   margin: 0;
 }
 
@@ -79,10 +83,6 @@
   padding: 0;
   transition: color 0.2s;
 
-  &:hover {
-    color: #1a1a1a;
-  }
-
   &:active {
     transform: scale(0.95);
   }
@@ -97,31 +97,44 @@
 }
 
 .tab {
-  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
   font-size: 13px;
-  font-weight: 500;
-  color: #666;
-  background-color: #f5f5f5;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  background-color: $bg-tertiary;
   border: none;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 
-  &:hover {
-    background-color: #e8e8e8;
-    color: #333;
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
   }
 
   &.active {
-    color: white;
-    background-color: #1a1a1a;
-    font-weight: 600;
+    color: $bg-tertiary;
+    background-color: #fff;
+    font-weight: $font-weight-semibold;
   }
 
   &:active {
     transform: scale(0.96);
   }
+}
+
+// 댓글 목록 래퍼 (스크롤 영역 + blur overlay 포함)
+.commentListWrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 // 댓글 목록 (스크롤 영역)
@@ -170,12 +183,26 @@
   }
 }
 
+// 스크롤 blur 오버레이
+.scrollBlurOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, rgba($bg-secondary, 0) 0%, $bg-secondary 100%);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.2s ease-in-out;
+}
+
 // 댓글 작성 폼 (고정 하단)
 .commentFormContainer {
+  position: relative;
   flex-shrink: 0;
   padding: 12px;
-  border-top: 1px solid #f0f0f0;
-  background-color: white;
+  border-top: 1px solid $border-placeholder;
+  z-index: 2;
 }
 
 // 반응형

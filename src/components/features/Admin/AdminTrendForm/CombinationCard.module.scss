@@ -25,7 +25,7 @@
 
 .combinationNumber {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: #667eea;
   background: #ede9fe;
   padding: 4px 10px;
@@ -59,7 +59,7 @@
 }
 
 .electionTitle {
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: #64748b;
   font-size: 11px;
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 }
 
 .optionTitle {
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   color: #1e293b;
   font-size: 14px;
 }
@@ -79,7 +79,7 @@
 .label {
   display: block;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   color: #334155;
   margin-bottom: 8px;
 }
@@ -91,7 +91,7 @@
 .errorText {
   color: #ef4444;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
 }
 
 .input {

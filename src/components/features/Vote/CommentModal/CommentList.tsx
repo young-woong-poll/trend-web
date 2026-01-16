@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, type FC } from 'react';
 
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
+
 import { CommentItem } from '@/components/features/Vote/CommentModal/CommentItem';
 import styles from '@/components/features/Vote/CommentModal/CommentList.module.scss';
-import { useInfiniteCommentList } from '@/hooks/api/useCommentList';
+import { commentQueries } from '@/lib/react-query/queries';
+import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentListProps {
@@ -24,8 +27,13 @@ export const CommentList: FC<CommentListProps> = ({
   onDeleteRequest,
   onLikeClick,
 }) => {
+  const tkuId = getTKUID();
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteCommentList(trendId, itemId, sort);
+    useInfiniteQuery({
+      ...commentQueries.infiniteList({ trendId, itemId, sort, size: 20, tkuId }),
+      placeholderData: keepPreviousData,
+      gcTime: 1000 * 60 * 5,
+    });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 

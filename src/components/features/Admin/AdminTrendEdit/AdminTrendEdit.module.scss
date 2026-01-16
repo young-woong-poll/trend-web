@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -27,7 +29,7 @@
 
 .dangerTitle {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: #c53030;
   margin: 0 0 0.5rem 0;
 }
@@ -78,7 +80,7 @@
 
 .modalTitle {
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: #1a1a1a;
   margin: 0 0 1rem 0;
 }

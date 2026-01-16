@@ -2,38 +2,35 @@
 
 import { useState, type FC, type ReactNode } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-import StartArrowIcon from '@/assets/icon/StartArrowIcon';
-import { Button } from '@/components/common/Button';
+import { useQuery } from '@tanstack/react-query';
+
 import { ProgressBar } from '@/components/common/ProgressBar';
-import { ActionButtons } from '@/components/features/Vote/ActionButtons';
 import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
-import { NicknameInputModal } from '@/components/features/Vote/NicknameInputModal';
+import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons';
 import { VoteCard } from '@/components/features/Vote/VoteCard';
+import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
-import { useModal } from '@/contexts/ModalContext';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
-import type { TrendDisplayResponse } from '@/types/trend';
+import { commentQueries, displayQueries } from '@/lib/react-query/queries';
 
 type TItemId = string;
 type TOptionId = string;
 export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
 
-type VoteContentClientProps = {
-  trendData: TrendDisplayResponse;
+type VoteViewProps = {
+  trendAlias: string;
   children: ReactNode;
 };
 
 const DEFAULT_NUM_OF_ITEMS = 5;
 
-export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) => {
+export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const compareId = searchParams.get('compareId');
 
-  const { trendId, alias, items } = trendData;
+  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
@@ -41,17 +38,21 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
   const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
-  const { showModal } = useModal();
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
 
-  const handleSubmit = async (nickname?: string) => {
-    try {
-      const resultId = await submit(trendId, selectedItemMap, items.length, nickname);
+  // HydrationBoundary로 prefetch되어 있으므로 trendData는 항상 존재
+  if (!trendData) {
+    return null;
+  }
 
-      return router.replace(
-        `/vote/${alias}/result?id=${resultId}${compareId ? `&compareId=${compareId}` : ''}`
-      );
+  const { trendId, alias, items } = trendData;
+
+  const handleSubmit = async () => {
+    try {
+      const resultId = await submit(trendId, selectedItemMap, items.length);
+
+      return router.replace(`/vote/${alias}/result?id=${resultId}`);
     } catch (err) {
       handleError(err);
     }
@@ -60,17 +61,6 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
   const handleNext = async () => {
     if (currentItemIndex < items.length - 1) {
       setCurrentItemIndex((prev) => prev + 1);
-
-      return;
-    }
-
-    if (!!compareId) {
-      showModal(
-        <NicknameInputModal
-          onSubmit={(nickname) => handleSubmit(nickname)}
-          onSkip={() => handleSubmit()}
-        />
-      );
 
       return;
     }
@@ -94,60 +84,58 @@ export const VoteView: FC<VoteContentClientProps> = ({ trendData, children }) =>
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
+        <VoteHeader title={trendData.title} />
+
         <ProgressBar
           currentStep={currentItemIndex}
           totalSteps={items.length || DEFAULT_NUM_OF_ITEMS}
         />
-        <div
-          className={styles.content}
-          style={{
-            transform: `translateX(calc(-${currentItemIndex} * 100%))`,
-          }}
-        >
-          {items.length > 0 &&
-            items.map((item) => {
-              const selectedOptionId = selectedItemMap[item.id] || null;
 
-              const handleOptionSelect = (optionId: string) => {
-                setSelectedItemMap((prev) => ({
-                  ...prev,
-                  [item.id]: optionId,
-                }));
-              };
+        <div className={styles.contentWrapper}>
+          <div
+            className={styles.content}
+            style={{
+              transform: `translateX(calc(-${currentItemIndex} * 100%))`,
+            }}
+          >
+            {items.length > 0 &&
+              items.map((item) => {
+                const selectedOptionId = selectedItemMap[item.id] || null;
 
-              return (
-                <div key={item.id} className={styles.cardContainer}>
-                  <VoteCard
-                    trendAlias={trendData.alias}
-                    itemId={item.id}
-                    title={item.title}
-                    label={item.label}
-                    options={item.options}
-                    selectedOptionId={selectedOptionId}
-                    handleOptionSelect={handleOptionSelect}
-                  />
+                const handleOptionSelect = (optionId: string) => {
+                  setSelectedItemMap((prev) => ({
+                    ...prev,
+                    [item.id]: optionId,
+                  }));
+                };
 
-                  <Button
-                    variant="gradient"
-                    height={48}
-                    fullWidth
-                    className={styles.button}
-                    onClick={handleNext}
-                    disabled={selectedOptionId === null}
-                  >
-                    다음
-                    <StartArrowIcon />
-                  </Button>
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const { data: commentCountData } = useQuery(
+                  commentQueries.count(Number(trendId), item.id)
+                );
 
-                  <ActionButtons
-                    trendId={trendId}
-                    itemId={item.id}
-                    commentDisabled={selectedOptionId === null}
-                    onCommentClick={() => handleOpenCommentModal(item.id)}
-                  />
-                </div>
-              );
-            })}
+                return (
+                  <div key={item.id} className={styles.cardContainer}>
+                    <VoteCard
+                      trendAlias={trendData.alias}
+                      itemId={item.id}
+                      title={item.title}
+                      options={item.options}
+                      selectedOptionId={selectedOptionId}
+                      handleOptionSelect={handleOptionSelect}
+                    />
+
+                    <VoteBottomButtons
+                      commentCount={commentCountData?.count}
+                      commentDisabled={selectedOptionId === null}
+                      nextDisabled={selectedOptionId === null}
+                      onCommentClick={() => handleOpenCommentModal(item.id)}
+                      onNextClick={handleNext}
+                    />
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
 

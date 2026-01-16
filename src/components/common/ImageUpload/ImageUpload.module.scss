@@ -126,7 +126,7 @@
 .uploadText {
   margin: 0;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   color: #475569;
 }
 
@@ -150,7 +150,7 @@
   margin: 0;
   font-size: 14px;
   color: #ef4444;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
 }
 
 .fileName {
@@ -179,6 +179,6 @@
     margin: 0;
     color: white;
     font-size: 16px;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
   }
 }

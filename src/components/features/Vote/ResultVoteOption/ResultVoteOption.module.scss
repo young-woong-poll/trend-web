@@ -67,7 +67,7 @@
       left: 50%;
       transform: translateX(-50%);
       font-size: $font-size-24;
-      font-weight: 700;
+      font-weight: $font-weight-bold;
       color: $white;
       text-align: center;
       text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
@@ -91,14 +91,14 @@
 
 .voteCount {
   font-size: $font-size-16;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   margin-left: 4px;
   color: $neutral-900;
 }
 
 .percentage {
   font-size: $font-size-18;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   margin-right: 4px;
   color: $color4-500;
 }

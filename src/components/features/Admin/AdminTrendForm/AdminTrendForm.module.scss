@@ -27,7 +27,7 @@
 
 .title {
   font-size: 32px;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -60,7 +60,7 @@
   p {
     margin: 0;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: $font-weight-medium;
     color: #64748b;
   }
 }

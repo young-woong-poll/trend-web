@@ -1,53 +1,28 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { displayKeys } from '@/hooks/api/useDisplay';
-import { resultApi } from '@/services/api/result';
-import type { CreateResultRequest } from '@/types/result';
+import { queryKeys } from '@/lib/react-query';
+import { resultQueries } from '@/lib/react-query/queries';
 
 /**
  * Result Query Keys
+ * @deprecated resultKeys는 더 이상 사용되지 않습니다.
+ * 대신 @/lib/react-query의 queryKeys를 사용하세요.
  */
-export const resultKeys = {
-  all: ['result'] as const,
-  exists: (resultId: string) => [...resultKeys.all, 'exists', resultId] as const,
-};
-
-/**
- * Result 생성 Hook
- */
-export const useCreateResult = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
-    onSuccess: (data) => {
-      // 생성된 result의 display 쿼리를 prefetch하거나 무효화할 수 있습니다
-      void queryClient.invalidateQueries({ queryKey: displayKeys.result(data.resultId) });
-    },
-  });
-};
+export const resultKeys = queryKeys.result;
 
 /**
  * Result 존재 여부 확인 Hook
+ *
+ * @example
+ * ```tsx
+ * const { data } = useCheckResultExists('result-123');
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({ queryKey: resultQueries.exists('result-123').queryKey });
+ * ```
  */
 export const useCheckResultExists = (resultId: string, enabled = true) =>
   useQuery({
-    queryKey: resultKeys.exists(resultId),
-    queryFn: () => resultApi.checkResultExists(resultId),
+    ...resultQueries.exists(resultId),
     enabled,
   });
-
-/**
- * Nickname 설정 Hook
- */
-export const useSetNickname = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ resultId, nickname }: { resultId: string; nickname: string }) =>
-      resultApi.setNickname(resultId, nickname),
-    onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: displayKeys.result(variables.resultId) });
-    },
-  });
-};
