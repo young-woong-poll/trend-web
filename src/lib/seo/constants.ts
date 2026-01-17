@@ -7,7 +7,7 @@ import type { Metadata } from 'next';
 
 /** 사이트 기본 정보 */
 export const SITE_NAME = 'HotPick (핫픽)';
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://trend.votebox.kr';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hotpick.votebox.kr';
 
 /** 타이틀 */
 export const SITE_TITLE = {
