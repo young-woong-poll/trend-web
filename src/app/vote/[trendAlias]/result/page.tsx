@@ -1,11 +1,15 @@
 import { Suspense } from 'react';
 
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
+
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
 import { createResultMetadata, defaultMetadata } from '@/app/vote/[trendAlias]/result/metadata';
 import { ResultContent } from '@/components/features/Result/ResultContent';
-import { ResultSkeleton } from '@/components/features/Result/ResultSkeleton/ResultSkeleton';
-import { serverDisplayApi } from '@/services/api/server/display';
+import { createServerQueryClient } from '@/lib/react-query';
+import { displayQueries } from '@/lib/react-query/queries';
+
+export const revalidate = 10;
 
 interface ResultPageProps {
   params: Promise<{
@@ -13,61 +17,50 @@ interface ResultPageProps {
   }>;
   searchParams: Promise<{
     id?: string;
-    compareId?: string;
   }>;
 }
 
-export async function generateMetadata({ searchParams }: ResultPageProps) {
-  const { id: resultId, compareId } = await searchParams;
+export async function generateMetadata({ params, searchParams }: ResultPageProps) {
+  const { trendAlias } = await params;
+  const { id: resultId } = await searchParams;
 
   if (!resultId) {
     return defaultMetadata;
   }
 
-  try {
-    const { nickname, compareNickname } = await serverDisplayApi.getResultDisplay({
-      resultId,
-      compareId,
-    });
-
-    return createResultMetadata({ nickname, compareNickname });
-  } catch (_error) {
-    return defaultMetadata;
-  }
+  return createResultMetadata(trendAlias);
 }
 
 export default async function ResultPage({ params, searchParams }: ResultPageProps) {
+  const queryClient = createServerQueryClient();
   const { trendAlias } = await params;
-  const { id: resultId, compareId } = await searchParams;
+  const { id: resultId } = await searchParams;
 
   if (!resultId) {
     redirect('/');
   }
 
+  const resultQuery = displayQueries.result(resultId);
+  const trendQuery = displayQueries.trend(trendAlias);
+
   try {
-    const [myResult, friendResults] = await Promise.all([
-      serverDisplayApi.getResultDisplay({ resultId, compareId }),
-      serverDisplayApi.getResultDisplayInvitee(resultId).catch(() => null), // 실패해도 계속 진행
+    await Promise.all([
+      queryClient.prefetchQuery(resultQuery),
+      queryClient.prefetchQuery(trendQuery),
     ]);
 
     return (
       <Suspense fallback={<LoadingFallback />}>
-        <ResultContent
-          trendAlias={trendAlias}
-          resultId={resultId}
-          compareId={compareId}
-          myResult={myResult}
-          friendResults={friendResults}
-        />
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <ResultContent trendAlias={trendAlias} resultId={resultId} />
+        </HydrationBoundary>
       </Suspense>
     );
   } catch (error) {
-    console.error('Result fetch error:', error);
-    notFound();
+    console.error('[ResultPage] Result fetch error:', error);
   }
 }
 
-// 로딩 UI
 function LoadingFallback() {
-  return <ResultSkeleton />;
+  return null;
 }

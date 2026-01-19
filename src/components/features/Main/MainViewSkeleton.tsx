@@ -1,13 +1,13 @@
 import type { FC } from 'react';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
-import { Header } from '@/components/common/Header/Header';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import styles from '@/components/features/Main/MainViewSkeleton.module.scss';
 
 export const MainViewSkeleton: FC = () => (
   <>
-    <Header />
+    <MainHeader />
     <FlexibleLayout>
       <div className={styles.container}>
         {/* 3개의 PollCard 스켈레톤 표시 */}

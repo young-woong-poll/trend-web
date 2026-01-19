@@ -1,25 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { adminKeys, adminQueries } from '@/lib/react-query/queries';
 import { adminApi } from '@/services/api/admin';
 import type { CreateTrendRequest, UpdateTrendRequest } from '@/types/trend';
 
-/**
- * Admin Query Keys
- */
-export const adminKeys = {
-  all: ['admin'] as const,
-  trend: () => [...adminKeys.all, 'trend'] as const,
-  election: (electionId: string) => [...adminKeys.all, 'election', electionId] as const,
-  storage: () => [...adminKeys.all, 'storage'] as const,
-};
+// adminKeys를 @/lib/react-query/queries에서 re-export
+export { adminKeys };
 
 /**
  * Admin: 트렌드 목록 조회 Hook
+ *
+ * @example
+ * ```tsx
+ * const { data } = useTrends();
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
+ * ```
  */
 export const useTrends = (enabled = true) =>
   useQuery({
-    queryKey: adminKeys.trend(),
-    queryFn: adminApi.getTrends,
+    ...adminQueries.trends(),
     enabled,
   });
 
@@ -32,8 +33,7 @@ export const useCreateTrend = () => {
   return useMutation({
     mutationFn: (data: CreateTrendRequest) => adminApi.createTrend(data),
     onSuccess: () => {
-      // 트렌드 목록 쿼리 무효화
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
     },
   });
 };
@@ -48,8 +48,7 @@ export const useUpdateTrend = () => {
     mutationFn: ({ trendId, data }: { trendId: number; data: UpdateTrendRequest }) =>
       adminApi.updateTrend(trendId, data),
     onSuccess: () => {
-      // 트렌드 목록 쿼리 무효화
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
     },
   });
 };
@@ -63,19 +62,25 @@ export const useDeleteTrend = () => {
   return useMutation({
     mutationFn: (trendId: number) => adminApi.deleteTrend(trendId),
     onSuccess: () => {
-      // 트렌드 목록 쿼리 무효화
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trend() });
+      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
     },
   });
 };
 
 /**
  * Admin: 선거 상세 조회 Hook (Query)
+ *
+ * @example
+ * ```tsx
+ * const { data } = useElection('election-123');
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({ queryKey: adminQueries.election('election-123').queryKey });
+ * ```
  */
 export const useElection = (electionId: string) =>
   useQuery({
-    queryKey: adminKeys.election(electionId),
-    queryFn: () => adminApi.getElection(electionId),
+    ...adminQueries.election(electionId),
     enabled: !!electionId,
   });
 

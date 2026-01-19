@@ -1,18 +1,29 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
-import { trendApi } from '@/services/api/trend';
+import { queryKeys } from '@/lib/react-query';
+import { trendQueries } from '@/lib/react-query/queries';
+import type { TrendItemOptionsResponse } from '@/types/trend';
 
 /**
  * Trend Query Keys
+ * @deprecated trendKeys는 더 이상 사용되지 않습니다.
+ * 대신 @/lib/react-query의 queryKeys를 사용하세요.
+ *
+ * 마이그레이션:
+ * - trendKeys.itemOptions(trendId, itemId) → queryKeys.trend.itemOptions(trendAlias, itemId)
  */
-export const trendKeys = {
-  all: ['trend'] as const,
-  itemOptions: (trendId: string, itemId: string) =>
-    [...trendKeys.all, 'itemOptions', trendId, itemId] as const,
-};
+export const trendKeys = queryKeys.trend;
 
 /**
  * Trend 항목 옵션 카운트 조회 Hook
+ *
+ * @example
+ * ```tsx
+ * const { data } = useTrendItemOptionsCount({ trendAlias: 'mbti', itemId: 'item1' });
+ *
+ * // 쿼리키 접근
+ * queryClient.invalidateQueries({ queryKey: trendQueries.itemOptions('mbti', 'item1').queryKey });
+ * ```
  */
 export const useTrendItemOptionsCount = ({
   trendAlias,
@@ -26,8 +37,7 @@ export const useTrendItemOptionsCount = ({
   size?: number;
 }) =>
   useQuery({
-    queryKey: trendKeys.itemOptions(trendAlias, itemId),
-    queryFn: () => trendApi.getTrendItemOptionsCount(trendAlias, itemId, size),
+    ...trendQueries.itemOptions(trendAlias, itemId, size),
     enabled,
     throwOnError: true,
   });
@@ -36,22 +46,24 @@ export const useTrendItemOptionsCount = ({
  * Trend 항목 옵션 카운트를 Map 형태로 조회하는 Hook
  */
 export const useTrendItemOptionsCountMap = (
-  trendId: string,
+  trendAlias: string,
   itemId: string,
   size?: number,
-  enabled = true
+  options?: Omit<
+    UseQueryOptions<TrendItemOptionsResponse, Error, Record<string, number>>,
+    'queryKey' | 'queryFn' | 'select'
+  >
 ) =>
   useQuery({
-    queryKey: trendKeys.itemOptions(trendId, itemId),
-    queryFn: () => trendApi.getTrendItemOptionsCount(trendId, itemId, size),
-    enabled,
+    ...trendQueries.itemOptions(trendAlias, itemId, size),
     throwOnError: true,
-    select: (data) =>
+    select: (data: TrendItemOptionsResponse) =>
       data.options.reduce(
-        (acc, option) => ({
+        (acc: Record<string, number>, option: { id: string; count: number }) => ({
           ...acc,
           [option.id]: option.count,
         }),
         {} as Record<string, number>
       ),
+    ...options,
   });

@@ -1,13 +1,13 @@
 {
   "openapi": "3.0.1",
   "info": { "title": "OpenAPI definition", "version": "v0" },
-  "servers": [{ "url": "https://trend-api.votebox.kr", "description": "Generated server url" }],
+  "servers": [{ "url": "http://localhost:8080", "description": "Generated server url" }],
   "tags": [
-    { "name": "Result", "description": "결과 생성 API" },
     { "name": "Trend", "description": "트렌드 조회 API" },
     { "name": "Admin Item", "description": "아이템(선거) 데이터 전시 API" },
+    { "name": "Display", "description": "Display query API" },
     { "name": "Comment", "description": "댓글 CRUD/좋아요 API" },
-    { "name": "Display", "description": "전시용 조회 API" },
+    { "name": "Result", "description": "Result APIs" },
     { "name": "Admin Storage", "description": "관리자용 S3 Pre-signed URL API" },
     { "name": "Admin Trend", "description": "트렌드 Admin API" }
   ],
@@ -29,12 +29,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -63,12 +63,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -98,12 +98,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -127,12 +127,12 @@
           }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -145,7 +145,7 @@
     "/api/v1/result": {
       "post": {
         "tags": ["Result"],
-        "summary": "결과 생성 및 투표 전송",
+        "summary": "Create a new result",
         "operationId": "createResult",
         "requestBody": {
           "content": {
@@ -154,12 +154,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -169,39 +169,6 @@
                 "schema": { "$ref": "#/components/schemas/BaseResponseCreateResultResponse" }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/v1/result/{resultId}/nickname": {
-      "post": {
-        "tags": ["Result"],
-        "summary": "닉네임 최초 설정",
-        "description": "이미 닉네임이 설정된 경우 변경 불가",
-        "operationId": "updateNickname",
-        "parameters": [
-          { "name": "resultId", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateNicknameRequest" }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
-          "200": {
-            "description": "OK",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           }
         }
       }
@@ -220,12 +187,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -256,12 +223,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -285,12 +252,12 @@
           { "name": "x-tku-id", "in": "header", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -312,12 +279,12 @@
           { "name": "x-tku-id", "in": "header", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -337,12 +304,12 @@
         "summary": "트렌드 목록 조회",
         "operationId": "getTrends",
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -367,12 +334,12 @@
           "required": true
         },
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -400,12 +367,12 @@
           }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -422,18 +389,18 @@
     "/api/v1/result/{resultId}/exists": {
       "get": {
         "tags": ["Result"],
-        "summary": "결과 존재 여부 확인",
+        "summary": "Check whether a result exists",
         "operationId": "checkResultExists",
         "parameters": [
           { "name": "resultId", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -450,7 +417,7 @@
     "/api/v1/display/trend/{trendId}/item/{itemId}/comment": {
       "get": {
         "tags": ["Display"],
-        "summary": "트렌드 아이템 댓글 조회",
+        "summary": "Fetch comments for trend item",
         "operationId": "getComments",
         "parameters": [
           {
@@ -476,12 +443,12 @@
           { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -498,18 +465,18 @@
     "/api/v1/display/trend/{trendAlias}": {
       "get": {
         "tags": ["Display"],
-        "summary": "트렌드 상세 조회",
+        "summary": "Fetch trend detail",
         "operationId": "getTrendDetail",
         "parameters": [
           { "name": "trendAlias", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -526,19 +493,18 @@
     "/api/v1/display/result/{resultId}": {
       "get": {
         "tags": ["Display"],
-        "summary": "결과 상세 조회",
+        "summary": "Fetch result detail",
         "operationId": "getResultDetail",
         "parameters": [
-          { "name": "resultId", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "compareId", "in": "query", "required": false, "schema": { "type": "string" } }
+          { "name": "resultId", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -552,38 +518,10 @@
         }
       }
     },
-    "/api/v1/display/result/{resultId}/invitee": {
-      "get": {
-        "tags": ["Display"],
-        "summary": "초대한 친구 결과 목록 조회",
-        "operationId": "getInviteeResults",
-        "parameters": [
-          { "name": "resultId", "in": "path", "required": true, "schema": { "type": "string" } }
-        ],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseInviteeResultResponse" }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/display/main": {
       "get": {
         "tags": ["Display"],
-        "summary": "메인 화면 트렌드 조회",
+        "summary": "Fetch main display content",
         "operationId": "getMainDisplay",
         "parameters": [
           {
@@ -591,15 +529,27 @@
             "in": "query",
             "required": false,
             "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "latest" }
           }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -628,12 +578,12 @@
           { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -657,12 +607,12 @@
           { "name": "alias", "in": "query", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -686,12 +636,12 @@
           { "name": "filename", "in": "query", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -713,12 +663,12 @@
           { "name": "itemId", "in": "path", "required": true, "schema": { "type": "string" } }
         ],
         "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
-          },
           "400": {
             "description": "Bad Request",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "500": {
+            "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "200": {
@@ -766,55 +716,53 @@
         "properties": { "id": { "type": "string" }, "updatedAt": { "type": "string" } },
         "description": "응답 데이터"
       },
-      "LabelRequest": {
-        "type": "object",
-        "properties": {
-          "label": { "type": "string", "description": "라벨 값", "example": "열정 타입" }
-        },
-        "description": "라벨 입력"
-      },
       "ResultTypeRequest": {
         "type": "object",
         "properties": {
-          "key": { "type": "string", "description": "결과 key", "example": "110/210/330" },
-          "label": { "type": "string", "description": "결과 라벨", "example": "열정 타입" }
+          "label": { "type": "string", "description": "result label", "example": "Explorer" },
+          "description": { "type": "string", "description": "result description" },
+          "imageUrl": { "type": "string", "description": "result image url" },
+          "tags": {
+            "type": "array",
+            "description": "tags for the result",
+            "items": { "type": "string", "description": "tags for the result" }
+          }
         },
-        "description": "결과 타입 입력"
+        "description": "result type definition"
       },
       "TrendMetaRequest": {
         "type": "object",
         "properties": {
-          "resultLabel": { "type": "string", "description": "결과 라벨", "example": "당신의 결과" },
+          "resultLabel": {
+            "type": "string",
+            "description": "result label",
+            "example": "Your result"
+          },
           "resultType": {
             "type": "array",
-            "description": "결과 타입 배열",
+            "description": "result type definitions",
             "items": { "$ref": "#/components/schemas/ResultTypeRequest" }
-          },
-          "answerType": {
-            "type": "array",
-            "description": "답변 타입 배열",
-            "items": { "$ref": "#/components/schemas/LabelRequest" }
           }
         },
-        "description": "트렌드 메타 정보"
+        "description": "trend meta payload"
       },
       "UpdateTrendRequest": {
         "required": ["alias", "electionIds", "title"],
         "type": "object",
         "properties": {
-          "alias": { "type": "string", "description": "트렌드 alias", "example": "love" },
-          "title": { "type": "string", "description": "트렌드 제목", "example": "2025 트렌드" },
-          "label": { "type": "string", "description": "트렌드 라벨", "example": "TREND2025" },
-          "imageUrl": { "type": "string", "description": "대표 이미지 URL" },
+          "alias": { "type": "string", "description": "trend alias", "example": "love" },
+          "title": { "type": "string", "description": "trend title", "example": "2025 trend" },
+          "label": { "type": "string", "description": "trend label", "example": "TREND2025" },
+          "imageUrl": { "type": "string", "description": "cover image URL" },
           "electionIds": {
             "type": "array",
-            "description": "연결된 선거/캠페인 ID 목록",
-            "items": { "type": "string", "description": "연결된 선거/캠페인 ID 목록" }
+            "description": "election id list",
+            "items": { "type": "string", "description": "election id list" }
           },
           "meta": { "$ref": "#/components/schemas/TrendMetaRequest" },
-          "isVisible": { "type": "boolean", "description": "노출 여부", "example": true }
+          "isVisible": { "type": "boolean", "description": "visibility flag", "example": true }
         },
-        "description": "트렌드 수정 요청"
+        "description": "Update trend request"
       },
       "AdminTrendResponse": {
         "type": "object",
@@ -844,7 +792,6 @@
         },
         "description": "공통 응답 포맷"
       },
-      "TrendCompareType": { "type": "object", "properties": { "label": { "type": "string" } } },
       "TrendMeta": {
         "type": "object",
         "properties": {
@@ -852,17 +799,18 @@
           "resultTypes": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/TrendResultType" }
-          },
-          "compareTypes": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/TrendCompareType" }
           }
         },
         "description": "메타 정보"
       },
       "TrendResultType": {
         "type": "object",
-        "properties": { "key": { "type": "string" }, "label": { "type": "string" } }
+        "properties": {
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
       },
       "CreateResultRequest": {
         "type": "object",
@@ -871,9 +819,7 @@
           "selectedItems": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/SelectedItem" }
-          },
-          "invitationId": { "type": "string" },
-          "nickname": { "type": "string" }
+          }
         }
       },
       "SelectedItem": {
@@ -893,10 +839,6 @@
         "type": "object",
         "properties": { "resultId": { "type": "string" } },
         "description": "응답 데이터"
-      },
-      "UpdateNicknameRequest": {
-        "type": "object",
-        "properties": { "nickname": { "type": "string" } }
       },
       "CreateCommentRequest": {
         "required": ["content", "itemId", "nickname", "password", "trendId"],
@@ -971,19 +913,19 @@
         "required": ["alias", "electionIds", "title"],
         "type": "object",
         "properties": {
-          "alias": { "type": "string", "description": "트렌드 alias", "example": "love" },
-          "title": { "type": "string", "description": "트렌드 제목", "example": "2025 트렌드" },
-          "label": { "type": "string", "description": "트렌드 라벨", "example": "TREND2025" },
-          "imageUrl": { "type": "string", "description": "대표 이미지 URL" },
+          "alias": { "type": "string", "description": "trend alias", "example": "love" },
+          "title": { "type": "string", "description": "trend title", "example": "2025 trend" },
+          "label": { "type": "string", "description": "trend label", "example": "TREND2025" },
+          "imageUrl": { "type": "string", "description": "cover image URL" },
           "electionIds": {
             "type": "array",
-            "description": "연결된 선거/캠페인 ID 목록",
-            "items": { "type": "string", "description": "연결된 선거/캠페인 ID 목록" }
+            "description": "election id list",
+            "items": { "type": "string", "description": "election id list" }
           },
           "meta": { "$ref": "#/components/schemas/TrendMetaRequest" },
-          "isVisible": { "type": "boolean", "description": "노출 여부", "example": true }
+          "isVisible": { "type": "boolean", "description": "visibility flag", "example": true }
         },
-        "description": "트렌드 생성 요청"
+        "description": "Create trend request"
       },
       "BaseResponseTrendResponse": {
         "type": "object",
@@ -1140,81 +1082,35 @@
       "DisplayResultResponse": {
         "type": "object",
         "properties": {
-          "resultLabel": { "type": "string", "description": "결과 라벨" },
-          "resultType": { "type": "string", "description": "매핑된 결과 타입 라벨" },
-          "trend": { "$ref": "#/components/schemas/TrendResult" },
+          "resultId": { "type": "string" },
+          "resultLabel": { "type": "string" },
+          "resultType": { "$ref": "#/components/schemas/ResultType" },
           "selectedOptions": {
             "type": "array",
-            "description": "선택한 옵션 목록",
-            "items": { "type": "string", "description": "선택한 옵션 목록" }
-          },
-          "nickname": { "type": "string", "description": "응답자 닉네임" },
-          "compareSelectedOptions": {
-            "type": "array",
-            "description": "비교 대상의 선택 옵션 목록",
-            "items": { "type": "string", "description": "비교 대상의 선택 옵션 목록" }
-          },
-          "compareNickname": { "type": "string", "description": "비교 대상 닉네임" },
-          "compareType": { "type": "string", "description": "비교 타입" },
-          "matchCount": { "type": "integer", "description": "일치한 선택 수", "format": "int32" },
-          "totalCount": { "type": "integer", "description": "총 선택 수", "format": "int32" }
-        },
-        "description": "결과 상세 조회 응답"
-      },
-      "Option": {
-        "type": "object",
-        "properties": { "id": { "type": "string" }, "title": { "type": "string" } }
-      },
-      "TrendResult": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "alias": { "type": "string" },
-          "title": { "type": "string" },
-          "label": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "createdAt": { "type": "string" },
-          "items": { "type": "array", "items": { "$ref": "#/components/schemas/TrendResultItem" } }
-        },
-        "description": "트렌드/아이템 정보"
-      },
-      "TrendResultItem": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "string" },
-          "title": { "type": "string" },
-          "options": { "type": "array", "items": { "$ref": "#/components/schemas/Option" } }
-        }
-      },
-      "BaseResponseInviteeResultResponse": {
-        "type": "object",
-        "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/InviteeResultResponse" }
-        },
-        "description": "공통 응답 포맷"
-      },
-      "InviteeResultResponse": {
-        "type": "object",
-        "properties": {
-          "results": {
-            "type": "array",
-            "description": "초대 응답 결과 목록",
-            "items": { "$ref": "#/components/schemas/Item" }
+            "items": { "$ref": "#/components/schemas/SelectedOption" }
           }
         },
-        "description": "초대 받은 친구 결과 목록 응답"
+        "description": "응답 데이터"
       },
-      "Item": {
+      "ResultType": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "nickname": { "type": "string" },
-          "compareType": { "type": "string" },
-          "createdAt": { "type": "string" }
-        },
-        "description": "초대 받은 친구 결과 정보"
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "SelectedOption": {
+        "type": "object",
+        "properties": {
+          "itemId": { "type": "string" },
+          "itemTitle": { "type": "string" },
+          "optionId": { "type": "string" },
+          "optionTitle": { "type": "string" },
+          "optionImageUrl": { "type": "string" },
+          "percent": { "type": "number" }
+        }
       },
       "BaseResponseDisplayMainResponse": {
         "type": "object",
@@ -1330,6 +1226,15 @@
           "data": { "$ref": "#/components/schemas/AdminGetItemResponse" }
         },
         "description": "공통 응답 포맷"
+      },
+      "Option": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "imageUrl": { "type": "string" }
+        }
       },
       "DeleteCommentRequest": {
         "required": ["verifyToken"],

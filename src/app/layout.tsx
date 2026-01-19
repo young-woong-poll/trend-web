@@ -1,17 +1,19 @@
-import { Archivo } from 'next/font/google';
+import { Roboto } from 'next/font/google';
+import Script from 'next/script';
 
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
-import { MSWProvider } from '@/providers/MSWProvider';
+import { ClientProviders } from '@/providers/ClientProviders';
 import { QueryProvider } from '@/providers/QueryProvider';
 
 import type { Metadata } from 'next';
 
 import '@/styles/globals.scss';
 
-const archivo = Archivo({
+const roboto = Roboto({
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
-  variable: '--font-archivo',
+  variable: '--font-roboto',
   display: 'swap',
 });
 
@@ -27,15 +29,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={archivo.variable}>
-        <MSWProvider>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-52Z1FDXWHD"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-52Z1FDXWHD');
+          `}
+        </Script>
+      </head>
+      <body className={roboto.variable}>
+        <ClientProviders>
           <QueryProvider>
             <ModalProvider>
               {children}
               <div id="portal-root" />
             </ModalProvider>
           </QueryProvider>
-        </MSWProvider>
+        </ClientProviders>
       </body>
     </html>
   );

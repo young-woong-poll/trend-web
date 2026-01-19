@@ -41,3 +41,37 @@
 4. 승인 후 커밋
 5. **사용자에게 푸시 확인 요청**
 6. 승인 후 푸시
+
+## 아이콘 사용 규칙
+
+### SVG 아이콘 파일 위치
+
+- 모든 SVG 아이콘은 `src/assets/icon/` 디렉토리에 `.tsx` 파일로 정의합니다.
+- 파일명은 PascalCase로 작성합니다. (예: `LikeIcon.tsx`, `ClockIcon.tsx`)
+
+### 아이콘 컴포넌트 작성 규칙
+
+```tsx
+import type { FC, SVGProps } from 'react';
+
+interface IconNameProps extends SVGProps<SVGSVGElement> {
+  // 필요한 추가 props 정의 (예: filled, size 등)
+}
+
+const IconName: FC<IconNameProps> = (props) => (
+  <svg {...props}>
+    {/* SVG 내용 */}
+  </svg>
+);
+
+export default IconName;
+```
+
+### 사용 방법
+
+```tsx
+import IconName from '@/assets/icon/IconName';
+
+// 컴포넌트에서 사용
+<IconName className={styles.icon} />
+```

@@ -40,14 +40,14 @@ paths:
               $ref: '#/components/schemas/UpdateCommentRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -76,14 +76,14 @@ paths:
               $ref: '#/components/schemas/DeleteCommentRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -114,14 +114,14 @@ paths:
               $ref: '#/components/schemas/UpdateTrendRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -145,14 +145,14 @@ paths:
             type: integer
             format: int64
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -176,14 +176,14 @@ paths:
               $ref: '#/components/schemas/CreateResultRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -207,14 +207,14 @@ paths:
               $ref: '#/components/schemas/CreateCommentRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -244,14 +244,14 @@ paths:
               $ref: '#/components/schemas/VerifyCommentRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -280,14 +280,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -315,14 +315,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -340,14 +340,14 @@ paths:
       summary: 트렌드 목록 조회
       operationId: getTrends
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -371,14 +371,14 @@ paths:
               $ref: '#/components/schemas/CreateTrendRequest'
         required: true
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -413,14 +413,14 @@ paths:
             type: integer
             format: int32
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -444,14 +444,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -503,14 +503,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -534,14 +534,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -565,14 +565,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -596,15 +596,27 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            default: latest
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -634,14 +646,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -666,14 +678,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -698,14 +710,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -730,14 +742,14 @@ paths:
           schema:
             type: string
       responses:
-        '400':
-          description: Bad Request
+        '500':
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseVoid'
-        '500':
-          description: Internal Server Error
+        '400':
+          description: Bad Request
           content:
             '*/*':
               schema:

@@ -1,23 +1,28 @@
-import { useSearchParams } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { TSelectedItemMap } from '@/components/features/Vote/VoteView';
-import { useCreateResult } from '@/hooks/api';
 import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
+import { queryKeys } from '@/lib/react-query';
+import { resultApi } from '@/services/api/result';
+import type { CreateResultRequest } from '@/types/result';
 
 /**
  * 투표 결과 제출 Hook
  */
 export const useVoteSubmission = () => {
-  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const invitationId = searchParams.get('compare') || '';
-  const { mutateAsync: createResult, isPending } = useCreateResult();
+  const { mutateAsync: createResult, isPending } = useMutation({
+    mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
+    onSuccess: (data) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.display.result(data.resultId) });
+    },
+  });
 
   const submit = async (
     trendId: string,
     selectedItemMap: TSelectedItemMap,
-    totalItemCount: number,
-    nickname: string = ''
+    totalItemCount: number
   ) => {
     try {
       const selectedItems = Object.entries(selectedItemMap)
@@ -29,10 +34,8 @@ export const useVoteSubmission = () => {
       }
 
       const { resultId } = await createResult({
-        trendId,
+        trendId: Number(trendId),
         selectedItems,
-        invitationId,
-        nickname,
       });
 
       return resultId;

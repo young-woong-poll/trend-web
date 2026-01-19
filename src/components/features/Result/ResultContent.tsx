@@ -1,53 +1,62 @@
-import { Header } from '@/components/common/Header/Header';
-import { CompareLinkCard } from '@/components/features/Result/CompareLinkCard/CompareLinkCard';
-import { ComparisonWithFriend } from '@/components/features/Result/ComparisonWithFriend/ComparisonWithFriend';
-import { CopyUrlCard } from '@/components/features/Result/CopyUrlCard/CopyUrlCard';
+'use client';
+
+import { useMemo } from 'react';
+
+import { useQuery } from '@tanstack/react-query';
+
+import { ActionButtons } from '@/components/features/Result/ActionButtons/ActionButtons';
+import { PickHistory } from '@/components/features/Result/PickHistory/PickHistory';
 import styles from '@/components/features/Result/ResultContent.module.scss';
+import { ResultHeader } from '@/components/features/Result/ResultHeader/ResultHeader';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
-import type { InviteeResultResponse, ResultDisplayResponse } from '@/types/result';
+import { displayQueries } from '@/lib/react-query/queries';
 
 interface ResultContentProps {
   trendAlias: string;
   resultId: string;
-  compareId?: string;
-  myResult: ResultDisplayResponse;
-  friendResults: InviteeResultResponse | null;
 }
 
-export const ResultContent = ({
-  trendAlias,
-  resultId,
-  compareId,
-  myResult,
-  friendResults,
-}: ResultContentProps) => (
-  <div className={styles.container}>
-    <Header />
+/**
+ * 결과 페이지 컨텐츠
+ * - 서버에서 prefetch한 데이터를 캐시에서 읽음
+ */
+export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
+  // 서버에서 prefetch한 데이터를 캐시에서 읽음
+  const { data: resultData } = useQuery(displayQueries.result(resultId));
+  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
+  const { data: mainData } = useQuery(displayQueries.main());
 
-    <div className={styles.content}>
-      {/* 비교 링크인 경우 비교 결과 표시, 아니면 내 성향 카드 */}
-      {compareId ? (
-        <ComparisonWithFriend resultWithCompareId={myResult} compareId={compareId} />
-      ) : (
-        <TypeCard
-          questions={myResult.trend}
-          selectedOptions={myResult.selectedOptions}
-          resultType={myResult.resultType}
-        />
-      )}
+  // 다음 트렌드 계산
+  const nextTrend = useMemo(() => {
+    if (!mainData?.trends) {
+      return null;
+    }
+    const currentIndex = mainData.trends.findIndex((t) => t.alias === trendAlias);
+    if (currentIndex === -1 || currentIndex >= mainData.trends.length - 1) {
+      return null;
+    }
+    return mainData.trends[currentIndex + 1];
+  }, [mainData, trendAlias]);
 
-      {/* 친구와 비교하기 - 친구 결과 있을 때만 */}
-      {friendResults && (
-        <CompareLinkCard
-          trendAlias={trendAlias}
-          friendResults={friendResults.results}
-          myResult={myResult}
-          resultId={resultId}
-        />
-      )}
+  // 서버에서 prefetch되므로 data는 항상 존재
+  if (!resultData || !trendData) {
+    return null;
+  }
 
-      {/* URL 복사 카드 */}
-      <CopyUrlCard />
+  return (
+    <div className={styles.container}>
+      <ResultHeader title={trendData.title} />
+
+      <div className={styles.content}>
+        {/* 유형 카드 (대중성 지수 포함) */}
+        <TypeCard selectedOptions={resultData.selectedOptions} />
+
+        {/* MY PICK HISTORY */}
+        <PickHistory selectedOptions={resultData.selectedOptions} />
+
+        {/* 하단 버튼 영역 */}
+        <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />
+      </div>
     </div>
-  </div>
-);
+  );
+};

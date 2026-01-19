@@ -89,6 +89,9 @@ export interface LabelRequest {
 export interface ResultTypeRequest {
   key: string;
   label: string;
+  description?: string;
+  imageUrl?: string;
+  tags?: string[];
 }
 
 /**
@@ -97,7 +100,7 @@ export interface ResultTypeRequest {
 export interface TrendMetaRequest {
   resultLabel: string;
   resultType: ResultTypeRequest[];
-  answerType: LabelRequest[];
+  answerType?: LabelRequest[];
 }
 
 /**
@@ -140,7 +143,7 @@ export interface TrendResponse {
 export interface TrendMeta {
   resultLabel?: string;
   resultTypes?: TrendResultType[];
-  compareTypes?: TrendCompareType[];
+  compareTypes?: LabelRequest[];
 }
 
 /**
@@ -149,13 +152,9 @@ export interface TrendMeta {
 export interface TrendResultType {
   key: string;
   label: string;
-}
-
-/**
- * Trend 비교 타입
- */
-export interface TrendCompareType {
-  label: string;
+  description?: string;
+  imageUrl?: string;
+  tags?: string[];
 }
 
 /**

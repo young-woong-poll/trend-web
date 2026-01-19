@@ -157,3 +157,15 @@ export function getRelativeTime(dateString: string): string {
     return `${years}년전`;
   }
 }
+
+/**
+ * Check if a date is within the last 48 hours
+ * Used for displaying NEW badge on recent trends
+ */
+export function isWithin48Hours(dateString: string): boolean {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffInHours = (now.getTime() - past.getTime()) / (1000 * 60 * 60);
+
+  return diffInHours >= 0 && diffInHours <= 48;
+}

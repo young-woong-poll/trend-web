@@ -44,7 +44,7 @@
 
 .electionId {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: #475569;
   font-family: monospace;
   flex: 1;
@@ -64,7 +64,7 @@
 }
 
 .infoLabel {
-  font-weight: 600;
+  font-weight: $font-weight-semibold;
   color: #64748b;
   min-width: 60px;
   flex-shrink: 0;
@@ -91,7 +91,7 @@
 .removeButton {
   padding: 6px 16px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: $font-weight-medium;
   color: #ef4444;
   background: #fef2f2;
   border: 1px solid #fecaca;

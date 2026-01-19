@@ -2,13 +2,15 @@
 
 import type { FC } from 'react';
 
+import { useQuery } from '@tanstack/react-query';
+
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
 import InfoIcon from '@/assets/icon/InfoIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { useCommentCountQuery } from '@/hooks/api/useComment';
+import { commentQueries } from '@/lib/react-query/queries';
 
 interface ActionButtonsProps {
   trendId: string;
@@ -23,8 +25,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({
   commentDisabled = false,
   onCommentClick,
 }) => {
-  // TODO : 전체 댓글 개수 가져오는 API 로 변경필요
-  const { data: commentCountData } = useCommentCountQuery(trendId, itemId);
+  const { data: commentCountData } = useQuery(commentQueries.count(Number(trendId), itemId));
   const commentCount = commentCountData?.count;
 
   const { showToast } = useModal();

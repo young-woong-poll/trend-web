@@ -1,3 +1,5 @@
+@use '@/styles/variables' as *;
+
 .container {
   padding: 20px;
 }
@@ -8,7 +10,7 @@
 
 .title {
   font-size: 18px;
-  font-weight: bold;
+  font-weight: $font-weight-bold;
   margin-bottom: 8px;
   color: #000;
 }

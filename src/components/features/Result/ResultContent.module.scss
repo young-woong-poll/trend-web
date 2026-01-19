@@ -3,11 +3,11 @@
 
 .container {
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: $bg-primary;
 }
 
 .content {
-  padding: 40px 16px;
+  padding: 24px;
   max-width: 512px;
   margin: 0 auto;
   display: flex;

@@ -7,22 +7,15 @@ interface VotePageProps {
   params: Promise<{
     trendAlias: string;
   }>;
-  searchParams: Promise<{
-    compareId?: string;
-  }>;
 }
 
-export async function generateMetadata({ params, searchParams }: VotePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: VotePageProps): Promise<Metadata> {
   try {
     const { trendAlias } = await params;
-    const { compareId } = await searchParams;
 
     const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
-    // TODO : compareId 를 활용해서 nickname 조회 API
-    const compareNickname = compareId ? '웅쓰' : undefined;
 
-    const { title: trendTitle, label: description, imageUrl } = trendData;
-    const title = compareNickname ? `${compareNickname}님과 비교하는 ${trendTitle}` : trendTitle;
+    const { title, label: description, imageUrl } = trendData;
 
     return {
       title,

@@ -26,13 +26,13 @@
   }
 
   &.inputError {
-    border-color: $error-500;
+    border-color: $error;
   }
 }
 
 .errorMessage {
   font-size: $font-size-14;
-  color: $error-500;
+  color: $error;
   text-align: left;
   margin: 0;
 }

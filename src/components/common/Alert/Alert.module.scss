@@ -15,7 +15,7 @@
 
 .title {
   font-size: $font-size-20;
-  font-weight: 700;
+  font-weight: $font-weight-bold;
   color: $neutral-900;
   line-height: 1.4;
   margin: 0;
@@ -53,13 +53,13 @@
   }
 
   &.inputError {
-    border-color: $error-500;
+    border-color: $error;
   }
 }
 
 .errorMessage {
   font-size: $font-size-14;
-  color: $error-500;
+  color: $error;
   text-align: left;
   margin: 0;
 }

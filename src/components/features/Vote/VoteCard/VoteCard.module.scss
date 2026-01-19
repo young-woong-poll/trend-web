@@ -1,68 +1,56 @@
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
+.cardWrapper {
+  width: 100%;
+  max-width: 568px;
+  @include flex-column;
+  align-items: center;
+}
+
 .card {
-  @include flex-column;
-  width: 100%;
-}
-
-.header {
-  padding: 0;
-  margin-bottom: 16px;
-}
-
-.title {
-  font-size: $font-size-24;
-  line-height: 32px;
-  font-weight: 700;
-  color: $neutral-900;
-  word-break: keep-all;
-}
-
-.label {
-  font-size: $font-size-16;
-  color: $neutral-600;
-  font-weight: 500;
-  line-height: 24px;
-}
-
-.options {
-  @include flex-column;
-  gap: $spacing-16;
-  width: 100%;
-}
-
-.flipContainer {
-  perspective: 1000px;
-  width: 100%;
-}
-
-.flipInner {
   position: relative;
   width: 100%;
-  transition: transform 0.6s;
   transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 480px;
 }
 
-.flipInner.flipped {
+.cardFlipped {
   transform: rotateY(180deg);
 }
 
-.flipFront,
-.flipBack {
+.cardFront,
+.cardBack {
+  @include flex-column;
   width: 100%;
+  gap: 24px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
-.flipFront {
+.cardFront {
   position: relative;
-  z-index: 2;
 }
 
-.flipBack {
+.cardBack {
   position: absolute;
   top: 0;
   left: 0;
   transform: rotateY(180deg);
+}
+
+.questionText {
+  font-size: $font-size-20;
+  line-height: 28px;
+  font-weight: $font-weight-medium;
+  color: $white;
+  text-align: left;
+  word-break: keep-all;
+}
+
+.optionsContainer {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
 }

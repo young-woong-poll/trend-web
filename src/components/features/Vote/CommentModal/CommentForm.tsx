@@ -112,7 +112,7 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
 
     // 댓글 작성 API 호출
     const requestData: CreateCommentRequest = {
-      trendId,
+      trendId: Number(trendId),
       itemId,
       nickname: trimmedNickname,
       password: trimmedPassword,
