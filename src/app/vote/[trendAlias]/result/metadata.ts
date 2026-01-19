@@ -1,4 +1,4 @@
-import { SITE_NAME, OG_IMAGE, COMMON_METADATA, SITE_KEYWORDS } from '@/lib/seo/constants';
+import { SITE_NAME, COMMON_METADATA, SITE_KEYWORDS } from '@/lib/seo/constants';
 import { serverDisplayApi } from '@/services/api/server/display';
 
 import type { Metadata } from 'next';
