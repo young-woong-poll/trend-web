@@ -42,13 +42,9 @@ export const serverDisplayApi = {
 
   /**
    * Result 전시 조회 (서버 컴포넌트 전용)
-   *
-   * 캐싱 전략:
-   * - 투표 결과 데이터는 불변(immutable)이므로 긴 캐싱 가능
-   * - 1시간 캐싱으로 서버 부하 감소 및 성능 최적화
    */
   getResultDisplay: async (resultId: string): Promise<ResultDisplayResponse> =>
     serverFetch<ResultDisplayResponse>(`/api/v1/display/result/${resultId}`, {
-      next: { revalidate: 3600 }, // 1시간 캐싱 (투표 결과는 불변)
+      next: { revalidate: 10 },
     }),
 };

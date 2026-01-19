@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
@@ -8,6 +8,8 @@ import { createResultMetadata, defaultMetadata } from '@/app/vote/[trendAlias]/r
 import { ResultContent } from '@/components/features/Result/ResultContent';
 import { createServerQueryClient } from '@/lib/react-query';
 import { displayQueries } from '@/lib/react-query/queries';
+
+export const revalidate = 10;
 
 interface ResultPageProps {
   params: Promise<{
@@ -18,14 +20,15 @@ interface ResultPageProps {
   }>;
 }
 
-export async function generateMetadata({ searchParams }: ResultPageProps) {
+export async function generateMetadata({ params, searchParams }: ResultPageProps) {
+  const { trendAlias } = await params;
   const { id: resultId } = await searchParams;
 
   if (!resultId) {
     return defaultMetadata;
   }
 
-  return createResultMetadata();
+  return createResultMetadata(trendAlias);
 }
 
 export default async function ResultPage({ params, searchParams }: ResultPageProps) {
