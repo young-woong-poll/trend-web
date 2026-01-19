@@ -5,7 +5,7 @@
  *
  * 사용법:
  *   pnpm optimize <경로>
- *   pnpm optimize public/og-image.png
+ *   pnpm optimize public/og-image1.png
  *   pnpm optimize public/images
  *   pnpm optimize (기본값: public)
  *
@@ -69,7 +69,7 @@ function shouldExclude(filePath) {
  */
 function isOGImage(filePath) {
   const basename = path.basename(filePath, path.extname(filePath));
-  return basename.toLowerCase().includes('og-image');
+  return basename.toLowerCase().includes('og-');
 }
 
 /**
