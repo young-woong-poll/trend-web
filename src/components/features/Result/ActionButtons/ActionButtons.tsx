@@ -66,7 +66,8 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend })
             title={nextTrend.title}
             subtitle={nextTrend.label}
             createdAt={nextTrend.createdAt}
-            imageUrl={nextTrend.imageUrl}
+            imageUrl1={nextTrend.imageUrl1}
+            imageUrl2={nextTrend.imageUrl2}
             participantCount={nextTrend.participantsCount}
           />
         </div>

@@ -29,7 +29,8 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   setCheckStatus,
   mode = 'create',
 }) => {
-  const imageUrl = watch('imageUrl');
+  const imageUrl1 = watch('imageUrl1');
+  const imageUrl2 = watch('imageUrl2');
   const trendAlias = watch('alias');
 
   const { showAlert } = useModal();
@@ -136,11 +137,22 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 
       <div className={styles.field}>
         <label className={styles.label}>
-          이미지 <span className={styles.required}>*</span>
+          이미지 1 <span className={styles.required}>*</span>
         </label>
         <ImageUpload
-          value={imageUrl || null}
-          onChange={(url) => setValue('imageUrl', url || '')}
+          value={imageUrl1 || null}
+          onChange={(url) => setValue('imageUrl1', url || '')}
+          uploadOptions={{ prefix: 'trend' }}
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.label}>
+          이미지 2 <span className={styles.required}>*</span>
+        </label>
+        <ImageUpload
+          value={imageUrl2 || null}
+          onChange={(url) => setValue('imageUrl2', url || '')}
           uploadOptions={{ prefix: 'trend' }}
         />
       </div>
