@@ -1,8 +1,8 @@
 'use client';
 
-import type { FC, ReactNode } from 'react';
+import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
@@ -24,11 +24,65 @@ const isValidImageUrl = (url: string): boolean => {
 };
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
-  const { data } = useQuery(displayQueries.main());
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      ...displayQueries.infiniteMain({ size: 20, sort: 'popular' }),
+      placeholderData: keepPreviousData,
+    });
 
-  const displayData = data ?? initialData;
+  const observerTarget = useRef<HTMLDivElement>(null);
 
-  if (!displayData || displayData.trends.length === 0) {
+  // Intersection Observer로 무한스크롤 구현
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // 페이지 데이터 병합
+  const trends = data?.pages.flatMap((page) => page.trends) ?? initialData?.trends ?? [];
+
+  // 초기 로딩 상태
+  if (isLoading && trends.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.statusContainer}>
+          <p className={styles.statusText}>트렌드를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (isError && trends.length === 0) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.statusContainer}>
+          <p className={styles.errorText}>트렌드를 불러오는데 실패했습니다.</p>
+          <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 빈 상태
+  if (trends.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
@@ -49,7 +103,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        {displayData.trends.map((trend) => {
+        {trends.map((trend) => {
           const validImageUrl1 = isValidImageUrl(trend.imageUrl1)
             ? trend.imageUrl1
             : 'https://picsum.photos/400/300?random=placeholder1';
@@ -70,6 +124,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             />
           );
         })}
+
+        {/* 무한스크롤 트리거 */}
+        <div ref={observerTarget} className={styles.observerTarget}>
+          {isFetchingNextPage && <p className={styles.loadingMore}>트렌드를 더 불러오는 중...</p>}
+        </div>
       </div>
     </>
   );

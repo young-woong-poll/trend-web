@@ -40,6 +40,9 @@ export const mockMainDisplay: MainDisplayResponse = {
       participantsCount: 2100,
     },
   ],
+  hasMore: false,
+  nextPage: null,
+  totalCount: 3,
 };
 
 /**

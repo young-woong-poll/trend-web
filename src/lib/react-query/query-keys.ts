@@ -14,6 +14,8 @@ export const queryKeys = {
     all: ['display'] as const,
     main: (params?: { size?: number; page?: number; sort?: 'latest' | 'popular' }) =>
       [...queryKeys.display.all, 'main', params] as const,
+    mainInfinite: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
+      [...queryKeys.display.all, 'mainInfinite', params] as const,
     trend: (trendAlias: string) => [...queryKeys.display.all, 'trend', trendAlias] as const,
     result: (resultId: string) => [...queryKeys.display.all, 'result', resultId] as const,
     comments: (trendId: string, itemId: string, sort: string) =>

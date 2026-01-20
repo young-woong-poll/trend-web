@@ -17,10 +17,13 @@ export interface MainTrendItem {
 }
 
 /**
- * 메인 전시 API 응답
+ * 메인 전시 API 응답 (페이지네이션 포함)
  */
 export interface MainDisplayResponse {
   trends: MainTrendItem[];
+  hasMore: boolean;
+  nextPage: number | null;
+  totalCount: number;
 }
 
 /**
