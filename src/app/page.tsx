@@ -11,23 +11,27 @@ export const revalidate = 60;
 
 export default async function Home() {
   const queryClient = createServerQueryClient();
-  const mainQuery = displayQueries.main();
+  const infiniteMainQuery = displayQueries.infiniteMain({ size: 20, sort: 'popular' });
 
   try {
-    await queryClient.prefetchQuery(mainQuery);
+    await queryClient.prefetchInfiniteQuery(infiniteMainQuery);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[Home] Failed to fetch main display:', error);
     // 서버에서 실패해도 클라이언트에서 재시도
   }
 
-  const data = queryClient.getQueryData<MainDisplayResponse>(mainQuery.queryKey);
+  // 첫 페이지 데이터 추출 (SEO용)
+  const infiniteData = queryClient.getQueryData<{ pages: MainDisplayResponse[] }>(
+    infiniteMainQuery.queryKey
+  );
+  const firstPageData = infiniteData?.pages[0];
 
   return (
     <>
-      {data && <StructuredData data={generateMainStructuredData(data)} />}
+      {firstPageData && <StructuredData data={generateMainStructuredData(firstPageData)} />}
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <MainContent data={data} />
+        <MainContent data={firstPageData} />
       </HydrationBoundary>
     </>
   );

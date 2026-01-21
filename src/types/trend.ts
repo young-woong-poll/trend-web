@@ -10,16 +10,20 @@ export interface MainTrendItem {
   alias: string;
   title: string;
   label: string;
-  imageUrl: string;
+  imageUrl1: string;
+  imageUrl2: string;
   createdAt: string;
   participantsCount: number;
 }
 
 /**
- * 메인 전시 API 응답
+ * 메인 전시 API 응답 (페이지네이션 포함)
  */
 export interface MainDisplayResponse {
   trends: MainTrendItem[];
+  hasMore: boolean;
+  nextPage: number | null;
+  totalCount: number;
 }
 
 /**
@@ -49,7 +53,8 @@ export interface TrendDisplayResponse {
   alias: string;
   title: string;
   label: string;
-  imageUrl: string;
+  imageUrl1: string;
+  imageUrl2: string;
   createdAt: string;
   items: TrendItem[];
 }
@@ -110,7 +115,8 @@ export interface CreateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl?: string;
+  imageUrl1?: string;
+  imageUrl2?: string;
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
@@ -123,7 +129,8 @@ export interface UpdateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl?: string;
+  imageUrl1?: string;
+  imageUrl2?: string;
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
@@ -165,7 +172,8 @@ export interface AdminTrendResponse {
   alias: string;
   title: string;
   label?: string;
-  imageUrl?: string;
+  imageUrl1?: string;
+  imageUrl2?: string;
   electionIds: string[];
   meta?: TrendMeta;
   visible: boolean;

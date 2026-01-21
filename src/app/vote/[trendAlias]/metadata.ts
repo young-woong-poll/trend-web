@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: VotePageProps): Promise<Metad
 
     const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
 
-    const { title, label: description, imageUrl } = trendData;
+    const { title, label: description } = trendData;
 
     return {
       title,
@@ -26,13 +26,13 @@ export async function generateMetadata({ params }: VotePageProps): Promise<Metad
         siteName: SITE_NAME,
         title,
         description,
-        images: imageUrl ? [imageUrl] : [OG_IMAGE],
+        images: [OG_IMAGE],
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: imageUrl ? [imageUrl] : [OG_IMAGE.url],
+        images: [OG_IMAGE.url],
       },
     };
   } catch (error) {

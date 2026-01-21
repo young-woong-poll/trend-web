@@ -27,7 +27,6 @@ export function generateMainStructuredData(data: MainDisplayResponse) {
           '@type': 'Question',
           name: trend.title,
           text: trend.label,
-          image: trend.imageUrl,
           interactionStatistic: {
             '@type': 'InteractionCounter',
             interactionType: 'https://schema.org/VoteAction',
