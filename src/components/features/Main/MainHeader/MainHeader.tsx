@@ -11,7 +11,7 @@ export const MainHeader: FC = () => (
       <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
     </div>
     <p className={styles.text}>
-      <i>이번주 대한민국은 이걸로 싸운다</i>
+      <i>오늘 대한민국은 이걸로 싸운다</i>
     </p>
   </header>
 );
