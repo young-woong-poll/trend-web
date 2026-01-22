@@ -23,10 +23,10 @@ export const defaultMetadata: Metadata = {
 export async function createResultMetadata(trendAlias: string): Promise<Metadata> {
   /** OpenGraph 이미지 정보 */
   const ogImage = {
-    url: '/og-image-2.jpg',
-    width: 1024,
-    height: 572,
-    alt: 'HotPick - 이번 주 대한민국은 이걸로 싸운다',
+    url: '/og-result.jpg',
+    width: 1200,
+    height: 630,
+    alt: 'HotPick - 오늘 대한민국은 이걸로 싸운다',
   } as const;
 
   try {

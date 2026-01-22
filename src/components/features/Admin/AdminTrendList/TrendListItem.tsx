@@ -16,14 +16,25 @@ export default function TrendListItem({ trend, onEdit }: TrendListItemProps) {
     <tr className={styles.row}>
       {/* 썸네일 */}
       <td>
-        <div className={styles.thumbnail}>
-          <Image
-            src={trend.imageUrl || '/images/default-trend.png'}
-            alt={trend.title}
-            width={40}
-            height={40}
-            style={{ objectFit: 'cover', borderRadius: '4px' }}
-          />
+        <div className={styles.thumbnailGroup}>
+          <div className={styles.thumbnail}>
+            <Image
+              src={trend.imageUrl1 || ''}
+              alt={`${trend.title} 이미지 1`}
+              width={40}
+              height={40}
+              style={{ objectFit: 'cover', borderRadius: '4px' }}
+            />
+          </div>
+          <div className={styles.thumbnail}>
+            <Image
+              src={trend.imageUrl2 || ''}
+              alt={`${trend.title} 이미지 2`}
+              width={40}
+              height={40}
+              style={{ objectFit: 'cover', borderRadius: '4px' }}
+            />
+          </div>
         </div>
       </td>
 

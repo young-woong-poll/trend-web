@@ -15,6 +15,11 @@
   }
 }
 
+.thumbnailGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .thumbnail {
   display: flex;
   align-items: center;

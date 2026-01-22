@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query';
+import { queryOptions, infiniteQueryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/lib/react-query/query-keys';
 import { CACHE_TIMES } from '@/services/api/constants/cache';
@@ -49,6 +49,27 @@ export const displayQueries = {
           ? serverDisplayApi.getResultDisplay(resultId)
           : displayApi.getResultDisplay(resultId),
       staleTime: CACHE_TIMES.DISPLAY.RESULT * 1000,
+    }),
+
+  /**
+   * 메인 전시 무한 스크롤 쿼리 옵션
+   */
+  infiniteMain: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
+    infiniteQueryOptions<MainDisplayResponse>({
+      queryKey: queryKeys.display.mainInfinite(params),
+      queryFn: async ({ pageParam }) => {
+        const queryParams = {
+          size: params?.size ?? 20,
+          sort: params?.sort ?? 'popular',
+          page: pageParam as number,
+        };
+        return isServer()
+          ? serverDisplayApi.getMainDisplay(queryParams)
+          : displayApi.getMainDisplay(queryParams);
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+      staleTime: CACHE_TIMES.DISPLAY.MAIN * 1000,
     }),
 
   /**

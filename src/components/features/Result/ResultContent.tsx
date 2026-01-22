@@ -56,6 +56,14 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
 
         {/* 하단 버튼 영역 */}
         <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />
+
+        {/* 서비스 문의 및 피드백 */}
+        <footer className={styles.feedback}>
+          <p className={styles.feedbackText}>서비스 문의 및 피드백</p>
+          <a href="mailto:voteboxxxxx@gmail.com" className={styles.feedbackEmail}>
+            voteboxxxxx@gmail.com
+          </a>
+        </footer>
       </div>
     </div>
   );
