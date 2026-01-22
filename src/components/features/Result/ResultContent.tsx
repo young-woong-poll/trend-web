@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -9,6 +9,7 @@ import { PickHistory } from '@/components/features/Result/PickHistory/PickHistor
 import styles from '@/components/features/Result/ResultContent.module.scss';
 import { ResultHeader } from '@/components/features/Result/ResultHeader/ResultHeader';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
+import { useVoteResultHistory } from '@/hooks/useVoteResultHistory';
 import { displayQueries } from '@/lib/react-query/queries';
 
 interface ResultContentProps {
@@ -25,6 +26,23 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
   const { data: resultData } = useQuery(displayQueries.result(resultId));
   const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
   const { data: mainData } = useQuery(displayQueries.main());
+
+  // 결과 히스토리 저장
+  const { addToHistory } = useVoteResultHistory();
+  const hasStoredRef = useRef(false);
+
+  // 결과 페이지 조회 시 히스토리에 저장 (최초 1회만)
+  useEffect(() => {
+    if (resultData && trendData && !hasStoredRef.current) {
+      hasStoredRef.current = true;
+      addToHistory({
+        trendAlias,
+        resultId,
+        trendTitle: trendData.title,
+        resultLabel: resultData.resultLabel,
+      });
+    }
+  }, [trendAlias, resultId, resultData, trendData, addToHistory]);
 
   // 다음 트렌드 계산
   const nextTrend = useMemo(() => {
