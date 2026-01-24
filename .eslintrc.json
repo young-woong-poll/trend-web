@@ -17,7 +17,8 @@
     "public/mockServiceWorker.js",
     "next-env.d.ts",
     "scripts/*.js",
-    "src/generated"
+    "src/generated",
+    "orval.config.ts"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
