@@ -101,9 +101,8 @@ export interface ResultTypeRequest {
  * Admin: Trend 생성 - 메타 정보 요청
  */
 export interface TrendMetaRequest {
-  resultLabel: string;
-  resultType: ResultTypeRequest[];
-  answerType?: LabelRequest[];
+  resultLabel?: string;
+  resultType?: ResultTypeRequest[];
 }
 
 /**
@@ -117,6 +116,7 @@ export interface CreateTrendRequest {
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
+  isFixed?: boolean;
 }
 
 /**
@@ -130,6 +130,7 @@ export interface UpdateTrendRequest {
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
+  isFixed?: boolean;
 }
 
 /**
@@ -146,7 +147,6 @@ export interface TrendResponse {
 export interface TrendMeta {
   resultLabel?: string;
   resultTypes?: TrendResultType[];
-  compareTypes?: LabelRequest[];
 }
 
 /**
@@ -172,6 +172,7 @@ export interface AdminTrendResponse {
   electionIds: string[];
   meta?: TrendMeta;
   visible: boolean;
+  fixed?: boolean;
   createdAt: string;
 }
 

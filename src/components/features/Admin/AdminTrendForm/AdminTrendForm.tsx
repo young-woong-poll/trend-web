@@ -8,17 +8,11 @@ import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Admin/AdminTrendForm/AdminTrendForm.module.scss';
-import { AnswerTypeSection } from '@/components/features/Admin/AdminTrendForm/AnswerTypeSection';
 import { BasicInfoSection } from '@/components/features/Admin/AdminTrendForm/BasicInfoSection';
 import { ElectionListSection } from '@/components/features/Admin/AdminTrendForm/ElectionListSection';
-import { ResultLabelSection } from '@/components/features/Admin/AdminTrendForm/ResultLabelSection';
-import { ResultTypeSection } from '@/components/features/Admin/AdminTrendForm/ResultTypeSection';
 import { useModal } from '@/contexts/ModalContext';
-import { useFetchElection } from '@/hooks/api';
 import { useCreateTrend } from '@/hooks/api/useAdmin';
-import { generateCombinations } from '@/lib/trendCombinations';
-import type { ElectionDetail } from '@/types/election';
-import type { AdminTrendResponse, LabelRequest, UpdateTrendRequest } from '@/types/trend';
+import type { AdminTrendResponse, UpdateTrendRequest } from '@/types/trend';
 
 export type TrendAliasCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
 
@@ -28,11 +22,8 @@ export type TFormData = {
   label: string;
   imageUrls: [string, string];
   electionIdList: string[];
-  electionDetailMap: Record<string, ElectionDetail>;
-  resultLabel: string;
-  resultType: Record<string, string>;
-  answerType: LabelRequest[];
   visible?: boolean;
+  fixed?: boolean;
 };
 
 interface AdminTrendFormProps {
@@ -51,7 +42,6 @@ export const AdminTrendForm = ({
   const router = useRouter();
   const { showAlert } = useModal();
   const { mutateAsync: createTrend, isPending } = useCreateTrend();
-  const { mutateAsync: fetchElection } = useFetchElection();
   const [trendAliasCheckStatus, setTrendAliasCheckStatus] = useState<TrendAliasCheckStatus>(
     mode === 'edit' ? 'available' : 'idle'
   );
@@ -63,117 +53,46 @@ export const AdminTrendForm = ({
       label: '',
       imageUrls: ['', ''],
       electionIdList: [],
-      electionDetailMap: {},
-      resultLabel: '당신의 성향은',
-      resultType: {},
-      answerType: [],
       visible: true,
+      fixed: false,
     },
   });
 
   // Edit 모드일 때 초기 데이터 로드
   useEffect(() => {
     if (mode === 'edit' && trend) {
-      // resultType을 Record<string, string> 형태로 변환
-      const resultTypeMap =
-        trend.meta?.resultTypes?.reduce(
-          (acc, rt) => {
-            acc[rt.key ?? ''] = rt.label ?? '';
-            return acc;
-          },
-          {} as Record<string, string>
-        ) || {};
-
-      // 선거 상세 정보 로드
-      const loadElectionDetails = async () => {
-        const electionDetailMap: Record<string, ElectionDetail> = {};
-
-        for (const electionId of trend.electionIds ?? []) {
-          try {
-            const detail = await fetchElection(electionId);
-            // Orval 타입을 기존 ElectionDetail 타입으로 캐스팅
-            electionDetailMap[electionId] = detail as unknown as ElectionDetail;
-          } catch (error) {
-            console.error(`Failed to load election ${electionId}:`, error);
-          }
-        }
-
-        reset({
-          alias: trend.alias ?? '',
-          title: trend.title ?? '',
-          label: trend.label || '',
-          imageUrls: [trend.imageUrls?.[0] || '', trend.imageUrls?.[1] || ''],
-          electionIdList: trend.electionIds ?? [],
-          electionDetailMap,
-          resultLabel: trend.meta?.resultLabel || '당신의 성향은',
-          resultType: resultTypeMap,
-          answerType: trend.meta?.compareTypes || [],
-          visible: trend.visible,
-        });
-      };
-
-      void loadElectionDetails();
+      reset({
+        alias: trend.alias,
+        title: trend.title,
+        label: trend.label || '',
+        imageUrls: [trend.imageUrls?.[0] || '', trend.imageUrls?.[1] || ''],
+        electionIdList: trend.electionIds,
+        visible: trend.visible,
+        fixed: trend.fixed || false,
+      });
     }
-  }, [mode, trend, reset, fetchElection]);
+  }, [mode, trend, reset]);
 
   const onSubmit = async (data: TFormData) => {
-    const { alias, imageUrls, electionIdList, electionDetailMap, resultType, answerType } = data;
+    const { alias, imageUrls, electionIdList } = data;
 
     if (!alias.trim()) {
       showAlert('Trend Alias를 입력해주세요.');
-
       return;
     }
 
     if (mode === 'create' && trendAliasCheckStatus !== 'available') {
       showAlert('Trend Alias 중복 확인이 필요합니다.');
-
       return;
     }
 
     if (!imageUrls[0] || !imageUrls[1]) {
       showAlert('썸네일 이미지를 모두 등록해주세요.');
-
       return;
     }
 
     if (electionIdList.length === 0) {
       showAlert('최소 하나 이상의 선거를 추가해주세요.');
-
-      return;
-    }
-
-    const electionDetails = electionIdList
-      .map((id) => electionDetailMap[id])
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      .filter((detail): detail is ElectionDetail => detail !== undefined);
-
-    if (electionDetails.length !== electionIdList.length) {
-      showAlert('일부 선거 정보를 불러오지 못했습니다. 페이지를 새로고침해주세요.');
-
-      return;
-    }
-
-    const combinations = generateCombinations(electionDetails);
-
-    const newResultType = Object.entries(resultType).map(([key, label]) => ({ key, label }));
-    const hasEmptyLabel = newResultType.some((rt) => !rt.label.trim());
-
-    if (newResultType.length !== combinations.length || hasEmptyLabel) {
-      showAlert(`모든 결과 타입의 Label을 입력해주세요.`);
-
-      return;
-    }
-
-    // 답변타입 검증 추가)
-    if (
-      answerType.length < electionIdList.length + 1 ||
-      answerType.some((at) => !(at.label ?? '').trim())
-    ) {
-      showAlert(
-        `모든 답변 타입의 Label을 입력해주세요. (${answerType.length}/${electionIdList.length + 1}개 입력됨)`
-      );
-
       return;
     }
 
@@ -183,12 +102,8 @@ export const AdminTrendForm = ({
       label: data.label,
       imageUrls: data.imageUrls,
       electionIds: electionIdList,
-      meta: {
-        resultLabel: data.resultLabel,
-        resultType: newResultType,
-        answerType: data.answerType,
-      },
       isVisible: data.visible,
+      isFixed: data.fixed,
     };
 
     // Edit 모드일 경우 외부에서 전달된 onSubmit 실행
@@ -239,23 +154,6 @@ export const AdminTrendForm = ({
 
         {/* 연결된 선거 ID */}
         <ElectionListSection setValue={setValue} watch={watch} />
-
-        {watch('electionIdList').length === 0 ? (
-          <div className={styles.noElectionBanner}>
-            <p>선거 ID를 입력하시오</p>
-          </div>
-        ) : (
-          <>
-            {/* 결과 상단문구 */}
-            <ResultLabelSection register={register} />
-
-            {/* 결과 타입 */}
-            <ResultTypeSection setValue={setValue} watch={watch} />
-
-            {/* 답변 타입 */}
-            <AnswerTypeSection setValue={setValue} watch={watch} />
-          </>
-        )}
 
         {/* Submit */}
         <div className={styles.actions}>
