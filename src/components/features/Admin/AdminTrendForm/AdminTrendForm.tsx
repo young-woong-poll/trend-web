@@ -117,14 +117,7 @@ export const AdminTrendForm = ({
   }, [mode, trend, reset, fetchElection]);
 
   const onSubmit = async (data: TFormData) => {
-    const {
-      alias,
-      imageUrls,
-      electionIdList,
-      electionDetailMap,
-      resultType,
-      answerType,
-    } = data;
+    const { alias, imageUrls, electionIdList, electionDetailMap, resultType, answerType } = data;
 
     if (!alias.trim()) {
       showAlert('Trend Alias를 입력해주세요.');
