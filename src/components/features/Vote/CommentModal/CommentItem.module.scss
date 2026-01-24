@@ -73,7 +73,8 @@
   }
 
   &.liked {
-    background: linear-gradient($bg-tertiary, $bg-tertiary) padding-box,
+    background:
+      linear-gradient($bg-tertiary, $bg-tertiary) padding-box,
       linear-gradient(135deg, $primary-start, $primary-end) border-box;
     border: 1px solid transparent;
     color: $white;
@@ -93,7 +94,9 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  transition: color 0.2s, transform 0.2s;
+  transition:
+    color 0.2s,
+    transform 0.2s;
 }
 
 .likeCount {

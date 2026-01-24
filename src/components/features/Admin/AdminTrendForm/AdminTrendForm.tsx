@@ -17,8 +17,8 @@ import { useModal } from '@/contexts/ModalContext';
 import { useFetchElection } from '@/hooks/api';
 import { useCreateTrend } from '@/hooks/api/useAdmin';
 import { generateCombinations } from '@/lib/trendCombinations';
-import type { ElectionDetail } from '@/types';
-import type { LabelRequest, UpdateTrendRequest, AdminTrendResponse } from '@/types/trend';
+import type { ElectionDetail } from '@/types/election';
+import type { AdminTrendResponse, LabelRequest, UpdateTrendRequest } from '@/types/trend';
 
 export type TrendAliasCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
 
@@ -80,7 +80,7 @@ export const AdminTrendForm = ({
       const resultTypeMap =
         trend.meta?.resultTypes?.reduce(
           (acc, rt) => {
-            acc[rt.key] = rt.label;
+            acc[rt.key ?? ''] = rt.label ?? '';
             return acc;
           },
           {} as Record<string, string>
@@ -90,22 +90,23 @@ export const AdminTrendForm = ({
       const loadElectionDetails = async () => {
         const electionDetailMap: Record<string, ElectionDetail> = {};
 
-        for (const electionId of trend.electionIds) {
+        for (const electionId of trend.electionIds ?? []) {
           try {
             const detail = await fetchElection(electionId);
-            electionDetailMap[electionId] = detail;
+            // Orval 타입을 기존 ElectionDetail 타입으로 캐스팅
+            electionDetailMap[electionId] = detail as unknown as ElectionDetail;
           } catch (error) {
             console.error(`Failed to load election ${electionId}:`, error);
           }
         }
 
         reset({
-          alias: trend.alias,
-          title: trend.title,
+          alias: trend.alias ?? '',
+          title: trend.title ?? '',
           label: trend.label || '',
           imageUrl1: trend.imageUrl1 || '',
           imageUrl2: trend.imageUrl2 || '',
-          electionIdList: trend.electionIds,
+          electionIdList: trend.electionIds ?? [],
           electionDetailMap,
           resultLabel: trend.meta?.resultLabel || '당신의 성향은',
           resultType: resultTypeMap,
@@ -178,7 +179,7 @@ export const AdminTrendForm = ({
     // 답변타입 검증 추가)
     if (
       answerType.length < electionIdList.length + 1 ||
-      answerType.some((at) => !at.label.trim())
+      answerType.some((at) => !(at.label ?? '').trim())
     ) {
       showAlert(
         `모든 답변 타입의 Label을 입력해주세요. (${answerType.length}/${electionIdList.length + 1}개 입력됨)`

@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, type FC } from 'react';
 
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
-
 import { CommentItem } from '@/components/features/Vote/CommentModal/CommentItem';
 import styles from '@/components/features/Vote/CommentModal/CommentList.module.scss';
-import { commentQueries } from '@/lib/react-query/queries';
+import type { CommentItem as CommentItemType } from '@/generated/models';
+import { useInfiniteComments } from '@/hooks/api';
 import { getTKUID } from '@/lib/tkuid';
-import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentListProps {
   trendId: string;
@@ -29,11 +27,7 @@ export const CommentList: FC<CommentListProps> = ({
 }) => {
   const tkuId = getTKUID();
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      ...commentQueries.infiniteList({ trendId, itemId, sort, size: 20, tkuId }),
-      placeholderData: keepPreviousData,
-      gcTime: 1000 * 60 * 5,
-    });
+    useInfiniteComments({ trendId, itemId, sort, size: 20, tkuId });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -80,7 +74,7 @@ export const CommentList: FC<CommentListProps> = ({
   }
 
   // 댓글 데이터 추출
-  const comments = data?.pages.flatMap((page) => page.comments) ?? [];
+  const comments = data?.pages.flatMap((page) => page.comments ?? []) ?? [];
 
   // 빈 목록
   if (comments.length === 0) {

@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, type FC } from 'react';
 
 import { usePathname } from 'next/navigation';
 
-import { useQuery } from '@tanstack/react-query';
-
 import ClockIcon from '@/assets/icon/ClockIcon';
 import UpIcon from '@/assets/icon/UpIcon';
 import { Portal } from '@/components/common/Portal/Portal';
@@ -15,10 +13,9 @@ import { CommentForm } from '@/components/features/Vote/CommentModal/CommentForm
 import { CommentList } from '@/components/features/Vote/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Vote/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import { useDeleteComment } from '@/hooks/api/useComment';
+import type { CommentItem } from '@/generated/models';
+import { useDeleteComment, useCommentCount } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
-import { commentQueries } from '@/lib/react-query/queries';
-import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
   isOpen: boolean;
@@ -43,7 +40,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [editToken, setEditToken] = useState<string>('');
   const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
 
-  const { data: commentCountData } = useQuery(commentQueries.count(Number(trendId), itemId));
+  const { data: commentCountData } = useCommentCount(Number(trendId), itemId);
   const commentCount = commentCountData?.count;
 
   const { showToast, showConfirm } = useModal();
@@ -209,7 +206,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
           deleteComment(
             {
-              commentId: selectedComment.id,
+              commentId: selectedComment.id ?? '',
               trendId,
               itemId,
               data: { verifyToken: token },
@@ -329,7 +326,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
         <CommentPasswordModal
           isOpen={isPasswordModalOpen}
           onClose={handlePasswordModalClose}
-          commentId={selectedComment.id}
+          commentId={selectedComment.id ?? ''}
           onVerified={handlePasswordVerified}
         />
       )}

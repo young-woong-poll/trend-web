@@ -4,11 +4,11 @@ import type { FC } from 'react';
 
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import styles from '@/components/features/Vote/VoteOptionCard/VoteOptionCard.module.scss';
+import type { DisplayTrendOptionResponse } from '@/generated/models';
 import { useImagePreload } from '@/hooks/useImagePreload';
-import type { TrendOption } from '@/types/trend';
 
 interface VoteOptionCardProps {
-  option: TrendOption;
+  option: DisplayTrendOptionResponse;
   isSelected: boolean;
   hasVoted: boolean;
   voteCount?: number;
@@ -24,7 +24,7 @@ export const VoteOptionCard: FC<VoteOptionCardProps> = ({
   percentage = 0,
   onClick,
 }) => {
-  const isImageLoaded = useImagePreload(option.imageUrl);
+  const isImageLoaded = useImagePreload(option.imageUrl ?? '');
 
   return (
     <div className={`${styles.wrapper} ${isSelected && hasVoted ? styles.selected : ''}`}>
@@ -39,7 +39,11 @@ export const VoteOptionCard: FC<VoteOptionCardProps> = ({
         `}
         onClick={!hasVoted ? onClick : undefined}
       >
-        <img src={option.imageUrl} alt={option.title} className={styles.backgroundImage} />
+        <img
+          src={option.imageUrl ?? ''}
+          alt={option.title ?? ''}
+          className={styles.backgroundImage}
+        />
 
         <div className={styles.labelOverlay}>{option.title}</div>
 

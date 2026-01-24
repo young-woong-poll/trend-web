@@ -56,7 +56,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 
     try {
       const result = await checkTrendAlias(trimmedAlias);
-      setCheckStatus(result.exists ? 'duplicate' : 'available');
+      setCheckStatus(result?.exists ? 'duplicate' : 'available');
     } catch (error: any) {
       setCheckStatus('idle');
       showAlert(`중복 체크에 실패했습니다. ${error?.message}` || '');

@@ -17,11 +17,11 @@ import { isWithin48Hours } from '@/lib/utils';
 type TPollCardProps = {
   alias: string;
   title: string;
-  subtitle: string;
-  createdAt: string;
-  imageUrl1: string;
-  imageUrl2: string;
-  participantCount: number;
+  subtitle?: string;
+  createdAt?: string;
+  imageUrl1?: string;
+  imageUrl2?: string;
+  participantCount?: number;
   children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
 
@@ -32,11 +32,11 @@ export const PollCard: FC<TPollCardProps> = ({
   createdAt,
   imageUrl1,
   imageUrl2,
-  participantCount,
+  participantCount = 0,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const { showToast } = useModal();
-  const isNew = isWithin48Hours(createdAt);
+  const isNew = isWithin48Hours(createdAt ?? '');
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
@@ -66,7 +66,7 @@ export const PollCard: FC<TPollCardProps> = ({
         <div className={styles.card}>
           <div className={styles.imageContainer}>
             <Image
-              src={imageUrl1}
+              src={imageUrl1 ?? ''}
               alt={title}
               width={240}
               height={162}
@@ -75,7 +75,7 @@ export const PollCard: FC<TPollCardProps> = ({
               onLoad={() => setIsImageLoaded(true)}
             />
             <Image
-              src={imageUrl2}
+              src={imageUrl2 ?? ''}
               alt={title}
               width={240}
               height={162}

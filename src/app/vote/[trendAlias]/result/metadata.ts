@@ -1,5 +1,5 @@
+import { getTrendDetail } from '@/generated/api/server/display/display';
 import { SITE_NAME, COMMON_METADATA, SITE_KEYWORDS } from '@/lib/seo/constants';
-import { serverDisplayApi } from '@/services/api/server/display';
 
 import type { Metadata } from 'next';
 
@@ -11,7 +11,7 @@ export const defaultMetadata: Metadata = {
 
 /**
  * Result Metadata 생성 (티저 전략)
- * - getTrendDisplay API로 트렌드 첫 번째 주제 기반 메타데이터 생성
+ * - getTrendDetail API로 트렌드 첫 번째 주제 기반 메타데이터 생성
  * - 결과(유형, 대중성 지수)는 미노출하여 호기심 유발
  *
  * 예시)
@@ -30,17 +30,22 @@ export async function createResultMetadata(trendAlias: string): Promise<Metadata
   } as const;
 
   try {
-    const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
+    const response = await getTrendDetail(trendAlias, { next: { revalidate: 60 } });
+    const trendData = response.status === 200 ? response.data.data : null;
 
-    // 첫 번째 주제와 선택지 가져오기
-    const firstItem = trendData.items[0];
-    if (!firstItem || firstItem.options.length < 2) {
+    if (!trendData) {
       return defaultMetadata;
     }
 
-    const questionTitle = firstItem.title;
-    const optionA = firstItem.options[0].title;
-    const optionB = firstItem.options[1].title;
+    // 첫 번째 주제와 선택지 가져오기
+    const firstItem = trendData.items?.[0];
+    if (!firstItem || (firstItem.options?.length ?? 0) < 2) {
+      return defaultMetadata;
+    }
+
+    const questionTitle = firstItem.title ?? '';
+    const optionA = firstItem.options?.[0]?.title ?? '';
+    const optionB = firstItem.options?.[1]?.title ?? '';
 
     // 티저 전략: 트렌드 주제 + VS 대결구도
     const title = `${questionTitle} ${optionA} VS ${optionB}`;

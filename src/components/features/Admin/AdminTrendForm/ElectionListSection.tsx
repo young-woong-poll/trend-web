@@ -22,6 +22,7 @@ import { ElectionCard } from '@/components/features/Admin/AdminTrendForm/Electio
 import styles from '@/components/features/Admin/AdminTrendForm/ElectionListSection.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useFetchElection } from '@/hooks/api';
+import type { ElectionDetail } from '@/types/election';
 
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 interface ElectionListSectionProps {
@@ -67,11 +68,14 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
       }
 
       try {
-        const data = await fetchElection(electionIdInputTrimmed);
+        const rawData = await fetchElection(electionIdInputTrimmed);
+        // Orval 타입을 기존 ElectionDetail 타입으로 캐스팅
+        const data = rawData as unknown as ElectionDetail;
+        const optionsLength = data.options?.length ?? 0;
 
-        if (data.options.length !== 2) {
+        if (optionsLength !== 2) {
           showAlert(
-            `선거 ID ${electionIdInputTrimmed}의 옵션 개수가 2개가 아닙니다 (현재: ${data.options.length}개)`
+            `선거 ID ${electionIdInputTrimmed}의 옵션 개수가 2개가 아닙니다 (현재: ${optionsLength}개)`
           );
 
           return;

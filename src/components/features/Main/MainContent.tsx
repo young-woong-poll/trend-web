@@ -4,13 +4,16 @@ import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayou
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { MainView } from '@/components/features/Main/MainView';
-import type { MainDisplayResponse } from '@/types/trend';
+import type { DisplayMainResponse } from '@/generated/models';
 
 type TMainContentProps = {
-  data?: MainDisplayResponse;
+  data?: DisplayMainResponse;
 };
 
-const formatCount = (count: number): string => {
+const formatCount = (count: number | undefined): string => {
+  if (!count) {
+    return '0';
+  }
   if (count >= 1000) {
     return `${(count / 1000).toFixed(1)}K`;
   }
@@ -23,9 +26,9 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
     <FlexibleLayout>
       <MainView initialData={data}>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
-        {data && data.trends.length > 0 && (
+        {data && (data.trends?.length ?? 0) > 0 && (
           <div className={styles.container}>
-            {data.trends.map((trend) => (
+            {(data.trends ?? []).map((trend) => (
               <div key={trend.id} className={styles.cardWrapper}>
                 <a href={`/vote/${trend.alias}`}>
                   <div className={styles.card}>

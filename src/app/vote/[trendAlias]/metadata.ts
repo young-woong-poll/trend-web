@@ -1,5 +1,5 @@
+import { getTrendDetail } from '@/generated/api/server/display/display';
 import { COMMON_METADATA, OG_IMAGE, SITE_KEYWORDS, SITE_NAME } from '@/lib/seo/constants';
-import { serverDisplayApi } from '@/services/api/server/display';
 
 import type { Metadata } from 'next';
 
@@ -13,7 +13,12 @@ export async function generateMetadata({ params }: VotePageProps): Promise<Metad
   try {
     const { trendAlias } = await params;
 
-    const trendData = await serverDisplayApi.getTrendDisplay(trendAlias);
+    const response = await getTrendDetail(trendAlias, { next: { revalidate: 60 } });
+    const trendData = response.status === 200 ? response.data.data : null;
+
+    if (!trendData) {
+      return COMMON_METADATA;
+    }
 
     const { title, label: description } = trendData;
 

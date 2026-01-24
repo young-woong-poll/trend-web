@@ -2,19 +2,20 @@
 
 import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
-
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
-import { displayQueries } from '@/lib/react-query/queries';
-import type { MainDisplayResponse } from '@/types/trend';
+import type { DisplayMainResponse } from '@/generated/models';
+import { useInfiniteMainDisplay } from '@/hooks/api';
 
 type TMainViewProps = {
-  initialData?: MainDisplayResponse;
+  initialData?: DisplayMainResponse;
   children?: ReactNode;
 };
 
-const isValidImageUrl = (url: string): boolean => {
+const isValidImageUrl = (url: string | undefined): boolean => {
+  if (!url) {
+    return false;
+  }
   try {
     const urlObj = new URL(url);
     return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
@@ -25,10 +26,7 @@ const isValidImageUrl = (url: string): boolean => {
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      ...displayQueries.infiniteMain({ size: 20, sort: 'popular' }),
-      placeholderData: keepPreviousData,
-    });
+    useInfiniteMainDisplay({ size: 20, sort: 'popular' });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -56,7 +54,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 페이지 데이터 병합
-  const trends = data?.pages.flatMap((page) => page.trends) ?? initialData?.trends ?? [];
+  const trends = data?.pages.flatMap((page) => page?.trends ?? []) ?? initialData?.trends ?? [];
 
   // 초기 로딩 상태
   if (isLoading && trends.length === 0) {
@@ -104,18 +102,19 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         {trends.map((trend) => {
-          const validImageUrl1 = isValidImageUrl(trend.imageUrl1)
-            ? trend.imageUrl1
+          const imageUrls = trend.imageUrls ?? [];
+          const validImageUrl1 = isValidImageUrl(imageUrls[0])
+            ? imageUrls[0]
             : 'https://picsum.photos/400/300?random=placeholder1';
-          const validImageUrl2 = isValidImageUrl(trend.imageUrl2)
-            ? trend.imageUrl2
+          const validImageUrl2 = isValidImageUrl(imageUrls[1])
+            ? imageUrls[1]
             : 'https://picsum.photos/400/300?random=placeholder2';
 
           return (
             <PollCard
               key={trend.id}
-              alias={trend.alias}
-              title={trend.title}
+              alias={trend.alias ?? ''}
+              title={trend.title ?? ''}
               subtitle={trend.label}
               createdAt={trend.createdAt}
               imageUrl1={validImageUrl1}

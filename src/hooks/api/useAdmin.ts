@@ -1,27 +1,57 @@
+import { useRouter } from 'next/navigation';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { adminKeys, adminQueries } from '@/lib/react-query/queries';
-import { adminApi } from '@/services/api/admin';
-import type { CreateTrendRequest, UpdateTrendRequest } from '@/types/trend';
+import { getItem } from '@/generated/api/client/admin-item/admin-item';
+import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
+import {
+  getTrends,
+  createTrend,
+  updateTrend,
+  deleteTrend,
+  checkTrendAlias,
+} from '@/generated/api/client/admin-trend/admin-trend';
+import { useToast } from '@/hooks/useToast';
+import type { CreateTrendRequest, UpdateTrendRequest, AdminTrendResponse } from '@/types/trend';
 
-// adminKeys를 @/lib/react-query/queries에서 re-export
-export { adminKeys };
+/**
+ * Admin Query Keys
+ */
+export const adminKeys = {
+  all: ['admin'] as const,
+  trends: () => [...adminKeys.all, 'trends'] as const,
+  trend: (id: number) => [...adminKeys.all, 'trend', id] as const,
+  election: (id: string) => [...adminKeys.all, 'election', id] as const,
+};
 
 /**
  * Admin: 트렌드 목록 조회 Hook
- *
- * @example
- * ```tsx
- * const { data } = useTrends();
- *
- * // 쿼리키 접근
- * queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
- * ```
  */
 export const useTrends = (enabled = true) =>
   useQuery({
-    ...adminQueries.trends(),
+    queryKey: adminKeys.trends(),
+    // Orval API 호출 후 타입 캐스팅 (Swagger와 실제 API 스키마 불일치)
+    queryFn: () => getTrends() as Promise<AdminTrendResponse[]>,
     enabled,
+  });
+
+/**
+ * Admin: 트렌드 상세 조회 Hook
+ * 목록 API에서 특정 ID의 트렌드를 찾아 반환
+ */
+export const useGetTrendDetail = (trendId: number) =>
+  useQuery({
+    queryKey: adminKeys.trend(trendId),
+    queryFn: async () => {
+      const trends = (await getTrends()) as AdminTrendResponse[];
+      const trend = trends.find((t) => t.id === trendId);
+      if (!trend) {
+        throw new Error('Trend not found');
+      }
+      return trend;
+    },
+    enabled: !!trendId,
+    staleTime: 1000 * 60,
   });
 
 /**
@@ -31,9 +61,10 @@ export const useCreateTrend = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTrendRequest) => adminApi.createTrend(data),
+    // 타입 캐스팅으로 기존 타입 사용 (Swagger와 실제 API 스키마 불일치)
+    mutationFn: (data: CreateTrendRequest) => createTrend(data as any),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
     },
   });
 };
@@ -43,12 +74,21 @@ export const useCreateTrend = () => {
  */
 export const useUpdateTrend = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { showToast } = useToast();
 
   return useMutation({
+    // 타입 캐스팅으로 기존 타입 사용 (Swagger와 실제 API 스키마 불일치)
     mutationFn: ({ trendId, data }: { trendId: number; data: UpdateTrendRequest }) =>
-      adminApi.updateTrend(trendId, data),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
+      updateTrend(trendId, data as any),
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trend(variables.trendId) });
+      showToast('트렌드가 수정되었습니다.');
+      router.push('/admin/trend');
+    },
+    onError: () => {
+      showToast('트렌드 수정에 실패했습니다.');
     },
   });
 };
@@ -58,29 +98,29 @@ export const useUpdateTrend = () => {
  */
 export const useDeleteTrend = () => {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { showToast } = useToast();
 
   return useMutation({
-    mutationFn: (trendId: number) => adminApi.deleteTrend(trendId),
+    mutationFn: (trendId: number) => deleteTrend(trendId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminQueries.trends().queryKey });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
+      showToast('트렌드가 삭제되었습니다.');
+      router.push('/admin/trend');
+    },
+    onError: () => {
+      showToast('트렌드 삭제에 실패했습니다.');
     },
   });
 };
 
 /**
  * Admin: 선거 상세 조회 Hook (Query)
- *
- * @example
- * ```tsx
- * const { data } = useElection('election-123');
- *
- * // 쿼리키 접근
- * queryClient.invalidateQueries({ queryKey: adminQueries.election('election-123').queryKey });
- * ```
  */
 export const useElection = (electionId: string) =>
   useQuery({
-    ...adminQueries.election(electionId),
+    queryKey: adminKeys.election(electionId),
+    queryFn: () => getItem(electionId),
     enabled: !!electionId,
   });
 
@@ -90,25 +130,23 @@ export const useElection = (electionId: string) =>
  */
 export const useFetchElection = () =>
   useMutation({
-    mutationFn: (electionId: string) => adminApi.getElection(electionId),
+    mutationFn: (electionId: string) => getItem(electionId),
   });
 
 /**
  * Admin: Pre-signed URL 발급 Hook
  * 이미지 업로드 시 S3 Pre-signed URL을 받아옴
- * @returns uploadUrl과 cdnUrl을 포함한 객체
  */
 export const useGeneratePresignedUrl = () =>
   useMutation({
-    mutationFn: (filename: string) => adminApi.generatePresignedUrl(filename),
+    mutationFn: (filename: string) => generatePresignedUrl({ filename }),
   });
 
 /**
  * Admin: Trend ID 중복 체크 Hook
  * Trend Alias가 이미 존재하는지 확인
- * @returns exists 여부를 포함한 객체
  */
 export const useCheckTrendAlias = () =>
   useMutation({
-    mutationFn: (alias: string) => adminApi.checkTrendAlias(alias),
+    mutationFn: (alias: string) => checkTrendAlias({ alias }),
   });

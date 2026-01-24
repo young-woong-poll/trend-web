@@ -1,10 +1,10 @@
-import { serverDisplayApi } from '@/services/api/server/display';
+import { getMainDisplay, getTrendDetail } from '@/generated/api/server/display/display';
 
 export async function generateStaticParams() {
   try {
-    const mainData = await serverDisplayApi.getMainDisplay();
+    const response = await getMainDisplay({ size: 100 }, { next: { revalidate: 60 } });
+    const mainData = response.status === 200 ? response.data.data : null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!mainData?.trends) {
       console.warn('[generateStaticParams] No trends data available');
       return [];
@@ -14,7 +14,7 @@ export async function generateStaticParams() {
     const validTrends = await Promise.all(
       mainData.trends.map(async (trend) => {
         try {
-          await serverDisplayApi.getTrendDisplay(trend.alias);
+          await getTrendDetail(trend.alias ?? '', { next: { revalidate: 60 } });
           return trend.alias;
         } catch {
           console.warn(`[generateStaticParams] Skipping trend ${trend.alias} due to API error`);

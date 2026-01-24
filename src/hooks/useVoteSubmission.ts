@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import type { TSelectedItemMap } from '@/components/features/Vote/VoteView';
+import { createResult } from '@/generated/api/client/result/result';
+import type { CreateResultRequest } from '@/generated/models';
+import { displayKeys } from '@/hooks/api/useDisplay';
 import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
-import { queryKeys } from '@/lib/react-query';
-import { resultApi } from '@/services/api/result';
-import type { CreateResultRequest } from '@/types/result';
 
 /**
  * 투표 결과 제출 Hook
@@ -12,10 +12,12 @@ import type { CreateResultRequest } from '@/types/result';
 export const useVoteSubmission = () => {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: createResult, isPending } = useMutation({
-    mutationFn: (data: CreateResultRequest) => resultApi.createResult(data),
+  const { mutateAsync: submitResult, isPending } = useMutation({
+    mutationFn: (data: CreateResultRequest) => createResult(data),
     onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.display.result(data.resultId) });
+      void queryClient.invalidateQueries({
+        queryKey: displayKeys.result(data?.resultId ?? ''),
+      });
     },
   });
 
@@ -33,12 +35,12 @@ export const useVoteSubmission = () => {
         throw new VoteValidationError('예상치 못한 오류가 발생했습니다.');
       }
 
-      const { resultId } = await createResult({
+      const result = await submitResult({
         trendId: Number(trendId),
         selectedItems,
       });
 
-      return resultId;
+      return result?.resultId ?? '';
     } catch (error) {
       if (error instanceof VoteValidationError) {
         throw error;

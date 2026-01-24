@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/common/Button/Button';
 import styles from '@/components/features/Admin/AdminTrendList/AdminTrendList.module.scss';
 import TrendListItem from '@/components/features/Admin/AdminTrendList/TrendListItem';
-import { useGetTrends } from '@/services/hooks/useAdmin';
+import { useTrends } from '@/hooks/api/useAdmin';
 
 export default function AdminTrendList() {
   const router = useRouter();
-  const { data: trends, isLoading } = useGetTrends();
+  const { data: trends, isLoading } = useTrends();
 
   if (isLoading) {
     return (

@@ -1,10 +1,10 @@
+import type { DisplayMainResponse } from '@/generated/models';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/seo/constants';
-import type { MainDisplayResponse } from '@/types/trend';
 
 /**
  * 메인 페이지의 JSON-LD 구조화 데이터를 생성합니다.
  */
-export function generateMainStructuredData(data: MainDisplayResponse) {
+export function generateMainStructuredData(data: DisplayMainResponse) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -20,7 +20,7 @@ export function generateMainStructuredData(data: MainDisplayResponse) {
     },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: data.trends.map((trend, index) => ({
+      itemListElement: (data.trends ?? []).map((trend, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         item: {
@@ -30,7 +30,7 @@ export function generateMainStructuredData(data: MainDisplayResponse) {
           interactionStatistic: {
             '@type': 'InteractionCounter',
             interactionType: 'https://schema.org/VoteAction',
-            userInteractionCount: trend.participantsCount,
+            userInteractionCount: trend.participantsCount ?? 0,
           },
         },
       })),

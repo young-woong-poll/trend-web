@@ -5,8 +5,8 @@ import { useState, useEffect, type FC } from 'react';
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Vote/CommentModal/CommentEditModal.module.scss';
 import { useModal } from '@/contexts/ModalContext';
+import type { CommentItem } from '@/generated/models';
 import { useUpdateComment } from '@/hooks/api/useComment';
-import type { CommentItem } from '@/types/comment';
 
 interface CommentEditModalProps {
   isOpen: boolean;
@@ -27,14 +27,14 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
   trendId,
   itemId,
 }) => {
-  const [content, setContent] = useState(comment.content);
+  const [content, setContent] = useState(comment.content ?? '');
 
   const { showToast } = useModal();
   const { mutate: updateComment, isPending } = useUpdateComment();
 
   // 댓글 내용이 변경되면 초기화
   useEffect(() => {
-    setContent(comment.content);
+    setContent(comment.content ?? '');
   }, [comment.content]);
 
   // 내용 변경 핸들러
@@ -60,7 +60,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     }
 
     // 내용이 변경되지 않았으면 중단
-    if (trimmedContent === comment.content) {
+    if (trimmedContent === (comment.content ?? '')) {
       showToast('변경된 내용이 없습니다');
       return;
     }
@@ -68,7 +68,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     // 댓글 수정 API 호출
     updateComment(
       {
-        commentId: comment.id,
+        commentId: comment.id ?? '',
         trendId,
         itemId,
         data: {
@@ -104,7 +104,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     return null;
   }
 
-  const isContentChanged = content.trim() !== comment.content;
+  const isContentChanged = content.trim() !== (comment.content ?? '');
 
   return (
     <Portal>
