@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { VoteView } from '@/components/features/Vote/VoteView';
-import { displayQueries } from '@/lib/react-query/queries';
+import { displayQueries } from '@/hooks/api/useDisplay';
 
 type TVoteContentProps = {
   trendAlias: string;
@@ -24,7 +24,7 @@ export const VoteContent: FC<TVoteContentProps> = ({ trendAlias }) => {
     );
   }
 
-  const items = trendData.items;
+  const items = trendData.items ?? [];
 
   return (
     <FlexibleLayout>
@@ -36,7 +36,7 @@ export const VoteContent: FC<TVoteContentProps> = ({ trendAlias }) => {
               <h1>{item.title}</h1>
               <p>{item.label}</p>
               <div>
-                {item.options.map((option) => (
+                {(item.options ?? []).map((option) => (
                   <div key={option.id}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={option.imageUrl} alt={option.title} loading="lazy" />
