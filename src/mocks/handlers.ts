@@ -5,7 +5,7 @@ import { mockElectionDetail } from '@/mocks/data/elections';
 import { mockResultDisplay } from '@/mocks/data/results';
 import { mockMainDisplay, mockTrendDisplay, mockTrendVoteCount } from '@/mocks/data/trends';
 
-const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
  * BaseResponse 형식으로 응답 래핑

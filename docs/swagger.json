@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": { "title": "OpenAPI definition", "version": "v0" },
   "servers": [
-    { "url": "https://beta-trend-api.votebox.kr", "description": "Generated server url" }
+    { "url": "https://beta-hotpick-api.votebox.kr", "description": "Generated server url" }
   ],
   "tags": [
     { "name": "Trend", "description": "트렌드 조회 API" },

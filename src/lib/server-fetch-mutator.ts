@@ -5,8 +5,7 @@
  * Orval fetch client는 URL 문자열을 첫 번째 인자로 전달합니다.
  */
 
-const API_URL =
-  process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 type FetchOptions = RequestInit & {
   next?: { revalidate?: number | false; tags?: string[] };
