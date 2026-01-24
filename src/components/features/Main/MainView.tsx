@@ -102,13 +102,15 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         {trends.map((trend) => {
-          const imageUrls = trend.imageUrls ?? [];
-          const validImageUrl1 = isValidImageUrl(imageUrls[0])
-            ? imageUrls[0]
-            : 'https://picsum.photos/400/300?random=placeholder1';
-          const validImageUrl2 = isValidImageUrl(imageUrls[1])
-            ? imageUrls[1]
-            : 'https://picsum.photos/400/300?random=placeholder2';
+          const rawImageUrls = trend.imageUrls ?? [];
+          const validImageUrls = [
+            isValidImageUrl(rawImageUrls[0])
+              ? rawImageUrls[0]
+              : 'https://picsum.photos/400/300?random=placeholder1',
+            isValidImageUrl(rawImageUrls[1])
+              ? rawImageUrls[1]
+              : 'https://picsum.photos/400/300?random=placeholder2',
+          ];
 
           return (
             <PollCard
@@ -117,8 +119,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
               title={trend.title ?? ''}
               subtitle={trend.label}
               createdAt={trend.createdAt}
-              imageUrl1={validImageUrl1}
-              imageUrl2={validImageUrl2}
+              imageUrls={validImageUrls}
               participantCount={trend.participantsCount}
             />
           );

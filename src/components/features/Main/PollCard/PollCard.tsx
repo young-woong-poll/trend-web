@@ -19,8 +19,7 @@ type TPollCardProps = {
   title: string;
   subtitle?: string;
   createdAt?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   participantCount?: number;
   children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
@@ -30,8 +29,7 @@ export const PollCard: FC<TPollCardProps> = ({
   title,
   subtitle,
   createdAt,
-  imageUrl1,
-  imageUrl2,
+  imageUrls = [],
   participantCount = 0,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -66,7 +64,7 @@ export const PollCard: FC<TPollCardProps> = ({
         <div className={styles.card}>
           <div className={styles.imageContainer}>
             <Image
-              src={imageUrl1 ?? ''}
+              src={imageUrls[0] ?? ''}
               alt={title}
               width={240}
               height={162}
@@ -75,7 +73,7 @@ export const PollCard: FC<TPollCardProps> = ({
               onLoad={() => setIsImageLoaded(true)}
             />
             <Image
-              src={imageUrl2 ?? ''}
+              src={imageUrls[1] ?? ''}
               alt={title}
               width={240}
               height={162}

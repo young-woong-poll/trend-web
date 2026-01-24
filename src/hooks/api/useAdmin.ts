@@ -61,8 +61,7 @@ export const useCreateTrend = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    // 타입 캐스팅으로 기존 타입 사용 (Swagger와 실제 API 스키마 불일치)
-    mutationFn: (data: CreateTrendRequest) => createTrend(data as any),
+    mutationFn: (data: CreateTrendRequest) => createTrend(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
     },
@@ -78,9 +77,8 @@ export const useUpdateTrend = () => {
   const { showToast } = useToast();
 
   return useMutation({
-    // 타입 캐스팅으로 기존 타입 사용 (Swagger와 실제 API 스키마 불일치)
     mutationFn: ({ trendId, data }: { trendId: number; data: UpdateTrendRequest }) =>
-      updateTrend(trendId, data as any),
+      updateTrend(trendId, data),
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
       void queryClient.invalidateQueries({ queryKey: adminKeys.trend(variables.trendId) });

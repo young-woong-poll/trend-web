@@ -10,8 +10,7 @@ export interface MainTrendItem {
   alias: string;
   title: string;
   label: string;
-  imageUrl1: string;
-  imageUrl2: string;
+  imageUrls: string[];
   createdAt: string;
   participantsCount: number;
 }
@@ -53,8 +52,7 @@ export interface TrendDisplayResponse {
   alias: string;
   title: string;
   label: string;
-  imageUrl1: string;
-  imageUrl2: string;
+  imageUrls: string[];
   createdAt: string;
   items: TrendItem[];
 }
@@ -115,8 +113,7 @@ export interface CreateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
@@ -129,8 +126,7 @@ export interface UpdateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
@@ -172,8 +168,7 @@ export interface AdminTrendResponse {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMeta;
   visible: boolean;

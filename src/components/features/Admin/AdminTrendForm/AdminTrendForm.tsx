@@ -26,8 +26,7 @@ export type TFormData = {
   alias: string;
   title: string;
   label: string;
-  imageUrl1: string;
-  imageUrl2: string;
+  imageUrls: [string, string];
   electionIdList: string[];
   electionDetailMap: Record<string, ElectionDetail>;
   resultLabel: string;
@@ -62,8 +61,7 @@ export const AdminTrendForm = ({
       alias: '',
       title: '',
       label: '',
-      imageUrl1: '',
-      imageUrl2: '',
+      imageUrls: ['', ''],
       electionIdList: [],
       electionDetailMap: {},
       resultLabel: '당신의 성향은',
@@ -104,8 +102,7 @@ export const AdminTrendForm = ({
           alias: trend.alias ?? '',
           title: trend.title ?? '',
           label: trend.label || '',
-          imageUrl1: trend.imageUrl1 || '',
-          imageUrl2: trend.imageUrl2 || '',
+          imageUrls: [trend.imageUrls?.[0] || '', trend.imageUrls?.[1] || ''],
           electionIdList: trend.electionIds ?? [],
           electionDetailMap,
           resultLabel: trend.meta?.resultLabel || '당신의 성향은',
@@ -122,8 +119,7 @@ export const AdminTrendForm = ({
   const onSubmit = async (data: TFormData) => {
     const {
       alias,
-      imageUrl1,
-      imageUrl2,
+      imageUrls,
       electionIdList,
       electionDetailMap,
       resultType,
@@ -142,7 +138,7 @@ export const AdminTrendForm = ({
       return;
     }
 
-    if (!imageUrl1 || !imageUrl2) {
+    if (!imageUrls[0] || !imageUrls[1]) {
       showAlert('썸네일 이미지를 모두 등록해주세요.');
 
       return;
@@ -192,8 +188,7 @@ export const AdminTrendForm = ({
       alias: data.alias.trim(),
       title: data.title,
       label: data.label,
-      imageUrl1: data.imageUrl1,
-      imageUrl2: data.imageUrl2,
+      imageUrls: data.imageUrls,
       electionIds: electionIdList,
       meta: {
         resultLabel: data.resultLabel,
