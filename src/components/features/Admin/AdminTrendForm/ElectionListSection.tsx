@@ -46,7 +46,9 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
     const loadExistingElections = async () => {
       const missingIds = electionIdList.filter((id) => !electionDetailMap[id]);
 
-      if (missingIds.length === 0) return;
+      if (missingIds.length === 0) {
+        return;
+      }
 
       const newDetails: Record<string, ElectionDetail> = {};
 
