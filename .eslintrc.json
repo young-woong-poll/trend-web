@@ -16,7 +16,8 @@
     "server.js",
     "public/mockServiceWorker.js",
     "next-env.d.ts",
-    "scripts/*.js"
+    "scripts/*.js",
+    "src/generated"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
