@@ -2,8 +2,6 @@
 
 import type { FC } from 'react';
 
-import Link from 'next/link';
-
 import CameraIcon from '@/assets/icon/CameraIcon';
 import CheckIcon from '@/assets/icon/CheckIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
@@ -71,10 +69,16 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend })
           />
         </div>
       )}
-      <Link href="/" className={styles.backToMainButton}>
+      <button
+        type="button"
+        className={styles.backToMainButton}
+        onClick={() => {
+          window.location.href = '/';
+        }}
+      >
         더 많은 투표 보기
         <StartArrowIcon width={20} height={20} />
-      </Link>
+      </button>
     </div>
   );
 };
