@@ -24,7 +24,7 @@ export default function AdminTrendList() {
       {/* 헤더 */}
       <header className={styles.header}>
         <h1>트렌드 목록</h1>
-        <Button onClick={() => router.push('/admin/trend/create')} variant="primary">
+        <Button variant="outline" onClick={() => router.push('/admin/trend/create')}>
           + 트렌드 생성
         </Button>
       </header>
@@ -57,7 +57,9 @@ export default function AdminTrendList() {
       ) : (
         <div className={styles.empty}>
           <p>등록된 트렌드가 없습니다.</p>
-          <Button onClick={() => router.push('/admin/trend/create')}>트렌드 생성하기</Button>
+          <Button variant="outline" onClick={() => router.push('/admin/trend/create')}>
+            트렌드 생성하기
+          </Button>
         </div>
       )}
     </div>

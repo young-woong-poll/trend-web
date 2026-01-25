@@ -1,5 +1,3 @@
-import { useRouter } from 'next/navigation';
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getItem } from '@/generated/api/client/admin-item/admin-item';
@@ -73,7 +71,6 @@ export const useCreateTrend = () => {
  */
 export const useUpdateTrend = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { showToast } = useToast();
 
   return useMutation({
@@ -83,7 +80,7 @@ export const useUpdateTrend = () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
       void queryClient.invalidateQueries({ queryKey: adminKeys.trend(variables.trendId) });
       showToast('트렌드가 수정되었습니다.');
-      router.push('/admin/trend');
+      window.location.href = '/admin/trend';
     },
     onError: () => {
       showToast('트렌드 수정에 실패했습니다.');
@@ -96,7 +93,6 @@ export const useUpdateTrend = () => {
  */
 export const useDeleteTrend = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const { showToast } = useToast();
 
   return useMutation({
@@ -104,7 +100,7 @@ export const useDeleteTrend = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
       showToast('트렌드가 삭제되었습니다.');
-      router.push('/admin/trend');
+      window.location.href = '/admin/trend';
     },
     onError: () => {
       showToast('트렌드 삭제에 실패했습니다.');

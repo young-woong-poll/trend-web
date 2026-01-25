@@ -156,7 +156,7 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
         <Button
           type="button"
           onClick={handleAddClick}
-          variant="primary"
+          variant="outline"
           height={40}
           disabled={isPending || !electionIdInputTrimmed}
         >

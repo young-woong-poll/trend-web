@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { useForm } from 'react-hook-form';
 
+import BackIcon from '@/assets/icon/BackIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Admin/AdminTrendForm/AdminTrendForm.module.scss';
 import { BasicInfoSection } from '@/components/features/Admin/AdminTrendForm/BasicInfoSection';
@@ -91,8 +92,8 @@ export const AdminTrendForm = ({
       return;
     }
 
-    if (electionIdList.length === 0) {
-      showAlert('최소 하나 이상의 선거를 추가해주세요.');
+    if (electionIdList.length !== 5) {
+      showAlert('선거 5개를 등록해주세요.');
       return;
     }
 
@@ -117,7 +118,9 @@ export const AdminTrendForm = ({
       await createTrend(request);
 
       showAlert(`트렌드가 생성되었습니다! 제목: ${data.title}`, {
-        onConfirm: () => window.location.reload(),
+        onConfirm: () => {
+          window.location.href = '/admin/trend';
+        },
       });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
@@ -136,7 +139,8 @@ export const AdminTrendForm = ({
             </p>
           </div>
           <Button variant="outline" onClick={() => router.push('/admin/trend')}>
-            트렌드 목록
+            <BackIcon />
+            뒤로
           </Button>
         </div>
       </div>

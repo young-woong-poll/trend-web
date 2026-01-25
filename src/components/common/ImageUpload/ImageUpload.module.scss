@@ -12,20 +12,20 @@
   position: relative;
   width: 100%;
   min-height: 200px;
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed $border-placeholder;
   border-radius: 12px;
-  background-color: #f8fafc;
+  background-color: $bg-tertiary;
   transition: all 0.2s ease;
   cursor: pointer;
 
   &:hover {
-    border-color: #94a3b8;
-    background-color: #f1f5f9;
+    border-color: $neutral-500;
+    background-color: rgba($neutral-500, 0.1);
   }
 
   &.dragging {
     border-color: $primary-500;
-    background-color: rgba($primary-500, 0.05);
+    background-color: rgba($primary-500, 0.1);
   }
 
   &.disabled {
@@ -33,14 +33,14 @@
     opacity: 0.6;
 
     &:hover {
-      border-color: #cbd5e1;
-      background-color: #f8fafc;
+      border-color: $border-placeholder;
+      background-color: $bg-tertiary;
     }
   }
 
   &.error {
     border-color: #ef4444;
-    background-color: rgba(#ef4444, 0.05);
+    background-color: rgba(#ef4444, 0.1);
   }
 }
 
@@ -115,11 +115,11 @@
 .uploadIcon {
   width: 48px;
   height: 48px;
-  color: #94a3b8;
+  color: $text-tertiary;
   transition: color 0.2s ease;
 
   .uploadLabel:hover & {
-    color: $primary-500;
+    color: $neutral-400;
   }
 }
 
@@ -127,23 +127,23 @@
   margin: 0;
   font-size: 16px;
   font-weight: $font-weight-medium;
-  color: #475569;
+  color: $text-secondary;
 }
 
 .uploadLink {
-  color: $primary-500;
+  color: $neutral-400;
   text-decoration: underline;
   cursor: pointer;
 
   &:hover {
-    color: $primary-500;
+    color: $neutral-300;
   }
 }
 
 .uploadHint {
   margin: 0;
   font-size: 14px;
-  color: #94a3b8;
+  color: $text-tertiary;
 }
 
 .errorMessage {
@@ -156,9 +156,9 @@
 .fileName {
   margin: 0;
   font-size: 14px;
-  color: #64748b;
+  color: $text-secondary;
   padding: 8px 12px;
-  background-color: #f1f5f9;
+  background-color: $bg-secondary;
   border-radius: 6px;
 }
 

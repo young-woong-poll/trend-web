@@ -72,7 +72,7 @@ export default function TrendListItem({ trend, onEdit }: TrendListItemProps) {
       {/* 액션 */}
       <td>
         <div className={styles.actions}>
-          <Button variant="primary" size="small" onClick={() => onEdit(trend.id)}>
+          <Button variant="outline" size="small" onClick={() => onEdit(trend.id)}>
             수정
           </Button>
         </div>

@@ -73,7 +73,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
             Trend Alias <span className={styles.required}>*</span>
           </label>
           <Tooltip content="영문 소문자와 숫자와 하이픈(-)만 입력 가능합니다">
-            <span>?</span>
+            <span className={styles.tooltipButton}>?</span>
           </Tooltip>
         </div>
         <div className={styles.inputWithButton}>
