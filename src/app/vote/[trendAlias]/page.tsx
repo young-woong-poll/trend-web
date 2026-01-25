@@ -33,15 +33,18 @@ export default async function VotePage({ params }: VotePageProps) {
       const countQuery = commentQueries.count(Number(trendData.trendId), firstItemId);
       await queryClient.prefetchQuery(countQuery);
     }
+
+    return (
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <VoteContent trendAlias={trendAlias} data={trendData ?? undefined} />
+      </HydrationBoundary>
+    );
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('[VotePage] Failed to fetch trend data:', error);
     // 서버에서 실패해도 클라이언트에서 재시도
   }
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <VoteContent trendAlias={trendAlias} />
-    </HydrationBoundary>
-  );
+  // 실패 시 빈 데이터로 렌더링 (클라이언트에서 재시도)
+  return <VoteContent trendAlias={trendAlias} />;
 }

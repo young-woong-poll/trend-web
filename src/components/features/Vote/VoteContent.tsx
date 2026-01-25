@@ -1,34 +1,20 @@
-'use client';
-
 import type { FC } from 'react';
-
-import { useQuery } from '@tanstack/react-query';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { VoteView } from '@/components/features/Vote/VoteView';
-import { displayQueries } from '@/hooks/api/useDisplay';
+import type { DisplayTrendDetailResponse } from '@/generated/models';
 
 type TVoteContentProps = {
   trendAlias: string;
+  data?: DisplayTrendDetailResponse;
 };
 
-export const VoteContent: FC<TVoteContentProps> = ({ trendAlias }) => {
-  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
-
-  // 데이터 로딩 중이거나 없는 경우
-  if (!trendData) {
-    return (
-      <FlexibleLayout>
-        <div>Loading...</div>
-      </FlexibleLayout>
-    );
-  }
-
-  const items = trendData.items ?? [];
+export const VoteContent: FC<TVoteContentProps> = ({ trendAlias, data }) => {
+  const items = data?.items ?? [];
 
   return (
     <FlexibleLayout>
-      <VoteView trendAlias={trendAlias}>
+      <VoteView trendAlias={trendAlias} initialData={data}>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         <div suppressHydrationWarning>
           {items.map((item) => (

@@ -12,6 +12,7 @@ import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons'
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
+import type { DisplayTrendDetailResponse } from '@/generated/models';
 import { commentQueries } from '@/hooks/api/useComment';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -23,15 +24,19 @@ export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
 
 type VoteViewProps = {
   trendAlias: string;
+  initialData?: DisplayTrendDetailResponse;
   children: ReactNode;
 };
 
 const DEFAULT_NUM_OF_ITEMS = 5;
 
-export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
+export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children }) => {
   const router = useRouter();
 
-  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
+  const { data: trendData } = useQuery({
+    ...displayQueries.trend(trendAlias),
+    initialData,
+  });
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
