@@ -54,6 +54,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 페이지 데이터 병합
+  // fixedTrends는 initialData에서만 가져옴 (첫 페이지에만 존재, 중복 방지)
+  const fixedTrends = initialData?.fixedTrends ?? [];
   const trends = data?.pages.flatMap((page) => page?.trends ?? []) ?? initialData?.trends ?? [];
 
   // 초기 로딩 상태
@@ -79,8 +81,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  // 빈 상태
-  if (trends.length === 0) {
+  // 빈 상태 (고정 트렌드와 일반 트렌드 모두 없을 때)
+  if (fixedTrends.length === 0 && trends.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
@@ -101,6 +103,31 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
+        {/* 고정 트렌드 먼저 노출 */}
+        {fixedTrends.map((trend) => {
+          const rawImageUrls = trend.imageUrls ?? [];
+          const validImageUrls = [
+            isValidImageUrl(rawImageUrls[0])
+              ? rawImageUrls[0]
+              : 'https://picsum.photos/400/300?random=placeholder1',
+            isValidImageUrl(rawImageUrls[1])
+              ? rawImageUrls[1]
+              : 'https://picsum.photos/400/300?random=placeholder2',
+          ];
+
+          return (
+            <PollCard
+              key={`fixed-${trend.id}`}
+              alias={trend.alias ?? ''}
+              title={trend.title ?? ''}
+              subtitle={trend.label}
+              createdAt={trend.createdAt}
+              imageUrls={validImageUrls}
+              participantCount={trend.participantsCount}
+            />
+          );
+        })}
+        {/* 일반 트렌드 */}
         {trends.map((trend) => {
           const rawImageUrls = trend.imageUrls ?? [];
           const validImageUrls = [

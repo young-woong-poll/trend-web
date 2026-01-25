@@ -146,3 +146,62 @@
   color: #f59e0b;
   font-weight: $font-weight-medium;
 }
+
+// 토글 스타일
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.toggleInput {
+  display: none;
+
+  &:checked + .toggleSwitch {
+    background: $neutral-500;
+
+    &::after {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: $border-placeholder;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: $white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+}
+
+.toggleText {
+  font-size: 14px;
+  font-weight: $font-weight-medium;
+  color: $white;
+}
+
+.toggleHint {
+  margin: 0;
+  font-size: 13px;
+  color: $text-tertiary;
+}
