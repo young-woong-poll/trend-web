@@ -128,8 +128,23 @@ export const useMainDisplay = (params?: {
 /**
  * 메인 전시 무한 스크롤 Hook
  */
-export const useInfiniteMainDisplay = (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
-  useInfiniteQuery(displayQueries.infiniteMain(params));
+export const useInfiniteMainDisplay = (params?: {
+  size?: number;
+  sort?: 'latest' | 'popular';
+  initialData?: DisplayMainResponse;
+}) => {
+  const { initialData: initData, ...queryParams } = params ?? {};
+
+  return useInfiniteQuery({
+    ...displayQueries.infiniteMain(queryParams),
+    initialData: initData
+      ? {
+          pages: [initData],
+          pageParams: [undefined],
+        }
+      : undefined,
+  });
+};
 
 /**
  * 트렌드 상세 Hook

@@ -25,8 +25,8 @@ const isValidImageUrl = (url: string | undefined): boolean => {
 };
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
-  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteMainDisplay({ size: 20, sort: 'popular' });
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
+    useInfiniteMainDisplay({ size: 20, sort: 'popular', initialData });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -54,11 +54,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 페이지 데이터 병합
-  // fixedTrends는 initialData에서만 가져옴 (첫 페이지에만 존재, 중복 방지)
-  const fixedTrends = initialData?.fixedTrends ?? [];
-  const trends = data?.pages.flatMap((page) => page?.trends ?? []) ?? initialData?.trends ?? [];
+  // initialData가 useInfiniteQuery에 주입되므로 data만 사용
+  const fixedTrends = data.pages[0]?.fixedTrends ?? [];
+  const trends = data.pages.flatMap((page) => page?.trends ?? []);
 
-  // 초기 로딩 상태
+  // 초기 로딩 상태 (initialData가 없는 경우 대비)
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (isLoading && trends.length === 0) {
     return (
       <div className={styles.container}>
@@ -155,6 +156,14 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
         {/* 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>
           {isFetchingNextPage && <p className={styles.loadingMore}>트렌드를 더 불러오는 중...</p>}
+          {!isFetchingNextPage && error && hasNextPage && (
+            <div className={styles.loadMoreError}>
+              <p>불러오기 실패</p>
+              <button type="button" onClick={() => fetchNextPage()} className={styles.retryButton}>
+                다시 시도
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
