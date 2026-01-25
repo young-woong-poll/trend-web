@@ -159,7 +159,9 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
           onChange={handlePasswordChange}
           maxLength={PASSWORD_MAX_LENGTH}
           disabled={isPending}
-          autoComplete="off"
+          autoComplete="new-password"
+          data-1p-ignore
+          data-lpignore="true"
         />
       </div>
 
