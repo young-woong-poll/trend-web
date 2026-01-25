@@ -3,7 +3,7 @@
 import { type FC, type ReactNode, useState } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CopyDoubleIcon from '@/assets/icon/CopyDoubleIcon';
@@ -33,7 +33,9 @@ export const PollCard: FC<TPollCardProps> = ({
   participantCount = 0,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const { showToast } = useModal();
+  const router = useRouter();
   const isNew = isWithin48Hours(createdAt ?? '');
 
   const formatCount = (count: number): string => {
@@ -101,9 +103,27 @@ export const PollCard: FC<TPollCardProps> = ({
             <p className={styles.subtitle}>{subtitle}</p>
 
             <p className={styles.count}>참여자 {formatCount(participantCount)}</p>
-            <Link href={`/vote/${alias}`} className={styles.button}>
-              <span>참여</span> <StartArrowIcon width={20} height={20} />
-            </Link>
+            <button
+              type="button"
+              className={styles.button}
+              onClick={() => {
+                setIsNavigating(true);
+                router.push(`/vote/${alias}`);
+              }}
+              disabled={isNavigating}
+            >
+              {isNavigating ? (
+                <div className={styles.loadingDots}>
+                  <span className={styles.dot} />
+                  <span className={styles.dot} />
+                  <span className={styles.dot} />
+                </div>
+              ) : (
+                <>
+                  <span>참여</span> <StartArrowIcon width={20} height={20} />
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
