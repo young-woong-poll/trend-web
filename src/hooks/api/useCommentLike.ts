@@ -3,9 +3,9 @@ import { useCallback, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 
+import { likeComment, unlikeComment } from '@/generated/api/client/comment/comment';
+import type { CommentListResponse } from '@/generated/models';
 import { getTKUID } from '@/lib/tkuid';
-import { commentApi } from '@/services/api/comment';
-import type { CommentListResponse } from '@/types/comment';
 
 interface PendingLike {
   commentId: string;
@@ -55,7 +55,7 @@ export const useCommentLike = (
     (commentId: string, liked: boolean, likeCountDelta: number) => {
       // 최신순과 인기순 모두 업데이트
       (['latest', 'popular'] as const).forEach((sortType) => {
-        const queryKey = ['commentList', trendId, itemId, sortType];
+        const queryKey = ['comment', 'list', trendId, itemId, sortType];
 
         queryClient.setQueryData<{ pages: CommentListResponse[]; pageParams: unknown[] }>(
           queryKey,
@@ -68,12 +68,12 @@ export const useCommentLike = (
               ...oldData,
               pages: oldData.pages.map((page) => ({
                 ...page,
-                comments: page.comments.map((comment) =>
+                comments: (page.comments ?? []).map((comment) =>
                   comment.id === commentId
                     ? {
                         ...comment,
                         liked,
-                        likeCount: Math.max(0, comment.likeCount + likeCountDelta),
+                        likeCount: Math.max(0, (comment.likeCount ?? 0) + likeCountDelta),
                       }
                     : comment
                 ),
@@ -95,9 +95,9 @@ export const useCommentLike = (
 
       try {
         if (liked) {
-          await commentApi.likeComment(commentId, tkuId);
+          await likeComment(commentId, { headers: { 'x-tku-id': tkuId } });
         } else {
-          await commentApi.unlikeComment(commentId, tkuId);
+          await unlikeComment(commentId, { headers: { 'x-tku-id': tkuId } });
         }
       } catch (error) {
         // T0011 에러는 무시 (좋아요를 누른 상태에서, 취소했다 다시 누르면 발생할 수 있음)
@@ -108,7 +108,7 @@ export const useCommentLike = (
         console.error('좋아요 동기화 실패:', error);
 
         // 실패 시 캐시를 다시 불러와서 서버 상태와 동기화
-        const queryKey = ['commentList', trendId, itemId, sort];
+        const queryKey = ['comment', 'list', trendId, itemId, sort];
         await queryClient.invalidateQueries({ queryKey });
 
         // 에러 콜백 호출

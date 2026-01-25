@@ -3,14 +3,14 @@
 
 .electionCard {
   padding: 16px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: $bg-tertiary;
+  border: 1px solid $border-placeholder;
   border-radius: 8px;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.1);
+    border-color: $neutral-500;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -20,21 +20,21 @@
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid $border-placeholder;
 }
 
 .dragHandle {
   cursor: grab;
   padding: 4px 8px;
   font-size: 18px;
-  color: #94a3b8;
+  color: $text-tertiary;
   background: transparent;
   border: none;
   line-height: 1;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #64748b;
+    color: $text-secondary;
   }
 
   &:active {
@@ -45,7 +45,7 @@
 .electionId {
   font-size: 14px;
   font-weight: $font-weight-semibold;
-  color: #475569;
+  color: $text-secondary;
   font-family: monospace;
   flex: 1;
 }
@@ -65,18 +65,18 @@
 
 .infoLabel {
   font-weight: $font-weight-semibold;
-  color: #64748b;
+  color: $text-tertiary;
   min-width: 60px;
   flex-shrink: 0;
 }
 
 .infoValue {
-  color: #1e293b;
+  color: $white;
   flex: 1;
 }
 
 .loading {
-  color: #64748b;
+  color: $text-tertiary;
   font-size: 14px;
   font-style: italic;
   margin: 0;
@@ -93,14 +93,14 @@
   font-size: 14px;
   font-weight: $font-weight-medium;
   color: #ef4444;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: rgba(#ef4444, 0.1);
+  border: 1px solid rgba(#ef4444, 0.3);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #fee2e2;
-    border-color: #fca5a5;
+    background: rgba(#ef4444, 0.2);
+    border-color: rgba(#ef4444, 0.5);
   }
 }

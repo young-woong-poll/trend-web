@@ -14,8 +14,10 @@ export const mockMainDisplay: MainDisplayResponse = {
       alias: 'love',
       title: '대한민국 연애 난제',
       label: '당신의 문제라면?',
-      imageUrl1: 'https://picsum.photos/400/300?random=1',
-      imageUrl2: 'https://picsum.photos/400/300?random=1-2',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=1',
+        'https://picsum.photos/400/300?random=1-2',
+      ],
       createdAt: '2024-01-01T00:00:00Z',
       participantsCount: 1200,
     },
@@ -24,8 +26,10 @@ export const mockMainDisplay: MainDisplayResponse = {
       alias: 'relationship',
       title: '인간관계 고민',
       label: '당신의 선택은?',
-      imageUrl1: 'https://picsum.photos/400/300?random=2',
-      imageUrl2: 'https://picsum.photos/400/300?random=2-2',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=2',
+        'https://picsum.photos/400/300?random=2-2',
+      ],
       createdAt: '2024-01-02T00:00:00Z',
       participantsCount: 850,
     },
@@ -34,8 +38,10 @@ export const mockMainDisplay: MainDisplayResponse = {
       alias: 'career',
       title: '직장생활 딜레마',
       label: '어떻게 하시겠습니까?',
-      imageUrl1: 'https://picsum.photos/400/300?random=3',
-      imageUrl2: 'https://picsum.photos/400/300?random=3-2',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=3',
+        'https://picsum.photos/400/300?random=3-2',
+      ],
       createdAt: '2024-01-03T00:00:00Z',
       participantsCount: 2100,
     },
@@ -53,8 +59,10 @@ export const mockTrendDisplay: TrendDisplayResponse = {
   alias: 'love',
   title: '대한민국 연애 난제',
   label: '당신의 연애 스타일은 무엇인가요? 솔직하게 선택해보세요!',
-  imageUrl1: 'https://picsum.photos/600/400?random=10',
-  imageUrl2: 'https://picsum.photos/600/400?random=10-2',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=10',
+    'https://picsum.photos/600/400?random=10-2',
+  ],
   createdAt: '2024-01-01T00:00:00Z',
   items: [
     {

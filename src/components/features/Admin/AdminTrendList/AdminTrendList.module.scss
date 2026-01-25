@@ -15,7 +15,7 @@
   h1 {
     font-size: 2rem;
     font-weight: $font-weight-bold;
-    color: #1a1a1a;
+    color: $white;
     margin: 0;
   }
 }
@@ -26,14 +26,14 @@
   align-items: center;
   min-height: 400px;
   font-size: 1.125rem;
-  color: #666;
+  color: $text-tertiary;
 }
 
 .tableWrapper {
   overflow-x: auto;
-  background: white;
+  background: $bg-secondary;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .table {
@@ -41,8 +41,8 @@
   border-collapse: collapse;
 
   thead {
-    background: #f8f9fa;
-    border-bottom: 2px solid #e9ecef;
+    background: $bg-tertiary;
+    border-bottom: 2px solid $border-placeholder;
 
     tr {
       th {
@@ -50,7 +50,7 @@
         text-align: left;
         font-size: 0.875rem;
         font-weight: $font-weight-semibold;
-        color: #495057;
+        color: $text-secondary;
         white-space: nowrap;
 
         &:first-child {
@@ -68,11 +68,11 @@
 
   tbody {
     tr {
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid $border-placeholder;
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: #f8f9fa;
+        background-color: $bg-tertiary;
       }
 
       &:last-child {
@@ -88,13 +88,13 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  background: white;
+  background: $bg-secondary;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   p {
     font-size: 1.125rem;
-    color: #666;
+    color: $text-tertiary;
     margin: 0 0 1.5rem 0;
   }
 }

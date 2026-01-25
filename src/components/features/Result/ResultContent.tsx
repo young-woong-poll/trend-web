@@ -9,8 +9,9 @@ import { PickHistory } from '@/components/features/Result/PickHistory/PickHistor
 import styles from '@/components/features/Result/ResultContent.module.scss';
 import { ResultHeader } from '@/components/features/Result/ResultHeader/ResultHeader';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
+import { displayQueries } from '@/hooks/api/useDisplay';
 import { useVoteResultHistory } from '@/hooks/useVoteResultHistory';
-import { displayQueries } from '@/lib/react-query/queries';
+import type { SelectedOption } from '@/types/result';
 
 interface ResultContentProps {
   trendAlias: string;
@@ -38,8 +39,8 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
       addToHistory({
         trendAlias,
         resultId,
-        trendTitle: trendData.title,
-        resultLabel: resultData.resultLabel,
+        trendTitle: trendData.title ?? '',
+        resultLabel: resultData.resultLabel ?? '',
       });
     }
   }, [trendAlias, resultId, resultData, trendData, addToHistory]);
@@ -61,16 +62,26 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
     return null;
   }
 
+  // Orval 생성 타입을 로컬 타입으로 변환
+  const selectedOptions: SelectedOption[] = (resultData.selectedOptions ?? []).map((opt) => ({
+    itemId: opt.itemId ?? '',
+    itemTitle: opt.itemTitle ?? '',
+    optionId: opt.optionId ?? '',
+    optionTitle: opt.optionTitle ?? '',
+    optionImageUrl: opt.optionImageUrl ?? '',
+    percent: opt.percent ?? 0,
+  }));
+
   return (
     <div className={styles.container}>
-      <ResultHeader title={trendData.title} />
+      <ResultHeader title={trendData.title ?? ''} />
 
       <div className={styles.content}>
         {/* 유형 카드 (대중성 지수 포함) */}
-        <TypeCard selectedOptions={resultData.selectedOptions} />
+        <TypeCard selectedOptions={selectedOptions} />
 
         {/* MY PICK HISTORY */}
-        <PickHistory selectedOptions={resultData.selectedOptions} />
+        <PickHistory selectedOptions={selectedOptions} />
 
         {/* 하단 버튼 영역 */}
         <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />

@@ -12,11 +12,11 @@ import { Button } from '@/components/common/Button';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { MainTrendItem } from '@/types/trend';
+import type { DisplayTrendResponse } from '@/generated/models';
 
 interface ActionButtonsProps {
   trendAlias: string;
-  nextTrend: MainTrendItem | null;
+  nextTrend: DisplayTrendResponse | null;
 }
 
 export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend }) => {
@@ -62,12 +62,11 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend })
         <div className={styles.nextVoteSection}>
           <p className={styles.nextVoteLabel}>다음 투표 하러가기</p>
           <PollCard
-            alias={nextTrend.alias}
-            title={nextTrend.title}
+            alias={nextTrend.alias ?? ''}
+            title={nextTrend.title ?? ''}
             subtitle={nextTrend.label}
             createdAt={nextTrend.createdAt}
-            imageUrl1={nextTrend.imageUrl1}
-            imageUrl2={nextTrend.imageUrl2}
+            imageUrls={nextTrend.imageUrls ?? []}
             participantCount={nextTrend.participantsCount}
           />
         </div>

@@ -10,7 +10,7 @@ import InfoIcon from '@/assets/icon/InfoIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import styles from '@/components/features/Vote/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { commentQueries } from '@/lib/react-query/queries';
+import { commentQueries } from '@/hooks/api/useComment';
 
 interface ActionButtonsProps {
   trendId: string;

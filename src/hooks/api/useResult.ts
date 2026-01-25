@@ -1,28 +1,31 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { queryKeys } from '@/lib/react-query';
-import { resultQueries } from '@/lib/react-query/queries';
+import { createResult, checkResultExists } from '@/generated/api/client/result/result';
+import type { CreateResultRequest } from '@/generated/models';
 
 /**
  * Result Query Keys
- * @deprecated resultKeys는 더 이상 사용되지 않습니다.
- * 대신 @/lib/react-query의 queryKeys를 사용하세요.
  */
-export const resultKeys = queryKeys.result;
+export const resultKeys = {
+  all: ['result'] as const,
+  exists: (resultId: string) => [...resultKeys.all, 'exists', resultId] as const,
+};
 
 /**
  * Result 존재 여부 확인 Hook
- *
- * @example
- * ```tsx
- * const { data } = useCheckResultExists('result-123');
- *
- * // 쿼리키 접근
- * queryClient.invalidateQueries({ queryKey: resultQueries.exists('result-123').queryKey });
- * ```
  */
 export const useCheckResultExists = (resultId: string, enabled = true) =>
   useQuery({
-    ...resultQueries.exists(resultId),
-    enabled,
+    queryKey: resultKeys.exists(resultId),
+    queryFn: () => checkResultExists(resultId),
+    enabled: !!resultId && enabled,
+    staleTime: 60 * 1000,
+  });
+
+/**
+ * Result 생성 Hook
+ */
+export const useCreateResult = () =>
+  useMutation({
+    mutationFn: (data: CreateResultRequest) => createResult(data),
   });

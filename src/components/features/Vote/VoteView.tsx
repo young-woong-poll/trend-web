@@ -12,9 +12,10 @@ import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons'
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
+import { commentQueries } from '@/hooks/api/useComment';
+import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
-import { commentQueries, displayQueries } from '@/lib/react-query/queries';
 
 type TItemId = string;
 type TOptionId = string;
@@ -42,15 +43,15 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
   const handleError = useErrorHandler();
 
   // HydrationBoundary로 prefetch되어 있으므로 trendData는 항상 존재
-  if (!trendData) {
+  if (!trendData || !trendData.trendId || !trendData.alias || !trendData.items) {
     return null;
   }
 
-  const { trendId, alias, items } = trendData;
+  const { trendId, alias, items, title } = trendData;
 
   const handleSubmit = async () => {
     try {
-      const resultId = await submit(trendId, selectedItemMap, items.length);
+      const resultId = await submit(String(trendId), selectedItemMap, items.length);
 
       return router.replace(`/vote/${alias}/result?id=${resultId}`);
     } catch (err) {
@@ -84,7 +85,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        <VoteHeader title={trendData.title} />
+        <VoteHeader title={title ?? ''} />
 
         <ProgressBar
           currentStep={currentItemIndex}
@@ -100,27 +101,28 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
           >
             {items.length > 0 &&
               items.map((item) => {
-                const selectedOptionId = selectedItemMap[item.id] || null;
+                const itemId = item.id ?? '';
+                const selectedOptionId = selectedItemMap[itemId] || null;
 
                 const handleOptionSelect = (optionId: string) => {
                   setSelectedItemMap((prev) => ({
                     ...prev,
-                    [item.id]: optionId,
+                    [itemId]: optionId,
                   }));
                 };
 
                 // eslint-disable-next-line react-hooks/rules-of-hooks
                 const { data: commentCountData } = useQuery(
-                  commentQueries.count(Number(trendId), item.id)
+                  commentQueries.count(Number(trendId), itemId)
                 );
 
                 return (
-                  <div key={item.id} className={styles.cardContainer}>
+                  <div key={itemId} className={styles.cardContainer}>
                     <VoteCard
-                      trendAlias={trendData.alias}
-                      itemId={item.id}
-                      title={item.title}
-                      options={item.options}
+                      trendAlias={alias}
+                      itemId={itemId}
+                      title={item.title ?? ''}
+                      options={item.options ?? []}
                       selectedOptionId={selectedOptionId}
                       handleOptionSelect={handleOptionSelect}
                     />
@@ -129,7 +131,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
                       commentCount={commentCountData?.count}
                       commentDisabled={selectedOptionId === null}
                       nextDisabled={selectedOptionId === null}
-                      onCommentClick={() => handleOpenCommentModal(item.id)}
+                      onCommentClick={() => handleOpenCommentModal(itemId)}
                       onNextClick={handleNext}
                     />
                   </div>
@@ -144,7 +146,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
         <CommentBottomSheet
           isOpen={isCommentModalOpen}
           onClose={handleCloseCommentModal}
-          trendId={trendId}
+          trendId={String(trendId)}
           itemId={selectedItemForComment}
           trendAlias={alias}
         />

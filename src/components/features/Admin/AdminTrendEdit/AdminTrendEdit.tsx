@@ -3,8 +3,8 @@
 import { Button } from '@/components/common/Button/Button';
 import styles from '@/components/features/Admin/AdminTrendEdit/AdminTrendEdit.module.scss';
 import { AdminTrendForm } from '@/components/features/Admin/AdminTrendForm/AdminTrendForm';
+import { useGetTrendDetail, useUpdateTrend, useDeleteTrend } from '@/hooks/api/useAdmin';
 import { useConfirm } from '@/hooks/useConfirm';
-import { useGetTrendDetail, useUpdateTrend, useDeleteTrend } from '@/services/hooks/useAdmin';
 
 interface AdminTrendEditProps {
   trendId: number;

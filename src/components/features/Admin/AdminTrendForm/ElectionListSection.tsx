@@ -1,4 +1,4 @@
-import { useState, type FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 
 import {
   DndContext,
@@ -22,6 +22,7 @@ import { ElectionCard } from '@/components/features/Admin/AdminTrendForm/Electio
 import styles from '@/components/features/Admin/AdminTrendForm/ElectionListSection.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useFetchElection } from '@/hooks/api';
+import type { ElectionDetail } from '@/types/election';
 
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 interface ElectionListSectionProps {
@@ -32,12 +33,41 @@ interface ElectionListSectionProps {
 export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, watch }) => {
   const { showAlert } = useModal();
   const electionIdList = watch('electionIdList');
-  const electionDetailMap = watch('electionDetailMap');
 
+  // 선거 상세 정보를 로컬 상태로 관리
+  const [electionDetailMap, setElectionDetailMap] = useState<Record<string, ElectionDetail>>({});
   const [electionIdInput, setElectionIdInput] = useState('');
   const electionIdInputTrimmed = electionIdInput.trim();
 
   const { mutateAsync: fetchElection, isPending } = useFetchElection();
+
+  // Edit 모드에서 기존 선거 정보 로드
+  useEffect(() => {
+    const loadExistingElections = async () => {
+      const missingIds = electionIdList.filter((id) => !electionDetailMap[id]);
+
+      if (missingIds.length === 0) {
+        return;
+      }
+
+      const newDetails: Record<string, ElectionDetail> = {};
+
+      for (const electionId of missingIds) {
+        try {
+          const detail = await fetchElection(electionId);
+          newDetails[electionId] = detail as unknown as ElectionDetail;
+        } catch (error) {
+          console.error(`Failed to load election ${electionId}:`, error);
+        }
+      }
+
+      if (Object.keys(newDetails).length > 0) {
+        setElectionDetailMap((prev) => ({ ...prev, ...newDetails }));
+      }
+    };
+
+    void loadExistingElections();
+  }, [electionIdList, electionDetailMap, fetchElection]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -67,21 +97,24 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
       }
 
       try {
-        const data = await fetchElection(electionIdInputTrimmed);
+        const rawData = await fetchElection(electionIdInputTrimmed);
+        // Orval 타입을 기존 ElectionDetail 타입으로 캐스팅
+        const data = rawData as unknown as ElectionDetail;
+        const optionsLength = data.options?.length ?? 0;
 
-        if (data.options.length !== 2) {
+        if (optionsLength !== 2) {
           showAlert(
-            `선거 ID ${electionIdInputTrimmed}의 옵션 개수가 2개가 아닙니다 (현재: ${data.options.length}개)`
+            `선거 ID ${electionIdInputTrimmed}의 옵션 개수가 2개가 아닙니다 (현재: ${optionsLength}개)`
           );
 
           return;
         }
 
         setValue('electionIdList', [...electionIdList, electionIdInputTrimmed]);
-        setValue('electionDetailMap', {
-          ...electionDetailMap,
+        setElectionDetailMap((prev) => ({
+          ...prev,
           [electionIdInputTrimmed]: data,
-        });
+        }));
       } catch {
         showAlert(`선거 정보를 불러올 수 없습니다`);
       } finally {
@@ -92,11 +125,13 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
 
   const handleRemoveClick = (electionId: string) => {
     const updatedIdList = electionIdList.filter((id) => id !== electionId);
-    const updatedDetailMap = { ...electionDetailMap };
-    delete updatedDetailMap[electionId];
 
     setValue('electionIdList', updatedIdList);
-    setValue('electionDetailMap', updatedDetailMap);
+    setElectionDetailMap((prev) => {
+      const updated = { ...prev };
+      delete updated[electionId];
+      return updated;
+    });
   };
 
   return (
@@ -121,7 +156,7 @@ export const ElectionListSection: FC<ElectionListSectionProps> = ({ setValue, wa
         <Button
           type="button"
           onClick={handleAddClick}
-          variant="primary"
+          variant="outline"
           height={40}
           disabled={isPending || !electionIdInputTrimmed}
         >

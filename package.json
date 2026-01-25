@@ -3,13 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
-    "dev:msw": "NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true next dev --turbo",
-    "dev:3001": "next dev --turbo --port 3001",
-    "dev:https": "next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
-    "dev:msw:https": "NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
     "build": "next build",
-    "start": "next start",
+    "start": "next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
+    "start:msw": "NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true next dev --turbo --port 3002 & local-ssl-proxy --source 443 --target 3002 --cert certs/localhost-cert.pem --key certs/localhost-key.pem",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
@@ -19,7 +15,9 @@
     "optimize": "node scripts/optimize.js",
     "prepare": "lefthook install",
     "lefthook:install": "lefthook install",
-    "lefthook:uninstall": "lefthook uninstall"
+    "lefthook:uninstall": "lefthook uninstall",
+    "api:generate": "orval",
+    "api:generate:watch": "orval --watch"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -35,6 +33,8 @@
     "react-hook-form": "^7.68.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.2.0",
+    "@orval/msw": "^6.20.0",
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
@@ -49,6 +49,7 @@
     "lefthook": "^2.0.2",
     "local-ssl-proxy": "^2.0.5",
     "msw": "^2.12.2",
+    "orval": "^8.0.3",
     "prettier": "^3.3.3",
     "sass": "^1.80.0",
     "sharp": "^0.34.5",
