@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '@/styles/variables' as *;
 
 .commentItem {
@@ -64,7 +65,7 @@
   color: $text-tertiary;
 
   &:hover {
-    background-color: lighten($bg-tertiary, 5%);
+    background-color: color.adjust($bg-tertiary, $lightness: 5%);
     border-color: $border-placeholder;
   }
 
