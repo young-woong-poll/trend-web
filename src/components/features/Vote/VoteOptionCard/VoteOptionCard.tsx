@@ -2,7 +2,6 @@
 
 import type { FC } from 'react';
 
-import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import styles from '@/components/features/Vote/VoteOptionCard/VoteOptionCard.module.scss';
 import type { DisplayTrendOptionResponse } from '@/generated/models';
 import { useImagePreload } from '@/hooks/useImagePreload';
@@ -28,7 +27,7 @@ export const VoteOptionCard: FC<VoteOptionCardProps> = ({
 
   return (
     <div className={`${styles.wrapper} ${isSelected && hasVoted ? styles.selected : ''}`}>
-      {!isImageLoaded && <Skeleton height={232} borderRadius={8} className={styles.skeleton} />}
+      {!isImageLoaded && <div className={styles.skeleton} />}
 
       <div
         className={`
