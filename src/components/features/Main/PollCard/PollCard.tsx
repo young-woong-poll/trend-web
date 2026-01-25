@@ -52,7 +52,7 @@ export const PollCard: FC<TPollCardProps> = ({
     try {
       const trendUrl = `${window.location.origin}/vote/${alias}`;
       await navigator.clipboard.writeText(trendUrl);
-      showToast('트렌드 링크가 복사되었습니다', <CheckIcon />);
+      showToast('투표 링크가 복사되었습니다', <CheckIcon />);
     } catch (_error) {
       showToast('링크 복사에 실패했습니다', <InfoIcon />);
     }
