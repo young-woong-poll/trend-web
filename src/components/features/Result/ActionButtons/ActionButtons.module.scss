@@ -39,7 +39,7 @@
   }
 }
 
-.nextVoteSection {
+.voteSection {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -48,7 +48,7 @@
   border-top: 1px solid $border-placeholder;
 }
 
-.nextVoteLabel {
+.voteSectionLabel {
   font-size: $font-size-16;
   font-weight: $font-weight-medium;
   color: $white;

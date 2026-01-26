@@ -10,14 +10,14 @@ import { Button } from '@/components/common/Button';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { DisplayTrendResponse } from '@/generated/models';
+import { useTrendNavigation } from '@/hooks/api/useDisplay';
 
 interface ActionButtonsProps {
   trendAlias: string;
-  nextTrend: DisplayTrendResponse | null;
 }
 
-export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend }) => {
+export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
+  const { data: navigation } = useTrendNavigation(trendAlias);
   const { showToast } = useModal();
 
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사
@@ -56,16 +56,30 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend })
         투표 공유하기
       </Button>
 
-      {nextTrend && (
-        <div className={styles.nextVoteSection}>
-          <p className={styles.nextVoteLabel}>다음 투표 하러가기</p>
+      {navigation?.prev && (
+        <div className={styles.voteSection}>
+          <p className={styles.voteSectionLabel}>이전 투표 하러가기</p>
           <PollCard
-            alias={nextTrend.alias ?? ''}
-            title={nextTrend.title ?? ''}
-            subtitle={nextTrend.label}
-            createdAt={nextTrend.createdAt}
-            imageUrls={nextTrend.imageUrls ?? []}
-            participantCount={nextTrend.participantsCount}
+            alias={navigation.prev.alias ?? ''}
+            title={navigation.prev.title ?? ''}
+            subtitle={(navigation.prev as { label?: string }).label}
+            createdAt={(navigation.prev as { createdAt?: string }).createdAt}
+            imageUrls={navigation.prev.imageUrls ?? []}
+            participantCount={(navigation.prev as { participantsCount?: number }).participantsCount}
+          />
+        </div>
+      )}
+
+      {navigation?.next && (
+        <div className={styles.voteSection}>
+          <p className={styles.voteSectionLabel}>다음 투표 하러가기</p>
+          <PollCard
+            alias={navigation.next.alias ?? ''}
+            title={navigation.next.title ?? ''}
+            subtitle={(navigation.next as { label?: string }).label}
+            createdAt={(navigation.next as { createdAt?: string }).createdAt}
+            imageUrls={navigation.next.imageUrls ?? []}
+            participantCount={(navigation.next as { participantsCount?: number }).participantsCount}
           />
         </div>
       )}
