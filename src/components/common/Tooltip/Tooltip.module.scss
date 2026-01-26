@@ -34,12 +34,13 @@
   border: 1px solid $border-placeholder;
   white-space: pre-line;
   width: calc(100vw - 48px);
-  max-width: 320px;
+  max-width: 334px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   z-index: $z-index-tooltip;
   animation: fadeIn 0.15s ease;
   pointer-events: none;
   text-align: left;
+  word-break: keep-all;
 }
 
 @keyframes fadeIn {

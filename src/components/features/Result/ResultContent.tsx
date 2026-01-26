@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -20,13 +20,10 @@ interface ResultContentProps {
 
 /**
  * 결과 페이지 컨텐츠
- * - 서버에서 prefetch한 데이터를 캐시에서 읽음
  */
 export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
-  // 서버에서 prefetch한 데이터를 캐시에서 읽음
   const { data: resultData } = useQuery(displayQueries.result(resultId));
   const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
-  const { data: mainData } = useQuery(displayQueries.main());
 
   // 결과 히스토리 저장
   const { addToHistory } = useVoteResultHistory();
@@ -44,18 +41,6 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
       });
     }
   }, [trendAlias, resultId, resultData, trendData, addToHistory]);
-
-  // 다음 트렌드 계산
-  const nextTrend = useMemo(() => {
-    if (!mainData?.trends) {
-      return null;
-    }
-    const currentIndex = mainData.trends.findIndex((t) => t.alias === trendAlias);
-    if (currentIndex === -1 || currentIndex >= mainData.trends.length - 1) {
-      return null;
-    }
-    return mainData.trends[currentIndex + 1];
-  }, [mainData, trendAlias]);
 
   // 서버에서 prefetch되므로 data는 항상 존재
   if (!resultData || !trendData) {
@@ -84,7 +69,7 @@ export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
         <PickHistory selectedOptions={selectedOptions} />
 
         {/* 하단 버튼 영역 */}
-        <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />
+        <ActionButtons trendAlias={trendAlias} />
 
         {/* 서비스 문의 및 피드백 */}
         <footer className={styles.feedback}>

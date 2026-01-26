@@ -20,8 +20,6 @@
   }
 
   &:disabled {
-    background-color: $neutral-300 !important;
-    color: #fff !important;
     cursor: default !important;
 
     &:hover svg[data-arrow='true'] {

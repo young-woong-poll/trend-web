@@ -3,6 +3,7 @@
 import { useEffect, useRef, type FC } from 'react';
 
 import { CommentItem } from '@/components/features/Vote/CommentModal/CommentItem';
+import { CommentItemSkeleton } from '@/components/features/Vote/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Vote/CommentModal/CommentList.module.scss';
 import type { CommentItem as CommentItemType } from '@/generated/models';
 import { useInfiniteComments } from '@/hooks/api';
@@ -26,8 +27,11 @@ export const CommentList: FC<CommentListProps> = ({
   onLikeClick,
 }) => {
   const tkuId = getTKUID();
-  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ trendId, itemId, sort, size: 20, tkuId });
+
+  // 정렬 변경 시 로딩 상태 (초기 로딩 제외, 무한스크롤 제외)
+  const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -54,11 +58,11 @@ export const CommentList: FC<CommentListProps> = ({
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 로딩 상태
-  if (isLoading) {
+  // 초기 로딩 또는 정렬 변경 시 Skeleton 표시
+  if (isLoading || isSortChanging) {
     return (
-      <div className={styles.statusContainer}>
-        <p className={styles.statusText}>댓글을 불러오는 중...</p>
+      <div className={styles.commentList}>
+        <CommentItemSkeleton count={5} />
       </div>
     );
   }
@@ -100,7 +104,7 @@ export const CommentList: FC<CommentListProps> = ({
 
       {/* 무한스크롤 트리거 */}
       <div ref={observerTarget} className={styles.observerTarget}>
-        {isFetchingNextPage && <p className={styles.loadingMore}>댓글을 더 불러오는 중...</p>}
+        {isFetchingNextPage && <CommentItemSkeleton count={2} />}
       </div>
     </div>
   );

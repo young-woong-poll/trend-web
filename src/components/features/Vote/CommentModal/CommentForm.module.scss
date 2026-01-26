@@ -40,7 +40,8 @@
   }
 
   &:disabled {
-    background-color: #f5f5f5;
+    background-color: $bg-tertiary;
+    color: $text-secondary;
     cursor: not-allowed;
   }
 }
@@ -89,7 +90,8 @@
   }
 
   &:disabled {
-    background-color: #f5f5f5;
+    background-color: $bg-tertiary;
+    color: $text-secondary;
     cursor: not-allowed;
   }
 }
@@ -112,7 +114,8 @@
   }
 
   &:disabled {
-    background-color: #ccc;
+    background-color: $bg-tertiary;
+    color: $text-secondary;
     cursor: not-allowed;
     transform: none;
   }

@@ -4,7 +4,7 @@ import { useState, type FC, type ReactNode } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Vote/CommentModal';
@@ -12,6 +12,7 @@ import { VoteBottomButtons } from '@/components/features/Vote/VoteBottomButtons'
 import { VoteCard } from '@/components/features/Vote/VoteCard';
 import { VoteHeader } from '@/components/features/Vote/VoteHeader';
 import styles from '@/components/features/Vote/VoteView.module.scss';
+import type { DisplayTrendDetailResponse } from '@/generated/models';
 import { commentQueries } from '@/hooks/api/useComment';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -23,15 +24,19 @@ export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
 
 type VoteViewProps = {
   trendAlias: string;
+  initialData?: DisplayTrendDetailResponse;
   children: ReactNode;
 };
 
 const DEFAULT_NUM_OF_ITEMS = 5;
 
-export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
+export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children }) => {
   const router = useRouter();
 
-  const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
+  const { data: trendData } = useQuery({
+    ...displayQueries.trend(trendAlias),
+    initialData,
+  });
 
   const [currentItemIndex, setCurrentItemIndex] = useState(0);
   const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
@@ -42,12 +47,29 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
 
+  const items = trendData?.items ?? [];
+  const trendId = trendData?.trendId;
+
+  // 모든 아이템의 댓글 수를 한 번에 가져오기
+  const commentCountQueries = useQueries({
+    queries: items.map((item) => ({
+      ...commentQueries.count(Number(trendId), item.id ?? ''),
+      enabled: !!trendId,
+    })),
+  });
+
+  // itemId를 키로 하는 댓글 수 맵 생성
+  const commentCountMap = items.reduce<Record<string, number | undefined>>((acc, item, index) => {
+    acc[item.id ?? ''] = commentCountQueries[index]?.data?.count;
+    return acc;
+  }, {});
+
   // HydrationBoundary로 prefetch되어 있으므로 trendData는 항상 존재
-  if (!trendData || !trendData.trendId || !trendData.alias || !trendData.items) {
+  if (!trendData || !trendId || !trendData.alias || !items.length) {
     return null;
   }
 
-  const { trendId, alias, items, title } = trendData;
+  const { alias, title } = trendData;
 
   const handleSubmit = async () => {
     try {
@@ -111,11 +133,6 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
                   }));
                 };
 
-                // eslint-disable-next-line react-hooks/rules-of-hooks
-                const { data: commentCountData } = useQuery(
-                  commentQueries.count(Number(trendId), itemId)
-                );
-
                 return (
                   <div key={itemId} className={styles.cardContainer}>
                     <VoteCard
@@ -128,7 +145,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, children }) => {
                     />
 
                     <VoteBottomButtons
-                      commentCount={commentCountData?.count}
+                      commentCount={commentCountMap[itemId]}
                       commentDisabled={selectedOptionId === null}
                       nextDisabled={selectedOptionId === null}
                       onCommentClick={() => handleOpenCommentModal(itemId)}

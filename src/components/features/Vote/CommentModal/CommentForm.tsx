@@ -127,9 +127,6 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
         setContent('');
         setErrors({});
 
-        // 성공 토스트
-        showToast('댓글이 작성되었습니다');
-
         // 부모 컴포넌트에 성공 알림
         onSuccess();
       },
@@ -162,6 +159,9 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
           onChange={handlePasswordChange}
           maxLength={PASSWORD_MAX_LENGTH}
           disabled={isPending}
+          autoComplete="new-password"
+          data-1p-ignore
+          data-lpignore="true"
         />
       </div>
 
