@@ -4,6 +4,7 @@ import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
+import { TREND_SORT } from '@/constants';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay } from '@/hooks/api';
 
@@ -26,7 +27,7 @@ const isValidImageUrl = (url: string | undefined): boolean => {
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
-    useInfiniteMainDisplay({ size: 20, sort: 'popular', initialData });
+    useInfiniteMainDisplay({ size: 20, sort: TREND_SORT, initialData });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 

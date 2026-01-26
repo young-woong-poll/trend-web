@@ -9,6 +9,7 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
+import { TREND_SORT } from '@/constants/sort';
 import { useModal } from '@/contexts/ModalContext';
 import { useTrendNavigation } from '@/hooks/api/useDisplay';
 
@@ -17,7 +18,7 @@ interface ActionButtonsProps {
 }
 
 export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
-  const { data: navigation } = useTrendNavigation(trendAlias);
+  const { data: navigation } = useTrendNavigation(trendAlias, TREND_SORT);
   const { showToast } = useModal();
 
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사

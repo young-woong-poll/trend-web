@@ -7,4 +7,5 @@ export const APP_VERSION = '0.1.0';
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
-// Add your constants here
+// Sort
+export { TREND_SORT, type TrendSortOption } from '@/constants/sort';
