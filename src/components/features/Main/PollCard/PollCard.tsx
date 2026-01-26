@@ -12,7 +12,7 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 import { useModal } from '@/contexts/ModalContext';
-import { isWithin48Hours } from '@/lib/utils';
+import { isWithin24Hours } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
@@ -36,7 +36,7 @@ export const PollCard: FC<TPollCardProps> = ({
   const [isNavigating, setIsNavigating] = useState(false);
   const { showToast } = useModal();
   const router = useRouter();
-  const isNew = isWithin48Hours(createdAt ?? '');
+  const isNew = isWithin24Hours(createdAt ?? '');
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
