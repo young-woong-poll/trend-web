@@ -12,4 +12,5 @@ export * from './election';
 export * from './result';
 export * from './trend';
 export * from './vote';
+export * from './localStorage';
 /* eslint-enable no-restricted-imports */

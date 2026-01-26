@@ -10,8 +10,7 @@ export interface MainTrendItem {
   alias: string;
   title: string;
   label: string;
-  imageUrl1: string;
-  imageUrl2: string;
+  imageUrls: string[];
   createdAt: string;
   participantsCount: number;
 }
@@ -53,8 +52,7 @@ export interface TrendDisplayResponse {
   alias: string;
   title: string;
   label: string;
-  imageUrl1: string;
-  imageUrl2: string;
+  imageUrls: string[];
   createdAt: string;
   items: TrendItem[];
 }
@@ -103,9 +101,8 @@ export interface ResultTypeRequest {
  * Admin: Trend 생성 - 메타 정보 요청
  */
 export interface TrendMetaRequest {
-  resultLabel: string;
-  resultType: ResultTypeRequest[];
-  answerType?: LabelRequest[];
+  resultLabel?: string;
+  resultType?: ResultTypeRequest[];
 }
 
 /**
@@ -115,11 +112,11 @@ export interface CreateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
+  isFixed?: boolean;
 }
 
 /**
@@ -129,11 +126,11 @@ export interface UpdateTrendRequest {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
+  isFixed?: boolean;
 }
 
 /**
@@ -150,7 +147,6 @@ export interface TrendResponse {
 export interface TrendMeta {
   resultLabel?: string;
   resultTypes?: TrendResultType[];
-  compareTypes?: LabelRequest[];
 }
 
 /**
@@ -172,11 +168,11 @@ export interface AdminTrendResponse {
   alias: string;
   title: string;
   label?: string;
-  imageUrl1?: string;
-  imageUrl2?: string;
+  imageUrls?: string[];
   electionIds: string[];
   meta?: TrendMeta;
   visible: boolean;
+  fixed?: boolean;
   createdAt: string;
 }
 

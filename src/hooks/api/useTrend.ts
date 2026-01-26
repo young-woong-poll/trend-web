@@ -1,29 +1,19 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
-import { queryKeys } from '@/lib/react-query';
-import { trendQueries } from '@/lib/react-query/queries';
-import type { TrendItemOptionsResponse } from '@/types/trend';
+import { getTrendItemOptions } from '@/generated/api/client/trend/trend';
+import type { TrendItemOptionsResponse, OptionCount } from '@/generated/models';
 
 /**
  * Trend Query Keys
- * @deprecated trendKeys는 더 이상 사용되지 않습니다.
- * 대신 @/lib/react-query의 queryKeys를 사용하세요.
- *
- * 마이그레이션:
- * - trendKeys.itemOptions(trendId, itemId) → queryKeys.trend.itemOptions(trendAlias, itemId)
  */
-export const trendKeys = queryKeys.trend;
+export const trendKeys = {
+  all: ['trend'] as const,
+  itemOptions: (trendAlias: string, itemId: string) =>
+    [...trendKeys.all, 'itemOptions', trendAlias, itemId] as const,
+};
 
 /**
  * Trend 항목 옵션 카운트 조회 Hook
- *
- * @example
- * ```tsx
- * const { data } = useTrendItemOptionsCount({ trendAlias: 'mbti', itemId: 'item1' });
- *
- * // 쿼리키 접근
- * queryClient.invalidateQueries({ queryKey: trendQueries.itemOptions('mbti', 'item1').queryKey });
- * ```
  */
 export const useTrendItemOptionsCount = ({
   trendAlias,
@@ -37,9 +27,11 @@ export const useTrendItemOptionsCount = ({
   size?: number;
 }) =>
   useQuery({
-    ...trendQueries.itemOptions(trendAlias, itemId, size),
+    queryKey: trendKeys.itemOptions(trendAlias, itemId),
+    queryFn: () => getTrendItemOptions(trendAlias, itemId, { size }),
     enabled,
     throwOnError: true,
+    staleTime: 60 * 1000,
   });
 
 /**
@@ -55,15 +47,17 @@ export const useTrendItemOptionsCountMap = (
   >
 ) =>
   useQuery({
-    ...trendQueries.itemOptions(trendAlias, itemId, size),
+    queryKey: trendKeys.itemOptions(trendAlias, itemId),
+    queryFn: () => getTrendItemOptions(trendAlias, itemId, { size }),
     throwOnError: true,
     select: (data: TrendItemOptionsResponse) =>
-      data.options.reduce(
-        (acc: Record<string, number>, option: { id: string; count: number }) => ({
+      (data.options ?? []).reduce(
+        (acc: Record<string, number>, option: OptionCount) => ({
           ...acc,
-          [option.id]: option.count,
+          [option.id ?? '']: option.count ?? 0,
         }),
         {} as Record<string, number>
       ),
+    staleTime: 60 * 1000,
     ...options,
   });

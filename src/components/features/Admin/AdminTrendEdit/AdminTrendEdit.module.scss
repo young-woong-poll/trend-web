@@ -12,41 +12,41 @@
   align-items: center;
   min-height: 400px;
   font-size: 1.125rem;
-  color: #666;
+  color: $text-tertiary;
 }
 
 .error {
-  color: #dc3545;
+  color: #ef4444;
 }
 
 .dangerZone {
   margin-top: 3rem;
   padding: 2rem;
-  background: #fff5f5;
-  border: 2px solid #feb2b2;
+  background: rgba(#c53030, 0.1);
+  border: 2px solid #c53030;
   border-radius: 8px;
 }
 
 .dangerTitle {
   font-size: 1.25rem;
   font-weight: $font-weight-semibold;
-  color: #c53030;
+  color: #ef4444;
   margin: 0 0 0.5rem 0;
 }
 
 .dangerDescription {
   font-size: 0.9375rem;
-  color: #742a2a;
+  color: rgba($white, 0.8);
   margin: 0 0 1.5rem 0;
 }
 
 .deleteButton {
-  border-color: #fc8181 !important;
-  color: #c53030 !important;
+  border-color: rgba(#ef4444, 0.5) !important;
+  color: #ef4444 !important;
 
   &:hover:not(:disabled) {
-    background: #fed7d7 !important;
-    border-color: #fc8181 !important;
+    background: rgba(#ef4444, 0.2) !important;
+    border-color: #ef4444 !important;
   }
 
   &:disabled {
@@ -62,7 +62,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,24 +70,24 @@
 }
 
 .modal {
-  background: white;
+  background: $bg-secondary;
   border-radius: 12px;
   padding: 2rem;
   max-width: 450px;
   width: 90%;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
 
 .modalTitle {
   font-size: 1.5rem;
   font-weight: $font-weight-bold;
-  color: #1a1a1a;
+  color: $white;
   margin: 0 0 1rem 0;
 }
 
 .modalMessage {
   font-size: 1rem;
-  color: #666;
+  color: $text-tertiary;
   margin: 0 0 1.5rem 0;
   white-space: pre-line;
   line-height: 1.6;

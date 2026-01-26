@@ -19,7 +19,7 @@ export default function TrendListItem({ trend, onEdit }: TrendListItemProps) {
         <div className={styles.thumbnailGroup}>
           <div className={styles.thumbnail}>
             <Image
-              src={trend.imageUrl1 || ''}
+              src={trend.imageUrls?.[0] || ''}
               alt={`${trend.title} 이미지 1`}
               width={40}
               height={40}
@@ -28,7 +28,7 @@ export default function TrendListItem({ trend, onEdit }: TrendListItemProps) {
           </div>
           <div className={styles.thumbnail}>
             <Image
-              src={trend.imageUrl2 || ''}
+              src={trend.imageUrls?.[1] || ''}
               alt={`${trend.title} 이미지 2`}
               width={40}
               height={40}
@@ -72,7 +72,7 @@ export default function TrendListItem({ trend, onEdit }: TrendListItemProps) {
       {/* 액션 */}
       <td>
         <div className={styles.actions}>
-          <Button variant="primary" size="small" onClick={() => onEdit(trend.id)}>
+          <Button variant="outline" size="small" onClick={() => onEdit(trend.id)}>
             수정
           </Button>
         </div>

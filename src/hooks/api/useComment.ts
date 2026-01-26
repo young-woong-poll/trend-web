@@ -1,25 +1,87 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useInfiniteQuery,
+  useQueryClient,
+  queryOptions,
+} from '@tanstack/react-query';
 
-import { commentListKeys, commentQueries } from '@/lib/react-query/queries';
-import { commentApi } from '@/services/api/comment';
+import {
+  createComment,
+  updateComment,
+  verifyComment,
+  deleteComment,
+  likeComment,
+  unlikeComment,
+  countComments,
+} from '@/generated/api/client/comment/comment';
+import { getComments } from '@/generated/api/client/display/display';
 import type {
+  CommentCountResponse,
   CommentItem,
+  CommentListResponse,
   CreateCommentRequest,
   UpdateCommentRequest,
   VerifyCommentRequest,
   DeleteCommentRequest,
-} from '@/types/comment';
+} from '@/generated/models';
 
 /**
  * Comment Query Keys
- * @deprecated commentListKeys를 @/lib/react-query/queries에서 import하세요
  */
 export const commentKeys = {
   all: ['comment'] as const,
+  count: (trendId: number, itemId: string) =>
+    [...commentKeys.all, 'count', trendId, itemId] as const,
   lists: () => [...commentKeys.all, 'list'] as const,
   list: (trendId: string, itemId: string, sort: string) =>
     [...commentKeys.lists(), trendId, itemId, sort] as const,
 };
+
+/**
+ * Comment Query Options (서버 pre-fetch용)
+ */
+export const commentQueries = {
+  /**
+   * 댓글 개수 쿼리 옵션
+   */
+  count: (trendId: number, itemId: string) =>
+    queryOptions<CommentCountResponse>({
+      queryKey: commentKeys.count(trendId, itemId),
+      queryFn: () => countComments(trendId, itemId),
+      staleTime: 30 * 1000,
+    }),
+};
+
+/**
+ * 댓글 개수 조회 Hook
+ */
+export const useCommentCount = (trendId: number, itemId: string) =>
+  useQuery(commentQueries.count(trendId, itemId));
+
+/**
+ * 댓글 목록 무한 스크롤 Hook
+ */
+export const useInfiniteComments = (params: {
+  trendId: string;
+  itemId: string;
+  sort?: 'latest' | 'popular';
+  size?: number;
+  tkuId?: string;
+}) =>
+  useInfiniteQuery({
+    queryKey: commentKeys.list(params.trendId, params.itemId, params.sort ?? 'latest'),
+    queryFn: ({ pageParam }) =>
+      getComments(
+        Number(params.trendId),
+        params.itemId,
+        { sort: params.sort, cursor: pageParam, size: params.size ?? 20 },
+        params.tkuId ? { headers: { 'x-tku-id': params.tkuId } } : undefined
+      ),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage?.nextId ?? undefined,
+    staleTime: 30 * 1000,
+  });
 
 /**
  * 댓글 작성 Hook
@@ -28,11 +90,11 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateCommentRequest) => commentApi.createComment(data),
+    mutationFn: (data: CreateCommentRequest) => createComment(data),
     onSuccess: async (responseData, variables) => {
       const { trendId, itemId } = variables;
       const newComment: CommentItem = {
-        id: responseData.id,
+        id: responseData?.id,
         nickname: variables.nickname,
         content: variables.content,
         likeCount: 0,
@@ -40,7 +102,7 @@ export const useCreateComment = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const latestQueryKey = commentListKeys.list(String(trendId), itemId, 'latest');
+      const latestQueryKey = commentKeys.list(String(trendId), itemId, 'latest');
 
       queryClient.setQueryData(latestQueryKey, (old: unknown) => {
         if (!old || typeof old !== 'object') {
@@ -48,11 +110,7 @@ export const useCreateComment = () => {
         }
 
         const oldData = old as {
-          pages: Array<{
-            comments: CommentItem[];
-            totalSize: number;
-            nextId: string | null;
-          }>;
+          pages: Array<CommentListResponse>;
           pageParams: unknown[];
         };
 
@@ -62,8 +120,8 @@ export const useCreateComment = () => {
             index === 0
               ? {
                   ...page,
-                  comments: [newComment, ...page.comments],
-                  totalSize: page.totalSize + 1,
+                  comments: [newComment, ...(page.comments ?? [])],
+                  totalSize: (page.totalSize ?? 0) + 1,
                 }
               : page
           ),
@@ -71,11 +129,11 @@ export const useCreateComment = () => {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: commentListKeys.list(String(trendId), itemId, 'popular'),
+        queryKey: commentKeys.list(String(trendId), itemId, 'popular'),
       });
 
       await queryClient.invalidateQueries({
-        queryKey: commentQueries.count(trendId, itemId).queryKey,
+        queryKey: commentKeys.count(trendId, itemId),
       });
     },
   });
@@ -96,10 +154,10 @@ export const useUpdateComment = () => {
       data: UpdateCommentRequest;
       trendId: string;
       itemId: string;
-    }) => commentApi.updateComment(commentId, data),
+    }) => updateComment(commentId, data),
     onSuccess: (_, variables) => {
       ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentListKeys.list(String(variables.trendId), variables.itemId, sort);
+        const queryKey = commentKeys.list(String(variables.trendId), variables.itemId, sort);
 
         queryClient.setQueryData(queryKey, (old: unknown) => {
           if (!old || typeof old !== 'object') {
@@ -107,11 +165,7 @@ export const useUpdateComment = () => {
           }
 
           const oldData = old as {
-            pages: Array<{
-              comments: CommentItem[];
-              totalSize: number;
-              nextId: string | null;
-            }>;
+            pages: Array<CommentListResponse>;
             pageParams: unknown[];
           };
 
@@ -119,7 +173,7 @@ export const useUpdateComment = () => {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
-              comments: page.comments.map((comment) =>
+              comments: (page.comments ?? []).map((comment) =>
                 comment.id === variables.commentId
                   ? { ...comment, content: variables.data.content }
                   : comment
@@ -138,7 +192,7 @@ export const useUpdateComment = () => {
 export const useVerifyComment = () =>
   useMutation({
     mutationFn: ({ commentId, data }: { commentId: string; data: VerifyCommentRequest }) =>
-      commentApi.verifyComment(commentId, data),
+      verifyComment(commentId, data),
   });
 
 /**
@@ -149,9 +203,9 @@ export const useLikeComment = () => {
 
   return useMutation({
     mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      commentApi.likeComment(commentId, tkuId),
+      likeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentListKeys.all });
+      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
     },
   });
 };
@@ -164,9 +218,9 @@ export const useUnlikeComment = () => {
 
   return useMutation({
     mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      commentApi.unlikeComment(commentId, tkuId),
+      unlikeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentListKeys.all });
+      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
     },
   });
 };
@@ -186,11 +240,11 @@ export const useDeleteComment = () => {
       data: DeleteCommentRequest;
       trendId: string;
       itemId: string;
-    }) => commentApi.deleteComment(commentId, data),
+    }) => deleteComment(commentId, data),
     onSuccess: async (_, variables) => {
       const { trendId, itemId } = variables;
       ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentListKeys.list(trendId, itemId, sort);
+        const queryKey = commentKeys.list(trendId, itemId, sort);
 
         queryClient.setQueryData(queryKey, (old: unknown) => {
           if (!old || typeof old !== 'object') {
@@ -198,11 +252,7 @@ export const useDeleteComment = () => {
           }
 
           const oldData = old as {
-            pages: Array<{
-              comments: CommentItem[];
-              totalSize: number;
-              nextId: string | null;
-            }>;
+            pages: Array<CommentListResponse>;
             pageParams: unknown[];
           };
 
@@ -210,15 +260,17 @@ export const useDeleteComment = () => {
             ...oldData,
             pages: oldData.pages.map((page) => ({
               ...page,
-              comments: page.comments.filter((comment) => comment.id !== variables.commentId),
-              totalSize: page.totalSize - 1,
+              comments: (page.comments ?? []).filter(
+                (comment) => comment.id !== variables.commentId
+              ),
+              totalSize: (page.totalSize ?? 1) - 1,
             })),
           };
         });
       });
 
       await queryClient.invalidateQueries({
-        queryKey: commentQueries.count(Number(trendId), itemId).queryKey,
+        queryKey: commentKeys.count(Number(trendId), itemId),
       });
     },
   });

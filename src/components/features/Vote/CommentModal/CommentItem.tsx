@@ -4,8 +4,8 @@ import { type FC } from 'react';
 
 import LikeIcon from '@/assets/icon/LikeIcon';
 import styles from '@/components/features/Vote/CommentModal/CommentItem.module.scss';
+import type { CommentItem as CommentItemType } from '@/generated/models';
 import { getRelativeTime } from '@/lib/utils';
-import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
   comment: CommentItemType;
@@ -21,7 +21,7 @@ export const CommentItem: FC<CommentItemProps> = ({
   onDeleteClick,
 }) => {
   const handleLikeClick = () => {
-    onLikeClick(comment.id, comment.liked);
+    onLikeClick(comment.id ?? '', comment.liked ?? false);
   };
 
   const handleEditClick = () => {
@@ -32,7 +32,8 @@ export const CommentItem: FC<CommentItemProps> = ({
     onDeleteClick(comment);
   };
 
-  const formatLikeCount = (count: number): string => (count > 999 ? '999+' : count.toString());
+  const formatLikeCount = (count: number | undefined): string =>
+    (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
   return (
     <div className={styles.commentItem}>
@@ -40,7 +41,7 @@ export const CommentItem: FC<CommentItemProps> = ({
       <div className={styles.header}>
         <span className={styles.nickname}>{comment.nickname}</span>
         <span className={styles.time}>
-          {getRelativeTime(comment.createdAt)}
+          {getRelativeTime(comment.createdAt ?? '')}
           {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
             <span className={styles.edited}> (수정됨)</span>
           )}
@@ -58,7 +59,7 @@ export const CommentItem: FC<CommentItemProps> = ({
           onClick={handleLikeClick}
           aria-label={comment.liked ? '좋아요 취소' : '좋아요'}
         >
-          <LikeIcon filled={comment.liked} className={styles.likeIcon} />
+          <LikeIcon filled={comment.liked ?? false} className={styles.likeIcon} />
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 

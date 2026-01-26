@@ -5,8 +5,7 @@
 
 import type { BaseResponse } from '@/types/api';
 
-const API_URL =
-  process.env.API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://trend-api.votebox.kr';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 export async function serverFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_URL}${endpoint}`;

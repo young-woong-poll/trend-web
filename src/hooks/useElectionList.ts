@@ -38,12 +38,13 @@ export const useElectionList = () => {
     }
 
     try {
-      const data = await fetchElection(trimmedId);
+      const rawData = await fetchElection(trimmedId);
+      // Orval 타입을 기존 ElectionDetail 타입으로 캐스팅
+      const data = rawData as unknown as ElectionDetail;
+      const optionsCount = data?.options?.length ?? 0;
 
-      if (data.options.length !== 2) {
-        showAlert(
-          `선거 ID ${trimmedId}의 옵션 개수가 2개가 아닙니다 (현재: ${data.options.length}개)`
-        );
+      if (optionsCount !== 2) {
+        showAlert(`선거 ID ${trimmedId}의 옵션 개수가 2개가 아닙니다 (현재: ${optionsCount}개)`);
 
         return;
       }

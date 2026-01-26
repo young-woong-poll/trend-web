@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '@/styles/variables' as *;
 
 // Dimmed 배경
@@ -170,7 +171,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background-color: lighten($attention, 5%);
+    background-color: color.adjust($attention, $lightness: 5%);
   }
 
   &:active {

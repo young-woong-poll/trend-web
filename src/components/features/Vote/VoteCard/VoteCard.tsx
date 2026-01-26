@@ -4,14 +4,14 @@ import { type FC } from 'react';
 
 import styles from '@/components/features/Vote/VoteCard/VoteCard.module.scss';
 import { VoteOptionCard } from '@/components/features/Vote/VoteOptionCard';
+import type { DisplayTrendOptionResponse } from '@/generated/models';
 import { useTrendItemOptionsCount } from '@/hooks/api/useTrend';
-import type { TrendOption } from '@/types/trend';
 
 interface VoteCardProps {
   trendAlias: string;
   itemId: string;
   title: string;
-  options: TrendOption[];
+  options: DisplayTrendOptionResponse[];
   selectedOptionId: string | null;
   handleOptionSelect: (optionId: string) => void;
 }
@@ -25,10 +25,10 @@ export const VoteCard: FC<VoteCardProps> = ({
   handleOptionSelect,
 }) => {
   const { data: optionCountData } = useTrendItemOptionsCount({ trendAlias, itemId });
-  const optionCounts = optionCountData?.options || [];
+  const optionCounts = optionCountData?.options ?? [];
 
   const totalVotes =
-    optionCounts.reduce((sum, opt) => sum + opt.count, 0) + (selectedOptionId ? 1 : 0);
+    optionCounts.reduce((sum, opt) => sum + (opt.count ?? 0), 0) + (selectedOptionId ? 1 : 0);
 
   const handleOptionClick = (optionId: string) => {
     if (selectedOptionId) {
@@ -54,7 +54,7 @@ export const VoteCard: FC<VoteCardProps> = ({
                 hasVoted={false}
                 voteCount={0}
                 percentage={0}
-                onClick={() => handleOptionClick(option.id)}
+                onClick={() => handleOptionClick(option.id ?? '')}
               />
             ))}
           </div>
@@ -66,7 +66,7 @@ export const VoteCard: FC<VoteCardProps> = ({
           <div className={styles.optionsContainer}>
             {options.map((option) => {
               const isSelected = selectedOptionId === option.id;
-              const voteCount = optionCounts.find((opt) => opt.id === option.id)?.count || 0;
+              const voteCount = optionCounts.find((opt) => opt.id === option.id)?.count ?? 0;
               const displayVoteCount = isSelected ? voteCount + 1 : voteCount;
               const percentage =
                 totalVotes === 0 ? 0 : Math.round((displayVoteCount / totalVotes) * 100);

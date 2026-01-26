@@ -3,7 +3,7 @@
 import { type FC, type ReactNode, useState } from 'react';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CopyDoubleIcon from '@/assets/icon/CopyDoubleIcon';
@@ -12,16 +12,15 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 import { useModal } from '@/contexts/ModalContext';
-import { isWithin48Hours } from '@/lib/utils';
+import { isWithin24Hours } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
   title: string;
-  subtitle: string;
-  createdAt: string;
-  imageUrl1: string;
-  imageUrl2: string;
-  participantCount: number;
+  subtitle?: string;
+  createdAt?: string;
+  imageUrls?: string[];
+  participantCount?: number;
   children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
 
@@ -30,13 +29,14 @@ export const PollCard: FC<TPollCardProps> = ({
   title,
   subtitle,
   createdAt,
-  imageUrl1,
-  imageUrl2,
-  participantCount,
+  imageUrls = [],
+  participantCount = 0,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const { showToast } = useModal();
-  const isNew = isWithin48Hours(createdAt);
+  const router = useRouter();
+  const isNew = isWithin24Hours(createdAt ?? '');
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
@@ -52,7 +52,7 @@ export const PollCard: FC<TPollCardProps> = ({
     try {
       const trendUrl = `${window.location.origin}/vote/${alias}`;
       await navigator.clipboard.writeText(trendUrl);
-      showToast('트렌드 링크가 복사되었습니다', <CheckIcon />);
+      showToast('투표 링크가 복사되었습니다', <CheckIcon />);
     } catch (_error) {
       showToast('링크 복사에 실패했습니다', <InfoIcon />);
     }
@@ -66,7 +66,7 @@ export const PollCard: FC<TPollCardProps> = ({
         <div className={styles.card}>
           <div className={styles.imageContainer}>
             <Image
-              src={imageUrl1}
+              src={imageUrls[0] ?? ''}
               alt={title}
               width={240}
               height={162}
@@ -75,7 +75,7 @@ export const PollCard: FC<TPollCardProps> = ({
               onLoad={() => setIsImageLoaded(true)}
             />
             <Image
-              src={imageUrl2}
+              src={imageUrls[1] ?? ''}
               alt={title}
               width={240}
               height={162}
@@ -103,9 +103,27 @@ export const PollCard: FC<TPollCardProps> = ({
             <p className={styles.subtitle}>{subtitle}</p>
 
             <p className={styles.count}>참여자 {formatCount(participantCount)}</p>
-            <Link href={`/vote/${alias}`} className={styles.button}>
-              <span>참여</span> <StartArrowIcon width={20} height={20} />
-            </Link>
+            <button
+              type="button"
+              className={styles.button}
+              onClick={() => {
+                setIsNavigating(true);
+                router.push(`/vote/${alias}`);
+              }}
+              disabled={isNavigating}
+            >
+              {isNavigating ? (
+                <div className={styles.loadingDots}>
+                  <span className={styles.dot} />
+                  <span className={styles.dot} />
+                  <span className={styles.dot} />
+                </div>
+              ) : (
+                <>
+                  <span>참여</span> <StartArrowIcon width={20} height={20} />
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>

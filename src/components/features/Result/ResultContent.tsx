@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -9,7 +9,9 @@ import { PickHistory } from '@/components/features/Result/PickHistory/PickHistor
 import styles from '@/components/features/Result/ResultContent.module.scss';
 import { ResultHeader } from '@/components/features/Result/ResultHeader/ResultHeader';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
-import { displayQueries } from '@/lib/react-query/queries';
+import { displayQueries } from '@/hooks/api/useDisplay';
+import { useVoteResultHistory } from '@/hooks/useVoteResultHistory';
+import type { SelectedOption } from '@/types/result';
 
 interface ResultContentProps {
   trendAlias: string;
@@ -18,44 +20,56 @@ interface ResultContentProps {
 
 /**
  * 결과 페이지 컨텐츠
- * - 서버에서 prefetch한 데이터를 캐시에서 읽음
  */
 export const ResultContent = ({ trendAlias, resultId }: ResultContentProps) => {
-  // 서버에서 prefetch한 데이터를 캐시에서 읽음
   const { data: resultData } = useQuery(displayQueries.result(resultId));
   const { data: trendData } = useQuery(displayQueries.trend(trendAlias));
-  const { data: mainData } = useQuery(displayQueries.main());
 
-  // 다음 트렌드 계산
-  const nextTrend = useMemo(() => {
-    if (!mainData?.trends) {
-      return null;
+  // 결과 히스토리 저장
+  const { addToHistory } = useVoteResultHistory();
+  const hasStoredRef = useRef(false);
+
+  // 결과 페이지 조회 시 히스토리에 저장 (최초 1회만)
+  useEffect(() => {
+    if (resultData && trendData && !hasStoredRef.current) {
+      hasStoredRef.current = true;
+      addToHistory({
+        trendAlias,
+        resultId,
+        trendTitle: trendData.title ?? '',
+        resultLabel: resultData.resultLabel ?? '',
+      });
     }
-    const currentIndex = mainData.trends.findIndex((t) => t.alias === trendAlias);
-    if (currentIndex === -1 || currentIndex >= mainData.trends.length - 1) {
-      return null;
-    }
-    return mainData.trends[currentIndex + 1];
-  }, [mainData, trendAlias]);
+  }, [trendAlias, resultId, resultData, trendData, addToHistory]);
 
   // 서버에서 prefetch되므로 data는 항상 존재
   if (!resultData || !trendData) {
     return null;
   }
 
+  // Orval 생성 타입을 로컬 타입으로 변환
+  const selectedOptions: SelectedOption[] = (resultData.selectedOptions ?? []).map((opt) => ({
+    itemId: opt.itemId ?? '',
+    itemTitle: opt.itemTitle ?? '',
+    optionId: opt.optionId ?? '',
+    optionTitle: opt.optionTitle ?? '',
+    optionImageUrl: opt.optionImageUrl ?? '',
+    percent: opt.percent ?? 0,
+  }));
+
   return (
     <div className={styles.container}>
-      <ResultHeader title={trendData.title} />
+      <ResultHeader title={trendData.title ?? ''} />
 
       <div className={styles.content}>
         {/* 유형 카드 (대중성 지수 포함) */}
-        <TypeCard selectedOptions={resultData.selectedOptions} />
+        <TypeCard selectedOptions={selectedOptions} />
 
         {/* MY PICK HISTORY */}
-        <PickHistory selectedOptions={resultData.selectedOptions} />
+        <PickHistory selectedOptions={selectedOptions} />
 
         {/* 하단 버튼 영역 */}
-        <ActionButtons trendAlias={trendAlias} nextTrend={nextTrend} />
+        <ActionButtons trendAlias={trendAlias} />
 
         {/* 서비스 문의 및 피드백 */}
         <footer className={styles.feedback}>

@@ -1,4 +1,4 @@
-import { useRef, useState, type FC, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FC, type ReactNode } from 'react';
 
 import styles from '@/components/common/Tooltip/Tooltip.module.scss';
 
@@ -29,6 +29,22 @@ export const Tooltip: FC<TooltipProps> = ({ content, children }) => {
     updateTooltipPosition();
     setIsVisible(true);
   };
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsVisible(false);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isVisible]);
 
   return (
     <div className={styles.tooltipContainer}>

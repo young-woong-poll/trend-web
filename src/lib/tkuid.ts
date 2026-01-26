@@ -1,6 +1,6 @@
 /**
  * TKUID (Trend-Kkultube Unique ID) 관리 유틸리티
- * 세션 스토리지를 사용하여 사용자를 식별하고 좋아요 중복 방지
+ * 로컬 스토리지를 사용하여 사용자를 식별하고 좋아요 중복 방지
  */
 
 const TKUID_KEY = 'tkuid';
@@ -24,16 +24,16 @@ export function getTKUID(): string {
   }
 
   try {
-    let tkuid = sessionStorage.getItem(TKUID_KEY);
+    let tkuid = localStorage.getItem(TKUID_KEY);
 
     if (!tkuid) {
       tkuid = generateUUID();
-      sessionStorage.setItem(TKUID_KEY, tkuid);
+      localStorage.setItem(TKUID_KEY, tkuid);
     }
 
     return tkuid;
   } catch (error) {
-    console.error('Failed to access sessionStorage:', error);
+    console.error('Failed to access localStorage:', error);
     return generateUUID();
   }
 }
@@ -44,7 +44,7 @@ export function clearTKUID(): void {
   }
 
   try {
-    sessionStorage.removeItem(TKUID_KEY);
+    localStorage.removeItem(TKUID_KEY);
   } catch (error) {
     console.error('Failed to clear TKUID:', error);
   }
@@ -56,7 +56,7 @@ export function hasTKUID(): boolean {
   }
 
   try {
-    return sessionStorage.getItem(TKUID_KEY) !== null;
+    return localStorage.getItem(TKUID_KEY) !== null;
   } catch {
     return false;
   }

@@ -29,8 +29,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   setCheckStatus,
   mode = 'create',
 }) => {
-  const imageUrl1 = watch('imageUrl1');
-  const imageUrl2 = watch('imageUrl2');
+  const imageUrls = watch('imageUrls');
   const trendAlias = watch('alias');
 
   const { showAlert } = useModal();
@@ -56,7 +55,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 
     try {
       const result = await checkTrendAlias(trimmedAlias);
-      setCheckStatus(result.exists ? 'duplicate' : 'available');
+      setCheckStatus(result?.exists ? 'duplicate' : 'available');
     } catch (error: any) {
       setCheckStatus('idle');
       showAlert(`중복 체크에 실패했습니다. ${error?.message}` || '');
@@ -74,7 +73,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
             Trend Alias <span className={styles.required}>*</span>
           </label>
           <Tooltip content="영문 소문자와 숫자와 하이픈(-)만 입력 가능합니다">
-            <span>?</span>
+            <span className={styles.tooltipButton}>?</span>
           </Tooltip>
         </div>
         <div className={styles.inputWithButton}>
@@ -140,8 +139,8 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
           이미지 1 <span className={styles.required}>*</span>
         </label>
         <ImageUpload
-          value={imageUrl1 || null}
-          onChange={(url) => setValue('imageUrl1', url || '')}
+          value={imageUrls?.[0] || null}
+          onChange={(url) => setValue('imageUrls.0', url || '')}
           uploadOptions={{ prefix: 'trend' }}
         />
       </div>
@@ -151,10 +150,22 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
           이미지 2 <span className={styles.required}>*</span>
         </label>
         <ImageUpload
-          value={imageUrl2 || null}
-          onChange={(url) => setValue('imageUrl2', url || '')}
+          value={imageUrls?.[1] || null}
+          onChange={(url) => setValue('imageUrls.1', url || '')}
           uploadOptions={{ prefix: 'trend' }}
         />
+      </div>
+
+      {/* 상단 고정 설정 */}
+      <div className={styles.field}>
+        <div className={styles.toggleGroup}>
+          <label className={styles.toggleLabel}>
+            <input type="checkbox" {...register('fixed')} className={styles.toggleInput} />
+            <span className={styles.toggleSwitch} />
+            <span className={styles.toggleText}>상단 고정</span>
+          </label>
+          <p className={styles.toggleHint}>활성화하면 메인 화면 상단에 고정 노출됩니다</p>
+        </div>
       </div>
     </section>
   );

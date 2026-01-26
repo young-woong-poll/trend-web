@@ -20,8 +20,6 @@
   }
 
   &:disabled {
-    background-color: $neutral-300 !important;
-    color: #fff !important;
     cursor: default !important;
 
     &:hover svg[data-arrow='true'] {
@@ -42,11 +40,11 @@
 }
 
 .primary {
-  background-color: $primary-start;
+  background-color: $neutral-500;
   color: white;
 
   &:hover {
-    background-color: $primary-start;
+    background-color: $neutral-600;
   }
 }
 
@@ -61,11 +59,11 @@
 
 .outline {
   background-color: transparent;
-  border: 2px solid $primary-start;
-  color: $primary-start;
+  border: 2px solid $neutral-500;
+  color: $neutral-500;
 
   &:hover {
-    background-color: rgba($primary-start, 0.1);
+    background-color: rgba($neutral-500, 0.1);
   }
 }
 
@@ -97,16 +95,16 @@
 }
 
 .small {
-  padding: $spacing-4 $spacing-16;
+  padding: $spacing-8 $spacing-16;
   font-size: $font-size-14;
 }
 
 .medium {
-  padding: $spacing-16 $spacing-24;
-  font-size: $font-size-16;
+  padding: 12px $spacing-24;
+  font-size: $font-size-14;
 }
 
 .large {
-  padding: $spacing-24 $spacing-32;
-  font-size: $font-size-18;
+  padding: $spacing-16 $spacing-32;
+  font-size: $font-size-16;
 }

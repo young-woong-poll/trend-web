@@ -6,8 +6,8 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
 import { createResultMetadata, defaultMetadata } from '@/app/vote/[trendAlias]/result/metadata';
 import { ResultContent } from '@/components/features/Result/ResultContent';
+import { displayQueries } from '@/hooks/api/useDisplay';
 import { createServerQueryClient } from '@/lib/react-query';
-import { displayQueries } from '@/lib/react-query/queries';
 
 export const revalidate = 10;
 

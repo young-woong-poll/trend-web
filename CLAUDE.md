@@ -58,11 +58,7 @@ interface IconNameProps extends SVGProps<SVGSVGElement> {
   // 필요한 추가 props 정의 (예: filled, size 등)
 }
 
-const IconName: FC<IconNameProps> = (props) => (
-  <svg {...props}>
-    {/* SVG 내용 */}
-  </svg>
-);
+const IconName: FC<IconNameProps> = (props) => <svg {...props}>{/* SVG 내용 */}</svg>;
 
 export default IconName;
 ```
@@ -73,5 +69,5 @@ export default IconName;
 import IconName from '@/assets/icon/IconName';
 
 // 컴포넌트에서 사용
-<IconName className={styles.icon} />
+<IconName className={styles.icon} />;
 ```

@@ -12,7 +12,7 @@
 .sectionTitle {
   font-size: 20px;
   font-weight: $font-weight-semibold;
-  color: #1e293b;
+  color: $white;
   margin-bottom: 16px;
 }
 
@@ -23,15 +23,37 @@
 .labelWithTooltip {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 8px;
+}
+
+.tooltipButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: $font-weight-bold;
+  color: $text-tertiary;
+  background: $bg-tertiary;
+  border: 1px solid $border-placeholder;
+  border-radius: 50%;
+  cursor: help;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $white;
+    border-color: $neutral-400;
+    background: $neutral-600;
+  }
 }
 
 .label {
   display: block;
   font-size: 14px;
   font-weight: $font-weight-medium;
-  color: #334155;
+  color: $text-secondary;
 }
 
 .required {
@@ -42,20 +64,30 @@
   width: 100%;
   padding: 12px 16px;
   font-size: 15px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid $border-placeholder;
   border-radius: 8px;
   transition: all 0.2s ease;
-  background: white;
-  color: #1e293b;
+  background: $bg-tertiary;
+  color: $white;
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: $neutral-400;
+    box-shadow: 0 0 0 3px rgba($neutral-400, 0.2);
   }
 
   &::placeholder {
-    color: #94a3b8;
+    color: $text-tertiary;
+  }
+
+  // 브라우저 자동완성 스타일 오버라이드
+  &:-webkit-autofill,
+  &:-webkit-autofill:hover,
+  &:-webkit-autofill:focus,
+  &:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px $bg-tertiary inset !important;
+    -webkit-text-fill-color: $white !important;
+    transition: background-color 5000s ease-in-out 0s;
   }
 }
 
@@ -73,20 +105,23 @@
   padding: 12px 20px;
   font-size: 14px;
   font-weight: $font-weight-medium;
-  color: white;
-  background: #667eea;
-  border: none;
+  color: $neutral-400;
+  background: transparent;
+  border: 2px solid $neutral-500;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
 
   &:hover:not(:disabled) {
-    background: #5568d3;
+    color: $white;
+    background: rgba($neutral-500, 0.2);
+    border-color: $neutral-400;
   }
 
   &:disabled {
-    background: #cbd5e1;
+    color: $disabled;
+    border-color: $disabled;
     cursor: not-allowed;
   }
 }
@@ -110,4 +145,63 @@
   font-size: 13px;
   color: #f59e0b;
   font-weight: $font-weight-medium;
+}
+
+// 토글 스타일
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.toggleInput {
+  display: none;
+
+  &:checked + .toggleSwitch {
+    background: $neutral-500;
+
+    &::after {
+      transform: translateX(20px);
+    }
+  }
+}
+
+.toggleSwitch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: $border-placeholder;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: $white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+}
+
+.toggleText {
+  font-size: 14px;
+  font-weight: $font-weight-medium;
+  color: $white;
+}
+
+.toggleHint {
+  margin: 0;
+  font-size: 13px;
+  color: $text-tertiary;
 }
