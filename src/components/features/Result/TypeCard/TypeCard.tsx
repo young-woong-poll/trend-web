@@ -7,6 +7,7 @@ import { RESULT_TYPE_DATA } from '@/constants/data';
 import type { SelectedOption } from '@/types/result';
 
 const POPULARITY_TOOLTIP_CONTENT = `5개 투표에서 내가 선택한 옵션의 득표율 평균값입니다.
+
 (100%에 가까울수록 대한민국 국룰 취향!)
 
 다른 사람들이 투표하면 수치가 변경됩니다.`;

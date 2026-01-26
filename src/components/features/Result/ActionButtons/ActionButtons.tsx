@@ -23,7 +23,7 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias, nextTrend })
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사
   const handleSaveType = async () => {
     await navigator.clipboard.writeText(window.location.href);
-    showToast('링크가 복사되었습니다', <CheckIcon width={16} height={16} />);
+    showToast('결과 링크가 복사되었습니다', <CheckIcon width={16} height={16} />);
   };
 
   // 투표 공유하기 - VotePage URL 복사
