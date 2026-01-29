@@ -26,6 +26,11 @@ export type generatePresignedUrlResponse400 = {
   status: 400;
 };
 
+export type generatePresignedUrlResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type generatePresignedUrlResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -36,6 +41,7 @@ export type generatePresignedUrlResponseSuccess = generatePresignedUrlResponse20
 };
 export type generatePresignedUrlResponseError = (
   | generatePresignedUrlResponse400
+  | generatePresignedUrlResponse429
   | generatePresignedUrlResponse500
 ) & {
   headers: Headers;

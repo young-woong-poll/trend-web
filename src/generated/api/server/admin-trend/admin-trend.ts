@@ -30,6 +30,11 @@ export type updateTrendResponse400 = {
   status: 400;
 };
 
+export type updateTrendResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type updateTrendResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -38,7 +43,11 @@ export type updateTrendResponse500 = {
 export type updateTrendResponseSuccess = updateTrendResponse200 & {
   headers: Headers;
 };
-export type updateTrendResponseError = (updateTrendResponse400 | updateTrendResponse500) & {
+export type updateTrendResponseError = (
+  | updateTrendResponse400
+  | updateTrendResponse429
+  | updateTrendResponse500
+) & {
   headers: Headers;
 };
 
@@ -74,6 +83,11 @@ export type deleteTrendResponse400 = {
   status: 400;
 };
 
+export type deleteTrendResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type deleteTrendResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -82,7 +96,11 @@ export type deleteTrendResponse500 = {
 export type deleteTrendResponseSuccess = deleteTrendResponse200 & {
   headers: Headers;
 };
-export type deleteTrendResponseError = (deleteTrendResponse400 | deleteTrendResponse500) & {
+export type deleteTrendResponseError = (
+  | deleteTrendResponse400
+  | deleteTrendResponse429
+  | deleteTrendResponse500
+) & {
   headers: Headers;
 };
 
@@ -115,6 +133,11 @@ export type getTrendsResponse400 = {
   status: 400;
 };
 
+export type getTrendsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getTrendsResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -123,7 +146,11 @@ export type getTrendsResponse500 = {
 export type getTrendsResponseSuccess = getTrendsResponse200 & {
   headers: Headers;
 };
-export type getTrendsResponseError = (getTrendsResponse400 | getTrendsResponse500) & {
+export type getTrendsResponseError = (
+  | getTrendsResponse400
+  | getTrendsResponse429
+  | getTrendsResponse500
+) & {
   headers: Headers;
 };
 
@@ -154,6 +181,11 @@ export type createTrendResponse400 = {
   status: 400;
 };
 
+export type createTrendResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type createTrendResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -162,7 +194,11 @@ export type createTrendResponse500 = {
 export type createTrendResponseSuccess = createTrendResponse200 & {
   headers: Headers;
 };
-export type createTrendResponseError = (createTrendResponse400 | createTrendResponse500) & {
+export type createTrendResponseError = (
+  | createTrendResponse400
+  | createTrendResponse429
+  | createTrendResponse500
+) & {
   headers: Headers;
 };
 
@@ -198,6 +234,11 @@ export type checkTrendAliasResponse400 = {
   status: 400;
 };
 
+export type checkTrendAliasResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type checkTrendAliasResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -208,6 +249,7 @@ export type checkTrendAliasResponseSuccess = checkTrendAliasResponse200 & {
 };
 export type checkTrendAliasResponseError = (
   | checkTrendAliasResponse400
+  | checkTrendAliasResponse429
   | checkTrendAliasResponse500
 ) & {
   headers: Headers;

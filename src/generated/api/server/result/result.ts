@@ -26,6 +26,11 @@ export type createResultResponse400 = {
   status: 400;
 };
 
+export type createResultResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type createResultResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -34,7 +39,11 @@ export type createResultResponse500 = {
 export type createResultResponseSuccess = createResultResponse200 & {
   headers: Headers;
 };
-export type createResultResponseError = (createResultResponse400 | createResultResponse500) & {
+export type createResultResponseError = (
+  | createResultResponse400
+  | createResultResponse429
+  | createResultResponse500
+) & {
   headers: Headers;
 };
 
@@ -69,6 +78,11 @@ export type checkResultExistsResponse400 = {
   status: 400;
 };
 
+export type checkResultExistsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type checkResultExistsResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -79,6 +93,7 @@ export type checkResultExistsResponseSuccess = checkResultExistsResponse200 & {
 };
 export type checkResultExistsResponseError = (
   | checkResultExistsResponse400
+  | checkResultExistsResponse429
   | checkResultExistsResponse500
 ) & {
   headers: Headers;
