@@ -63,10 +63,10 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
           <PollCard
             alias={navigation.prev.alias ?? ''}
             title={navigation.prev.title ?? ''}
-            subtitle={(navigation.prev as { label?: string }).label}
-            createdAt={(navigation.prev as { createdAt?: string }).createdAt}
+            subtitle={navigation.prev.label}
+            createdAt={navigation.prev.createdAt}
             imageUrls={navigation.prev.imageUrls ?? []}
-            participantCount={(navigation.prev as { participantsCount?: number }).participantsCount}
+            participantCount={navigation.prev.participantCount}
           />
         </div>
       )}
@@ -77,10 +77,10 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
           <PollCard
             alias={navigation.next.alias ?? ''}
             title={navigation.next.title ?? ''}
-            subtitle={(navigation.next as { label?: string }).label}
-            createdAt={(navigation.next as { createdAt?: string }).createdAt}
+            subtitle={navigation.next.label}
+            createdAt={navigation.next.createdAt}
             imageUrls={navigation.next.imageUrls ?? []}
-            participantCount={(navigation.next as { participantsCount?: number }).participantsCount}
+            participantCount={navigation.next.participantCount}
           />
         </div>
       )}
