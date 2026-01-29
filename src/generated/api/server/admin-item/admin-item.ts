@@ -25,6 +25,11 @@ export type getItemResponse400 = {
   status: 400;
 };
 
+export type getItemResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getItemResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -33,7 +38,11 @@ export type getItemResponse500 = {
 export type getItemResponseSuccess = getItemResponse200 & {
   headers: Headers;
 };
-export type getItemResponseError = (getItemResponse400 | getItemResponse500) & {
+export type getItemResponseError = (
+  | getItemResponse400
+  | getItemResponse429
+  | getItemResponse500
+) & {
   headers: Headers;
 };
 

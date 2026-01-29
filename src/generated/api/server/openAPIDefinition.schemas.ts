@@ -24,7 +24,11 @@ export interface BaseResponseVoid {
 export interface UpdateCommentRequest {
   /** 검증 토큰 */
   verifyToken: string;
-  /** 수정할 내용 */
+  /**
+   * 수정할 내용 (1~200자)
+   * @minLength 0
+   * @maxLength 200
+   */
   content: string;
 }
 
@@ -88,8 +92,6 @@ export interface UpdateTrendRequest {
   meta?: TrendMetaRequest;
   /** visibility flag */
   isVisible?: boolean;
-  /** fixed flag */
-  isFixed?: boolean;
 }
 
 export interface TrendResultType {
@@ -174,11 +176,24 @@ export interface CreateCommentRequest {
   trendId: number;
   /** 아이템 ID */
   itemId: string;
-  /** 닉네임 */
+  /**
+   * 닉네임 (1~10자, 영문/한글/숫자/공백/-_. 허용)
+   * @minLength 0
+   * @maxLength 10
+   * @pattern ^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s._-]*$
+   */
   nickname: string;
-  /** 댓글 비밀번호 */
+  /**
+   * 댓글 비밀번호 (4~15자)
+   * @minLength 4
+   * @maxLength 15
+   */
   password: string;
-  /** 댓글 내용 */
+  /**
+   * 댓글 내용 (1~200자)
+   * @minLength 0
+   * @maxLength 200
+   */
   content: string;
 }
 
@@ -263,8 +278,6 @@ export interface CreateTrendRequest {
   meta?: TrendMetaRequest;
   /** visibility flag */
   isVisible?: boolean;
-  /** fixed flag */
-  isFixed?: boolean;
 }
 
 /**
@@ -432,8 +445,14 @@ export interface TrendNavItem {
   alias?: string;
   /** 트렌드 제목 */
   title?: string;
+  /** 라벨 */
+  label?: string;
   /** 이미지 URL 목록 */
   imageUrls?: string[];
+  /** 생성일시 */
+  createdAt?: string;
+  /** 참여자 수 */
+  participantCount?: number;
 }
 
 /**

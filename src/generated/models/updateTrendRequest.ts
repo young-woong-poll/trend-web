@@ -23,6 +23,4 @@ export interface UpdateTrendRequest {
   meta?: TrendMetaRequest;
   /** visibility flag */
   isVisible?: boolean;
-  /** fixed flag */
-  isFixed?: boolean;
 }

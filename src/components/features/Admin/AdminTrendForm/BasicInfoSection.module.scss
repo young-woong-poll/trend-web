@@ -165,7 +165,7 @@
   display: none;
 
   &:checked + .toggleSwitch {
-    background: $neutral-500;
+    background: $btn-left;
 
     &::after {
       transform: translateX(20px);

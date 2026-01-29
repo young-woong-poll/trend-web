@@ -1,9 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": { "title": "OpenAPI definition", "version": "v0" },
-  "servers": [
-    { "url": "https://beta-hotpick-api.votebox.kr", "description": "Generated server url" }
-  ],
+  "servers": [{ "url": "https://hotpick-api.votebox.kr", "description": "Generated server url" }],
   "tags": [
     { "name": "Trend", "description": "트렌드 조회 API" },
     { "name": "Admin Item", "description": "아이템(선거) 데이터 전시 API" },
@@ -33,6 +31,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -67,6 +69,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -104,6 +110,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -133,6 +143,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -158,6 +172,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -191,6 +209,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -229,6 +251,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -258,6 +284,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -285,6 +315,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -308,6 +342,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -338,6 +376,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -373,6 +415,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -399,6 +445,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -449,6 +499,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -475,6 +529,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -511,6 +569,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -537,6 +599,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -584,6 +650,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -618,6 +688,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -645,6 +719,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -676,6 +754,10 @@
             "description": "Internal Server Error",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
           "400": {
             "description": "Bad Request",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
@@ -701,6 +783,10 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+          },
+          "429": {
+            "description": "Too Many Requests",
             "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
           },
           "400": {
@@ -735,7 +821,12 @@
         "type": "object",
         "properties": {
           "verifyToken": { "type": "string", "description": "검증 토큰" },
-          "content": { "type": "string", "description": "수정할 내용" }
+          "content": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "description": "수정할 내용 (1~200자)"
+          }
         }
       },
       "BaseResponseCommentUpdateResponse": {
@@ -824,6 +915,7 @@
           },
           "meta": { "$ref": "#/components/schemas/TrendMeta" },
           "visible": { "type": "boolean", "description": "노출 여부" },
+          "fixed": { "type": "boolean", "description": "고정 여부" },
           "createdAt": { "type": "string", "description": "생성 일시" }
         },
         "description": "관리자 트렌드 응답"
@@ -891,9 +983,25 @@
         "properties": {
           "trendId": { "type": "integer", "description": "트렌드 ID", "format": "int64" },
           "itemId": { "type": "string", "description": "아이템 ID" },
-          "nickname": { "type": "string", "description": "닉네임" },
-          "password": { "type": "string", "description": "댓글 비밀번호" },
-          "content": { "type": "string", "description": "댓글 내용" }
+          "nickname": {
+            "maxLength": 10,
+            "minLength": 0,
+            "pattern": "^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\\s._-]*$",
+            "type": "string",
+            "description": "닉네임 (1~10자, 영문/한글/숫자/공백/-_. 허용)"
+          },
+          "password": {
+            "maxLength": 15,
+            "minLength": 4,
+            "type": "string",
+            "description": "댓글 비밀번호 (4~15자)"
+          },
+          "content": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "description": "댓글 내용 (1~200자)"
+          }
         }
       },
       "BaseResponseCommentCreateResponse": {
@@ -1139,11 +1247,14 @@
           "id": { "type": "integer", "description": "트렌드 ID", "format": "int64" },
           "alias": { "type": "string", "description": "트렌드 alias" },
           "title": { "type": "string", "description": "트렌드 제목" },
+          "label": { "type": "string", "description": "라벨" },
           "imageUrls": {
             "type": "array",
             "description": "이미지 URL 목록",
             "items": { "type": "string", "description": "이미지 URL 목록" }
-          }
+          },
+          "createdAt": { "type": "string", "description": "생성일시" },
+          "participantCount": { "type": "integer", "description": "참여자 수", "format": "int64" }
         },
         "description": "네비게이션용 트렌드 정보"
       },

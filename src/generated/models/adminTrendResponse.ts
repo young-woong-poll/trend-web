@@ -25,8 +25,6 @@ export interface AdminTrendResponse {
   meta?: TrendMeta;
   /** 노출 여부 */
   visible?: boolean;
-  /** 상단 고정 여부 */
-  fixed?: boolean;
   /** 생성 일시 */
   createdAt?: string;
 }

@@ -25,6 +25,11 @@ export type getTrendItemOptionsResponse400 = {
   status: 400;
 };
 
+export type getTrendItemOptionsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getTrendItemOptionsResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -35,6 +40,7 @@ export type getTrendItemOptionsResponseSuccess = getTrendItemOptionsResponse200 
 };
 export type getTrendItemOptionsResponseError = (
   | getTrendItemOptionsResponse400
+  | getTrendItemOptionsResponse429
   | getTrendItemOptionsResponse500
 ) & {
   headers: Headers;
