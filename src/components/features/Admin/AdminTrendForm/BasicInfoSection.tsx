@@ -155,18 +155,6 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
           uploadOptions={{ prefix: 'trend' }}
         />
       </div>
-
-      {/* 상단 고정 설정 */}
-      <div className={styles.field}>
-        <div className={styles.toggleGroup}>
-          <label className={styles.toggleLabel}>
-            <input type="checkbox" {...register('fixed')} className={styles.toggleInput} />
-            <span className={styles.toggleSwitch} />
-            <span className={styles.toggleText}>상단 고정</span>
-          </label>
-          <p className={styles.toggleHint}>활성화하면 메인 화면 상단에 고정 노출됩니다</p>
-        </div>
-      </div>
     </section>
   );
 };

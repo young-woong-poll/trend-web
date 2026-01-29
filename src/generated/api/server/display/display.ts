@@ -31,6 +31,11 @@ export type getCommentsResponse400 = {
   status: 400;
 };
 
+export type getCommentsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getCommentsResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -39,7 +44,11 @@ export type getCommentsResponse500 = {
 export type getCommentsResponseSuccess = getCommentsResponse200 & {
   headers: Headers;
 };
-export type getCommentsResponseError = (getCommentsResponse400 | getCommentsResponse500) & {
+export type getCommentsResponseError = (
+  | getCommentsResponse400
+  | getCommentsResponse429
+  | getCommentsResponse500
+) & {
   headers: Headers;
 };
 
@@ -86,6 +95,11 @@ export type getTrendDetailResponse400 = {
   status: 400;
 };
 
+export type getTrendDetailResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getTrendDetailResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -96,6 +110,7 @@ export type getTrendDetailResponseSuccess = getTrendDetailResponse200 & {
 };
 export type getTrendDetailResponseError = (
   | getTrendDetailResponse400
+  | getTrendDetailResponse429
   | getTrendDetailResponse500
 ) & {
   headers: Headers;
@@ -130,6 +145,11 @@ export type getTrendNavigationResponse400 = {
   status: 400;
 };
 
+export type getTrendNavigationResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getTrendNavigationResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -140,6 +160,7 @@ export type getTrendNavigationResponseSuccess = getTrendNavigationResponse200 & 
 };
 export type getTrendNavigationResponseError = (
   | getTrendNavigationResponse400
+  | getTrendNavigationResponse429
   | getTrendNavigationResponse500
 ) & {
   headers: Headers;
@@ -192,6 +213,11 @@ export type getResultDetailResponse400 = {
   status: 400;
 };
 
+export type getResultDetailResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getResultDetailResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -202,6 +228,7 @@ export type getResultDetailResponseSuccess = getResultDetailResponse200 & {
 };
 export type getResultDetailResponseError = (
   | getResultDetailResponse400
+  | getResultDetailResponse429
   | getResultDetailResponse500
 ) & {
   headers: Headers;
@@ -236,6 +263,11 @@ export type getMainDisplayResponse400 = {
   status: 400;
 };
 
+export type getMainDisplayResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type getMainDisplayResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -246,6 +278,7 @@ export type getMainDisplayResponseSuccess = getMainDisplayResponse200 & {
 };
 export type getMainDisplayResponseError = (
   | getMainDisplayResponse400
+  | getMainDisplayResponse429
   | getMainDisplayResponse500
 ) & {
   headers: Headers;

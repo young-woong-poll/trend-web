@@ -15,6 +15,12 @@ export interface TrendNavItem {
   alias?: string;
   /** 트렌드 제목 */
   title?: string;
+  /** 라벨 */
+  label?: string;
   /** 이미지 URL 목록 */
   imageUrls?: string[];
+  /** 생성일시 */
+  createdAt?: string;
+  /** 참여자 수 */
+  participantCount?: number;
 }

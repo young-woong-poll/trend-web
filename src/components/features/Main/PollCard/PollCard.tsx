@@ -5,13 +5,9 @@ import { type FC, type ReactNode, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import CheckIcon from '@/assets/icon/CheckIcon';
-import CopyDoubleIcon from '@/assets/icon/CopyDoubleIcon';
-import InfoIcon from '@/assets/icon/InfoIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
-import { useModal } from '@/contexts/ModalContext';
 import { isWithin24Hours } from '@/lib/utils';
 
 type TPollCardProps = {
@@ -34,7 +30,6 @@ export const PollCard: FC<TPollCardProps> = ({
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const { showToast } = useModal();
   const router = useRouter();
   const isNew = isWithin24Hours(createdAt ?? '');
 
@@ -45,24 +40,18 @@ export const PollCard: FC<TPollCardProps> = ({
     return count.toString();
   };
 
-  const handleCopyClick = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    try {
-      const trendUrl = `${window.location.origin}/vote/${alias}`;
-      await navigator.clipboard.writeText(trendUrl);
-      showToast('투표 링크가 복사되었습니다', <CheckIcon />);
-    } catch (_error) {
-      showToast('링크 복사에 실패했습니다', <InfoIcon />);
-    }
-  };
-
   return (
     <>
       {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
       {!isImageLoaded && <PollCardSkeleton />}
-      <div className={styles.cardWrapper} style={{ display: isImageLoaded ? 'block' : 'none' }}>
+      <div
+        className={styles.cardWrapper}
+        style={{ display: isImageLoaded ? 'block' : 'none' }}
+        onClick={() => {
+          setIsNavigating(true);
+          router.push(`/vote/${alias}`);
+        }}
+      >
         <div className={styles.card}>
           <div className={styles.imageContainer}>
             <Image
@@ -89,16 +78,6 @@ export const PollCard: FC<TPollCardProps> = ({
           {isNew && <div className={styles.newBadge}>NEW</div>}
 
           <div className={styles.content}>
-            {/* Copy Button */}
-            <button
-              type="button"
-              className={styles.copyButton}
-              onClick={handleCopyClick}
-              aria-label="트렌드 링크 복사"
-            >
-              <CopyDoubleIcon width={24} height={24} />
-            </button>
-
             <h2 className={styles.title}>{title}</h2>
             <p className={styles.subtitle}>{subtitle}</p>
 
@@ -106,7 +85,8 @@ export const PollCard: FC<TPollCardProps> = ({
             <button
               type="button"
               className={styles.button}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setIsNavigating(true);
                 router.push(`/vote/${alias}`);
               }}

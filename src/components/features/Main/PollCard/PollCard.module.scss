@@ -9,6 +9,7 @@
   display: block;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
   transition: transform 0.2s ease;
 }
 
@@ -63,26 +64,6 @@
   width: 100%;
   padding: 16px;
   height: 134px;
-
-  .copyButton {
-    position: absolute;
-    top: 18px;
-    right: 16px;
-    border: none;
-    background: none;
-    color: $white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 3;
-
-    &:hover {
-      transform: scale(1.05);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
 
   .title {
     font-size: $font-size-20;

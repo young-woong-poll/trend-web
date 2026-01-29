@@ -8,6 +8,10 @@
 export interface UpdateCommentRequest {
   /** 검증 토큰 */
   verifyToken: string;
-  /** 수정할 내용 */
+  /**
+   * 수정할 내용 (1~200자)
+   * @minLength 0
+   * @maxLength 200
+   */
   content: string;
 }

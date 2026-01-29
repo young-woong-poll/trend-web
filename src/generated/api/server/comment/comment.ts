@@ -32,6 +32,11 @@ export type updateCommentResponse400 = {
   status: 400;
 };
 
+export type updateCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type updateCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -40,7 +45,11 @@ export type updateCommentResponse500 = {
 export type updateCommentResponseSuccess = updateCommentResponse200 & {
   headers: Headers;
 };
-export type updateCommentResponseError = (updateCommentResponse400 | updateCommentResponse500) & {
+export type updateCommentResponseError = (
+  | updateCommentResponse400
+  | updateCommentResponse429
+  | updateCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -76,6 +85,11 @@ export type deleteCommentResponse400 = {
   status: 400;
 };
 
+export type deleteCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type deleteCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -84,7 +98,11 @@ export type deleteCommentResponse500 = {
 export type deleteCommentResponseSuccess = deleteCommentResponse200 & {
   headers: Headers;
 };
-export type deleteCommentResponseError = (deleteCommentResponse400 | deleteCommentResponse500) & {
+export type deleteCommentResponseError = (
+  | deleteCommentResponse400
+  | deleteCommentResponse429
+  | deleteCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -120,6 +138,11 @@ export type createCommentResponse400 = {
   status: 400;
 };
 
+export type createCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type createCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -128,7 +151,11 @@ export type createCommentResponse500 = {
 export type createCommentResponseSuccess = createCommentResponse200 & {
   headers: Headers;
 };
-export type createCommentResponseError = (createCommentResponse400 | createCommentResponse500) & {
+export type createCommentResponseError = (
+  | createCommentResponse400
+  | createCommentResponse429
+  | createCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -163,6 +190,11 @@ export type verifyCommentResponse400 = {
   status: 400;
 };
 
+export type verifyCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type verifyCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -171,7 +203,11 @@ export type verifyCommentResponse500 = {
 export type verifyCommentResponseSuccess = verifyCommentResponse200 & {
   headers: Headers;
 };
-export type verifyCommentResponseError = (verifyCommentResponse400 | verifyCommentResponse500) & {
+export type verifyCommentResponseError = (
+  | verifyCommentResponse400
+  | verifyCommentResponse429
+  | verifyCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -207,6 +243,11 @@ export type likeCommentResponse400 = {
   status: 400;
 };
 
+export type likeCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type likeCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -215,7 +256,11 @@ export type likeCommentResponse500 = {
 export type likeCommentResponseSuccess = likeCommentResponse200 & {
   headers: Headers;
 };
-export type likeCommentResponseError = (likeCommentResponse400 | likeCommentResponse500) & {
+export type likeCommentResponseError = (
+  | likeCommentResponse400
+  | likeCommentResponse429
+  | likeCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -248,6 +293,11 @@ export type unlikeCommentResponse400 = {
   status: 400;
 };
 
+export type unlikeCommentResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type unlikeCommentResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -256,7 +306,11 @@ export type unlikeCommentResponse500 = {
 export type unlikeCommentResponseSuccess = unlikeCommentResponse200 & {
   headers: Headers;
 };
-export type unlikeCommentResponseError = (unlikeCommentResponse400 | unlikeCommentResponse500) & {
+export type unlikeCommentResponseError = (
+  | unlikeCommentResponse400
+  | unlikeCommentResponse429
+  | unlikeCommentResponse500
+) & {
   headers: Headers;
 };
 
@@ -289,6 +343,11 @@ export type countCommentsResponse400 = {
   status: 400;
 };
 
+export type countCommentsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
 export type countCommentsResponse500 = {
   data: BaseResponseVoid;
   status: 500;
@@ -297,7 +356,11 @@ export type countCommentsResponse500 = {
 export type countCommentsResponseSuccess = countCommentsResponse200 & {
   headers: Headers;
 };
-export type countCommentsResponseError = (countCommentsResponse400 | countCommentsResponse500) & {
+export type countCommentsResponseError = (
+  | countCommentsResponse400
+  | countCommentsResponse429
+  | countCommentsResponse500
+) & {
   headers: Headers;
 };
 
