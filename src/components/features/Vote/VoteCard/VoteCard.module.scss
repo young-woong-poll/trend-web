@@ -26,7 +26,7 @@
 .cardBack {
   @include flex-column;
   width: 100%;
-  gap: 24px;
+  gap: 12px;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -56,6 +56,6 @@
 
 .optionsContainer {
   @include flex-column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
 }

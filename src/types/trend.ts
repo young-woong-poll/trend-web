@@ -116,7 +116,6 @@ export interface CreateTrendRequest {
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
-  isFixed?: boolean;
 }
 
 /**
@@ -130,7 +129,6 @@ export interface UpdateTrendRequest {
   electionIds: string[];
   meta?: TrendMetaRequest;
   isVisible?: boolean;
-  isFixed?: boolean;
 }
 
 /**
@@ -172,7 +170,6 @@ export interface AdminTrendResponse {
   electionIds: string[];
   meta?: TrendMeta;
   visible: boolean;
-  fixed?: boolean;
   createdAt: string;
 }
 

@@ -5,13 +5,13 @@
   display: flex;
   gap: 1px;
   width: 100%;
-  background-color: $bg-primary;
+  background-color: $bg-secondary;
 }
 
 .step {
   flex: 1;
   height: 8px;
-  background-color: $bg-primary;
+  background-color: $bg-secondary;
   @include transition(background-color);
 
   &.active {

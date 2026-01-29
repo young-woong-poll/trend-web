@@ -92,8 +92,6 @@ export interface UpdateTrendRequest {
   meta?: TrendMetaRequest;
   /** visibility flag */
   isVisible?: boolean;
-  /** fixed flag */
-  isFixed?: boolean;
 }
 
 export interface TrendResultType {
@@ -130,8 +128,6 @@ export interface AdminTrendResponse {
   meta?: TrendMeta;
   /** 노출 여부 */
   visible?: boolean;
-  /** 고정 여부 */
-  fixed?: boolean;
   /** 생성 일시 */
   createdAt?: string;
 }
@@ -282,8 +278,6 @@ export interface CreateTrendRequest {
   meta?: TrendMetaRequest;
   /** visibility flag */
   isVisible?: boolean;
-  /** fixed flag */
-  isFixed?: boolean;
 }
 
 /**

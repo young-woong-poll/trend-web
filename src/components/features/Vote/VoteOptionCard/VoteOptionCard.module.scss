@@ -5,7 +5,7 @@
   position: relative;
   width: 100%;
   max-width: 480px;
-  height: 232px;
+  height: 200px;
 
   &.selected {
     &::before {
@@ -86,7 +86,7 @@
     flex-direction: column;
 
     .backgroundImage {
-      height: 170px;
+      height: 140px;
       flex-shrink: 0;
     }
   }

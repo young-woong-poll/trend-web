@@ -24,7 +24,6 @@ export type TFormData = {
   imageUrls: [string, string];
   electionIdList: string[];
   visible?: boolean;
-  fixed?: boolean;
 };
 
 interface AdminTrendFormProps {
@@ -55,7 +54,6 @@ export const AdminTrendForm = ({
       imageUrls: ['', ''],
       electionIdList: [],
       visible: true,
-      fixed: false,
     },
   });
 
@@ -69,7 +67,6 @@ export const AdminTrendForm = ({
         imageUrls: [trend.imageUrls?.[0] || '', trend.imageUrls?.[1] || ''],
         electionIdList: trend.electionIds,
         visible: trend.visible,
-        fixed: trend.fixed || false,
       });
     }
   }, [mode, trend, reset]);
@@ -104,7 +101,6 @@ export const AdminTrendForm = ({
       imageUrls: data.imageUrls,
       electionIds: electionIdList,
       isVisible: data.visible,
-      isFixed: data.fixed,
     };
 
     // Edit 모드일 경우 외부에서 전달된 onSubmit 실행
