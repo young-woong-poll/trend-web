@@ -43,6 +43,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
 
   const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
@@ -72,11 +73,13 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
   const { alias, title } = trendData;
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
       const resultId = await submit(String(trendId), selectedItemMap, items.length);
 
       return router.replace(`/vote/${alias}/result?id=${resultId}`);
     } catch (err) {
+      setIsSubmitting(false);
       handleError(err);
     }
   };
@@ -148,6 +151,7 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
                       commentCount={commentCountMap[itemId]}
                       commentDisabled={selectedOptionId === null}
                       nextDisabled={selectedOptionId === null}
+                      isSubmitting={isSubmitting}
                       onCommentClick={() => handleOpenCommentModal(itemId)}
                       onNextClick={handleNext}
                     />
