@@ -2,6 +2,8 @@
 
 import type { FC } from 'react';
 
+import Link from 'next/link';
+
 import ShortLogo from '@/assets/icon/ShortLogo';
 import styles from '@/components/features/Vote/VoteHeader/VoteHeader.module.scss';
 
@@ -11,9 +13,9 @@ interface VoteHeaderProps {
 
 export const VoteHeader: FC<VoteHeaderProps> = ({ title }) => (
   <div className={styles.voteHeader}>
-    <div className={styles.logo}>
+    <Link href="/" className={styles.logo} aria-label="메인으로 이동">
       <ShortLogo />
-    </div>
-    <h1 className={styles.title}>{title}</h1>
+      <h1 className={styles.title}>{title}</h1>
+    </Link>
   </div>
 );
