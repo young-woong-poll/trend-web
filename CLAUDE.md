@@ -1,6 +1,23 @@
-# Claude Code 작업 지침
+# HotPick
 
-이 문서는 Claude Code가 이 프로젝트에서 작업할 때 따라야 할 지침을 정의합니다.
+바이럴 투표 플랫폼. 5개 이지선다 투표 묶음.
+타겟: 20-40대 한국 남성, 모바일 우선
+
+## 기술 스택
+
+Next.js / TypeScript / Tailwind CSS
+
+## 팀 구성
+
+- 기획 + FE: 웅일
+- BE: 동료 2명
+
+## 문서 위치
+
+- 기획서: /docs/specs/
+- 디자인 가이드: /docs/design/
+- BE 개발요청서: /docs/api/
+- 디자인 시스템: /design-system/
 
 ## Git 작업 규칙
 
