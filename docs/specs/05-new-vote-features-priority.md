@@ -104,7 +104,7 @@
 
 ---
 
-#### 1. 단일 투표 — Shorts
+#### 1. 단일 투표 — Single
 
 **Polymarket 참고**: Single-Outcome Market — 하나의 독립된 질문이 곧 하나의 마켓
 
@@ -113,15 +113,15 @@
 **제안 내용**:
 
 - 트렌드(묶음)와 독립된 **단일 투표 엔티티** 신설
-- 1개 질문 = 1개 Shorts 투표
+- 1개 질문 = 1개 Single 투표
 - 투표 UI 유형 선택 가능: 이미지 투표(IMAGE) 또는 텍스트 투표(TEXT)
 - 선택 즉시 결과 확인 (기존 카드 뒤집기 방식 동일)
 - 결과 페이지 없이 투표 카드 내에서 결과 확인 완료
 - 유형 분류 없음 (단일 투표이므로 성향 분석 불필요)
 - Main 페이지에서 **별도 탭**으로 독립 노출 (탭 분리 방식 채택 — 혼합 피드 대비 콘텐츠 비대칭, 참여 깊이 차이, 산업 표준 부합)
-- 트렌드 탭과 Shorts 탭 각각 독립적 정렬/필터/페이지네이션
+- 트렌드 탭과 Single 탭 각각 독립적 정렬/필터/페이지네이션
 
-**Shorts 카드 UI (Shorts 탭)**:
+**Single 카드 UI (Single 탭)**:
 
 ```
 ┌──────────────────────────────────┐
@@ -134,46 +134,35 @@
 └──────────────────────────────────┘
 ```
 
-**도입 효과**: 콘텐츠 발행 속도 극대화, 시의성 대응력 확보, 사용자 진입 장벽 대폭 감소, YouTube Shorts/Instagram Reels 같은 스낵형 소비 패턴 지원
+**도입 효과**: 콘텐츠 발행 속도 극대화, 시의성 대응력 확보, 사용자 진입 장벽 대폭 감소, 스낵형 소비 패턴 지원
 
 **개발 난이도**: ★★★☆☆
 
 **프론트엔드 작업**:
 
-- Shorts 전용 VoteCard 컴포넌트 개발
-- Main 페이지 탭 네비게이션 + Shorts 탭 콘텐츠 렌더링
-- Shorts 전용 투표/결과 인라인 UI
-- Admin: Shorts 생성/수정 폼 개발
+- Single 전용 VoteCard 컴포넌트 개발
+- Main 페이지 탭 네비게이션 + Single 탭 콘텐츠 렌더링
+- Single 전용 투표/결과 인라인 UI
+- Admin: Single 생성/수정 폼 개발
 
 **서버 전달 API 스펙**:
 
-| API              | Method | 경로                           | 설명                        |
-| ---------------- | ------ | ------------------------------ | --------------------------- |
-| Shorts 목록 조회 | GET    | `/api/shorts`                  | 페이지네이션, 카테고리 필터 |
-| Shorts 상세 조회 | GET    | `/api/shorts/{shortsId}`       | 단일 투표 정보 + 현재 득표  |
-| Shorts 투표      | POST   | `/api/shorts/{shortsId}/vote`  | 선택한 optionId 전송        |
-| Shorts 생성      | POST   | `/api/admin/shorts`            | 관리자 전용                 |
-| Shorts 수정      | PUT    | `/api/admin/shorts/{shortsId}` | 관리자 전용                 |
-| Shorts 삭제      | DELETE | `/api/admin/shorts/{shortsId}` | 관리자 전용                 |
+> Single은 별도 엔티티가 아닌, HotPick(type=SINGLE) + Election 1개 조합으로 구현한다.
+> 따라서 기존 HotPick CRUD API에 `type` 필터를 추가하는 방식으로 처리하며, 별도의 Single 전용 API는 필요하지 않다.
+> 상세 API 스펙은 `docs/api/election-crud-api-request.md` 참조.
 
-**Shorts 엔티티 주요 필드**:
+**HotPick(SINGLE) 구성**:
 
 ```
-Shorts {
-  id: string
+HotPick (type: SINGLE) {
+  id: number
+  alias: string
   title: string                    // 질문 텍스트
-  voteType: "IMAGE" | "TEXT"       // 투표 UI 유형
-  mainImageUrl?: string            // TEXT 유형일 때 메인 이미지
-  options: [
-    {
-      id: string
-      title: string                // 옵션 텍스트
-      imageUrl?: string            // IMAGE 유형일 때 옵션 이미지
-    }
-  ]
-  category?: string                // 카테고리 (P0-3과 연계)
-  deadline?: datetime              // 마감일 (P0-2와 연계)
+  type: "SINGLE"                   // 핫픽 유형
+  categoryCode?: string            // 카테고리 (P0-4와 연계)
+  deadline?: datetime              // 마감일 (P0-3과 연계)
   status: "OPEN" | "CLOSED"
+  electionIds: [string]            // Election 1개
   totalVotes: number
   createdAt: datetime
 }
@@ -277,7 +266,7 @@ Election {
 
 **제안 내용**:
 
-- 트렌드/Shorts에 마감일(deadline) 필드 추가
+- 트렌드/Single에 마감일(deadline) 필드 추가
 - 상태 관리: 진행중(OPEN) → 마감(CLOSED)
 - 마감 카운트다운 표시: "마감까지 2일 3시간"
 - 마감된 투표는 투표 불가, 결과 열람만 가능
@@ -290,7 +279,7 @@ Election {
 
 **프론트엔드 작업**:
 
-- PollCard/ShortsCard에 마감 카운트다운 UI
+- PollCard/SingleCard에 마감 카운트다운 UI
 - 마감 임박 배지 컴포넌트 (D-3 이내)
 - 마감된 투표 비활성 처리 (투표 불가, 결과만 표시)
 - Admin: 마감일 DateTimePicker 추가
@@ -301,7 +290,7 @@ Election {
 | ----------------- | ------------------------------------------------- |
 | Trend 엔티티 수정 | `deadline?: datetime` 필드 추가                   |
 | Trend 엔티티 수정 | `status: "OPEN" \| "CLOSED"` 필드 추가            |
-| Shorts 엔티티     | 위 Shorts 스펙에 이미 포함                        |
+| Single (HotPick)  | 위 Single 스펙에 이미 포함                        |
 | 목록 조회 API     | `status` 필터 파라미터 추가                       |
 | 마감 처리         | 서버 스케줄러로 deadline 도래 시 자동 CLOSED 전환 |
 
@@ -317,9 +306,9 @@ Election {
 
 - 카테고리 정의: 음식, 연예, 스포츠, 라이프스타일, 시사, 게임 등
 - Main 페이지에 카테고리 탭/필터 추가 (가로 스크롤 칩)
-- PollCard/ShortsCard에 카테고리 태그 표시
-- Admin에서 트렌드/Shorts 생성 시 카테고리 선택 필드 추가
-- 트렌드와 Shorts 모두에 동일한 카테고리 체계 적용
+- PollCard/SingleCard에 카테고리 태그 표시
+- Admin에서 트렌드/Single 생성 시 카테고리 선택 필드 추가
+- 트렌드와 Single 모두에 동일한 카테고리 체계 적용
 
 **도입 효과**: 사용자 탐색 경험 개선, 관심 분야 중심 소비 가능, 콘텐츠 정체성 강화
 
@@ -328,7 +317,7 @@ Election {
 **프론트엔드 작업**:
 
 - Main 페이지 카테고리 필터 칩 UI
-- PollCard/ShortsCard에 카테고리 태그 표시
+- PollCard/SingleCard에 카테고리 태그 표시
 - Admin: 카테고리 선택 드롭다운
 
 **서버 전달 API 스펙**:
@@ -337,7 +326,7 @@ Election {
 | -------------------- | ------------------------------------------ |
 | Category 마스터 조회 | `GET /api/categories` — 전체 카테고리 목록 |
 | Trend 엔티티 수정    | `categoryId: string` 필드 추가             |
-| Shorts 엔티티        | 위 Shorts 스펙에 이미 포함                 |
+| Single (HotPick)     | 위 Single 스펙에 이미 포함                 |
 | 목록 조회 API        | `categoryId` 필터 파라미터 추가            |
 
 **카테고리 초안**:
@@ -373,7 +362,7 @@ Election {
 - TEXT 유형 (2~4개): 세로 리스트 (자연스럽게 확장)
 - 결과 화면에서 각 선택지별 득표율 프로그레스 바 표시
 - 6가지 유형 분류 로직 수정: "1위 선택지를 골랐는가" 기준으로 전환
-- 트렌드 내 Item과 Shorts 모두에 적용
+- 트렌드 내 Item과 Single 모두에 적용
 
 **도입 효과**: 콘텐츠 기획의 자유도가 대폭 확대, "최고의 ○○" 류 인기 포맷 활용 가능
 
@@ -424,7 +413,7 @@ Election {
 | API           | Method | 경로                           | 설명                        |
 | ------------- | ------ | ------------------------------ | --------------------------- |
 | 시계열 조회   | GET    | `/api/elections/{id}/timeline` | 시간대별 득표율 스냅샷 배열 |
-| Shorts 시계열 | GET    | `/api/shorts/{id}/timeline`    | 동일 구조                   |
+| Single 시계열 | GET    | `/api/hotpick/{id}/timeline`   | 동일 구조 (type=SINGLE)    |
 
 **응답 형식 제안**:
 
@@ -462,7 +451,7 @@ Election {
 
 **제안 내용**:
 
-- 트렌드/Shorts에 `voteMode` 필드 추가: `OPINION`(의견) vs `PREDICTION`(예측)
+- 트렌드/Single에 `voteMode` 필드 추가: `OPINION`(의견) vs `PREDICTION`(예측)
 - PREDICTION 모드:
   - 마감일 필수 (마감 후 정답 공개)
   - 관리자가 마감 후 정답 옵션을 지정
@@ -486,12 +475,12 @@ Election {
 | API                | Method | 경로                                | 설명               |
 | ------------------ | ------ | ----------------------------------- | ------------------ |
 | 정답 지정          | PUT    | `/api/admin/elections/{id}/resolve` | 정답 optionId 지정 |
-| 정답 지정 (Shorts) | PUT    | `/api/admin/shorts/{id}/resolve`    | 정답 optionId 지정 |
+| 정답 지정 (Single) | PUT    | `/api/admin/hotpick/{id}/resolve`   | 정답 optionId 지정 |
 
 **엔티티 추가 필드**:
 
 ```
-Election / Shorts {
+Election / HotPick {
   voteMode: "OPINION" | "PREDICTION"   // 🆕
   resolvedOptionId?: string             // 🆕 정답 옵션 (관리자 지정)
   resolvedAt?: datetime                 // 🆕 정산 시각
@@ -531,9 +520,9 @@ Election / Shorts {
 
 | API                    | 변경 내용                                         |
 | ---------------------- | ------------------------------------------------- |
-| Election/Shorts 엔티티 | `voteType`에 `"OVER_UNDER"` 추가                  |
-| Election/Shorts 엔티티 | `threshold?: number` 필드 추가 (기준점)           |
-| Election/Shorts 엔티티 | `actualValue?: number` 필드 추가 (실제 결과 수치) |
+| Election/HotPick 엔티티 | `voteType`에 `"OVER_UNDER"` 추가                  |
+| Election/HotPick 엔티티 | `threshold?: number` 필드 추가 (기준점)           |
+| Election/HotPick 엔티티 | `actualValue?: number` 필드 추가 (실제 결과 수치) |
 
 ---
 
@@ -577,8 +566,8 @@ Election / Shorts {
 
 **제안 내용**:
 
-- 트렌드/Shorts별 통계 페이지: 총 참여자, 시간대별 참여 추이, 댓글 수, 공유 수
-- "핫한 투표" 순위: 최근 참여 급증 트렌드/Shorts 상단 노출
+- 트렌드/Single별 통계 페이지: 총 참여자, 시간대별 참여 추이, 댓글 수, 공유 수
+- "핫한 투표" 순위: 최근 참여 급증 트렌드/Single 상단 노출
 - 전체 서비스 대시보드: 일간/주간 활성 사용자, 인기 카테고리
 
 **도입 효과**: 데이터 기반 콘텐츠 기획 가능, 사용자에게 "지금 핫한" 신호 제공
@@ -607,7 +596,7 @@ Election / Shorts {
 **제안 내용**:
 
 - 주간 연속 참여 스트릭 카운터
-- 참여 트렌드/Shorts 수 기반 레벨/뱃지 시스템
+- 참여 트렌드/Single 수 기반 레벨/뱃지 시스템
 - "이번 주 N개 투표 참여 완료!" 알림
 - 누적 통계: "지금까지 42개 투표에 참여했어요"
 - 공유 가능한 참여 이력 카드
@@ -629,7 +618,7 @@ Election / Shorts {
 
 | 순위  | 기능                 | 도입 효과 | 개발 난이도 | 기존 구조 호환 | 서버 API 규모      | 권장 시기 |
 | ----- | -------------------- | --------- | ----------- | -------------- | ------------------ | --------- |
-| P0-1  | 단일 투표 Shorts     | ★★★★★     | ★★★☆☆       | 신규 엔티티    | 대 (CRUD 전체)     | 즉시      |
+| P0-1  | 단일 투표 Single     | ★★★★★     | ★★★☆☆       | 신규 엔티티    | 대 (CRUD 전체)     | 즉시      |
 | P0-2  | 텍스트 투표 UI 유형  | ★★★★★     | ★★☆☆☆       | 높음           | 소 (필드 추가)     | 즉시      |
 | P0-3  | 투표 마감 시스템     | ★★★★★     | ★★☆☆☆       | 높음           | 소 (필드 추가)     | 즉시      |
 | P0-4  | 카테고리 분류        | ★★★★☆     | ★★☆☆☆       | 높음           | 소 (필드 + 마스터) | 즉시      |
@@ -651,15 +640,15 @@ Election / Shorts {
 
 **서버팀 선행 전달 API 스펙**:
 
-- Shorts CRUD API 전체
-- Election/Shorts `voteType`, `mainImageUrl` 필드 추가
-- Trend/Shorts `deadline`, `status` 필드 추가
+- Single(HotPick type=SINGLE) 지원을 위한 HotPick API 확장
+- Election `voteType`, `mainImageUrl` 필드 추가
+- HotPick `deadline`, `status` 필드 추가
 - Category 마스터 API + 필터 파라미터
 
 **프론트엔드 작업**:
 
 - ✅ 텍스트 투표 UI 유형 도입 (가장 쉽고 효과 큼)
-- ✅ 단일 투표 Shorts 개발
+- ✅ 단일 투표 Single 개발
 - ✅ 투표 마감 시스템
 - ✅ 카테고리 분류 시스템
 

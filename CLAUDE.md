@@ -37,13 +37,14 @@
 - `docs/specs/00-overview.md` — 서비스 개요
 - `docs/specs/01-main-page.md` — Main 페이지 (탭 네비게이션 포함)
 - `docs/specs/02-vote-page.md` — Vote 페이지
-- `docs/specs/06-shorts-page.md` — Shorts 상세 기획서
+- `docs/specs/06-single-page.md` — Single(단일 투표) 상세 기획서
+- `docs/specs/new-hotpick-election-system.md` — 선거 시스템 내재화 설계서
 - `docs/design-system/tokens.md` — 디자인 토큰
 
 ## 코딩 컨벤션
 
-- 컴포넌트: PascalCase (ShortsCard.tsx)
-- 훅: camelCase (useShortsList.ts)
+- 컴포넌트: PascalCase (SingleCard.tsx)
+- 훅: camelCase (useSingleList.ts)
 - 스타일: 컴포넌트명.module.scss
 - API 응답 타입: 기획서 섹션 13 참조
 - 서버 API 미구현 시: MSW 또는 하드코딩 mock 데이터로 대체

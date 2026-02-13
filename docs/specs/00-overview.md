@@ -66,9 +66,9 @@
 
 ### 5.1 Main 페이지
 
-- 탭 네비게이션으로 트렌드 / Shorts 전환
+- 탭 네비게이션으로 트렌드 / Single 전환
 - 트렌드 탭: 진행 중인 트렌드 목록 탐색
-- Shorts 탭: 단일 투표 Shorts 목록 탐색
+- Single 탭: 단일 투표 Single 목록 탐색
 - 관심 있는 콘텐츠 선택하여 투표 시작
 
 ### 5.2 Vote 페이지
@@ -104,15 +104,15 @@
 
 | 페이지             | 경로                                 | 설명                              |
 | ------------------ | ------------------------------------ | --------------------------------- |
-| Main               | `/`                                  | 트렌드 탭 + Shorts 탭, 무한스크롤 |
-| Main (Shorts 탭)   | `/?tab=shorts`                       | Shorts 전용 탭                    |
-| Shorts 전용        | `/shorts/{alias}`                    | 개별 Shorts 투표 페이지           |
-| Vote               | `/vote/{alias}`                      | 5개 투표 순차 진행                |
-| Result             | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시            |
-| Admin              | `/admin/trend`                       | 트렌드 관리 (개발환경 전용)       |
-| Admin Trend Create | `/admin/trend/create`                | 트렌드 생성 (개발환경 전용)       |
-| Admin Trend Edit   | `/admin/trend/edit`                  | 트렌드 수정 (개발환경 전용)       |
-| Admin Shorts       | `/admin/shorts`                      | Shorts 관리 (개발환경 전용)       |
+| Main               | `/`                                  | 트렌드 탭 + Single 탭, 무한스크롤  |
+| Main (Single 탭)   | `/?tab=single`                       | Single 전용 탭                     |
+| Single 전용        | `/single/{alias}`                    | 개별 Single 투표 페이지            |
+| Vote               | `/vote/{alias}`                      | 5개 투표 순차 진행                 |
+| Result             | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시             |
+| Admin Election     | `/admin/election`                    | 선거 관리 (개발환경 전용)          |
+| Admin HotPick      | `/admin/hotpick`                     | 핫픽 관리 (개발환경 전용)          |
+| Admin HotPick Create | `/admin/hotpick/create`            | 핫픽 생성 (개발환경 전용)          |
+| Admin HotPick Edit | `/admin/hotpick/edit`                | 핫픽 수정 (개발환경 전용)          |
 
 ---
 
