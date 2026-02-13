@@ -413,7 +413,7 @@ Election {
 | API           | Method | 경로                           | 설명                        |
 | ------------- | ------ | ------------------------------ | --------------------------- |
 | 시계열 조회   | GET    | `/api/elections/{id}/timeline` | 시간대별 득표율 스냅샷 배열 |
-| Single 시계열 | GET    | `/api/hotpick/{id}/timeline`   | 동일 구조 (type=SINGLE)    |
+| Single 시계열 | GET    | `/api/hotpick/{id}/timeline`   | 동일 구조 (type=SINGLE)     |
 
 **응답 형식 제안**:
 
@@ -518,8 +518,8 @@ Election / HotPick {
 
 **서버 전달 API 스펙**:
 
-| API                    | 변경 내용                                         |
-| ---------------------- | ------------------------------------------------- |
+| API                     | 변경 내용                                         |
+| ----------------------- | ------------------------------------------------- |
 | Election/HotPick 엔티티 | `voteType`에 `"OVER_UNDER"` 추가                  |
 | Election/HotPick 엔티티 | `threshold?: number` 필드 추가 (기준점)           |
 | Election/HotPick 엔티티 | `actualValue?: number` 필드 추가 (실제 결과 수치) |

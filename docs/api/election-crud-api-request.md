@@ -24,13 +24,13 @@ GET /admin/api/v1/election
 
 **Query Parameters:**
 
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| `keyword` | string | N | 제목 검색 |
-| `voteType` | string | N | `IMAGE` \| `TEXT` 필터 |
-| `status` | string | N | `OPEN` \| `CLOSED` 필터 |
-| `page` | number | N | 페이지 번호 (기본 0) |
-| `size` | number | N | 페이지 크기 (기본 20) |
+| 파라미터   | 타입   | 필수 | 설명                    |
+| ---------- | ------ | ---- | ----------------------- |
+| `keyword`  | string | N    | 제목 검색               |
+| `voteType` | string | N    | `IMAGE` \| `TEXT` 필터  |
+| `status`   | string | N    | `OPEN` \| `CLOSED` 필터 |
+| `page`     | number | N    | 페이지 번호 (기본 0)    |
+| `size`     | number | N    | 페이지 크기 (기본 20)   |
 
 **Response:**
 
@@ -142,15 +142,15 @@ POST /admin/api/v1/election
 
 **검증 규칙:**
 
-| 필드 | 규칙 |
-|------|------|
-| `title` | 필수, 1~200자 |
-| `voteType` | 필수, `IMAGE` \| `TEXT` |
-| `mainImageUrl` | `TEXT` 유형일 때 필수, `IMAGE` 유형일 때 무시 |
-| `options` | 필수, 2~4개 |
-| `options[].title` | 필수, 1~100자 |
+| 필드                 | 규칙                                          |
+| -------------------- | --------------------------------------------- |
+| `title`              | 필수, 1~200자                                 |
+| `voteType`           | 필수, `IMAGE` \| `TEXT`                       |
+| `mainImageUrl`       | `TEXT` 유형일 때 필수, `IMAGE` 유형일 때 무시 |
+| `options`            | 필수, 2~4개                                   |
+| `options[].title`    | 필수, 1~100자                                 |
 | `options[].imageUrl` | `IMAGE` 유형일 때 필수, `TEXT` 유형일 때 무시 |
-| `options[].order` | 필수, 0부터 시작하는 순번 |
+| `options[].order`    | 필수, 0부터 시작하는 순번                     |
 
 **Response:**
 
@@ -189,6 +189,7 @@ PUT /admin/api/v1/election/{electionId}
 **Request Body:** 생성과 동일 구조
 
 **제약사항:**
+
 - 이미 투표가 진행된 선거(투표 수 > 0)의 옵션 개수 변경은 불가
 - 옵션 제목, 이미지 등 텍스트/이미지 수정은 허용
 - `voteType` 변경 시 관련 필드 재검증 필요
@@ -204,6 +205,7 @@ DELETE /admin/api/v1/election/{electionId}
 ```
 
 **제약사항:**
+
 - 핫픽에 연결된 선거(`linkedHotpickCount > 0`)는 삭제 불가 → 400 에러 반환
 - 연결된 핫픽이 없는 경우에만 삭제 가능
 
@@ -240,11 +242,11 @@ DELETE /admin/api/v1/election/{electionId}
 }
 ```
 
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `type` | `"BUNDLE" \| "SINGLE"` | Y | 핫픽 유형 |
-| `categoryCode` | string | N | 카테고리 코드 (섹션 4 참조) |
-| `deadline` | datetime | N | 마감일시, null이면 상시 |
+| 필드           | 타입                   | 필수 | 설명                        |
+| -------------- | ---------------------- | ---- | --------------------------- |
+| `type`         | `"BUNDLE" \| "SINGLE"` | Y    | 핫픽 유형                   |
+| `categoryCode` | string                 | N    | 카테고리 코드 (섹션 4 참조) |
+| `deadline`     | datetime               | N    | 마감일시, null이면 상시     |
 
 ### 2.2 Response 필드 추가
 
@@ -267,20 +269,20 @@ DELETE /admin/api/v1/election/{electionId}
 }
 ```
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `type` | `"BUNDLE" \| "SINGLE"` | 핫픽 유형 |
-| `categoryCode` | string \| null | 카테고리 코드 |
-| `deadline` | datetime \| null | 마감일시 |
-| `status` | `"OPEN" \| "CLOSED"` | 마감 상태 |
-| `totalVotes` | number | 총 투표 수 |
+| 필드           | 타입                   | 설명          |
+| -------------- | ---------------------- | ------------- |
+| `type`         | `"BUNDLE" \| "SINGLE"` | 핫픽 유형     |
+| `categoryCode` | string \| null         | 카테고리 코드 |
+| `deadline`     | datetime \| null       | 마감일시      |
+| `status`       | `"OPEN" \| "CLOSED"`   | 마감 상태     |
+| `totalVotes`   | number                 | 총 투표 수    |
 
 ### 2.3 검증 규칙 변경
 
-| 유형 | electionIds 개수 | imageUrls | meta |
-|------|------------------|-----------|------|
-| `BUNDLE` | 정확히 5개 | 2장 필수 | 선택 |
-| `SINGLE` | 정확히 1개 | 불필요 | 무시 |
+| 유형     | electionIds 개수 | imageUrls | meta |
+| -------- | ---------------- | --------- | ---- |
+| `BUNDLE` | 정확히 5개       | 2장 필수  | 선택 |
+| `SINGLE` | 정확히 1개       | 불필요    | 무시 |
 
 ---
 
@@ -294,11 +296,11 @@ GET /admin/api/v1/hotpick
 
 **추가 Query Parameters:**
 
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| `type` | string | N | `BUNDLE` \| `SINGLE` 필터 |
-| `categoryCode` | string | N | 카테고리 필터 |
-| `status` | string | N | `OPEN` \| `CLOSED` 필터 |
+| 파라미터       | 타입   | 필수 | 설명                      |
+| -------------- | ------ | ---- | ------------------------- |
+| `type`         | string | N    | `BUNDLE` \| `SINGLE` 필터 |
+| `categoryCode` | string | N    | 카테고리 필터             |
+| `status`       | string | N    | `OPEN` \| `CLOSED` 필터   |
 
 ### 3.2 Display 메인 조회
 
@@ -308,10 +310,10 @@ GET /api/v1/display/main
 
 **추가 Query Parameters:**
 
-| 파라미터 | 타입 | 필수 | 설명 |
-|---------|------|------|------|
-| `type` | string | N | `BUNDLE` \| `SINGLE` (탭 분리용) |
-| `categoryCode` | string | N | 카테고리 필터 |
+| 파라미터       | 타입   | 필수 | 설명                             |
+| -------------- | ------ | ---- | -------------------------------- |
+| `type`         | string | N    | `BUNDLE` \| `SINGLE` (탭 분리용) |
+| `categoryCode` | string | N    | 카테고리 필터                    |
 
 ---
 

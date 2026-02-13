@@ -22,12 +22,12 @@ Admin에서 핫픽을 생성할 때, 선거 ID를 console에서 복사해 입력
 
 ### 1.2 문제점
 
-| 문제 | 설명 |
-|------|------|
-| **이중 관리** | console에서 선거 생성 → ID 복사 → hotpick Admin에 붙여넣기 |
+| 문제                  | 설명                                                                                                                                          |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **이중 관리**         | console에서 선거 생성 → ID 복사 → hotpick Admin에 붙여넣기                                                                                    |
 | **인터페이스 불일치** | console의 `ElectionDetail`에 hotpick에서 불필요한 필드 다수 (`description`, `kind`, `allowMultipleVotes`, `startTime/endTime`, `isUnlimited`) |
-| **확장성 제약** | console 선거는 `Option.imageUrl` 필수, 옵션 2개 고정 → P0 기능(텍스트 투표, 다중 선택지, Single) 수용 불가 |
-| **개발 속도 저하** | 선거 구조 변경 시 console BE → hotpick BE → FE 3단계 의존 |
+| **확장성 제약**       | console 선거는 `Option.imageUrl` 필수, 옵션 2개 고정 → P0 기능(텍스트 투표, 다중 선택지, Single) 수용 불가                                    |
+| **개발 속도 저하**    | 선거 구조 변경 시 console BE → hotpick BE → FE 3단계 의존                                                                                     |
 
 ### 1.3 결정 사항
 
@@ -37,14 +37,14 @@ Admin에서 핫픽을 생성할 때, 선거 ID를 console에서 복사해 입력
 
 ## 2. 용어 정의
 
-| 용어 | 코드 | 설명 |
-|------|------|------|
-| **Election** | — | 하나의 투표 질문 (옵션 2~4개) |
-| **HotPick** | — | Election을 묶어 사용자에게 전시하는 단위 |
-| **BUNDLE** | `BUNDLE` | 기존 트렌드 — Election 5개 묶음, 결과 유형 분류 포함 |
-| **SINGLE** | `SINGLE` | 단일 투표 — Election 1개로 독립 운영, 결과 유형 없음 |
-| **IMAGE 투표** | `IMAGE` | 옵션마다 이미지 + 텍스트 (기존 방식) |
-| **TEXT 투표** | `TEXT` | 메인 이미지 1장 + 옵션은 텍스트만 (신규) |
+| 용어           | 코드     | 설명                                                 |
+| -------------- | -------- | ---------------------------------------------------- |
+| **Election**   | —        | 하나의 투표 질문 (옵션 2~4개)                        |
+| **HotPick**    | —        | Election을 묶어 사용자에게 전시하는 단위             |
+| **BUNDLE**     | `BUNDLE` | 기존 트렌드 — Election 5개 묶음, 결과 유형 분류 포함 |
+| **SINGLE**     | `SINGLE` | 단일 투표 — Election 1개로 독립 운영, 결과 유형 없음 |
+| **IMAGE 투표** | `IMAGE`  | 옵션마다 이미지 + 텍스트 (기존 방식)                 |
+| **TEXT 투표**  | `TEXT`   | 메인 이미지 1장 + 옵션은 텍스트만 (신규)             |
 
 ---
 
@@ -52,10 +52,10 @@ Admin에서 핫픽을 생성할 때, 선거 ID를 console에서 복사해 입력
 
 ### 3.1 유형 정의
 
-| 유형명 | 코드 | 메인 이미지 | 옵션 구성 | 용도 |
-|--------|------|-------------|-----------|------|
-| 이미지 투표 | `IMAGE` | 없음 (옵션 이미지가 대체) | 이미지 + 텍스트 (현재 방식) | "바삭 vs 촉촉" 같은 시각적 대비 |
-| 텍스트 투표 | `TEXT` | 1장 (질문 대표 이미지) | 텍스트만 | "최고의 치킨 브랜드는?" 같은 텍스트 중심 |
+| 유형명      | 코드    | 메인 이미지               | 옵션 구성                   | 용도                                     |
+| ----------- | ------- | ------------------------- | --------------------------- | ---------------------------------------- |
+| 이미지 투표 | `IMAGE` | 없음 (옵션 이미지가 대체) | 이미지 + 텍스트 (현재 방식) | "바삭 vs 촉촉" 같은 시각적 대비          |
+| 텍스트 투표 | `TEXT`  | 1장 (질문 대표 이미지)    | 텍스트만                    | "최고의 치킨 브랜드는?" 같은 텍스트 중심 |
 
 ### 3.2 TEXT 투표 UI 예시
 
@@ -123,9 +123,9 @@ type ElectionStatus = 'OPEN' | 'CLOSED';
  */
 interface ElectionOption {
   id: string;
-  title: string;                  // 옵션 텍스트 (필수)
-  imageUrl?: string;              // IMAGE 유형일 때 필수, TEXT 유형일 때 불필요
-  order: number;                  // 옵션 순서 (0부터)
+  title: string; // 옵션 텍스트 (필수)
+  imageUrl?: string; // IMAGE 유형일 때 필수, TEXT 유형일 때 불필요
+  order: number; // 옵션 순서 (0부터)
 }
 
 /**
@@ -133,11 +133,11 @@ interface ElectionOption {
  */
 interface Election {
   id: string;
-  title: string;                  // 질문 텍스트
-  voteType: VoteType;             // 투표 UI 유형
-  mainImageUrl?: string;          // TEXT 유형일 때 메인 이미지
-  options: ElectionOption[];      // 2~4개 옵션
-  status: ElectionStatus;         // OPEN | CLOSED
+  title: string; // 질문 텍스트
+  voteType: VoteType; // 투표 UI 유형
+  mainImageUrl?: string; // TEXT 유형일 때 메인 이미지
+  options: ElectionOption[]; // 2~4개 옵션
+  status: ElectionStatus; // OPEN | CLOSED
   createdAt: string;
   updatedAt: string;
 }
@@ -145,18 +145,18 @@ interface Election {
 
 ### 4.2 console `ElectionDetail` 대비 변경점
 
-| console (기존) | HotPick (신규) | 이유 |
-|---------------|---------------|------|
-| `description` | **제거** | HotPick에서 미사용 |
-| `kind: 'DEFAULT'` | **제거** | 단일 종류만 존재 |
-| `allowMultipleVotes` | **제거** | 항상 단일 투표 |
-| `startTime / endTime` | **제거** | HotPick 레벨의 `deadline`으로 대체 |
-| `isUnlimited` | **제거** | `deadline` 유무로 판단 |
-| `Option.description` | **제거** | UI에서 미사용 |
-| `Option.imageUrl` (필수) | `imageUrl?` (선택) | TEXT 유형 지원 |
-| — | `voteType` **추가** | IMAGE / TEXT 분기 |
-| — | `mainImageUrl` **추가** | TEXT 유형 메인 이미지 |
-| — | `Option.order` **추가** | 옵션 순서 관리 |
+| console (기존)           | HotPick (신규)          | 이유                               |
+| ------------------------ | ----------------------- | ---------------------------------- |
+| `description`            | **제거**                | HotPick에서 미사용                 |
+| `kind: 'DEFAULT'`        | **제거**                | 단일 종류만 존재                   |
+| `allowMultipleVotes`     | **제거**                | 항상 단일 투표                     |
+| `startTime / endTime`    | **제거**                | HotPick 레벨의 `deadline`으로 대체 |
+| `isUnlimited`            | **제거**                | `deadline` 유무로 판단             |
+| `Option.description`     | **제거**                | UI에서 미사용                      |
+| `Option.imageUrl` (필수) | `imageUrl?` (선택)      | TEXT 유형 지원                     |
+| —                        | `voteType` **추가**     | IMAGE / TEXT 분기                  |
+| —                        | `mainImageUrl` **추가** | TEXT 유형 메인 이미지              |
+| —                        | `Option.order` **추가** | 옵션 순서 관리                     |
 
 ### 4.3 HotPick (핫픽)
 
@@ -170,9 +170,14 @@ type HotpickType = 'BUNDLE' | 'SINGLE';
  * 카테고리 코드
  */
 type CategoryCode =
-  | 'FOOD' | 'ENTERTAINMENT' | 'SPORTS'
-  | 'LIFESTYLE' | 'CURRENT' | 'GAME'
-  | 'CULTURE' | 'ETC';
+  | 'FOOD'
+  | 'ENTERTAINMENT'
+  | 'SPORTS'
+  | 'LIFESTYLE'
+  | 'CURRENT'
+  | 'GAME'
+  | 'CULTURE'
+  | 'ETC';
 
 /**
  * HotPick 엔티티 (확장)
@@ -182,15 +187,15 @@ interface HotPick {
   alias: string;
   title: string;
   label?: string;
-  type: HotpickType;              // 🆕 BUNDLE | SINGLE
-  imageUrls?: string[];           // BUNDLE: 커버 이미지 2장
-  categoryCode?: CategoryCode;    // 🆕 카테고리
-  deadline?: string;              // 🆕 마감일시 (null이면 상시)
-  status: 'OPEN' | 'CLOSED';     // 🆕 마감 상태
-  electionIds: string[];          // BUNDLE: 5개, SINGLE: 1개
-  meta?: HotpickMeta;            // BUNDLE 전용 (결과 유형)
+  type: HotpickType; // 🆕 BUNDLE | SINGLE
+  imageUrls?: string[]; // BUNDLE: 커버 이미지 2장
+  categoryCode?: CategoryCode; // 🆕 카테고리
+  deadline?: string; // 🆕 마감일시 (null이면 상시)
+  status: 'OPEN' | 'CLOSED'; // 🆕 마감 상태
+  electionIds: string[]; // BUNDLE: 5개, SINGLE: 1개
+  meta?: HotpickMeta; // BUNDLE 전용 (결과 유형)
   visible: boolean;
-  totalVotes: number;             // 🆕 총 투표 수
+  totalVotes: number; // 🆕 총 투표 수
   createdAt: string;
 }
 ```
@@ -271,16 +276,16 @@ interface HotPick {
 
 ### 5.3 선거(Election) 목록 페이지
 
-| 컬럼 | 설명 |
-|------|------|
-| ID | 선거 고유 ID |
-| 제목 | 질문 텍스트 |
-| 투표 유형 | `IMAGE` / `TEXT` 배지 |
-| 옵션 수 | 2~4개 |
-| 상태 | `OPEN` / `CLOSED` 배지 |
+| 컬럼        | 설명                        |
+| ----------- | --------------------------- |
+| ID          | 선거 고유 ID                |
+| 제목        | 질문 텍스트                 |
+| 투표 유형   | `IMAGE` / `TEXT` 배지       |
+| 옵션 수     | 2~4개                       |
+| 상태        | `OPEN` / `CLOSED` 배지      |
 | 연결된 핫픽 | 이 선거를 사용 중인 핫픽 수 |
-| 생성일 | datetime |
-| 액션 | 수정 버튼 |
+| 생성일      | datetime                    |
+| 액션        | 수정 버튼                   |
 
 ### 5.4 선거(Election) 생성 폼
 
@@ -308,13 +313,13 @@ interface HotPick {
 
 **폼 검증 규칙:**
 
-| 필드 | IMAGE 유형 | TEXT 유형 |
-|------|-----------|----------|
-| 질문(title) | 필수 | 필수 |
-| 메인 이미지 | — | 필수 |
-| 옵션 개수 | 2~4개 | 2~4개 |
-| 옵션 제목 | 필수 | 필수 |
-| 옵션 이미지 | 필수 | — |
+| 필드        | IMAGE 유형 | TEXT 유형 |
+| ----------- | ---------- | --------- |
+| 질문(title) | 필수       | 필수      |
+| 메인 이미지 | —          | 필수      |
+| 옵션 개수   | 2~4개      | 2~4개     |
+| 옵션 제목   | 필수       | 필수      |
+| 옵션 이미지 | 필수       | —         |
 
 ### 5.5 핫픽(HotPick) 생성 — 선거 연결 방식 변경
 
@@ -362,14 +367,14 @@ interface HotPick {
 
 **BUNDLE vs SINGLE 폼 차이:**
 
-| 항목 | BUNDLE | SINGLE |
-|------|--------|--------|
-| 선거 연결 수 | 정확히 5개 | 정확히 1개 |
-| 커버 이미지 | 2장 필수 | 불필요 (선거 이미지 사용) |
-| 결과 유형(meta) | 설정 가능 | 없음 |
-| 라벨 | 선택 | 선택 |
-| 카테고리 | 선택 | 선택 |
-| 마감일 | 선택 | 선택 |
+| 항목            | BUNDLE     | SINGLE                    |
+| --------------- | ---------- | ------------------------- |
+| 선거 연결 수    | 정확히 5개 | 정확히 1개                |
+| 커버 이미지     | 2장 필수   | 불필요 (선거 이미지 사용) |
+| 결과 유형(meta) | 설정 가능  | 없음                      |
+| 라벨            | 선택       | 선택                      |
+| 카테고리        | 선택       | 선택                      |
+| 마감일          | 선택       | 선택                      |
 
 ### 5.6 SINGLE 카드 UI (메인 페이지 Single 탭)
 
@@ -388,16 +393,16 @@ interface HotPick {
 
 ## 6. 카테고리 체계
 
-| 코드 | 한글명 | 아이콘 |
-|------|--------|--------|
-| `FOOD` | 음식 | 🍔 |
-| `ENTERTAINMENT` | 연예 | 🎬 |
-| `SPORTS` | 스포츠 | ⚽ |
-| `LIFESTYLE` | 라이프스타일 | 🏠 |
-| `CURRENT` | 시사 | 📰 |
-| `GAME` | 게임 | 🎮 |
-| `CULTURE` | 문화 | 🎨 |
-| `ETC` | 기타 | 💬 |
+| 코드            | 한글명       | 아이콘 |
+| --------------- | ------------ | ------ |
+| `FOOD`          | 음식         | 🍔     |
+| `ENTERTAINMENT` | 연예         | 🎬     |
+| `SPORTS`        | 스포츠       | ⚽     |
+| `LIFESTYLE`     | 라이프스타일 | 🏠     |
+| `CURRENT`       | 시사         | 📰     |
+| `GAME`          | 게임         | 🎮     |
+| `CULTURE`       | 문화         | 🎨     |
+| `ETC`           | 기타         | 💬     |
 
 ---
 
@@ -410,12 +415,12 @@ interface HotPick {
 
 **FE 표시 규칙:**
 
-| 조건 | 표시 |
-|------|------|
-| D-3 이내 | 마감임박 배지 (🔥) |
-| D-1 이내 | 카운트다운 (시:분:초) |
-| 마감 후 | "마감" 배지, 투표 버튼 비활성 |
-| deadline 없음 | 마감 관련 UI 미표시 |
+| 조건          | 표시                          |
+| ------------- | ----------------------------- |
+| D-3 이내      | 마감임박 배지 (🔥)            |
+| D-1 이내      | 카운트다운 (시:분:초)         |
+| 마감 후       | "마감" 배지, 투표 버튼 비활성 |
+| deadline 없음 | 마감 관련 UI 미표시           |
 
 ---
 
@@ -423,32 +428,32 @@ interface HotPick {
 
 ### 8.1 타입 변경
 
-| 파일 | 변경 사항 |
-|------|-----------|
-| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체 |
-| `src/types/hotpick.ts` | `type`, `categoryCode`, `deadline`, `status`, `totalVotes` 필드 추가 |
+| 파일                    | 변경 사항                                                            |
+| ----------------------- | -------------------------------------------------------------------- |
+| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체                                 |
+| `src/types/hotpick.ts`  | `type`, `categoryCode`, `deadline`, `status`, `totalVotes` 필드 추가 |
 
 ### 8.2 신규 개발
 
-| 대상 | 설명 | 난이도 |
-|------|------|--------|
-| `/admin/election/` 페이지 | 선거 목록/생성/수정 3개 페이지 | ★★★ |
-| `AdminElectionForm` | 선거 생성/수정 폼 컴포넌트 | ★★★ |
-| `AdminElectionList` | 선거 목록 컴포넌트 | ★★☆ |
-| `ElectionSearchSelect` | 핫픽 폼 내 선거 검색/선택 UI | ★★☆ |
-| Election CRUD API 함수 | `src/services/api/admin.ts` 확장 | ★☆☆ |
-| Election React Query 훅 | `src/hooks/api/useAdmin.ts` 확장 | ★☆☆ |
+| 대상                      | 설명                             | 난이도 |
+| ------------------------- | -------------------------------- | ------ |
+| `/admin/election/` 페이지 | 선거 목록/생성/수정 3개 페이지   | ★★★    |
+| `AdminElectionForm`       | 선거 생성/수정 폼 컴포넌트       | ★★★    |
+| `AdminElectionList`       | 선거 목록 컴포넌트               | ★★☆    |
+| `ElectionSearchSelect`    | 핫픽 폼 내 선거 검색/선택 UI     | ★★☆    |
+| Election CRUD API 함수    | `src/services/api/admin.ts` 확장 | ★☆☆    |
+| Election React Query 훅   | `src/hooks/api/useAdmin.ts` 확장 | ★☆☆    |
 
 ### 8.3 기존 코드 수정
 
-| 대상 | 변경 내용 | 난이도 |
-|------|-----------|--------|
-| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체 | ★★☆ |
-| `VoteCard.tsx` | `voteType` 분기 렌더링 (IMAGE/TEXT) | ★★☆ |
-| `VoteOptionCard.tsx` | TEXT 유형 옵션 UI 추가 | ★★☆ |
-| `AdminTrendForm.tsx` | `type`, `categoryCode`, `deadline` 필드 추가 | ★★☆ |
-| `AdminTrendList.tsx` | BUNDLE/SINGLE 필터, 카테고리 표시 | ★☆☆ |
-| `PollCard.tsx` | 마감 배지, 카테고리 태그 표시 | ★☆☆ |
+| 대상                      | 변경 내용                                    | 난이도 |
+| ------------------------- | -------------------------------------------- | ------ |
+| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체      | ★★☆    |
+| `VoteCard.tsx`            | `voteType` 분기 렌더링 (IMAGE/TEXT)          | ★★☆    |
+| `VoteOptionCard.tsx`      | TEXT 유형 옵션 UI 추가                       | ★★☆    |
+| `AdminTrendForm.tsx`      | `type`, `categoryCode`, `deadline` 필드 추가 | ★★☆    |
+| `AdminTrendList.tsx`      | BUNDLE/SINGLE 필터, 카테고리 표시            | ★☆☆    |
+| `PollCard.tsx`            | 마감 배지, 카테고리 태그 표시                | ★☆☆    |
 
 ---
 

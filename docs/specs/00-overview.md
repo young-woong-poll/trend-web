@@ -102,17 +102,17 @@
 
 ## 7. 서비스 페이지 구성
 
-| 페이지             | 경로                                 | 설명                              |
-| ------------------ | ------------------------------------ | --------------------------------- |
-| Main               | `/`                                  | 트렌드 탭 + Single 탭, 무한스크롤  |
-| Main (Single 탭)   | `/?tab=single`                       | Single 전용 탭                     |
-| Single 전용        | `/single/{alias}`                    | 개별 Single 투표 페이지            |
-| Vote               | `/vote/{alias}`                      | 5개 투표 순차 진행                 |
-| Result             | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시             |
-| Admin Election     | `/admin/election`                    | 선거 관리 (개발환경 전용)          |
-| Admin HotPick      | `/admin/hotpick`                     | 핫픽 관리 (개발환경 전용)          |
-| Admin HotPick Create | `/admin/hotpick/create`            | 핫픽 생성 (개발환경 전용)          |
-| Admin HotPick Edit | `/admin/hotpick/edit`                | 핫픽 수정 (개발환경 전용)          |
+| 페이지               | 경로                                 | 설명                              |
+| -------------------- | ------------------------------------ | --------------------------------- |
+| Main                 | `/`                                  | 트렌드 탭 + Single 탭, 무한스크롤 |
+| Main (Single 탭)     | `/?tab=single`                       | Single 전용 탭                    |
+| Single 전용          | `/single/{alias}`                    | 개별 Single 투표 페이지           |
+| Vote                 | `/vote/{alias}`                      | 5개 투표 순차 진행                |
+| Result               | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시            |
+| Admin Election       | `/admin/election`                    | 선거 관리 (개발환경 전용)         |
+| Admin HotPick        | `/admin/hotpick`                     | 핫픽 관리 (개발환경 전용)         |
+| Admin HotPick Create | `/admin/hotpick/create`              | 핫픽 생성 (개발환경 전용)         |
+| Admin HotPick Edit   | `/admin/hotpick/edit`                | 핫픽 수정 (개발환경 전용)         |
 
 ---
 

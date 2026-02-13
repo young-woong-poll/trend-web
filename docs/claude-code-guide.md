@@ -285,14 +285,14 @@ docs/specs/06-single-page.md의 섹션 18(반응형 디자인), 19(성능 최적
 
 ## 6. 파일 참조 요약
 
-| 참조 대상                      | 파일 경로                                        |
-| ------------------------------ | ------------------------------------------------ |
-| 서비스 개요                    | `docs/specs/00-overview.md`                      |
-| Main 페이지 (탭 포함)          | `docs/specs/01-main-page.md`                     |
-| Single 상세 기획서             | `docs/specs/06-single-page.md`                   |
-| 선거 시스템 내재화 설계서      | `docs/specs/new-hotpick-election-system.md`      |
-| Election CRUD API 명세         | `docs/api/election-crud-api-request.md`          |
-| 디자인 토큰                    | `docs/design-system/tokens.md`                   |
-| 디자인 스크린샷                | `docs/design-system/screenshots/`                |
-| 기존 Vote 페이지               | `docs/specs/02-vote-page.md`                     |
-| 기존 Admin 페이지              | `docs/specs/04-admin-page.md`                    |
+| 참조 대상                 | 파일 경로                                   |
+| ------------------------- | ------------------------------------------- |
+| 서비스 개요               | `docs/specs/00-overview.md`                 |
+| Main 페이지 (탭 포함)     | `docs/specs/01-main-page.md`                |
+| Single 상세 기획서        | `docs/specs/06-single-page.md`              |
+| 선거 시스템 내재화 설계서 | `docs/specs/new-hotpick-election-system.md` |
+| Election CRUD API 명세    | `docs/api/election-crud-api-request.md`     |
+| 디자인 토큰               | `docs/design-system/tokens.md`              |
+| 디자인 스크린샷           | `docs/design-system/screenshots/`           |
+| 기존 Vote 페이지          | `docs/specs/02-vote-page.md`                |
+| 기존 Admin 페이지         | `docs/specs/04-admin-page.md`               |
