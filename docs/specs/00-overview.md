@@ -102,17 +102,17 @@
 
 ## 7. 서비스 페이지 구성
 
-| 페이지             | 경로                                 | 설명                                     |
-| ------------------ | ------------------------------------ | ---------------------------------------- |
-| Main               | `/`                                  | 트렌드 탭 + Shorts 탭, 무한스크롤        |
-| Main (Shorts 탭)   | `/?tab=shorts`                       | Shorts 전용 탭                           |
-| Shorts 전용        | `/shorts/{alias}`                    | 개별 Shorts 투표 페이지                  |
-| Vote               | `/vote/{alias}`                      | 5개 투표 순차 진행                       |
-| Result             | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시                   |
-| Admin              | `/admin/trend`                       | 트렌드 관리 (개발환경 전용)              |
-| Admin Trend Create | `/admin/trend/create`                | 트렌드 생성 (개발환경 전용)              |
-| Admin Trend Edit   | `/admin/trend/edit`                  | 트렌드 수정 (개발환경 전용)              |
-| Admin Shorts       | `/admin/shorts`                      | Shorts 관리 (개발환경 전용)              |
+| 페이지             | 경로                                 | 설명                              |
+| ------------------ | ------------------------------------ | --------------------------------- |
+| Main               | `/`                                  | 트렌드 탭 + Shorts 탭, 무한스크롤 |
+| Main (Shorts 탭)   | `/?tab=shorts`                       | Shorts 전용 탭                    |
+| Shorts 전용        | `/shorts/{alias}`                    | 개별 Shorts 투표 페이지           |
+| Vote               | `/vote/{alias}`                      | 5개 투표 순차 진행                |
+| Result             | `/vote/{alias}/result?id={resultId}` | 투표 결과 및 유형 표시            |
+| Admin              | `/admin/trend`                       | 트렌드 관리 (개발환경 전용)       |
+| Admin Trend Create | `/admin/trend/create`                | 트렌드 생성 (개발환경 전용)       |
+| Admin Trend Edit   | `/admin/trend/edit`                  | 트렌드 수정 (개발환경 전용)       |
+| Admin Shorts       | `/admin/shorts`                      | Shorts 관리 (개발환경 전용)       |
 
 ---
 
