@@ -15,7 +15,7 @@ export const PickHistory: FC<PickHistoryProps> = ({ selectedOptions }) => (
 
     <div className={styles.list}>
       {selectedOptions.map((option) => (
-        <div key={option.itemId} className={styles.item}>
+        <div key={option.electionId} className={styles.item}>
           <div className={styles.imageWrapper}>
             {option.optionImageUrl && (
               <Image
@@ -28,7 +28,7 @@ export const PickHistory: FC<PickHistoryProps> = ({ selectedOptions }) => (
             )}
           </div>
           <div className={styles.content}>
-            <p className={styles.question}>{option.itemTitle}</p>
+            <p className={styles.question}>{option.electionTitle}</p>
             <p className={styles.answer}>{option.optionTitle}</p>
           </div>
           <span className={`${styles.percent}${option.percent > 50 ? ` ${styles.highlight}` : ''}`}>

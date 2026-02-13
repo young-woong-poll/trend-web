@@ -8,4 +8,4 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 // Sort
-export { TREND_SORT, type TrendSortOption } from '@/constants/sort';
+export { HOTPICK_SORT, type HotpickSortOption } from '@/constants/sort';

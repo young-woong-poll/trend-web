@@ -9,8 +9,8 @@ import { useCreateComment } from '@/hooks/api/useComment';
 import { validateNickname, isValidNicknameCharacters, NICKNAME_MAX_LENGTH } from '@/lib/utils';
 
 interface CommentFormProps {
-  trendId: string;
-  itemId: string;
+  hotpickId: string;
+  electionId: string;
   onSuccess: () => void;
 }
 
@@ -18,7 +18,7 @@ const COMMENT_MAX_LENGTH = 200;
 const PASSWORD_MIN_LENGTH = 4;
 const PASSWORD_MAX_LENGTH = 15;
 
-export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }) => {
+export const CommentForm: FC<CommentFormProps> = ({ hotpickId, electionId, onSuccess }) => {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [content, setContent] = useState('');
@@ -111,9 +111,10 @@ export const CommentForm: FC<CommentFormProps> = ({ trendId, itemId, onSuccess }
     }
 
     // 댓글 작성 API 호출
+    // NOTE: trendId/itemId are generated model field names (will be renamed after BE migration)
     const requestData: CreateCommentRequest = {
-      trendId: Number(trendId),
-      itemId,
+      trendId: Number(hotpickId),
+      itemId: electionId,
       nickname: trimmedNickname,
       password: trimmedPassword,
       content: trimmedContent,

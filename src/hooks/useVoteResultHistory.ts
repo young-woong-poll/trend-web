@@ -25,9 +25,9 @@ export function useVoteResultHistory() {
   const addToHistory = useCallback(
     (item: Omit<VoteResultHistoryItem, 'viewedAt'>) => {
       setHistory((prev) => {
-        // 중복 체크: 같은 trendAlias + resultId 조합이 있는지 확인
+        // 중복 체크: 같은 hotpickAlias + resultId 조합이 있는지 확인
         const existingIndex = prev.findIndex(
-          (h) => h.trendAlias === item.trendAlias && h.resultId === item.resultId
+          (h) => h.hotpickAlias === item.hotpickAlias && h.resultId === item.resultId
         );
 
         const newItem: VoteResultHistoryItem = {
@@ -56,8 +56,8 @@ export function useVoteResultHistory() {
    * 특정 결과가 히스토리에 있는지 확인
    */
   const isInHistory = useCallback(
-    (trendAlias: string, resultId: string) =>
-      history.some((h) => h.trendAlias === trendAlias && h.resultId === resultId),
+    (hotpickAlias: string, resultId: string) =>
+      history.some((h) => h.hotpickAlias === hotpickAlias && h.resultId === resultId),
     [history]
   );
 
@@ -72,9 +72,9 @@ export function useVoteResultHistory() {
    * 특정 항목 삭제
    */
   const removeFromHistory = useCallback(
-    (trendAlias: string, resultId: string) => {
+    (hotpickAlias: string, resultId: string) => {
       setHistory((prev) =>
-        prev.filter((h) => !(h.trendAlias === trendAlias && h.resultId === resultId))
+        prev.filter((h) => !(h.hotpickAlias === hotpickAlias && h.resultId === resultId))
       );
     },
     [setHistory]

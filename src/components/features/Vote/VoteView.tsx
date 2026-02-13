@@ -18,64 +18,67 @@ import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useVoteSubmission } from '@/hooks/useVoteSubmission';
 
-type TItemId = string;
+type TElectionId = string;
 type TOptionId = string;
-export type TSelectedItemMap = Record<TItemId, TOptionId | null>;
+export type TSelectedElectionMap = Record<TElectionId, TOptionId | null>;
 
 type VoteViewProps = {
-  trendAlias: string;
+  hotpickAlias: string;
   initialData?: DisplayTrendDetailResponse;
   children: ReactNode;
 };
 
-const DEFAULT_NUM_OF_ITEMS = 5;
+const DEFAULT_NUM_OF_ELECTIONS = 5;
 
-export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children }) => {
+export const VoteView: FC<VoteViewProps> = ({ hotpickAlias, initialData, children }) => {
   const router = useRouter();
 
-  const { data: trendData } = useQuery({
-    ...displayQueries.trend(trendAlias),
+  const { data: hotpickData } = useQuery({
+    ...displayQueries.hotpick(hotpickAlias),
     initialData,
   });
 
-  const [currentItemIndex, setCurrentItemIndex] = useState(0);
-  const [selectedItemMap, setSelectedItemMap] = useState<TSelectedItemMap>({});
+  const [currentElectionIndex, setCurrentElectionIndex] = useState(0);
+  const [selectedElectionMap, setSelectedElectionMap] = useState<TSelectedElectionMap>({});
 
-  const [selectedItemForComment, setSelectedItemForComment] = useState<string | null>(null);
+  const [selectedElectionForComment, setSelectedElectionForComment] = useState<string | null>(null);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { submit } = useVoteSubmission();
   const handleError = useErrorHandler();
 
-  const items = trendData?.items ?? [];
-  const trendId = trendData?.trendId;
+  const elections = hotpickData?.items ?? [];
+  const hotpickId = hotpickData?.trendId;
 
   // 모든 아이템의 댓글 수를 한 번에 가져오기
   const commentCountQueries = useQueries({
-    queries: items.map((item) => ({
-      ...commentQueries.count(Number(trendId), item.id ?? ''),
-      enabled: !!trendId,
+    queries: elections.map((election) => ({
+      ...commentQueries.count(Number(hotpickId), election.id ?? ''),
+      enabled: !!hotpickId,
     })),
   });
 
-  // itemId를 키로 하는 댓글 수 맵 생성
-  const commentCountMap = items.reduce<Record<string, number | undefined>>((acc, item, index) => {
-    acc[item.id ?? ''] = commentCountQueries[index]?.data?.count;
-    return acc;
-  }, {});
+  // electionId를 키로 하는 댓글 수 맵 생성
+  const commentCountMap = elections.reduce<Record<string, number | undefined>>(
+    (acc, election, index) => {
+      acc[election.id ?? ''] = commentCountQueries[index]?.data?.count;
+      return acc;
+    },
+    {}
+  );
 
-  // HydrationBoundary로 prefetch되어 있으므로 trendData는 항상 존재
-  if (!trendData || !trendId || !trendData.alias || !items.length) {
+  // HydrationBoundary로 prefetch되어 있으므로 hotpickData는 항상 존재
+  if (!hotpickData || !hotpickId || !hotpickData.alias || !elections.length) {
     return null;
   }
 
-  const { alias, title } = trendData;
+  const { alias, title } = hotpickData;
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const resultId = await submit(String(trendId), selectedItemMap, items.length);
+      const resultId = await submit(String(hotpickId), selectedElectionMap, elections.length);
 
       return router.replace(`/vote/${alias}/result?id=${resultId}`);
     } catch (err) {
@@ -85,8 +88,8 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
   };
 
   const handleNext = async () => {
-    if (currentItemIndex < items.length - 1) {
-      setCurrentItemIndex((prev) => prev + 1);
+    if (currentElectionIndex < elections.length - 1) {
+      setCurrentElectionIndex((prev) => prev + 1);
 
       return;
     }
@@ -94,14 +97,14 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
     await handleSubmit();
   };
 
-  const handleOpenCommentModal = (itemId: string) => {
-    setSelectedItemForComment(itemId);
+  const handleOpenCommentModal = (electionId: string) => {
+    setSelectedElectionForComment(electionId);
     setIsCommentModalOpen(true);
   };
 
   const handleCloseCommentModal = () => {
     setIsCommentModalOpen(false);
-    setSelectedItemForComment(null);
+    setSelectedElectionForComment(null);
   };
 
   return (
@@ -113,46 +116,46 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
         <VoteHeader title={title ?? ''} />
 
         <ProgressBar
-          currentStep={currentItemIndex}
-          totalSteps={items.length || DEFAULT_NUM_OF_ITEMS}
+          currentStep={currentElectionIndex}
+          totalSteps={elections.length || DEFAULT_NUM_OF_ELECTIONS}
         />
 
         <div className={styles.contentWrapper}>
           <div
             className={styles.content}
             style={{
-              transform: `translateX(calc(-${currentItemIndex} * 100%))`,
+              transform: `translateX(calc(-${currentElectionIndex} * 100%))`,
             }}
           >
-            {items.length > 0 &&
-              items.map((item) => {
-                const itemId = item.id ?? '';
-                const selectedOptionId = selectedItemMap[itemId] || null;
+            {elections.length > 0 &&
+              elections.map((election) => {
+                const electionId = election.id ?? '';
+                const selectedOptionId = selectedElectionMap[electionId] || null;
 
                 const handleOptionSelect = (optionId: string) => {
-                  setSelectedItemMap((prev) => ({
+                  setSelectedElectionMap((prev) => ({
                     ...prev,
-                    [itemId]: optionId,
+                    [electionId]: optionId,
                   }));
                 };
 
                 return (
-                  <div key={itemId} className={styles.cardContainer}>
+                  <div key={electionId} className={styles.cardContainer}>
                     <VoteCard
-                      trendAlias={alias}
-                      itemId={itemId}
-                      title={item.title ?? ''}
-                      options={item.options ?? []}
+                      hotpickAlias={alias}
+                      electionId={electionId}
+                      title={election.title ?? ''}
+                      options={election.options ?? []}
                       selectedOptionId={selectedOptionId}
                       handleOptionSelect={handleOptionSelect}
                     />
 
                     <VoteBottomButtons
-                      commentCount={commentCountMap[itemId]}
+                      commentCount={commentCountMap[electionId]}
                       commentDisabled={selectedOptionId === null}
                       nextDisabled={selectedOptionId === null}
                       isSubmitting={isSubmitting}
-                      onCommentClick={() => handleOpenCommentModal(itemId)}
+                      onCommentClick={() => handleOpenCommentModal(electionId)}
                       onNextClick={handleNext}
                     />
                   </div>
@@ -163,13 +166,13 @@ export const VoteView: FC<VoteViewProps> = ({ trendAlias, initialData, children 
       </div>
 
       {/* 댓글 바텀시트 */}
-      {selectedItemForComment && (
+      {selectedElectionForComment && (
         <CommentBottomSheet
           isOpen={isCommentModalOpen}
           onClose={handleCloseCommentModal}
-          trendId={String(trendId)}
-          itemId={selectedItemForComment}
-          trendAlias={alias}
+          hotpickId={String(hotpickId)}
+          electionId={selectedElectionForComment}
+          hotpickAlias={alias}
         />
       )}
     </>

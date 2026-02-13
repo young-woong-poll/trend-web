@@ -10,100 +10,104 @@ import {
   checkTrendAlias,
 } from '@/generated/api/client/admin-trend/admin-trend';
 import { useToast } from '@/hooks/useToast';
-import type { CreateTrendRequest, UpdateTrendRequest, AdminTrendResponse } from '@/types/trend';
+import type {
+  CreateHotpickRequest,
+  UpdateHotpickRequest,
+  AdminHotpickResponse,
+} from '@/types/hotpick';
 
 /**
  * Admin Query Keys
  */
 export const adminKeys = {
   all: ['admin'] as const,
-  trends: () => [...adminKeys.all, 'trends'] as const,
-  trend: (id: number) => [...adminKeys.all, 'trend', id] as const,
+  hotpicks: () => [...adminKeys.all, 'hotpicks'] as const,
+  hotpick: (id: number) => [...adminKeys.all, 'hotpick', id] as const,
   election: (id: string) => [...adminKeys.all, 'election', id] as const,
 };
 
 /**
- * Admin: 트렌드 목록 조회 Hook
+ * Admin: 핫픽 목록 조회 Hook
  */
-export const useTrends = (enabled = true) =>
+export const useHotpicks = (enabled = true) =>
   useQuery({
-    queryKey: adminKeys.trends(),
+    queryKey: adminKeys.hotpicks(),
     // Orval API 호출 후 타입 캐스팅 (Swagger와 실제 API 스키마 불일치)
-    queryFn: () => getTrends() as Promise<AdminTrendResponse[]>,
+    queryFn: () => getTrends() as Promise<AdminHotpickResponse[]>,
     enabled,
   });
 
 /**
- * Admin: 트렌드 상세 조회 Hook
- * 목록 API에서 특정 ID의 트렌드를 찾아 반환
+ * Admin: 핫픽 상세 조회 Hook
+ * 목록 API에서 특정 ID의 핫픽을 찾아 반환
  */
-export const useGetTrendDetail = (trendId: number) =>
+export const useGetHotpickDetail = (hotpickId: number) =>
   useQuery({
-    queryKey: adminKeys.trend(trendId),
+    queryKey: adminKeys.hotpick(hotpickId),
     queryFn: async () => {
-      const trends = (await getTrends()) as AdminTrendResponse[];
-      const trend = trends.find((t) => t.id === trendId);
-      if (!trend) {
-        throw new Error('Trend not found');
+      const hotpicks = (await getTrends()) as AdminHotpickResponse[];
+      const hotpick = hotpicks.find((h) => h.id === hotpickId);
+      if (!hotpick) {
+        throw new Error('Hotpick not found');
       }
-      return trend;
+      return hotpick;
     },
-    enabled: !!trendId,
+    enabled: !!hotpickId,
     staleTime: 1000 * 60,
   });
 
 /**
- * Admin: Trend 생성 Hook
+ * Admin: Hotpick 생성 Hook
  */
-export const useCreateTrend = () => {
+export const useCreateHotpick = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTrendRequest) => createTrend(data),
+    mutationFn: (data: CreateHotpickRequest) => createTrend(data),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
     },
   });
 };
 
 /**
- * Admin: 트렌드 수정 Hook
+ * Admin: 핫픽 수정 Hook
  */
-export const useUpdateTrend = () => {
+export const useUpdateHotpick = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
   return useMutation({
-    mutationFn: ({ trendId, data }: { trendId: number; data: UpdateTrendRequest }) =>
-      updateTrend(trendId, data),
+    mutationFn: ({ hotpickId, data }: { hotpickId: number; data: UpdateHotpickRequest }) =>
+      updateTrend(hotpickId, data),
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trend(variables.trendId) });
-      showToast('트렌드가 수정되었습니다.');
-      window.location.href = '/admin/trend';
+      void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.hotpick(variables.hotpickId) });
+      showToast('핫픽이 수정되었습니다.');
+      window.location.href = '/admin/hotpick';
     },
     onError: () => {
-      showToast('트렌드 수정에 실패했습니다.');
+      showToast('핫픽 수정에 실패했습니다.');
     },
   });
 };
 
 /**
- * Admin: 트렌드 삭제 Hook
+ * Admin: 핫픽 삭제 Hook
  */
-export const useDeleteTrend = () => {
+export const useDeleteHotpick = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
   return useMutation({
-    mutationFn: (trendId: number) => deleteTrend(trendId),
+    mutationFn: (hotpickId: number) => deleteTrend(hotpickId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: adminKeys.trends() });
-      showToast('트렌드가 삭제되었습니다.');
-      window.location.href = '/admin/trend';
+      void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
+      showToast('핫픽이 삭제되었습니다.');
+      window.location.href = '/admin/hotpick';
     },
     onError: () => {
-      showToast('트렌드 삭제에 실패했습니다.');
+      showToast('핫픽 삭제에 실패했습니다.');
     },
   });
 };
@@ -137,10 +141,10 @@ export const useGeneratePresignedUrl = () =>
   });
 
 /**
- * Admin: Trend ID 중복 체크 Hook
- * Trend Alias가 이미 존재하는지 확인
+ * Admin: Hotpick Alias 중복 체크 Hook
+ * Hotpick Alias가 이미 존재하는지 확인
  */
-export const useCheckTrendAlias = () =>
+export const useCheckHotpickAlias = () =>
   useMutation({
     mutationFn: (alias: string) => checkTrendAlias({ alias }),
   });

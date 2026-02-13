@@ -24,30 +24,30 @@ export {
   displayQueries,
   useMainDisplay,
   useInfiniteMainDisplay,
-  useTrendDetail,
+  useHotpickDetail,
   useResultDetail,
-  useTrendNavigation,
+  useHotpickNavigation,
 } from '@/hooks/api/useDisplay';
 
 // Admin Hooks
 export {
   adminKeys,
-  useTrends,
-  useCreateTrend,
-  useUpdateTrend,
-  useDeleteTrend,
+  useHotpicks,
+  useCreateHotpick,
+  useUpdateHotpick,
+  useDeleteHotpick,
   useElection,
   useFetchElection,
   useGeneratePresignedUrl,
-  useCheckTrendAlias,
+  useCheckHotpickAlias,
 } from '@/hooks/api/useAdmin';
 
-// Trend Hooks
+// Hotpick Hooks
 export {
-  trendKeys,
-  useTrendItemOptionsCount,
-  useTrendItemOptionsCountMap,
-} from '@/hooks/api/useTrend';
+  hotpickKeys,
+  useHotpickElectionOptionsCount,
+  useHotpickElectionOptionsCountMap,
+} from '@/hooks/api/useHotpick';
 
 // Result Hooks
 export { resultKeys, useCheckResultExists, useCreateResult } from '@/hooks/api/useResult';

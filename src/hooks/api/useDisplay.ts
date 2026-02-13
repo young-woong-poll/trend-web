@@ -28,7 +28,7 @@ export const displayKeys = {
     [...displayKeys.all, 'main', params] as const,
   mainInfinite: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
     [...displayKeys.all, 'mainInfinite', params] as const,
-  trend: (alias: string) => [...displayKeys.all, 'trend', alias] as const,
+  hotpick: (alias: string) => [...displayKeys.all, 'hotpick', alias] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
   navigation: (alias: string, sort?: string) =>
     [...displayKeys.all, 'navigation', alias, sort] as const,
@@ -55,17 +55,19 @@ export const displayQueries = {
     }),
 
   /**
-   * 트렌드 상세 쿼리 옵션
+   * 핫픽 상세 쿼리 옵션
    */
-  trend: (trendAlias: string) =>
+  hotpick: (hotpickAlias: string) =>
     queryOptions<DisplayTrendDetailResponse | null>({
-      queryKey: displayKeys.trend(trendAlias),
+      queryKey: displayKeys.hotpick(hotpickAlias),
       queryFn: async () => {
         if (isServer()) {
-          const response = await serverApi.getTrendDetail(trendAlias, { next: { revalidate: 60 } });
+          const response = await serverApi.getTrendDetail(hotpickAlias, {
+            next: { revalidate: 60 },
+          });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getTrendDetail(trendAlias);
+        return clientApi.getTrendDetail(hotpickAlias);
       },
       staleTime: 60 * 1000,
     }),
@@ -147,10 +149,10 @@ export const useInfiniteMainDisplay = (params?: {
 };
 
 /**
- * 트렌드 상세 Hook
+ * 핫픽 상세 Hook
  */
-export const useTrendDetail = (trendAlias: string) =>
-  useQuery({ ...displayQueries.trend(trendAlias), enabled: !!trendAlias });
+export const useHotpickDetail = (hotpickAlias: string) =>
+  useQuery({ ...displayQueries.hotpick(hotpickAlias), enabled: !!hotpickAlias });
 
 /**
  * 결과 상세 Hook
@@ -159,12 +161,12 @@ export const useResultDetail = (resultId: string) =>
   useQuery({ ...displayQueries.result(resultId), enabled: !!resultId });
 
 /**
- * 트렌드 네비게이션 Hook
+ * 핫픽 네비게이션 Hook
  */
-export const useTrendNavigation = (trendAlias: string, sort?: 'latest' | 'popular') =>
+export const useHotpickNavigation = (hotpickAlias: string, sort?: 'latest' | 'popular') =>
   useQuery({
-    queryKey: displayKeys.navigation(trendAlias, sort),
-    queryFn: () => clientApi.getTrendNavigation(trendAlias, { sort }),
-    enabled: !!trendAlias,
+    queryKey: displayKeys.navigation(hotpickAlias, sort),
+    queryFn: () => clientApi.getTrendNavigation(hotpickAlias, { sort }),
+    enabled: !!hotpickAlias,
     staleTime: 60 * 1000,
   });

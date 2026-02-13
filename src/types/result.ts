@@ -6,8 +6,8 @@
  * Result 생성 요청
  */
 export interface CreateResultRequest {
-  trendId: number;
-  selectedItems: SelectedItem[];
+  hotpickId: number;
+  selectedElections: SelectedElection[];
 }
 
 /**
@@ -20,8 +20,8 @@ export interface CreateResultResponse {
 /**
  * 투표 선택된 응답들
  */
-export interface SelectedItem {
-  itemId: string;
+export interface SelectedElection {
+  electionId: string;
   optionId: string;
 }
 
@@ -39,8 +39,8 @@ export interface ResultType {
  * 선택된 옵션 정보
  */
 export interface SelectedOption {
-  itemId: string;
-  itemTitle: string;
+  electionId: string;
+  electionTitle: string;
   optionId: string;
   optionTitle: string;
   optionImageUrl: string;

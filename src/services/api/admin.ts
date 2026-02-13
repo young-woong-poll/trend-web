@@ -1,33 +1,35 @@
 import axiosInstance from '@/lib/axios';
 import type { ElectionDetail } from '@/types/election';
-import type { PresignedUrlResponse } from '@/types/storage';
 import type {
-  CreateTrendRequest,
-  TrendResponse,
-  AdminTrendResponse,
-  UpdateTrendRequest,
-  TrendAliasCheckResponse,
-} from '@/types/trend';
+  CreateHotpickRequest,
+  HotpickResponse,
+  AdminHotpickResponse,
+  UpdateHotpickRequest,
+  HotpickAliasCheckResponse,
+} from '@/types/hotpick';
+import type { PresignedUrlResponse } from '@/types/storage';
 
 /**
  * Admin API 서비스
  */
 export const adminApi = {
   /**
-   * Admin: Trend 생성
-   * POST /admin/api/v1/trend
+   * Admin: Hotpick 생성
+   * POST /admin/api/v1/hotpick
    */
-  createTrend: async (data: CreateTrendRequest): Promise<TrendResponse> => {
-    const response = await axiosInstance.post<TrendResponse>('/admin/api/v1/trend', data);
+  createHotpick: async (data: CreateHotpickRequest): Promise<HotpickResponse> => {
+    const response = await axiosInstance.post<HotpickResponse>('/admin/api/v1/hotpick', data);
     return response.data;
   },
 
   /**
-   * Admin: 선거 상세 조회 (Item API)
-   * GET /admin/api/v1/item/{itemId}
+   * Admin: 선거 상세 조회 (Election API)
+   * GET /admin/api/v1/election/{electionId}
    */
-  getElection: async (itemId: string): Promise<ElectionDetail> => {
-    const response = await axiosInstance.get<ElectionDetail>(`/admin/api/v1/item/${itemId}`);
+  getElection: async (electionId: string): Promise<ElectionDetail> => {
+    const response = await axiosInstance.get<ElectionDetail>(
+      `/admin/api/v1/election/${electionId}`
+    );
     return response.data;
   },
 
@@ -46,44 +48,50 @@ export const adminApi = {
   },
 
   /**
-   * Admin: Trend ID 중복 체크
-   * GET /admin/api/v1/trend/check?alias={alias}
-   * @param alias - 체크할 trend alias
+   * Admin: Hotpick Alias 중복 체크
+   * GET /admin/api/v1/hotpick/check?alias={alias}
+   * @param alias - 체크할 hotpick alias
    * @returns exists 여부를 포함한 객체
    */
-  checkTrendAlias: async (alias: string): Promise<TrendAliasCheckResponse> => {
-    const response = await axiosInstance.get<TrendAliasCheckResponse>('/admin/api/v1/trend/check', {
-      params: { alias },
-    });
+  checkHotpickAlias: async (alias: string): Promise<HotpickAliasCheckResponse> => {
+    const response = await axiosInstance.get<HotpickAliasCheckResponse>(
+      '/admin/api/v1/hotpick/check',
+      {
+        params: { alias },
+      }
+    );
     return response.data;
   },
 
   /**
-   * Admin: 트렌드 목록 조회
-   * GET /admin/api/v1/trend
+   * Admin: 핫픽 목록 조회
+   * GET /admin/api/v1/hotpick
    */
-  getTrends: async (): Promise<AdminTrendResponse[]> => {
-    const response = await axiosInstance.get<AdminTrendResponse[]>('/admin/api/v1/trend');
+  getHotpicks: async (): Promise<AdminHotpickResponse[]> => {
+    const response = await axiosInstance.get<AdminHotpickResponse[]>('/admin/api/v1/hotpick');
     return response.data;
   },
 
   /**
-   * Admin: 트렌드 수정
-   * PUT /admin/api/v1/trend/{trendId}
+   * Admin: 핫픽 수정
+   * PUT /admin/api/v1/hotpick/{hotpickId}
    */
-  updateTrend: async (trendId: number, data: UpdateTrendRequest): Promise<AdminTrendResponse> => {
-    const response = await axiosInstance.put<AdminTrendResponse>(
-      `/admin/api/v1/trend/${trendId}`,
+  updateHotpick: async (
+    hotpickId: number,
+    data: UpdateHotpickRequest
+  ): Promise<AdminHotpickResponse> => {
+    const response = await axiosInstance.put<AdminHotpickResponse>(
+      `/admin/api/v1/hotpick/${hotpickId}`,
       data
     );
     return response.data;
   },
 
   /**
-   * Admin: 트렌드 삭제
-   * DELETE /admin/api/v1/trend/{trendId}
+   * Admin: 핫픽 삭제
+   * DELETE /admin/api/v1/hotpick/{hotpickId}
    */
-  deleteTrend: async (trendId: number): Promise<void> => {
-    await axiosInstance.delete(`/admin/api/v1/trend/${trendId}`);
+  deleteHotpick: async (hotpickId: number): Promise<void> => {
+    await axiosInstance.delete(`/admin/api/v1/hotpick/${hotpickId}`);
   },
 };

@@ -20,17 +20,18 @@ export function generateMainStructuredData(data: DisplayMainResponse) {
     },
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: (data.trends ?? []).map((trend, index) => ({
+      // NOTE: data.trends is a generated model field name (will be renamed after BE migration)
+      itemListElement: (data.trends ?? []).map((hotpick, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         item: {
           '@type': 'Question',
-          name: trend.title,
-          text: trend.label,
+          name: hotpick.title,
+          text: hotpick.label,
           interactionStatistic: {
             '@type': 'InteractionCounter',
             interactionType: 'https://schema.org/VoteAction',
-            userInteractionCount: trend.participantsCount ?? 0,
+            userInteractionCount: hotpick.participantsCount ?? 0,
           },
         },
       })),

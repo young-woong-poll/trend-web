@@ -1,6 +1,6 @@
 import { serverFetch } from '@/lib/serverFetch';
+import type { MainDisplayResponse, HotpickDisplayResponse } from '@/types/hotpick';
 import type { ResultDisplayResponse } from '@/types/result';
-import type { MainDisplayResponse, TrendDisplayResponse } from '@/types/trend';
 
 /**
  * 서버 컴포넌트 전용 Display API
@@ -33,10 +33,10 @@ export const serverDisplayApi = {
   },
 
   /**
-   * Trend 전시 조회 (서버 컴포넌트 전용)
+   * Hotpick 전시 조회 (서버 컴포넌트 전용)
    */
-  getTrendDisplay: async (trendAlias: string): Promise<TrendDisplayResponse> =>
-    serverFetch<TrendDisplayResponse>(`/api/v1/display/trend/${trendAlias}`, {
+  getHotpickDisplay: async (hotpickAlias: string): Promise<HotpickDisplayResponse> =>
+    serverFetch<HotpickDisplayResponse>(`/api/v1/display/hotpick/${hotpickAlias}`, {
       next: { revalidate: 60 }, // ISR: 60초마다 재검증
     }),
 

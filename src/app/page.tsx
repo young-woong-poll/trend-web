@@ -2,7 +2,7 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
 import { StructuredData } from '@/components/common/StructuredData/StructuredData';
 import { MainContent } from '@/components/features/Main/MainContent';
-import { TREND_SORT } from '@/constants/sort';
+import { HOTPICK_SORT } from '@/constants/sort';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { createServerQueryClient } from '@/lib/react-query';
 import { generateMainStructuredData } from '@/lib/seo/structuredData';
@@ -15,7 +15,7 @@ export default async function Home() {
   try {
     // 서버에서 pre-fetch (queryOptions의 queryFn이 서버 API 호출)
     const mainData = await queryClient.fetchQuery(
-      displayQueries.main({ size: 20, sort: TREND_SORT })
+      displayQueries.main({ size: 20, sort: HOTPICK_SORT })
     );
 
     return (

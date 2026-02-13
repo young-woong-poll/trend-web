@@ -5,24 +5,24 @@ import { VoteView } from '@/components/features/Vote/VoteView';
 import type { DisplayTrendDetailResponse } from '@/generated/models';
 
 type TVoteContentProps = {
-  trendAlias: string;
+  hotpickAlias: string;
   data?: DisplayTrendDetailResponse;
 };
 
-export const VoteContent: FC<TVoteContentProps> = ({ trendAlias, data }) => {
-  const items = data?.items ?? [];
+export const VoteContent: FC<TVoteContentProps> = ({ hotpickAlias, data }) => {
+  const elections = data?.items ?? [];
 
   return (
     <FlexibleLayout>
-      <VoteView trendAlias={trendAlias} initialData={data}>
+      <VoteView hotpickAlias={hotpickAlias} initialData={data}>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         <div suppressHydrationWarning>
-          {items.map((item) => (
-            <div key={item.id}>
-              <h1>{item.title}</h1>
-              <p>{item.label}</p>
+          {elections.map((election) => (
+            <div key={election.id}>
+              <h1>{election.title}</h1>
+              <p>{election.label}</p>
               <div>
-                {(item.options ?? []).map((option) => (
+                {(election.options ?? []).map((option) => (
                   <div key={option.id}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={option.imageUrl} alt={option.title} loading="lazy" />

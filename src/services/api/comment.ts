@@ -105,11 +105,11 @@ export const commentApi = {
 
   /**
    * 댓글 개수 조회
-   * GET /api/v1/comment/{trendId}/item/{itemId}/count
+   * GET /api/v1/comment/{hotpickId}/election/{electionId}/count
    */
-  countComments: async (trendId: number, itemId: string): Promise<CommentCountResponse> => {
+  countComments: async (hotpickId: number, electionId: string): Promise<CommentCountResponse> => {
     const response: AxiosResponse<CommentCountResponse> = await axiosInstance.get(
-      `/api/v1/comment/${trendId}/item/${itemId}/count`
+      `/api/v1/comment/${hotpickId}/election/${electionId}/count`
     );
     return response.data;
   },

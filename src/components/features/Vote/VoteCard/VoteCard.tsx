@@ -5,11 +5,11 @@ import { type FC } from 'react';
 import styles from '@/components/features/Vote/VoteCard/VoteCard.module.scss';
 import { VoteOptionCard } from '@/components/features/Vote/VoteOptionCard';
 import type { DisplayTrendOptionResponse } from '@/generated/models';
-import { useTrendItemOptionsCount } from '@/hooks/api/useTrend';
+import { useHotpickElectionOptionsCount } from '@/hooks/api/useHotpick';
 
 interface VoteCardProps {
-  trendAlias: string;
-  itemId: string;
+  hotpickAlias: string;
+  electionId: string;
   title: string;
   options: DisplayTrendOptionResponse[];
   selectedOptionId: string | null;
@@ -17,14 +17,14 @@ interface VoteCardProps {
 }
 
 export const VoteCard: FC<VoteCardProps> = ({
-  trendAlias,
-  itemId,
+  hotpickAlias,
+  electionId,
   title,
   options,
   selectedOptionId,
   handleOptionSelect,
 }) => {
-  const { data: optionCountData } = useTrendItemOptionsCount({ trendAlias, itemId });
+  const { data: optionCountData } = useHotpickElectionOptionsCount({ hotpickAlias, electionId });
   const optionCounts = optionCountData?.options ?? [];
 
   const totalVotes =
