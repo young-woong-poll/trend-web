@@ -279,10 +279,10 @@ DELETE /admin/api/v1/election/{electionId}
 
 ### 2.3 검증 규칙 변경
 
-| 유형     | electionIds 개수 | imageUrls  | meta |
-| -------- | ---------------- | ---------- | ---- |
-| `BUNDLE` | 2개 이상         | 1장 이상   | 선택 |
-| `SINGLE` | 정확히 1개       | 불필요     | 무시 |
+| 유형     | electionIds 개수 | imageUrls | meta |
+| -------- | ---------------- | --------- | ---- |
+| `BUNDLE` | 2개 이상         | 1장 이상  | 선택 |
+| `SINGLE` | 정확히 1개       | 불필요    | 무시 |
 
 ---
 
