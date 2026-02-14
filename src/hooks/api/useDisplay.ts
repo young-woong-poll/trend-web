@@ -13,6 +13,7 @@ import type {
   DisplayTrendDetailResponse,
   DisplayResultResponse,
 } from '@/generated/models';
+import type { CategoryCode, HotpickType } from '@/types/hotpick';
 
 /**
  * 서버/클라이언트 환경 구분 유틸리티
@@ -26,8 +27,12 @@ export const displayKeys = {
   all: ['display'] as const,
   main: (params?: { size?: number; cursor?: number; sort?: 'latest' | 'popular' }) =>
     [...displayKeys.all, 'main', params] as const,
-  mainInfinite: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
-    [...displayKeys.all, 'mainInfinite', params] as const,
+  mainInfinite: (params?: {
+    size?: number;
+    sort?: 'latest' | 'popular';
+    categoryCodes?: CategoryCode[];
+    type?: HotpickType;
+  }) => [...displayKeys.all, 'mainInfinite', params] as const,
   hotpick: (alias: string) => [...displayKeys.all, 'hotpick', alias] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
   navigation: (alias: string, sort?: string) =>
@@ -93,7 +98,12 @@ export const displayQueries = {
   /**
    * 메인 전시 무한 스크롤 쿼리 옵션
    */
-  infiniteMain: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
+  infiniteMain: (params?: {
+    size?: number;
+    sort?: 'latest' | 'popular';
+    categoryCodes?: CategoryCode[];
+    type?: HotpickType;
+  }) =>
     infiniteQueryOptions<
       DisplayMainResponse | null,
       Error,
@@ -133,6 +143,8 @@ export const useMainDisplay = (params?: {
 export const useInfiniteMainDisplay = (params?: {
   size?: number;
   sort?: 'latest' | 'popular';
+  categoryCodes?: CategoryCode[];
+  type?: HotpickType;
   initialData?: DisplayMainResponse;
 }) => {
   const { initialData: initData, ...queryParams } = params ?? {};

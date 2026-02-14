@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
+import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
 import { isWithin24Hours } from '@/lib/utils';
@@ -17,6 +18,8 @@ type TPollCardProps = {
   createdAt?: string;
   imageUrls?: string[];
   participantCount?: number;
+  deadline?: string;
+  status?: string;
   children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
 };
 
@@ -27,11 +30,14 @@ export const PollCard: FC<TPollCardProps> = ({
   createdAt,
   imageUrls = [],
   participantCount = 0,
+  deadline,
+  status,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
   const isNew = isWithin24Hours(createdAt ?? '');
+  const isClosed = status === 'CLOSED';
 
   const formatCount = (count: number): string => {
     if (count >= 1000) {
@@ -45,9 +51,12 @@ export const PollCard: FC<TPollCardProps> = ({
       {/* 클라이언트 인터랙티브 버전 (이미지 로딩 관리) */}
       {!isImageLoaded && <PollCardSkeleton />}
       <div
-        className={styles.cardWrapper}
+        className={`${styles.cardWrapper} ${isClosed ? styles.closed : ''}`}
         style={{ display: isImageLoaded ? 'block' : 'none' }}
         onClick={() => {
+          if (isClosed) {
+            return;
+          }
           setIsNavigating(true);
           router.push(`/hotpick/${alias}`);
         }}
@@ -75,7 +84,14 @@ export const PollCard: FC<TPollCardProps> = ({
           </div>
 
           {/* NEW Badge */}
-          {isNew && <div className={styles.newBadge}>NEW</div>}
+          {isNew && !isClosed && <div className={styles.newBadge}>NEW</div>}
+
+          {/* Deadline Badge */}
+          {deadline && (
+            <div className={styles.deadlineBadgeWrapper}>
+              <DeadlineBadge deadline={deadline} compact />
+            </div>
+          )}
 
           <div className={styles.content}>
             <h2 className={styles.title}>{title}</h2>
@@ -87,10 +103,13 @@ export const PollCard: FC<TPollCardProps> = ({
               className={styles.button}
               onClick={(e) => {
                 e.stopPropagation();
+                if (isClosed) {
+                  return;
+                }
                 setIsNavigating(true);
                 router.push(`/hotpick/${alias}`);
               }}
-              disabled={isNavigating}
+              disabled={isNavigating || isClosed}
             >
               {isNavigating ? (
                 <div className={styles.loadingDots}>

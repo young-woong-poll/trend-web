@@ -12,6 +12,20 @@
   padding: 0 16px;
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.closedNotice {
+  text-align: center;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  padding: 8px 0;
+}
+
 .contentWrapper {
   position: relative;
   width: 100%;

@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useRef, type FC, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type FC, type ReactNode } from 'react';
 
+import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
+import { MainTabNavigation, type MainTab } from '@/components/features/Main/MainTabNavigation';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
+import { SingleView } from '@/components/features/Main/SingleView';
 import { HOTPICK_SORT } from '@/constants';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay } from '@/hooks/api';
+import type { CategoryCode } from '@/types/hotpick';
 
 type TMainViewProps = {
   initialData?: DisplayMainResponse;
@@ -26,13 +30,25 @@ const isValidImageUrl = (url: string | undefined): boolean => {
 };
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
+  const [activeTab, setActiveTab] = useState<MainTab>('trend');
+  const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
+
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
-    useInfiniteMainDisplay({ size: 20, sort: HOTPICK_SORT, initialData });
+    useInfiniteMainDisplay({
+      size: 20,
+      sort: HOTPICK_SORT,
+      categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
+      initialData: categoryCodes.length === 0 && activeTab === 'trend' ? initialData : undefined,
+    });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
   // Intersection Observer로 무한스크롤 구현
   useEffect(() => {
+    if (activeTab !== 'trend') {
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
@@ -52,18 +68,34 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
         observer.unobserve(currentTarget);
       }
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, activeTab]);
 
   // 페이지 데이터 병합
   // initialData가 useInfiniteQuery에 주입되므로 data만 사용
   const fixedHotpicks = data.pages[0]?.fixedTrends ?? [];
   const hotpicks = data.pages.flatMap((page) => page?.trends ?? []);
 
+  // Single 탭일 때
+  if (activeTab === 'single') {
+    return (
+      <>
+        <noscript>{children}</noscript>
+        <div className={styles.container}>
+          <MainTabNavigation activeTab={activeTab} onChange={setActiveTab} />
+          <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+          <SingleView categoryCodes={categoryCodes.length > 0 ? categoryCodes : undefined} />
+        </div>
+      </>
+    );
+  }
+
   // 초기 로딩 상태 (initialData가 없는 경우 대비)
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
+        <MainTabNavigation activeTab={activeTab} onChange={setActiveTab} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
         <div className={styles.statusContainer}>
           <p className={styles.statusText}>트렌드를 불러오는 중...</p>
         </div>
@@ -75,6 +107,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
+        <MainTabNavigation activeTab={activeTab} onChange={setActiveTab} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
         <div className={styles.statusContainer}>
           <p className={styles.errorText}>트렌드를 불러오는데 실패했습니다.</p>
           <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
@@ -87,6 +121,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (fixedHotpicks.length === 0 && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
+        <MainTabNavigation activeTab={activeTab} onChange={setActiveTab} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
           <h2 className={styles.title}>아직 진행중인 트렌드가 없어요</h2>
@@ -105,6 +141,9 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
+        <MainTabNavigation activeTab={activeTab} onChange={setActiveTab} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+
         {/* 고정 핫픽 먼저 노출 */}
         {fixedHotpicks.map((trend) => {
           const rawImageUrls = trend.imageUrls ?? [];
