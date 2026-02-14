@@ -242,11 +242,11 @@ DELETE /admin/api/v1/election/{electionId}
 }
 ```
 
-| 필드           | 타입                   | 필수 | 설명                        |
-| -------------- | ---------------------- | ---- | --------------------------- |
-| `type`         | `"BUNDLE" \| "SINGLE"` | Y    | 핫픽 유형                   |
-| `categoryCodes` | string[]              | N    | 카테고리 코드 배열 (섹션 4 참조, 다중 선택) |
-| `deadline`     | datetime               | N    | 마감일시, null이면 상시     |
+| 필드            | 타입                   | 필수 | 설명                                        |
+| --------------- | ---------------------- | ---- | ------------------------------------------- |
+| `type`          | `"BUNDLE" \| "SINGLE"` | Y    | 핫픽 유형                                   |
+| `categoryCodes` | string[]               | N    | 카테고리 코드 배열 (섹션 4 참조, 다중 선택) |
+| `deadline`      | datetime               | N    | 마감일시, null이면 상시                     |
 
 ### 2.2 Response 필드 추가
 
@@ -269,13 +269,13 @@ DELETE /admin/api/v1/election/{electionId}
 }
 ```
 
-| 필드           | 타입                   | 설명          |
-| -------------- | ---------------------- | ------------- |
-| `type`         | `"BUNDLE" \| "SINGLE"` | 핫픽 유형     |
-| `categoryCodes` | string[]              | 카테고리 코드 배열 |
-| `deadline`     | datetime \| null       | 마감일시      |
-| `status`       | `"OPEN" \| "CLOSED"`   | 마감 상태     |
-| `totalVotes`   | number                 | 총 투표 수    |
+| 필드            | 타입                   | 설명               |
+| --------------- | ---------------------- | ------------------ |
+| `type`          | `"BUNDLE" \| "SINGLE"` | 핫픽 유형          |
+| `categoryCodes` | string[]               | 카테고리 코드 배열 |
+| `deadline`      | datetime \| null       | 마감일시           |
+| `status`        | `"OPEN" \| "CLOSED"`   | 마감 상태          |
+| `totalVotes`    | number                 | 총 투표 수         |
 
 ### 2.3 검증 규칙 변경
 

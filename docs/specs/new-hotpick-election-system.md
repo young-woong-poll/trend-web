@@ -448,9 +448,9 @@ interface HotPick {
 
 ### 8.1 타입 변경
 
-| 파일                    | 변경 사항                                                            |
-| ----------------------- | -------------------------------------------------------------------- |
-| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체                                 |
+| 파일                    | 변경 사항                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체                                         |
 | `src/types/hotpick.ts`  | `type`, `categoryCodes` (배열), `deadline`, `status`, `totalVotes` 필드 추가 |
 
 ### 8.2 신규 개발
@@ -466,14 +466,14 @@ interface HotPick {
 
 ### 8.3 기존 코드 수정
 
-| 대상                      | 변경 내용                                    | 난이도 |
-| ------------------------- | -------------------------------------------- | ------ |
-| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체      | ★★☆    |
-| `VoteCard.tsx`            | `voteType` 분기 렌더링 (IMAGE/TEXT)          | ★★☆    |
-| `VoteOptionCard.tsx`      | TEXT 유형 옵션 UI 추가                       | ★★☆    |
+| 대상                      | 변경 내용                                                 | 난이도 |
+| ------------------------- | --------------------------------------------------------- | ------ |
+| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체                   | ★★☆    |
+| `VoteCard.tsx`            | `voteType` 분기 렌더링 (IMAGE/TEXT)                       | ★★☆    |
+| `VoteOptionCard.tsx`      | TEXT 유형 옵션 UI 추가                                    | ★★☆    |
 | `AdminTrendForm.tsx`      | `type`, `categoryCodes` (다중 선택), `deadline` 필드 추가 | ★★☆    |
-| `AdminTrendList.tsx`      | BUNDLE/SINGLE 필터, 카테고리 표시            | ★☆☆    |
-| `PollCard.tsx`            | 마감 배지, 카테고리 태그 표시                | ★☆☆    |
+| `AdminTrendList.tsx`      | BUNDLE/SINGLE 필터, 카테고리 표시                         | ★☆☆    |
+| `PollCard.tsx`            | 마감 배지, 카테고리 태그 표시                             | ★☆☆    |
 
 ---
 
