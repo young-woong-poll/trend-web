@@ -1,16 +1,22 @@
-/**
- * 투표 UI 유형
- */
+// ──────────────────────────────────────────────────────────
+// [DEPRECATED] 수동 정의 타입 — BE API 연동 후 Orval 생성 타입으로 교체 예정
+//
+// BE OpenAPI 스펙 확정 → `npx orval` 재생성 후:
+// 1. 이 파일의 수동 타입들을 삭제
+// 2. import를 Orval 생성 타입(src/generated/models)으로 교체
+//
+// 사용처:
+// - src/services/api/election.ts
+// - src/hooks/api/useElection.ts
+// - src/types/display.ts (VoteType)
+// - src/types/hotpick.ts (VoteType import)
+// - Admin Election 컴포넌트들
+// ──────────────────────────────────────────────────────────
+
 export type VoteType = 'IMAGE' | 'TEXT';
 
-/**
- * 선거 상태
- */
 export type ElectionStatus = 'OPEN' | 'CLOSED';
 
-/**
- * 선거 옵션 (후보)
- */
 export interface ElectionOption {
   id: string;
   title: string;
@@ -18,9 +24,6 @@ export interface ElectionOption {
   order: number; // 옵션 순서 (0부터)
 }
 
-/**
- * HotPick 선거 엔티티
- */
 export interface Election {
   id: string;
   title: string;
@@ -33,9 +36,6 @@ export interface Election {
   updatedAt: string;
 }
 
-/**
- * Admin: 선거 생성 요청
- */
 export interface CreateElectionRequest {
   title: string;
   voteType: VoteType;
@@ -43,14 +43,8 @@ export interface CreateElectionRequest {
   options: Omit<ElectionOption, 'id'>[];
 }
 
-/**
- * Admin: 선거 수정 요청
- */
 export type UpdateElectionRequest = CreateElectionRequest;
 
-/**
- * Admin: 선거 목록 응답 (페이지네이션)
- */
 export interface ElectionListResponse {
   content: Election[];
   totalElements: number;
@@ -59,9 +53,6 @@ export interface ElectionListResponse {
   size: number;
 }
 
-/**
- * Admin: 선거 목록 조회 파라미터
- */
 export interface ElectionListParams {
   keyword?: string;
   voteType?: VoteType;

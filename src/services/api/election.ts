@@ -7,10 +7,11 @@ import type {
   ElectionListParams,
 } from '@/types/election';
 
-/**
- * Election Admin API 서비스
- * BE API 미구현 시 mock 데이터로 대체 가능
- */
+// ──────────────────────────────────────────────────────────
+// [DEPRECATED] 수동 API 함수 — BE API 연동 후 Orval 생성 함수로 교체 예정.
+// 이 파일 전체를 삭제하고, Orval 생성된 election API로 대체하세요.
+// 관련 파일: src/hooks/api/useElection.ts (함께 교체)
+// ──────────────────────────────────────────────────────────
 export const electionApi = {
   /**
    * 선거 목록 조회

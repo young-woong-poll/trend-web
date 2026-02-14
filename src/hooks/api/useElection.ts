@@ -1,3 +1,8 @@
+// ──────────────────────────────────────────────────────────
+// [DEPRECATED] 수동 작성된 electionApi 기반 — BE API 연동 후 Orval 생성 함수로 교체 예정.
+// Orval 재생성 후 이 파일의 queryFn들을 Orval 함수로 교체하세요.
+// 관련 파일: src/services/api/election.ts (함께 삭제/교체)
+// ──────────────────────────────────────────────────────────
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useModal } from '@/contexts/ModalContext';

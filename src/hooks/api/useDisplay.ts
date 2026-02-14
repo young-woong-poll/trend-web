@@ -13,6 +13,8 @@ import type {
   DisplayTrendDetailResponse,
   DisplayResultResponse,
 } from '@/generated/models';
+// [DEPRECATED] CategoryCode, HotpickType — BE API에 categoryCodes/type 파라미터가 반영되면
+// Orval 생성 타입으로 교체하고 이 import를 제거하세요.
 import type { CategoryCode, HotpickType } from '@/types/hotpick';
 
 /**
