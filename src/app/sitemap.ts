@@ -13,9 +13,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       throw new Error('Failed to fetch main display data');
     }
 
-    // 동적 트렌드 페이지들
-    const trendPages = (data.trends ?? []).map((trend) => ({
-      url: `${baseUrl}/vote/${trend.alias}`,
+    // 동적 핫픽 페이지들
+    // NOTE: data.trends is a generated model field name (will be renamed after BE migration)
+    const hotpickPages = (data.trends ?? []).map((hotpick) => ({
+      url: `${baseUrl}/hotpick/${hotpick.alias}`,
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
       priority: 0.8,
@@ -28,7 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'hourly',
         priority: 1,
       },
-      ...trendPages,
+      ...hotpickPages,
     ];
   } catch (error) {
     console.error('[Sitemap] Failed to generate sitemap:', error);

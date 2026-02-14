@@ -28,10 +28,10 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         {data && ((data.fixedTrends?.length ?? 0) > 0 || (data.trends?.length ?? 0) > 0) && (
           <div className={styles.container}>
-            {/* 고정 트렌드 먼저 노출 */}
+            {/* 고정 핫픽 먼저 노출 */}
             {(data.fixedTrends ?? []).map((trend) => (
               <div key={`fixed-${trend.id}`} className={styles.cardWrapper}>
-                <a href={`/vote/${trend.alias}`}>
+                <a href={`/hotpick/${trend.alias}`}>
                   <div className={styles.card}>
                     <h2 className={styles.title}>{trend.title}</h2>
                     <p className={styles.subtitle}>{trend.label}</p>
@@ -59,10 +59,10 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
                 </a>
               </div>
             ))}
-            {/* 일반 트렌드 */}
+            {/* 일반 핫픽 */}
             {(data.trends ?? []).map((trend) => (
               <div key={trend.id} className={styles.cardWrapper}>
-                <a href={`/vote/${trend.alias}`}>
+                <a href={`/hotpick/${trend.alias}`}>
                   <div className={styles.card}>
                     <h2 className={styles.title}>{trend.title}</h2>
                     <p className={styles.subtitle}>{trend.label}</p>

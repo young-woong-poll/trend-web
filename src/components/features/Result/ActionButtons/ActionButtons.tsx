@@ -9,16 +9,16 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
-import { TREND_SORT } from '@/constants/sort';
+import { HOTPICK_SORT } from '@/constants/sort';
 import { useModal } from '@/contexts/ModalContext';
-import { useTrendNavigation } from '@/hooks/api/useDisplay';
+import { useHotpickNavigation } from '@/hooks/api/useDisplay';
 
 interface ActionButtonsProps {
-  trendAlias: string;
+  hotpickAlias: string;
 }
 
-export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
-  const { data: navigation } = useTrendNavigation(trendAlias, TREND_SORT);
+export const ActionButtons: FC<ActionButtonsProps> = ({ hotpickAlias }) => {
+  const { data: navigation } = useHotpickNavigation(hotpickAlias, HOTPICK_SORT);
   const { showToast } = useModal();
 
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사
@@ -29,8 +29,8 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ trendAlias }) => {
 
   // 투표 공유하기 - VotePage URL 복사
   const handleShareVote = async () => {
-    const voteUrl = `${window.location.origin}/vote/${trendAlias}`;
-    await navigator.clipboard.writeText(voteUrl);
+    const hotpickUrl = `${window.location.origin}/hotpick/${hotpickAlias}`;
+    await navigator.clipboard.writeText(hotpickUrl);
     showToast('투표 링크가 복사되었습니다', <CheckIcon width={16} height={16} />);
   };
 

@@ -4,4 +4,4 @@
 
 export { displayApi } from '@/services/api/display';
 export { resultApi } from '@/services/api/result';
-export { trendApi } from '@/services/api/trend';
+export { hotpickApi } from '@/services/api/hotpick';

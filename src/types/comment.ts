@@ -6,8 +6,8 @@
  * 댓글 작성 요청
  */
 export interface CreateCommentRequest {
-  trendId: number;
-  itemId: string;
+  hotpickId: number;
+  electionId: string;
   nickname: string;
   password: string;
   content: string;

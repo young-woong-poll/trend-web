@@ -12,14 +12,14 @@ export const CACHE_TIMES = {
   // Display API 캐싱
   DISPLAY: {
     MAIN: 60, // 60초 - 메인 페이지 (자주 변경)
-    TREND: 60, // 60초 - 트렌드 페이지 (자주 변경)
+    HOTPICK: 60, // 60초 - 핫픽 페이지 (자주 변경)
     RESULT: 3600, // 1시간 - 투표 결과 (불변 데이터)
   },
 
-  // Trend API 캐싱
-  TREND: {
+  // Hotpick API 캐싱
+  HOTPICK: {
     VOTE_COUNT: 60, // 60초 - 투표 수
-    ITEM_OPTIONS: 60, // 60초 - 아이템 옵션
+    ELECTION_OPTIONS: 60, // 60초 - 선거 옵션
   },
 
   // Comment API 캐싱

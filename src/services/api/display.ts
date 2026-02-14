@@ -1,7 +1,7 @@
 import axiosInstance from '@/lib/axios';
 import type { CommentListResponse } from '@/types/comment';
+import type { MainDisplayResponse, HotpickDisplayResponse } from '@/types/hotpick';
 import type { ResultDisplayResponse } from '@/types/result';
-import type { MainDisplayResponse, TrendDisplayResponse } from '@/types/trend';
 
 import type { AxiosResponse } from 'axios';
 
@@ -28,12 +28,12 @@ export const displayApi = {
   },
 
   /**
-   * Trend 전시 조회
-   * GET /api/v1/display/trend/${trendAlias}
+   * Hotpick 전시 조회
+   * GET /api/v1/display/hotpick/${hotpickAlias}
    */
-  getTrendDisplay: async (trendAlias: string): Promise<TrendDisplayResponse> => {
-    const response: AxiosResponse<TrendDisplayResponse> = await axiosInstance.get(
-      `/api/v1/display/trend/${trendAlias}`
+  getHotpickDisplay: async (hotpickAlias: string): Promise<HotpickDisplayResponse> => {
+    const response: AxiosResponse<HotpickDisplayResponse> = await axiosInstance.get(
+      `/api/v1/display/hotpick/${hotpickAlias}`
     );
     return response.data;
   },
@@ -50,26 +50,26 @@ export const displayApi = {
   },
 
   /**
-   * 트렌드 아이템 댓글 조회
-   * GET /api/v1/display/trend/{trendId}/item/{itemId}/comment
+   * 핫픽 선거 댓글 조회
+   * GET /api/v1/display/hotpick/{hotpickId}/election/{electionId}/comment
    */
   getComments: async ({
-    trendId,
-    itemId,
+    hotpickId,
+    electionId,
     sort = 'latest',
     cursor,
     size,
     tkuId,
   }: {
-    trendId: number;
-    itemId: string;
+    hotpickId: number;
+    electionId: string;
     sort?: string;
     cursor?: string;
     size?: number;
     tkuId?: string;
   }): Promise<CommentListResponse> => {
     const response: AxiosResponse<CommentListResponse> = await axiosInstance.get(
-      `/api/v1/display/trend/${trendId}/item/${itemId}/comment`,
+      `/api/v1/display/hotpick/${hotpickId}/election/${electionId}/comment`,
       {
         params: { sort, cursor, size },
         headers: tkuId ? { 'x-tku-id': tkuId } : undefined,

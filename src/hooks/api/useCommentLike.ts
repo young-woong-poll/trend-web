@@ -20,8 +20,8 @@ interface UseCommentLikeOptions {
  * 3. 자동 롤백: 서버 요청 실패 시 이전 상태로 복구
  */
 export const useCommentLike = (
-  trendId: string,
-  itemId: string,
+  hotpickId: string,
+  electionId: string,
   sort: 'latest' | 'popular',
   options?: UseCommentLikeOptions
 ) => {
@@ -38,7 +38,7 @@ export const useCommentLike = (
     (commentId: string, liked: boolean, likeCountDelta: number) => {
       // 최신순과 인기순 모두 업데이트
       (['latest', 'popular'] as const).forEach((sortType) => {
-        const queryKey = ['comment', 'list', trendId, itemId, sortType];
+        const queryKey = ['comment', 'list', hotpickId, electionId, sortType];
 
         queryClient.setQueryData<{ pages: CommentListResponse[]; pageParams: unknown[] }>(
           queryKey,
@@ -66,7 +66,7 @@ export const useCommentLike = (
         );
       });
     },
-    [queryClient, trendId, itemId]
+    [queryClient, hotpickId, electionId]
   );
 
   /**

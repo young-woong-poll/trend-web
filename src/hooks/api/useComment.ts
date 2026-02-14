@@ -31,11 +31,11 @@ import type {
  */
 export const commentKeys = {
   all: ['comment'] as const,
-  count: (trendId: number, itemId: string) =>
-    [...commentKeys.all, 'count', trendId, itemId] as const,
+  count: (hotpickId: number, electionId: string) =>
+    [...commentKeys.all, 'count', hotpickId, electionId] as const,
   lists: () => [...commentKeys.all, 'list'] as const,
-  list: (trendId: string, itemId: string, sort: string) =>
-    [...commentKeys.lists(), trendId, itemId, sort] as const,
+  list: (hotpickId: string, electionId: string, sort: string) =>
+    [...commentKeys.lists(), hotpickId, electionId, sort] as const,
 };
 
 /**
@@ -45,10 +45,10 @@ export const commentQueries = {
   /**
    * 댓글 개수 쿼리 옵션
    */
-  count: (trendId: number, itemId: string) =>
+  count: (hotpickId: number, electionId: string) =>
     queryOptions<CommentCountResponse>({
-      queryKey: commentKeys.count(trendId, itemId),
-      queryFn: () => countComments(trendId, itemId),
+      queryKey: commentKeys.count(hotpickId, electionId),
+      queryFn: () => countComments(hotpickId, electionId),
       staleTime: 30 * 1000,
     }),
 };
@@ -56,25 +56,25 @@ export const commentQueries = {
 /**
  * 댓글 개수 조회 Hook
  */
-export const useCommentCount = (trendId: number, itemId: string) =>
-  useQuery(commentQueries.count(trendId, itemId));
+export const useCommentCount = (hotpickId: number, electionId: string) =>
+  useQuery(commentQueries.count(hotpickId, electionId));
 
 /**
  * 댓글 목록 무한 스크롤 Hook
  */
 export const useInfiniteComments = (params: {
-  trendId: string;
-  itemId: string;
+  hotpickId: string;
+  electionId: string;
   sort?: 'latest' | 'popular';
   size?: number;
   tkuId?: string;
 }) =>
   useInfiniteQuery({
-    queryKey: commentKeys.list(params.trendId, params.itemId, params.sort ?? 'latest'),
+    queryKey: commentKeys.list(params.hotpickId, params.electionId, params.sort ?? 'latest'),
     queryFn: ({ pageParam }) =>
       getComments(
-        Number(params.trendId),
-        params.itemId,
+        Number(params.hotpickId),
+        params.electionId,
         { sort: params.sort, cursor: pageParam, size: params.size ?? 20 },
         params.tkuId ? { headers: { 'x-tku-id': params.tkuId } } : undefined
       ),
@@ -92,7 +92,9 @@ export const useCreateComment = () => {
   return useMutation({
     mutationFn: (data: CreateCommentRequest) => createComment(data),
     onSuccess: async (responseData, variables) => {
-      const { trendId, itemId } = variables;
+      // NOTE: trendId/itemId are generated model field names (will be renamed after BE migration)
+      const hotpickId = variables.trendId;
+      const electionId = variables.itemId;
       const newComment: CommentItem = {
         id: responseData?.id,
         nickname: variables.nickname,
@@ -102,7 +104,7 @@ export const useCreateComment = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const latestQueryKey = commentKeys.list(String(trendId), itemId, 'latest');
+      const latestQueryKey = commentKeys.list(String(hotpickId), electionId, 'latest');
 
       queryClient.setQueryData(latestQueryKey, (old: unknown) => {
         if (!old || typeof old !== 'object') {
@@ -129,11 +131,11 @@ export const useCreateComment = () => {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: commentKeys.list(String(trendId), itemId, 'popular'),
+        queryKey: commentKeys.list(String(hotpickId), electionId, 'popular'),
       });
 
       await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(trendId, itemId),
+        queryKey: commentKeys.count(hotpickId, electionId),
       });
     },
   });
@@ -152,12 +154,12 @@ export const useUpdateComment = () => {
     }: {
       commentId: string;
       data: UpdateCommentRequest;
-      trendId: string;
-      itemId: string;
+      hotpickId: string;
+      electionId: string;
     }) => updateComment(commentId, data),
     onSuccess: (_, variables) => {
       ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(String(variables.trendId), variables.itemId, sort);
+        const queryKey = commentKeys.list(String(variables.hotpickId), variables.electionId, sort);
 
         queryClient.setQueryData(queryKey, (old: unknown) => {
           if (!old || typeof old !== 'object') {
@@ -238,13 +240,13 @@ export const useDeleteComment = () => {
     }: {
       commentId: string;
       data: DeleteCommentRequest;
-      trendId: string;
-      itemId: string;
+      hotpickId: string;
+      electionId: string;
     }) => deleteComment(commentId, data),
     onSuccess: async (_, variables) => {
-      const { trendId, itemId } = variables;
+      const { hotpickId, electionId } = variables;
       ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(trendId, itemId, sort);
+        const queryKey = commentKeys.list(hotpickId, electionId, sort);
 
         queryClient.setQueryData(queryKey, (old: unknown) => {
           if (!old || typeof old !== 'object') {
@@ -270,7 +272,7 @@ export const useDeleteComment = () => {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(Number(trendId), itemId),
+        queryKey: commentKeys.count(Number(hotpickId), electionId),
       });
     },
   });

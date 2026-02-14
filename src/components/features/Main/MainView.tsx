@@ -4,7 +4,7 @@ import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
-import { TREND_SORT } from '@/constants';
+import { HOTPICK_SORT } from '@/constants';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay } from '@/hooks/api';
 
@@ -27,7 +27,7 @@ const isValidImageUrl = (url: string | undefined): boolean => {
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
-    useInfiniteMainDisplay({ size: 20, sort: TREND_SORT, initialData });
+    useInfiniteMainDisplay({ size: 20, sort: HOTPICK_SORT, initialData });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -56,12 +56,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
   // 페이지 데이터 병합
   // initialData가 useInfiniteQuery에 주입되므로 data만 사용
-  const fixedTrends = data.pages[0]?.fixedTrends ?? [];
-  const trends = data.pages.flatMap((page) => page?.trends ?? []);
+  const fixedHotpicks = data.pages[0]?.fixedTrends ?? [];
+  const hotpicks = data.pages.flatMap((page) => page?.trends ?? []);
 
   // 초기 로딩 상태 (initialData가 없는 경우 대비)
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (isLoading && trends.length === 0) {
+  if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.statusContainer}>
@@ -72,7 +72,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }
 
   // 에러 상태
-  if (isError && trends.length === 0) {
+  if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.statusContainer}>
@@ -84,7 +84,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }
 
   // 빈 상태 (고정 트렌드와 일반 트렌드 모두 없을 때)
-  if (fixedTrends.length === 0 && trends.length === 0) {
+  if (fixedHotpicks.length === 0 && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.emptyState}>
@@ -105,8 +105,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        {/* 고정 트렌드 먼저 노출 */}
-        {fixedTrends.map((trend) => {
+        {/* 고정 핫픽 먼저 노출 */}
+        {fixedHotpicks.map((trend) => {
           const rawImageUrls = trend.imageUrls ?? [];
           const validImageUrls = [
             isValidImageUrl(rawImageUrls[0])
@@ -129,8 +129,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             />
           );
         })}
-        {/* 일반 트렌드 */}
-        {trends.map((trend) => {
+        {/* 일반 핫픽 */}
+        {hotpicks.map((trend) => {
           const rawImageUrls = trend.imageUrls ?? [];
           const validImageUrls = [
             isValidImageUrl(rawImageUrls[0])
