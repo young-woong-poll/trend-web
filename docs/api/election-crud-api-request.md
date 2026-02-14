@@ -236,7 +236,7 @@ DELETE /admin/api/v1/election/{electionId}
   "imageUrls": ["...", "..."],
 + "categoryCode": "FOOD",
 + "deadline": "2025-02-20T18:00:00Z",
-  "electionIds": ["e1", "e2", "e3", "e4", "e5"],
+  "electionIds": ["e1", "e2", "e3"],
   "meta": { ... },
   "isVisible": true
 }
@@ -261,7 +261,7 @@ DELETE /admin/api/v1/election/{electionId}
 + "categoryCode": "FOOD",
 + "deadline": "2025-02-20T18:00:00Z",
 + "status": "OPEN",
-  "electionIds": ["e1", "e2", "e3", "e4", "e5"],
+  "electionIds": ["e1", "e2", "e3"],
   "meta": { ... },
   "visible": true,
 + "totalVotes": 1234,
@@ -279,10 +279,10 @@ DELETE /admin/api/v1/election/{electionId}
 
 ### 2.3 검증 규칙 변경
 
-| 유형     | electionIds 개수 | imageUrls | meta |
-| -------- | ---------------- | --------- | ---- |
-| `BUNDLE` | 정확히 5개       | 2장 필수  | 선택 |
-| `SINGLE` | 정확히 1개       | 불필요    | 무시 |
+| 유형     | electionIds 개수 | imageUrls  | meta |
+| -------- | ---------------- | ---------- | ---- |
+| `BUNDLE` | 2개 이상         | 1장 이상   | 선택 |
+| `SINGLE` | 정확히 1개       | 불필요     | 무시 |
 
 ---
 
@@ -330,19 +330,23 @@ GET /api/v1/categories
   "code": 200,
   "message": "OK",
   "data": [
-    { "code": "FOOD", "name": "음식" },
-    { "code": "ENTERTAINMENT", "name": "연예" },
+    { "code": "LOVE", "name": "연애" },
+    { "code": "MARRIAGE", "name": "결혼" },
+    { "code": "FINANCE", "name": "재테크" },
+    { "code": "WORK", "name": "직장" },
     { "code": "SPORTS", "name": "스포츠" },
-    { "code": "LIFESTYLE", "name": "라이프스타일" },
-    { "code": "CURRENT", "name": "시사" },
+    { "code": "FOOD", "name": "음식" },
     { "code": "GAME", "name": "게임" },
-    { "code": "CULTURE", "name": "문화" },
-    { "code": "ETC", "name": "기타" }
+    { "code": "CAR", "name": "자동차" },
+    { "code": "HEALTH", "name": "건강" },
+    { "code": "TREND", "name": "트렌드" }
   ]
 }
 ```
 
-> 카테고리 목록은 서버에서 관리합니다. FE에서 하드코딩하지 않고 이 API로 조회합니다.
+> 카테고리는 DB에 10개가 저장되지만, 화면 필터에는 콘텐츠 밀도를 위해 6개만 노출합니다.
+> 화면 필터 매핑: 연애/결혼(`LOVE`+`MARRIAGE`), 재테크(`FINANCE`), 직장(`WORK`), 스포츠(`SPORTS`), 음식(`FOOD`), 트렌드(`TREND`)
+> 필터에 포함되지 않는 카테고리(게임, 자동차, 건강)의 핫픽은 "전체" 탭에서만 노출됩니다.
 
 ---
 

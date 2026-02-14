@@ -41,7 +41,7 @@ Admin에서 핫픽을 생성할 때, 선거 ID를 console에서 복사해 입력
 | -------------- | -------- | ---------------------------------------------------- |
 | **Election**   | —        | 하나의 투표 질문 (옵션 2~4개)                        |
 | **HotPick**    | —        | Election을 묶어 사용자에게 전시하는 단위             |
-| **BUNDLE**     | `BUNDLE` | 기존 트렌드 — Election 5개 묶음, 결과 유형 분류 포함 |
+| **BUNDLE**     | `BUNDLE` | 기존 트렌드 — Election 2개 이상 묶음, 결과 유형 분류 포함 |
 | **SINGLE**     | `SINGLE` | 단일 투표 — Election 1개로 독립 운영, 결과 유형 없음 |
 | **IMAGE 투표** | `IMAGE`  | 옵션마다 이미지 + 텍스트 (기존 방식)                 |
 | **TEXT 투표**  | `TEXT`   | 메인 이미지 1장 + 옵션은 텍스트만 (신규)             |
@@ -167,17 +167,20 @@ interface Election {
 type HotpickType = 'BUNDLE' | 'SINGLE';
 
 /**
- * 카테고리 코드
+ * 카테고리 코드 (DB 10개)
+ * - 화면 필터에는 6개만 노출: 연애/결혼, 재테크, 직장, 스포츠, 음식, 트렌드
  */
 type CategoryCode =
-  | 'FOOD'
-  | 'ENTERTAINMENT'
+  | 'LOVE'
+  | 'MARRIAGE'
+  | 'FINANCE'
+  | 'WORK'
   | 'SPORTS'
-  | 'LIFESTYLE'
-  | 'CURRENT'
+  | 'FOOD'
   | 'GAME'
-  | 'CULTURE'
-  | 'ETC';
+  | 'CAR'
+  | 'HEALTH'
+  | 'TREND';
 
 /**
  * HotPick 엔티티 (확장)
@@ -188,11 +191,11 @@ interface HotPick {
   title: string;
   label?: string;
   type: HotpickType; // 🆕 BUNDLE | SINGLE
-  imageUrls?: string[]; // BUNDLE: 커버 이미지 2장
+  imageUrls?: string[]; // BUNDLE: 커버 이미지 1장 이상
   categoryCode?: CategoryCode; // 🆕 카테고리
   deadline?: string; // 🆕 마감일시 (null이면 상시)
   status: 'OPEN' | 'CLOSED'; // 🆕 마감 상태
-  electionIds: string[]; // BUNDLE: 5개, SINGLE: 1개
+  electionIds: string[]; // BUNDLE: 2개 이상, SINGLE: 1개
   meta?: HotpickMeta; // BUNDLE 전용 (결과 유형)
   visible: boolean;
   totalVotes: number; // 🆕 총 투표 수
@@ -216,8 +219,8 @@ interface HotPick {
 │  categoryCode?: CategoryCode                         │
 ├──────────────────────┬──────────────────────────────┤
 │  BUNDLE (묶음 투표)   │  SINGLE (단일 투표)          │
-│  - Election 5개       │  - Election 1개              │
-│  - 커버이미지 2장     │  - 카드 형태 노출            │
+│  - Election 2개 이상  │  - Election 1개              │
+│  - 커버이미지 1장 이상│  - 카드 형태 노출            │
 │  - 결과 유형 분류     │  - 결과 유형 없음            │
 └──────────────────────┼──────────────────────────────┘
                        │ 1:N
@@ -259,7 +262,7 @@ interface HotPick {
 2. 선거 생성 (제목, 설명, 옵션 2개 + 이미지 각각)
 3. 선거 ID 복사
 4. hotpick Admin으로 이동
-5. 트렌드 생성 → 선거 ID 5개 붙여넣기
+5. 트렌드 생성 → 선거 ID 여러 개 붙여넣기
 6. 발행
 ```
 
@@ -329,7 +332,7 @@ interface HotPick {
 ```
 ┌─── 핫픽 생성 ───────────────────────────────────────┐
 │                                                      │
-│  유형: [● BUNDLE (5개 묶음)]  [○ SINGLE (단일)]    │
+│  유형: [● BUNDLE (묶음)]  [○ SINGLE (단일)]        │
 │                                                      │
 │  기본 정보:                                         │
 │  Alias: [___________] [중복확인]                    │
@@ -339,9 +342,9 @@ interface HotPick {
 │  마감일: [📅 2025-02-20 18:00]  □ 상시 (마감 없음) │
 │                                                      │
 │  ── BUNDLE 선택 시 ──                               │
-│  커버 이미지 1: [📎]  커버 이미지 2: [📎]          │
+│  커버 이미지: [📎] [+ 이미지 추가] (1장 이상)       │
 │                                                      │
-│  선거 연결 (5개 필수):                              │
+│  선거 연결 (2개 이상):                              │
 │  ┌──────────────────────────────────────────┐        │
 │  │ 🔍 선거 검색...                          │        │
 │  ├──────────────────────────────────────────┤        │
@@ -351,7 +354,7 @@ interface HotPick {
 │  │ □ "아이폰 vs 갤럭시"   IMAGE  2개 옵션  │        │
 │  └──────────────────────────────────────────┘        │
 │                                                      │
-│  선택된 선거 (3/5):                                 │
+│  선택된 선거 (3개):                                 │
 │  ⋮⋮ 1. 짜장면 vs 짬뽕      [×]                    │
 │  ⋮⋮ 2. 여름 vs 겨울        [×]                    │
 │  ⋮⋮ 3. 최고의 라면은?      [×]                    │
@@ -367,10 +370,10 @@ interface HotPick {
 
 **BUNDLE vs SINGLE 폼 차이:**
 
-| 항목            | BUNDLE     | SINGLE                    |
-| --------------- | ---------- | ------------------------- |
-| 선거 연결 수    | 정확히 5개 | 정확히 1개                |
-| 커버 이미지     | 2장 필수   | 불필요 (선거 이미지 사용) |
+| 항목            | BUNDLE       | SINGLE                    |
+| --------------- | ------------ | ------------------------- |
+| 선거 연결 수    | 2개 이상     | 정확히 1개                |
+| 커버 이미지     | 1장 이상     | 불필요 (선거 이미지 사용) |
 | 결과 유형(meta) | 설정 가능  | 없음                      |
 | 라벨            | 선택       | 선택                      |
 | 카테고리        | 선택       | 선택                      |
@@ -393,16 +396,33 @@ interface HotPick {
 
 ## 6. 카테고리 체계
 
-| 코드            | 한글명       | 아이콘 |
-| --------------- | ------------ | ------ |
-| `FOOD`          | 음식         | 🍔     |
-| `ENTERTAINMENT` | 연예         | 🎬     |
-| `SPORTS`        | 스포츠       | ⚽     |
-| `LIFESTYLE`     | 라이프스타일 | 🏠     |
-| `CURRENT`       | 시사         | 📰     |
-| `GAME`          | 게임         | 🎮     |
-| `CULTURE`       | 문화         | 🎨     |
-| `ETC`           | 기타         | 💬     |
+### DB 카테고리 (10개)
+
+| 코드       | 한글명 | 아이콘 |
+| ---------- | ------ | ------ |
+| `LOVE`     | 연애   | 💕     |
+| `MARRIAGE` | 결혼   | 💍     |
+| `FINANCE`  | 재테크 | 💰     |
+| `WORK`     | 직장   | 💼     |
+| `SPORTS`   | 스포츠 | ⚽     |
+| `FOOD`     | 음식   | 🍔     |
+| `GAME`     | 게임   | 🎮     |
+| `CAR`      | 자동차 | 🚗     |
+| `HEALTH`   | 건강   | 💪     |
+| `TREND`    | 트렌드 | 🔥     |
+
+### 화면 필터 카테고리 (6개)
+
+> 콘텐츠 밀도를 높이기 위해 화면에 표시되는 카테고리 필터는 6개로 제한
+
+| 필터 라벨   | 포함 DB 코드         |
+| ----------- | -------------------- |
+| 연애/결혼   | `LOVE`, `MARRIAGE`   |
+| 재테크      | `FINANCE`            |
+| 직장        | `WORK`               |
+| 스포츠      | `SPORTS`             |
+| 음식        | `FOOD`               |
+| 트렌드      | `TREND`              |
 
 ---
 
