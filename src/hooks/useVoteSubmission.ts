@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { TSelectedElectionMap } from '@/components/features/Vote/VoteView';
+import type { TSelectedElectionMap } from '@/components/features/Hotpick/VoteView';
 import { createResult } from '@/generated/api/client/result/result';
 import type { CreateResultRequest } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
@@ -9,7 +9,7 @@ import { VoteSubmissionError, VoteValidationError } from '@/lib/errors';
 /**
  * 투표 결과 제출 Hook
  */
-export const useVoteSubmission = () => {
+export const useHotpickSubmission = () => {
   const queryClient = useQueryClient();
 
   const { mutateAsync: submitResult, isPending } = useMutation({

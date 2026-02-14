@@ -49,7 +49,7 @@ export const PollCard: FC<TPollCardProps> = ({
         style={{ display: isImageLoaded ? 'block' : 'none' }}
         onClick={() => {
           setIsNavigating(true);
-          router.push(`/vote/${alias}`);
+          router.push(`/hotpick/${alias}`);
         }}
       >
         <div className={styles.card}>
@@ -88,7 +88,7 @@ export const PollCard: FC<TPollCardProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setIsNavigating(true);
-                router.push(`/vote/${alias}`);
+                router.push(`/hotpick/${alias}`);
               }}
               disabled={isNavigating}
             >

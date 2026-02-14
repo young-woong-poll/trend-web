@@ -10,7 +10,7 @@
  * - hotpickTitle: 핫픽 제목 (선택적, UI 표시용)
  * - resultLabel: 결과 라벨 (선택적, UI 표시용)
  */
-export interface VoteResultHistoryItem {
+export interface HotpickResultHistoryItem {
   hotpickAlias: string;
   resultId: string;
   viewedAt: string;

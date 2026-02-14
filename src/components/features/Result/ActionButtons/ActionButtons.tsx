@@ -29,8 +29,8 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ hotpickAlias }) => {
 
   // 투표 공유하기 - VotePage URL 복사
   const handleShareVote = async () => {
-    const voteUrl = `${window.location.origin}/vote/${hotpickAlias}`;
-    await navigator.clipboard.writeText(voteUrl);
+    const hotpickUrl = `${window.location.origin}/hotpick/${hotpickAlias}`;
+    await navigator.clipboard.writeText(hotpickUrl);
     showToast('투표 링크가 복사되었습니다', <CheckIcon width={16} height={16} />);
   };
 

@@ -10,7 +10,7 @@ import styles from '@/components/features/Result/ResultContent.module.scss';
 import { ResultHeader } from '@/components/features/Result/ResultHeader/ResultHeader';
 import { TypeCard } from '@/components/features/Result/TypeCard/TypeCard';
 import { displayQueries } from '@/hooks/api/useDisplay';
-import { useVoteResultHistory } from '@/hooks/useVoteResultHistory';
+import { useHotpickResultHistory } from '@/hooks/useVoteResultHistory';
 import type { SelectedOption } from '@/types/result';
 
 interface ResultContentProps {
@@ -26,7 +26,7 @@ export const ResultContent = ({ hotpickAlias, resultId }: ResultContentProps) =>
   const { data: hotpickData } = useQuery(displayQueries.hotpick(hotpickAlias));
 
   // 결과 히스토리 저장
-  const { addToHistory } = useVoteResultHistory();
+  const { addToHistory } = useHotpickResultHistory();
   const hasStoredRef = useRef(false);
 
   // 결과 페이지 조회 시 히스토리에 저장 (최초 1회만)

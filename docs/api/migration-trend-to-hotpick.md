@@ -13,55 +13,55 @@
 
 ### Display API
 
-| 현재 | 변경 후 | 설명 |
-|------|---------|------|
+| 현재                                     | 변경 후                                      | 설명           |
+| ---------------------------------------- | -------------------------------------------- | -------------- |
 | `GET /api/v1/display/trend/{trendAlias}` | `GET /api/v1/display/hotpick/{hotpickAlias}` | 핫픽 상세 조회 |
 
 ### Trend → Hotpick API
 
-| 현재 | 변경 후 | 설명 |
-|------|---------|------|
+| 현재                                           | 변경 후                                                    | 설명                    |
+| ---------------------------------------------- | ---------------------------------------------------------- | ----------------------- |
 | `GET /api/v1/trend/{trendAlias}/item/{itemId}` | `GET /api/v1/hotpick/{hotpickAlias}/election/{electionId}` | 선거별 옵션 카운트 조회 |
 
 ### Comment API
 
-| 현재 | 변경 후 | 설명 |
-|------|---------|------|
+| 현재                                                        | 변경 후                                                                 | 설명           |
+| ----------------------------------------------------------- | ----------------------------------------------------------------------- | -------------- |
 | `GET /api/v1/display/trend/{trendId}/item/{itemId}/comment` | `GET /api/v1/display/hotpick/{hotpickId}/election/{electionId}/comment` | 선거 댓글 조회 |
-| `GET /api/v1/comment/{trendId}/item/{itemId}/count` | `GET /api/v1/comment/{hotpickId}/election/{electionId}/count` | 댓글 개수 조회 |
+| `GET /api/v1/comment/{trendId}/item/{itemId}/count`         | `GET /api/v1/comment/{hotpickId}/election/{electionId}/count`           | 댓글 개수 조회 |
 
 ### Admin API
 
-| 현재 | 변경 후 | 설명 |
-|------|---------|------|
-| `GET /admin/api/v1/trend` | `GET /admin/api/v1/hotpick` | 핫픽 목록 조회 |
-| `POST /admin/api/v1/trend` | `POST /admin/api/v1/hotpick` | 핫픽 생성 |
-| `PUT /admin/api/v1/trend/{trendId}` | `PUT /admin/api/v1/hotpick/{hotpickId}` | 핫픽 수정 |
-| `DELETE /admin/api/v1/trend/{trendId}` | `DELETE /admin/api/v1/hotpick/{hotpickId}` | 핫픽 삭제 |
-| `GET /admin/api/v1/trend/check` | `GET /admin/api/v1/hotpick/check` | alias 중복 체크 |
+| 현재                                   | 변경 후                                    | 설명            |
+| -------------------------------------- | ------------------------------------------ | --------------- |
+| `GET /admin/api/v1/trend`              | `GET /admin/api/v1/hotpick`                | 핫픽 목록 조회  |
+| `POST /admin/api/v1/trend`             | `POST /admin/api/v1/hotpick`               | 핫픽 생성       |
+| `PUT /admin/api/v1/trend/{trendId}`    | `PUT /admin/api/v1/hotpick/{hotpickId}`    | 핫픽 수정       |
+| `DELETE /admin/api/v1/trend/{trendId}` | `DELETE /admin/api/v1/hotpick/{hotpickId}` | 핫픽 삭제       |
+| `GET /admin/api/v1/trend/check`        | `GET /admin/api/v1/hotpick/check`          | alias 중복 체크 |
 
 ---
 
 ## 2. 스키마(타입명) 변경
 
-| 현재 | 변경 후 |
-|------|---------|
-| `DisplayTrendResponse` | `DisplayHotpickResponse` |
-| `DisplayTrendDetailResponse` | `DisplayHotpickDetailResponse` |
-| `DisplayTrendItemResponse` | `DisplayHotpickElectionResponse` |
-| `DisplayTrendOptionResponse` | `DisplayHotpickOptionResponse` |
-| `TrendItemOptionsResponse` | `HotpickElectionOptionsResponse` |
-| `TrendNavigationResponse` | `HotpickNavigationResponse` |
-| `TrendNavItem` | `HotpickNavItem` |
-| `CreateTrendRequest` | `CreateHotpickRequest` |
-| `UpdateTrendRequest` | `UpdateHotpickRequest` |
-| `TrendResponse` | `HotpickResponse` |
-| `AdminTrendResponse` | `AdminHotpickResponse` |
-| `TrendAliasCheckResponse` | `HotpickAliasCheckResponse` |
-| `TrendMeta` | `HotpickMeta` |
-| `TrendMetaRequest` | `HotpickMetaRequest` |
-| `TrendResultType` | `HotpickResultType` |
-| `SelectedItem` | `SelectedElection` |
+| 현재                         | 변경 후                          |
+| ---------------------------- | -------------------------------- |
+| `DisplayTrendResponse`       | `DisplayHotpickResponse`         |
+| `DisplayTrendDetailResponse` | `DisplayHotpickDetailResponse`   |
+| `DisplayTrendItemResponse`   | `DisplayHotpickElectionResponse` |
+| `DisplayTrendOptionResponse` | `DisplayHotpickOptionResponse`   |
+| `TrendItemOptionsResponse`   | `HotpickElectionOptionsResponse` |
+| `TrendNavigationResponse`    | `HotpickNavigationResponse`      |
+| `TrendNavItem`               | `HotpickNavItem`                 |
+| `CreateTrendRequest`         | `CreateHotpickRequest`           |
+| `UpdateTrendRequest`         | `UpdateHotpickRequest`           |
+| `TrendResponse`              | `HotpickResponse`                |
+| `AdminTrendResponse`         | `AdminHotpickResponse`           |
+| `TrendAliasCheckResponse`    | `HotpickAliasCheckResponse`      |
+| `TrendMeta`                  | `HotpickMeta`                    |
+| `TrendMetaRequest`           | `HotpickMetaRequest`             |
+| `TrendResultType`            | `HotpickResultType`              |
+| `SelectedItem`               | `SelectedElection`               |
 
 ---
 
@@ -147,11 +147,11 @@
 
 ## 4. OpenAPI 태그 변경
 
-| 현재 | 변경 후 |
-|------|---------|
-| `Trend` | `Hotpick` |
-| `Admin Trend` | `Admin Hotpick` |
-| `Admin Item` | `Admin Election` |
+| 현재          | 변경 후          |
+| ------------- | ---------------- |
+| `Trend`       | `Hotpick`        |
+| `Admin Trend` | `Admin Hotpick`  |
+| `Admin Item`  | `Admin Election` |
 
 ---
 

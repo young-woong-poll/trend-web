@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 동적 핫픽 페이지들
     // NOTE: data.trends is a generated model field name (will be renamed after BE migration)
     const hotpickPages = (data.trends ?? []).map((hotpick) => ({
-      url: `${baseUrl}/vote/${hotpick.alias}`,
+      url: `${baseUrl}/hotpick/${hotpick.alias}`,
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
       priority: 0.8,

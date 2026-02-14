@@ -31,7 +31,7 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
             {/* 고정 핫픽 먼저 노출 */}
             {(data.fixedTrends ?? []).map((trend) => (
               <div key={`fixed-${trend.id}`} className={styles.cardWrapper}>
-                <a href={`/vote/${trend.alias}`}>
+                <a href={`/hotpick/${trend.alias}`}>
                   <div className={styles.card}>
                     <h2 className={styles.title}>{trend.title}</h2>
                     <p className={styles.subtitle}>{trend.label}</p>
@@ -62,7 +62,7 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
             {/* 일반 핫픽 */}
             {(data.trends ?? []).map((trend) => (
               <div key={trend.id} className={styles.cardWrapper}>
-                <a href={`/vote/${trend.alias}`}>
+                <a href={`/hotpick/${trend.alias}`}>
                   <div className={styles.card}>
                     <h2 className={styles.title}>{trend.title}</h2>
                     <p className={styles.subtitle}>{trend.label}</p>
