@@ -13,7 +13,12 @@ import { BasicInfoSection } from '@/components/features/Admin/AdminHotpickForm/B
 import { ElectionListSection } from '@/components/features/Admin/AdminHotpickForm/ElectionListSection';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateHotpick } from '@/hooks/api/useAdmin';
-import type { AdminHotpickResponse, UpdateHotpickRequest } from '@/types/hotpick';
+import type {
+  AdminHotpickResponse,
+  UpdateHotpickRequest,
+  HotpickType,
+  CategoryCode,
+} from '@/types/hotpick';
 
 export type HotpickAliasCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
 
@@ -21,8 +26,11 @@ export type TFormData = {
   alias: string;
   title: string;
   label: string;
-  imageUrls: [string, string];
+  type: HotpickType;
+  imageUrls: string[];
   electionIdList: string[];
+  categoryCodes: CategoryCode[];
+  deadline?: string;
   visible?: boolean;
 };
 
@@ -51,11 +59,16 @@ export const AdminHotpickForm = ({
       alias: '',
       title: '',
       label: '',
-      imageUrls: ['', ''],
+      type: 'SINGLE',
+      imageUrls: [],
       electionIdList: [],
+      categoryCodes: [],
+      deadline: undefined,
       visible: true,
     },
   });
+
+  const hotpickType = watch('type');
 
   // Edit 모드일 때 초기 데이터 로드
   useEffect(() => {
@@ -64,8 +77,11 @@ export const AdminHotpickForm = ({
         alias: hotpick.alias,
         title: hotpick.title,
         label: hotpick.label || '',
-        imageUrls: [hotpick.imageUrls?.[0] || '', hotpick.imageUrls?.[1] || ''],
+        type: hotpick.type || 'SINGLE',
+        imageUrls: hotpick.imageUrls || [],
         electionIdList: hotpick.electionIds,
+        categoryCodes: hotpick.categoryCodes || [],
+        deadline: hotpick.deadline,
         visible: hotpick.visible,
       });
     }
@@ -84,22 +100,37 @@ export const AdminHotpickForm = ({
       return;
     }
 
-    if (!imageUrls[0] || !imageUrls[1]) {
-      showAlert('썸네일 이미지를 모두 등록해주세요.');
-      return;
+    // BUNDLE 타입 검증
+    if (data.type === 'BUNDLE') {
+      const validImages = imageUrls.filter(Boolean);
+      if (validImages.length < 1) {
+        showAlert('BUNDLE 타입은 커버 이미지를 1장 이상 등록해주세요.');
+        return;
+      }
+
+      if (electionIdList.length < 2) {
+        showAlert('BUNDLE 타입은 선거를 2개 이상 등록해주세요.');
+        return;
+      }
     }
 
-    if (electionIdList.length !== 5) {
-      showAlert('선거 5개를 등록해주세요.');
-      return;
+    // SINGLE 타입 검증
+    if (data.type === 'SINGLE') {
+      if (electionIdList.length !== 1) {
+        showAlert('SINGLE 타입은 선거를 1개만 등록해주세요.');
+        return;
+      }
     }
 
     const request: UpdateHotpickRequest = {
       alias: data.alias.trim(),
       title: data.title,
       label: data.label,
-      imageUrls: data.imageUrls,
+      type: data.type,
+      imageUrls: data.type === 'BUNDLE' ? imageUrls.filter(Boolean) : [],
       electionIds: electionIdList,
+      categoryCodes: data.categoryCodes.length > 0 ? data.categoryCodes : undefined,
+      deadline: data.deadline || undefined,
       isVisible: data.visible,
     };
 
@@ -142,6 +173,39 @@ export const AdminHotpickForm = ({
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        {/* 핫픽 유형 선택 */}
+        <section className={styles.typeSection}>
+          <h2 className={styles.sectionTitle}>핫픽 유형</h2>
+          <div className={styles.radioGroup}>
+            <label
+              className={`${styles.radioLabel} ${hotpickType === 'BUNDLE' ? styles.active : ''}`}
+            >
+              <input
+                type="radio"
+                value="BUNDLE"
+                checked={hotpickType === 'BUNDLE'}
+                onChange={() => setValue('type', 'BUNDLE')}
+                className={styles.radioInput}
+              />
+              <span className={styles.radioText}>BUNDLE</span>
+              <span className={styles.radioDesc}>묶음 투표 (선거 2개 이상)</span>
+            </label>
+            <label
+              className={`${styles.radioLabel} ${hotpickType === 'SINGLE' ? styles.active : ''}`}
+            >
+              <input
+                type="radio"
+                value="SINGLE"
+                checked={hotpickType === 'SINGLE'}
+                onChange={() => setValue('type', 'SINGLE')}
+                className={styles.radioInput}
+              />
+              <span className={styles.radioText}>SINGLE</span>
+              <span className={styles.radioDesc}>단일 투표 (선거 1개)</span>
+            </label>
+          </div>
+        </section>
+
         {/* 기본 정보 */}
         <BasicInfoSection
           register={register}
@@ -150,10 +214,11 @@ export const AdminHotpickForm = ({
           checkStatus={hotpickAliasCheckStatus}
           setCheckStatus={setHotpickAliasCheckStatus}
           mode={mode}
+          hotpickType={hotpickType}
         />
 
-        {/* 연결된 선거 ID */}
-        <ElectionListSection setValue={setValue} watch={watch} />
+        {/* 연결된 선거 */}
+        <ElectionListSection setValue={setValue} watch={watch} hotpickType={hotpickType} />
 
         {/* Submit */}
         <div className={styles.actions}>

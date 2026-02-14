@@ -88,6 +88,25 @@
   margin: 0;
 }
 
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  border-radius: 4px;
+  text-transform: uppercase;
+
+  &[data-type='IMAGE'] {
+    background: rgba(#a855f7, 0.15);
+    color: #a855f7;
+  }
+
+  &[data-type='TEXT'] {
+    background: rgba(#eab308, 0.15);
+    color: #eab308;
+  }
+}
+
 .removeButton {
   padding: 6px 16px;
   font-size: 14px;

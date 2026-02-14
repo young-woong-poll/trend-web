@@ -234,7 +234,7 @@ DELETE /admin/api/v1/election/{electionId}
   "label": "...",
 + "type": "BUNDLE",
   "imageUrls": ["...", "..."],
-+ "categoryCode": "FOOD",
++ "categoryCodes": ["FOOD", "TREND"],
 + "deadline": "2025-02-20T18:00:00Z",
   "electionIds": ["e1", "e2", "e3"],
   "meta": { ... },
@@ -245,7 +245,7 @@ DELETE /admin/api/v1/election/{electionId}
 | 필드           | 타입                   | 필수 | 설명                        |
 | -------------- | ---------------------- | ---- | --------------------------- |
 | `type`         | `"BUNDLE" \| "SINGLE"` | Y    | 핫픽 유형                   |
-| `categoryCode` | string                 | N    | 카테고리 코드 (섹션 4 참조) |
+| `categoryCodes` | string[]              | N    | 카테고리 코드 배열 (섹션 4 참조, 다중 선택) |
 | `deadline`     | datetime               | N    | 마감일시, null이면 상시     |
 
 ### 2.2 Response 필드 추가
@@ -258,7 +258,7 @@ DELETE /admin/api/v1/election/{electionId}
   "label": "...",
 + "type": "BUNDLE",
   "imageUrls": ["...", "..."],
-+ "categoryCode": "FOOD",
++ "categoryCodes": ["FOOD", "TREND"],
 + "deadline": "2025-02-20T18:00:00Z",
 + "status": "OPEN",
   "electionIds": ["e1", "e2", "e3"],
@@ -272,7 +272,7 @@ DELETE /admin/api/v1/election/{electionId}
 | 필드           | 타입                   | 설명          |
 | -------------- | ---------------------- | ------------- |
 | `type`         | `"BUNDLE" \| "SINGLE"` | 핫픽 유형     |
-| `categoryCode` | string \| null         | 카테고리 코드 |
+| `categoryCodes` | string[]              | 카테고리 코드 배열 |
 | `deadline`     | datetime \| null       | 마감일시      |
 | `status`       | `"OPEN" \| "CLOSED"`   | 마감 상태     |
 | `totalVotes`   | number                 | 총 투표 수    |
@@ -385,7 +385,7 @@ GET /api/v1/categories
   "title": "...",
   "label": "...",
 + "type": "BUNDLE",
-+ "categoryCode": "FOOD",
++ "categoryCodes": ["FOOD", "TREND"],
 + "deadline": "2025-02-20T18:00:00Z",
 + "status": "OPEN",
   "imageUrls": ["...", "..."],
@@ -429,7 +429,7 @@ GET /api/v1/categories
   "title": "...",
   "label": "...",
 + "type": "BUNDLE",
-+ "categoryCode": "FOOD",
++ "categoryCodes": ["FOOD", "TREND"],
 + "deadline": "2025-02-20T18:00:00Z",
 + "status": "OPEN",
   "imageUrls": ["...", "..."],

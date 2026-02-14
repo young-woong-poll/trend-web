@@ -49,5 +49,16 @@ export {
   useHotpickElectionOptionsCountMap,
 } from '@/hooks/api/useHotpick';
 
+// Election Hooks
+export {
+  electionKeys,
+  useElectionList,
+  useElectionDetail,
+  useCreateElection,
+  useUpdateElection,
+  useDeleteElection,
+  useSearchElections,
+} from '@/hooks/api/useElection';
+
 // Result Hooks
 export { resultKeys, useCheckResultExists, useCreateResult } from '@/hooks/api/useResult';
