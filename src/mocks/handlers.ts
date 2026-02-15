@@ -15,6 +15,7 @@ import {
   mockHotpickDetailBundle,
   mockVoteCountMap,
   injectExtensions,
+  trendExtensions,
 } from '@/mocks/data/hotpicks';
 import { mockResultDisplay } from '@/mocks/data/results';
 
@@ -55,14 +56,31 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
+    const categoryCodes = url.searchParams.getAll('categoryCodes');
 
     const source = type === 'SINGLE' ? mockSingleDisplay : mockMainDisplay;
 
     // 확장 필드 주입 (type, categoryCode, deadline, status)
+    let fixedTrends = injectExtensions(source.fixedTrends ?? []);
+    let trends = injectExtensions(source.trends ?? []);
+
+    // 카테고리 필터링
+    if (categoryCodes.length > 0) {
+      const filterByCategory = <T extends { alias?: string }>(items: T[]): T[] =>
+        items.filter((item) => {
+          const ext = trendExtensions[item.alias ?? ''];
+          return ext?.categoryCode && categoryCodes.includes(ext.categoryCode);
+        });
+
+      fixedTrends = filterByCategory(fixedTrends);
+      trends = filterByCategory(trends);
+    }
+
     const result = {
       ...source,
-      fixedTrends: injectExtensions(source.fixedTrends ?? []),
-      trends: injectExtensions(source.trends ?? []),
+      fixedTrends,
+      trends,
+      totalCount: trends.length,
     };
 
     return HttpResponse.json(wrapResponse(result));

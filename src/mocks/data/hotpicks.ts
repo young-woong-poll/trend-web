@@ -551,14 +551,350 @@ export const mockHotpickDetailSingleText = {
   ],
 };
 
+/** SINGLE + 스포츠 긴급 */
+export const mockHotpickDetailSingleSports = {
+  trendId: 203,
+  alias: 'single-sports-urgent',
+  title: '오늘 경기 승자는?',
+  label: '스포츠',
+  imageUrls: ['https://picsum.photos/600/400?random=s3-detail'],
+  createdAt: hoursAgo(20),
+  type: 'SINGLE',
+  deadline: hoursFromNow(2),
+  status: 'OPEN',
+  items: [
+    {
+      id: 'ss1',
+      title: '오늘 경기 승자는?',
+      label: '경기 예측',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'ss1-o1',
+          title: '홈팀 승리',
+          imageUrl: 'https://picsum.photos/300/200?random=ss11',
+        },
+        {
+          id: 'ss1-o2',
+          title: '원정팀 승리',
+          imageUrl: 'https://picsum.photos/300/200?random=ss12',
+        },
+      ],
+    },
+  ],
+};
+
+/** SINGLE + 음식 (마감됨) */
+export const mockHotpickDetailSingleFoodClosed = {
+  trendId: 204,
+  alias: 'single-food-closed',
+  title: '짜장 vs 짬뽕 (마감)',
+  label: '음식',
+  imageUrls: ['https://picsum.photos/600/400?random=s4-detail'],
+  createdAt: hoursAgo(96),
+  type: 'SINGLE',
+  deadline: hoursAgo(12),
+  status: 'CLOSED',
+  items: [
+    {
+      id: 'sf1',
+      title: '짜장 vs 짬뽕?',
+      label: '음식 대결',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'sf1-o1',
+          title: '짜장면',
+          imageUrl: 'https://picsum.photos/300/200?random=sf11',
+        },
+        {
+          id: 'sf1-o2',
+          title: '짬뽕',
+          imageUrl: 'https://picsum.photos/300/200?random=sf12',
+        },
+      ],
+    },
+  ],
+};
+
+/** SINGLE + 직장 */
+export const mockHotpickDetailSingleWork = {
+  trendId: 205,
+  alias: 'single-work',
+  title: '재택 vs 출근?',
+  label: '직장',
+  imageUrls: ['https://picsum.photos/600/400?random=s5-detail'],
+  createdAt: hoursAgo(48),
+  type: 'SINGLE',
+  deadline: daysFromNow(5),
+  status: 'OPEN',
+  items: [
+    {
+      id: 'sw1',
+      title: '재택근무 vs 사무실 출근?',
+      label: '근무 방식',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'sw1-o1',
+          title: '재택근무',
+          imageUrl: 'https://picsum.photos/300/200?random=sw11',
+        },
+        {
+          id: 'sw1-o2',
+          title: '사무실 출근',
+          imageUrl: 'https://picsum.photos/300/200?random=sw12',
+        },
+      ],
+    },
+  ],
+};
+
+/** SINGLE + 트렌드 */
+export const mockHotpickDetailSingleTrend = {
+  trendId: 206,
+  alias: 'single-trend',
+  title: 'AI가 인간을 대체할까?',
+  label: '트렌드',
+  imageUrls: ['https://picsum.photos/600/400?random=s6-detail'],
+  createdAt: hoursAgo(1),
+  type: 'SINGLE',
+  status: 'OPEN',
+  items: [
+    {
+      id: 'str1',
+      title: 'AI가 인간의 일자리를 대체할까?',
+      label: 'AI 시대',
+      voteType: 'TEXT',
+      mainImageUrl: 'https://picsum.photos/400/200?random=str1-main',
+      options: [
+        { id: 'str1-o1', title: '대체한다' },
+        { id: 'str1-o2', title: '공존한다' },
+        { id: 'str1-o3', title: '불가능하다' },
+      ],
+    },
+  ],
+};
+
+/** BUNDLE — 고정 트렌드 상세 */
+const mockHotpickDetailFixed = {
+  trendId: 100,
+  alias: 'fixed-trend',
+  title: '고정 트렌드: 2026 최고의 여행지는?',
+  label: '당신의 선택은?',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=fixed1-detail',
+    'https://picsum.photos/600/400?random=fixed2-detail',
+  ],
+  createdAt: hoursAgo(2),
+  type: 'BUNDLE',
+  status: 'OPEN',
+  items: [
+    {
+      id: 'fx1',
+      title: '국내 여행지 최강은?',
+      label: '국내',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'fx1-o1',
+          title: '제주도',
+          imageUrl: 'https://picsum.photos/300/200?random=fx11',
+        },
+        {
+          id: 'fx1-o2',
+          title: '부산',
+          imageUrl: 'https://picsum.photos/300/200?random=fx12',
+        },
+      ],
+    },
+    {
+      id: 'fx2',
+      title: '해외는 어디로?',
+      label: '해외',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'fx2-o1',
+          title: '일본',
+          imageUrl: 'https://picsum.photos/300/200?random=fx21',
+        },
+        {
+          id: 'fx2-o2',
+          title: '태국',
+          imageUrl: 'https://picsum.photos/300/200?random=fx22',
+        },
+      ],
+    },
+  ],
+};
+
+/** BUNDLE — 스포츠 긴급 상세 */
+const mockHotpickDetailSportsUrgent = {
+  trendId: 3,
+  alias: 'sports-urgent',
+  title: '스포츠 긴급 투표',
+  label: '마감 임박!',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=30',
+    'https://picsum.photos/600/400?random=30-2',
+  ],
+  createdAt: hoursAgo(72),
+  type: 'BUNDLE',
+  deadline: hoursFromNow(1),
+  status: 'OPEN',
+  items: [
+    {
+      id: 'sp1',
+      title: 'EPL 우승팀은?',
+      label: '축구',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'sp1-o1',
+          title: '아스날',
+          imageUrl: 'https://picsum.photos/300/200?random=sp11',
+        },
+        {
+          id: 'sp1-o2',
+          title: '맨시티',
+          imageUrl: 'https://picsum.photos/300/200?random=sp12',
+        },
+      ],
+    },
+    {
+      id: 'sp2',
+      title: 'KBO 올해 우승?',
+      label: '야구',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'sp2-o1',
+          title: 'LG 트윈스',
+          imageUrl: 'https://picsum.photos/300/200?random=sp21',
+        },
+        {
+          id: 'sp2-o2',
+          title: '삼성 라이온즈',
+          imageUrl: 'https://picsum.photos/300/200?random=sp22',
+        },
+      ],
+    },
+  ],
+};
+
+/** BUNDLE — 음식 새 트렌드 상세 */
+const mockHotpickDetailFoodNew = {
+  trendId: 5,
+  alias: 'food-new',
+  title: '오늘의 음식 대결',
+  label: '뭐 먹을래?',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=50',
+    'https://picsum.photos/600/400?random=50-2',
+  ],
+  createdAt: hoursAgo(3),
+  type: 'BUNDLE',
+  status: 'OPEN',
+  items: [
+    {
+      id: 'fd1',
+      title: '점심 메뉴는?',
+      label: '점심',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'fd1-o1',
+          title: '한식',
+          imageUrl: 'https://picsum.photos/300/200?random=fd11',
+        },
+        {
+          id: 'fd1-o2',
+          title: '양식',
+          imageUrl: 'https://picsum.photos/300/200?random=fd12',
+        },
+      ],
+    },
+    {
+      id: 'fd2',
+      title: '야식은?',
+      label: '야식',
+      voteType: 'TEXT',
+      mainImageUrl: 'https://picsum.photos/400/200?random=fd2-main',
+      options: [
+        { id: 'fd2-o1', title: '치킨' },
+        { id: 'fd2-o2', title: '피자' },
+        { id: 'fd2-o3', title: '족발' },
+      ],
+    },
+  ],
+};
+
+/** BUNDLE — 이번주 트렌드 상세 */
+const mockHotpickDetailTrendWeekly = {
+  trendId: 6,
+  alias: 'trend-weekly',
+  title: '이번주 트렌드 핫이슈',
+  label: '어떻게 생각하세요?',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=60',
+    'https://picsum.photos/600/400?random=60-2',
+  ],
+  createdAt: hoursAgo(24),
+  type: 'BUNDLE',
+  deadline: daysFromNow(7),
+  status: 'OPEN',
+  items: [
+    {
+      id: 'tw1',
+      title: '올해 최고의 드라마는?',
+      label: '문화',
+      voteType: 'TEXT',
+      mainImageUrl: 'https://picsum.photos/400/200?random=tw1-main',
+      options: [
+        { id: 'tw1-o1', title: '오징어게임3' },
+        { id: 'tw1-o2', title: '더 글로리 시즌2' },
+      ],
+    },
+    {
+      id: 'tw2',
+      title: 'MZ세대 트렌드?',
+      label: '트렌드',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'tw2-o1',
+          title: '갓생살기',
+          imageUrl: 'https://picsum.photos/300/200?random=tw21',
+        },
+        {
+          id: 'tw2-o2',
+          title: '소확행',
+          imageUrl: 'https://picsum.photos/300/200?random=tw22',
+        },
+      ],
+    },
+  ],
+};
+
 /** alias → 상세 데이터 매핑 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mockHotpickDetailMap: Record<string, any> = {
+  // BUNDLE
+  'fixed-trend': mockHotpickDetailFixed,
   'love-dilemma': mockHotpickDetailBundle,
   'finance-picks': mockHotpickDetailTextMixed,
+  'sports-urgent': mockHotpickDetailSportsUrgent,
   'work-closed': mockHotpickDetailClosed,
+  'food-new': mockHotpickDetailFoodNew,
+  'trend-weekly': mockHotpickDetailTrendWeekly,
+  // SINGLE
   'single-love': mockHotpickDetailSingleImage,
   'single-text-finance': mockHotpickDetailSingleText,
+  'single-sports-urgent': mockHotpickDetailSingleSports,
+  'single-food-closed': mockHotpickDetailSingleFoodClosed,
+  'single-work': mockHotpickDetailSingleWork,
+  'single-trend': mockHotpickDetailSingleTrend,
 };
 
 /** 선거별 투표 수 Mock */
@@ -648,6 +984,82 @@ export const mockVoteCountMap: Record<string, { options: { id: string; count: nu
       { id: 'st1-o1', count: 340 },
       { id: 'st1-o2', count: 410 },
       { id: 'st1-o3', count: 140 },
+    ],
+  },
+  // SINGLE 추가분
+  ss1: {
+    options: [
+      { id: 'ss1-o1', count: 820 },
+      { id: 'ss1-o2', count: 680 },
+    ],
+  },
+  sf1: {
+    options: [
+      { id: 'sf1-o1', count: 1600 },
+      { id: 'sf1-o2', count: 1600 },
+    ],
+  },
+  sw1: {
+    options: [
+      { id: 'sw1-o1', count: 380 },
+      { id: 'sw1-o2', count: 290 },
+    ],
+  },
+  str1: {
+    options: [
+      { id: 'str1-o1', count: 700 },
+      { id: 'str1-o2', count: 950 },
+      { id: 'str1-o3', count: 450 },
+    ],
+  },
+  // BUNDLE 추가분
+  fx1: {
+    options: [
+      { id: 'fx1-o1', count: 2800 },
+      { id: 'fx1-o2', count: 2600 },
+    ],
+  },
+  fx2: {
+    options: [
+      { id: 'fx2-o1', count: 3100 },
+      { id: 'fx2-o2', count: 2300 },
+    ],
+  },
+  sp1: {
+    options: [
+      { id: 'sp1-o1', count: 4500 },
+      { id: 'sp1-o2', count: 4400 },
+    ],
+  },
+  sp2: {
+    options: [
+      { id: 'sp2-o1', count: 3200 },
+      { id: 'sp2-o2', count: 2100 },
+    ],
+  },
+  fd1: {
+    options: [
+      { id: 'fd1-o1', count: 80 },
+      { id: 'fd1-o2', count: 70 },
+    ],
+  },
+  fd2: {
+    options: [
+      { id: 'fd2-o1', count: 60 },
+      { id: 'fd2-o2', count: 50 },
+      { id: 'fd2-o3', count: 40 },
+    ],
+  },
+  tw1: {
+    options: [
+      { id: 'tw1-o1', count: 1100 },
+      { id: 'tw1-o2', count: 1200 },
+    ],
+  },
+  tw2: {
+    options: [
+      { id: 'tw2-o1', count: 900 },
+      { id: 'tw2-o2', count: 800 },
     ],
   },
 };

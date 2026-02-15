@@ -21,17 +21,14 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({ selectedCodes, onChang
       return;
     }
 
-    // 이미 선택된 카테고리인지 확인
+    // 이미 선택된 카테고리인지 확인 → 해제하면 "전체"로 복귀
     const isSelected = codes.every((code) => selectedCodes.includes(code));
 
     if (isSelected) {
-      // 선택 해제
-      const updated = selectedCodes.filter((code) => !codes.includes(code));
-      onChange(updated);
+      onChange([]);
     } else {
-      // 선택 추가
-      const newCodes = codes.filter((code) => !selectedCodes.includes(code));
-      onChange([...selectedCodes, ...newCodes]);
+      // 단일 선택 — 기존 선택을 교체
+      onChange(codes);
     }
   };
 

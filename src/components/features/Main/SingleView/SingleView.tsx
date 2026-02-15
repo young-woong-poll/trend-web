@@ -45,7 +45,8 @@ export const SingleView: FC<SingleViewProps> = ({ categoryCodes }) => {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const hotpicks = data.pages.flatMap((page) => page?.trends ?? []);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const hotpicks = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (isLoading && hotpicks.length === 0) {

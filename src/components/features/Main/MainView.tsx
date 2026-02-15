@@ -71,9 +71,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, activeTab]);
 
   // 페이지 데이터 병합
-  // initialData가 useInfiniteQuery에 주입되므로 data만 사용
-  const fixedHotpicks = data.pages[0]?.fixedTrends ?? [];
-  const hotpicks = data.pages.flatMap((page) => page?.trends ?? []);
+  // initialData 미제공 시 data가 undefined일 수 있음 (카테고리 필터, 탭 전환 시)
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const fixedHotpicks = data?.pages[0]?.fixedTrends ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const hotpicks = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
 
   // Single 탭일 때
   if (activeTab === 'single') {
