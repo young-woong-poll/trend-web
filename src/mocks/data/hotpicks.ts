@@ -235,21 +235,6 @@ export const mockMainDisplay: DisplayMainResponse = {
 };
 
 /**
- * 메인 전시 Mock — SINGLE만 (하위호환용)
- */
-export const mockSingleDisplay: DisplayMainResponse = {
-  fixedTrends: [],
-  trends:
-    mockMainDisplay.trends?.filter((t) => {
-      const ext = trendExtensions[t.alias ?? ''];
-      return ext?.type === 'SINGLE';
-    }) ?? [],
-  hasMore: false,
-  nextCursor: undefined,
-  totalCount: 0,
-};
-
-/**
  * Phase 2 확장 필드 — 핸들러에서 트렌드 데이터에 주입
  */
 interface TrendExtension {
@@ -313,6 +298,21 @@ export const trendExtensions: Record<string, TrendExtension> = {
     deadline: daysFromNow(7),
     status: 'OPEN',
   },
+};
+
+/**
+ * 메인 전시 Mock — SINGLE만 (하위호환용)
+ */
+export const mockSingleDisplay: DisplayMainResponse = {
+  fixedTrends: [],
+  trends:
+    mockMainDisplay.trends?.filter((t) => {
+      const ext = trendExtensions[t.alias ?? ''];
+      return ext?.type === 'SINGLE';
+    }) ?? [],
+  hasMore: false,
+  nextCursor: undefined,
+  totalCount: 0,
 };
 
 /**
