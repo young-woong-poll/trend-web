@@ -17,6 +17,7 @@ export {
 } from '@/hooks/api/useComment';
 
 export { useCommentLike } from '@/hooks/api/useCommentLike';
+export { useSingleVote } from '@/hooks/api/useSingleVote';
 
 // Display Hooks & Query Options
 export {

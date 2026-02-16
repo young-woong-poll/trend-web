@@ -13,6 +13,7 @@ import type {
   DisplayTrendDetailResponse,
   DisplayResultResponse,
 } from '@/generated/models';
+import { getTKUID } from '@/lib/tkuid';
 // [DEPRECATED] CategoryCode, HotpickType — BE API에 categoryCodes/type 파라미터가 반영되면
 // Orval 생성 타입으로 교체하고 이 import를 제거하세요.
 import type { CategoryCode, HotpickType } from '@/types/hotpick';
@@ -122,7 +123,10 @@ export const displayQueries = {
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getMainDisplay(queryParams);
+        const tkuId = getTKUID();
+        return clientApi.getMainDisplay(queryParams, {
+          headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+        });
       },
       initialPageParam: undefined,
       getNextPageParam: (lastPage) => (lastPage?.hasMore ? lastPage.nextCursor : undefined),

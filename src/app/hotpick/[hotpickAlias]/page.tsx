@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
 import { HotpickContent } from '@/components/features/Hotpick/VoteContent';
@@ -26,6 +28,13 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
 
   try {
     const hotpickData = await queryClient.fetchQuery(hotpickQuery);
+
+    // SINGLE 타입은 메인 피드 해시 스크롤로 리다이렉트
+    // type 필드는 BE API 확장 후 Orval 타입에 반영 예정
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((hotpickData as any)?.type === 'SINGLE') {
+      redirect(`/#${hotpickAlias}`);
+    }
 
     // 첫 번째 선거의 commentCount를 prefetch
     const firstElectionId = hotpickData?.items?.[0]?.id;

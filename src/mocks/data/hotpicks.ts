@@ -1,18 +1,14 @@
 import type { DisplayMainResponse } from '@/generated/models';
 
 // ──────────────────────────────────────────────────────────
-// Phase 2 P0 기능 테스트를 위한 Mock 데이터
+// 메인피드 Mock 데이터 — 싱글/번들 혼합 피드
 //
 // 테스트 케이스:
-// 1. BUNDLE + IMAGE (기존) — 5개 선거 묶음
-// 2. BUNDLE + TEXT — TEXT 투표 포함 혼합 묶음
-// 3. BUNDLE + 마감임박 (D-2) — DeadlineBadge isImminent
-// 4. BUNDLE + 마감 1시간 전 — DeadlineBadge isUrgent (카운트다운)
-// 5. BUNDLE + 마감됨 — CLOSED 상태
-// 6. SINGLE + IMAGE — Single 탭용
-// 7. SINGLE + TEXT — 텍스트 단일 투표
-// 8. SINGLE + 마감됨
-// 9. 카테고리별 — LOVE, FINANCE, WORK, SPORTS, FOOD, TREND
+// 1. SINGLE 인라인 투표 (투표 전/후 상태)
+// 2. BUNDLE 카드 (상세페이지 이동)
+// 3. 혼합 배치: 싱글 7~10개당 번들 1개
+// 4. 카테고리 필터
+// 5. 마감/CLOSED 상태
 // ──────────────────────────────────────────────────────────
 
 const now = new Date();
@@ -20,25 +16,172 @@ const hoursFromNow = (h: number) => new Date(now.getTime() + h * 60 * 60 * 1000)
 const daysFromNow = (d: number) => new Date(now.getTime() + d * 24 * 60 * 60 * 1000).toISOString();
 const hoursAgo = (h: number) => new Date(now.getTime() - h * 60 * 60 * 1000).toISOString();
 
+// ──────────────────────────────────────────────────────────
+// 싱글 핫픽 투표 옵션 데이터
+// ──────────────────────────────────────────────────────────
+
+export interface MockSingleVote {
+  electionId: string;
+  optionA: { id: string; text: string; voteCount: number | null };
+  optionB: { id: string; text: string; voteCount: number | null };
+  voted: boolean;
+  myChoice: 'A' | 'B' | null;
+  totalVotes: number | null;
+}
+
+/** 싱글 핫픽별 투표 옵션 매핑 */
+export const singleVoteDataMap: Record<string, MockSingleVote> = {
+  'single-love': {
+    electionId: 's1',
+    optionA: { id: 's1-o1', text: '분위기 좋은 카페', voteCount: null },
+    optionB: { id: 's1-o2', text: '놀이공원', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-text-finance': {
+    electionId: 'st1',
+    optionA: { id: 'st1-o1', text: '안전한 적금', voteCount: null },
+    optionB: { id: 'st1-o2', text: '주식 투자', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-sports-urgent': {
+    electionId: 'ss1',
+    optionA: { id: 'ss1-o1', text: '홈팀 승리', voteCount: null },
+    optionB: { id: 'ss1-o2', text: '원정팀 승리', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-food-closed': {
+    electionId: 'sf1',
+    optionA: { id: 'sf1-o1', text: '짜장면', voteCount: 1600 },
+    optionB: { id: 'sf1-o2', text: '짬뽕', voteCount: 1600 },
+    voted: false,
+    myChoice: null,
+    totalVotes: 3200,
+  },
+  'single-work': {
+    electionId: 'sw1',
+    optionA: { id: 'sw1-o1', text: '재택근무', voteCount: null },
+    optionB: { id: 'sw1-o2', text: '사무실 출근', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-trend': {
+    electionId: 'str1',
+    optionA: { id: 'str1-o1', text: '대체한다', voteCount: null },
+    optionB: { id: 'str1-o2', text: '공존한다', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-dating-sns': {
+    electionId: 'sds1',
+    optionA: { id: 'sds1-o1', text: '괜찮다', voteCount: null },
+    optionB: { id: 'sds1-o2', text: '절대 안 돼', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-chicken': {
+    electionId: 'sc1',
+    optionA: { id: 'sc1-o1', text: '후라이드', voteCount: null },
+    optionB: { id: 'sc1-o2', text: '양념', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-salary': {
+    electionId: 'ssa1',
+    optionA: { id: 'ssa1-o1', text: '연봉 올려주기', voteCount: null },
+    optionB: { id: 'ssa1-o2', text: '복지 늘리기', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+};
+
+// ──────────────────────────────────────────────────────────
+// 메인 피드 Mock — 혼합 배치 (싱글 + 번들)
+// ──────────────────────────────────────────────────────────
+
 /**
- * 메인 전시 Mock — BUNDLE (트렌드 탭)
+ * 메인 전시 Mock — 혼합 피드
+ * 싱글 7~10개당 번들 1개 삽입
  */
 export const mockMainDisplay: DisplayMainResponse = {
-  fixedTrends: [
-    {
-      id: 100,
-      alias: 'fixed-trend',
-      title: '고정 트렌드: 2026 최고의 여행지는?',
-      label: '당신의 선택은?',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=fixed1',
-        'https://picsum.photos/400/300?random=fixed2',
-      ],
-      createdAt: hoursAgo(2),
-      participantsCount: 5400,
-    },
-  ],
+  fixedTrends: [],
   trends: [
+    // ── 싱글 #1~#7 ──
+    {
+      id: 201,
+      alias: 'single-love',
+      title: '첫 데이트 장소는?',
+      label: '연애',
+      imageUrls: [],
+      createdAt: hoursAgo(6),
+      participantsCount: 420,
+    },
+    {
+      id: 202,
+      alias: 'single-text-finance',
+      title: '적금 vs 주식?',
+      label: '재테크',
+      imageUrls: [],
+      createdAt: hoursAgo(2),
+      participantsCount: 890,
+    },
+    {
+      id: 301,
+      alias: 'single-dating-sns',
+      title: '연인의 전 연인 SNS 확인, 어떻게 생각해?',
+      label: '연애',
+      imageUrls: [],
+      createdAt: hoursAgo(3),
+      participantsCount: 1200,
+    },
+    {
+      id: 203,
+      alias: 'single-sports-urgent',
+      title: '오늘 경기 승자는?',
+      label: '스포츠',
+      imageUrls: [],
+      createdAt: hoursAgo(20),
+      participantsCount: 1500,
+    },
+    {
+      id: 205,
+      alias: 'single-work',
+      title: '재택 vs 출근?',
+      label: '직장',
+      imageUrls: [],
+      createdAt: hoursAgo(48),
+      participantsCount: 670,
+    },
+    {
+      id: 206,
+      alias: 'single-trend',
+      title: 'AI가 인간을 대체할까?',
+      label: '트렌드',
+      imageUrls: [],
+      createdAt: hoursAgo(1),
+      participantsCount: 2100,
+    },
+    {
+      id: 302,
+      alias: 'single-chicken',
+      title: '치킨은 후라이드 vs 양념?',
+      label: '음식',
+      imageUrls: [],
+      createdAt: hoursAgo(5),
+      participantsCount: 760,
+    },
+
+    // ── 번들 #1 ──
     {
       id: 1,
       alias: 'love-dilemma',
@@ -51,6 +194,28 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(12),
       participantsCount: 1200,
     },
+
+    // ── 싱글 #8~#14 ──
+    {
+      id: 303,
+      alias: 'single-salary',
+      title: '회사에 바라는 것은?',
+      label: '직장',
+      imageUrls: [],
+      createdAt: hoursAgo(10),
+      participantsCount: 540,
+    },
+    {
+      id: 204,
+      alias: 'single-food-closed',
+      title: '짜장 vs 짬뽕 (마감)',
+      label: '음식',
+      imageUrls: [],
+      createdAt: hoursAgo(96),
+      participantsCount: 3200,
+    },
+
+    // ── 번들 #2 ──
     {
       id: 2,
       alias: 'finance-picks',
@@ -63,124 +228,25 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(48),
       participantsCount: 3200,
     },
-    {
-      id: 3,
-      alias: 'sports-urgent',
-      title: '스포츠 긴급 투표',
-      label: '마감 임박!',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=3',
-        'https://picsum.photos/400/300?random=3-2',
-      ],
-      createdAt: hoursAgo(72),
-      participantsCount: 8900,
-    },
-    {
-      id: 4,
-      alias: 'work-closed',
-      title: '직장인 고민 (마감)',
-      label: '이미 끝난 투표',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=4',
-        'https://picsum.photos/400/300?random=4-2',
-      ],
-      createdAt: hoursAgo(168),
-      participantsCount: 4500,
-    },
-    {
-      id: 5,
-      alias: 'food-new',
-      title: '오늘의 음식 대결',
-      label: '뭐 먹을래?',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=5',
-        'https://picsum.photos/400/300?random=5-2',
-      ],
-      createdAt: hoursAgo(3),
-      participantsCount: 150,
-    },
-    {
-      id: 6,
-      alias: 'trend-weekly',
-      title: '이번주 트렌드 핫이슈',
-      label: '어떻게 생각하세요?',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=6',
-        'https://picsum.photos/400/300?random=6-2',
-      ],
-      createdAt: hoursAgo(24),
-      participantsCount: 2300,
-    },
   ],
   hasMore: false,
   nextCursor: undefined,
-  totalCount: 6,
+  totalCount: 12,
 };
 
 /**
- * 메인 전시 Mock — SINGLE (Single 탭)
+ * 메인 전시 Mock — SINGLE만 (하위호환용)
  */
 export const mockSingleDisplay: DisplayMainResponse = {
   fixedTrends: [],
-  trends: [
-    {
-      id: 201,
-      alias: 'single-love',
-      title: '첫 데이트 장소는?',
-      label: '연애',
-      imageUrls: ['https://picsum.photos/400/300?random=s1'],
-      createdAt: hoursAgo(6),
-      participantsCount: 420,
-    },
-    {
-      id: 202,
-      alias: 'single-text-finance',
-      title: '적금 vs 주식?',
-      label: '재테크',
-      imageUrls: ['https://picsum.photos/400/300?random=s2'],
-      createdAt: hoursAgo(2),
-      participantsCount: 890,
-    },
-    {
-      id: 203,
-      alias: 'single-sports-urgent',
-      title: '오늘 경기 승자는?',
-      label: '스포츠',
-      imageUrls: ['https://picsum.photos/400/300?random=s3'],
-      createdAt: hoursAgo(20),
-      participantsCount: 1500,
-    },
-    {
-      id: 204,
-      alias: 'single-food-closed',
-      title: '짜장 vs 짬뽕 (마감)',
-      label: '음식',
-      imageUrls: ['https://picsum.photos/400/300?random=s4'],
-      createdAt: hoursAgo(96),
-      participantsCount: 3200,
-    },
-    {
-      id: 205,
-      alias: 'single-work',
-      title: '재택 vs 출근?',
-      label: '직장',
-      imageUrls: ['https://picsum.photos/400/300?random=s5'],
-      createdAt: hoursAgo(48),
-      participantsCount: 670,
-    },
-    {
-      id: 206,
-      alias: 'single-trend',
-      title: 'AI가 인간을 대체할까?',
-      label: '트렌드',
-      imageUrls: ['https://picsum.photos/400/300?random=s6'],
-      createdAt: hoursAgo(1),
-      participantsCount: 2100,
-    },
-  ],
+  trends:
+    mockMainDisplay.trends?.filter((t) => {
+      const ext = trendExtensions[t.alias ?? ''];
+      return ext?.type === 'SINGLE';
+    }) ?? [],
   hasMore: false,
   nextCursor: undefined,
-  totalCount: 6,
+  totalCount: 0,
 };
 
 /**
@@ -194,6 +260,32 @@ interface TrendExtension {
 }
 
 export const trendExtensions: Record<string, TrendExtension> = {
+  // SINGLE
+  'single-love': { type: 'SINGLE', categoryCode: 'LOVE', status: 'OPEN' },
+  'single-text-finance': { type: 'SINGLE', categoryCode: 'FINANCE', status: 'OPEN' },
+  'single-sports-urgent': {
+    type: 'SINGLE',
+    categoryCode: 'SPORTS',
+    deadline: hoursFromNow(2),
+    status: 'OPEN',
+  },
+  'single-food-closed': {
+    type: 'SINGLE',
+    categoryCode: 'FOOD',
+    deadline: hoursAgo(12),
+    status: 'CLOSED',
+  },
+  'single-work': {
+    type: 'SINGLE',
+    categoryCode: 'WORK',
+    deadline: daysFromNow(5),
+    status: 'OPEN',
+  },
+  'single-trend': { type: 'SINGLE', categoryCode: 'TREND', status: 'OPEN' },
+  'single-dating-sns': { type: 'SINGLE', categoryCode: 'LOVE', status: 'OPEN' },
+  'single-chicken': { type: 'SINGLE', categoryCode: 'FOOD', status: 'OPEN' },
+  'single-salary': { type: 'SINGLE', categoryCode: 'WORK', status: 'OPEN' },
+  // BUNDLE
   'fixed-trend': { type: 'BUNDLE', categoryCode: 'TREND', status: 'OPEN' },
   'love-dilemma': { type: 'BUNDLE', categoryCode: 'LOVE', status: 'OPEN' },
   'finance-picks': {
@@ -221,27 +313,6 @@ export const trendExtensions: Record<string, TrendExtension> = {
     deadline: daysFromNow(7),
     status: 'OPEN',
   },
-  'single-love': { type: 'SINGLE', categoryCode: 'LOVE', status: 'OPEN' },
-  'single-text-finance': { type: 'SINGLE', categoryCode: 'FINANCE', status: 'OPEN' },
-  'single-sports-urgent': {
-    type: 'SINGLE',
-    categoryCode: 'SPORTS',
-    deadline: hoursFromNow(2),
-    status: 'OPEN',
-  },
-  'single-food-closed': {
-    type: 'SINGLE',
-    categoryCode: 'FOOD',
-    deadline: hoursAgo(12),
-    status: 'CLOSED',
-  },
-  'single-work': {
-    type: 'SINGLE',
-    categoryCode: 'WORK',
-    deadline: daysFromNow(5),
-    status: 'OPEN',
-  },
-  'single-trend': { type: 'SINGLE', categoryCode: 'TREND', status: 'OPEN' },
 };
 
 /**
@@ -250,7 +321,8 @@ export const trendExtensions: Record<string, TrendExtension> = {
 export const injectExtensions = <T extends { alias?: string }>(trends: T[]): T[] =>
   trends.map((t) => {
     const ext = trendExtensions[t.alias ?? ''];
-    return ext ? { ...t, ...ext } : t;
+    const singleVote = singleVoteDataMap[t.alias ?? ''];
+    return ext ? { ...t, ...ext, ...(singleVote ? { singleVote } : {}) } : t;
   });
 
 // ──────────────────────────────────────────────────────────
@@ -676,59 +748,6 @@ export const mockHotpickDetailSingleTrend = {
   ],
 };
 
-/** BUNDLE — 고정 트렌드 상세 */
-const mockHotpickDetailFixed = {
-  trendId: 100,
-  alias: 'fixed-trend',
-  title: '고정 트렌드: 2026 최고의 여행지는?',
-  label: '당신의 선택은?',
-  imageUrls: [
-    'https://picsum.photos/600/400?random=fixed1-detail',
-    'https://picsum.photos/600/400?random=fixed2-detail',
-  ],
-  createdAt: hoursAgo(2),
-  type: 'BUNDLE',
-  status: 'OPEN',
-  items: [
-    {
-      id: 'fx1',
-      title: '국내 여행지 최강은?',
-      label: '국내',
-      voteType: 'IMAGE',
-      options: [
-        {
-          id: 'fx1-o1',
-          title: '제주도',
-          imageUrl: 'https://picsum.photos/300/200?random=fx11',
-        },
-        {
-          id: 'fx1-o2',
-          title: '부산',
-          imageUrl: 'https://picsum.photos/300/200?random=fx12',
-        },
-      ],
-    },
-    {
-      id: 'fx2',
-      title: '해외는 어디로?',
-      label: '해외',
-      voteType: 'IMAGE',
-      options: [
-        {
-          id: 'fx2-o1',
-          title: '일본',
-          imageUrl: 'https://picsum.photos/300/200?random=fx21',
-        },
-        {
-          id: 'fx2-o2',
-          title: '태국',
-          imageUrl: 'https://picsum.photos/300/200?random=fx22',
-        },
-      ],
-    },
-  ],
-};
-
 /** BUNDLE — 스포츠 긴급 상세 */
 const mockHotpickDetailSportsUrgent = {
   trendId: 3,
@@ -877,6 +896,59 @@ const mockHotpickDetailTrendWeekly = {
   ],
 };
 
+/** BUNDLE — 고정 트렌드 상세 */
+const mockHotpickDetailFixed = {
+  trendId: 100,
+  alias: 'fixed-trend',
+  title: '고정 트렌드: 2026 최고의 여행지는?',
+  label: '당신의 선택은?',
+  imageUrls: [
+    'https://picsum.photos/600/400?random=fixed1-detail',
+    'https://picsum.photos/600/400?random=fixed2-detail',
+  ],
+  createdAt: hoursAgo(2),
+  type: 'BUNDLE',
+  status: 'OPEN',
+  items: [
+    {
+      id: 'fx1',
+      title: '국내 여행지 최강은?',
+      label: '국내',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'fx1-o1',
+          title: '제주도',
+          imageUrl: 'https://picsum.photos/300/200?random=fx11',
+        },
+        {
+          id: 'fx1-o2',
+          title: '부산',
+          imageUrl: 'https://picsum.photos/300/200?random=fx12',
+        },
+      ],
+    },
+    {
+      id: 'fx2',
+      title: '해외는 어디로?',
+      label: '해외',
+      voteType: 'IMAGE',
+      options: [
+        {
+          id: 'fx2-o1',
+          title: '일본',
+          imageUrl: 'https://picsum.photos/300/200?random=fx21',
+        },
+        {
+          id: 'fx2-o2',
+          title: '태국',
+          imageUrl: 'https://picsum.photos/300/200?random=fx22',
+        },
+      ],
+    },
+  ],
+};
+
 /** alias → 상세 데이터 매핑 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mockHotpickDetailMap: Record<string, any> = {
@@ -986,7 +1058,6 @@ export const mockVoteCountMap: Record<string, { options: { id: string; count: nu
       { id: 'st1-o3', count: 140 },
     ],
   },
-  // SINGLE 추가분
   ss1: {
     options: [
       { id: 'ss1-o1', count: 820 },
@@ -1012,7 +1083,6 @@ export const mockVoteCountMap: Record<string, { options: { id: string; count: nu
       { id: 'str1-o3', count: 450 },
     ],
   },
-  // BUNDLE 추가분
   fx1: {
     options: [
       { id: 'fx1-o1', count: 2800 },

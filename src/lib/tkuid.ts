@@ -1,9 +1,10 @@
 /**
  * TKUID (Trend-Kkultube Unique ID) 관리 유틸리티
- * 로컬 스토리지를 사용하여 사용자를 식별하고 좋아요 중복 방지
+ * 로컬 스토리지를 사용하여 사용자를 식별하고 좋아요/투표 중복 방지
  */
 
-const TKUID_KEY = 'tkuid';
+const TKUID_KEY = 'hp_tkuid';
+const TKUID_OLD_KEY = 'tkuid';
 
 function generateUUID(): string {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -24,6 +25,13 @@ export function getTKUID(): string {
   }
 
   try {
+    // 마이그레이션: 기존 키(tkuid) → 새 키(hp_tkuid)
+    const oldValue = localStorage.getItem(TKUID_OLD_KEY);
+    if (oldValue && !localStorage.getItem(TKUID_KEY)) {
+      localStorage.setItem(TKUID_KEY, oldValue);
+      localStorage.removeItem(TKUID_OLD_KEY);
+    }
+
     let tkuid = localStorage.getItem(TKUID_KEY);
 
     if (!tkuid) {

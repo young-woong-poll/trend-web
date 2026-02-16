@@ -16,8 +16,16 @@ import {
   mockVoteCountMap,
   injectExtensions,
   trendExtensions,
+  singleVoteDataMap,
 } from '@/mocks/data/hotpicks';
 import { mockResultDisplay } from '@/mocks/data/results';
+import {
+  recordVote,
+  getVote,
+  hasVoted,
+  singleVoteCounts,
+  incrementVoteCount,
+} from '@/mocks/data/singleVotes';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
@@ -49,20 +57,59 @@ export const handlers = [
    * 메인 전시 조회
    * GET /api/v1/display/main
    *
-   * type=SINGLE → Single 탭 데이터
-   * type 없음/BUNDLE → 트렌드 탭 데이터
-   * categoryCodes → 카테고리 필터 (간이 구현)
+   * 혼합 피드: 싱글 + 번들 통합 반환
+   * x-tku-id 헤더로 기투표 상태 반영
+   * categoryCodes → 카테고리 필터
    */
   http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
     const categoryCodes = url.searchParams.getAll('categoryCodes');
+    const tkuId = request.headers.get('x-tku-id') ?? '';
 
     const source = type === 'SINGLE' ? mockSingleDisplay : mockMainDisplay;
 
-    // 확장 필드 주입 (type, categoryCode, deadline, status)
+    // 확장 필드 주입 (type, categoryCode, deadline, status, singleVote)
     let fixedTrends = injectExtensions(source.fixedTrends ?? []);
     let trends = injectExtensions(source.trends ?? []);
+
+    // x-tku-id 기반 기투표 상태 반영
+    if (tkuId) {
+      const injectVoteState = <T extends { id?: number; alias?: string; singleVote?: unknown }>(
+        items: T[]
+      ): T[] =>
+        items.map((item) => {
+          const alias = item.alias ?? '';
+          const svData = singleVoteDataMap[alias];
+          if (!svData) {
+            return item;
+          }
+
+          const hotpickId = String(item.id ?? '');
+          const vote = getVote(tkuId, hotpickId);
+          const counts = singleVoteCounts[hotpickId];
+
+          if (vote && counts) {
+            const isOptionA = vote.optionId === svData.optionA.id;
+            return {
+              ...item,
+              singleVote: {
+                ...svData,
+                optionA: { ...svData.optionA, voteCount: counts.optionACount },
+                optionB: { ...svData.optionB, voteCount: counts.optionBCount },
+                voted: true,
+                myChoice: isOptionA ? 'A' : 'B',
+                totalVotes: counts.optionACount + counts.optionBCount,
+              },
+            };
+          }
+
+          return item;
+        });
+
+      fixedTrends = injectVoteState(fixedTrends);
+      trends = injectVoteState(trends);
+    }
 
     // 카테고리 필터링
     if (categoryCodes.length > 0) {
@@ -84,6 +131,86 @@ export const handlers = [
     };
 
     return HttpResponse.json(wrapResponse(result));
+  }),
+
+  /**
+   * 싱글 핫픽 투표
+   * POST /api/v1/single/:hotpickId/vote
+   *
+   * Headers: x-tku-id (필수)
+   * Body: { optionId: string }
+   * 성공: 200 + { voteCountA, voteCountB, totalVotes }
+   * 중복: 409 + 현재 결과
+   */
+  http.post(`${baseURL}/api/v1/single/:hotpickId/vote`, async ({ request, params }) => {
+    const tkuId = request.headers.get('x-tku-id');
+    if (!tkuId) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: 'x-tku-id 헤더가 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+
+    const hotpickId = String(params.hotpickId);
+    const body = (await request.json()) as { optionId: string };
+    const { optionId } = body;
+
+    // 해당 핫픽의 singleVote 데이터 찾기 (alias → id 매핑)
+    const aliasEntry = Object.entries(singleVoteDataMap).find(
+      ([, sv]) => sv.optionA.id === optionId || sv.optionB.id === optionId
+    );
+
+    if (!aliasEntry) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '유효하지 않은 옵션입니다.', data: null },
+        { status: 404 }
+      );
+    }
+
+    const [, svData] = aliasEntry;
+    const counts = singleVoteCounts[hotpickId];
+    if (!counts) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '핫픽을 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+
+    // 중복 투표 체크
+    if (hasVoted(tkuId, hotpickId)) {
+      const voteRecord = getVote(tkuId, hotpickId);
+      const isOptionA = voteRecord?.optionId === svData.optionA.id;
+      return HttpResponse.json(
+        {
+          code: 'ALREADY_VOTED',
+          message: '이미 투표했습니다.',
+          data: {
+            voted: true,
+            myChoice: isOptionA ? 'A' : 'B',
+            voteCountA: counts.optionACount,
+            voteCountB: counts.optionBCount,
+            totalVotes: counts.optionACount + counts.optionBCount,
+          },
+        },
+        { status: 409 }
+      );
+    }
+
+    // 투표 기록 + 카운트 증가
+    recordVote(tkuId, hotpickId, optionId);
+    incrementVoteCount(hotpickId, optionId, svData.optionA.id);
+
+    const isOptionA = optionId === svData.optionA.id;
+
+    return HttpResponse.json(
+      wrapResponse({
+        voted: true,
+        myChoice: isOptionA ? 'A' : 'B',
+        voteCountA: counts.optionACount,
+        voteCountB: counts.optionBCount,
+        totalVotes: counts.optionACount + counts.optionBCount,
+      })
+    );
   }),
 
   /**
