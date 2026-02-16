@@ -1,14 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef, type FC, type ReactNode } from 'react';
+import { useCallback, useState, useEffect, useRef, type FC, type ReactNode } from 'react';
 
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
 import { HOTPICK_SORT } from '@/constants';
+import { useModal } from '@/contexts/ModalContext';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
+import { useHashAnchor } from '@/hooks/useHashAnchor';
 import type { CategoryCode } from '@/types/hotpick';
 import type { SingleVoteData } from '@/types/singleVote';
 
@@ -29,21 +31,52 @@ const isValidImageUrl = (url: string | undefined): boolean => {
   }
 };
 
+const HIGHLIGHT_DURATION = 1500;
+
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
+  const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
   const { handleVote } = useSingleVote();
+  const { showToast } = useModal();
+  const { anchor, clearAnchor } = useHashAnchor();
+  const scrolledRef = useRef(false);
+  const topObserverTarget = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
-    useInfiniteMainDisplay({
-      size: 20,
-      sort: HOTPICK_SORT,
-      categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
-      initialData: categoryCodes.length === 0 ? initialData : undefined,
-    });
+  const handleShare = useCallback(
+    (alias: string) => {
+      const url = `${window.location.origin}/#${alias}`;
+      void navigator.clipboard.writeText(url).then(() => {
+        showToast('링크가 복사되었습니다');
+      });
+    },
+    [showToast]
+  );
+
+  // anchor가 있으면 카테고리 필터 "전체"로 초기화
+  const activeAnchor = anchor && categoryCodes.length === 0 ? anchor : undefined;
+
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    hasPreviousPage,
+    fetchNextPage,
+    fetchPreviousPage,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    error,
+  } = useInfiniteMainDisplay({
+    size: 20,
+    sort: HOTPICK_SORT,
+    categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
+    anchor: activeAnchor,
+    initialData: categoryCodes.length === 0 && !activeAnchor ? initialData : undefined,
+  });
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Intersection Observer로 무한스크롤 구현
+  // 하향 무한스크롤
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -66,6 +99,85 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // 상향 무한스크롤 (anchor 진입 시)
+  useEffect(() => {
+    if (!hasPreviousPage) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasPreviousPage && !isFetchingPreviousPage) {
+          void fetchPreviousPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = topObserverTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage]);
+
+  // 해시 스크롤 + 하이라이트
+  useEffect(() => {
+    if (!anchor || scrolledRef.current || !data) {
+      return;
+    }
+
+    // anchorNotFound 체크
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const firstPage = data.pages[0] as any;
+    if (firstPage?.anchorNotFound) {
+      showToast('해당 핫픽을 찾을 수 없습니다');
+      clearAnchor();
+      return;
+    }
+
+    // 해당 엘리먼트 찾기
+    const el = document.getElementById(anchor);
+    if (!el) {
+      return;
+    }
+
+    scrolledRef.current = true;
+
+    // 약간의 딜레이 후 스크롤 (렌더링 완료 보장)
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // 하이라이트 적용
+      setHighlightedAlias(anchor);
+      setTimeout(() => {
+        setHighlightedAlias(null);
+        clearAnchor();
+      }, HIGHLIGHT_DURATION);
+    });
+  }, [anchor, data, clearAnchor, showToast]);
+
+  // anchor 변경 시 scrolledRef 리셋
+  useEffect(() => {
+    scrolledRef.current = false;
+  }, [anchor]);
+
+  // 카테고리 변경 시 anchor 초기화
+  const handleCategoryChange = useCallback(
+    (codes: CategoryCode[]) => {
+      setCategoryCodes(codes);
+      if (anchor) {
+        clearAnchor();
+      }
+    },
+    [anchor, clearAnchor]
+  );
+
   // 페이지 데이터 병합
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const fixedHotpicks = data?.pages[0]?.fixedTrends ?? [];
@@ -77,7 +189,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
         <div className={styles.statusContainer}>
           <p className={styles.statusText}>핫픽을 불러오는 중...</p>
         </div>
@@ -89,7 +201,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
         <div className={styles.statusContainer}>
           <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
           <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
@@ -102,7 +214,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (fixedHotpicks.length === 0 && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
           <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
@@ -133,7 +245,9 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             participantCount={trend.participantsCount}
             status={item.status}
             singleVote={item.singleVote as SingleVoteData}
+            isHighlighted={highlightedAlias === alias}
             onVote={handleVote}
+            onShare={handleShare}
           />
         </div>
       );
@@ -159,6 +273,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           createdAt={trend.createdAt}
           imageUrls={validImageUrls}
           participantCount={trend.participantsCount}
+          onShare={handleShare}
         />
       </div>
     );
@@ -169,7 +284,16 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={setCategoryCodes} />
+        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+
+        {/* 상향 무한스크롤 트리거 */}
+        {hasPreviousPage && (
+          <div ref={topObserverTarget} className={styles.observerTarget}>
+            {isFetchingPreviousPage && (
+              <p className={styles.loadingMore}>이전 핫픽을 불러오는 중...</p>
+            )}
+          </div>
+        )}
 
         {/* 고정 핫픽 */}
         {fixedHotpicks.map((trend) => renderTrend(trend, 'fixed'))}
@@ -177,7 +301,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
         {/* 혼합 피드 (싱글 + 번들) */}
         {hotpicks.map((trend) => renderTrend(trend))}
 
-        {/* 무한스크롤 트리거 */}
+        {/* 하향 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>
           {isFetchingNextPage && <p className={styles.loadingMore}>핫픽을 더 불러오는 중...</p>}
           {!isFetchingNextPage && error && hasNextPage && (

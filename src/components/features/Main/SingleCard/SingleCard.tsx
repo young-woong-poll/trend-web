@@ -4,6 +4,7 @@ import type { FC } from 'react';
 
 import { AnimatePresence, motion } from 'framer-motion';
 
+import ShareIcon from '@/assets/icon/ShareIcon';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
 import {
   buttonTapVariants,
@@ -24,6 +25,7 @@ interface SingleCardProps {
   singleVote: SingleVoteData;
   isHighlighted?: boolean;
   onVote: (hotpickId: string, optionId: string, singleVote: SingleVoteData) => void;
+  onShare?: (alias: string) => void;
 }
 
 const formatCount = (count: number): string => {
@@ -35,6 +37,7 @@ const formatCount = (count: number): string => {
 
 export const SingleCard: FC<SingleCardProps> = ({
   id,
+  alias,
   title,
   categoryLabel,
   participantCount = 0,
@@ -42,6 +45,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   singleVote,
   isHighlighted,
   onVote,
+  onShare,
 }) => {
   const isClosed = status === 'CLOSED';
   const { voted, myChoice, optionA, optionB, totalVotes } = singleVote;
@@ -70,10 +74,23 @@ export const SingleCard: FC<SingleCardProps> = ({
       animate="visible"
       layout
     >
-      {/* 헤더: 카테고리 + 참여자 수 */}
+      {/* 헤더: 카테고리 + 참여자 수 + 공유 */}
       <div className={styles.header}>
-        {categoryLabel && <span className={styles.category}>{categoryLabel}</span>}
-        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+        <div className={styles.headerLeft}>
+          {categoryLabel && <span className={styles.category}>{categoryLabel}</span>}
+          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+        </div>
+        <button
+          type="button"
+          className={styles.shareButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare?.(alias);
+          }}
+          aria-label="공유"
+        >
+          <ShareIcon />
+        </button>
       </div>
 
       {/* 질문 텍스트 */}

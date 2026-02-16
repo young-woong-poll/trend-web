@@ -66,12 +66,14 @@ export const handlers = [
     const type = url.searchParams.get('type');
     const categoryCodes = url.searchParams.getAll('categoryCodes');
     const tkuId = request.headers.get('x-tku-id') ?? '';
+    const anchor = url.searchParams.get('anchor');
+    const direction = url.searchParams.get('direction');
 
     const source = type === 'SINGLE' ? mockSingleDisplay : mockMainDisplay;
 
     // 확장 필드 주입 (type, categoryCode, deadline, status, singleVote)
     let fixedTrends = injectExtensions(source.fixedTrends ?? []);
-    let trends = injectExtensions(source.trends ?? []);
+    let allTrends = injectExtensions(source.trends ?? []);
 
     // x-tku-id 기반 기투표 상태 반영
     if (tkuId) {
@@ -108,7 +110,7 @@ export const handlers = [
         });
 
       fixedTrends = injectVoteState(fixedTrends);
-      trends = injectVoteState(trends);
+      allTrends = injectVoteState(allTrends);
     }
 
     // 카테고리 필터링
@@ -120,14 +122,66 @@ export const handlers = [
         });
 
       fixedTrends = filterByCategory(fixedTrends);
-      trends = filterByCategory(trends);
+      allTrends = filterByCategory(allTrends);
+    }
+
+    // anchor 기반 슬라이싱 (해시 스크롤 진입)
+    if (anchor) {
+      const anchorIndex = allTrends.findIndex((t) => t.alias === anchor);
+
+      if (anchorIndex === -1) {
+        // anchor 못 찾음 → 일반 피드 + anchorNotFound 플래그
+        const result = {
+          ...source,
+          fixedTrends,
+          trends: allTrends,
+          totalCount: allTrends.length,
+          anchorNotFound: true,
+        };
+        return HttpResponse.json(wrapResponse(result));
+      }
+
+      // anchor 주변 데이터: anchor 앞 3개 + anchor + 이후 전부
+      const startIdx = Math.max(0, anchorIndex - 3);
+      const trends = allTrends.slice(startIdx);
+      const hasPrevious = startIdx > 0;
+
+      const result = {
+        ...source,
+        fixedTrends: [],
+        trends,
+        totalCount: allTrends.length,
+        anchorIndex: anchorIndex - startIdx,
+        hasPrevious,
+        prevCursor: hasPrevious ? startIdx : undefined,
+      };
+      return HttpResponse.json(wrapResponse(result));
+    }
+
+    // direction=prev → 이전 페이지 (anchor 스크롤 후 위로 스크롤 시)
+    if (direction === 'prev') {
+      const cursor = parseInt(url.searchParams.get('cursor') ?? '0', 10);
+      const size = parseInt(url.searchParams.get('size') ?? '20', 10);
+      const startIdx = Math.max(0, cursor - size);
+      const trends = allTrends.slice(startIdx, cursor);
+      const hasPrevious = startIdx > 0;
+
+      const result = {
+        ...source,
+        fixedTrends: [],
+        trends,
+        totalCount: allTrends.length,
+        hasPrevious,
+        prevCursor: hasPrevious ? startIdx : undefined,
+      };
+      return HttpResponse.json(wrapResponse(result));
     }
 
     const result = {
       ...source,
       fixedTrends,
-      trends,
-      totalCount: trends.length,
+      trends: allTrends,
+      totalCount: allTrends.length,
     };
 
     return HttpResponse.json(wrapResponse(result));

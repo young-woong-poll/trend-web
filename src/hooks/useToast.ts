@@ -43,7 +43,7 @@ export const useToast = () => {
 
       timeoutRef.current = setTimeout(() => {
         hideToast();
-      }, 1000);
+      }, 2000);
     },
     [hideToast]
   );

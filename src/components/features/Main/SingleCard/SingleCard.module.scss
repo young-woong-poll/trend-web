@@ -23,6 +23,12 @@
   margin-bottom: 8px;
 }
 
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .category {
   font-size: $font-size-12;
   font-weight: $font-weight-semibold;
@@ -32,6 +38,31 @@
 .participants {
   font-size: $font-size-12;
   color: $text-tertiary;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.08);
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
 }
 
 // ── 질문 ──
