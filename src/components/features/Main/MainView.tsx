@@ -2,11 +2,13 @@
 
 import { useCallback, useState, useEffect, useRef, type FC, type ReactNode } from 'react';
 
+import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
-import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
+import { SortToggle } from '@/components/features/Main/SortToggle/SortToggle';
 import { HOTPICK_SORT } from '@/constants';
+import type { HotpickSortOption } from '@/constants/sort';
 import { useModal } from '@/contexts/ModalContext';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
@@ -19,22 +21,11 @@ type TMainViewProps = {
   children?: ReactNode;
 };
 
-const isValidImageUrl = (url: string | undefined): boolean => {
-  if (!url) {
-    return false;
-  }
-  try {
-    const urlObj = new URL(url);
-    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-  } catch {
-    return false;
-  }
-};
-
 const HIGHLIGHT_DURATION = 1500;
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
+  const [sortOption, setSortOption] = useState<HotpickSortOption>(HOTPICK_SORT);
   const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
@@ -68,7 +59,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     error,
   } = useInfiniteMainDisplay({
     size: 20,
-    sort: HOTPICK_SORT,
+    sort: sortOption,
     categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
     anchor: activeAnchor,
     initialData: categoryCodes.length === 0 && !activeAnchor ? initialData : undefined,
@@ -253,26 +244,19 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       );
     }
 
-    // BUNDLE 타입: 기존 PollCard
-    const rawImageUrls = trend.imageUrls ?? [];
-    const validImageUrls = [
-      isValidImageUrl(rawImageUrls[0])
-        ? rawImageUrls[0]
-        : 'https://picsum.photos/400/300?random=placeholder1',
-      isValidImageUrl(rawImageUrls[1])
-        ? rawImageUrls[1]
-        : 'https://picsum.photos/400/300?random=placeholder2',
-    ];
-
+    // BUNDLE 타입: BundleCard
     return (
       <div key={key} id={alias}>
-        <PollCard
+        <BundleCard
           alias={alias}
           title={trend.title ?? ''}
           subtitle={trend.label}
+          categoryLabel={item.categoryCode}
           createdAt={trend.createdAt}
-          imageUrls={validImageUrls}
           participantCount={trend.participantsCount}
+          electionCount={item.electionCount}
+          deadline={item.deadline}
+          status={item.status}
           onShare={handleShare}
         />
       </div>
@@ -285,6 +269,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+        <SortToggle value={sortOption} onChange={setSortOption} />
 
         {/* 상향 무한스크롤 트리거 */}
         {hasPreviousPage && (

@@ -1,0 +1,194 @@
+@use '@/styles/variables' as *;
+
+.card {
+  position: relative;
+  border-radius: $border-radius-lg;
+  background: $bg-secondary;
+  border: 1px solid $border-placeholder;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &.closed {
+    opacity: 0.6;
+    cursor: default;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+// 좌측 그라데이션 보더
+.accentBorder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: $primary-gradient;
+  border-radius: $border-radius-lg 0 0 $border-radius-lg;
+}
+
+.content {
+  padding: 16px 16px 16px 20px;
+}
+
+// ── 헤더 ──
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bundleBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: $border-radius-rounded;
+  background: rgba($primary-start, 0.15);
+  color: $primary-start;
+  font-size: $font-size-11;
+  font-weight: $font-weight-bold;
+}
+
+.category {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+}
+
+.newBadge {
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+  background: $attention;
+  color: $bg-primary;
+  font-size: $font-size-11;
+  font-weight: $font-weight-bold;
+}
+
+.shareButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.08);
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// ── 제목/부제 ──
+.title {
+  font-size: $font-size-18;
+  font-weight: $font-weight-bold;
+  color: $white;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  word-break: keep-all;
+}
+
+.subtitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+// ── 하단 ──
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.participants {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: $border-radius-rounded;
+  border: none;
+  background: $primary-gradient;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    transform: scale(1.02);
+
+    svg {
+      transform: translateX(3px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.loading {
+  letter-spacing: 2px;
+}
