@@ -361,28 +361,34 @@ Body:
       "id": "hp_001",
       "question": "연인의 전 연인 SNS 확인, 어떻게 생각해?",
       "voted": false,
-      "optionA": { "text": "괜찮다", "percentage": null },
-      "optionB": { "text": "절대 안 돼", "percentage": null }
+      "optionA": { "text": "괜찮다", "voteCount": null },
+      "optionB": { "text": "절대 안 돼", "voteCount": null }
     },
     {
       "id": "hp_002",
       "question": "소개팅에서 전 연인 얘기, 괜찮아?",
       "voted": true,
       "myChoice": "A",
-      "optionA": { "text": "괜찮다", "percentage": 62 },
-      "optionB": { "text": "별로다", "percentage": 38 },
+      "optionA": { "text": "괜찮다", "voteCount": 770 },
+      "optionB": { "text": "별로다", "voteCount": 473 },
       "totalVotes": 1243
     }
   ]
 }
 ```
 
+**투표 결과 표시 방식:**
+
+- 서버는 각 옵션의 **투표 수(`voteCount`)**를 반환한다.
+- 퍼센티지(%)는 FE에서 계산한다: `Math.round(voteCountA / totalVotes * 100)`
+- 이를 통해 투표수와 퍼센트를 동시에 표시할 수 있다.
+
 **클라이언트 렌더링 분기:**
 
-| 서버 응답 `voted` 값 | 카드 상태    | 표시 내용                         |
-| -------------------- | ------------ | --------------------------------- |
-| `false`              | 투표 전 상태 | 질문 + A/B 선택 버튼              |
-| `true`               | 투표 후 상태 | 질문 + 퍼센티지 바 + 내 선택 표시 |
+| 서버 응답 `voted` 값 | 카드 상태    | 표시 내용                                |
+| -------------------- | ------------ | ---------------------------------------- |
+| `false`              | 투표 전 상태 | 질문 + A/B 선택 버튼                     |
+| `true`               | 투표 후 상태 | 질문 + 투표수/퍼센티지 바 + 내 선택 표시 |
 
 ### 6-4. 재방문 시 동작
 

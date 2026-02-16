@@ -502,30 +502,30 @@ GET /api/v1/categories
 +   },
 +   "voted": false,
 +   "myChoice": null,
-+   "percentageA": null,
-+   "percentageB": null
++   "voteCountA": null,
++   "voteCountB": null
 + }
 }
 ```
 
 **`singleVote` 필드 설명:**
 
-| 필드          | 타입                   | 설명                              |
-| ------------- | ---------------------- | --------------------------------- |
-| `electionId`  | string                 | 연결된 선거 ID                    |
-| `optionA`     | object                 | A 선택지 (`id`, `text`)           |
-| `optionB`     | object                 | B 선택지 (`id`, `text`)           |
-| `voted`       | boolean                | 현재 사용자의 투표 여부           |
-| `myChoice`    | `"A"` \| `"B"` \| null | 내가 선택한 옵션 (미투표 시 null) |
-| `percentageA` | number \| null         | A 옵션 투표 비율 (미투표 시 null) |
-| `percentageB` | number \| null         | B 옵션 투표 비율 (미투표 시 null) |
+| 필드         | 타입                   | 설명                              |
+| ------------ | ---------------------- | --------------------------------- |
+| `electionId` | string                 | 연결된 선거 ID                    |
+| `optionA`    | object                 | A 선택지 (`id`, `text`)           |
+| `optionB`    | object                 | B 선택지 (`id`, `text`)           |
+| `voted`      | boolean                | 현재 사용자의 투표 여부           |
+| `myChoice`   | `"A"` \| `"B"` \| null | 내가 선택한 옵션 (미투표 시 null) |
+| `voteCountA` | number \| null         | A 옵션 투표 수 (미투표 시 null)   |
+| `voteCountB` | number \| null         | B 옵션 투표 수 (미투표 시 null)   |
 
 **조건:**
 
 - `type: "SINGLE"`인 핫픽에만 `singleVote` 필드를 포함합니다.
 - `type: "BUNDLE"`인 핫픽은 `singleVote`가 null 또는 미포함입니다.
-- `voted: true`일 때만 `myChoice`, `percentageA`, `percentageB`에 값이 들어갑니다.
-- `voted: false`일 때는 `myChoice`는 null, 퍼센티지도 null입니다 (투표 전에는 비율 비공개).
+- `voted: true`일 때만 `myChoice`, `voteCountA`, `voteCountB`에 값이 들어갑니다.
+- `voted: false`일 때는 `myChoice`는 null, 투표 수도 null입니다 (투표 전에는 결과 비공개).
 
 ### 9.2 `x-tku-id` 헤더 수신
 
@@ -539,7 +539,7 @@ Headers:
 
 **동작:**
 
-- `x-tku-id` 헤더가 존재하면: 해당 UUID로 각 싱글 핫픽의 투표 여부를 조회하여 `singleVote.voted`, `myChoice`, 퍼센티지를 채웁니다.
+- `x-tku-id` 헤더가 존재하면: 해당 UUID로 각 싱글 핫픽의 투표 여부를 조회하여 `singleVote.voted`, `myChoice`, 투표 수를 채웁니다.
 - `x-tku-id` 헤더가 없으면: 모든 싱글 핫픽을 `voted: false`로 반환합니다.
 
 > **참고:** 이 헤더는 기존 댓글 좋아요 API(`POST /api/v1/comment/{commentId}/like`)에서 이미 사용 중인 패턴입니다. 동일한 방식으로 처리해 주세요.
@@ -575,8 +575,8 @@ Headers:
   "data": {
     "voted": true,
     "myChoice": "A",
-    "percentageA": 62,
-    "percentageB": 38,
+    "voteCountA": 765,
+    "voteCountB": 470,
     "totalVotes": 1235
   }
 }
@@ -602,8 +602,8 @@ Headers:
   "data": {
     "voted": true,
     "myChoice": "A",
-    "percentageA": 62,
-    "percentageB": 38,
+    "voteCountA": 765,
+    "voteCountB": 469,
     "totalVotes": 1234
   }
 }
