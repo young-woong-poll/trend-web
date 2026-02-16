@@ -2,6 +2,34 @@
  * Hotpick 관련 타입 정의
  */
 
+import type { VoteType } from '@/types/election';
+
+/**
+ * 핫픽 유형
+ */
+export type HotpickType = 'BUNDLE' | 'SINGLE';
+
+/**
+ * 핫픽 상태
+ */
+export type HotpickStatus = 'OPEN' | 'CLOSED';
+
+/**
+ * 카테고리 코드 (DB 10개)
+ * - 화면 필터에는 6개만 노출: 연애/결혼, 재테크, 직장, 스포츠, 음식, 트렌드
+ */
+export type CategoryCode =
+  | 'LOVE'
+  | 'MARRIAGE'
+  | 'FINANCE'
+  | 'WORK'
+  | 'SPORTS'
+  | 'FOOD'
+  | 'GAME'
+  | 'CAR'
+  | 'HEALTH'
+  | 'TREND';
+
 /**
  * 메인 전시 Hotpick 아이템
  */
@@ -10,6 +38,10 @@ export interface MainHotpickItem {
   alias: string;
   title: string;
   label: string;
+  type?: HotpickType;
+  categoryCodes?: CategoryCode[];
+  deadline?: string;
+  status?: HotpickStatus;
   imageUrls: string[];
   createdAt: string;
   participantsCount: number;
@@ -31,7 +63,7 @@ export interface MainDisplayResponse {
 export interface HotpickOption {
   id: string;
   title: string;
-  imageUrl: string;
+  imageUrl?: string; // TEXT 유형일 때 불필요
 }
 
 /**
@@ -41,6 +73,8 @@ export interface HotpickElection {
   id: string;
   title: string;
   label: string;
+  voteType?: VoteType;
+  mainImageUrl?: string;
   options: HotpickOption[];
 }
 
@@ -52,6 +86,10 @@ export interface HotpickDisplayResponse {
   alias: string;
   title: string;
   label: string;
+  type?: HotpickType;
+  categoryCodes?: CategoryCode[];
+  deadline?: string;
+  status?: HotpickStatus;
   imageUrls: string[];
   createdAt: string;
   elections: HotpickElection[];
@@ -112,8 +150,11 @@ export interface CreateHotpickRequest {
   alias: string;
   title: string;
   label?: string;
+  type: HotpickType;
   imageUrls?: string[];
   electionIds: string[];
+  categoryCodes?: CategoryCode[];
+  deadline?: string;
   meta?: HotpickMetaRequest;
   isVisible?: boolean;
 }
@@ -125,8 +166,11 @@ export interface UpdateHotpickRequest {
   alias: string;
   title: string;
   label?: string;
+  type: HotpickType;
   imageUrls?: string[];
   electionIds: string[];
+  categoryCodes?: CategoryCode[];
+  deadline?: string;
   meta?: HotpickMetaRequest;
   isVisible?: boolean;
 }
@@ -166,10 +210,15 @@ export interface AdminHotpickResponse {
   alias: string;
   title: string;
   label?: string;
+  type?: HotpickType;
+  categoryCodes?: CategoryCode[];
+  deadline?: string;
+  status?: HotpickStatus;
   imageUrls?: string[];
   electionIds: string[];
   meta?: HotpickMeta;
   visible: boolean;
+  totalVotes?: number;
   createdAt: string;
 }
 

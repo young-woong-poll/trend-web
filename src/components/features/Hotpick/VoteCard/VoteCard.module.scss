@@ -59,3 +59,24 @@
   gap: 12px;
   width: 100%;
 }
+
+// TEXT 투표 유형
+.mainImage {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.mainImageSmall {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.textOptionsContainer {
+  @include flex-column;
+  gap: 8px;
+  width: 100%;
+}

@@ -1,0 +1,42 @@
+@use '@/styles/variables' as *;
+
+.container {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-sticky;
+  background: $bg-primary;
+  border-bottom: 1px solid $border-placeholder;
+}
+
+.tabList {
+  display: flex;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 12px 0;
+  font-size: $font-size-16;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.tabActive {
+  color: $white;
+  font-weight: $font-weight-semibold;
+}
+
+.indicator {
+  width: 50%;
+  height: 2px;
+  background: $primary-gradient;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import { useQueries, useQuery } from '@tanstack/react-query';
 
+import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
 import { VoteBottomButtons } from '@/components/features/Hotpick/VoteBottomButtons';
@@ -17,6 +18,7 @@ import { commentQueries } from '@/hooks/api/useComment';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useHotpickSubmission } from '@/hooks/useVoteSubmission';
+import type { ExtendedElectionItem, ExtendedHotpickDetail } from '@/types/display';
 
 type TElectionId = string;
 type TOptionId = string;
@@ -48,8 +50,10 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
   const { submit } = useHotpickSubmission();
   const handleError = useErrorHandler();
 
+  const extHotpickData = hotpickData as ExtendedHotpickDetail | null;
   const elections = hotpickData?.items ?? [];
   const hotpickId = hotpickData?.trendId;
+  const isClosed = extHotpickData?.status === 'CLOSED';
 
   // 모든 아이템의 댓글 수를 한 번에 가져오기
   const commentCountQueries = useQueries({
@@ -113,7 +117,12 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        <VoteHeader title={title ?? ''} />
+        <div className={styles.headerRow}>
+          <VoteHeader title={title ?? ''} />
+          <DeadlineBadge deadline={extHotpickData?.deadline} />
+        </div>
+
+        {isClosed && <p className={styles.closedNotice}>마감된 투표입니다</p>}
 
         <ProgressBar
           currentStep={currentElectionIndex}
@@ -131,8 +140,12 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
               elections.map((election) => {
                 const electionId = election.id ?? '';
                 const selectedOptionId = selectedElectionMap[electionId] || null;
+                const extElection = election as ExtendedElectionItem;
 
                 const handleOptionSelect = (optionId: string) => {
+                  if (isClosed) {
+                    return;
+                  }
                   setSelectedElectionMap((prev) => ({
                     ...prev,
                     [electionId]: optionId,
@@ -148,6 +161,8 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
                       options={election.options ?? []}
                       selectedOptionId={selectedOptionId}
                       handleOptionSelect={handleOptionSelect}
+                      voteType={extElection.voteType}
+                      mainImageUrl={extElection.mainImageUrl}
                     />
 
                     <VoteBottomButtons

@@ -4,11 +4,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import styles from '@/components/features/Admin/AdminHotpickForm/ElectionCard.module.scss';
-import type { ElectionDetail } from '@/types/election';
+import type { Election } from '@/types/election';
 
 interface ElectionCardProps {
   id: string;
-  detail: ElectionDetail;
+  detail?: Election;
   handleRemoveClick: (electionId: string) => void;
 }
 
@@ -35,17 +35,18 @@ export const ElectionCard: FC<ElectionCardProps> = ({ id, detail, handleRemoveCl
         </button>
       </div>
 
-      {typeof detail === 'object' && (
+      {detail && (
         <div className={styles.electionInfo}>
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>제목:</span>
             <span className={styles.infoValue}>{detail.title}</span>
           </div>
           <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>기간:</span>
+            <span className={styles.infoLabel}>유형:</span>
             <span className={styles.infoValue}>
-              {new Date(detail.startTime).toLocaleString('ko-KR')} ~{' '}
-              {new Date(detail.endTime).toLocaleString('ko-KR')}
+              <span className={styles.badge} data-type={detail.voteType}>
+                {detail.voteType}
+              </span>
             </span>
           </div>
           <div className={styles.infoRow}>

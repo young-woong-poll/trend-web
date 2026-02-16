@@ -192,7 +192,7 @@ interface HotPick {
   label?: string;
   type: HotpickType; // 🆕 BUNDLE | SINGLE
   imageUrls?: string[]; // BUNDLE: 커버 이미지 1장 이상
-  categoryCode?: CategoryCode; // 🆕 카테고리
+  categoryCodes?: CategoryCode[]; // 🆕 카테고리 (다중 선택)
   deadline?: string; // 🆕 마감일시 (null이면 상시)
   status: 'OPEN' | 'CLOSED'; // 🆕 마감 상태
   electionIds: string[]; // BUNDLE: 2개 이상, SINGLE: 1개
@@ -208,15 +208,15 @@ interface HotPick {
 ```
 ┌─────────────────────────────────────────────────────┐
 │                    Category                          │
-│  (FOOD, ENTERTAINMENT, SPORTS, ...)                 │
+│  (FOOD, SPORTS, LOVE, ...)                           │
 └──────────────────────┬──────────────────────────────┘
-                       │ 1:N
+                       │ N:M
 ┌──────────────────────▼──────────────────────────────┐
 │                   HotPick                            │
 │  type: BUNDLE | SINGLE                               │
 │  deadline?: datetime                                 │
 │  status: OPEN | CLOSED                               │
-│  categoryCode?: CategoryCode                         │
+│  categoryCodes?: CategoryCode[]                      │
 ├──────────────────────┬──────────────────────────────┤
 │  BUNDLE (묶음 투표)   │  SINGLE (단일 투표)          │
 │  - Election 2개 이상  │  - Election 1개              │
@@ -338,7 +338,7 @@ interface HotPick {
 │  Alias: [___________] [중복확인]                    │
 │  제목:  [___________]                                │
 │  라벨:  [___________]                                │
-│  카테고리: [▼ 음식]                                 │
+│  카테고리: [●연애] [●음식] [○스포츠] [○트렌드] ... │
 │  마감일: [📅 2025-02-20 18:00]  □ 상시 (마감 없음) │
 │                                                      │
 │  ── BUNDLE 선택 시 ──                               │
@@ -376,7 +376,7 @@ interface HotPick {
 | 커버 이미지     | 1장 이상  | 불필요 (선거 이미지 사용) |
 | 결과 유형(meta) | 설정 가능 | 없음                      |
 | 라벨            | 선택      | 선택                      |
-| 카테고리        | 선택      | 선택                      |
+| 카테고리        | 다중 선택 | 다중 선택                 |
 | 마감일          | 선택      | 선택                      |
 
 ### 5.6 SINGLE 카드 UI (메인 페이지 Single 탭)
@@ -448,10 +448,10 @@ interface HotPick {
 
 ### 8.1 타입 변경
 
-| 파일                    | 변경 사항                                                            |
-| ----------------------- | -------------------------------------------------------------------- |
-| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체                                 |
-| `src/types/hotpick.ts`  | `type`, `categoryCode`, `deadline`, `status`, `totalVotes` 필드 추가 |
+| 파일                    | 변경 사항                                                                    |
+| ----------------------- | ---------------------------------------------------------------------------- |
+| `src/types/election.ts` | 신규 Election 인터페이스로 전면 교체                                         |
+| `src/types/hotpick.ts`  | `type`, `categoryCodes` (배열), `deadline`, `status`, `totalVotes` 필드 추가 |
 
 ### 8.2 신규 개발
 
@@ -466,14 +466,14 @@ interface HotPick {
 
 ### 8.3 기존 코드 수정
 
-| 대상                      | 변경 내용                                    | 난이도 |
-| ------------------------- | -------------------------------------------- | ------ |
-| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체      | ★★☆    |
-| `VoteCard.tsx`            | `voteType` 분기 렌더링 (IMAGE/TEXT)          | ★★☆    |
-| `VoteOptionCard.tsx`      | TEXT 유형 옵션 UI 추가                       | ★★☆    |
-| `AdminTrendForm.tsx`      | `type`, `categoryCode`, `deadline` 필드 추가 | ★★☆    |
-| `AdminTrendList.tsx`      | BUNDLE/SINGLE 필터, 카테고리 표시            | ★☆☆    |
-| `PollCard.tsx`            | 마감 배지, 카테고리 태그 표시                | ★☆☆    |
+| 대상                      | 변경 내용                                                 | 난이도 |
+| ------------------------- | --------------------------------------------------------- | ------ |
+| `ElectionListSection.tsx` | ID 직접 입력 → 목록 검색/선택 UI로 교체                   | ★★☆    |
+| `VoteCard.tsx`            | `voteType` 분기 렌더링 (IMAGE/TEXT)                       | ★★☆    |
+| `VoteOptionCard.tsx`      | TEXT 유형 옵션 UI 추가                                    | ★★☆    |
+| `AdminTrendForm.tsx`      | `type`, `categoryCodes` (다중 선택), `deadline` 필드 추가 | ★★☆    |
+| `AdminTrendList.tsx`      | BUNDLE/SINGLE 필터, 카테고리 표시                         | ★☆☆    |
+| `PollCard.tsx`            | 마감 배지, 카테고리 태그 표시                             | ★☆☆    |
 
 ---
 
