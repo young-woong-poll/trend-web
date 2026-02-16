@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '@/styles/variables' as *;
 
 .container {
@@ -28,7 +29,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: lighten($bg-tertiary, 5%);
+    background: color.adjust($bg-tertiary, $lightness: 5%);
   }
 }
 

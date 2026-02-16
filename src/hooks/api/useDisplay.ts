@@ -13,6 +13,7 @@ import type {
   DisplayTrendDetailResponse,
   DisplayResultResponse,
 } from '@/generated/models';
+import { getTKUID } from '@/lib/tkuid';
 // [DEPRECATED] CategoryCode, HotpickType — BE API에 categoryCodes/type 파라미터가 반영되면
 // Orval 생성 타입으로 교체하고 이 import를 제거하세요.
 import type { CategoryCode, HotpickType } from '@/types/hotpick';
@@ -34,6 +35,7 @@ export const displayKeys = {
     sort?: 'latest' | 'popular';
     categoryCodes?: CategoryCode[];
     type?: HotpickType;
+    anchor?: string;
   }) => [...displayKeys.all, 'mainInfinite', params] as const,
   hotpick: (alias: string) => [...displayKeys.all, 'hotpick', alias] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
@@ -99,12 +101,16 @@ export const displayQueries = {
 
   /**
    * 메인 전시 무한 스크롤 쿼리 옵션
+   *
+   * anchor가 있으면 해당 아이템 주변 데이터를 로드하고
+   * 양방향 스크롤(getPreviousPageParam)을 활성화합니다.
    */
   infiniteMain: (params?: {
     size?: number;
     sort?: 'latest' | 'popular';
     categoryCodes?: CategoryCode[];
     type?: HotpickType;
+    anchor?: string;
   }) =>
     infiniteQueryOptions<
       DisplayMainResponse | null,
@@ -115,17 +121,39 @@ export const displayQueries = {
     >({
       queryKey: displayKeys.mainInfinite(params),
       queryFn: async ({ pageParam }) => {
-        const queryParams = { ...params, cursor: pageParam, size: params?.size ?? 20 };
+        // pageParam이 음수이면 이전 페이지 요청 (prevCursor는 음수로 인코딩)
+        const isPrev = pageParam !== undefined && pageParam < 0;
+        const queryParams: Record<string, unknown> = {
+          ...params,
+          cursor: isPrev ? Math.abs(pageParam) : pageParam,
+          size: params?.size ?? 20,
+        };
+        // anchor 파라미터 전달 (첫 로딩 시에만)
+        if (params?.anchor && pageParam === undefined) {
+          queryParams.anchor = params.anchor;
+        }
+        if (isPrev) {
+          queryParams.direction = 'prev';
+        }
         if (isServer()) {
           const response = await serverApi.getMainDisplay(queryParams, {
             next: { revalidate: 60 },
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getMainDisplay(queryParams);
+        const tkuId = getTKUID();
+        return clientApi.getMainDisplay(queryParams, {
+          headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+        });
       },
       initialPageParam: undefined,
       getNextPageParam: (lastPage) => (lastPage?.hasMore ? lastPage.nextCursor : undefined),
+      getPreviousPageParam: (firstPage) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const prevCursor = (firstPage as any)?.prevCursor as number | undefined;
+        // 음수로 인코딩하여 queryFn에서 direction=prev 판별
+        return prevCursor !== undefined ? -prevCursor : undefined;
+      },
       staleTime: 60 * 1000,
     }),
 };
@@ -147,6 +175,7 @@ export const useInfiniteMainDisplay = (params?: {
   sort?: 'latest' | 'popular';
   categoryCodes?: CategoryCode[];
   type?: HotpickType;
+  anchor?: string;
   initialData?: DisplayMainResponse;
 }) => {
   const { initialData: initData, ...queryParams } = params ?? {};

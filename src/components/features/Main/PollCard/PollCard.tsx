@@ -5,6 +5,7 @@ import { type FC, type ReactNode, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
@@ -21,6 +22,7 @@ type TPollCardProps = {
   deadline?: string;
   status?: string;
   children?: ReactNode; // 서버에서 렌더링된 정적 HTML (SEO용)
+  onShare?: (alias: string) => void;
 };
 
 export const PollCard: FC<TPollCardProps> = ({
@@ -32,6 +34,7 @@ export const PollCard: FC<TPollCardProps> = ({
   participantCount = 0,
   deadline,
   status,
+  onShare,
 }) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -82,6 +85,19 @@ export const PollCard: FC<TPollCardProps> = ({
               onLoad={() => setIsImageLoaded(true)}
             />
           </div>
+
+          {/* 공유 버튼 */}
+          <button
+            type="button"
+            className={styles.shareButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare?.(alias);
+            }}
+            aria-label="공유"
+          >
+            <ShareIcon />
+          </button>
 
           {/* NEW Badge */}
           {isNew && !isClosed && <div className={styles.newBadge}>NEW</div>}
