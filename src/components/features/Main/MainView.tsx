@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useEffect, useRef, type FC, type ReactNode } from 'react';
 
+import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
 import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
@@ -24,6 +25,10 @@ const HIGHLIGHT_DURATION = 1500;
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
   const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
+  const [commentTarget, setCommentTarget] = useState<{
+    hotpickId: string;
+    electionId: string;
+  } | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
   const { anchor, clearAnchor } = useHashAnchor();
@@ -40,6 +45,14 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     },
     [showToast]
   );
+
+  const handleComment = useCallback((hotpickId: string, electionId: string) => {
+    setCommentTarget({ hotpickId, electionId });
+  }, []);
+
+  const handleCloseComment = useCallback(() => {
+    setCommentTarget(null);
+  }, []);
 
   // anchor는 hook 내부에서 ref로 관리되어 queryKey에 포함되지 않음
   const hasAnchor = !!anchorRef.current;
@@ -254,6 +267,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             mainImageUrl={item.mainImageUrl ?? trend.imageUrls?.[0]}
             onVote={handleVote}
             onShare={handleShare}
+            onComment={handleComment}
           />
         </div>
       );
@@ -322,6 +336,17 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           )}
         </div>
       </div>
+
+      {/* 댓글 바텀시트 */}
+      {commentTarget && (
+        <CommentBottomSheet
+          isOpen={!!commentTarget}
+          onClose={handleCloseComment}
+          hotpickId={commentTarget.hotpickId}
+          electionId={commentTarget.electionId}
+          hotpickAlias=""
+        />
+      )}
     </>
   );
 };

@@ -16,6 +16,7 @@ import {
   barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
+import { useCommentCount } from '@/hooks/api/useComment';
 import type { VoteType } from '@/types/election';
 import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
 
@@ -33,8 +34,7 @@ interface SingleCardProps {
   mainImageUrl?: string;
   onVote: (hotpickId: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
-  commentCount?: number;
-  onComment?: (hotpickId: string) => void;
+  onComment: (hotpickId: string, electionId: string) => void;
 }
 
 const formatCount = (count: number): string => {
@@ -56,7 +56,6 @@ export const SingleCard: FC<SingleCardProps> = ({
   isHighlighted,
   voteType,
   mainImageUrl,
-  commentCount = 128,
   onVote,
   onShare,
   onComment,
@@ -64,11 +63,13 @@ export const SingleCard: FC<SingleCardProps> = ({
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
 
+  const hotpickId = String(id);
+  const { data: commentCountData } = useCommentCount(Number(id), singleVote.electionId);
+
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
-
-  const hotpickId = String(id);
   const isImageType = voteType === 'IMAGE';
+  const commentCount = commentCountData?.count;
 
   const handleOptionClick = (optionId: string) => {
     if (isClosed || voted) {
@@ -100,12 +101,14 @@ export const SingleCard: FC<SingleCardProps> = ({
             className={styles.iconButtonWithCount}
             onClick={(e) => {
               e.stopPropagation();
-              onComment?.(hotpickId);
+              onComment(hotpickId, singleVote.electionId);
             }}
             aria-label="댓글"
           >
             <CommentIcon />
-            <span className={styles.iconCount}>{formatCount(commentCount)}</span>
+            <span className={styles.iconCount}>
+              {commentCount !== undefined ? formatCount(commentCount) : ''}
+            </span>
           </button>
           <button
             type="button"
