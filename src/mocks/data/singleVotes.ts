@@ -87,9 +87,7 @@ export function incrementVoteCount(hotpickId: string, optionId: string): void {
 /**
  * 옵션별 투표 수를 배열로 반환
  */
-export function getOptionCounts(
-  hotpickId: string
-): { id: string; count: number }[] {
+export function getOptionCounts(hotpickId: string): { id: string; count: number }[] {
   const counts = singleVoteCounts[hotpickId];
   if (!counts) {
     return [];

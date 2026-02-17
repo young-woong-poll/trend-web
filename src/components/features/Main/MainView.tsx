@@ -175,7 +175,9 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const all = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
     const seen = new Set<number | undefined>();
     return all.filter((t) => {
-      if (seen.has(t.id) || fixedIds.has(t.id)) return false;
+      if (seen.has(t.id) || fixedIds.has(t.id)) {
+        return false;
+      }
       seen.add(t.id);
       return true;
     });

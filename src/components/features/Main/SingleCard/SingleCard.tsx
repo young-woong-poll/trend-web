@@ -124,13 +124,7 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 질문: 로고 이미지 + 텍스트 */}
       <div className={styles.questionRow}>
         {logoUrl && (
-          <Image
-            src={logoUrl}
-            alt={title}
-            width={40}
-            height={40}
-            className={styles.questionLogo}
-          />
+          <Image src={logoUrl} alt={title} width={40} height={40} className={styles.questionLogo} />
         )}
         <h3 className={styles.question}>{title}</h3>
       </div>
