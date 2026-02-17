@@ -39,8 +39,10 @@
   border-color: transparent;
   color: $white;
   font-weight: $font-weight-semibold;
+  box-shadow: 0 0 0 1px rgba($primary-start, 0.4);
 
   &:hover {
-    opacity: 0.9;
+    filter: brightness(1.15);
+    box-shadow: 0 0 8px rgba($primary-start, 0.35);
   }
 }

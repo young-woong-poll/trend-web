@@ -99,10 +99,12 @@
   text-align: center;
 }
 
-.loadingMore {
-  font-size: $font-size-12;
-  color: $neutral-400;
-  margin: 0;
+// ── 스켈레톤 카드 그룹 (무한 스크롤 로딩) ──
+.skeletonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .loadMoreError {

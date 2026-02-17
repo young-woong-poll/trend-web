@@ -6,6 +6,7 @@ import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
+import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
 import { SortToggle } from '@/components/features/Main/SortToggle/SortToggle';
 import { HOTPICK_SORT } from '@/constants';
 import type { HotpickSortOption } from '@/constants/sort';
@@ -223,6 +224,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const item = trend as any;
     const alias = trend.alias ?? '';
     const key = keyPrefix ? `${keyPrefix}-${trend.id}` : trend.id;
+    // 멀티 카테고리 지원: categoryCodes 배열이 있으면 join
+    const codes = (item.categoryCodes as string[] | undefined) ?? [];
+    const categoryLabel =
+      codes.length > 1 ? codes.join(' · ') : (item.categoryCode as string | undefined);
 
     // SINGLE 타입: 인라인 투표 카드
     if (item.type === 'SINGLE' && item.singleVote) {
@@ -232,7 +237,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             id={trend.id ?? 0}
             alias={alias}
             title={trend.title ?? ''}
-            categoryLabel={item.categoryCode}
+            categoryLabel={categoryLabel}
             participantCount={trend.participantsCount}
             deadline={item.deadline}
             status={item.status}
@@ -252,7 +257,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           alias={alias}
           title={trend.title ?? ''}
           subtitle={trend.label}
-          categoryLabel={item.categoryCode}
+          categoryLabel={categoryLabel}
           createdAt={trend.createdAt}
           participantCount={trend.participantsCount}
           electionCount={item.electionCount}
@@ -277,7 +282,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
         {hasPreviousPage && (
           <div ref={topObserverTarget} className={styles.observerTarget}>
             {isFetchingPreviousPage && (
-              <p className={styles.loadingMore}>이전 핫픽을 불러오는 중...</p>
+              <div className={styles.skeletonGroup}>
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
             )}
           </div>
         )}
@@ -290,7 +298,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
         {/* 하향 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>
-          {isFetchingNextPage && <p className={styles.loadingMore}>핫픽을 더 불러오는 중...</p>}
+          {isFetchingNextPage && (
+            <div className={styles.skeletonGroup}>
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          )}
           {!isFetchingNextPage && error && hasNextPage && (
             <div className={styles.loadMoreError}>
               <p>불러오기 실패</p>
