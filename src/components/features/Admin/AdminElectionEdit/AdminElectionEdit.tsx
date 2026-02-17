@@ -34,8 +34,8 @@ export default function AdminElectionEdit({ electionId }: AdminElectionEditProps
   const handleDelete = () => {
     showConfirm('선거 삭제', {
       message: `정말 "${election.title}" 선거를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.${
-        (election.linkedHotpickCount ?? 0) > 0
-          ? `\n\n이 선거를 사용 중인 핫픽이 ${election.linkedHotpickCount}개 있어 삭제가 불가능할 수 있습니다.`
+        (election.linkedHotpicks?.length ?? 0) > 0
+          ? `\n\n이 선거를 사용 중인 핫픽이 ${election.linkedHotpicks?.length}개 있어 삭제가 불가능할 수 있습니다.`
           : ''
       }`,
       confirmText: '삭제',
@@ -55,10 +55,10 @@ export default function AdminElectionEdit({ electionId }: AdminElectionEditProps
         <h3 className={styles.dangerTitle}>위험 영역</h3>
         <p className={styles.dangerDescription}>
           이 선거를 영구적으로 삭제합니다. 이 작업은 되돌릴 수 없습니다.
-          {(election.linkedHotpickCount ?? 0) > 0 && (
+          {(election.linkedHotpicks?.length ?? 0) > 0 && (
             <>
               <br />
-              현재 이 선거를 사용 중인 핫픽이 {election.linkedHotpickCount}개 있습니다.
+              현재 이 선거를 사용 중인 핫픽이 {election.linkedHotpicks?.length}개 있습니다.
             </>
           )}
         </p>

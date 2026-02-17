@@ -203,24 +203,36 @@ export interface HotpickResultType {
 }
 
 /**
- * Admin: Hotpick 응답
+ * Admin: Hotpick 응답 (Discriminated Union)
  */
-export interface AdminHotpickResponse {
+interface AdminHotpickResponseBase {
   id: number;
   alias: string;
-  title: string;
-  label?: string;
-  type?: HotpickType;
   categoryCodes?: CategoryCode[];
   deadline?: string;
   status?: HotpickStatus;
-  imageUrls?: string[];
   electionIds: string[];
-  meta?: HotpickMeta;
   visible: boolean;
   totalVotes?: number;
   createdAt: string;
 }
+
+export interface AdminBundleHotpickResponse extends AdminHotpickResponseBase {
+  type: 'BUNDLE';
+  title: string;
+  label?: string;
+  imageUrls: string[]; // BUNDLE: 1장 이상 필수
+  meta?: HotpickMeta;
+}
+
+export interface AdminSingleHotpickResponse extends AdminHotpickResponseBase {
+  type: 'SINGLE';
+  title?: string;
+  label?: string;
+  imageUrls?: string[];
+}
+
+export type AdminHotpickResponse = AdminBundleHotpickResponse | AdminSingleHotpickResponse;
 
 /**
  * Admin: Hotpick Alias 중복 체크 응답

@@ -41,7 +41,6 @@ export default function AdminElectionList() {
                 <th>제목</th>
                 <th>투표 유형</th>
                 <th>옵션 수</th>
-                <th>상태</th>
                 <th>연결된 핫픽</th>
                 <th>생성일</th>
                 <th>액션</th>

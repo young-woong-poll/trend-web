@@ -376,7 +376,6 @@ export const handlers = [
     const params = {
       keyword: url.searchParams.get('keyword') ?? undefined,
       voteType: url.searchParams.get('voteType') ?? undefined,
-      status: url.searchParams.get('status') ?? undefined,
       page: url.searchParams.has('page') ? Number(url.searchParams.get('page')) : undefined,
       size: url.searchParams.has('size') ? Number(url.searchParams.get('size')) : undefined,
     };
