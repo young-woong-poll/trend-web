@@ -180,9 +180,7 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
           type="button"
           className={styles.nextButton}
           onClick={handleNext}
-          disabled={
-            !selectedElectionMap[elections[currentElectionIndex]?.id ?? ''] || isSubmitting
-          }
+          disabled={!selectedElectionMap[elections[currentElectionIndex]?.id ?? ''] || isSubmitting}
         >
           {isSubmitting ? (
             <div className={styles.loadingDots}>
