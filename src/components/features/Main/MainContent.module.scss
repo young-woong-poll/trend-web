@@ -52,13 +52,13 @@
   .title {
     font-size: $font-size-24;
     font-weight: $font-weight-bold;
-    color: $neutral-800;
+    color: $white;
     margin-bottom: $spacing-16;
   }
 
   .description {
     font-size: $font-size-16;
-    color: $neutral-500;
+    color: $text-secondary;
     line-height: 1.6;
     max-width: 400px;
   }

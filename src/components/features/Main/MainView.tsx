@@ -47,6 +47,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     data,
     isLoading,
     isError,
+    isFetching,
     hasNextPage,
     hasPreviousPage,
     fetchNextPage,
@@ -198,8 +199,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  // 빈 상태
-  if (fixedHotpicks.length === 0 && hotpicks.length === 0) {
+  // 빈 상태 (fetching 중이면 빈 상태 표시하지 않음)
+  if (!isFetching && fixedHotpicks.length === 0 && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
