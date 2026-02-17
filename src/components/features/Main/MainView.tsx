@@ -227,13 +227,14 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     // SINGLE 타입: 인라인 투표 카드
     if (item.type === 'SINGLE' && item.singleVote) {
       return (
-        <div key={key} id={alias}>
+        <div key={key} id={alias} className={styles.cardWrapper}>
           <SingleCard
             id={trend.id ?? 0}
             alias={alias}
             title={trend.title ?? ''}
             categoryLabel={item.categoryCode}
             participantCount={trend.participantsCount}
+            deadline={item.deadline}
             status={item.status}
             singleVote={item.singleVote as SingleVoteData}
             isHighlighted={highlightedAlias === alias}
@@ -246,7 +247,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
     // BUNDLE 타입: BundleCard
     return (
-      <div key={key} id={alias}>
+      <div key={key} id={alias} className={styles.cardWrapper}>
         <BundleCard
           alias={alias}
           title={trend.title ?? ''}
@@ -255,6 +256,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           createdAt={trend.createdAt}
           participantCount={trend.participantsCount}
           electionCount={item.electionCount}
+          imageUrls={trend.imageUrls}
           deadline={item.deadline}
           status={item.status}
           onShare={handleShare}

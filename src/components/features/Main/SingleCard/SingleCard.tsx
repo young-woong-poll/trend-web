@@ -5,6 +5,7 @@ import type { FC } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import ShareIcon from '@/assets/icon/ShareIcon';
+import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
 import {
   buttonTapVariants,
@@ -21,6 +22,7 @@ interface SingleCardProps {
   title: string;
   categoryLabel?: string;
   participantCount?: number;
+  deadline?: string;
   status?: string;
   singleVote: SingleVoteData;
   isHighlighted?: boolean;
@@ -41,6 +43,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   title,
   categoryLabel,
   participantCount = 0,
+  deadline,
   status,
   singleVote,
   isHighlighted,
@@ -79,6 +82,7 @@ export const SingleCard: FC<SingleCardProps> = ({
         <div className={styles.headerLeft}>
           {categoryLabel && <span className={styles.category}>{categoryLabel}</span>}
           <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+          {deadline && <DeadlineBadge deadline={deadline} compact />}
         </div>
         <button
           type="button"

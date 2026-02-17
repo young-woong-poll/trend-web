@@ -4,12 +4,23 @@
 .container {
   @include flex-column;
   align-items: center;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
   height: 100%;
-  padding: $spacing-24;
-
-  gap: 30px;
-
+  padding: $spacing-16;
+  gap: 16px;
   overflow: scroll;
+
+  @include tablet {
+    padding: $spacing-24;
+    gap: 20px;
+  }
+}
+
+// ── 카드 래퍼: 동일 width 보장 ──
+.cardWrapper {
+  width: 100%;
 }
 
 .emptyState {
@@ -18,8 +29,12 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: $spacing-48;
+  padding: $spacing-32;
   text-align: center;
+
+  @include tablet {
+    padding: $spacing-48;
+  }
 
   .icon {
     width: 120px;

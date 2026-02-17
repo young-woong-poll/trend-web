@@ -2,6 +2,7 @@
 
 .card {
   position: relative;
+  width: 100%;
   border-radius: $border-radius-lg;
   background: $bg-secondary;
   border: 1px solid $border-placeholder;
@@ -46,44 +47,30 @@
   padding: 16px 16px 16px 20px;
 }
 
-// ── 헤더 ──
+// ── 헤더 (통일: 카테고리 + 참여자 + 데드라인 + 공유) ──
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.bundleBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: $border-rounded;
-  background: rgba($primary-start, 0.15);
-  color: $primary-start;
-  font-size: $font-size-12;
-  font-weight: $font-weight-bold;
+  flex-wrap: wrap;
 }
 
 .category {
   font-size: $font-size-12;
   font-weight: $font-weight-semibold;
-  color: $text-secondary;
+  color: $primary-start;
 }
 
-.newBadge {
-  padding: 1px 6px;
-  border-radius: $border-radius-sm;
-  background: $attention;
-  color: $bg-primary;
+.participants {
   font-size: $font-size-12;
-  font-weight: $font-weight-bold;
+  color: $text-tertiary;
 }
 
 .shareButton {
@@ -97,6 +84,7 @@
   background: transparent;
   color: $text-tertiary;
   cursor: pointer;
+  flex-shrink: 0;
   transition:
     background 0.15s ease,
     color 0.15s ease;
@@ -111,9 +99,20 @@
   }
 }
 
+// ── 썸네일 이미지 ──
+.thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: $bg-tertiary;
+}
+
 // ── 제목/부제 ──
 .title {
-  font-size: $font-size-18;
+  font-size: $font-size-16;
   font-weight: $font-weight-bold;
   color: $white;
   line-height: 1.4;
@@ -125,7 +124,7 @@
   font-size: $font-size-14;
   color: $text-secondary;
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 // ── 하단 ──
@@ -142,9 +141,24 @@
   gap: 8px;
 }
 
-.participants {
+.bundleBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  background: rgba($primary-start, 0.15);
+  color: $primary-start;
   font-size: $font-size-12;
-  color: $text-tertiary;
+  font-weight: $font-weight-bold;
+}
+
+.newBadge {
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+  background: $attention;
+  color: $bg-primary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
 }
 
 .ctaButton {

@@ -3,8 +3,9 @@
 
 .container {
   display: flex;
+  width: 100%;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 4px 0;
   overflow-x: auto;
   scrollbar-width: none;
 
