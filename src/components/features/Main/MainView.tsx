@@ -29,6 +29,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { anchor, clearAnchor } = useHashAnchor();
   const scrolledRef = useRef(false);
   const topObserverTarget = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef(anchor);
 
   const handleShare = useCallback(
     (alias: string) => {
@@ -40,9 +41,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     [showToast]
   );
 
-  // anchor가 있으면 카테고리 필터 "전체"로 초기화
-  const activeAnchor = anchor && categoryCodes.length === 0 ? anchor : undefined;
-
+  // anchor는 hook 내부에서 ref로 관리되어 queryKey에 포함되지 않음
+  const hasAnchor = !!anchorRef.current;
   const {
     data,
     isLoading,
@@ -59,8 +59,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     size: 20,
     sort: 'popular',
     categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
-    anchor: activeAnchor,
-    initialData: categoryCodes.length === 0 && !activeAnchor ? initialData : undefined,
+    anchor: hasAnchor && categoryCodes.length === 0 ? anchorRef.current! : undefined,
+    initialData: categoryCodes.length === 0 && !hasAnchor ? initialData : undefined,
   });
 
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -117,7 +117,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
   // 해시 스크롤 + 하이라이트
   useEffect(() => {
-    if (!anchor || scrolledRef.current || !data) {
+    const currentAnchor = anchorRef.current;
+    if (!currentAnchor || scrolledRef.current || !data) {
       return;
     }
 
@@ -126,12 +127,13 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const firstPage = data.pages[0] as any;
     if (firstPage?.anchorNotFound) {
       showToast('해당 핫픽을 찾을 수 없습니다');
+      anchorRef.current = null;
       clearAnchor();
       return;
     }
 
     // 해당 엘리먼트 찾기
-    const el = document.getElementById(anchor);
+    const el = document.getElementById(currentAnchor);
     if (!el) {
       return;
     }
@@ -143,35 +145,41 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
       // 하이라이트 적용
-      setHighlightedAlias(anchor);
+      setHighlightedAlias(currentAnchor);
       setTimeout(() => {
         setHighlightedAlias(null);
+        // URL에서 hash만 제거 (queryKey에는 영향 없음 — anchor는 ref)
         clearAnchor();
       }, HIGHLIGHT_DURATION);
     });
-  }, [anchor, data, clearAnchor, showToast]);
-
-  // anchor 변경 시 scrolledRef 리셋
-  useEffect(() => {
-    scrolledRef.current = false;
-  }, [anchor]);
+  }, [data, clearAnchor, showToast]);
 
   // 카테고리 변경 시 anchor 초기화
   const handleCategoryChange = useCallback(
     (codes: CategoryCode[]) => {
       setCategoryCodes(codes);
-      if (anchor) {
+      if (anchorRef.current) {
+        anchorRef.current = null;
         clearAnchor();
       }
     },
-    [anchor, clearAnchor]
+    [clearAnchor]
   );
 
-  // 페이지 데이터 병합
+  // 페이지 데이터 병합 (id 기준 중복 제거)
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const fixedHotpicks = data?.pages[0]?.fixedTrends ?? [];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const hotpicks = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
+  const fixedIds = new Set(fixedHotpicks.map((t) => t.id));
+  const hotpicks = (() => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const all = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
+    const seen = new Set<number | undefined>();
+    return all.filter((t) => {
+      if (seen.has(t.id) || fixedIds.has(t.id)) return false;
+      seen.add(t.id);
+      return true;
+    });
+  })();
 
   // 초기 로딩 상태
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -240,6 +248,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             status={item.status}
             singleVote={item.singleVote as SingleVoteData}
             isHighlighted={highlightedAlias === alias}
+            voteType={item.voteType}
+            mainImageUrl={item.mainImageUrl ?? trend.imageUrls?.[0]}
             onVote={handleVote}
             onShare={handleShare}
           />

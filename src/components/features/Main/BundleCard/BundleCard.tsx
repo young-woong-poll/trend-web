@@ -97,22 +97,22 @@ export const BundleCard: FC<BundleCardProps> = ({
           </button>
         </div>
 
-        {/* 썸네일 이미지 */}
-        {thumbnailUrl && (
-          <div className={styles.thumbnail}>
+        {/* 제목: 로고 이미지 + 텍스트 */}
+        <div className={styles.titleRow}>
+          {thumbnailUrl && (
             <Image
               src={thumbnailUrl}
               alt={title}
-              fill
-              sizes="(max-width: 480px) 100vw, 600px"
-              style={{ objectFit: 'cover' }}
+              width={40}
+              height={40}
+              className={styles.titleLogo}
             />
+          )}
+          <div className={styles.titleGroup}>
+            <h3 className={styles.title}>{title}</h3>
+            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           </div>
-        )}
-
-        {/* 제목 + 부제 */}
-        <h3 className={styles.title}>{title}</h3>
-        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        </div>
 
         {/* CTA 버튼 */}
         <button

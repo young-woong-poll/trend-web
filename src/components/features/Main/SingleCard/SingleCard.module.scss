@@ -45,7 +45,15 @@
   line-height: 1.4;
 }
 
-.shareButton {
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.iconButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,8 +64,6 @@
   background: transparent;
   color: $text-tertiary;
   cursor: pointer;
-  flex-shrink: 0;
-  margin-left: 8px;
   transition:
     background 0.15s ease,
     color 0.15s ease;
@@ -72,14 +78,63 @@
   }
 }
 
-// ── 질문 ──
+.iconButtonWithCount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 28px;
+  padding: 0 4px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.08);
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.iconCount {
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  line-height: 1;
+}
+
+// ── 질문: 로고 + 텍스트 ──
+.questionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.questionLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .question {
   font-size: $font-size-16;
   font-weight: $font-weight-bold;
   color: $white;
   line-height: 1.4;
-  margin-bottom: 12px;
   word-break: keep-all;
+  flex: 1;
+  min-width: 0;
 }
 
 // ── 메타: 참여자 · 데드라인 ──
@@ -110,9 +165,17 @@
 }
 
 // ── 투표 전: 버튼 그룹 ──
-.buttonGroup {
+// 2개 옵션: 2열 그리드
+.buttonGroupTwo {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+// 3~4개 옵션: 세로 배치
+.buttonGroupMulti {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
@@ -147,6 +210,14 @@
       border-color: $border-placeholder;
     }
   }
+}
+
+.optionImage {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .optionLabel {
@@ -208,6 +279,15 @@
   justify-content: space-between;
   height: 100%;
   padding: 0 12px;
+  gap: 8px;
+}
+
+.barImage {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .barText {
@@ -233,21 +313,12 @@
   margin-left: 8px;
 }
 
-// ── 투표 완료 푸터 ──
-.votedFooter {
-  display: flex;
+// ── 투표 완료 체크 배지 ──
+.votedBadge {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 4px;
-}
-
-.votedText {
-  font-size: $font-size-12;
+  justify-content: center;
+  margin-right: 4px;
   color: $primary-start;
-  font-weight: $font-weight-semibold;
-}
-
-.totalVotes {
-  font-size: $font-size-12;
-  color: $text-tertiary;
+  vertical-align: middle;
 }

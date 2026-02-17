@@ -81,20 +81,19 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
         return;
       }
 
-      const isOptionA = optionId === singleVote.optionA.id;
-      const prevVoteCountA = singleVote.optionA.voteCount ?? 0;
-      const prevVoteCountB = singleVote.optionB.voteCount ?? 0;
-      const newVoteCountA = isOptionA ? prevVoteCountA + 1 : prevVoteCountA;
-      const newVoteCountB = isOptionA ? prevVoteCountB : prevVoteCountB + 1;
-      const newTotalVotes = newVoteCountA + newVoteCountB;
+      // 낙관적 업데이트: 선택한 옵션의 voteCount +1
+      const newOptions = singleVote.options.map((opt) => ({
+        ...opt,
+        voteCount: opt.id === optionId ? (opt.voteCount ?? 0) + 1 : (opt.voteCount ?? 0),
+      }));
+      const newTotalVotes = newOptions.reduce((sum, opt) => sum + (opt.voteCount ?? 0), 0);
 
       // 1. 낙관적 업데이트
       updateCacheOptimistically(hotpickId, () => ({
         ...singleVote,
-        optionA: { ...singleVote.optionA, voteCount: newVoteCountA },
-        optionB: { ...singleVote.optionB, voteCount: newVoteCountB },
+        options: newOptions,
         voted: true,
-        myChoice: isOptionA ? 'A' : 'B',
+        myChoiceId: optionId,
         totalVotes: newTotalVotes,
       }));
 
@@ -115,10 +114,12 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
         if (data) {
           updateCacheOptimistically(hotpickId, (prev) => ({
             ...prev,
-            optionA: { ...prev.optionA, voteCount: data.voteCountA },
-            optionB: { ...prev.optionB, voteCount: data.voteCountB },
+            options: prev.options.map((opt) => {
+              const serverCount = data.optionCounts.find((c) => c.id === opt.id);
+              return { ...opt, voteCount: serverCount?.count ?? opt.voteCount };
+            }),
             voted: true,
-            myChoice: data.myChoice,
+            myChoiceId: data.myChoiceId,
             totalVotes: data.totalVotes,
           }));
         }
@@ -129,10 +130,12 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
           if (responseData) {
             updateCacheOptimistically(hotpickId, (prev) => ({
               ...prev,
-              optionA: { ...prev.optionA, voteCount: responseData.voteCountA },
-              optionB: { ...prev.optionB, voteCount: responseData.voteCountB },
+              options: prev.options.map((opt) => {
+                const serverCount = responseData.optionCounts.find((c) => c.id === opt.id);
+                return { ...opt, voteCount: serverCount?.count ?? opt.voteCount };
+              }),
               voted: true,
-              myChoice: responseData.myChoice,
+              myChoiceId: responseData.myChoiceId,
               totalVotes: responseData.totalVotes,
             }));
           }

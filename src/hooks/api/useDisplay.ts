@@ -169,6 +169,10 @@ export const useMainDisplay = (params?: {
 
 /**
  * 메인 전시 무한 스크롤 Hook
+ *
+ * anchor는 queryKey에 포함하지 않고 queryFn에서만 사용합니다.
+ * 이렇게 하면 anchor 소비 후 URL hash를 제거해도 queryKey가 변경되지 않아
+ * 데이터 리페치 및 스크롤 리셋이 발생하지 않습니다.
  */
 export const useInfiniteMainDisplay = (params?: {
   size?: number;
@@ -178,10 +182,38 @@ export const useInfiniteMainDisplay = (params?: {
   anchor?: string;
   initialData?: DisplayMainResponse;
 }) => {
-  const { initialData: initData, ...queryParams } = params ?? {};
+  const { initialData: initData, anchor, ...queryKeyParams } = params ?? {};
+
+  // queryKey에는 anchor 제외
+  const baseOptions = displayQueries.infiniteMain(queryKeyParams);
 
   return useInfiniteQuery({
-    ...displayQueries.infiniteMain(queryParams),
+    ...baseOptions,
+    queryFn: async ({ pageParam }) => {
+      const isPrev = pageParam !== undefined && pageParam < 0;
+      const queryParams: Record<string, unknown> = {
+        ...queryKeyParams,
+        cursor: isPrev ? Math.abs(pageParam) : pageParam,
+        size: queryKeyParams.size ?? 20,
+      };
+      // anchor는 첫 로딩 시에만 전달 (pageParam이 undefined = 최초 요청)
+      if (anchor && pageParam === undefined) {
+        queryParams.anchor = anchor;
+      }
+      if (isPrev) {
+        queryParams.direction = 'prev';
+      }
+      if (isServer()) {
+        const response = await serverApi.getMainDisplay(queryParams, {
+          next: { revalidate: 60 },
+        });
+        return response.status === 200 ? (response.data.data ?? null) : null;
+      }
+      const tkuId = getTKUID();
+      return clientApi.getMainDisplay(queryParams, {
+        headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+      });
+    },
     initialData: initData
       ? {
           pages: [initData],

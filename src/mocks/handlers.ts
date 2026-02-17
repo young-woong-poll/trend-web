@@ -23,8 +23,9 @@ import {
   recordVote,
   getVote,
   hasVoted,
-  singleVoteCounts,
   incrementVoteCount,
+  getOptionCounts,
+  getTotalVotes,
 } from '@/mocks/data/singleVotes';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
@@ -93,19 +94,21 @@ export const handlers = [
 
           const hotpickId = String(item.id ?? '');
           const vote = getVote(tkuId, hotpickId);
-          const counts = singleVoteCounts[hotpickId];
 
-          if (vote && counts) {
-            const isOptionA = vote.optionId === svData.optionA.id;
+          if (vote) {
+            const optionCounts = getOptionCounts(hotpickId);
+            const total = getTotalVotes(hotpickId);
             return {
               ...item,
               singleVote: {
                 ...svData,
-                optionA: { ...svData.optionA, voteCount: counts.optionACount },
-                optionB: { ...svData.optionB, voteCount: counts.optionBCount },
+                options: svData.options.map((opt) => {
+                  const sc = optionCounts.find((c) => c.id === opt.id);
+                  return { ...opt, voteCount: sc?.count ?? opt.voteCount };
+                }),
                 voted: true,
-                myChoice: isOptionA ? 'A' : 'B',
-                totalVotes: counts.optionACount + counts.optionBCount,
+                myChoiceId: vote.optionId,
+                totalVotes: total,
               },
             };
           }
@@ -217,7 +220,7 @@ export const handlers = [
    *
    * Headers: x-tku-id (필수)
    * Body: { optionId: string }
-   * 성공: 200 + { voteCountA, voteCountB, totalVotes }
+   * 성공: 200 + { myChoiceId, optionCounts, totalVotes }
    * 중복: 409 + 현재 결과
    */
   http.post(`${baseURL}/api/v1/single/:hotpickId/vote`, async ({ request, params }) => {
@@ -233,9 +236,9 @@ export const handlers = [
     const body = (await request.json()) as { optionId: string };
     const { optionId } = body;
 
-    // 해당 핫픽의 singleVote 데이터 찾기 (alias → id 매핑)
-    const aliasEntry = Object.entries(singleVoteDataMap).find(
-      ([, sv]) => sv.optionA.id === optionId || sv.optionB.id === optionId
+    // 해당 핫픽의 singleVote 데이터 찾기 (옵션 ID로 매핑)
+    const aliasEntry = Object.entries(singleVoteDataMap).find(([, sv]) =>
+      sv.options.some((opt) => opt.id === optionId)
     );
 
     if (!aliasEntry) {
@@ -245,29 +248,18 @@ export const handlers = [
       );
     }
 
-    const [, svData] = aliasEntry;
-    const counts = singleVoteCounts[hotpickId];
-    if (!counts) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '핫픽을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-
     // 중복 투표 체크
     if (hasVoted(tkuId, hotpickId)) {
       const voteRecord = getVote(tkuId, hotpickId);
-      const isOptionA = voteRecord?.optionId === svData.optionA.id;
       return HttpResponse.json(
         {
           code: 'ALREADY_VOTED',
           message: '이미 투표했습니다.',
           data: {
             voted: true,
-            myChoice: isOptionA ? 'A' : 'B',
-            voteCountA: counts.optionACount,
-            voteCountB: counts.optionBCount,
-            totalVotes: counts.optionACount + counts.optionBCount,
+            myChoiceId: voteRecord?.optionId ?? optionId,
+            optionCounts: getOptionCounts(hotpickId),
+            totalVotes: getTotalVotes(hotpickId),
           },
         },
         { status: 409 }
@@ -276,17 +268,14 @@ export const handlers = [
 
     // 투표 기록 + 카운트 증가
     recordVote(tkuId, hotpickId, optionId);
-    incrementVoteCount(hotpickId, optionId, svData.optionA.id);
-
-    const isOptionA = optionId === svData.optionA.id;
+    incrementVoteCount(hotpickId, optionId);
 
     return HttpResponse.json(
       wrapResponse({
         voted: true,
-        myChoice: isOptionA ? 'A' : 'B',
-        voteCountA: counts.optionACount,
-        voteCountB: counts.optionBCount,
-        totalVotes: counts.optionACount + counts.optionBCount,
+        myChoiceId: optionId,
+        optionCounts: getOptionCounts(hotpickId),
+        totalVotes: getTotalVotes(hotpickId),
       })
     );
   }),
