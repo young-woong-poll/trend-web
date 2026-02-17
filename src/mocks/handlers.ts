@@ -64,7 +64,11 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
-    const categoryCodes = url.searchParams.getAll('categoryCodes');
+    // axios는 배열을 categoryCodes[]=X 형태로 직렬화하므로 두 형태 모두 지원
+    const categoryCodes = [
+      ...url.searchParams.getAll('categoryCodes'),
+      ...url.searchParams.getAll('categoryCodes[]'),
+    ];
     const tkuId = request.headers.get('x-tku-id') ?? '';
     const anchor = url.searchParams.get('anchor');
     const direction = url.searchParams.get('direction');
@@ -319,9 +323,9 @@ export const handlers = [
 
   /**
    * 댓글 개수 조회
-   * GET /api/v1/comment/:hotpickId/election/:electionId/count
+   * GET /api/v1/comment/:trendId/item/:itemId/count
    */
-  http.get(`${baseURL}/api/v1/comment/:hotpickId/election/:electionId/count`, () =>
+  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
     HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
   ),
 

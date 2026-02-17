@@ -47,56 +47,33 @@
   padding: 16px 16px 16px 20px;
 }
 
-// ── 헤더 (통일: 카테고리 + 참여자 + 데드라인 + 공유) ──
-.header {
+// ── 상단: 카테고리 + 공유 ──
+.topRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.headerLeft {
+.categoryRow {
   display: flex;
-  align-items: center;
-  gap: 8px;
   flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
-.category {
-  font-size: $font-size-12;
-  font-weight: $font-weight-semibold;
-  color: $primary-start;
-}
-
-.participants {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-}
-
-.shareButton {
-  display: flex;
+.categoryTag {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: $text-tertiary;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-
-  &:hover {
-    background: rgba($white, 0.08);
-    color: $white;
-  }
-
-  &:active {
-    transform: scale(0.92);
-  }
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  background: rgba($primary-start, 0.12);
+  color: $primary-start;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+  line-height: 1.4;
 }
 
 // ── 썸네일 이미지 ──
@@ -127,18 +104,27 @@
   margin-bottom: 0;
 }
 
-// ── 하단 ──
-.footer {
+// ── 메타: 참여자 · 데드라인 · 배지 · NEW ──
+.metaRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 12px;
 }
 
-.meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $border-placeholder;
+  flex-shrink: 0;
+}
+
+.participants {
+  font-size: $font-size-12;
+  color: $text-tertiary;
 }
 
 .bundleBadge {
@@ -161,12 +147,42 @@
   font-weight: $font-weight-bold;
 }
 
-.ctaButton {
-  display: inline-flex;
+.shareButton {
+  display: flex;
   align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.08);
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+// ── CTA 버튼 ──
+.ctaButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 8px 16px;
-  border-radius: $border-rounded;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: $border-radius-md;
   border: none;
   background: $primary-gradient;
   color: $white;
@@ -182,7 +198,7 @@
   }
 
   &:hover {
-    transform: scale(1.02);
+    opacity: 0.9;
 
     svg {
       transform: translateX(3px);
@@ -198,6 +214,7 @@
     cursor: default;
 
     &:hover {
+      opacity: 0.5;
       transform: none;
     }
   }

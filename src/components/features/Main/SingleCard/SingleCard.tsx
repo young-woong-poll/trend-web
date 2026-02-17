@@ -9,10 +9,8 @@ import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
 import {
   buttonTapVariants,
-  layoutTransition,
   barFillVariants,
   fadeInVariants,
-  cardVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { calcPercentage, type SingleVoteData } from '@/types/singleVote';
 
@@ -20,7 +18,7 @@ interface SingleCardProps {
   id: number | string;
   alias: string;
   title: string;
-  categoryLabel?: string;
+  categories?: string[];
   participantCount?: number;
   deadline?: string;
   status?: string;
@@ -41,7 +39,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   id,
   alias,
   title,
-  categoryLabel,
+  categories = [],
   participantCount = 0,
   deadline,
   status,
@@ -70,19 +68,15 @@ export const SingleCard: FC<SingleCardProps> = ({
   };
 
   return (
-    <motion.div
-      className={`${styles.card} ${isHighlighted ? styles.highlighted : ''}`}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      layout
-    >
-      {/* 헤더: 카테고리 + 참여자 수 + 공유 */}
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          {categoryLabel && <span className={styles.category}>{categoryLabel}</span>}
-          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-          {deadline && <DeadlineBadge deadline={deadline} compact />}
+    <div className={`${styles.card} ${isHighlighted ? styles.highlighted : ''}`}>
+      {/* 상단: 카테고리 + 공유 */}
+      <div className={styles.topRow}>
+        <div className={styles.categoryRow}>
+          {categories.map((code) => (
+            <span key={code} className={styles.categoryTag}>
+              {code}
+            </span>
+          ))}
         </div>
         <button
           type="button"
@@ -100,6 +94,17 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 질문 텍스트 */}
       <h3 className={styles.question}>{title}</h3>
 
+      {/* 메타: 참여자 · 데드라인 */}
+      <div className={styles.metaRow}>
+        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+        {deadline && (
+          <>
+            <span className={styles.dot} />
+            <DeadlineBadge deadline={deadline} compact />
+          </>
+        )}
+      </div>
+
       {/* 투표 영역 */}
       <div className={styles.voteArea}>
         <AnimatePresence mode="wait">
@@ -110,8 +115,6 @@ export const SingleCard: FC<SingleCardProps> = ({
               className={styles.buttonGroup}
               initial={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
-              layout
-              transition={layoutTransition}
             >
               <motion.button
                 className={styles.optionButton}
@@ -141,8 +144,6 @@ export const SingleCard: FC<SingleCardProps> = ({
               className={styles.resultGroup}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.1 } }}
-              layout
-              transition={layoutTransition}
             >
               {/* Option A 바 */}
               <div className={`${styles.resultBar} ${myChoice === 'A' ? styles.myChoice : ''}`}>
@@ -216,6 +217,6 @@ export const SingleCard: FC<SingleCardProps> = ({
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </div>
   );
 };

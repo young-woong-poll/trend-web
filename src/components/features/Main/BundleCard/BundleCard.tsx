@@ -15,7 +15,7 @@ interface BundleCardProps {
   alias: string;
   title: string;
   subtitle?: string;
-  categoryLabel?: string;
+  categories?: string[];
   createdAt?: string;
   participantCount?: number;
   electionCount?: number;
@@ -36,7 +36,7 @@ export const BundleCard: FC<BundleCardProps> = ({
   alias,
   title,
   subtitle,
-  categoryLabel,
+  categories = [],
   createdAt,
   participantCount = 0,
   electionCount,
@@ -75,12 +75,14 @@ export const BundleCard: FC<BundleCardProps> = ({
       <div className={styles.accentBorder} />
 
       <div className={styles.content}>
-        {/* 헤더: 카테고리 + 참여자 수 + 데드라인 + 공유 */}
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            {categoryLabel && <span className={styles.category}>{categoryLabel}</span>}
-            <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-            {deadline && <DeadlineBadge deadline={deadline} compact />}
+        {/* 상단: 카테고리 + 공유 */}
+        <div className={styles.topRow}>
+          <div className={styles.categoryRow}>
+            {categories.map((code) => (
+              <span key={code} className={styles.categoryTag}>
+                {code}
+              </span>
+            ))}
           </div>
           <button
             type="button"
@@ -112,32 +114,40 @@ export const BundleCard: FC<BundleCardProps> = ({
         <h3 className={styles.title}>{title}</h3>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
 
-        {/* 하단: 번들 배지 + NEW + CTA */}
-        <div className={styles.footer}>
-          <div className={styles.meta}>
-            <span className={styles.bundleBadge}>
-              {electionCount ? `${electionCount}개 투표` : '투표 모음'}
-            </span>
-            {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
-          </div>
-          <button
-            type="button"
-            className={styles.ctaButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleClick();
-            }}
-            disabled={isNavigating || isClosed}
-          >
-            {isNavigating ? (
-              <span className={styles.loading}>...</span>
-            ) : (
-              <>
-                시작하기 <StartArrowIcon width={16} height={16} />
-              </>
-            )}
-          </button>
+        {/* 메타: 참여자 · 데드라인 · 번들배지 · NEW */}
+        <div className={styles.metaRow}>
+          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+          {deadline && (
+            <>
+              <span className={styles.dot} />
+              <DeadlineBadge deadline={deadline} compact />
+            </>
+          )}
+          <span className={styles.dot} />
+          <span className={styles.bundleBadge}>
+            {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+          </span>
+          {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
         </div>
+
+        {/* CTA 버튼 */}
+        <button
+          type="button"
+          className={styles.ctaButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClick();
+          }}
+          disabled={isNavigating || isClosed}
+        >
+          {isNavigating ? (
+            <span className={styles.loading}>...</span>
+          ) : (
+            <>
+              시작하기 <StartArrowIcon width={16} height={16} />
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

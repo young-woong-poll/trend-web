@@ -7,9 +7,6 @@ import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
 import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
-import { SortToggle } from '@/components/features/Main/SortToggle/SortToggle';
-import { HOTPICK_SORT } from '@/constants';
-import type { HotpickSortOption } from '@/constants/sort';
 import { useModal } from '@/contexts/ModalContext';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
@@ -26,7 +23,6 @@ const HIGHLIGHT_DURATION = 1500;
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
-  const [sortOption, setSortOption] = useState<HotpickSortOption>(HOTPICK_SORT);
   const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
@@ -60,7 +56,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     error,
   } = useInfiniteMainDisplay({
     size: 20,
-    sort: sortOption,
+    sort: 'popular',
     categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
     anchor: activeAnchor,
     initialData: categoryCodes.length === 0 && !activeAnchor ? initialData : undefined,
@@ -224,10 +220,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const item = trend as any;
     const alias = trend.alias ?? '';
     const key = keyPrefix ? `${keyPrefix}-${trend.id}` : trend.id;
-    // 멀티 카테고리 지원: categoryCodes 배열이 있으면 join
+    // 멀티 카테고리 지원: categoryCodes 배열
     const codes = (item.categoryCodes as string[] | undefined) ?? [];
-    const categoryLabel =
-      codes.length > 1 ? codes.join(' · ') : (item.categoryCode as string | undefined);
+    const categoryList =
+      codes.length > 0 ? codes : item.categoryCode ? [item.categoryCode as string] : [];
 
     // SINGLE 타입: 인라인 투표 카드
     if (item.type === 'SINGLE' && item.singleVote) {
@@ -237,7 +233,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             id={trend.id ?? 0}
             alias={alias}
             title={trend.title ?? ''}
-            categoryLabel={categoryLabel}
+            categories={categoryList}
             participantCount={trend.participantsCount}
             deadline={item.deadline}
             status={item.status}
@@ -257,7 +253,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           alias={alias}
           title={trend.title ?? ''}
           subtitle={trend.label}
-          categoryLabel={categoryLabel}
+          categories={categoryList}
           createdAt={trend.createdAt}
           participantCount={trend.participantsCount}
           electionCount={item.electionCount}
@@ -276,7 +272,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
-        <SortToggle value={sortOption} onChange={setSortOption} />
 
         {/* 상향 무한스크롤 트리거 */}
         {hasPreviousPage && (
