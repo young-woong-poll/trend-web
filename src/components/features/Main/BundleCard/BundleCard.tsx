@@ -114,22 +114,6 @@ export const BundleCard: FC<BundleCardProps> = ({
         <h3 className={styles.title}>{title}</h3>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
 
-        {/* 메타: 참여자 · 데드라인 · 번들배지 · NEW */}
-        <div className={styles.metaRow}>
-          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-          {deadline && (
-            <>
-              <span className={styles.dot} />
-              <DeadlineBadge deadline={deadline} compact />
-            </>
-          )}
-          <span className={styles.dot} />
-          <span className={styles.bundleBadge}>
-            {electionCount ? `${electionCount}개 투표` : '투표 모음'}
-          </span>
-          {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
-        </div>
-
         {/* CTA 버튼 */}
         <button
           type="button"
@@ -148,6 +132,22 @@ export const BundleCard: FC<BundleCardProps> = ({
             </>
           )}
         </button>
+
+        {/* 메타: 참여자 · 데드라인 · 번들배지 · NEW */}
+        <div className={styles.metaRow}>
+          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+          {deadline && (
+            <>
+              <span className={styles.dot} />
+              <DeadlineBadge deadline={deadline} compact />
+            </>
+          )}
+          <span className={styles.dot} />
+          <span className={styles.bundleBadge}>
+            {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+          </span>
+          {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
+        </div>
       </div>
     </div>
   );

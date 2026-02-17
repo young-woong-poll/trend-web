@@ -101,7 +101,7 @@
   font-size: $font-size-14;
   color: $text-secondary;
   line-height: 1.4;
-  margin-bottom: 0;
+  margin-bottom: 12px;
 }
 
 // ── 메타: 참여자 · 데드라인 · 배지 · NEW ──
@@ -111,7 +111,6 @@
   gap: 6px;
   flex-wrap: wrap;
   margin-top: 10px;
-  margin-bottom: 12px;
 }
 
 .dot {

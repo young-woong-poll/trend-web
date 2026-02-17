@@ -94,17 +94,6 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 질문 텍스트 */}
       <h3 className={styles.question}>{title}</h3>
 
-      {/* 메타: 참여자 · 데드라인 */}
-      <div className={styles.metaRow}>
-        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-        {deadline && (
-          <>
-            <span className={styles.dot} />
-            <DeadlineBadge deadline={deadline} compact />
-          </>
-        )}
-      </div>
-
       {/* 투표 영역 */}
       <div className={styles.voteArea}>
         <AnimatePresence mode="wait">
@@ -216,6 +205,17 @@ export const SingleCard: FC<SingleCardProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* 메타: 참여자 · 데드라인 */}
+      <div className={styles.metaRow}>
+        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+        {deadline && (
+          <>
+            <span className={styles.dot} />
+            <DeadlineBadge deadline={deadline} compact />
+          </>
+        )}
       </div>
     </div>
   );
