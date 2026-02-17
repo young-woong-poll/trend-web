@@ -31,9 +31,9 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
    */
   const updateCacheOptimistically = useCallback(
     (hotpickId: string, updater: (prev: SingleVoteData) => SingleVoteData) => {
-      // 모든 mainInfinite 쿼리 캐시를 순회하며 업데이트
+      // mainInfinite 쿼리 캐시만 순회하며 업데이트
       queryClient.setQueriesData<InfiniteData<DisplayMainResponse | null>>(
-        { queryKey: displayKeys.all },
+        { queryKey: [...displayKeys.all, 'mainInfinite'] },
         (oldData) => {
           if (!oldData) {
             return oldData;

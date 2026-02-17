@@ -2,6 +2,7 @@
 
 .card {
   position: relative;
+  width: 100%;
   border-radius: $border-radius-lg;
   background: $bg-secondary;
   border: 1px solid $border-placeholder;
@@ -46,18 +47,83 @@
   padding: 16px 16px 16px 20px;
 }
 
-// ── 헤더 ──
-.header {
+// ── 상단: 카테고리 + 공유 ──
+.topRow {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.headerLeft {
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.categoryTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  background: rgba($primary-start, 0.12);
+  color: $primary-start;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+// ── 썸네일 이미지 ──
+.thumbnail {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: $bg-tertiary;
+}
+
+// ── 제목/부제 ──
+.title {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  line-height: 1.4;
+  margin-bottom: 4px;
+  word-break: keep-all;
+}
+
+.subtitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+// ── 메타: 참여자 · 데드라인 · 배지 · NEW ──
+.metaRow {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $border-placeholder;
+  flex-shrink: 0;
+}
+
+.participants {
+  font-size: $font-size-12;
+  color: $text-tertiary;
 }
 
 .bundleBadge {
@@ -69,12 +135,6 @@
   color: $primary-start;
   font-size: $font-size-12;
   font-weight: $font-weight-bold;
-}
-
-.category {
-  font-size: $font-size-12;
-  font-weight: $font-weight-semibold;
-  color: $text-secondary;
 }
 
 .newBadge {
@@ -90,13 +150,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: none;
   background: transparent;
   color: $text-tertiary;
   cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 8px;
   transition:
     background 0.15s ease,
     color 0.15s ease;
@@ -111,48 +173,15 @@
   }
 }
 
-// ── 제목/부제 ──
-.title {
-  font-size: $font-size-18;
-  font-weight: $font-weight-bold;
-  color: $white;
-  line-height: 1.4;
-  margin-bottom: 4px;
-  word-break: keep-all;
-}
-
-.subtitle {
-  font-size: $font-size-14;
-  color: $text-secondary;
-  line-height: 1.4;
-  margin-bottom: 12px;
-}
-
-// ── 하단 ──
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-
-.meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.participants {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-}
-
+// ── CTA 버튼 ──
 .ctaButton {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
-  padding: 8px 16px;
-  border-radius: $border-rounded;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: $border-radius-md;
   border: none;
   background: $primary-gradient;
   color: $white;
@@ -168,7 +197,7 @@
   }
 
   &:hover {
-    transform: scale(1.02);
+    opacity: 0.9;
 
     svg {
       transform: translateX(3px);
@@ -184,6 +213,7 @@
     cursor: default;
 
     &:hover {
+      opacity: 0.5;
       transform: none;
     }
   }

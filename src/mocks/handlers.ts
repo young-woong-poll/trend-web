@@ -64,7 +64,11 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
-    const categoryCodes = url.searchParams.getAll('categoryCodes');
+    // axios는 배열을 categoryCodes[]=X 형태로 직렬화하므로 두 형태 모두 지원
+    const categoryCodes = [
+      ...url.searchParams.getAll('categoryCodes'),
+      ...url.searchParams.getAll('categoryCodes[]'),
+    ];
     const tkuId = request.headers.get('x-tku-id') ?? '';
     const anchor = url.searchParams.get('anchor');
     const direction = url.searchParams.get('direction');
@@ -113,38 +117,48 @@ export const handlers = [
       allTrends = injectVoteState(allTrends);
     }
 
-    // 카테고리 필터링
+    // 카테고리 필터링 (멀티 카테고리 지원)
     if (categoryCodes.length > 0) {
       const filterByCategory = <T extends { alias?: string }>(items: T[]): T[] =>
         items.filter((item) => {
           const ext = trendExtensions[item.alias ?? ''];
-          return ext?.categoryCode && categoryCodes.includes(ext.categoryCode);
+          if (!ext) {
+            return false;
+          }
+          const itemCodes = ext.categoryCodes ?? (ext.categoryCode ? [ext.categoryCode] : []);
+          return itemCodes.some((code) => categoryCodes.includes(code));
         });
 
       fixedTrends = filterByCategory(fixedTrends);
       allTrends = filterByCategory(allTrends);
     }
 
+    // 커서 & 사이즈 파라미터
+    const cursor = url.searchParams.get('cursor');
+    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+
     // anchor 기반 슬라이싱 (해시 스크롤 진입)
     if (anchor) {
       const anchorIndex = allTrends.findIndex((t) => t.alias === anchor);
 
       if (anchorIndex === -1) {
-        // anchor 못 찾음 → 일반 피드 + anchorNotFound 플래그
         const result = {
           ...source,
           fixedTrends,
-          trends: allTrends,
+          trends: allTrends.slice(0, size),
           totalCount: allTrends.length,
+          hasMore: allTrends.length > size,
+          nextCursor: allTrends.length > size ? size : undefined,
           anchorNotFound: true,
         };
         return HttpResponse.json(wrapResponse(result));
       }
 
-      // anchor 주변 데이터: anchor 앞 3개 + anchor + 이후 전부
       const startIdx = Math.max(0, anchorIndex - 3);
-      const trends = allTrends.slice(startIdx);
+      const endIdx = Math.min(allTrends.length, startIdx + size);
+      const trends = allTrends.slice(startIdx, endIdx);
       const hasPrevious = startIdx > 0;
+      const hasMore = endIdx < allTrends.length;
 
       const result = {
         ...source,
@@ -154,16 +168,17 @@ export const handlers = [
         anchorIndex: anchorIndex - startIdx,
         hasPrevious,
         prevCursor: hasPrevious ? startIdx : undefined,
+        hasMore,
+        nextCursor: hasMore ? endIdx : undefined,
       };
       return HttpResponse.json(wrapResponse(result));
     }
 
-    // direction=prev → 이전 페이지 (anchor 스크롤 후 위로 스크롤 시)
+    // direction=prev → 이전 페이지
     if (direction === 'prev') {
-      const cursor = parseInt(url.searchParams.get('cursor') ?? '0', 10);
-      const size = parseInt(url.searchParams.get('size') ?? '20', 10);
-      const startIdx = Math.max(0, cursor - size);
-      const trends = allTrends.slice(startIdx, cursor);
+      const cursorVal = parseInt(cursor ?? '0', 10);
+      const startIdx = Math.max(0, cursorVal - size);
+      const trends = allTrends.slice(startIdx, cursorVal);
       const hasPrevious = startIdx > 0;
 
       const result = {
@@ -177,11 +192,20 @@ export const handlers = [
       return HttpResponse.json(wrapResponse(result));
     }
 
+    // 일반 커서 기반 페이지네이션
+    const cursorVal = cursor ? parseInt(cursor, 10) : 0;
+    const pageStart = cursorVal;
+    const pageEnd = Math.min(allTrends.length, pageStart + size);
+    const pageTrends = allTrends.slice(pageStart, pageEnd);
+    const hasMore = pageEnd < allTrends.length;
+
     const result = {
       ...source,
-      fixedTrends,
-      trends: allTrends,
+      fixedTrends: pageStart === 0 ? fixedTrends : [],
+      trends: pageTrends,
       totalCount: allTrends.length,
+      hasMore,
+      nextCursor: hasMore ? pageEnd : undefined,
     };
 
     return HttpResponse.json(wrapResponse(result));
@@ -299,9 +323,9 @@ export const handlers = [
 
   /**
    * 댓글 개수 조회
-   * GET /api/v1/comment/:hotpickId/election/:electionId/count
+   * GET /api/v1/comment/:trendId/item/:itemId/count
    */
-  http.get(`${baseURL}/api/v1/comment/:hotpickId/election/:electionId/count`, () =>
+  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
     HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
   ),
 

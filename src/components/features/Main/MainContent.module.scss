@@ -4,12 +4,23 @@
 .container {
   @include flex-column;
   align-items: center;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
   height: 100%;
-  padding: $spacing-24;
-
-  gap: 30px;
-
+  padding: $spacing-16;
+  gap: 16px;
   overflow: scroll;
+
+  @include tablet {
+    padding: $spacing-24;
+    gap: 20px;
+  }
+}
+
+// ── 카드 래퍼: 동일 width 보장 ──
+.cardWrapper {
+  width: 100%;
 }
 
 .emptyState {
@@ -18,8 +29,12 @@
   align-items: center;
   justify-content: center;
   min-height: 60vh;
-  padding: $spacing-48;
+  padding: $spacing-32;
   text-align: center;
+
+  @include tablet {
+    padding: $spacing-48;
+  }
 
   .icon {
     width: 120px;
@@ -37,13 +52,13 @@
   .title {
     font-size: $font-size-24;
     font-weight: $font-weight-bold;
-    color: $neutral-800;
+    color: $white;
     margin-bottom: $spacing-16;
   }
 
   .description {
     font-size: $font-size-16;
-    color: $neutral-500;
+    color: $text-secondary;
     line-height: 1.6;
     max-width: 400px;
   }
@@ -84,10 +99,12 @@
   text-align: center;
 }
 
-.loadingMore {
-  font-size: $font-size-12;
-  color: $neutral-400;
-  margin: 0;
+// ── 스켈레톤 카드 그룹 (무한 스크롤 로딩) ──
+.skeletonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .loadMoreError {

@@ -6,9 +6,7 @@ import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
-import { SortToggle } from '@/components/features/Main/SortToggle/SortToggle';
-import { HOTPICK_SORT } from '@/constants';
-import type { HotpickSortOption } from '@/constants/sort';
+import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
 import { useModal } from '@/contexts/ModalContext';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
@@ -25,7 +23,6 @@ const HIGHLIGHT_DURATION = 1500;
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
-  const [sortOption, setSortOption] = useState<HotpickSortOption>(HOTPICK_SORT);
   const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
@@ -50,6 +47,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     data,
     isLoading,
     isError,
+    isFetching,
     hasNextPage,
     hasPreviousPage,
     fetchNextPage,
@@ -59,7 +57,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     error,
   } = useInfiniteMainDisplay({
     size: 20,
-    sort: sortOption,
+    sort: 'popular',
     categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
     anchor: activeAnchor,
     initialData: categoryCodes.length === 0 && !activeAnchor ? initialData : undefined,
@@ -201,8 +199,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  // 빈 상태
-  if (fixedHotpicks.length === 0 && hotpicks.length === 0) {
+  // 빈 상태 (fetching 중이면 빈 상태 표시하지 않음)
+  if (!isFetching && fixedHotpicks.length === 0 && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
@@ -223,17 +221,22 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const item = trend as any;
     const alias = trend.alias ?? '';
     const key = keyPrefix ? `${keyPrefix}-${trend.id}` : trend.id;
+    // 멀티 카테고리 지원: categoryCodes 배열
+    const codes = (item.categoryCodes as string[] | undefined) ?? [];
+    const categoryList =
+      codes.length > 0 ? codes : item.categoryCode ? [item.categoryCode as string] : [];
 
     // SINGLE 타입: 인라인 투표 카드
     if (item.type === 'SINGLE' && item.singleVote) {
       return (
-        <div key={key} id={alias}>
+        <div key={key} id={alias} className={styles.cardWrapper}>
           <SingleCard
             id={trend.id ?? 0}
             alias={alias}
             title={trend.title ?? ''}
-            categoryLabel={item.categoryCode}
+            categories={categoryList}
             participantCount={trend.participantsCount}
+            deadline={item.deadline}
             status={item.status}
             singleVote={item.singleVote as SingleVoteData}
             isHighlighted={highlightedAlias === alias}
@@ -246,15 +249,16 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
     // BUNDLE 타입: BundleCard
     return (
-      <div key={key} id={alias}>
+      <div key={key} id={alias} className={styles.cardWrapper}>
         <BundleCard
           alias={alias}
           title={trend.title ?? ''}
           subtitle={trend.label}
-          categoryLabel={item.categoryCode}
+          categories={categoryList}
           createdAt={trend.createdAt}
           participantCount={trend.participantsCount}
           electionCount={item.electionCount}
+          imageUrls={trend.imageUrls}
           deadline={item.deadline}
           status={item.status}
           onShare={handleShare}
@@ -269,13 +273,15 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
-        <SortToggle value={sortOption} onChange={setSortOption} />
 
         {/* 상향 무한스크롤 트리거 */}
         {hasPreviousPage && (
           <div ref={topObserverTarget} className={styles.observerTarget}>
             {isFetchingPreviousPage && (
-              <p className={styles.loadingMore}>이전 핫픽을 불러오는 중...</p>
+              <div className={styles.skeletonGroup}>
+                <SkeletonCard />
+                <SkeletonCard />
+              </div>
             )}
           </div>
         )}
@@ -288,7 +294,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
         {/* 하향 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>
-          {isFetchingNextPage && <p className={styles.loadingMore}>핫픽을 더 불러오는 중...</p>}
+          {isFetchingNextPage && (
+            <div className={styles.skeletonGroup}>
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          )}
           {!isFetchingNextPage && error && hasNextPage && (
             <div className={styles.loadMoreError}>
               <p>불러오기 실패</p>
