@@ -4,13 +4,11 @@ import type { ReactNode } from 'react';
 
 import dynamic from 'next/dynamic';
 
-// MSWProvider는 개발 환경에서만 동적 로드 (프로덕션 번들에서 제외)
-const MSWProvider =
-  process.env.NODE_ENV === 'development'
-    ? dynamic(() => import('@/providers/MSWProvider').then((mod) => mod.MSWProvider), {
-        ssr: false,
-      })
-    : ({ children }: { children: ReactNode }) => children;
+// TODO: 임시 - 프로덕션에서도 MSW 포함 (BE API 미구현)
+const MSWProvider = dynamic(
+  () => import('@/providers/MSWProvider').then((mod) => mod.MSWProvider),
+  { ssr: false }
+);
 
 interface ClientProvidersProps {
   children: ReactNode;
