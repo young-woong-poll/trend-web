@@ -103,6 +103,169 @@ export const singleVoteDataMap: Record<string, MockSingleVote> = {
     myChoice: null,
     totalVotes: null,
   },
+  // ── IMAGE 타입 싱글 (썸네일 이미지 포함) ──
+  'single-img-coffee': {
+    electionId: 'sic1',
+    optionA: { id: 'sic1-o1', text: '아메리카노', voteCount: null },
+    optionB: { id: 'sic1-o2', text: '라떼', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-img-pet': {
+    electionId: 'sip1',
+    optionA: { id: 'sip1-o1', text: '강아지', voteCount: null },
+    optionB: { id: 'sip1-o2', text: '고양이', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-img-travel': {
+    electionId: 'sit1',
+    optionA: { id: 'sit1-o1', text: '산', voteCount: null },
+    optionB: { id: 'sit1-o2', text: '바다', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-img-car': {
+    electionId: 'sicar1',
+    optionA: { id: 'sicar1-o1', text: '전기차', voteCount: null },
+    optionB: { id: 'sicar1-o2', text: '하이브리드', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-img-fashion': {
+    electionId: 'sif1',
+    optionA: { id: 'sif1-o1', text: '캐주얼', voteCount: null },
+    optionB: { id: 'sif1-o2', text: '포멀', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  // ── 무한스크롤용 추가 싱글 ──
+  'single-movie': {
+    electionId: 'smv1',
+    optionA: { id: 'smv1-o1', text: '극장', voteCount: null },
+    optionB: { id: 'smv1-o2', text: 'OTT', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-morning': {
+    electionId: 'smr1',
+    optionA: { id: 'smr1-o1', text: '아침형', voteCount: null },
+    optionB: { id: 'smr1-o2', text: '저녁형', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-health': {
+    electionId: 'shl1',
+    optionA: { id: 'shl1-o1', text: '헬스장', voteCount: null },
+    optionB: { id: 'shl1-o2', text: '홈트레이닝', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-vacation': {
+    electionId: 'svc1',
+    optionA: { id: 'svc1-o1', text: '해외여행', voteCount: null },
+    optionB: { id: 'svc1-o2', text: '국내여행', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-sns': {
+    electionId: 'ssn1',
+    optionA: { id: 'ssn1-o1', text: '인스타그램', voteCount: null },
+    optionB: { id: 'ssn1-o2', text: '유튜브', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-game': {
+    electionId: 'sgm1',
+    optionA: { id: 'sgm1-o1', text: 'PC 게임', voteCount: null },
+    optionB: { id: 'sgm1-o2', text: '모바일 게임', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-music': {
+    electionId: 'smu1',
+    optionA: { id: 'smu1-o1', text: 'K-POP', voteCount: null },
+    optionB: { id: 'smu1-o2', text: '팝송', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-beer': {
+    electionId: 'sbr1',
+    optionA: { id: 'sbr1-o1', text: '맥주', voteCount: null },
+    optionB: { id: 'sbr1-o2', text: '소주', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-apartment': {
+    electionId: 'sap1',
+    optionA: { id: 'sap1-o1', text: '아파트', voteCount: null },
+    optionB: { id: 'sap1-o2', text: '단독주택', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-wedding': {
+    electionId: 'swd1',
+    optionA: { id: 'swd1-o1', text: '스몰웨딩', voteCount: null },
+    optionB: { id: 'swd1-o2', text: '대형 웨딩', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-crypto': {
+    electionId: 'scr1',
+    optionA: { id: 'scr1-o1', text: '비트코인', voteCount: null },
+    optionB: { id: 'scr1-o2', text: '이더리움', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-diet': {
+    electionId: 'sdi1',
+    optionA: { id: 'sdi1-o1', text: '간헐적 단식', voteCount: null },
+    optionB: { id: 'sdi1-o2', text: '식단 관리', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-weekend': {
+    electionId: 'swe1',
+    optionA: { id: 'swe1-o1', text: '집에서 쉬기', voteCount: null },
+    optionB: { id: 'swe1-o2', text: '나가서 놀기', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  // ── 멀티 카테고리 싱글 ──
+  'single-lovefinance': {
+    electionId: 'slf1',
+    optionA: { id: 'slf1-o1', text: '같이 관리', voteCount: null },
+    optionB: { id: 'slf1-o2', text: '따로 관리', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
+  'single-sportsfood': {
+    electionId: 'ssf1',
+    optionA: { id: 'ssf1-o1', text: '닭가슴살', voteCount: null },
+    optionB: { id: 'ssf1-o2', text: '프로틴 셰이크', voteCount: null },
+    voted: false,
+    myChoice: null,
+    totalVotes: null,
+  },
 };
 
 // ──────────────────────────────────────────────────────────
@@ -116,13 +279,13 @@ export const singleVoteDataMap: Record<string, MockSingleVote> = {
 export const mockMainDisplay: DisplayMainResponse = {
   fixedTrends: [],
   trends: [
-    // ── 싱글 #1~#7 ──
+    // ── 페이지 1: 싱글 #1~#7 ──
     {
       id: 201,
       alias: 'single-love',
       title: '첫 데이트 장소는?',
       label: '연애',
-      imageUrls: ['https://picsum.photos/400/300?random=2'],
+      imageUrls: ['https://picsum.photos/400/300?random=201'],
       createdAt: hoursAgo(6),
       participantsCount: 420,
     },
@@ -131,10 +294,7 @@ export const mockMainDisplay: DisplayMainResponse = {
       alias: 'single-text-finance',
       title: '적금 vs 주식?',
       label: '재테크',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=2',
-        'https://picsum.photos/400/300?random=2-2',
-      ],
+      imageUrls: [],
       createdAt: hoursAgo(2),
       participantsCount: 890,
     },
@@ -147,6 +307,16 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(3),
       participantsCount: 1200,
     },
+    // IMAGE 타입 싱글 — 커피
+    {
+      id: 401,
+      alias: 'single-img-coffee',
+      title: '아메리카노 vs 라떼?',
+      label: '음식',
+      imageUrls: ['https://picsum.photos/400/300?random=401'],
+      createdAt: hoursAgo(1),
+      participantsCount: 1850,
+    },
     {
       id: 203,
       alias: 'single-sports-urgent',
@@ -155,6 +325,16 @@ export const mockMainDisplay: DisplayMainResponse = {
       imageUrls: [],
       createdAt: hoursAgo(20),
       participantsCount: 1500,
+    },
+    // IMAGE 타입 싱글 — 반려동물
+    {
+      id: 402,
+      alias: 'single-img-pet',
+      title: '강아지 vs 고양이, 당신의 반려동물은?',
+      label: '라이프',
+      imageUrls: ['https://picsum.photos/400/300?random=402'],
+      createdAt: hoursAgo(4),
+      participantsCount: 3100,
     },
     {
       id: 205,
@@ -165,6 +345,22 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(48),
       participantsCount: 670,
     },
+
+    // ── 번들 #1 ──
+    {
+      id: 1,
+      alias: 'love-dilemma',
+      title: '대한민국 연애 난제',
+      label: '당신의 문제라면?',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=1',
+        'https://picsum.photos/400/300?random=1-2',
+      ],
+      createdAt: hoursAgo(12),
+      participantsCount: 1200,
+    },
+
+    // ── 페이지 2: 싱글 #8~#14 ──
     {
       id: 206,
       alias: 'single-trend',
@@ -183,22 +379,16 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(5),
       participantsCount: 760,
     },
-
-    // ── 번들 #1 ──
+    // IMAGE 타입 싱글 — 여행
     {
-      id: 1,
-      alias: 'love-dilemma',
-      title: '대한민국 연애 난제',
-      label: '당신의 문제라면?',
-      imageUrls: [
-        'https://picsum.photos/400/300?random=1',
-        'https://picsum.photos/400/300?random=1-2',
-      ],
-      createdAt: hoursAgo(12),
-      participantsCount: 1200,
+      id: 403,
+      alias: 'single-img-travel',
+      title: '여행지는 산 vs 바다?',
+      label: '여행',
+      imageUrls: ['https://picsum.photos/400/300?random=403'],
+      createdAt: hoursAgo(7),
+      participantsCount: 2400,
     },
-
-    // ── 싱글 #8~#14 ──
     {
       id: 303,
       alias: 'single-salary',
@@ -207,6 +397,26 @@ export const mockMainDisplay: DisplayMainResponse = {
       imageUrls: [],
       createdAt: hoursAgo(10),
       participantsCount: 540,
+    },
+    // 멀티 카테고리 싱글 — 연애+재테크
+    {
+      id: 501,
+      alias: 'single-lovefinance',
+      title: '연인과 가계부 같이 쓰는 거 어때?',
+      label: '연애 x 재테크',
+      imageUrls: ['https://picsum.photos/400/300?random=501'],
+      createdAt: hoursAgo(2),
+      participantsCount: 980,
+    },
+    // IMAGE 타입 싱글 — 자동차
+    {
+      id: 404,
+      alias: 'single-img-car',
+      title: '다음 차는 전기차 vs 하이브리드?',
+      label: '자동차',
+      imageUrls: ['https://picsum.photos/400/300?random=404'],
+      createdAt: hoursAgo(15),
+      participantsCount: 1670,
     },
     {
       id: 204,
@@ -231,73 +441,453 @@ export const mockMainDisplay: DisplayMainResponse = {
       createdAt: hoursAgo(48),
       participantsCount: 3200,
     },
+
+    // ── 페이지 3: 싱글 #15~#21 + 번들 ──
+    // IMAGE 타입 싱글 — 패션
+    {
+      id: 405,
+      alias: 'single-img-fashion',
+      title: '데이트 패션: 캐주얼 vs 포멀?',
+      label: '패션',
+      imageUrls: ['https://picsum.photos/400/300?random=405'],
+      createdAt: hoursAgo(9),
+      participantsCount: 1320,
+    },
+    {
+      id: 406,
+      alias: 'single-movie',
+      title: '영화는 극장 vs OTT?',
+      label: '문화',
+      imageUrls: [],
+      createdAt: hoursAgo(11),
+      participantsCount: 920,
+    },
+    {
+      id: 407,
+      alias: 'single-morning',
+      title: '당신은 아침형 vs 저녁형?',
+      label: '라이프',
+      imageUrls: [],
+      createdAt: hoursAgo(14),
+      participantsCount: 1540,
+    },
+    {
+      id: 408,
+      alias: 'single-health',
+      title: '운동은 헬스장 vs 홈트?',
+      label: '건강',
+      imageUrls: ['https://picsum.photos/400/300?random=408'],
+      createdAt: hoursAgo(16),
+      participantsCount: 1190,
+    },
+    // 멀티 카테고리 싱글 — 스포츠+음식
+    {
+      id: 502,
+      alias: 'single-sportsfood',
+      title: '운동 후 보충: 닭가슴살 vs 프로틴 셰이크?',
+      label: '스포츠 x 음식',
+      imageUrls: ['https://picsum.photos/400/300?random=502'],
+      createdAt: hoursAgo(8),
+      participantsCount: 2250,
+    },
+    {
+      id: 409,
+      alias: 'single-vacation',
+      title: '올해 휴가는 해외 vs 국내?',
+      label: '여행',
+      imageUrls: [],
+      createdAt: hoursAgo(22),
+      participantsCount: 870,
+    },
+    {
+      id: 410,
+      alias: 'single-sns',
+      title: '더 많이 보는 SNS는?',
+      label: '트렌드',
+      imageUrls: [],
+      createdAt: hoursAgo(18),
+      participantsCount: 2600,
+    },
+
+    // ── 번들 #3 (멀티 카테고리) ──
+    {
+      id: 3,
+      alias: 'sports-urgent',
+      title: '스포츠 긴급 투표',
+      label: '마감 임박!',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=3',
+        'https://picsum.photos/400/300?random=3-2',
+      ],
+      createdAt: hoursAgo(72),
+      participantsCount: 8900,
+    },
+
+    // ── 페이지 4: 싱글 #22~#28 + 번들 ──
+    {
+      id: 411,
+      alias: 'single-game',
+      title: 'PC 게임 vs 모바일 게임?',
+      label: '게임',
+      imageUrls: ['https://picsum.photos/400/300?random=411'],
+      createdAt: hoursAgo(25),
+      participantsCount: 3400,
+    },
+    {
+      id: 412,
+      alias: 'single-music',
+      title: 'K-POP vs 팝송, 뭘 더 들어?',
+      label: '음악',
+      imageUrls: [],
+      createdAt: hoursAgo(30),
+      participantsCount: 1780,
+    },
+    {
+      id: 413,
+      alias: 'single-beer',
+      title: '퇴근 후 한 잔: 맥주 vs 소주?',
+      label: '음식',
+      imageUrls: ['https://picsum.photos/400/300?random=413'],
+      createdAt: hoursAgo(28),
+      participantsCount: 4200,
+    },
+    {
+      id: 414,
+      alias: 'single-apartment',
+      title: '내 집은 아파트 vs 단독주택?',
+      label: '부동산',
+      imageUrls: ['https://picsum.photos/400/300?random=414'],
+      createdAt: hoursAgo(35),
+      participantsCount: 1950,
+    },
+    {
+      id: 415,
+      alias: 'single-wedding',
+      title: '결혼식은 스몰웨딩 vs 대형?',
+      label: '결혼',
+      imageUrls: [],
+      createdAt: hoursAgo(40),
+      participantsCount: 1120,
+    },
+    {
+      id: 416,
+      alias: 'single-crypto',
+      title: '코인 투자한다면: 비트코인 vs 이더리움?',
+      label: '재테크',
+      imageUrls: [],
+      createdAt: hoursAgo(50),
+      participantsCount: 2890,
+    },
+    {
+      id: 417,
+      alias: 'single-diet',
+      title: '다이어트 방법: 간헐적 단식 vs 식단 관리?',
+      label: '건강',
+      imageUrls: [],
+      createdAt: hoursAgo(55),
+      participantsCount: 1430,
+    },
+
+    // ── 번들 #4 ──
+    {
+      id: 5,
+      alias: 'food-new',
+      title: '오늘의 음식 대결',
+      label: '뭐 먹을래?',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=5',
+        'https://picsum.photos/400/300?random=5-2',
+      ],
+      createdAt: hoursAgo(3),
+      participantsCount: 150,
+    },
+
+    // ── 페이지 5: 싱글 #29~#30 + 번들 ──
+    {
+      id: 418,
+      alias: 'single-weekend',
+      title: '주말에는 집에서 쉬기 vs 나가서 놀기?',
+      label: '라이프',
+      imageUrls: [],
+      createdAt: hoursAgo(60),
+      participantsCount: 1650,
+    },
+
+    // ── 번들 #5 (마감) ──
+    {
+      id: 4,
+      alias: 'work-closed',
+      title: '직장인 고민 (마감)',
+      label: '이미 끝난 투표입니다',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=4',
+        'https://picsum.photos/400/300?random=4-2',
+      ],
+      createdAt: hoursAgo(168),
+      participantsCount: 2000,
+    },
+
+    // ── 번들 #6 ──
+    {
+      id: 6,
+      alias: 'trend-weekly',
+      title: '이번주 트렌드 핫이슈',
+      label: '어떻게 생각하세요?',
+      imageUrls: [
+        'https://picsum.photos/400/300?random=6',
+        'https://picsum.photos/400/300?random=6-2',
+      ],
+      createdAt: hoursAgo(24),
+      participantsCount: 2300,
+    },
   ],
-  hasMore: false,
+  hasMore: true,
   nextCursor: undefined,
-  totalCount: 12,
+  totalCount: 40,
 };
 
 /**
  * Phase 2 확장 필드 — 핸들러에서 트렌드 데이터에 주입
+ * categoryCodes: 복수 카테고리 지원 (연애+재테크, 스포츠+음식 등)
  */
 interface TrendExtension {
   type?: string;
   categoryCode?: string;
+  categoryCodes?: string[];
   deadline?: string;
   status?: string;
+  electionCount?: number;
 }
 
 export const trendExtensions: Record<string, TrendExtension> = {
-  // SINGLE
-  'single-love': { type: 'SINGLE', categoryCode: 'LOVE', status: 'OPEN' },
-  'single-text-finance': { type: 'SINGLE', categoryCode: 'FINANCE', status: 'OPEN' },
+  // ── SINGLE (기존) ──
+  'single-love': { type: 'SINGLE', categoryCode: 'LOVE', categoryCodes: ['LOVE'], status: 'OPEN' },
+  'single-text-finance': {
+    type: 'SINGLE',
+    categoryCode: 'FINANCE',
+    categoryCodes: ['FINANCE'],
+    status: 'OPEN',
+  },
   'single-sports-urgent': {
     type: 'SINGLE',
     categoryCode: 'SPORTS',
+    categoryCodes: ['SPORTS'],
     deadline: hoursFromNow(2),
     status: 'OPEN',
   },
   'single-food-closed': {
     type: 'SINGLE',
     categoryCode: 'FOOD',
+    categoryCodes: ['FOOD'],
     deadline: hoursAgo(12),
     status: 'CLOSED',
   },
   'single-work': {
     type: 'SINGLE',
     categoryCode: 'WORK',
+    categoryCodes: ['WORK'],
     deadline: daysFromNow(5),
     status: 'OPEN',
   },
-  'single-trend': { type: 'SINGLE', categoryCode: 'TREND', status: 'OPEN' },
-  'single-dating-sns': { type: 'SINGLE', categoryCode: 'LOVE', status: 'OPEN' },
-  'single-chicken': { type: 'SINGLE', categoryCode: 'FOOD', status: 'OPEN' },
-  'single-salary': { type: 'SINGLE', categoryCode: 'WORK', status: 'OPEN' },
-  // BUNDLE
-  'fixed-trend': { type: 'BUNDLE', categoryCode: 'TREND', status: 'OPEN' },
-  'love-dilemma': { type: 'BUNDLE', categoryCode: 'LOVE', status: 'OPEN' },
+  'single-trend': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-dating-sns': {
+    type: 'SINGLE',
+    categoryCode: 'LOVE',
+    categoryCodes: ['LOVE'],
+    status: 'OPEN',
+  },
+  'single-chicken': {
+    type: 'SINGLE',
+    categoryCode: 'FOOD',
+    categoryCodes: ['FOOD'],
+    status: 'OPEN',
+  },
+  'single-salary': {
+    type: 'SINGLE',
+    categoryCode: 'WORK',
+    categoryCodes: ['WORK'],
+    status: 'OPEN',
+  },
+  // ── SINGLE (IMAGE 타입 — 썸네일 포함) ──
+  'single-img-coffee': {
+    type: 'SINGLE',
+    categoryCode: 'FOOD',
+    categoryCodes: ['FOOD'],
+    status: 'OPEN',
+  },
+  'single-img-pet': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-img-travel': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-img-car': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    deadline: daysFromNow(10),
+    status: 'OPEN',
+  },
+  'single-img-fashion': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  // ── SINGLE (무한스크롤 추가) ──
+  'single-movie': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-morning': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-health': {
+    type: 'SINGLE',
+    categoryCode: 'SPORTS',
+    categoryCodes: ['SPORTS'],
+    status: 'OPEN',
+  },
+  'single-vacation': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-sns': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-game': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-music': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  'single-beer': {
+    type: 'SINGLE',
+    categoryCode: 'FOOD',
+    categoryCodes: ['FOOD'],
+    status: 'OPEN',
+  },
+  'single-apartment': {
+    type: 'SINGLE',
+    categoryCode: 'FINANCE',
+    categoryCodes: ['FINANCE'],
+    status: 'OPEN',
+  },
+  'single-wedding': {
+    type: 'SINGLE',
+    categoryCode: 'LOVE',
+    categoryCodes: ['LOVE', 'MARRIAGE'],
+    status: 'OPEN',
+  },
+  'single-crypto': {
+    type: 'SINGLE',
+    categoryCode: 'FINANCE',
+    categoryCodes: ['FINANCE'],
+    status: 'OPEN',
+  },
+  'single-diet': {
+    type: 'SINGLE',
+    categoryCode: 'SPORTS',
+    categoryCodes: ['SPORTS'],
+    status: 'OPEN',
+  },
+  'single-weekend': {
+    type: 'SINGLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    status: 'OPEN',
+  },
+  // ── SINGLE (멀티 카테고리) ──
+  'single-lovefinance': {
+    type: 'SINGLE',
+    categoryCode: 'LOVE',
+    categoryCodes: ['LOVE', 'FINANCE'],
+    status: 'OPEN',
+  },
+  'single-sportsfood': {
+    type: 'SINGLE',
+    categoryCode: 'SPORTS',
+    categoryCodes: ['SPORTS', 'FOOD'],
+    status: 'OPEN',
+  },
+  // ── BUNDLE ──
+  'fixed-trend': {
+    type: 'BUNDLE',
+    categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    electionCount: 2,
+    status: 'OPEN',
+  },
+  'love-dilemma': {
+    type: 'BUNDLE',
+    categoryCode: 'LOVE',
+    categoryCodes: ['LOVE'],
+    electionCount: 5,
+    status: 'OPEN',
+  },
   'finance-picks': {
     type: 'BUNDLE',
     categoryCode: 'FINANCE',
+    categoryCodes: ['FINANCE'],
+    electionCount: 5,
     deadline: daysFromNow(2),
     status: 'OPEN',
   },
   'sports-urgent': {
     type: 'BUNDLE',
     categoryCode: 'SPORTS',
+    categoryCodes: ['SPORTS', 'TREND'],
+    electionCount: 2,
     deadline: hoursFromNow(1),
     status: 'OPEN',
   },
   'work-closed': {
     type: 'BUNDLE',
     categoryCode: 'WORK',
+    categoryCodes: ['WORK'],
+    electionCount: 2,
     deadline: hoursAgo(24),
     status: 'CLOSED',
   },
-  'food-new': { type: 'BUNDLE', categoryCode: 'FOOD', status: 'OPEN' },
+  'food-new': {
+    type: 'BUNDLE',
+    categoryCode: 'FOOD',
+    categoryCodes: ['FOOD'],
+    electionCount: 2,
+    status: 'OPEN',
+  },
   'trend-weekly': {
     type: 'BUNDLE',
     categoryCode: 'TREND',
+    categoryCodes: ['TREND'],
+    electionCount: 2,
     deadline: daysFromNow(7),
     status: 'OPEN',
   },
@@ -1133,6 +1723,129 @@ export const mockVoteCountMap: Record<string, { options: { id: string; count: nu
     options: [
       { id: 'tw2-o1', count: 900 },
       { id: 'tw2-o2', count: 800 },
+    ],
+  },
+  // IMAGE 타입 싱글
+  sic1: {
+    options: [
+      { id: 'sic1-o1', count: 920 },
+      { id: 'sic1-o2', count: 930 },
+    ],
+  },
+  sip1: {
+    options: [
+      { id: 'sip1-o1', count: 1700 },
+      { id: 'sip1-o2', count: 1400 },
+    ],
+  },
+  sit1: {
+    options: [
+      { id: 'sit1-o1', count: 1100 },
+      { id: 'sit1-o2', count: 1300 },
+    ],
+  },
+  sicar1: {
+    options: [
+      { id: 'sicar1-o1', count: 850 },
+      { id: 'sicar1-o2', count: 820 },
+    ],
+  },
+  sif1: {
+    options: [
+      { id: 'sif1-o1', count: 670 },
+      { id: 'sif1-o2', count: 650 },
+    ],
+  },
+  // 무한스크롤 추가 싱글
+  smv1: {
+    options: [
+      { id: 'smv1-o1', count: 480 },
+      { id: 'smv1-o2', count: 440 },
+    ],
+  },
+  smr1: {
+    options: [
+      { id: 'smr1-o1', count: 790 },
+      { id: 'smr1-o2', count: 750 },
+    ],
+  },
+  shl1: {
+    options: [
+      { id: 'shl1-o1', count: 610 },
+      { id: 'shl1-o2', count: 580 },
+    ],
+  },
+  svc1: {
+    options: [
+      { id: 'svc1-o1', count: 430 },
+      { id: 'svc1-o2', count: 440 },
+    ],
+  },
+  ssn1: {
+    options: [
+      { id: 'ssn1-o1', count: 1400 },
+      { id: 'ssn1-o2', count: 1200 },
+    ],
+  },
+  sgm1: {
+    options: [
+      { id: 'sgm1-o1', count: 1800 },
+      { id: 'sgm1-o2', count: 1600 },
+    ],
+  },
+  smu1: {
+    options: [
+      { id: 'smu1-o1', count: 900 },
+      { id: 'smu1-o2', count: 880 },
+    ],
+  },
+  sbr1: {
+    options: [
+      { id: 'sbr1-o1', count: 2200 },
+      { id: 'sbr1-o2', count: 2000 },
+    ],
+  },
+  sap1: {
+    options: [
+      { id: 'sap1-o1', count: 1000 },
+      { id: 'sap1-o2', count: 950 },
+    ],
+  },
+  swd1: {
+    options: [
+      { id: 'swd1-o1', count: 560 },
+      { id: 'swd1-o2', count: 560 },
+    ],
+  },
+  scr1: {
+    options: [
+      { id: 'scr1-o1', count: 1500 },
+      { id: 'scr1-o2', count: 1390 },
+    ],
+  },
+  sdi1: {
+    options: [
+      { id: 'sdi1-o1', count: 720 },
+      { id: 'sdi1-o2', count: 710 },
+    ],
+  },
+  swe1: {
+    options: [
+      { id: 'swe1-o1', count: 830 },
+      { id: 'swe1-o2', count: 820 },
+    ],
+  },
+  // 멀티 카테고리 싱글
+  slf1: {
+    options: [
+      { id: 'slf1-o1', count: 490 },
+      { id: 'slf1-o2', count: 490 },
+    ],
+  },
+  ssf1: {
+    options: [
+      { id: 'ssf1-o1', count: 1150 },
+      { id: 'ssf1-o2', count: 1100 },
     ],
   },
 };
