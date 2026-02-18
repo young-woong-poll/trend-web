@@ -5,6 +5,7 @@ import { useState, type FC } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
@@ -22,6 +23,7 @@ interface BundleCardProps {
   imageUrls?: string[];
   deadline?: string;
   status?: string;
+  participated?: boolean;
   onShare?: (alias: string) => void;
 }
 
@@ -43,6 +45,7 @@ export const BundleCard: FC<BundleCardProps> = ({
   imageUrls,
   deadline,
   status,
+  participated = false,
   onShare,
 }) => {
   const [isNavigating, setIsNavigating] = useState(false);
@@ -117,7 +120,7 @@ export const BundleCard: FC<BundleCardProps> = ({
         {/* CTA 버튼 */}
         <button
           type="button"
-          className={styles.ctaButton}
+          className={`${styles.ctaButton} ${participated ? styles.participated : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             handleClick();
@@ -126,6 +129,10 @@ export const BundleCard: FC<BundleCardProps> = ({
         >
           {isNavigating ? (
             <span className={styles.loading}>...</span>
+          ) : participated ? (
+            <>
+              결과 보기 <StartArrowIcon width={16} height={16} />
+            </>
           ) : (
             <>
               시작하기 <StartArrowIcon width={16} height={16} />
@@ -146,7 +153,12 @@ export const BundleCard: FC<BundleCardProps> = ({
           <span className={styles.bundleBadge}>
             {electionCount ? `${electionCount}개 투표` : '투표 모음'}
           </span>
-          {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
+          {participated && (
+            <span className={styles.participatedBadge}>
+              <CheckIcon width={10} height={10} /> 참여 완료
+            </span>
+          )}
+          {isNew && !isClosed && !participated && <span className={styles.newBadge}>NEW</span>}
         </div>
       </div>
     </div>

@@ -225,8 +225,30 @@
       transform: none;
     }
   }
+
+  &.participated {
+    background: transparent;
+    border: 1.5px solid $text-tertiary;
+    color: $text-secondary;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 }
 
 .loading {
   letter-spacing: 2px;
+}
+
+.participatedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+  background: rgba($white, 0.1);
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
 }

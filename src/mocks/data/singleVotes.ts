@@ -29,6 +29,26 @@ export function hasVoted(tkuId: string, hotpickId: string): boolean {
   return voteStore.has(makeKey(tkuId, hotpickId));
 }
 
+// ──────────────────────────────────────────────────────────
+// Bundle 투표 참여 저장소
+// tkuId:trendId → resultId
+// ──────────────────────────────────────────────────────────
+
+/** tkuId:trendId → resultId */
+const bundleVoteStore = new Map<string, string>();
+
+export function recordBundleVote(tkuId: string, trendId: string, resultId: string): void {
+  bundleVoteStore.set(makeKey(tkuId, trendId), resultId);
+}
+
+export function hasBundleVoted(tkuId: string, trendId: string): boolean {
+  return bundleVoteStore.has(makeKey(tkuId, trendId));
+}
+
+export function getBundleResultId(tkuId: string, trendId: string): string | undefined {
+  return bundleVoteStore.get(makeKey(tkuId, trendId));
+}
+
 /** 옵션별 투표 수: { optionId: count } */
 export type OptionCounts = Record<string, number>;
 

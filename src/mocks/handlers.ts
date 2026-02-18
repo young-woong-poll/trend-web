@@ -26,6 +26,8 @@ import {
   incrementVoteCount,
   getOptionCounts,
   getTotalVotes,
+  recordBundleVote,
+  hasBundleVoted,
 } from '@/mocks/data/singleVotes';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
@@ -118,6 +120,25 @@ export const handlers = [
 
       fixedTrends = injectVoteState(fixedTrends);
       allTrends = injectVoteState(allTrends);
+
+      // Bundle 참여 상태 주입
+      const injectBundleParticipated = <T extends { id?: number; alias?: string }>(
+        items: T[]
+      ): T[] =>
+        items.map((item) => {
+          const ext = trendExtensions[item.alias ?? ''];
+          if (ext?.type !== 'BUNDLE') {
+            return item;
+          }
+          const trendId = String(item.id ?? '');
+          if (hasBundleVoted(tkuId, trendId)) {
+            return { ...item, participated: true };
+          }
+          return item;
+        });
+
+      fixedTrends = injectBundleParticipated(fixedTrends);
+      allTrends = injectBundleParticipated(allTrends);
     }
 
     // 카테고리 필터링 (멀티 카테고리 지원)
@@ -321,14 +342,25 @@ export const handlers = [
   /**
    * Result 생성
    * POST /api/v1/result
+   *
+   * x-tku-id 헤더로 Bundle 참여 기록 저장
    */
-  http.post(`${baseURL}/api/v1/result`, () =>
-    HttpResponse.json(
+  http.post(`${baseURL}/api/v1/result`, async ({ request }) => {
+    const tkuId = request.headers.get('x-tku-id') ?? '';
+    const body = (await request.json()) as { trendId: number; selectedItems: unknown[] };
+    const resultId = `result-${Date.now()}`;
+
+    // Bundle 참여 기록
+    if (tkuId && body.trendId) {
+      recordBundleVote(tkuId, String(body.trendId), resultId);
+    }
+
+    return HttpResponse.json(
       wrapResponse({
-        resultId: `result-${Date.now()}`,
+        resultId,
       })
-    )
-  ),
+    );
+  }),
 
   /**
    * Result 전시 조회

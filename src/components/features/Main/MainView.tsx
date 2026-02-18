@@ -287,6 +287,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           imageUrls={trend.imageUrls}
           deadline={item.deadline}
           status={item.status}
+          participated={item.participated}
           onShare={handleShare}
         />
       </div>
