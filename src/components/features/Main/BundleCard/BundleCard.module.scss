@@ -97,12 +97,26 @@
   min-width: 0;
 }
 
+.titleWithBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .title {
   font-size: $font-size-16;
   font-weight: $font-weight-bold;
   color: $white;
   line-height: 1.4;
   word-break: keep-all;
+}
+
+.titleBadges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .subtitle {

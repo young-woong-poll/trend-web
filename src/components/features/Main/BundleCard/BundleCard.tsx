@@ -100,7 +100,7 @@ export const BundleCard: FC<BundleCardProps> = ({
           </button>
         </div>
 
-        {/* 제목: 로고 이미지 + 텍스트 */}
+        {/* 제목: 로고 이미지 + 텍스트 + 배지 */}
         <div className={styles.titleRow}>
           {thumbnailUrl && (
             <Image
@@ -112,7 +112,17 @@ export const BundleCard: FC<BundleCardProps> = ({
             />
           )}
           <div className={styles.titleGroup}>
-            <h3 className={styles.title}>{title}</h3>
+            <div className={styles.titleWithBadges}>
+              <h3 className={styles.title}>{title}</h3>
+              <div className={styles.titleBadges}>
+                <span className={styles.bundleBadge}>
+                  {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+                </span>
+                {isNew && !isClosed && !participated && (
+                  <span className={styles.newBadge}>NEW</span>
+                )}
+              </div>
+            </div>
             {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           </div>
         </div>
@@ -140,7 +150,7 @@ export const BundleCard: FC<BundleCardProps> = ({
           )}
         </button>
 
-        {/* 메타: 참여자 · 데드라인 · 번들배지 · NEW */}
+        {/* 메타: 참여자 · 데드라인 · 참여완료 */}
         <div className={styles.metaRow}>
           <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
           {deadline && (
@@ -149,16 +159,14 @@ export const BundleCard: FC<BundleCardProps> = ({
               <DeadlineBadge deadline={deadline} compact />
             </>
           )}
-          <span className={styles.dot} />
-          <span className={styles.bundleBadge}>
-            {electionCount ? `${electionCount}개 투표` : '투표 모음'}
-          </span>
           {participated && (
-            <span className={styles.participatedBadge}>
-              <CheckIcon width={10} height={10} /> 참여 완료
-            </span>
+            <>
+              <span className={styles.dot} />
+              <span className={styles.participatedBadge}>
+                <CheckIcon width={10} height={10} /> 참여 완료
+              </span>
+            </>
           )}
-          {isNew && !isClosed && !participated && <span className={styles.newBadge}>NEW</span>}
         </div>
       </div>
     </div>
