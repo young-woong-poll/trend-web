@@ -102,6 +102,16 @@ export const AdminHotpickForm = ({
 
     // BUNDLE 타입 검증
     if (data.type === 'BUNDLE') {
+      if (!data.title.trim()) {
+        showAlert('제목을 입력해주세요.');
+        return;
+      }
+
+      if (!data.label.trim()) {
+        showAlert('부제를 입력해주세요.');
+        return;
+      }
+
       const validImages = imageUrls.filter(Boolean);
       if (validImages.length < 1) {
         showAlert('BUNDLE 타입은 커버 이미지를 1장 이상 등록해주세요.');
@@ -124,8 +134,8 @@ export const AdminHotpickForm = ({
 
     const request: UpdateHotpickRequest = {
       alias: data.alias.trim(),
-      title: data.title,
-      label: data.label,
+      title: data.type === 'SINGLE' ? '' : data.title,
+      label: data.type === 'SINGLE' ? '' : data.label,
       type: data.type,
       imageUrls: data.type === 'BUNDLE' ? imageUrls.filter(Boolean) : [],
       electionIds: electionIdList,

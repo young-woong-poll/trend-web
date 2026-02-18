@@ -61,16 +61,29 @@ export const AdminElectionForm = ({ mode = 'create', election }: AdminElectionFo
   // Edit 모드에서 초기 데이터 로드
   useEffect(() => {
     if (mode === 'edit' && election) {
-      reset({
-        title: election.title,
-        voteType: election.voteType,
-        mainImageUrl: election.mainImageUrl || '',
-        options: election.options.map((opt) => ({
-          title: opt.title,
-          imageUrl: opt.imageUrl || '',
-          order: opt.order,
-        })),
-      });
+      if (election.voteType === 'IMAGE') {
+        reset({
+          title: election.title,
+          voteType: 'IMAGE',
+          mainImageUrl: '',
+          options: election.options.map((opt) => ({
+            title: opt.title,
+            imageUrl: opt.imageUrl,
+            order: opt.order,
+          })),
+        });
+      } else {
+        reset({
+          title: election.title,
+          voteType: 'TEXT',
+          mainImageUrl: election.mainImageUrl,
+          options: election.options.map((opt) => ({
+            title: opt.title,
+            imageUrl: '',
+            order: opt.order,
+          })),
+        });
+      }
     }
   }, [mode, election, reset]);
 
@@ -135,16 +148,26 @@ export const AdminElectionForm = ({ mode = 'create', election }: AdminElectionFo
       return;
     }
 
-    const request = {
-      title: data.title.trim(),
-      voteType: data.voteType,
-      mainImageUrl: data.voteType === 'TEXT' ? data.mainImageUrl : undefined,
-      options: data.options.map((opt, index) => ({
-        title: opt.title.trim(),
-        imageUrl: data.voteType === 'IMAGE' ? opt.imageUrl : undefined,
-        order: index,
-      })),
-    };
+    const request =
+      data.voteType === 'IMAGE'
+        ? {
+            title: data.title.trim(),
+            voteType: 'IMAGE' as const,
+            options: data.options.map((opt, index) => ({
+              title: opt.title.trim(),
+              imageUrl: opt.imageUrl,
+              order: index,
+            })),
+          }
+        : {
+            title: data.title.trim(),
+            voteType: 'TEXT' as const,
+            mainImageUrl: data.mainImageUrl,
+            options: data.options.map((opt, index) => ({
+              title: opt.title.trim(),
+              order: index,
+            })),
+          };
 
     try {
       if (mode === 'edit' && election) {

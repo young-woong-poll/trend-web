@@ -5,6 +5,7 @@ import { useState, type FC } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
@@ -22,6 +23,7 @@ interface BundleCardProps {
   imageUrls?: string[];
   deadline?: string;
   status?: string;
+  participated?: boolean;
   onShare?: (alias: string) => void;
 }
 
@@ -43,6 +45,7 @@ export const BundleCard: FC<BundleCardProps> = ({
   imageUrls,
   deadline,
   status,
+  participated = false,
   onShare,
 }) => {
   const [isNavigating, setIsNavigating] = useState(false);
@@ -97,27 +100,37 @@ export const BundleCard: FC<BundleCardProps> = ({
           </button>
         </div>
 
-        {/* 썸네일 이미지 */}
-        {thumbnailUrl && (
-          <div className={styles.thumbnail}>
+        {/* 제목: 로고 이미지 + 텍스트 + 배지 */}
+        <div className={styles.titleRow}>
+          {thumbnailUrl && (
             <Image
               src={thumbnailUrl}
               alt={title}
-              fill
-              sizes="(max-width: 480px) 100vw, 600px"
-              style={{ objectFit: 'cover' }}
+              width={40}
+              height={40}
+              className={styles.titleLogo}
             />
+          )}
+          <div className={styles.titleGroup}>
+            <div className={styles.titleWithBadges}>
+              <h3 className={styles.title}>{title}</h3>
+              <div className={styles.titleBadges}>
+                <span className={styles.bundleBadge}>
+                  {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+                </span>
+                {isNew && !isClosed && !participated && (
+                  <span className={styles.newBadge}>NEW</span>
+                )}
+              </div>
+            </div>
+            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           </div>
-        )}
-
-        {/* 제목 + 부제 */}
-        <h3 className={styles.title}>{title}</h3>
-        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+        </div>
 
         {/* CTA 버튼 */}
         <button
           type="button"
-          className={styles.ctaButton}
+          className={`${styles.ctaButton} ${participated ? styles.participated : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             handleClick();
@@ -126,6 +139,10 @@ export const BundleCard: FC<BundleCardProps> = ({
         >
           {isNavigating ? (
             <span className={styles.loading}>...</span>
+          ) : participated ? (
+            <>
+              결과 보기 <StartArrowIcon width={16} height={16} />
+            </>
           ) : (
             <>
               시작하기 <StartArrowIcon width={16} height={16} />
@@ -133,7 +150,7 @@ export const BundleCard: FC<BundleCardProps> = ({
           )}
         </button>
 
-        {/* 메타: 참여자 · 데드라인 · 번들배지 · NEW */}
+        {/* 메타: 참여자 · 데드라인 · 참여완료 */}
         <div className={styles.metaRow}>
           <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
           {deadline && (
@@ -142,11 +159,14 @@ export const BundleCard: FC<BundleCardProps> = ({
               <DeadlineBadge deadline={deadline} compact />
             </>
           )}
-          <span className={styles.dot} />
-          <span className={styles.bundleBadge}>
-            {electionCount ? `${electionCount}개 투표` : '투표 모음'}
-          </span>
-          {isNew && !isClosed && <span className={styles.newBadge}>NEW</span>}
+          {participated && (
+            <>
+              <span className={styles.dot} />
+              <span className={styles.participatedBadge}>
+                <CheckIcon width={10} height={10} /> 참여 완료
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>

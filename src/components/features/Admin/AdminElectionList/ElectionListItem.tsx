@@ -36,18 +36,9 @@ export default function ElectionListItem({ election, onEdit }: ElectionListItemP
         <span className={styles.optionCount}>{election.options.length}개</span>
       </td>
 
-      {/* 상태 */}
-      <td>
-        <span
-          className={`${styles.badge} ${election.status === 'OPEN' ? styles.open : styles.closed}`}
-        >
-          {election.status}
-        </span>
-      </td>
-
       {/* 연결된 핫픽 */}
       <td>
-        <span className={styles.linkedCount}>{election.linkedHotpickCount ?? 0}</span>
+        <span className={styles.linkedCount}>{election.linkedHotpicks?.length ?? 0}</span>
       </td>
 
       {/* 생성일 */}

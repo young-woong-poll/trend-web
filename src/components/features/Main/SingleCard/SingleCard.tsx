@@ -2,8 +2,12 @@
 
 import type { FC } from 'react';
 
+import Image from 'next/image';
+
 import { AnimatePresence, motion } from 'framer-motion';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
+import CommentIcon from '@/assets/icon/CommentIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
@@ -12,7 +16,9 @@ import {
   barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
-import { calcPercentage, type SingleVoteData } from '@/types/singleVote';
+import { useCommentCount } from '@/hooks/api/useComment';
+import type { VoteType } from '@/types/election';
+import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
 
 interface SingleCardProps {
   id: number | string;
@@ -24,8 +30,11 @@ interface SingleCardProps {
   status?: string;
   singleVote: SingleVoteData;
   isHighlighted?: boolean;
+  voteType?: VoteType;
+  mainImageUrl?: string;
   onVote: (hotpickId: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
+  onComment: (hotpickId: string, electionId: string) => void;
 }
 
 const formatCount = (count: number): string => {
@@ -45,20 +54,22 @@ export const SingleCard: FC<SingleCardProps> = ({
   status,
   singleVote,
   isHighlighted,
+  voteType,
+  mainImageUrl,
   onVote,
   onShare,
+  onComment,
 }) => {
   const isClosed = status === 'CLOSED';
-  const { voted, myChoice, optionA, optionB, totalVotes } = singleVote;
+  const { voted, myChoiceId, options, totalVotes } = singleVote;
+
+  const hotpickId = String(id);
+  const { data: commentCountData } = useCommentCount(Number(id), singleVote.electionId);
 
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
-  const percentA =
-    showResult && optionA.voteCount !== null ? calcPercentage(optionA.voteCount, total) : 0;
-  const percentB =
-    showResult && optionB.voteCount !== null ? calcPercentage(optionB.voteCount, total) : 0;
-
-  const hotpickId = String(id);
+  const isImageType = voteType === 'IMAGE';
+  const commentCount = commentCountData?.count;
 
   const handleOptionClick = (optionId: string) => {
     if (isClosed || voted) {
@@ -66,6 +77,12 @@ export const SingleCard: FC<SingleCardProps> = ({
     }
     onVote(hotpickId, optionId, singleVote);
   };
+
+  // TEXT 타입만 질문 옆 로고 표시, IMAGE 타입은 옵션 이미지로 대체
+  const logoUrl = !isImageType ? mainImageUrl : undefined;
+
+  // 2개 옵션: 2열 그리드, 3~4개: 세로 배치
+  const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   return (
     <div className={`${styles.card} ${isHighlighted ? styles.highlighted : ''}`}>
@@ -80,7 +97,7 @@ export const SingleCard: FC<SingleCardProps> = ({
         </div>
         <button
           type="button"
-          className={styles.shareButton}
+          className={styles.iconButton}
           onClick={(e) => {
             e.stopPropagation();
             onShare?.(alias);
@@ -91,40 +108,47 @@ export const SingleCard: FC<SingleCardProps> = ({
         </button>
       </div>
 
-      {/* 질문 텍스트 */}
-      <h3 className={styles.question}>{title}</h3>
+      {/* 질문: 로고 이미지 + 텍스트 */}
+      <div className={styles.questionRow}>
+        {logoUrl && (
+          <Image src={logoUrl} alt={title} width={40} height={40} className={styles.questionLogo} />
+        )}
+        <h3 className={styles.question}>{title}</h3>
+      </div>
 
       {/* 투표 영역 */}
       <div className={styles.voteArea}>
         <AnimatePresence mode="wait">
           {!showResult ? (
-            /* 투표 전: A/B 선택 버튼 */
+            /* 투표 전: 옵션 버튼 */
             <motion.div
               key="buttons"
-              className={styles.buttonGroup}
+              className={buttonGroupClass}
               initial={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
-              <motion.button
-                className={styles.optionButton}
-                onClick={() => handleOptionClick(optionA.id)}
-                variants={buttonTapVariants}
-                whileTap="tap"
-                disabled={isClosed}
-              >
-                <span className={styles.optionLabel}>A</span>
-                <span className={styles.optionText}>{optionA.text}</span>
-              </motion.button>
-              <motion.button
-                className={styles.optionButton}
-                onClick={() => handleOptionClick(optionB.id)}
-                variants={buttonTapVariants}
-                whileTap="tap"
-                disabled={isClosed}
-              >
-                <span className={styles.optionLabel}>B</span>
-                <span className={styles.optionText}>{optionB.text}</span>
-              </motion.button>
+              {options.map((option, i) => (
+                <motion.button
+                  key={option.id}
+                  className={styles.optionButton}
+                  onClick={() => handleOptionClick(option.id)}
+                  variants={buttonTapVariants}
+                  whileTap="tap"
+                  disabled={isClosed}
+                >
+                  {isImageType && option.imageUrl && (
+                    <Image
+                      src={option.imageUrl}
+                      alt={option.text}
+                      width={24}
+                      height={24}
+                      className={styles.optionImage}
+                    />
+                  )}
+                  <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
+                  <span className={styles.optionText}>{option.text}</span>
+                </motion.button>
+              ))}
             </motion.div>
           ) : (
             /* 투표 후: 결과 바 */
@@ -134,88 +158,90 @@ export const SingleCard: FC<SingleCardProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.1 } }}
             >
-              {/* Option A 바 */}
-              <div className={`${styles.resultBar} ${myChoice === 'A' ? styles.myChoice : ''}`}>
-                <motion.div
-                  className={styles.barFill}
-                  variants={barFillVariants}
-                  initial="initial"
-                  animate="animate"
-                  custom={percentA}
-                />
-                <div className={styles.barContent}>
-                  <motion.span
-                    className={styles.barText}
-                    variants={fadeInVariants}
-                    initial="initial"
-                    animate="animate"
-                  >
-                    <span className={styles.barLabel}>A</span> {optionA.text}
-                  </motion.span>
-                  <motion.span
-                    className={styles.barPercent}
-                    variants={fadeInVariants}
-                    initial="initial"
-                    animate="animate"
-                  >
-                    {percentA}%
-                  </motion.span>
-                </div>
-              </div>
+              {options.map((option, i) => {
+                const isSelected = myChoiceId === option.id;
+                const percentage =
+                  showResult && option.voteCount !== null
+                    ? calcPercentage(option.voteCount, total)
+                    : 0;
 
-              {/* Option B 바 */}
-              <div className={`${styles.resultBar} ${myChoice === 'B' ? styles.myChoice : ''}`}>
-                <motion.div
-                  className={styles.barFill}
-                  variants={barFillVariants}
-                  initial="initial"
-                  animate="animate"
-                  custom={percentB}
-                />
-                <div className={styles.barContent}>
-                  <motion.span
-                    className={styles.barText}
-                    variants={fadeInVariants}
-                    initial="initial"
-                    animate="animate"
+                return (
+                  <div
+                    key={option.id}
+                    className={`${styles.resultBar} ${isSelected ? styles.myChoice : ''}`}
                   >
-                    <span className={styles.barLabel}>B</span> {optionB.text}
-                  </motion.span>
-                  <motion.span
-                    className={styles.barPercent}
-                    variants={fadeInVariants}
-                    initial="initial"
-                    animate="animate"
-                  >
-                    {percentB}%
-                  </motion.span>
-                </div>
-              </div>
-
-              {/* 투표 완료 텍스트 */}
-              <motion.div
-                className={styles.votedFooter}
-                variants={fadeInVariants}
-                initial="initial"
-                animate="animate"
-              >
-                <span className={styles.votedText}>투표 완료</span>
-                <span className={styles.totalVotes}>{formatCount(total)}명 참여</span>
-              </motion.div>
+                    <motion.div
+                      className={styles.barFill}
+                      variants={barFillVariants}
+                      initial="initial"
+                      animate="animate"
+                      custom={percentage}
+                    />
+                    <div className={styles.barContent}>
+                      {isImageType && option.imageUrl && (
+                        <Image
+                          src={option.imageUrl}
+                          alt={option.text}
+                          width={24}
+                          height={24}
+                          className={styles.barImage}
+                        />
+                      )}
+                      <motion.span
+                        className={styles.barText}
+                        variants={fadeInVariants}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        {isSelected && (
+                          <span className={styles.votedBadge}>
+                            <CheckIcon width={12} height={12} />
+                          </span>
+                        )}
+                        <span className={styles.barLabel}>{OPTION_LABELS[i]}</span> {option.text}
+                      </motion.span>
+                      <motion.span
+                        className={styles.barPercent}
+                        variants={fadeInVariants}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        {percentage}%
+                      </motion.span>
+                    </div>
+                  </div>
+                );
+              })}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* 메타: 참여자 · 데드라인 */}
-      <div className={styles.metaRow}>
-        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-        {deadline && (
-          <>
-            <span className={styles.dot} />
-            <DeadlineBadge deadline={deadline} compact />
-          </>
-        )}
+      {/* 하단: 메타 + 액션 버튼 */}
+      <div className={styles.bottomRow}>
+        <div className={styles.metaRow}>
+          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+          {deadline && (
+            <>
+              <span className={styles.dot} />
+              <DeadlineBadge deadline={deadline} compact />
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          className={styles.iconButtonWithCount}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComment(hotpickId, singleVote.electionId);
+          }}
+          aria-label="댓글"
+        >
+          <CommentIcon />
+          <span className={styles.iconCount}>
+            {commentCount !== undefined ? formatCount(commentCount) : ''}
+          </span>
+        </button>
       </div>
     </div>
   );

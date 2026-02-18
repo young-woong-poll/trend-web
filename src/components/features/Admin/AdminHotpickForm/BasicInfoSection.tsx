@@ -154,31 +154,36 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
         )}
       </div>
 
-      <div className={styles.field}>
-        <label htmlFor="title" className={styles.label}>
-          제목 <span className={styles.required}>*</span>
-        </label>
-        <input
-          id="title"
-          type="text"
-          {...register('title', { required: true })}
-          className={styles.input}
-          placeholder="2025 핫픽"
-        />
-      </div>
+      {/* 제목 & 부제 - BUNDLE 타입만 */}
+      {hotpickType === 'BUNDLE' && (
+        <>
+          <div className={styles.field}>
+            <label htmlFor="title" className={styles.label}>
+              제목 <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="title"
+              type="text"
+              {...register('title', { required: hotpickType === 'BUNDLE' })}
+              className={styles.input}
+              placeholder="2025 핫픽"
+            />
+          </div>
 
-      <div className={styles.field}>
-        <label htmlFor="label" className={styles.label}>
-          부제 <span className={styles.required}>*</span>
-        </label>
-        <input
-          id="label"
-          type="text"
-          {...register('label', { required: true })}
-          className={styles.input}
-          placeholder="HOTPICK2025"
-        />
-      </div>
+          <div className={styles.field}>
+            <label htmlFor="label" className={styles.label}>
+              부제 <span className={styles.required}>*</span>
+            </label>
+            <input
+              id="label"
+              type="text"
+              {...register('label', { required: hotpickType === 'BUNDLE' })}
+              className={styles.input}
+              placeholder="HOTPICK2025"
+            />
+          </div>
+        </>
+      )}
 
       {/* 카테고리 (다중 선택) */}
       <div className={styles.field}>

@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 
 import { useQueries, useQuery } from '@tanstack/react-query';
 
+import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
-import { VoteBottomButtons } from '@/components/features/Hotpick/VoteBottomButtons';
 import { VoteCard } from '@/components/features/Hotpick/VoteCard';
 import { VoteHeader } from '@/components/features/Hotpick/VoteHeader';
 import styles from '@/components/features/Hotpick/VoteView.module.scss';
@@ -163,21 +163,38 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
                       handleOptionSelect={handleOptionSelect}
                       voteType={extElection.voteType}
                       mainImageUrl={extElection.mainImageUrl}
-                    />
-
-                    <VoteBottomButtons
                       commentCount={commentCountMap[electionId]}
                       commentDisabled={selectedOptionId === null}
-                      nextDisabled={selectedOptionId === null}
-                      isSubmitting={isSubmitting}
                       onCommentClick={() => handleOpenCommentModal(electionId)}
-                      onNextClick={handleNext}
                     />
                   </div>
                 );
               })}
           </div>
         </div>
+      </div>
+
+      {/* 하단 고정 다음 버튼 */}
+      <div className={styles.fixedBottom}>
+        <button
+          type="button"
+          className={styles.nextButton}
+          onClick={handleNext}
+          disabled={!selectedElectionMap[elections[currentElectionIndex]?.id ?? ''] || isSubmitting}
+        >
+          {isSubmitting ? (
+            <div className={styles.loadingDots}>
+              <span className={styles.dot} />
+              <span className={styles.dot} />
+              <span className={styles.dot} />
+            </div>
+          ) : (
+            <>
+              다음
+              <StartArrowIcon />
+            </>
+          )}
+        </button>
       </div>
 
       {/* 댓글 바텀시트 */}

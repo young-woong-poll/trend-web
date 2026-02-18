@@ -76,32 +76,54 @@
   line-height: 1.4;
 }
 
-// ── 썸네일 이미지 ──
-.thumbnail {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: $border-radius-md;
-  overflow: hidden;
+// ── 제목: 로고 + 텍스트 ──
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 12px;
-  background: $bg-tertiary;
 }
 
-// ── 제목/부제 ──
+.titleLogo {
+  width: 40px;
+  height: 40px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.titleGroup {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleWithBadges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .title {
   font-size: $font-size-16;
   font-weight: $font-weight-bold;
   color: $white;
   line-height: 1.4;
-  margin-bottom: 4px;
   word-break: keep-all;
+}
+
+.titleBadges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .subtitle {
   font-size: $font-size-14;
   color: $text-secondary;
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-top: 2px;
 }
 
 // ── 메타: 참여자 · 데드라인 · 배지 · NEW ──
@@ -217,8 +239,30 @@
       transform: none;
     }
   }
+
+  &.participated {
+    background: transparent;
+    border: 1.5px solid $text-tertiary;
+    color: $text-secondary;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 }
 
 .loading {
   letter-spacing: 2px;
+}
+
+.participatedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+  background: rgba($white, 0.1);
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
 }

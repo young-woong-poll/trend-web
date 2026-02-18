@@ -15,35 +15,70 @@
 
 export type VoteType = 'IMAGE' | 'TEXT';
 
-export type ElectionStatus = 'OPEN' | 'CLOSED';
+// ── 연결된 핫픽 정보 ──
 
-export interface ElectionOption {
+export interface LinkedHotpick {
+  id: number;
+  alias: string;
+}
+
+// ── 옵션 (Discriminated by Election voteType) ──
+
+export interface ElectionOptionBase {
   id: string;
   title: string;
-  imageUrl?: string; // IMAGE 유형일 때 필수, TEXT 유형일 때 불필요
   order: number; // 옵션 순서 (0부터)
 }
 
-export interface Election {
+export interface ImageElectionOption extends ElectionOptionBase {
+  imageUrl: string; // IMAGE 유형에서는 필수
+}
+
+export type TextElectionOption = ElectionOptionBase; // TEXT 유형에서는 imageUrl 없음
+
+// ── Election (Discriminated Union) ──
+
+interface ElectionBase {
   id: string;
   title: string;
-  voteType: VoteType;
-  mainImageUrl?: string; // TEXT 유형일 때 메인 이미지
-  options: ElectionOption[];
-  status: ElectionStatus;
-  linkedHotpickCount?: number; // Admin 목록/상세에서 사용
+  linkedHotpicks?: LinkedHotpick[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateElectionRequest {
-  title: string;
-  voteType: VoteType;
-  mainImageUrl?: string;
-  options: Omit<ElectionOption, 'id'>[];
+export interface ImageElection extends ElectionBase {
+  voteType: 'IMAGE';
+  options: ImageElectionOption[];
 }
 
+export interface TextElection extends ElectionBase {
+  voteType: 'TEXT';
+  mainImageUrl: string; // TEXT 유형에서는 필수
+  options: TextElectionOption[];
+}
+
+export type Election = ImageElection | TextElection;
+
+// ── Request (Discriminated Union) ──
+
+export interface CreateImageElectionRequest {
+  title: string;
+  voteType: 'IMAGE';
+  options: Omit<ImageElectionOption, 'id'>[];
+}
+
+export interface CreateTextElectionRequest {
+  title: string;
+  voteType: 'TEXT';
+  mainImageUrl: string;
+  options: Omit<TextElectionOption, 'id'>[];
+}
+
+export type CreateElectionRequest = CreateImageElectionRequest | CreateTextElectionRequest;
+
 export type UpdateElectionRequest = CreateElectionRequest;
+
+// ── List 관련 ──
 
 export interface ElectionListResponse {
   content: Election[];
@@ -56,7 +91,6 @@ export interface ElectionListResponse {
 export interface ElectionListParams {
   keyword?: string;
   voteType?: VoteType;
-  status?: ElectionStatus;
   page?: number;
   size?: number;
 }
@@ -66,7 +100,7 @@ export interface ElectionListParams {
 // ──────────────────────────────────────────────────────────
 
 /**
- * @deprecated console 선거 후보자. ElectionOption을 사용하세요.
+ * @deprecated console 선거 후보자. ImageElectionOption 또는 TextElectionOption을 사용하세요.
  */
 export interface Option {
   id: number;

@@ -23,8 +23,11 @@ import {
   recordVote,
   getVote,
   hasVoted,
-  singleVoteCounts,
   incrementVoteCount,
+  getOptionCounts,
+  getTotalVotes,
+  recordBundleVote,
+  hasBundleVoted,
 } from '@/mocks/data/singleVotes';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
@@ -93,19 +96,21 @@ export const handlers = [
 
           const hotpickId = String(item.id ?? '');
           const vote = getVote(tkuId, hotpickId);
-          const counts = singleVoteCounts[hotpickId];
 
-          if (vote && counts) {
-            const isOptionA = vote.optionId === svData.optionA.id;
+          if (vote) {
+            const optionCounts = getOptionCounts(hotpickId);
+            const total = getTotalVotes(hotpickId);
             return {
               ...item,
               singleVote: {
                 ...svData,
-                optionA: { ...svData.optionA, voteCount: counts.optionACount },
-                optionB: { ...svData.optionB, voteCount: counts.optionBCount },
+                options: svData.options.map((opt) => {
+                  const sc = optionCounts.find((c) => c.id === opt.id);
+                  return { ...opt, voteCount: sc?.count ?? opt.voteCount };
+                }),
                 voted: true,
-                myChoice: isOptionA ? 'A' : 'B',
-                totalVotes: counts.optionACount + counts.optionBCount,
+                myChoiceId: vote.optionId,
+                totalVotes: total,
               },
             };
           }
@@ -115,6 +120,25 @@ export const handlers = [
 
       fixedTrends = injectVoteState(fixedTrends);
       allTrends = injectVoteState(allTrends);
+
+      // Bundle 참여 상태 주입
+      const injectBundleParticipated = <T extends { id?: number; alias?: string }>(
+        items: T[]
+      ): T[] =>
+        items.map((item) => {
+          const ext = trendExtensions[item.alias ?? ''];
+          if (ext?.type !== 'BUNDLE') {
+            return item;
+          }
+          const trendId = String(item.id ?? '');
+          if (hasBundleVoted(tkuId, trendId)) {
+            return { ...item, participated: true };
+          }
+          return item;
+        });
+
+      fixedTrends = injectBundleParticipated(fixedTrends);
+      allTrends = injectBundleParticipated(allTrends);
     }
 
     // 카테고리 필터링 (멀티 카테고리 지원)
@@ -217,7 +241,7 @@ export const handlers = [
    *
    * Headers: x-tku-id (필수)
    * Body: { optionId: string }
-   * 성공: 200 + { voteCountA, voteCountB, totalVotes }
+   * 성공: 200 + { myChoiceId, optionCounts, totalVotes }
    * 중복: 409 + 현재 결과
    */
   http.post(`${baseURL}/api/v1/single/:hotpickId/vote`, async ({ request, params }) => {
@@ -233,9 +257,9 @@ export const handlers = [
     const body = (await request.json()) as { optionId: string };
     const { optionId } = body;
 
-    // 해당 핫픽의 singleVote 데이터 찾기 (alias → id 매핑)
-    const aliasEntry = Object.entries(singleVoteDataMap).find(
-      ([, sv]) => sv.optionA.id === optionId || sv.optionB.id === optionId
+    // 해당 핫픽의 singleVote 데이터 찾기 (옵션 ID로 매핑)
+    const aliasEntry = Object.entries(singleVoteDataMap).find(([, sv]) =>
+      sv.options.some((opt) => opt.id === optionId)
     );
 
     if (!aliasEntry) {
@@ -245,29 +269,18 @@ export const handlers = [
       );
     }
 
-    const [, svData] = aliasEntry;
-    const counts = singleVoteCounts[hotpickId];
-    if (!counts) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '핫픽을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-
     // 중복 투표 체크
     if (hasVoted(tkuId, hotpickId)) {
       const voteRecord = getVote(tkuId, hotpickId);
-      const isOptionA = voteRecord?.optionId === svData.optionA.id;
       return HttpResponse.json(
         {
           code: 'ALREADY_VOTED',
           message: '이미 투표했습니다.',
           data: {
             voted: true,
-            myChoice: isOptionA ? 'A' : 'B',
-            voteCountA: counts.optionACount,
-            voteCountB: counts.optionBCount,
-            totalVotes: counts.optionACount + counts.optionBCount,
+            myChoiceId: voteRecord?.optionId ?? optionId,
+            optionCounts: getOptionCounts(hotpickId),
+            totalVotes: getTotalVotes(hotpickId),
           },
         },
         { status: 409 }
@@ -276,17 +289,14 @@ export const handlers = [
 
     // 투표 기록 + 카운트 증가
     recordVote(tkuId, hotpickId, optionId);
-    incrementVoteCount(hotpickId, optionId, svData.optionA.id);
-
-    const isOptionA = optionId === svData.optionA.id;
+    incrementVoteCount(hotpickId, optionId);
 
     return HttpResponse.json(
       wrapResponse({
         voted: true,
-        myChoice: isOptionA ? 'A' : 'B',
-        voteCountA: counts.optionACount,
-        voteCountB: counts.optionBCount,
-        totalVotes: counts.optionACount + counts.optionBCount,
+        myChoiceId: optionId,
+        optionCounts: getOptionCounts(hotpickId),
+        totalVotes: getTotalVotes(hotpickId),
       })
     );
   }),
@@ -332,14 +342,25 @@ export const handlers = [
   /**
    * Result 생성
    * POST /api/v1/result
+   *
+   * x-tku-id 헤더로 Bundle 참여 기록 저장
    */
-  http.post(`${baseURL}/api/v1/result`, () =>
-    HttpResponse.json(
+  http.post(`${baseURL}/api/v1/result`, async ({ request }) => {
+    const tkuId = request.headers.get('x-tku-id') ?? '';
+    const body = (await request.json()) as { trendId: number; selectedItems: unknown[] };
+    const resultId = `result-${Date.now()}`;
+
+    // Bundle 참여 기록
+    if (tkuId && body.trendId) {
+      recordBundleVote(tkuId, String(body.trendId), resultId);
+    }
+
+    return HttpResponse.json(
       wrapResponse({
-        resultId: `result-${Date.now()}`,
+        resultId,
       })
-    )
-  ),
+    );
+  }),
 
   /**
    * Result 전시 조회
@@ -376,7 +397,6 @@ export const handlers = [
     const params = {
       keyword: url.searchParams.get('keyword') ?? undefined,
       voteType: url.searchParams.get('voteType') ?? undefined,
-      status: url.searchParams.get('status') ?? undefined,
       page: url.searchParams.has('page') ? Number(url.searchParams.get('page')) : undefined,
       size: url.searchParams.has('size') ? Number(url.searchParams.get('size')) : undefined,
     };

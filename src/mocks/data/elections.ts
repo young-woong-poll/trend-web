@@ -1,4 +1,4 @@
-import type { Election, ElectionListResponse } from '@/types/election';
+import type { Election, ElectionListResponse, ImageElection, TextElection } from '@/types/election';
 
 /**
  * Admin Election CRUD Mock 데이터
@@ -7,7 +7,6 @@ import type { Election, ElectionListResponse } from '@/types/election';
  * - IMAGE 투표 (2개 옵션)
  * - TEXT 투표 (4개 옵션)
  * - TEXT 투표 (2개 옵션)
- * - CLOSED 상태
  * - 핫픽 미연결 선거
  */
 
@@ -30,8 +29,7 @@ let mockElections: Election[] = [
         order: 1,
       },
     ],
-    status: 'OPEN',
-    linkedHotpickCount: 1,
+    linkedHotpicks: [{ id: 1, alias: 'love-dilemma' }],
     createdAt: '2026-02-10T10:00:00Z',
     updatedAt: '2026-02-10T10:00:00Z',
   },
@@ -46,8 +44,7 @@ let mockElections: Election[] = [
       { id: 'elec-2-o3', title: '부동산 투자', order: 2 },
       { id: 'elec-2-o4', title: '비트코인 올인', order: 3 },
     ],
-    status: 'OPEN',
-    linkedHotpickCount: 1,
+    linkedHotpicks: [{ id: 2, alias: 'finance-talk' }],
     createdAt: '2026-02-11T14:00:00Z',
     updatedAt: '2026-02-11T14:00:00Z',
   },
@@ -69,8 +66,7 @@ let mockElections: Election[] = [
         order: 1,
       },
     ],
-    status: 'OPEN',
-    linkedHotpickCount: 1,
+    linkedHotpicks: [{ id: 1, alias: 'love-dilemma' }],
     createdAt: '2026-02-10T11:00:00Z',
     updatedAt: '2026-02-10T11:00:00Z',
   },
@@ -92,8 +88,7 @@ let mockElections: Election[] = [
         order: 1,
       },
     ],
-    status: 'CLOSED',
-    linkedHotpickCount: 1,
+    linkedHotpicks: [{ id: 3, alias: 'work-life' }],
     createdAt: '2026-02-05T09:00:00Z',
     updatedAt: '2026-02-07T09:00:00Z',
   },
@@ -106,8 +101,7 @@ let mockElections: Election[] = [
       { id: 'elec-5-o1', title: 'IRP 연금저축', order: 0 },
       { id: 'elec-5-o2', title: 'ETF 분산투자', order: 1 },
     ],
-    status: 'OPEN',
-    linkedHotpickCount: 0,
+    linkedHotpicks: [],
     createdAt: '2026-02-12T16:00:00Z',
     updatedAt: '2026-02-12T16:00:00Z',
   },
@@ -129,8 +123,7 @@ let mockElections: Election[] = [
         order: 1,
       },
     ],
-    status: 'OPEN',
-    linkedHotpickCount: 1,
+    linkedHotpicks: [{ id: 1, alias: 'love-dilemma' }],
     createdAt: '2026-02-13T08:00:00Z',
     updatedAt: '2026-02-13T08:00:00Z',
   },
@@ -142,7 +135,6 @@ let nextId = 7;
 export const getMockElectionList = (params?: {
   keyword?: string;
   voteType?: string;
-  status?: string;
   page?: number;
   size?: number;
 }): ElectionListResponse => {
@@ -154,9 +146,6 @@ export const getMockElectionList = (params?: {
   }
   if (params?.voteType) {
     filtered = filtered.filter((e) => e.voteType === params.voteType);
-  }
-  if (params?.status) {
-    filtered = filtered.filter((e) => e.status === params.status);
   }
 
   const page = params?.page ?? 0;
@@ -185,21 +174,40 @@ export const createMockElection = (data: {
   options: { title: string; imageUrl?: string; order: number }[];
 }): Election => {
   const electionId = `elec-${nextId++}`;
-  const newElection: Election = {
+  const now = new Date().toISOString();
+
+  if (data.voteType === 'TEXT') {
+    const newElection: TextElection = {
+      id: electionId,
+      title: data.title,
+      voteType: 'TEXT',
+      mainImageUrl: data.mainImageUrl ?? '',
+      options: data.options.map((opt, i) => ({
+        id: `${electionId}-o${i + 1}`,
+        title: opt.title,
+        order: opt.order,
+      })),
+      linkedHotpicks: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    mockElections.unshift(newElection);
+    return newElection;
+  }
+
+  const newElection: ImageElection = {
     id: electionId,
     title: data.title,
-    voteType: data.voteType as 'IMAGE' | 'TEXT',
-    mainImageUrl: data.mainImageUrl,
+    voteType: 'IMAGE',
     options: data.options.map((opt, i) => ({
       id: `${electionId}-o${i + 1}`,
       title: opt.title,
-      imageUrl: opt.imageUrl,
+      imageUrl: opt.imageUrl ?? '',
       order: opt.order,
     })),
-    status: 'OPEN',
-    linkedHotpickCount: 0,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    linkedHotpicks: [],
+    createdAt: now,
+    updatedAt: now,
   };
   mockElections.unshift(newElection);
   return newElection;
@@ -220,18 +228,41 @@ export const updateMockElection = (
     return undefined;
   }
 
-  const updated: Election = {
-    ...mockElections[index],
+  const existing = mockElections[index];
+  const now = new Date().toISOString();
+
+  if (data.voteType === 'TEXT') {
+    const updated: TextElection = {
+      id: existing.id,
+      title: data.title,
+      voteType: 'TEXT',
+      mainImageUrl: data.mainImageUrl ?? '',
+      options: data.options.map((opt, i) => ({
+        id: `${id}-o${i + 1}`,
+        title: opt.title,
+        order: opt.order,
+      })),
+      linkedHotpicks: existing.linkedHotpicks,
+      createdAt: existing.createdAt,
+      updatedAt: now,
+    };
+    mockElections[index] = updated;
+    return updated;
+  }
+
+  const updated: ImageElection = {
+    id: existing.id,
     title: data.title,
-    voteType: data.voteType as 'IMAGE' | 'TEXT',
-    mainImageUrl: data.mainImageUrl,
+    voteType: 'IMAGE',
     options: data.options.map((opt, i) => ({
       id: `${id}-o${i + 1}`,
       title: opt.title,
-      imageUrl: opt.imageUrl,
+      imageUrl: opt.imageUrl ?? '',
       order: opt.order,
     })),
-    updatedAt: new Date().toISOString(),
+    linkedHotpicks: existing.linkedHotpicks,
+    createdAt: existing.createdAt,
+    updatedAt: now,
   };
   mockElections[index] = updated;
   return updated;
