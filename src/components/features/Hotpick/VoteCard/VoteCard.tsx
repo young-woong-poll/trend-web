@@ -92,25 +92,6 @@ export const VoteCard: FC<VoteCardProps> = ({
 
   return (
     <div className={styles.card}>
-      {/* 상단: 댓글 버튼 */}
-      <div className={styles.topRow}>
-        <div className={styles.spacer} />
-        <div className={styles.actionButtons}>
-          <button
-            type="button"
-            className={styles.iconButtonWithCount}
-            onClick={onCommentClick}
-            disabled={commentDisabled}
-            aria-label="댓글"
-          >
-            <CommentIcon />
-            <span className={styles.iconCount}>
-              {commentCount !== undefined ? formatCount(commentCount) : ''}
-            </span>
-          </button>
-        </div>
-      </div>
-
       {/* 질문: 로고 이미지 + 텍스트 */}
       <div className={styles.questionRow}>
         {logoUrl && (
@@ -223,6 +204,22 @@ export const VoteCard: FC<VoteCardProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* 하단: 댓글 버튼 */}
+      <div className={styles.bottomRow}>
+        <button
+          type="button"
+          className={styles.iconButtonWithCount}
+          onClick={onCommentClick}
+          disabled={commentDisabled}
+          aria-label="댓글"
+        >
+          <CommentIcon />
+          <span className={styles.iconCount}>
+            {commentCount !== undefined ? formatCount(commentCount) : ''}
+          </span>
+        </button>
       </div>
     </div>
   );

@@ -86,7 +86,7 @@ export const SingleCard: FC<SingleCardProps> = ({
 
   return (
     <div className={`${styles.card} ${isHighlighted ? styles.highlighted : ''}`}>
-      {/* 상단: 카테고리 + 액션 버튼 */}
+      {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>
           {categories.map((code) => (
@@ -95,33 +95,17 @@ export const SingleCard: FC<SingleCardProps> = ({
             </span>
           ))}
         </div>
-        <div className={styles.actionButtons}>
-          <button
-            type="button"
-            className={styles.iconButtonWithCount}
-            onClick={(e) => {
-              e.stopPropagation();
-              onComment(hotpickId, singleVote.electionId);
-            }}
-            aria-label="댓글"
-          >
-            <CommentIcon />
-            <span className={styles.iconCount}>
-              {commentCount !== undefined ? formatCount(commentCount) : ''}
-            </span>
-          </button>
-          <button
-            type="button"
-            className={styles.iconButton}
-            onClick={(e) => {
-              e.stopPropagation();
-              onShare?.(alias);
-            }}
-            aria-label="공유"
-          >
-            <ShareIcon />
-          </button>
-        </div>
+        <button
+          type="button"
+          className={styles.iconButton}
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare?.(alias);
+          }}
+          aria-label="공유"
+        >
+          <ShareIcon />
+        </button>
       </div>
 
       {/* 질문: 로고 이미지 + 텍스트 */}
@@ -233,15 +217,31 @@ export const SingleCard: FC<SingleCardProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* 메타: 참여자 · 데드라인 */}
-      <div className={styles.metaRow}>
-        <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-        {deadline && (
-          <>
-            <span className={styles.dot} />
-            <DeadlineBadge deadline={deadline} compact />
-          </>
-        )}
+      {/* 하단: 메타 + 액션 버튼 */}
+      <div className={styles.bottomRow}>
+        <div className={styles.metaRow}>
+          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
+          {deadline && (
+            <>
+              <span className={styles.dot} />
+              <DeadlineBadge deadline={deadline} compact />
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          className={styles.iconButtonWithCount}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComment(hotpickId, singleVote.electionId);
+          }}
+          aria-label="댓글"
+        >
+          <CommentIcon />
+          <span className={styles.iconCount}>
+            {commentCount !== undefined ? formatCount(commentCount) : ''}
+          </span>
+        </button>
       </div>
     </div>
   );

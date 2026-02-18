@@ -50,7 +50,6 @@
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
-  margin-left: 8px;
 }
 
 .iconButton {
@@ -137,12 +136,18 @@
   min-width: 0;
 }
 
-// ── 메타: 참여자 · 데드라인 ──
+// ── 하단: 메타 + 액션 버튼 ──
+.bottomRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
 .metaRow {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
 }
 
 .dot {
