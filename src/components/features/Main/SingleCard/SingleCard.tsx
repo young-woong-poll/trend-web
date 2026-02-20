@@ -29,7 +29,6 @@ interface SingleCardProps {
   deadline?: string;
   status?: string;
   singleVote: SingleVoteData;
-  isHighlighted?: boolean;
   voteType?: VoteType;
   mainImageUrl?: string;
   onVote: (hotpickId: string, optionId: string, singleVote: SingleVoteData) => void;
@@ -53,7 +52,6 @@ export const SingleCard: FC<SingleCardProps> = ({
   deadline,
   status,
   singleVote,
-  isHighlighted,
   voteType,
   mainImageUrl,
   onVote,
@@ -85,7 +83,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   return (
-    <div className={`${styles.card} ${isHighlighted ? styles.highlighted : ''}`}>
+    <div className={styles.card}>
       {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>

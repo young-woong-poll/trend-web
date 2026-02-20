@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
-
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
+import { SingleDetailContent } from '@/components/features/Hotpick/SingleDetailView/SingleDetailContent';
 import { HotpickContent } from '@/components/features/Hotpick/VoteContent';
 import { commentQueries } from '@/hooks/api/useComment';
 import { displayQueries } from '@/hooks/api/useDisplay';
@@ -29,14 +28,26 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
   try {
     const hotpickData = await queryClient.fetchQuery(hotpickQuery);
 
-    // SINGLE 타입은 메인 피드 해시 스크롤로 리다이렉트
     // type 필드는 BE API 확장 후 Orval 타입에 반영 예정
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((hotpickData as any)?.type === 'SINGLE') {
-      redirect(`/#${hotpickAlias}`);
+    const hotpickType = (hotpickData as any)?.type as string | undefined;
+
+    // SINGLE 타입: 단일 투표 상세페이지
+    if (hotpickType === 'SINGLE') {
+      const firstElection = hotpickData?.items?.[0];
+      if (hotpickData?.trendId && firstElection?.id) {
+        const countQuery = commentQueries.count(Number(hotpickData.trendId), firstElection.id);
+        await queryClient.prefetchQuery(countQuery);
+      }
+
+      return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <SingleDetailContent hotpickAlias={hotpickAlias} data={hotpickData ?? undefined} />
+        </HydrationBoundary>
+      );
     }
 
-    // 첫 번째 선거의 commentCount를 prefetch
+    // BUNDLE 타입: 5개 묶음 투표
     const firstElectionId = hotpickData?.items?.[0]?.id;
     if (hotpickData?.trendId && firstElectionId) {
       const countQuery = commentQueries.count(Number(hotpickData.trendId), firstElectionId);
@@ -54,6 +65,6 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
     // 서버에서 실패해도 클라이언트에서 재시도
   }
 
-  // 실패 시 빈 데이터로 렌더링 (클라이언트에서 재시도)
+  // 실패 시 BUNDLE로 폴백 렌더링 (클라이언트에서 재시도)
   return <HotpickContent hotpickAlias={hotpickAlias} />;
 }

@@ -20,7 +20,19 @@ export async function generateMetadata({ params }: HotpickPageProps): Promise<Me
       return COMMON_METADATA;
     }
 
-    const { title, label: description } = hotpickData;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const hotpickType = (hotpickData as any)?.type as string | undefined;
+    const { title } = hotpickData;
+
+    // SINGLE: 옵션 기반 description 생성
+    let description = hotpickData.label ?? '';
+    if (hotpickType === 'SINGLE') {
+      const options = hotpickData.items?.[0]?.options ?? [];
+      if (options.length >= 2) {
+        const optionTexts = options.map((o) => o.title).join(' vs ');
+        description = `${optionTexts} - 지금 바로 투표하세요!`;
+      }
+    }
 
     return {
       title,

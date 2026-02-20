@@ -11,7 +11,6 @@ import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCa
 import { useModal } from '@/contexts/ModalContext';
 import type { DisplayMainResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
-import { useHashAnchor } from '@/hooks/useHashAnchor';
 import type { CategoryCode } from '@/types/hotpick';
 import type { SingleVoteData } from '@/types/singleVote';
 
@@ -20,25 +19,18 @@ type TMainViewProps = {
   children?: ReactNode;
 };
 
-const HIGHLIGHT_DURATION = 1500;
-
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
-  const [highlightedAlias, setHighlightedAlias] = useState<string | null>(null);
   const [commentTarget, setCommentTarget] = useState<{
     hotpickId: string;
     electionId: string;
   } | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
-  const { anchor, clearAnchor } = useHashAnchor();
-  const scrolledRef = useRef(false);
-  const topObserverTarget = useRef<HTMLDivElement>(null);
-  const anchorRef = useRef(anchor);
 
   const handleShare = useCallback(
     (alias: string) => {
-      const url = `${window.location.origin}/#${alias}`;
+      const url = `${window.location.origin}/hotpick/${alias}`;
       void navigator.clipboard.writeText(url).then(() => {
         showToast('링크가 복사되었습니다');
       });
@@ -54,26 +46,20 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     setCommentTarget(null);
   }, []);
 
-  // anchor는 hook 내부에서 ref로 관리되어 queryKey에 포함되지 않음
-  const hasAnchor = !!anchorRef.current;
   const {
     data,
     isLoading,
     isError,
     isFetching,
     hasNextPage,
-    hasPreviousPage,
     fetchNextPage,
-    fetchPreviousPage,
     isFetchingNextPage,
-    isFetchingPreviousPage,
     error,
   } = useInfiniteMainDisplay({
     size: 20,
     sort: 'popular',
     categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
-    anchor: hasAnchor && categoryCodes.length === 0 ? anchorRef.current! : undefined,
-    initialData: categoryCodes.length === 0 && !hasAnchor ? initialData : undefined,
+    initialData: categoryCodes.length === 0 ? initialData : undefined,
   });
 
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -101,83 +87,9 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 상향 무한스크롤 (anchor 진입 시)
-  useEffect(() => {
-    if (!hasPreviousPage) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasPreviousPage && !isFetchingPreviousPage) {
-          void fetchPreviousPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentTarget = topObserverTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasPreviousPage, isFetchingPreviousPage, fetchPreviousPage]);
-
-  // 해시 스크롤 + 하이라이트
-  useEffect(() => {
-    const currentAnchor = anchorRef.current;
-    if (!currentAnchor || scrolledRef.current || !data) {
-      return;
-    }
-
-    // anchorNotFound 체크
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const firstPage = data.pages[0] as any;
-    if (firstPage?.anchorNotFound) {
-      showToast('해당 핫픽을 찾을 수 없습니다');
-      anchorRef.current = null;
-      clearAnchor();
-      return;
-    }
-
-    // 해당 엘리먼트 찾기
-    const el = document.getElementById(currentAnchor);
-    if (!el) {
-      return;
-    }
-
-    scrolledRef.current = true;
-
-    // 약간의 딜레이 후 스크롤 (렌더링 완료 보장)
-    requestAnimationFrame(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      // 하이라이트 적용
-      setHighlightedAlias(currentAnchor);
-      setTimeout(() => {
-        setHighlightedAlias(null);
-        // URL에서 hash만 제거 (queryKey에는 영향 없음 — anchor는 ref)
-        clearAnchor();
-      }, HIGHLIGHT_DURATION);
-    });
-  }, [data, clearAnchor, showToast]);
-
-  // 카테고리 변경 시 anchor 초기화
-  const handleCategoryChange = useCallback(
-    (codes: CategoryCode[]) => {
-      setCategoryCodes(codes);
-      if (anchorRef.current) {
-        anchorRef.current = null;
-        clearAnchor();
-      }
-    },
-    [clearAnchor]
-  );
+  const handleCategoryChange = useCallback((codes: CategoryCode[]) => {
+    setCategoryCodes(codes);
+  }, []);
 
   // 페이지 데이터 병합 (id 기준 중복 제거)
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -262,7 +174,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             deadline={item.deadline}
             status={item.status}
             singleVote={item.singleVote as SingleVoteData}
-            isHighlighted={highlightedAlias === alias}
             voteType={item.voteType}
             mainImageUrl={item.mainImageUrl ?? trend.imageUrls?.[0]}
             onVote={handleVote}
@@ -300,18 +211,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
       <div className={styles.container}>
         <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
-
-        {/* 상향 무한스크롤 트리거 */}
-        {hasPreviousPage && (
-          <div ref={topObserverTarget} className={styles.observerTarget}>
-            {isFetchingPreviousPage && (
-              <div className={styles.skeletonGroup}>
-                <SkeletonCard />
-                <SkeletonCard />
-              </div>
-            )}
-          </div>
-        )}
 
         {/* 고정 핫픽 */}
         {fixedHotpicks.map((trend) => renderTrend(trend, 'fixed'))}
