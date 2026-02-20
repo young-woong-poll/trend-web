@@ -67,6 +67,7 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
+    const excludeAlias = url.searchParams.get('excludeAlias');
     // axios는 배열을 categoryCodes[]=X 형태로 직렬화하므로 두 형태 모두 지원
     const categoryCodes = [
       ...url.searchParams.getAll('categoryCodes'),
@@ -155,6 +156,12 @@ export const handlers = [
 
       fixedTrends = filterByCategory(fixedTrends);
       allTrends = filterByCategory(allTrends);
+    }
+
+    // excludeAlias 필터링 (추천 API용: 현재 핫픽 제외)
+    if (excludeAlias) {
+      fixedTrends = fixedTrends.filter((t) => t.alias !== excludeAlias);
+      allTrends = allTrends.filter((t) => t.alias !== excludeAlias);
     }
 
     // 커서 & 사이즈 파라미터
@@ -313,9 +320,46 @@ export const handlers = [
    * - single-text-finance → SINGLE + TEXT
    * - 기타 → 기본 BUNDLE
    */
-  http.get(`${baseURL}/api/v1/display/trend/:trendAlias`, ({ params }) => {
+  http.get(`${baseURL}/api/v1/display/trend/:trendAlias`, ({ params, request }) => {
     const alias = String(params.trendAlias);
     const detailData = mockHotpickDetailMap[alias] ?? mockHotpickDetailBundle;
+
+    // SINGLE 타입: singleVote + categoryCodes 주입
+    const svData = singleVoteDataMap[alias];
+    const ext = trendExtensions[alias];
+    if (svData && detailData.type === 'SINGLE') {
+      const tkuId = request.headers.get('x-tku-id') ?? '';
+      const hotpickId = String(detailData.trendId ?? '');
+      const vote = tkuId ? getVote(tkuId, hotpickId) : null;
+
+      const singleVote = vote
+        ? {
+            ...svData,
+            options: svData.options.map((opt) => {
+              const sc = getOptionCounts(hotpickId).find((c) => c.id === opt.id);
+              return { ...opt, voteCount: sc?.count ?? opt.voteCount };
+            }),
+            voted: true,
+            myChoiceId: vote.optionId,
+            totalVotes: getTotalVotes(hotpickId),
+          }
+        : svData;
+
+      // 메인 피드에서 participantsCount 가져오기
+      const listItem = mockMainDisplay.trends?.find((t) => t.alias === alias);
+
+      return HttpResponse.json(
+        wrapResponse({
+          ...detailData,
+          singleVote,
+          categoryCodes: ext?.categoryCodes ?? [],
+          deadline: ext?.deadline ?? detailData.deadline,
+          voteType: ext?.voteType,
+          participantsCount: listItem?.participantsCount ?? 0,
+        })
+      );
+    }
+
     return HttpResponse.json(wrapResponse(detailData));
   }),
 

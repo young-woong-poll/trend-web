@@ -28,6 +28,7 @@ export {
   useHotpickDetail,
   useResultDetail,
   useHotpickNavigation,
+  useRecommendSingles,
 } from '@/hooks/api/useDisplay';
 
 // Admin Hooks

@@ -7,13 +7,6 @@
   background: $bg-secondary;
   border: 1px solid $border-placeholder;
   padding: 16px;
-  transition: box-shadow 0.3s ease;
-
-  &.highlighted {
-    box-shadow:
-      0 0 0 2px $primary-start,
-      0 0 16px rgba($primary-start, 0.3);
-  }
 }
 
 // ── 상단: 카테고리 + 공유 ──

@@ -35,12 +35,13 @@ export const displayKeys = {
     sort?: 'latest' | 'popular';
     categoryCodes?: CategoryCode[];
     type?: HotpickType;
-    anchor?: string;
   }) => [...displayKeys.all, 'mainInfinite', params] as const,
   hotpick: (alias: string) => [...displayKeys.all, 'hotpick', alias] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
   navigation: (alias: string, sort?: string) =>
     [...displayKeys.all, 'navigation', alias, sort] as const,
+  recommend: (alias: string, categoryCode?: string) =>
+    [...displayKeys.all, 'recommend', alias, categoryCode] as const,
 };
 
 /**
@@ -101,16 +102,12 @@ export const displayQueries = {
 
   /**
    * 메인 전시 무한 스크롤 쿼리 옵션
-   *
-   * anchor가 있으면 해당 아이템 주변 데이터를 로드하고
-   * 양방향 스크롤(getPreviousPageParam)을 활성화합니다.
    */
   infiniteMain: (params?: {
     size?: number;
     sort?: 'latest' | 'popular';
     categoryCodes?: CategoryCode[];
     type?: HotpickType;
-    anchor?: string;
   }) =>
     infiniteQueryOptions<
       DisplayMainResponse | null,
@@ -121,20 +118,11 @@ export const displayQueries = {
     >({
       queryKey: displayKeys.mainInfinite(params),
       queryFn: async ({ pageParam }) => {
-        // pageParam이 음수이면 이전 페이지 요청 (prevCursor는 음수로 인코딩)
-        const isPrev = pageParam !== undefined && pageParam < 0;
         const queryParams: Record<string, unknown> = {
           ...params,
-          cursor: isPrev ? Math.abs(pageParam) : pageParam,
+          cursor: pageParam,
           size: params?.size ?? 20,
         };
-        // anchor 파라미터 전달 (첫 로딩 시에만)
-        if (params?.anchor && pageParam === undefined) {
-          queryParams.anchor = params.anchor;
-        }
-        if (isPrev) {
-          queryParams.direction = 'prev';
-        }
         if (isServer()) {
           const response = await serverApi.getMainDisplay(queryParams, {
             next: { revalidate: 60 },
@@ -148,12 +136,6 @@ export const displayQueries = {
       },
       initialPageParam: undefined,
       getNextPageParam: (lastPage) => (lastPage?.hasMore ? lastPage.nextCursor : undefined),
-      getPreviousPageParam: (firstPage) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const prevCursor = (firstPage as any)?.prevCursor as number | undefined;
-        // 음수로 인코딩하여 queryFn에서 direction=prev 판별
-        return prevCursor !== undefined ? -prevCursor : undefined;
-      },
       staleTime: 60 * 1000,
     }),
 };
@@ -169,51 +151,20 @@ export const useMainDisplay = (params?: {
 
 /**
  * 메인 전시 무한 스크롤 Hook
- *
- * anchor는 queryKey에 포함하지 않고 queryFn에서만 사용합니다.
- * 이렇게 하면 anchor 소비 후 URL hash를 제거해도 queryKey가 변경되지 않아
- * 데이터 리페치 및 스크롤 리셋이 발생하지 않습니다.
  */
 export const useInfiniteMainDisplay = (params?: {
   size?: number;
   sort?: 'latest' | 'popular';
   categoryCodes?: CategoryCode[];
   type?: HotpickType;
-  anchor?: string;
   initialData?: DisplayMainResponse;
 }) => {
-  const { initialData: initData, anchor, ...queryKeyParams } = params ?? {};
+  const { initialData: initData, ...queryKeyParams } = params ?? {};
 
-  // queryKey에는 anchor 제외
   const baseOptions = displayQueries.infiniteMain(queryKeyParams);
 
   return useInfiniteQuery({
     ...baseOptions,
-    queryFn: async ({ pageParam }) => {
-      const isPrev = pageParam !== undefined && pageParam < 0;
-      const queryParams: Record<string, unknown> = {
-        ...queryKeyParams,
-        cursor: isPrev ? Math.abs(pageParam) : pageParam,
-        size: queryKeyParams.size ?? 20,
-      };
-      // anchor는 첫 로딩 시에만 전달 (pageParam이 undefined = 최초 요청)
-      if (anchor && pageParam === undefined) {
-        queryParams.anchor = anchor;
-      }
-      if (isPrev) {
-        queryParams.direction = 'prev';
-      }
-      if (isServer()) {
-        const response = await serverApi.getMainDisplay(queryParams, {
-          next: { revalidate: 60 },
-        });
-        return response.status === 200 ? (response.data.data ?? null) : null;
-      }
-      const tkuId = getTKUID();
-      return clientApi.getMainDisplay(queryParams, {
-        headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
-      });
-    },
     initialData: initData
       ? {
           pages: [initData],
@@ -243,5 +194,29 @@ export const useHotpickNavigation = (hotpickAlias: string, sort?: 'latest' | 'po
     queryKey: displayKeys.navigation(hotpickAlias, sort),
     queryFn: () => clientApi.getTrendNavigation(hotpickAlias, { sort }),
     enabled: !!hotpickAlias,
+    staleTime: 60 * 1000,
+  });
+
+/**
+ * 동일 카테고리 추천 핫픽 Hook
+ */
+export const useRecommendSingles = (alias: string, categoryCode?: string) =>
+  useQuery({
+    queryKey: displayKeys.recommend(alias, categoryCode),
+    queryFn: async () => {
+      const tkuId = getTKUID();
+      const params: Record<string, unknown> = {
+        size: 2,
+        sort: 'popular',
+        excludeAlias: alias,
+      };
+      if (categoryCode) {
+        params.categoryCodes = [categoryCode];
+      }
+      return clientApi.getMainDisplay(params, {
+        headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+      });
+    },
+    enabled: !!alias,
     staleTime: 60 * 1000,
   });
