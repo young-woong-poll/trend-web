@@ -21,591 +21,314 @@ export interface BaseResponseVoid {
   data?: BaseResponseVoidData;
 }
 
-export interface UpdateCommentRequest {
-  /** 검증 토큰 */
-  verifyToken: string;
-  /**
-   * 수정할 내용 (1~200자)
-   * @minLength 0
-   * @maxLength 200
-   */
-  content: string;
-}
-
 /**
  * 응답 데이터
  */
-export interface CommentUpdateResponse {
-  id?: string;
-  updatedAt?: string;
-}
+export type BaseResponseObjectData = { [key: string]: unknown };
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseCommentUpdateResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentUpdateResponse;
-}
-
-/**
- * result type definition
- */
-export interface ResultTypeRequest {
-  /** result label */
-  label?: string;
-  /** result description */
-  description?: string;
-  /** result image url */
-  imageUrl?: string;
-  /** tags for the result */
-  tags?: string[];
-}
-
-/**
- * trend meta payload
- */
-export interface TrendMetaRequest {
-  /** result label */
-  resultLabel?: string;
-  /** result type definitions */
-  resultType?: ResultTypeRequest[];
-}
-
-/**
- * Update trend request
- */
-export interface UpdateTrendRequest {
-  /** trend alias */
-  alias: string;
-  /** trend title */
-  title: string;
-  /** trend label */
-  label?: string;
-  /** cover image URLs */
-  imageUrls?: string[];
-  /** election id list */
-  electionIds: string[];
-  meta?: TrendMetaRequest;
-  /** visibility flag */
-  isVisible?: boolean;
-}
-
-export interface TrendResultType {
-  label?: string;
-  description?: string;
-  imageUrl?: string;
-  tags?: string[];
-}
-
-/**
- * 메타 정보
- */
-export interface TrendMeta {
-  resultLabel?: string;
-  resultTypes?: TrendResultType[];
-}
-
-/**
- * 관리자 트렌드 응답
- */
-export interface AdminTrendResponse {
-  /** 트렌드 ID */
-  id?: number;
-  /** 트렌드 alias */
-  alias?: string;
-  /** 트렌드 제목 */
-  title?: string;
-  /** 라벨 */
-  label?: string;
-  /** 대표 이미지 URL 목록 */
-  imageUrls?: string[];
-  /** 연결된 아이템 ID 목록 */
-  electionIds?: string[];
-  meta?: TrendMeta;
-  /** 노출 여부 */
-  visible?: boolean;
-  /** 생성 일시 */
-  createdAt?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseAdminTrendResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: AdminTrendResponse;
-}
-
-export interface SelectedItem {
-  itemId?: string;
-  optionId?: string;
-}
-
-export interface CreateResultRequest {
-  trendId?: number;
-  selectedItems?: SelectedItem[];
-}
-
-/**
- * 응답 데이터
- */
-export interface CreateResultResponse {
-  resultId?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCreateResultResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CreateResultResponse;
-}
-
-export interface CreateCommentRequest {
-  /** 트렌드 ID */
-  trendId: number;
-  /** 아이템 ID */
-  itemId: string;
-  /**
-   * 닉네임 (1~10자, 영문/한글/숫자/공백/-_. 허용)
-   * @minLength 0
-   * @maxLength 10
-   * @pattern ^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s._-]*$
-   */
-  nickname: string;
-  /**
-   * 댓글 비밀번호 (4~15자)
-   * @minLength 4
-   * @maxLength 15
-   */
-  password: string;
-  /**
-   * 댓글 내용 (1~200자)
-   * @minLength 0
-   * @maxLength 200
-   */
-  content: string;
-}
-
-/**
- * 응답 데이터
- */
-export interface CommentCreateResponse {
-  id?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCommentCreateResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentCreateResponse;
-}
-
-export interface VerifyCommentRequest {
-  /** 댓글 비밀번호 */
-  password: string;
-}
-
-/**
- * 응답 데이터
- */
-export interface CommentVerifyResponse {
-  editToken?: string;
-  expiresIn?: number;
-  expiresAt?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCommentVerifyResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentVerifyResponse;
-}
-
-/**
- * 응답 데이터
- */
-export interface CommentLikeResponse {
-  /** 현재 liked 상태 */
-  liked?: boolean;
-  /** 서버가 계산한 likeCount */
-  likeCount?: number;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCommentLikeResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentLikeResponse;
-}
-
-/**
- * Create trend request
- */
-export interface CreateTrendRequest {
-  /** trend alias */
-  alias: string;
-  /** trend title */
-  title: string;
-  /** trend label */
-  label?: string;
-  /** cover image URLs */
-  imageUrls?: string[];
-  /** election id list */
-  electionIds: string[];
-  meta?: TrendMetaRequest;
-  /** visibility flag */
-  isVisible?: boolean;
-}
-
-/**
- * 트렌드 생성 응답
- */
-export interface TrendResponse {
-  /** 생성된 트렌드 ID */
-  id?: number;
-  /** 트렌드 alias */
-  alias?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseTrendResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: TrendResponse;
-}
-
-/**
- * 옵션 카운트 정보
- */
-export interface OptionCount {
-  /** 옵션 ID */
-  id?: string;
-  /** 투표 수 */
-  count?: number;
-}
-
-/**
- * 트렌드 옵션 카운트 응답
- */
-export interface TrendItemOptionsResponse {
-  /** 옵션 카운트 목록 */
-  options?: OptionCount[];
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseTrendItemOptionsResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: TrendItemOptionsResponse;
-}
-
-/**
- * 응답 데이터
- */
-export interface ResultExistsResponse {
-  exists?: boolean;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseResultExistsResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: ResultExistsResponse;
-}
-
-export interface CommentItem {
-  id?: string;
-  nickname?: string;
-  content?: string;
-  likeCount?: number;
-  liked?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/**
- * 응답 데이터
- */
-export interface CommentListResponse {
-  totalSize?: number;
-  nextId?: string;
-  comments?: CommentItem[];
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCommentListResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentListResponse;
-}
-
-/**
- * 선거 옵션 정보
- */
-export interface DisplayTrendOptionResponse {
-  /** 옵션 ID */
-  id?: string;
-  /** 옵션 제목 */
-  title?: string;
-  /** 옵션 이미지 URL */
-  imageUrl?: string;
-}
-
-/**
- * 트렌드 상세 항목
- */
-export interface DisplayTrendItemResponse {
-  /** 항목 ID */
-  id?: string;
-  /** 항목 제목 */
-  title?: string;
-  /** 트렌드 라벨 */
-  label?: string;
-  /** 옵션 목록 */
-  options?: DisplayTrendOptionResponse[];
-}
-
-/**
- * 트렌드 상세 응답
- */
-export interface DisplayTrendDetailResponse {
-  /** 트렌드 ID */
-  trendId?: number;
-  /** 트렌드 alias */
-  alias?: string;
-  /** 트렌드 제목 */
-  title?: string;
-  /** 라벨 */
-  label?: string;
-  /** 대표 이미지 URL 목록 */
-  imageUrls?: string[];
-  /** 생성 일시 */
-  createdAt?: string;
-  /** 아이템 목록 */
-  items?: DisplayTrendItemResponse[];
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseDisplayTrendDetailResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: DisplayTrendDetailResponse;
-}
-
-/**
- * 네비게이션용 트렌드 정보
- */
-export interface TrendNavItem {
-  /** 트렌드 ID */
-  id?: number;
-  /** 트렌드 alias */
-  alias?: string;
-  /** 트렌드 제목 */
-  title?: string;
-  /** 라벨 */
-  label?: string;
-  /** 이미지 URL 목록 */
-  imageUrls?: string[];
-  /** 생성일시 */
-  createdAt?: string;
-  /** 참여자 수 */
-  participantCount?: number;
-}
-
-/**
- * 트렌드 네비게이션 응답 (앞뒤 트렌드)
- */
-export interface TrendNavigationResponse {
-  current?: TrendNavItem;
-  prev?: TrendNavItem;
-  next?: TrendNavItem;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseTrendNavigationResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: TrendNavigationResponse;
-}
-
-export interface ResultType {
-  label?: string;
-  description?: string;
-  imageUrl?: string;
-  tags?: string[];
-}
-
-export interface SelectedOption {
-  itemId?: string;
-  itemTitle?: string;
-  optionId?: string;
-  optionTitle?: string;
-  optionImageUrl?: string;
-  percent?: number;
-}
-
-/**
- * 응답 데이터
- */
-export interface DisplayResultResponse {
-  resultId?: string;
-  resultLabel?: string;
-  resultType?: ResultType;
-  selectedOptions?: SelectedOption[];
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseDisplayResultResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: DisplayResultResponse;
-}
-
-/**
- * 메인 노출용 트렌드 정보
- */
-export interface DisplayTrendResponse {
-  /** 트렌드 ID */
-  id?: number;
-  /** 트렌드 alias */
-  alias?: string;
-  /** 트렌드 제목 */
-  title?: string;
-  /** 라벨 */
-  label?: string;
-  /** 이미지 URL 목록 */
-  imageUrls?: string[];
-  /** 생성 일시 */
-  createdAt?: string;
-  /** 참여자 수 */
-  participantsCount?: number;
-}
-
-/**
- * 메인 화면 응답
- */
-export interface DisplayMainResponse {
-  /** 고정 트렌드 목록 */
-  fixedTrends?: DisplayTrendResponse[];
-  /** 트렌드 목록 */
-  trends?: DisplayTrendResponse[];
-  /** 다음 페이지 존재 여부 */
-  hasMore?: boolean;
-  /** 다음 커서 (마지막 트렌드 ID, 없으면 null) */
-  nextCursor?: number;
-  /** 전체 트렌드 수 (고정 트렌드 제외) */
-  totalCount?: number;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseDisplayMainResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: DisplayMainResponse;
-}
-
-/**
- * 응답 데이터
- */
-export interface CommentCountResponse {
-  count?: number;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCommentCountResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CommentCountResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseListAdminTrendResponse {
+export interface BaseResponseObject {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
   /** 응답 데이터 */
-  data?: AdminTrendResponse[];
+  data?: BaseResponseObjectData;
+}
+
+export interface HotpickElectionItemRequest {
+  /** @minimum 0 */
+  displayOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageUrl?: string;
+}
+
+export interface HotpickElectionRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageUrl?: string;
+  /** @minimum 0 */
+  totalCommentCount?: number;
+  items: HotpickElectionItemRequest[];
+}
+
+export type UpdateHotpickRequestType =
+  (typeof UpdateHotpickRequestType)[keyof typeof UpdateHotpickRequestType];
+
+export const UpdateHotpickRequestType = {
+  SINGLE: 'SINGLE',
+} as const;
+
+export interface UpdateHotpickRequest {
+  type: UpdateHotpickRequestType;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  slug: string;
+  visible: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageUrl?: string;
+  expiredAt?: string;
+  categoryIds?: number[];
+  election: HotpickElectionRequest;
+}
+
+export interface AdminCategoryResponse {
+  id?: number;
+  name?: string;
+  slug?: string;
+}
+
+export interface AdminElectionItemResponse {
+  id?: number;
+  displayOrder?: number;
+  title?: string;
+  imageUrl?: string;
+  voteCount?: number;
+}
+
+export interface AdminElectionResponse {
+  id?: number;
+  hotpickId?: number;
+  title?: string;
+  imageUrl?: string;
+  totalVoteCount?: number;
+  totalCommentCount?: number;
+  createdAt?: string;
+  items?: AdminElectionItemResponse[];
 }
 
 /**
- * 트렌드 alias 중복 체크 응답
+ * 응답 데이터
  */
-export interface TrendAliasCheckResponse {
-  /** alias 존재 여부 */
-  exists?: boolean;
+export interface AdminHotpickDetailResponse {
+  id?: number;
+  type?: string;
+  slug?: string;
+  visible?: boolean;
+  imageUrl?: string;
+  createdAt?: string;
+  expiredAt?: string;
+  categories?: AdminCategoryResponse[];
+  election?: AdminElectionResponse;
 }
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseTrendAliasCheckResponse {
+export interface BaseResponseAdminHotpickDetailResponse {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
-  data?: TrendAliasCheckResponse;
+  data?: AdminHotpickDetailResponse;
+}
+
+export interface UpdateCategoryRequest {
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  slug: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAdminCategoryResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AdminCategoryResponse;
+}
+
+export interface CreateVoteRequest {
+  electionItemId: number;
+}
+
+export interface ElectionItemViewResponse {
+  electionItemId?: number;
+  displayOrder?: number;
+  title?: string;
+  imageUrl?: string;
+  voteCount?: number;
+  voteRate?: number;
+  selected?: boolean;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface VoteResultResponse {
+  hotpickId?: number;
+  hotpickSlug?: string;
+  electionId?: number;
+  myElectionItemId?: number;
+  totalVoteCount?: number;
+  items?: ElectionItemViewResponse[];
+  voted?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseVoteResultResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: VoteResultResponse;
+}
+
+export type CreateHotpickRequestType =
+  (typeof CreateHotpickRequestType)[keyof typeof CreateHotpickRequestType];
+
+export const CreateHotpickRequestType = {
+  SINGLE: 'SINGLE',
+} as const;
+
+export interface CreateHotpickRequest {
+  type: CreateHotpickRequestType;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  slug: string;
+  visible: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageUrl?: string;
+  expiredAt?: string;
+  categoryIds?: number[];
+  election: HotpickElectionRequest;
+}
+
+export interface CreateCategoryRequest {
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  slug: string;
+}
+
+export interface HotpickCategoryResponse {
+  id?: number;
+  name?: string;
+  slug?: string;
+}
+
+export interface ElectionViewResponse {
+  electionId?: number;
+  title?: string;
+  imageUrl?: string;
+  totalVoteCount?: number;
+  totalCommentCount?: number;
+  items?: ElectionItemViewResponse[];
+  voted?: boolean;
+  myElectionItemId?: number;
+}
+
+export interface HotpickCardResponse {
+  hotpickId?: number;
+  type?: string;
+  slug?: string;
+  imageUrl?: string;
+  expiredAt?: string;
+  categories?: HotpickCategoryResponse[];
+  election?: ElectionViewResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface HotpickDetailResponse {
+  hotpick?: HotpickCardResponse;
+  relatedHotpicks?: HotpickCardResponse[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseHotpickDetailResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: HotpickDetailResponse;
+}
+
+export interface CategoryTabResponse {
+  id?: number;
+  name?: string;
+  slug?: string;
+  selected?: boolean;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface MainHotpickResponse {
+  categories?: CategoryTabResponse[];
+  hotpicks?: HotpickCardResponse[];
+  nextCursor?: number;
+  hasMore?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseMainHotpickResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: MainHotpickResponse;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListCategoryTabResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: CategoryTabResponse[];
 }
 
 /**
@@ -625,68 +348,53 @@ export interface BaseResponseMapStringString {
   data?: BaseResponseMapStringStringData;
 }
 
-export interface Option {
-  id?: number;
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-}
-
 /**
  * 응답 데이터
  */
-export interface AdminGetItemResponse {
+export interface AdminHotpickSummaryResponse {
   id?: number;
-  title?: string;
-  description?: string;
-  kind?: string;
-  allowMultipleVotes?: boolean;
-  status?: string;
-  startTime?: string;
-  endTime?: string;
+  type?: string;
+  slug?: string;
+  visible?: boolean;
+  imageUrl?: string;
   createdAt?: string;
-  isUnlimited?: boolean;
-  options?: Option[];
+  expiredAt?: string;
+  categories?: AdminCategoryResponse[];
+  electionId?: number;
 }
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseAdminGetItemResponse {
+export interface BaseResponseListAdminHotpickSummaryResponse {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
-  data?: AdminGetItemResponse;
+  /** 응답 데이터 */
+  data?: AdminHotpickSummaryResponse[];
 }
 
-export interface DeleteCommentRequest {
-  /** 검증 토큰 */
-  verifyToken: string;
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListAdminCategoryResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: AdminCategoryResponse[];
 }
 
-export type GetTrendItemOptionsParams = {
-  size?: number;
-};
-
-export type GetCommentsParams = {
-  sort?: string;
-  cursor?: string;
-  size?: number;
-};
-
-export type GetTrendNavigationParams = {
-  sort?: string;
-};
-
-export type GetMainDisplayParams = {
-  size?: number;
+export type GetMainParams = {
+  category?: string;
   cursor?: number;
-  sort?: string;
+  size?: number;
 };
 
-export type CheckTrendAliasParams = {
-  alias: string;
+export type GetCategories1Params = {
+  selected?: string;
 };
 
 export type GeneratePresignedUrlParams = {
