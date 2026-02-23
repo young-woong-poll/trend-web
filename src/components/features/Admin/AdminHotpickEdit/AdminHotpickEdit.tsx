@@ -34,7 +34,7 @@ export default function AdminHotpickEdit({ hotpickId }: AdminHotpickEditProps) {
 
   const handleDelete = () => {
     showConfirm('핫픽 삭제', {
-      message: `정말 "${hotpick.title}" 핫픽을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
+      message: `정말 "${hotpick.election?.title ?? hotpick.slug}" 핫픽을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`,
       confirmText: '삭제',
       cancelText: '취소',
       onConfirm: () => {

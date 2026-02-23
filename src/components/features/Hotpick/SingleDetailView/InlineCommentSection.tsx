@@ -12,10 +12,10 @@ import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal
 import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { CommentItem } from '@/generated/models';
 import { useInfiniteComments, useDeleteComment } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
 import { getTKUID } from '@/lib/tkuid';
+import type { CommentItem } from '@/types/comment';
 
 interface InlineCommentSectionProps {
   hotpickId: string;

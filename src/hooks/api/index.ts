@@ -27,8 +27,6 @@ export {
   useInfiniteMainDisplay,
   useHotpickDetail,
   useResultDetail,
-  useHotpickNavigation,
-  useRecommendSingles,
 } from '@/hooks/api/useDisplay';
 
 // Admin Hooks
@@ -38,8 +36,6 @@ export {
   useCreateHotpick,
   useUpdateHotpick,
   useDeleteHotpick,
-  useElection,
-  useFetchElection,
   useGeneratePresignedUrl,
   useCheckHotpickAlias,
 } from '@/hooks/api/useAdmin';

@@ -5,9 +5,9 @@ import { useEffect, useRef, type FC } from 'react';
 import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Hotpick/CommentModal/CommentList.module.scss';
-import type { CommentItem as CommentItemType } from '@/generated/models';
 import { useInfiniteComments } from '@/hooks/api';
 import { getTKUID } from '@/lib/tkuid';
+import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentListProps {
   hotpickId: string;

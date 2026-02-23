@@ -4,8 +4,8 @@ import { type FC } from 'react';
 
 import LikeIcon from '@/assets/icon/LikeIcon';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
-import type { CommentItem as CommentItemType } from '@/generated/models';
 import { getRelativeTime } from '@/lib/utils';
+import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
   comment: CommentItemType;

@@ -21,23 +21,22 @@ import {
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useModal } from '@/contexts/ModalContext';
-import type { DisplayTrendDetailResponse } from '@/generated/models';
-import { useCommentCount } from '@/hooks/api/useComment';
+import { vote } from '@/generated/api/client/hotpick/hotpick';
+import type { HotpickDetailResponse, VoteResultResponse } from '@/generated/models';
 import { useHotpickDetail } from '@/hooks/api/useDisplay';
-import axiosInstance from '@/lib/axios';
 import { getTKUID } from '@/lib/tkuid';
-import type { ExtendedHotpickDetail, ExtendedElectionItem } from '@/types/display';
 import type { VoteType } from '@/types/election';
 import {
   calcPercentage,
   OPTION_LABELS,
   type SingleVoteData,
-  type SingleVoteResponse,
+  electionToSingleVoteData,
+  voteResultToSingleVoteData,
 } from '@/types/singleVote';
 
 interface SingleDetailViewProps {
   hotpickAlias: string;
-  initialData?: DisplayTrendDetailResponse;
+  initialData?: HotpickDetailResponse;
 }
 
 const formatCount = (count: number): string => {
@@ -47,38 +46,18 @@ const formatCount = (count: number): string => {
   return count.toString();
 };
 
-/**
- * 상세 데이터(election)에서 SingleVoteData를 구성
- */
-const buildSingleVoteData = (election: ExtendedElectionItem): SingleVoteData => ({
-  electionId: String(election.id),
-  options: (election.options ?? []).map((opt) => ({
-    id: String(opt.id),
-    text: opt.title ?? '',
-    imageUrl: opt.imageUrl,
-    voteCount: null,
-  })),
-  voted: false,
-  myChoiceId: null,
-  totalVotes: null,
-});
-
 export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, initialData }) => {
   const { data: queryData } = useHotpickDetail(hotpickAlias);
   const { showToast } = useModal();
 
-  const rawData = (queryData ?? initialData) as ExtendedHotpickDetail | null;
-  const election = rawData?.items?.[0] as ExtendedElectionItem | undefined;
+  const rawData = queryData ?? initialData;
+  const hotpickCard = rawData?.hotpick;
+  const election = hotpickCard?.election;
 
   // 투표 상태 로컬 관리
   const [singleVote, setSingleVote] = useState<SingleVoteData>(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existingVote = (rawData as any)?.singleVote;
-    if (existingVote) {
-      return existingVote as SingleVoteData;
-    }
     if (election) {
-      return buildSingleVoteData(election);
+      return electionToSingleVoteData(election);
     }
     return { electionId: '', options: [], voted: false, myChoiceId: null, totalVotes: null };
   });
@@ -86,22 +65,17 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
   const pendingRef = useRef(false);
   const tkuIdRef = useRef(getTKUID());
 
-  const hotpickId = String(rawData?.trendId ?? '');
-  const title = election?.title ?? rawData?.title ?? '';
-  const voteType = (election?.voteType ?? 'TEXT') as VoteType;
+  const title = election?.title ?? '';
+  // voteType 추론: election items에 imageUrl이 있으면 IMAGE
+  const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
+  const voteType: VoteType = hasOptionImages ? 'IMAGE' : 'TEXT';
   const isImageType = voteType === 'IMAGE';
-  const isClosed = rawData?.status === 'CLOSED';
-  const logoUrl = !isImageType ? (election?.mainImageUrl ?? rawData?.imageUrls?.[0]) : undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const categories: string[] = (rawData as any)?.categoryCodes ?? [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const participantCount =
-    singleVote.totalVotes ?? ((rawData as any)?.participantsCount as number) ?? 0;
-
-  const { data: commentCountData } = useCommentCount(
-    Number(rawData?.trendId ?? 0),
-    singleVote.electionId
-  );
+  const isExpired = hotpickCard?.expiredAt ? new Date(hotpickCard.expiredAt) < new Date() : false;
+  const isClosed = isExpired;
+  const logoUrl = !isImageType ? (election?.imageUrl ?? hotpickCard?.imageUrl) : undefined;
+  const categories: string[] = (hotpickCard?.categories ?? []).map((c) => c.name ?? '');
+  const participantCount = singleVote.totalVotes ?? election?.totalVoteCount ?? 0;
+  const commentCount = election?.totalCommentCount ?? 0;
 
   const showResult = singleVote.voted || isClosed;
   const total = singleVote.totalVotes ?? 0;
@@ -134,38 +108,21 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
       pendingRef.current = true;
 
       try {
-        const { data } = await axiosInstance.post<SingleVoteResponse>(
-          `/api/v1/single/${hotpickId}/vote`,
-          { optionId },
+        const result = await vote(
+          hotpickAlias,
+          { electionItemId: Number(optionId) },
           { headers: { 'x-tku-id': tkuIdRef.current } }
         );
 
-        if (data) {
-          setSingleVote((prev) => ({
-            ...prev,
-            options: prev.options.map((opt) => {
-              const sc = data.optionCounts.find((c) => c.id === opt.id);
-              return { ...opt, voteCount: sc?.count ?? opt.voteCount };
-            }),
-            voted: true,
-            myChoiceId: data.myChoiceId,
-            totalVotes: data.totalVotes,
-          }));
+        if (result) {
+          const voteResult = result as unknown as VoteResultResponse;
+          setSingleVote((prev) => voteResultToSingleVoteData(prev, voteResult));
         }
       } catch (error) {
         if (isAxiosError(error) && error.response?.status === 409) {
-          const responseData = error.response.data?.data as SingleVoteResponse | undefined;
+          const responseData = error.response.data?.data as VoteResultResponse | undefined;
           if (responseData) {
-            setSingleVote((prev) => ({
-              ...prev,
-              options: prev.options.map((opt) => {
-                const sc = responseData.optionCounts.find((c) => c.id === opt.id);
-                return { ...opt, voteCount: sc?.count ?? opt.voteCount };
-              }),
-              voted: true,
-              myChoiceId: responseData.myChoiceId,
-              totalVotes: responseData.totalVotes,
-            }));
+            setSingleVote((prev) => voteResultToSingleVoteData(prev, responseData));
           }
           return;
         }
@@ -175,7 +132,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
         pendingRef.current = false;
       }
     },
-    [singleVote, isClosed, hotpickId]
+    [singleVote, isClosed, hotpickAlias]
   );
 
   // ── 공유 핸들러 ──
@@ -186,7 +143,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
     });
   }, [hotpickAlias, showToast]);
 
-  if (!rawData || !election) {
+  if (!rawData || !hotpickCard || !election) {
     return null;
   }
 
@@ -210,9 +167,9 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
               </span>
             ))}
           </div>
-          {rawData.deadline && (
+          {hotpickCard.expiredAt && (
             <div className={styles.deadlineArea}>
-              <DeadlineBadge deadline={rawData.deadline} compact />
+              <DeadlineBadge deadline={hotpickCard.expiredAt} compact />
             </div>
           )}
         </div>
@@ -333,10 +290,10 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
         {/* 메타 정보 */}
         <div className={styles.metaRow}>
           <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-          {rawData.deadline && (
+          {hotpickCard.expiredAt && (
             <>
               <span className={styles.dot} />
-              <DeadlineBadge deadline={rawData.deadline} compact />
+              <DeadlineBadge deadline={hotpickCard.expiredAt} compact />
             </>
           )}
         </div>
@@ -358,15 +315,18 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
       </motion.div>
 
       {/* 추천 섹션 */}
-      <SingleRecommendSection hotpickAlias={hotpickAlias} categoryCode={categories[0]} />
+      <SingleRecommendSection
+        hotpickAlias={hotpickAlias}
+        relatedHotpicks={rawData.relatedHotpicks}
+      />
 
       {/* 인라인 댓글 섹션 (가장 마지막 — 무한 확장 가능) */}
       <InlineCommentSection
-        hotpickId={hotpickId}
+        hotpickId={String(hotpickCard.hotpickId ?? '')}
         electionId={singleVote.electionId}
         voted={singleVote.voted}
         isClosed={isClosed}
-        commentCount={commentCountData?.count}
+        commentCount={commentCount}
       />
     </div>
   );

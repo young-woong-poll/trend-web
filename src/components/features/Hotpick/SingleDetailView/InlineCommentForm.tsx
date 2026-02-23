@@ -4,9 +4,9 @@ import { useRef, useState, type FC } from 'react';
 
 import styles from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { CreateCommentRequest } from '@/generated/models';
 import { useCreateComment } from '@/hooks/api/useComment';
 import { isValidNicknameCharacters, NICKNAME_MAX_LENGTH, validateNickname } from '@/lib/utils';
+import type { CreateCommentRequest } from '@/types/comment';
 
 interface InlineCommentFormProps {
   hotpickId: string;

@@ -1,30 +1,13 @@
-import {
-  useMutation,
-  useQuery,
-  useInfiniteQuery,
-  useQueryClient,
-  queryOptions,
-} from '@tanstack/react-query';
+/**
+ * Comment API hooks — 스텁 처리
+ *
+ * Comment API가 새 swagger에서 제거됨 (need-api.md 참고).
+ * BE에서 댓글 API 제공 시 복구 예정.
+ */
 
-import {
-  createComment,
-  updateComment,
-  verifyComment,
-  deleteComment,
-  likeComment,
-  unlikeComment,
-  countComments,
-} from '@/generated/api/client/comment/comment';
-import { getComments } from '@/generated/api/client/display/display';
-import type {
-  CommentCountResponse,
-  CommentItem,
-  CommentListResponse,
-  CreateCommentRequest,
-  UpdateCommentRequest,
-  VerifyCommentRequest,
-  DeleteCommentRequest,
-} from '@/generated/models';
+import { queryOptions, useQuery, useInfiniteQuery, useMutation } from '@tanstack/react-query';
+
+import type { CommentItem, CommentVerifyResponse } from '@/types/comment';
 
 /**
  * Comment Query Keys
@@ -42,25 +25,22 @@ export const commentKeys = {
  * Comment Query Options (서버 pre-fetch용)
  */
 export const commentQueries = {
-  /**
-   * 댓글 개수 쿼리 옵션
-   */
   count: (hotpickId: number, electionId: string) =>
-    queryOptions<CommentCountResponse>({
+    queryOptions<{ count: number }>({
       queryKey: commentKeys.count(hotpickId, electionId),
-      queryFn: () => countComments(hotpickId, electionId),
+      queryFn: () => Promise.resolve({ count: 0 }),
       staleTime: 30 * 1000,
     }),
 };
 
 /**
- * 댓글 개수 조회 Hook
+ * 댓글 개수 조회 Hook (스텁 — 0 반환)
  */
 export const useCommentCount = (hotpickId: number, electionId: string) =>
   useQuery(commentQueries.count(hotpickId, electionId));
 
 /**
- * 댓글 목록 무한 스크롤 Hook
+ * 댓글 목록 무한 스크롤 Hook (스텁)
  */
 export const useInfiniteComments = (params: {
   hotpickId: string;
@@ -71,209 +51,80 @@ export const useInfiniteComments = (params: {
 }) =>
   useInfiniteQuery({
     queryKey: commentKeys.list(params.hotpickId, params.electionId, params.sort ?? 'latest'),
-    queryFn: ({ pageParam }) =>
-      getComments(
-        Number(params.hotpickId),
-        params.electionId,
-        { sort: params.sort, cursor: pageParam, size: params.size ?? 20 },
-        params.tkuId ? { headers: { 'x-tku-id': params.tkuId } } : undefined
-      ),
+    queryFn: () =>
+      Promise.resolve({ comments: [] as CommentItem[], nextId: undefined, totalSize: 0 }),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage?.nextId ?? undefined,
+    getNextPageParam: () => undefined,
     staleTime: 30 * 1000,
   });
 
 /**
- * 댓글 작성 Hook
+ * 댓글 작성 Hook (스텁 — no-op)
  */
-export const useCreateComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: CreateCommentRequest) => createComment(data),
-    onSuccess: async (responseData, variables) => {
-      // NOTE: trendId/itemId are generated model field names (will be renamed after BE migration)
-      const hotpickId = variables.trendId;
-      const electionId = variables.itemId;
-      const newComment: CommentItem = {
-        id: responseData?.id,
-        nickname: variables.nickname,
-        content: variables.content,
-        likeCount: 0,
-        liked: false,
-        createdAt: new Date().toISOString(),
-      };
-
-      const latestQueryKey = commentKeys.list(String(hotpickId), electionId, 'latest');
-
-      queryClient.setQueryData(latestQueryKey, (old: unknown) => {
-        if (!old || typeof old !== 'object') {
-          return old;
-        }
-
-        const oldData = old as {
-          pages: Array<CommentListResponse>;
-          pageParams: unknown[];
-        };
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page, index) =>
-            index === 0
-              ? {
-                  ...page,
-                  comments: [newComment, ...(page.comments ?? [])],
-                  totalSize: (page.totalSize ?? 0) + 1,
-                }
-              : page
-          ),
-        };
-      });
-
-      void queryClient.invalidateQueries({
-        queryKey: commentKeys.list(String(hotpickId), electionId, 'popular'),
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(hotpickId, electionId),
-      });
-    },
+export const useCreateComment = () =>
+  useMutation({
+    mutationFn: async (_data: {
+      trendId: number;
+      itemId: string;
+      nickname: string;
+      password: string;
+      content: string;
+    }) => ({ id: '' }),
   });
-};
 
 /**
- * 댓글 수정 Hook
+ * 댓글 수정 Hook (스텁)
  */
-export const useUpdateComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      commentId,
-      data,
-    }: {
+export const useUpdateComment = () =>
+  useMutation({
+    mutationFn: async (_params: {
       commentId: string;
-      data: UpdateCommentRequest;
+      data: { verifyToken: string; content: string };
       hotpickId: string;
       electionId: string;
-    }) => updateComment(commentId, data),
-    onSuccess: (_, variables) => {
-      ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(String(variables.hotpickId), variables.electionId, sort);
-
-        queryClient.setQueryData(queryKey, (old: unknown) => {
-          if (!old || typeof old !== 'object') {
-            return old;
-          }
-
-          const oldData = old as {
-            pages: Array<CommentListResponse>;
-            pageParams: unknown[];
-          };
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              comments: (page.comments ?? []).map((comment) =>
-                comment.id === variables.commentId
-                  ? { ...comment, content: variables.data.content }
-                  : comment
-              ),
-            })),
-          };
-        });
-      });
-    },
+    }) => undefined,
   });
-};
 
 /**
- * 댓글 수정 검증 Hook
+ * 댓글 수정 검증 Hook (스텁)
  */
 export const useVerifyComment = () =>
   useMutation({
-    mutationFn: ({ commentId, data }: { commentId: string; data: VerifyCommentRequest }) =>
-      verifyComment(commentId, data),
-  });
-
-/**
- * 댓글 좋아요 Hook
- */
-export const useLikeComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      likeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
-    },
-  });
-};
-
-/**
- * 댓글 좋아요 취소 Hook
- */
-export const useUnlikeComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      unlikeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
-    },
-  });
-};
-
-/**
- * 댓글 삭제 Hook
- */
-export const useDeleteComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      commentId,
-      data,
-    }: {
+    mutationFn: async (_params: {
       commentId: string;
-      data: DeleteCommentRequest;
+      data: { password: string };
+    }): Promise<CommentVerifyResponse> => ({
+      editToken: '',
+      expiresIn: 0,
+      expiresAt: '',
+    }),
+  });
+
+/**
+ * 댓글 좋아요 Hook (스텁)
+ */
+export const useLikeComment = () =>
+  useMutation({
+    mutationFn: async (_params: { commentId: string; tkuId: string }) => undefined,
+  });
+
+/**
+ * 댓글 좋아요 취소 Hook (스텁)
+ */
+export const useUnlikeComment = () =>
+  useMutation({
+    mutationFn: async (_params: { commentId: string; tkuId: string }) => undefined,
+  });
+
+/**
+ * 댓글 삭제 Hook (스텁)
+ */
+export const useDeleteComment = () =>
+  useMutation({
+    mutationFn: async (_params: {
+      commentId: string;
+      data: { verifyToken: string };
       hotpickId: string;
       electionId: string;
-    }) => deleteComment(commentId, data),
-    onSuccess: async (_, variables) => {
-      const { hotpickId, electionId } = variables;
-      ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(hotpickId, electionId, sort);
-
-        queryClient.setQueryData(queryKey, (old: unknown) => {
-          if (!old || typeof old !== 'object') {
-            return old;
-          }
-
-          const oldData = old as {
-            pages: Array<CommentListResponse>;
-            pageParams: unknown[];
-          };
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              comments: (page.comments ?? []).filter(
-                (comment) => comment.id !== variables.commentId
-              ),
-              totalSize: (page.totalSize ?? 1) - 1,
-            })),
-          };
-        });
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(Number(hotpickId), electionId),
-      });
-    },
+    }) => undefined,
   });
-};

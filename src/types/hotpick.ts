@@ -1,8 +1,10 @@
 /**
- * Hotpick 관련 타입 정의
+ * Hotpick 관련 FE 전용 타입 정의
+ *
+ * Generated 타입(src/generated/models)과 충돌하지 않도록
+ * CreateHotpickRequest, UpdateHotpickRequest는 제거됨.
+ * Admin API 타입은 generated AdminHotpickSummaryResponse / AdminHotpickDetailResponse 사용.
  */
-
-import type { VoteType } from '@/types/election';
 
 /**
  * 핫픽 유형
@@ -15,8 +17,7 @@ export type HotpickType = 'BUNDLE' | 'SINGLE';
 export type HotpickStatus = 'OPEN' | 'CLOSED';
 
 /**
- * 카테고리 코드 (DB 10개)
- * - 화면 필터에는 6개만 노출: 연애/결혼, 재테크, 직장, 스포츠, 음식, 트렌드
+ * 카테고리 코드 (FE 전용, 기존 호환)
  */
 export type CategoryCode =
   | 'LOVE'
@@ -30,102 +31,10 @@ export type CategoryCode =
   | 'HEALTH'
   | 'TREND';
 
-/**
- * 메인 전시 Hotpick 아이템
- */
-export interface MainHotpickItem {
-  id: string;
-  alias: string;
-  title: string;
-  label: string;
-  type?: HotpickType;
-  categoryCodes?: CategoryCode[];
-  deadline?: string;
-  status?: HotpickStatus;
-  imageUrls: string[];
-  createdAt: string;
-  participantsCount: number;
-}
+// ── BUNDLE 전용 타입 (FE only, BE 개발 보류) ──
 
 /**
- * 메인 전시 API 응답 (페이지네이션 포함)
- */
-export interface MainDisplayResponse {
-  hotpicks: MainHotpickItem[];
-  hasMore: boolean;
-  nextPage: number | null;
-  totalCount: number;
-}
-
-/**
- * Hotpick 옵션
- */
-export interface HotpickOption {
-  id: string;
-  title: string;
-  imageUrl?: string; // TEXT 유형일 때 불필요
-}
-
-/**
- * Hotpick 선거 (Election)
- */
-export interface HotpickElection {
-  id: string;
-  title: string;
-  label: string;
-  voteType?: VoteType;
-  mainImageUrl?: string;
-  options: HotpickOption[];
-}
-
-/**
- * Hotpick 전시 조회 API 응답
- */
-export interface HotpickDisplayResponse {
-  hotpickId: string;
-  alias: string;
-  title: string;
-  label: string;
-  type?: HotpickType;
-  categoryCodes?: CategoryCode[];
-  deadline?: string;
-  status?: HotpickStatus;
-  imageUrls: string[];
-  createdAt: string;
-  elections: HotpickElection[];
-}
-
-/**
- * Hotpick 투표 수 옵션
- */
-export interface HotpickVoteCountOption {
-  id: string;
-  count: number;
-}
-
-/**
- * Hotpick 현재 투표 수 조회 API 응답
- */
-export interface HotpickVoteCountResponse {
-  options: HotpickVoteCountOption[];
-}
-
-/**
- * Hotpick 선거 옵션 카운트 응답 (개별 election)
- */
-export interface HotpickElectionOptionsResponse {
-  options: HotpickVoteCountOption[];
-}
-
-/**
- * Admin: Hotpick 생성 - 라벨 요청
- */
-export interface LabelRequest {
-  label: string;
-}
-
-/**
- * Admin: Hotpick 생성 - 결과 타입 요청
+ * Admin: Hotpick 생성 - 결과 타입 요청 (BUNDLE 전용)
  */
 export interface ResultTypeRequest {
   key: string;
@@ -136,7 +45,7 @@ export interface ResultTypeRequest {
 }
 
 /**
- * Admin: Hotpick 생성 - 메타 정보 요청
+ * Admin: Hotpick 생성 - 메타 정보 요청 (BUNDLE 전용)
  */
 export interface HotpickMetaRequest {
   resultLabel?: string;
@@ -144,47 +53,7 @@ export interface HotpickMetaRequest {
 }
 
 /**
- * Admin: Hotpick 생성 요청
- */
-export interface CreateHotpickRequest {
-  alias: string;
-  title: string;
-  label?: string;
-  type: HotpickType;
-  imageUrls?: string[];
-  electionIds: string[];
-  categoryCodes?: CategoryCode[];
-  deadline?: string;
-  meta?: HotpickMetaRequest;
-  isVisible?: boolean;
-}
-
-/**
- * Admin: Hotpick 수정 요청
- */
-export interface UpdateHotpickRequest {
-  alias: string;
-  title: string;
-  label?: string;
-  type: HotpickType;
-  imageUrls?: string[];
-  electionIds: string[];
-  categoryCodes?: CategoryCode[];
-  deadline?: string;
-  meta?: HotpickMetaRequest;
-  isVisible?: boolean;
-}
-
-/**
- * Admin: Hotpick 생성 응답
- */
-export interface HotpickResponse {
-  id: number;
-  alias: string;
-}
-
-/**
- * Hotpick 메타 정보
+ * Hotpick 메타 정보 (BUNDLE 전용)
  */
 export interface HotpickMeta {
   resultLabel?: string;
@@ -192,7 +61,7 @@ export interface HotpickMeta {
 }
 
 /**
- * Hotpick 결과 타입
+ * Hotpick 결과 타입 (BUNDLE 전용)
  */
 export interface HotpickResultType {
   key: string;
@@ -201,38 +70,6 @@ export interface HotpickResultType {
   imageUrl?: string;
   tags?: string[];
 }
-
-/**
- * Admin: Hotpick 응답 (Discriminated Union)
- */
-interface AdminHotpickResponseBase {
-  id: number;
-  alias: string;
-  categoryCodes?: CategoryCode[];
-  deadline?: string;
-  status?: HotpickStatus;
-  electionIds: string[];
-  visible: boolean;
-  totalVotes?: number;
-  createdAt: string;
-}
-
-export interface AdminBundleHotpickResponse extends AdminHotpickResponseBase {
-  type: 'BUNDLE';
-  title: string;
-  label?: string;
-  imageUrls: string[]; // BUNDLE: 1장 이상 필수
-  meta?: HotpickMeta;
-}
-
-export interface AdminSingleHotpickResponse extends AdminHotpickResponseBase {
-  type: 'SINGLE';
-  title?: string;
-  label?: string;
-  imageUrls?: string[];
-}
-
-export type AdminHotpickResponse = AdminBundleHotpickResponse | AdminSingleHotpickResponse;
 
 /**
  * Admin: Hotpick Alias 중복 체크 응답

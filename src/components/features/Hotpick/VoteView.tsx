@@ -4,7 +4,7 @@ import { useState, type FC, type ReactNode } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
@@ -13,12 +13,10 @@ import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
 import { VoteCard } from '@/components/features/Hotpick/VoteCard';
 import { VoteHeader } from '@/components/features/Hotpick/VoteHeader';
 import styles from '@/components/features/Hotpick/VoteView.module.scss';
-import type { DisplayTrendDetailResponse } from '@/generated/models';
-import { commentQueries } from '@/hooks/api/useComment';
+import type { HotpickDetailResponse } from '@/generated/models';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useHotpickSubmission } from '@/hooks/useVoteSubmission';
-import type { ExtendedElectionItem, ExtendedHotpickDetail } from '@/types/display';
 
 type TElectionId = string;
 type TOptionId = string;
@@ -26,12 +24,15 @@ export type TSelectedElectionMap = Record<TElectionId, TOptionId | null>;
 
 type HotpickViewProps = {
   hotpickAlias: string;
-  initialData?: DisplayTrendDetailResponse;
+  initialData?: HotpickDetailResponse;
   children: ReactNode;
 };
 
 const DEFAULT_NUM_OF_ELECTIONS = 5;
 
+/**
+ * BUNDLE 핫픽 투표 뷰 — BE 개발 보류로 현재 스텁 상태
+ */
 export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, children }) => {
   const router = useRouter();
 
@@ -50,41 +51,26 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
   const { submit } = useHotpickSubmission();
   const handleError = useErrorHandler();
 
-  const extHotpickData = hotpickData as ExtendedHotpickDetail | null;
-  const elections = hotpickData?.items ?? [];
-  const hotpickId = hotpickData?.trendId;
-  const isClosed = extHotpickData?.status === 'CLOSED';
+  const hotpickCard = hotpickData?.hotpick;
+  const election = hotpickCard?.election;
+  // BUNDLE은 현재 지원되지 않으므로 빈 배열
+  const elections = election ? [election] : [];
+  const hotpickId = hotpickCard?.hotpickId;
+  const slug = hotpickCard?.slug ?? hotpickAlias;
+  const isExpired = hotpickCard?.expiredAt ? new Date(hotpickCard.expiredAt) < new Date() : false;
+  const isClosed = isExpired;
+  const title = election?.title ?? '';
 
-  // 모든 아이템의 댓글 수를 한 번에 가져오기
-  const commentCountQueries = useQueries({
-    queries: elections.map((election) => ({
-      ...commentQueries.count(Number(hotpickId), election.id ?? ''),
-      enabled: !!hotpickId,
-    })),
-  });
-
-  // electionId를 키로 하는 댓글 수 맵 생성
-  const commentCountMap = elections.reduce<Record<string, number | undefined>>(
-    (acc, election, index) => {
-      acc[election.id ?? ''] = commentCountQueries[index]?.data?.count;
-      return acc;
-    },
-    {}
-  );
-
-  // HydrationBoundary로 prefetch되어 있으므로 hotpickData는 항상 존재
-  if (!hotpickData || !hotpickId || !hotpickData.alias || !elections.length) {
+  if (!hotpickData || !hotpickId || !slug || !elections.length) {
     return null;
   }
-
-  const { alias, title } = hotpickData;
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       const resultId = await submit(String(hotpickId), selectedElectionMap, elections.length);
 
-      return router.replace(`/hotpick/${alias}/result?id=${resultId}`);
+      return router.replace(`/hotpick/${slug}/result?id=${resultId}`);
     } catch (err) {
       setIsSubmitting(false);
       handleError(err);
@@ -113,13 +99,13 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
 
   return (
     <>
-      {/* 서버에서 생성된 정적 HTML (SEO용) - children은 서버에서 렌더링됨 */}
+      {/* 서버에서 생성된 정적 HTML (SEO용) */}
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
         <div className={styles.headerRow}>
-          <VoteHeader title={title ?? ''} />
-          <DeadlineBadge deadline={extHotpickData?.deadline} />
+          <VoteHeader title={title} />
+          <DeadlineBadge deadline={hotpickCard?.expiredAt} />
         </div>
 
         {isClosed && <p className={styles.closedNotice}>마감된 투표입니다</p>}
@@ -136,40 +122,50 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
               transform: `translateX(calc(-${currentElectionIndex} * 100%))`,
             }}
           >
-            {elections.length > 0 &&
-              elections.map((election) => {
-                const electionId = election.id ?? '';
-                const selectedOptionId = selectedElectionMap[electionId] || null;
-                const extElection = election as ExtendedElectionItem;
+            {elections.map((elec) => {
+              const electionId = String(elec.electionId ?? '');
+              const selectedOptionId = selectedElectionMap[electionId] || null;
+              const options = (elec.items ?? []).map((item) => ({
+                id:
+                  item.electionItemId !== null && item.electionItemId !== undefined
+                    ? String(item.electionItemId)
+                    : undefined,
+                title: item.title,
+                imageUrl: item.imageUrl,
+              }));
 
-                const handleOptionSelect = (optionId: string) => {
-                  if (isClosed) {
-                    return;
-                  }
-                  setSelectedElectionMap((prev) => ({
-                    ...prev,
-                    [electionId]: optionId,
-                  }));
-                };
+              // voteType 추론
+              const hasImages = (elec.items ?? []).some((item) => !!item.imageUrl);
+              const voteType = hasImages ? ('IMAGE' as const) : ('TEXT' as const);
 
-                return (
-                  <div key={electionId} className={styles.cardContainer}>
-                    <VoteCard
-                      hotpickAlias={alias}
-                      electionId={electionId}
-                      title={election.title ?? ''}
-                      options={election.options ?? []}
-                      selectedOptionId={selectedOptionId}
-                      handleOptionSelect={handleOptionSelect}
-                      voteType={extElection.voteType}
-                      mainImageUrl={extElection.mainImageUrl}
-                      commentCount={commentCountMap[electionId]}
-                      commentDisabled={selectedOptionId === null}
-                      onCommentClick={() => handleOpenCommentModal(electionId)}
-                    />
-                  </div>
-                );
-              })}
+              const handleOptionSelect = (optionId: string) => {
+                if (isClosed) {
+                  return;
+                }
+                setSelectedElectionMap((prev) => ({
+                  ...prev,
+                  [electionId]: optionId,
+                }));
+              };
+
+              return (
+                <div key={electionId} className={styles.cardContainer}>
+                  <VoteCard
+                    hotpickAlias={slug}
+                    electionId={electionId}
+                    title={elec.title ?? ''}
+                    options={options}
+                    selectedOptionId={selectedOptionId}
+                    handleOptionSelect={handleOptionSelect}
+                    voteType={voteType}
+                    mainImageUrl={!hasImages ? (elec.imageUrl ?? hotpickCard?.imageUrl) : undefined}
+                    commentCount={elec.totalCommentCount}
+                    commentDisabled={selectedOptionId === null}
+                    onCommentClick={() => handleOpenCommentModal(electionId)}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -180,7 +176,10 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
           type="button"
           className={styles.nextButton}
           onClick={handleNext}
-          disabled={!selectedElectionMap[elections[currentElectionIndex]?.id ?? ''] || isSubmitting}
+          disabled={
+            !selectedElectionMap[String(elections[currentElectionIndex]?.electionId ?? '')] ||
+            isSubmitting
+          }
         >
           {isSubmitting ? (
             <div className={styles.loadingDots}>
@@ -204,7 +203,7 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
           onClose={handleCloseCommentModal}
           hotpickId={String(hotpickId)}
           electionId={selectedElectionForComment}
-          hotpickAlias={alias}
+          hotpickAlias={slug}
         />
       )}
     </>

@@ -1,20 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getItem } from '@/generated/api/client/admin-item/admin-item';
-import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
 import {
-  getTrends,
-  createTrend,
-  updateTrend,
-  deleteTrend,
-  checkTrendAlias,
-} from '@/generated/api/client/admin-trend/admin-trend';
-import { useToast } from '@/hooks/useToast';
+  getHotpicks,
+  getHotpick,
+  createHotpick,
+  updateHotpick,
+  deleteHotpick,
+} from '@/generated/api/client/admin-hotpick/admin-hotpick';
+import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
 import type {
+  AdminHotpickSummaryResponse,
+  AdminHotpickDetailResponse,
   CreateHotpickRequest,
   UpdateHotpickRequest,
-  AdminHotpickResponse,
-} from '@/types/hotpick';
+} from '@/generated/models';
+import { useToast } from '@/hooks/useToast';
 
 /**
  * Admin Query Keys
@@ -23,7 +23,6 @@ export const adminKeys = {
   all: ['admin'] as const,
   hotpicks: () => [...adminKeys.all, 'hotpicks'] as const,
   hotpick: (id: number) => [...adminKeys.all, 'hotpick', id] as const,
-  election: (id: string) => [...adminKeys.all, 'election', id] as const,
 };
 
 /**
@@ -32,26 +31,17 @@ export const adminKeys = {
 export const useHotpicks = (enabled = true) =>
   useQuery({
     queryKey: adminKeys.hotpicks(),
-    // Orval API 호출 후 타입 캐스팅 (Swagger와 실제 API 스키마 불일치)
-    queryFn: () => getTrends() as Promise<AdminHotpickResponse[]>,
+    queryFn: () => getHotpicks() as Promise<AdminHotpickSummaryResponse[]>,
     enabled,
   });
 
 /**
  * Admin: 핫픽 상세 조회 Hook
- * 목록 API에서 특정 ID의 핫픽을 찾아 반환
  */
 export const useGetHotpickDetail = (hotpickId: number) =>
   useQuery({
     queryKey: adminKeys.hotpick(hotpickId),
-    queryFn: async () => {
-      const hotpicks = (await getTrends()) as AdminHotpickResponse[];
-      const hotpick = hotpicks.find((h) => h.id === hotpickId);
-      if (!hotpick) {
-        throw new Error('Hotpick not found');
-      }
-      return hotpick;
-    },
+    queryFn: () => getHotpick(hotpickId) as Promise<AdminHotpickDetailResponse>,
     enabled: !!hotpickId,
     staleTime: 1000 * 60,
   });
@@ -63,7 +53,7 @@ export const useCreateHotpick = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateHotpickRequest) => createTrend(data),
+    mutationFn: (data: CreateHotpickRequest) => createHotpick(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
     },
@@ -79,7 +69,7 @@ export const useUpdateHotpick = () => {
 
   return useMutation({
     mutationFn: ({ hotpickId, data }: { hotpickId: number; data: UpdateHotpickRequest }) =>
-      updateTrend(hotpickId, data),
+      updateHotpick(hotpickId, data),
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
       void queryClient.invalidateQueries({ queryKey: adminKeys.hotpick(variables.hotpickId) });
@@ -100,7 +90,7 @@ export const useDeleteHotpick = () => {
   const { showToast } = useToast();
 
   return useMutation({
-    mutationFn: (hotpickId: number) => deleteTrend(hotpickId),
+    mutationFn: (hotpickId: number) => deleteHotpick(hotpickId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.hotpicks() });
       showToast('핫픽이 삭제되었습니다.');
@@ -113,27 +103,7 @@ export const useDeleteHotpick = () => {
 };
 
 /**
- * Admin: 선거 상세 조회 Hook (Query)
- */
-export const useElection = (electionId: string) =>
-  useQuery({
-    queryKey: adminKeys.election(electionId),
-    queryFn: () => getItem(electionId),
-    enabled: !!electionId,
-  });
-
-/**
- * Admin: 선거 상세 조회 Hook (Mutation)
- * 사용자 액션에 의해 선거 정보를 가져올 때 사용
- */
-export const useFetchElection = () =>
-  useMutation({
-    mutationFn: (electionId: string) => getItem(electionId),
-  });
-
-/**
  * Admin: Pre-signed URL 발급 Hook
- * 이미지 업로드 시 S3 Pre-signed URL을 받아옴
  */
 export const useGeneratePresignedUrl = () =>
   useMutation({
@@ -141,10 +111,9 @@ export const useGeneratePresignedUrl = () =>
   });
 
 /**
- * Admin: Hotpick Alias 중복 체크 Hook
- * Hotpick Alias가 이미 존재하는지 확인
+ * Admin: Hotpick Slug 중복 체크 Hook (스텁 — need-api.md 참고)
  */
 export const useCheckHotpickAlias = () =>
   useMutation({
-    mutationFn: (alias: string) => checkTrendAlias({ alias }),
+    mutationFn: async (_slug: string) => ({ exists: false }),
   });

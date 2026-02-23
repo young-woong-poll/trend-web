@@ -9,18 +9,17 @@ import styles from '@/components/features/Main/MainContent.module.scss';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
 import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
 import { useModal } from '@/contexts/ModalContext';
-import type { DisplayMainResponse } from '@/generated/models';
+import type { MainHotpickResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
-import type { CategoryCode } from '@/types/hotpick';
-import type { SingleVoteData } from '@/types/singleVote';
+import { electionToSingleVoteData } from '@/types/singleVote';
 
 type TMainViewProps = {
-  initialData?: DisplayMainResponse;
+  initialData?: MainHotpickResponse;
   children?: ReactNode;
 };
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
-  const [categoryCodes, setCategoryCodes] = useState<CategoryCode[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [commentTarget, setCommentTarget] = useState<{
     hotpickId: string;
     electionId: string;
@@ -29,8 +28,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { showToast } = useModal();
 
   const handleShare = useCallback(
-    (alias: string) => {
-      const url = `${window.location.origin}/hotpick/${alias}`;
+    (slug: string) => {
+      const url = `${window.location.origin}/hotpick/${slug}`;
       void navigator.clipboard.writeText(url).then(() => {
         showToast('링크가 복사되었습니다');
       });
@@ -57,9 +56,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     error,
   } = useInfiniteMainDisplay({
     size: 20,
-    sort: 'popular',
-    categoryCodes: categoryCodes.length > 0 ? categoryCodes : undefined,
-    initialData: categoryCodes.length === 0 ? initialData : undefined,
+    category: selectedCategory ?? undefined,
+    initialData: selectedCategory === null ? initialData : undefined,
   });
 
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -87,33 +85,28 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleCategoryChange = useCallback((codes: CategoryCode[]) => {
-    setCategoryCodes(codes);
+  const handleCategoryChange = useCallback((slug: string | null) => {
+    setSelectedCategory(slug);
   }, []);
 
-  // 페이지 데이터 병합 (id 기준 중복 제거)
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const fixedHotpicks = data?.pages[0]?.fixedTrends ?? [];
-  const fixedIds = new Set(fixedHotpicks.map((t) => t.id));
+  // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
   const hotpicks = (() => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const all = data?.pages.flatMap((page) => page?.trends ?? []) ?? [];
+    const all = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
     const seen = new Set<number | undefined>();
-    return all.filter((t) => {
-      if (seen.has(t.id) || fixedIds.has(t.id)) {
+    return all.filter((h) => {
+      if (seen.has(h.hotpickId)) {
         return false;
       }
-      seen.add(t.id);
+      seen.add(h.hotpickId);
       return true;
     });
   })();
 
   // 초기 로딩 상태
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
         <div className={styles.statusContainer}>
           <p className={styles.statusText}>핫픽을 불러오는 중...</p>
         </div>
@@ -125,7 +118,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
         <div className={styles.statusContainer}>
           <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
           <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
@@ -135,10 +128,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }
 
   // 빈 상태 (fetching 중이면 빈 상태 표시하지 않음)
-  if (!isFetching && fixedHotpicks.length === 0 && hotpicks.length === 0) {
+  if (!isFetching && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
           <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
@@ -151,31 +144,38 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  const renderTrend = (trend: (typeof hotpicks)[number], keyPrefix?: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const item = trend as any;
-    const alias = trend.alias ?? '';
-    const key = keyPrefix ? `${keyPrefix}-${trend.id}` : trend.id;
-    // 멀티 카테고리 지원: categoryCodes 배열
-    const codes = (item.categoryCodes as string[] | undefined) ?? [];
-    const categoryList =
-      codes.length > 0 ? codes : item.categoryCode ? [item.categoryCode as string] : [];
+  const renderHotpick = (hotpick: HotpickCardResponse, keyPrefix?: string) => {
+    const slug = hotpick.slug ?? '';
+    const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
+    const election = hotpick.election;
+    const categoryList = (hotpick.categories ?? []).map((c) => c.name ?? '');
 
-    // SINGLE 타입: 인라인 투표 카드
-    if (item.type === 'SINGLE' && item.singleVote) {
+    // expiredAt 기반 상태 판단
+    const isExpired = hotpick.expiredAt ? new Date(hotpick.expiredAt) < new Date() : false;
+    const status = isExpired ? 'CLOSED' : 'OPEN';
+
+    // voteType 추론: election items에 imageUrl이 있으면 IMAGE
+    const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
+    const voteType = hasOptionImages ? 'IMAGE' : 'TEXT';
+
+    // SINGLE 타입 + election 존재: 인라인 투표 카드
+    if (hotpick.type === 'SINGLE' && election) {
+      const singleVote = electionToSingleVoteData(election);
+      const mainImageUrl = !hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined;
+
       return (
-        <div key={key} id={alias} className={styles.cardWrapper}>
+        <div key={key} id={slug} className={styles.cardWrapper}>
           <SingleCard
-            id={trend.id ?? 0}
-            alias={alias}
-            title={trend.title ?? ''}
+            id={hotpick.hotpickId ?? 0}
+            alias={slug}
+            title={election.title ?? ''}
             categories={categoryList}
-            participantCount={trend.participantsCount}
-            deadline={item.deadline}
-            status={item.status}
-            singleVote={item.singleVote as SingleVoteData}
-            voteType={item.voteType}
-            mainImageUrl={item.mainImageUrl ?? trend.imageUrls?.[0]}
+            participantCount={election.totalVoteCount}
+            deadline={hotpick.expiredAt}
+            status={status}
+            singleVote={singleVote}
+            voteType={voteType}
+            mainImageUrl={mainImageUrl}
             onVote={handleVote}
             onShare={handleShare}
             onComment={handleComment}
@@ -186,19 +186,15 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
 
     // BUNDLE 타입: BundleCard
     return (
-      <div key={key} id={alias} className={styles.cardWrapper}>
+      <div key={key} id={slug} className={styles.cardWrapper}>
         <BundleCard
-          alias={alias}
-          title={trend.title ?? ''}
-          subtitle={trend.label}
+          alias={slug}
+          title={election?.title ?? ''}
           categories={categoryList}
-          createdAt={trend.createdAt}
-          participantCount={trend.participantsCount}
-          electionCount={item.electionCount}
-          imageUrls={trend.imageUrls}
-          deadline={item.deadline}
-          status={item.status}
-          participated={item.participated}
+          participantCount={election?.totalVoteCount}
+          imageUrls={hotpick.imageUrl ? [hotpick.imageUrl] : undefined}
+          deadline={hotpick.expiredAt}
+          status={status}
           onShare={handleShare}
         />
       </div>
@@ -210,13 +206,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        <CategoryFilter selectedCodes={categoryCodes} onChange={handleCategoryChange} />
+        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
 
-        {/* 고정 핫픽 */}
-        {fixedHotpicks.map((trend) => renderTrend(trend, 'fixed'))}
-
-        {/* 혼합 피드 (싱글 + 번들) */}
-        {hotpicks.map((trend) => renderTrend(trend))}
+        {/* 핫픽 피드 */}
+        {hotpicks.map((hotpick) => renderHotpick(hotpick))}
 
         {/* 하향 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>

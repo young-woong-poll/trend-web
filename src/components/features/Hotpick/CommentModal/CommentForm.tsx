@@ -4,9 +4,9 @@ import { useState, type FC } from 'react';
 
 import styles from '@/components/features/Hotpick/CommentModal/CommentForm.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { CreateCommentRequest } from '@/generated/models';
 import { useCreateComment } from '@/hooks/api/useComment';
 import { validateNickname, isValidNicknameCharacters, NICKNAME_MAX_LENGTH } from '@/lib/utils';
+import type { CreateCommentRequest } from '@/types/comment';
 
 interface CommentFormProps {
   hotpickId: string;

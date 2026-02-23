@@ -2,21 +2,11 @@ import { http, HttpResponse } from 'msw';
 
 import { getMockCommentListResponse } from '@/mocks/data/comments';
 import {
-  getMockElectionList,
-  getMockElection,
-  createMockElection,
-  updateMockElection,
-  deleteMockElection,
-} from '@/mocks/data/elections';
-import {
-  mockMainDisplay,
-  mockSingleDisplay,
+  mockMainHotpicks,
   mockHotpickDetailMap,
-  mockHotpickDetailBundle,
-  mockVoteCountMap,
-  injectExtensions,
-  trendExtensions,
+  mockHotpickDetailBundleConverted,
   singleVoteDataMap,
+  trendExtensions,
 } from '@/mocks/data/hotpicks';
 import { mockResultDisplay } from '@/mocks/data/results';
 import {
@@ -42,216 +32,149 @@ const wrapResponse = <T>(data: T) => ({
 });
 
 /**
- * MSW Handlers
- *
- * Phase 2 P0 기능 테스트 케이스:
- * - 트렌드 탭: BUNDLE 목록 (deadline, status, categoryCode 확장 필드 포함)
- * - Single 탭: SINGLE 목록 (type=SINGLE 필터)
- * - 투표 페이지: alias별 상세 데이터 (IMAGE/TEXT/CLOSED)
- * - 카테고리 필터: categoryCodes 파라미터 필터링
- * - Admin Election CRUD: 목록/상세/생성/수정/삭제
+ * MSW Handlers — 새 Hotpick API 기반
  */
 export const handlers = [
   // ──────────────────────────────────────────────────────────
-  // Display API (사용자 화면)
+  // Hotpick API (사용자 화면)
   // ──────────────────────────────────────────────────────────
 
   /**
-   * 메인 전시 조회
-   * GET /api/v1/display/main
-   *
-   * 혼합 피드: 싱글 + 번들 통합 반환
-   * x-tku-id 헤더로 기투표 상태 반영
-   * categoryCodes → 카테고리 필터
+   * 메인 핫픽 목록 조회
+   * GET /api/v1/hotpicks/main
    */
-  http.get(`${baseURL}/api/v1/display/main`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/hotpicks/main`, ({ request }) => {
     const url = new URL(request.url);
-    const type = url.searchParams.get('type');
-    const excludeAlias = url.searchParams.get('excludeAlias');
-    // axios는 배열을 categoryCodes[]=X 형태로 직렬화하므로 두 형태 모두 지원
-    const categoryCodes = [
-      ...url.searchParams.getAll('categoryCodes'),
-      ...url.searchParams.getAll('categoryCodes[]'),
-    ];
+    const category = url.searchParams.get('category');
     const tkuId = request.headers.get('x-tku-id') ?? '';
-    const anchor = url.searchParams.get('anchor');
-    const direction = url.searchParams.get('direction');
 
-    const source = type === 'SINGLE' ? mockSingleDisplay : mockMainDisplay;
+    let hotpicks = [...(mockMainHotpicks.hotpicks ?? [])];
 
-    // 확장 필드 주입 (type, categoryCode, deadline, status, singleVote)
-    let fixedTrends = injectExtensions(source.fixedTrends ?? []);
-    let allTrends = injectExtensions(source.trends ?? []);
+    // 카테고리 필터링
+    if (category) {
+      hotpicks = hotpicks.filter((hp) => {
+        const cats = hp.categories ?? [];
+        return cats.some((c) => c.slug === category || c.name === category);
+      });
+    }
 
     // x-tku-id 기반 기투표 상태 반영
     if (tkuId) {
-      const injectVoteState = <T extends { id?: number; alias?: string; singleVote?: unknown }>(
-        items: T[]
-      ): T[] =>
-        items.map((item) => {
-          const alias = item.alias ?? '';
-          const svData = singleVoteDataMap[alias];
-          if (!svData) {
-            return item;
-          }
+      hotpicks = hotpicks.map((hp) => {
+        const slug = hp.slug ?? '';
+        const hotpickId = String(hp.hotpickId ?? '');
+        const election = hp.election;
+        if (!election) {
+          return hp;
+        }
 
-          const hotpickId = String(item.id ?? '');
-          const vote = getVote(tkuId, hotpickId);
+        const vote = getVote(tkuId, hotpickId);
+        if (vote) {
+          const optionCounts = getOptionCounts(hotpickId);
+          const total = getTotalVotes(hotpickId);
+          return {
+            ...hp,
+            election: {
+              ...election,
+              voted: true,
+              myElectionItemId: Number(vote.optionId) || undefined,
+              totalVoteCount: total,
+              items: (election.items ?? []).map((item) => {
+                const sc = optionCounts.find((c) => c.id === String(item.electionItemId));
+                return {
+                  ...item,
+                  voteCount: sc?.count ?? item.voteCount,
+                  voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+                };
+              }),
+            },
+          };
+        }
 
-          if (vote) {
-            const optionCounts = getOptionCounts(hotpickId);
-            const total = getTotalVotes(hotpickId);
-            return {
-              ...item,
-              singleVote: {
-                ...svData,
-                options: svData.options.map((opt) => {
-                  const sc = optionCounts.find((c) => c.id === opt.id);
-                  return { ...opt, voteCount: sc?.count ?? opt.voteCount };
-                }),
-                voted: true,
-                myChoiceId: vote.optionId,
-                totalVotes: total,
-              },
-            };
-          }
+        // Bundle 참여 상태
+        const ext = trendExtensions[slug];
+        if (ext?.type === 'BUNDLE' && hasBundleVoted(tkuId, hotpickId)) {
+          return { ...hp, participated: true };
+        }
 
-          return item;
-        });
-
-      fixedTrends = injectVoteState(fixedTrends);
-      allTrends = injectVoteState(allTrends);
-
-      // Bundle 참여 상태 주입
-      const injectBundleParticipated = <T extends { id?: number; alias?: string }>(
-        items: T[]
-      ): T[] =>
-        items.map((item) => {
-          const ext = trendExtensions[item.alias ?? ''];
-          if (ext?.type !== 'BUNDLE') {
-            return item;
-          }
-          const trendId = String(item.id ?? '');
-          if (hasBundleVoted(tkuId, trendId)) {
-            return { ...item, participated: true };
-          }
-          return item;
-        });
-
-      fixedTrends = injectBundleParticipated(fixedTrends);
-      allTrends = injectBundleParticipated(allTrends);
+        return hp;
+      });
     }
 
-    // 카테고리 필터링 (멀티 카테고리 지원)
-    if (categoryCodes.length > 0) {
-      const filterByCategory = <T extends { alias?: string }>(items: T[]): T[] =>
-        items.filter((item) => {
-          const ext = trendExtensions[item.alias ?? ''];
-          if (!ext) {
-            return false;
-          }
-          const itemCodes = ext.categoryCodes ?? (ext.categoryCode ? [ext.categoryCode] : []);
-          return itemCodes.some((code) => categoryCodes.includes(code));
-        });
-
-      fixedTrends = filterByCategory(fixedTrends);
-      allTrends = filterByCategory(allTrends);
-    }
-
-    // excludeAlias 필터링 (추천 API용: 현재 핫픽 제외)
-    if (excludeAlias) {
-      fixedTrends = fixedTrends.filter((t) => t.alias !== excludeAlias);
-      allTrends = allTrends.filter((t) => t.alias !== excludeAlias);
-    }
-
-    // 커서 & 사이즈 파라미터
+    // 커서 기반 페이지네이션
     const cursor = url.searchParams.get('cursor');
     const size = parseInt(url.searchParams.get('size') ?? '10', 10);
-
-    // anchor 기반 슬라이싱 (해시 스크롤 진입)
-    if (anchor) {
-      const anchorIndex = allTrends.findIndex((t) => t.alias === anchor);
-
-      if (anchorIndex === -1) {
-        const result = {
-          ...source,
-          fixedTrends,
-          trends: allTrends.slice(0, size),
-          totalCount: allTrends.length,
-          hasMore: allTrends.length > size,
-          nextCursor: allTrends.length > size ? size : undefined,
-          anchorNotFound: true,
-        };
-        return HttpResponse.json(wrapResponse(result));
-      }
-
-      const startIdx = Math.max(0, anchorIndex - 3);
-      const endIdx = Math.min(allTrends.length, startIdx + size);
-      const trends = allTrends.slice(startIdx, endIdx);
-      const hasPrevious = startIdx > 0;
-      const hasMore = endIdx < allTrends.length;
-
-      const result = {
-        ...source,
-        fixedTrends: [],
-        trends,
-        totalCount: allTrends.length,
-        anchorIndex: anchorIndex - startIdx,
-        hasPrevious,
-        prevCursor: hasPrevious ? startIdx : undefined,
-        hasMore,
-        nextCursor: hasMore ? endIdx : undefined,
-      };
-      return HttpResponse.json(wrapResponse(result));
-    }
-
-    // direction=prev → 이전 페이지
-    if (direction === 'prev') {
-      const cursorVal = parseInt(cursor ?? '0', 10);
-      const startIdx = Math.max(0, cursorVal - size);
-      const trends = allTrends.slice(startIdx, cursorVal);
-      const hasPrevious = startIdx > 0;
-
-      const result = {
-        ...source,
-        fixedTrends: [],
-        trends,
-        totalCount: allTrends.length,
-        hasPrevious,
-        prevCursor: hasPrevious ? startIdx : undefined,
-      };
-      return HttpResponse.json(wrapResponse(result));
-    }
-
-    // 일반 커서 기반 페이지네이션
     const cursorVal = cursor ? parseInt(cursor, 10) : 0;
     const pageStart = cursorVal;
-    const pageEnd = Math.min(allTrends.length, pageStart + size);
-    const pageTrends = allTrends.slice(pageStart, pageEnd);
-    const hasMore = pageEnd < allTrends.length;
+    const pageEnd = Math.min(hotpicks.length, pageStart + size);
+    const pageHotpicks = hotpicks.slice(pageStart, pageEnd);
+    const hasMore = pageEnd < hotpicks.length;
 
-    const result = {
-      ...source,
-      fixedTrends: pageStart === 0 ? fixedTrends : [],
-      trends: pageTrends,
-      totalCount: allTrends.length,
-      hasMore,
-      nextCursor: hasMore ? pageEnd : undefined,
-    };
-
-    return HttpResponse.json(wrapResponse(result));
+    return HttpResponse.json(
+      wrapResponse({
+        hotpicks: pageHotpicks,
+        hasMore,
+        nextCursor: hasMore ? pageEnd : undefined,
+      })
+    );
   }),
 
   /**
-   * 싱글 핫픽 투표
-   * POST /api/v1/single/:hotpickId/vote
+   * 핫픽 상세 조회
+   * GET /api/v1/hotpicks/:slug
+   */
+  http.get(`${baseURL}/api/v1/hotpicks/:slug`, ({ params, request }) => {
+    const slug = String(params.slug);
+    const detailData = mockHotpickDetailMap[slug] ?? mockHotpickDetailBundleConverted;
+
+    const tkuId = request.headers.get('x-tku-id') ?? '';
+    const hotpickId = String(detailData.hotpick?.hotpickId ?? '');
+
+    // 기투표 상태 반영
+    if (tkuId && detailData.hotpick?.election) {
+      const vote = getVote(tkuId, hotpickId);
+      if (vote) {
+        const optionCounts = getOptionCounts(hotpickId);
+        const total = getTotalVotes(hotpickId);
+        const election = detailData.hotpick.election;
+        return HttpResponse.json(
+          wrapResponse({
+            ...detailData,
+            hotpick: {
+              ...detailData.hotpick,
+              election: {
+                ...election,
+                voted: true,
+                myElectionItemId: Number(vote.optionId) || undefined,
+                totalVoteCount: total,
+                items: (election.items ?? []).map(
+                  (item: { electionItemId?: number; voteCount?: number }) => {
+                    const sc = optionCounts.find((c) => c.id === String(item.electionItemId));
+                    return {
+                      ...item,
+                      voteCount: sc?.count ?? item.voteCount,
+                      voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+                    };
+                  }
+                ),
+              },
+            },
+          })
+        );
+      }
+    }
+
+    return HttpResponse.json(wrapResponse(detailData));
+  }),
+
+  /**
+   * 핫픽 투표
+   * POST /api/v1/hotpicks/:slug/votes
    *
    * Headers: x-tku-id (필수)
-   * Body: { optionId: string }
-   * 성공: 200 + { myChoiceId, optionCounts, totalVotes }
-   * 중복: 409 + 현재 결과
+   * Body: { electionItemId: number }
    */
-  http.post(`${baseURL}/api/v1/single/:hotpickId/vote`, async ({ request, params }) => {
+  http.post(`${baseURL}/api/v1/hotpicks/:slug/votes`, async ({ request, params }) => {
     const tkuId = request.headers.get('x-tku-id');
     if (!tkuId) {
       return HttpResponse.json(
@@ -260,34 +183,49 @@ export const handlers = [
       );
     }
 
-    const hotpickId = String(params.hotpickId);
-    const body = (await request.json()) as { optionId: string };
-    const { optionId } = body;
+    const slug = String(params.slug);
+    const body = (await request.json()) as { electionItemId: number };
+    const optionId = String(body.electionItemId);
 
-    // 해당 핫픽의 singleVote 데이터 찾기 (옵션 ID로 매핑)
-    const aliasEntry = Object.entries(singleVoteDataMap).find(([, sv]) =>
-      sv.options.some((opt) => opt.id === optionId)
-    );
-
-    if (!aliasEntry) {
+    // 해당 핫픽의 singleVote 데이터 찾기
+    const svData = singleVoteDataMap[slug];
+    if (!svData) {
       return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '유효하지 않은 옵션입니다.', data: null },
+        { code: 'NOT_FOUND', message: '유효하지 않은 핫픽입니다.', data: null },
         { status: 404 }
       );
     }
 
+    // hotpickId는 상세 데이터에서 가져오기
+    const detailData = mockHotpickDetailMap[slug];
+    const hotpickId = String(detailData?.hotpick?.hotpickId ?? '');
+
     // 중복 투표 체크
     if (hasVoted(tkuId, hotpickId)) {
       const voteRecord = getVote(tkuId, hotpickId);
+      const optionCounts = getOptionCounts(hotpickId);
+      const total = getTotalVotes(hotpickId);
       return HttpResponse.json(
         {
           code: 'ALREADY_VOTED',
           message: '이미 투표했습니다.',
           data: {
+            hotpickId: Number(hotpickId),
+            hotpickSlug: slug,
+            electionId: svData.electionId,
             voted: true,
-            myChoiceId: voteRecord?.optionId ?? optionId,
-            optionCounts: getOptionCounts(hotpickId),
-            totalVotes: getTotalVotes(hotpickId),
+            myElectionItemId: Number(voteRecord?.optionId ?? optionId),
+            totalVoteCount: total,
+            items: svData.options.map((opt) => {
+              const sc = optionCounts.find((c) => c.id === opt.id);
+              return {
+                electionItemId: Number(opt.id.replace(/\D/g, '')) || 0,
+                title: opt.text,
+                imageUrl: opt.imageUrl,
+                voteCount: sc?.count ?? opt.voteCount ?? 0,
+                voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+              };
+            }),
           },
         },
         { status: 409 }
@@ -298,124 +236,54 @@ export const handlers = [
     recordVote(tkuId, hotpickId, optionId);
     incrementVoteCount(hotpickId, optionId);
 
+    const optionCounts = getOptionCounts(hotpickId);
+    const total = getTotalVotes(hotpickId);
+
     return HttpResponse.json(
       wrapResponse({
+        hotpickId: Number(hotpickId),
+        hotpickSlug: slug,
+        electionId: svData.electionId,
         voted: true,
-        myChoiceId: optionId,
-        optionCounts: getOptionCounts(hotpickId),
-        totalVotes: getTotalVotes(hotpickId),
+        myElectionItemId: Number(optionId),
+        totalVoteCount: total,
+        items: svData.options.map((opt) => {
+          const sc = optionCounts.find((c) => c.id === opt.id);
+          return {
+            electionItemId: Number(opt.id.replace(/\D/g, '')) || 0,
+            title: opt.text,
+            imageUrl: opt.imageUrl,
+            voteCount: sc?.count ?? opt.voteCount ?? 0,
+            voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+          };
+        }),
       })
     );
   }),
 
   /**
-   * Hotpick 상세 조회 (투표 페이지)
-   * GET /api/v1/display/trend/:trendAlias
-   *
-   * alias에 따라 다른 상세 데이터 반환:
-   * - love-dilemma → BUNDLE + IMAGE (5개 선거)
-   * - finance-picks → BUNDLE + TEXT 혼합 (마감임박 D-2)
-   * - work-closed → BUNDLE + CLOSED
-   * - single-love → SINGLE + IMAGE
-   * - single-text-finance → SINGLE + TEXT
-   * - 기타 → 기본 BUNDLE
+   * 카테고리 목록 조회
+   * GET /api/v1/hotpicks/categories
    */
-  http.get(`${baseURL}/api/v1/display/trend/:trendAlias`, ({ params, request }) => {
-    const alias = String(params.trendAlias);
-    const detailData = mockHotpickDetailMap[alias] ?? mockHotpickDetailBundle;
-
-    // SINGLE 타입: singleVote + categoryCodes 주입
-    const svData = singleVoteDataMap[alias];
-    const ext = trendExtensions[alias];
-    if (svData && detailData.type === 'SINGLE') {
-      const tkuId = request.headers.get('x-tku-id') ?? '';
-      const hotpickId = String(detailData.trendId ?? '');
-      const vote = tkuId ? getVote(tkuId, hotpickId) : null;
-
-      const singleVote = vote
-        ? {
-            ...svData,
-            options: svData.options.map((opt) => {
-              const sc = getOptionCounts(hotpickId).find((c) => c.id === opt.id);
-              return { ...opt, voteCount: sc?.count ?? opt.voteCount };
-            }),
-            voted: true,
-            myChoiceId: vote.optionId,
-            totalVotes: getTotalVotes(hotpickId),
-          }
-        : svData;
-
-      // 메인 피드에서 participantsCount 가져오기
-      const listItem = mockMainDisplay.trends?.find((t) => t.alias === alias);
-
-      return HttpResponse.json(
-        wrapResponse({
-          ...detailData,
-          singleVote,
-          categoryCodes: ext?.categoryCodes ?? [],
-          deadline: ext?.deadline ?? detailData.deadline,
-          voteType: ext?.voteType,
-          participantsCount: listItem?.participantsCount ?? 0,
-        })
-      );
-    }
-
-    return HttpResponse.json(wrapResponse(detailData));
-  }),
-
-  /**
-   * 선거 옵션 투표 수 조회
-   * GET /api/v1/trend/:trendAlias/item/:itemId
-   *
-   * electionId(itemId)별 투표 수 반환
-   */
-  http.get(`${baseURL}/api/v1/trend/:trendAlias/item/:itemId`, ({ params }) => {
-    const itemId = String(params.itemId);
-    const voteData = mockVoteCountMap[itemId] ?? { options: [] };
-    return HttpResponse.json(wrapResponse(voteData));
-  }),
-
-  /**
-   * 댓글 개수 조회
-   * GET /api/v1/comment/:trendId/item/:itemId/count
-   */
-  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
-    HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
+  http.get(`${baseURL}/api/v1/hotpicks/categories`, () =>
+    HttpResponse.json(
+      wrapResponse([
+        { id: 1, name: '연애', slug: 'LOVE' },
+        { id: 2, name: '결혼', slug: 'MARRIAGE' },
+        { id: 3, name: '재테크', slug: 'FINANCE' },
+        { id: 4, name: '직장', slug: 'WORK' },
+        { id: 5, name: '스포츠', slug: 'SPORTS' },
+        { id: 6, name: '음식', slug: 'FOOD' },
+        { id: 7, name: '게임', slug: 'GAME' },
+        { id: 8, name: '자동차', slug: 'CAR' },
+        { id: 9, name: '건강', slug: 'HEALTH' },
+        { id: 10, name: '트렌드', slug: 'TREND' },
+      ])
+    )
   ),
 
   /**
-   * Result 생성
-   * POST /api/v1/result
-   *
-   * x-tku-id 헤더로 Bundle 참여 기록 저장
-   */
-  http.post(`${baseURL}/api/v1/result`, async ({ request }) => {
-    const tkuId = request.headers.get('x-tku-id') ?? '';
-    const body = (await request.json()) as { trendId: number; selectedItems: unknown[] };
-    const resultId = `result-${Date.now()}`;
-
-    // Bundle 참여 기록
-    if (tkuId && body.trendId) {
-      recordBundleVote(tkuId, String(body.trendId), resultId);
-    }
-
-    return HttpResponse.json(
-      wrapResponse({
-        resultId,
-      })
-    );
-  }),
-
-  /**
-   * Result 전시 조회
-   * GET /api/v1/display/result/:resultId
-   */
-  http.get(`${baseURL}/api/v1/display/result/:resultId`, () =>
-    HttpResponse.json(wrapResponse(mockResultDisplay))
-  ),
-
-  /**
-   * 핫픽 선거 댓글 조회
+   * 댓글 목록 조회 (스텁 — need-api.md 참고)
    * GET /api/v1/display/trend/:trendId/item/:itemId/comment
    */
   http.get(`${baseURL}/api/v1/display/trend/:trendId/item/:itemId/comment`, ({ request }) => {
@@ -428,88 +296,128 @@ export const handlers = [
     return HttpResponse.json(wrapResponse(response));
   }),
 
+  /**
+   * 댓글 개수 조회 (스텁)
+   */
+  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
+    HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
+  ),
+
+  /**
+   * Result 생성 (BUNDLE 전용 — 스텁)
+   * POST /api/v1/result
+   */
+  http.post(`${baseURL}/api/v1/result`, async ({ request }) => {
+    const tkuId = request.headers.get('x-tku-id') ?? '';
+    const body = (await request.json()) as { trendId: number; selectedItems: unknown[] };
+    const resultId = `result-${Date.now()}`;
+
+    if (tkuId && body.trendId) {
+      recordBundleVote(tkuId, String(body.trendId), resultId);
+    }
+
+    return HttpResponse.json(wrapResponse({ resultId }));
+  }),
+
+  /**
+   * Result 전시 조회 (BUNDLE 전용 — 스텁)
+   * GET /api/v1/display/result/:resultId
+   */
+  http.get(`${baseURL}/api/v1/display/result/:resultId`, () =>
+    HttpResponse.json(wrapResponse(mockResultDisplay))
+  ),
+
   // ──────────────────────────────────────────────────────────
-  // Admin Election CRUD
+  // Admin Hotpick CRUD
   // ──────────────────────────────────────────────────────────
 
   /**
-   * 선거 목록 조회
-   * GET /admin/api/v1/election
+   * 핫픽 목록 조회
+   * GET /admin/api/v1/hotpicks
    */
-  http.get(`${baseURL}/admin/api/v1/election`, ({ request }) => {
-    const url = new URL(request.url);
-    const params = {
-      keyword: url.searchParams.get('keyword') ?? undefined,
-      voteType: url.searchParams.get('voteType') ?? undefined,
-      page: url.searchParams.has('page') ? Number(url.searchParams.get('page')) : undefined,
-      size: url.searchParams.has('size') ? Number(url.searchParams.get('size')) : undefined,
-    };
-    return HttpResponse.json(wrapResponse(getMockElectionList(params)));
+  http.get(`${baseURL}/admin/api/v1/hotpicks`, () => {
+    const summaries = (mockMainHotpicks.hotpicks ?? []).map((hp) => ({
+      id: hp.hotpickId,
+      type: hp.type,
+      slug: hp.slug,
+      visible: true,
+      imageUrl: hp.imageUrl,
+      createdAt: hp.expiredAt,
+      expiredAt: hp.expiredAt,
+      categories: hp.categories,
+      electionId: hp.election?.electionId,
+    }));
+    return HttpResponse.json(wrapResponse(summaries));
   }),
 
   /**
-   * 선거 상세 조회
-   * GET /admin/api/v1/election/:electionId
+   * 핫픽 상세 조회
+   * GET /admin/api/v1/hotpicks/:id
    */
-  http.get(`${baseURL}/admin/api/v1/election/:electionId`, ({ params }) => {
-    const election = getMockElection(String(params.electionId));
-    if (!election) {
+  http.get(`${baseURL}/admin/api/v1/hotpicks/:id`, ({ params }) => {
+    const id = Number(params.id);
+    const hp = (mockMainHotpicks.hotpicks ?? []).find((h) => h.hotpickId === id);
+    if (!hp) {
       return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '선거를 찾을 수 없습니다.', data: null },
+        { code: 'NOT_FOUND', message: '핫픽을 찾을 수 없습니다.', data: null },
         { status: 404 }
       );
     }
-    return HttpResponse.json(wrapResponse(election));
-  }),
-
-  /**
-   * 선거 생성
-   * POST /admin/api/v1/election
-   */
-  http.post(`${baseURL}/admin/api/v1/election`, async ({ request }) => {
-    const body = (await request.json()) as {
-      title: string;
-      voteType: string;
-      mainImageUrl?: string;
-      options: { title: string; imageUrl?: string; order: number }[];
+    const detail = {
+      id: hp.hotpickId,
+      type: hp.type,
+      slug: hp.slug,
+      visible: true,
+      imageUrl: hp.imageUrl,
+      createdAt: hp.expiredAt,
+      expiredAt: hp.expiredAt,
+      categories: (hp.categories ?? []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
+      election: hp.election
+        ? {
+            id: hp.election.electionId,
+            hotpickId: hp.hotpickId,
+            title: hp.election.title,
+            imageUrl: hp.election.imageUrl,
+            totalVoteCount: hp.election.totalVoteCount,
+            totalCommentCount: hp.election.totalCommentCount,
+            items: (hp.election.items ?? []).map((item) => ({
+              id: item.electionItemId,
+              displayOrder: item.displayOrder,
+              title: item.title,
+              imageUrl: item.imageUrl,
+              voteCount: item.voteCount,
+            })),
+          }
+        : undefined,
     };
-    const created = createMockElection(body);
-    return HttpResponse.json(wrapResponse(created), { status: 201 });
+    return HttpResponse.json(wrapResponse(detail));
   }),
 
   /**
-   * 선거 수정
-   * PUT /admin/api/v1/election/:electionId
+   * 핫픽 생성
+   * POST /admin/api/v1/hotpicks
    */
-  http.put(`${baseURL}/admin/api/v1/election/:electionId`, async ({ params, request }) => {
-    const body = (await request.json()) as {
-      title: string;
-      voteType: string;
-      mainImageUrl?: string;
-      options: { title: string; imageUrl?: string; order: number }[];
-    };
-    const updated = updateMockElection(String(params.electionId), body);
-    if (!updated) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '선거를 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    return HttpResponse.json(wrapResponse(updated));
+  http.post(`${baseURL}/admin/api/v1/hotpicks`, async ({ request }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json(wrapResponse({ id: Date.now(), ...body }), { status: 201 });
   }),
 
   /**
-   * 선거 삭제
-   * DELETE /admin/api/v1/election/:electionId
+   * 핫픽 수정
+   * PUT /admin/api/v1/hotpicks/:id
    */
-  http.delete(`${baseURL}/admin/api/v1/election/:electionId`, ({ params }) => {
-    const success = deleteMockElection(String(params.electionId));
-    if (!success) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '선거를 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    return HttpResponse.json(wrapResponse(null));
+  http.put(`${baseURL}/admin/api/v1/hotpicks/:id`, async ({ request, params }) => {
+    const body = (await request.json()) as Record<string, unknown>;
+    return HttpResponse.json(wrapResponse({ id: Number(params.id), ...body }));
   }),
+
+  /**
+   * 핫픽 삭제
+   * DELETE /admin/api/v1/hotpicks/:id
+   */
+  http.delete(`${baseURL}/admin/api/v1/hotpicks/:id`, () => HttpResponse.json(wrapResponse(null))),
 ];

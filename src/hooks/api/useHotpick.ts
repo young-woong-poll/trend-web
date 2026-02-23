@@ -1,7 +1,11 @@
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+/**
+ * Hotpick 선거 옵션 카운트 hooks — 스텁 처리
+ *
+ * 투표 수는 이제 ElectionViewResponse.items[].voteCount/voteRate에 내장됨.
+ * 별도 API 불필요하므로 스텁 처리.
+ */
 
-import { getTrendItemOptions } from '@/generated/api/client/trend/trend';
-import type { TrendItemOptionsResponse, OptionCount } from '@/generated/models';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 /**
  * Hotpick Query Keys
@@ -13,13 +17,12 @@ export const hotpickKeys = {
 };
 
 /**
- * Hotpick 선거 옵션 카운트 조회 Hook
+ * Hotpick 선거 옵션 카운트 조회 Hook (스텁)
  */
 export const useHotpickElectionOptionsCount = ({
   hotpickAlias,
   electionId,
   enabled = true,
-  size,
 }: {
   hotpickAlias: string;
   electionId: string;
@@ -28,36 +31,25 @@ export const useHotpickElectionOptionsCount = ({
 }) =>
   useQuery({
     queryKey: hotpickKeys.electionOptions(hotpickAlias, electionId),
-    queryFn: () => getTrendItemOptions(hotpickAlias, electionId, { size }),
+    queryFn: () => Promise.resolve({ options: [] as { id?: string; count?: number }[] }),
     enabled,
-    throwOnError: true,
     staleTime: 60 * 1000,
   });
 
 /**
- * Hotpick 선거 옵션 카운트를 Map 형태로 조회하는 Hook
+ * Hotpick 선거 옵션 카운트를 Map 형태로 조회하는 Hook (스텁)
  */
 export const useHotpickElectionOptionsCountMap = (
   hotpickAlias: string,
   electionId: string,
-  size?: number,
-  options?: Omit<
-    UseQueryOptions<TrendItemOptionsResponse, Error, Record<string, number>>,
+  _size?: number,
+  _options?: Omit<
+    UseQueryOptions<unknown, Error, Record<string, number>>,
     'queryKey' | 'queryFn' | 'select'
   >
 ) =>
   useQuery({
     queryKey: hotpickKeys.electionOptions(hotpickAlias, electionId),
-    queryFn: () => getTrendItemOptions(hotpickAlias, electionId, { size }),
-    throwOnError: true,
-    select: (data: TrendItemOptionsResponse) =>
-      (data.options ?? []).reduce(
-        (acc: Record<string, number>, option: OptionCount) => ({
-          ...acc,
-          [option.id ?? '']: option.count ?? 0,
-        }),
-        {} as Record<string, number>
-      ),
+    queryFn: () => Promise.resolve({} as Record<string, number>),
     staleTime: 60 * 1000,
-    ...options,
   });

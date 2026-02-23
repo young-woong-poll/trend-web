@@ -13,9 +13,9 @@ import { CommentForm } from '@/components/features/Hotpick/CommentModal/CommentF
 import { CommentList } from '@/components/features/Hotpick/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import type { CommentItem } from '@/generated/models';
 import { useDeleteComment, useCommentCount } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
+import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
   isOpen: boolean;
