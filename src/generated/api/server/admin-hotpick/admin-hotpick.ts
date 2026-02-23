@@ -6,9 +6,11 @@
  */
 import type {
   BaseResponseAdminHotpickDetailResponse,
+  BaseResponseHotpickSlugCheckResponse,
   BaseResponseListAdminHotpickSummaryResponse,
   BaseResponseObject,
   BaseResponseVoid,
+  CheckSlugParams,
   CreateHotpickRequest,
   UpdateHotpickRequest,
 } from '../openAPIDefinition.schemas';
@@ -264,5 +266,67 @@ export const createHotpick = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(createHotpickRequest),
+  });
+};
+
+/**
+ * @summary Check hotpick slug duplicate
+ */
+export type checkSlugResponse200 = {
+  data: BaseResponseHotpickSlugCheckResponse;
+  status: 200;
+};
+
+export type checkSlugResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type checkSlugResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type checkSlugResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type checkSlugResponseSuccess = checkSlugResponse200 & {
+  headers: Headers;
+};
+export type checkSlugResponseError = (
+  | checkSlugResponse409
+  | checkSlugResponse429
+  | checkSlugResponse500
+) & {
+  headers: Headers;
+};
+
+export type checkSlugResponse = checkSlugResponseSuccess | checkSlugResponseError;
+
+export const getCheckSlugUrl = (params: CheckSlugParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/admin/api/v1/hotpicks/check-slug?${stringifiedParams}`
+    : `/admin/api/v1/hotpicks/check-slug`;
+};
+
+export const checkSlug = async (
+  params: CheckSlugParams,
+  options?: RequestInit
+): Promise<checkSlugResponse> => {
+  return serverFetchInstance<checkSlugResponse>(getCheckSlugUrl(params), {
+    ...options,
+    method: 'GET',
   });
 };

@@ -38,6 +38,34 @@ export interface BaseResponseObject {
   data?: BaseResponseObjectData;
 }
 
+export interface UpdateCommentRequest {
+  verifyToken: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  content: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentUpdateResponse {
+  id?: string;
+  updatedAt?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentUpdateResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentUpdateResponse;
+}
+
 export interface HotpickElectionItemRequest {
   /** @minimum 0 */
   displayOrder?: number;
@@ -207,6 +235,89 @@ export interface BaseResponseVoteResultResponse {
   data?: VoteResultResponse;
 }
 
+export interface CreateCommentRequest {
+  /**
+   * @minLength 0
+   * @maxLength 80
+   */
+  nickname: string;
+  /**
+   * @minLength 1
+   * @maxLength 64
+   */
+  password: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  content: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentCreateResponse {
+  id?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentCreateResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentCreateResponse;
+}
+
+export interface VerifyCommentRequest {
+  /**
+   * @minLength 1
+   * @maxLength 64
+   */
+  password: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentVerifyResponse {
+  verifyToken?: string;
+  expiresIn?: number;
+  expiredAt?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentVerifyResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentVerifyResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentLikeResponse {
+  liked?: boolean;
+  likeCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentLikeResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentLikeResponse;
+}
+
 export type CreateHotpickRequestType =
   (typeof CreateHotpickRequestType)[keyof typeof CreateHotpickRequestType];
 
@@ -291,6 +402,55 @@ export interface BaseResponseHotpickDetailResponse {
   data?: HotpickDetailResponse;
 }
 
+export interface CommentItem {
+  id?: string;
+  nickname?: string;
+  content?: string;
+  likeCount?: number;
+  liked?: boolean;
+  edited?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentListResponse {
+  totalCount?: number;
+  nextCursor?: string;
+  comments?: CommentItem[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentListResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentListResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CommentCountResponse {
+  count?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentCountResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentCountResponse;
+}
+
 export interface CategoryTabResponse {
   id?: number;
   name?: string;
@@ -361,6 +521,7 @@ export interface AdminHotpickSummaryResponse {
   expiredAt?: string;
   categories?: AdminCategoryResponse[];
   electionId?: number;
+  electionTitle?: string;
 }
 
 /**
@@ -376,6 +537,24 @@ export interface BaseResponseListAdminHotpickSummaryResponse {
 }
 
 /**
+ * 응답 데이터
+ */
+export interface HotpickSlugCheckResponse {
+  exists?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseHotpickSlugCheckResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: HotpickSlugCheckResponse;
+}
+
+/**
  * 공통 응답 포맷
  */
 export interface BaseResponseListAdminCategoryResponse {
@@ -386,6 +565,16 @@ export interface BaseResponseListAdminCategoryResponse {
   /** 응답 데이터 */
   data?: AdminCategoryResponse[];
 }
+
+export interface DeleteCommentRequest {
+  verifyToken: string;
+}
+
+export type GetCommentsParams = {
+  sort?: string;
+  cursor?: string;
+  size?: number;
+};
 
 export type GetMainParams = {
   category?: string;
@@ -399,4 +588,8 @@ export type GetCategories1Params = {
 
 export type GeneratePresignedUrlParams = {
   filename: string;
+};
+
+export type CheckSlugParams = {
+  slug: string;
 };

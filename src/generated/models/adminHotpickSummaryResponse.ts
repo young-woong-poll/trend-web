@@ -19,4 +19,5 @@ export interface AdminHotpickSummaryResponse {
   expiredAt?: string;
   categories?: AdminCategoryResponse[];
   electionId?: number;
+  electionTitle?: string;
 }

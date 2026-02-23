@@ -6,8 +6,10 @@
  */
 import type {
   BaseResponseAdminHotpickDetailResponse,
+  BaseResponseHotpickSlugCheckResponse,
   BaseResponseListAdminHotpickSummaryResponse,
   BaseResponseVoid,
+  CheckSlugParams,
   CreateHotpickRequest,
   UpdateHotpickRequest,
 } from '../../../models';
@@ -87,8 +89,21 @@ export const createHotpick = (
     options
   );
 };
+/**
+ * @summary Check hotpick slug duplicate
+ */
+export const checkSlug = (
+  params: CheckSlugParams,
+  options?: SecondParameter<typeof customInstance<BaseResponseHotpickSlugCheckResponse>>
+) => {
+  return customInstance<BaseResponseHotpickSlugCheckResponse>(
+    { url: `/admin/api/v1/hotpicks/check-slug`, method: 'GET', params },
+    options
+  );
+};
 export type GetHotpickResult = NonNullable<Awaited<ReturnType<typeof getHotpick>>>;
 export type UpdateHotpickResult = NonNullable<Awaited<ReturnType<typeof updateHotpick>>>;
 export type DeleteHotpickResult = NonNullable<Awaited<ReturnType<typeof deleteHotpick>>>;
 export type GetHotpicksResult = NonNullable<Awaited<ReturnType<typeof getHotpicks>>>;
 export type CreateHotpickResult = NonNullable<Awaited<ReturnType<typeof createHotpick>>>;
+export type CheckSlugResult = NonNullable<Awaited<ReturnType<typeof checkSlug>>>;
