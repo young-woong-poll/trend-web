@@ -201,9 +201,8 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
         <CommentBottomSheet
           isOpen={isCommentModalOpen}
           onClose={handleCloseCommentModal}
-          hotpickId={String(hotpickId)}
+          slug={slug}
           electionId={selectedElectionForComment}
-          hotpickAlias={slug}
         />
       )}
     </>

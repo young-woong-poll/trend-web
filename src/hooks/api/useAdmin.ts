@@ -6,6 +6,7 @@ import {
   createHotpick,
   updateHotpick,
   deleteHotpick,
+  checkSlug,
 } from '@/generated/api/client/admin-hotpick/admin-hotpick';
 import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
 import type {
@@ -13,6 +14,7 @@ import type {
   AdminHotpickDetailResponse,
   CreateHotpickRequest,
   UpdateHotpickRequest,
+  HotpickSlugCheckResponse,
 } from '@/generated/models';
 import { useToast } from '@/hooks/useToast';
 
@@ -111,9 +113,12 @@ export const useGeneratePresignedUrl = () =>
   });
 
 /**
- * Admin: Hotpick Slug 중복 체크 Hook (스텁 — need-api.md 참고)
+ * Admin: Hotpick Slug 중복 체크 Hook
  */
 export const useCheckHotpickAlias = () =>
   useMutation({
-    mutationFn: async (_slug: string) => ({ exists: false }),
+    mutationFn: async (slug: string) => {
+      const result = await checkSlug({ slug });
+      return result as HotpickSlugCheckResponse;
+    },
   });

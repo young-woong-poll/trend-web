@@ -6,10 +6,9 @@ import styles from '@/components/features/Hotpick/SingleDetailView/InlineComment
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateComment } from '@/hooks/api/useComment';
 import { isValidNicknameCharacters, NICKNAME_MAX_LENGTH, validateNickname } from '@/lib/utils';
-import type { CreateCommentRequest } from '@/types/comment';
 
 interface InlineCommentFormProps {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   onSuccess: () => void;
 }
@@ -18,11 +17,7 @@ const COMMENT_MAX_LENGTH = 200;
 const PASSWORD_MIN_LENGTH = 4;
 const PASSWORD_MAX_LENGTH = 15;
 
-export const InlineCommentForm: FC<InlineCommentFormProps> = ({
-  hotpickId,
-  electionId,
-  onSuccess,
-}) => {
+export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId, onSuccess }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
@@ -116,24 +111,25 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({
       return;
     }
 
-    const requestData: CreateCommentRequest = {
-      trendId: Number(hotpickId),
-      itemId: electionId,
-      nickname: trimmedNickname,
-      password: trimmedPassword,
-      content: trimmedContent,
-    };
-
-    createComment(requestData, {
-      onSuccess: () => {
-        handleCancel();
-        onSuccess();
+    createComment(
+      {
+        slug,
+        electionId,
+        nickname: trimmedNickname,
+        password: trimmedPassword,
+        content: trimmedContent,
       },
-      onError: (error) => {
-        showToast('댓글 작성에 실패했습니다');
-        console.error('Failed to create comment:', error);
-      },
-    });
+      {
+        onSuccess: () => {
+          handleCancel();
+          onSuccess();
+        },
+        onError: (error) => {
+          showToast('댓글 작성에 실패했습니다');
+          console.error('Failed to create comment:', error);
+        },
+      }
+    );
   };
 
   const hasContent = content.trim().length > 0;

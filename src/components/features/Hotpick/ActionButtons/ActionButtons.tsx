@@ -13,19 +13,19 @@ import { useModal } from '@/contexts/ModalContext';
 import { commentQueries } from '@/hooks/api/useComment';
 
 interface ActionButtonsProps {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   commentDisabled?: boolean;
   onCommentClick: () => void;
 }
 
 export const ActionButtons: FC<ActionButtonsProps> = ({
-  hotpickId,
+  slug,
   electionId,
   commentDisabled = false,
   onCommentClick,
 }) => {
-  const { data: commentCountData } = useQuery(commentQueries.count(Number(hotpickId), electionId));
+  const { data: commentCountData } = useQuery(commentQueries.count(slug, electionId));
   const commentCount = commentCountData?.count;
 
   const { showToast } = useModal();

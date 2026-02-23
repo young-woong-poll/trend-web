@@ -18,7 +18,7 @@ import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem } from '@/types/comment';
 
 interface InlineCommentSectionProps {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   voted: boolean;
   isClosed: boolean;
@@ -26,7 +26,7 @@ interface InlineCommentSectionProps {
 }
 
 export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
-  hotpickId,
+  slug,
   electionId,
   voted,
   isClosed,
@@ -37,7 +37,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
   const tkuId = getTKUID();
   const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteComments({ hotpickId, electionId, sort, size: 5, tkuId });
+    useInfiniteComments({ slug, electionId, sort, size: 5, tkuId });
 
   const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
 
@@ -50,7 +50,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
   const { showToast, showConfirm } = useModal();
   const { mutate: deleteComment } = useDeleteComment();
-  const { handleLikeClick } = useCommentLike(hotpickId, electionId, sort, {
+  const { handleLikeClick } = useCommentLike(slug, electionId, sort, {
     onError: () => showToast('좋아요 처리에 실패했습니다'),
   });
 
@@ -90,7 +90,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
           deleteComment(
             {
               commentId: selectedComment.id ?? '',
-              hotpickId,
+              slug,
               electionId,
               data: { verifyToken: token },
             },
@@ -196,11 +196,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
       {/* 댓글 작성 폼 (목록 위에 배치) */}
       <div className={styles.commentFormArea}>
         {canViewComments ? (
-          <InlineCommentForm
-            hotpickId={hotpickId}
-            electionId={electionId}
-            onSuccess={handleCommentSuccess}
-          />
+          <InlineCommentForm slug={slug} electionId={electionId} onSuccess={handleCommentSuccess} />
         ) : (
           <p className={styles.commentDisabledHint}>투표 후 댓글을 작성할 수 있습니다</p>
         )}
@@ -249,7 +245,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
           }}
           comment={selectedComment}
           editToken={editToken}
-          hotpickId={hotpickId}
+          slug={slug}
           electionId={electionId}
         />
       )}

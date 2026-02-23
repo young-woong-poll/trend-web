@@ -32,10 +32,10 @@ export const getMockCommentListResponse = (
 
   // 정렬 적용
   if (sort === 'popular') {
-    sortedComments.sort((a, b) => b.likeCount - a.likeCount);
+    sortedComments.sort((a, b) => (b.likeCount ?? 0) - (a.likeCount ?? 0));
   } else {
     sortedComments.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
     );
   }
 
@@ -52,8 +52,8 @@ export const getMockCommentListResponse = (
   const hasNext = startIndex + size < sortedComments.length;
 
   return {
-    totalSize: mockCommentList.length,
-    nextId: hasNext ? (paginatedComments[paginatedComments.length - 1]?.id ?? null) : null,
+    totalCount: mockCommentList.length,
+    nextCursor: hasNext ? paginatedComments[paginatedComments.length - 1]?.id : undefined,
     comments: paginatedComments,
   };
 };

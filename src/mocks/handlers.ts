@@ -282,11 +282,15 @@ export const handlers = [
     )
   ),
 
+  // ──────────────────────────────────────────────────────────
+  // Comment API
+  // ──────────────────────────────────────────────────────────
+
   /**
-   * 댓글 목록 조회 (스텁 — need-api.md 참고)
-   * GET /api/v1/display/trend/:trendId/item/:itemId/comment
+   * 댓글 목록 조회
+   * GET /api/v1/hotpicks/:slug/elections/:electionId/comments
    */
-  http.get(`${baseURL}/api/v1/display/trend/:trendId/item/:itemId/comment`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/hotpicks/:slug/elections/:electionId/comments`, ({ request }) => {
     const url = new URL(request.url);
     const cursor = url.searchParams.get('cursor') ?? undefined;
     const size = parseInt(url.searchParams.get('size') ?? '10', 10);
@@ -297,10 +301,89 @@ export const handlers = [
   }),
 
   /**
-   * 댓글 개수 조회 (스텁)
+   * 댓글 생성
+   * POST /api/v1/hotpicks/:slug/elections/:electionId/comments
    */
-  http.get(`${baseURL}/api/v1/comment/:trendId/item/:itemId/count`, () =>
+  http.post(
+    `${baseURL}/api/v1/hotpicks/:slug/elections/:electionId/comments`,
+    async ({ request }) => {
+      const body = (await request.json()) as {
+        nickname: string;
+        password: string;
+        content: string;
+      };
+      const newComment = {
+        id: `comment-${Date.now()}`,
+        nickname: body.nickname,
+        content: body.content,
+        likeCount: 0,
+        liked: false,
+        edited: false,
+        createdAt: new Date().toISOString(),
+      };
+      return HttpResponse.json(wrapResponse(newComment), { status: 201 });
+    }
+  ),
+
+  /**
+   * 댓글 개수 조회
+   * GET /api/v1/hotpicks/:slug/elections/:electionId/comments/count
+   */
+  http.get(`${baseURL}/api/v1/hotpicks/:slug/elections/:electionId/comments/count`, () =>
     HttpResponse.json(wrapResponse({ count: Math.floor(Math.random() * 50) + 5 }))
+  ),
+
+  /**
+   * 댓글 수정
+   * PUT /api/v1/comments/:commentId
+   */
+  http.put(`${baseURL}/api/v1/comments/:commentId`, async ({ request, params }) => {
+    const commentId = String(params.commentId);
+    const body = (await request.json()) as { verifyToken: string; content: string };
+    return HttpResponse.json(
+      wrapResponse({
+        id: commentId,
+        content: body.content,
+        edited: true,
+        updatedAt: new Date().toISOString(),
+      })
+    );
+  }),
+
+  /**
+   * 댓글 삭제
+   * DELETE /api/v1/comments/:commentId
+   */
+  http.delete(`${baseURL}/api/v1/comments/:commentId`, () => HttpResponse.json(wrapResponse(null))),
+
+  /**
+   * 댓글 비밀번호 검증
+   * POST /api/v1/comments/:commentId/verify
+   */
+  http.post(`${baseURL}/api/v1/comments/:commentId/verify`, async () =>
+    HttpResponse.json(
+      wrapResponse({
+        verifyToken: `mock-token-${Date.now()}`,
+        expiresIn: 300,
+        expiredAt: new Date(Date.now() + 300_000).toISOString(),
+      })
+    )
+  ),
+
+  /**
+   * 댓글 좋아요
+   * POST /api/v1/comments/:commentId/like
+   */
+  http.post(`${baseURL}/api/v1/comments/:commentId/like`, () =>
+    HttpResponse.json(wrapResponse({ liked: true, likeCount: Math.floor(Math.random() * 100) + 1 }))
+  ),
+
+  /**
+   * 댓글 좋아요 취소
+   * DELETE /api/v1/comments/:commentId/like
+   */
+  http.delete(`${baseURL}/api/v1/comments/:commentId/like`, () =>
+    HttpResponse.json(wrapResponse({ liked: false, likeCount: Math.floor(Math.random() * 100) }))
   ),
 
   /**
@@ -346,8 +429,20 @@ export const handlers = [
       expiredAt: hp.expiredAt,
       categories: hp.categories,
       electionId: hp.election?.electionId,
+      electionTitle: hp.election?.title,
     }));
     return HttpResponse.json(wrapResponse(summaries));
+  }),
+
+  /**
+   * Slug 중복 체크
+   * GET /admin/api/v1/hotpicks/check-slug
+   */
+  http.get(`${baseURL}/admin/api/v1/hotpicks/check-slug`, ({ request }) => {
+    const url = new URL(request.url);
+    const slug = url.searchParams.get('slug') ?? '';
+    const exists = (mockMainHotpicks.hotpicks ?? []).some((hp) => hp.slug === slug);
+    return HttpResponse.json(wrapResponse({ exists }));
   }),
 
   /**

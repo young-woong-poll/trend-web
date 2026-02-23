@@ -10,7 +10,7 @@ import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentListProps {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   sort: 'latest' | 'popular';
   onEditRequest: (comment: CommentItemType) => void;
@@ -19,7 +19,7 @@ interface CommentListProps {
 }
 
 export const CommentList: FC<CommentListProps> = ({
-  hotpickId,
+  slug,
   electionId,
   sort,
   onEditRequest,
@@ -28,7 +28,7 @@ export const CommentList: FC<CommentListProps> = ({
 }) => {
   const tkuId = getTKUID();
   const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useInfiniteComments({ hotpickId, electionId, sort, size: 20, tkuId });
+    useInfiniteComments({ slug, electionId, sort, size: 20, tkuId });
 
   // 정렬 변경 시 로딩 상태 (초기 로딩 제외, 무한스크롤 제외)
   const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;

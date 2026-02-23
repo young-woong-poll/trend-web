@@ -322,7 +322,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
 
       {/* 인라인 댓글 섹션 (가장 마지막 — 무한 확장 가능) */}
       <InlineCommentSection
-        hotpickId={String(hotpickCard.hotpickId ?? '')}
+        slug={hotpickAlias}
         electionId={singleVote.electionId}
         voted={singleVote.voted}
         isClosed={isClosed}

@@ -33,7 +33,7 @@ interface SingleCardProps {
   mainImageUrl?: string;
   onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
-  onComment: (hotpickId: string, electionId: string) => void;
+  onComment: (slug: string, electionId: string) => void;
 }
 
 const formatCount = (count: number): string => {
@@ -44,7 +44,7 @@ const formatCount = (count: number): string => {
 };
 
 export const SingleCard: FC<SingleCardProps> = ({
-  id,
+  id: _id,
   alias,
   title,
   categories = [],
@@ -61,7 +61,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
 
-  const { data: commentCountData } = useCommentCount(Number(id), singleVote.electionId);
+  const { data: commentCountData } = useCommentCount(alias, singleVote.electionId);
 
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
@@ -230,7 +230,7 @@ export const SingleCard: FC<SingleCardProps> = ({
           className={styles.iconButtonWithCount}
           onClick={(e) => {
             e.stopPropagation();
-            onComment(String(id), singleVote.electionId);
+            onComment(alias, singleVote.electionId);
           }}
           aria-label="댓글"
         >

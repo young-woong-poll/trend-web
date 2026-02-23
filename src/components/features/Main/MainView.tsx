@@ -21,7 +21,7 @@ type TMainViewProps = {
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [commentTarget, setCommentTarget] = useState<{
-    hotpickId: string;
+    slug: string;
     electionId: string;
   } | null>(null);
   const { handleVote } = useSingleVote();
@@ -37,8 +37,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     [showToast]
   );
 
-  const handleComment = useCallback((hotpickId: string, electionId: string) => {
-    setCommentTarget({ hotpickId, electionId });
+  const handleComment = useCallback((slug: string, electionId: string) => {
+    setCommentTarget({ slug, electionId });
   }, []);
 
   const handleCloseComment = useCallback(() => {
@@ -235,9 +235,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
         <CommentBottomSheet
           isOpen={!!commentTarget}
           onClose={handleCloseComment}
-          hotpickId={commentTarget.hotpickId}
+          slug={commentTarget.slug}
           electionId={commentTarget.electionId}
-          hotpickAlias=""
         />
       )}
     </>

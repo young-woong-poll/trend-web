@@ -13,7 +13,7 @@ interface CommentEditModalProps {
   onClose: () => void;
   comment: CommentItem;
   editToken: string;
-  hotpickId: string;
+  slug: string;
   electionId: string;
 }
 
@@ -24,7 +24,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
   onClose,
   comment,
   editToken,
-  hotpickId,
+  slug,
   electionId,
 }) => {
   const [content, setContent] = useState(comment.content ?? '');
@@ -69,7 +69,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     updateComment(
       {
         commentId: comment.id ?? '',
-        hotpickId,
+        slug,
         electionId,
         data: {
           verifyToken: editToken,

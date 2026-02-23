@@ -11,8 +11,6 @@ export {
   useCreateComment,
   useUpdateComment,
   useVerifyComment,
-  useLikeComment,
-  useUnlikeComment,
   useDeleteComment,
 } from '@/hooks/api/useComment';
 

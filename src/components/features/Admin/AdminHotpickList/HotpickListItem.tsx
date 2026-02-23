@@ -31,9 +31,9 @@ export default function HotpickListItem({ hotpick, onEdit }: HotpickListItemProp
         </div>
       </td>
 
-      {/* Slug (제목 대신 — need-api.md 참고) */}
+      {/* 제목 */}
       <td>
-        <span className={styles.title}>{hotpick.slug}</span>
+        <span className={styles.title}>{hotpick.electionTitle || hotpick.slug}</span>
       </td>
 
       {/* Slug */}
