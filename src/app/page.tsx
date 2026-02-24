@@ -8,14 +8,7 @@ import { generateMainStructuredData } from '@/lib/seo/structuredData';
 
 export const revalidate = 60;
 
-// TODO: 임시 - MSW 모킹 환경에서는 서버 사이드 fetch 스킵
-const isMSWEnabled = process.env.NEXT_PUBLIC_ENABLE_MSW === 'true';
-
 export default async function Home() {
-  if (isMSWEnabled) {
-    return <MainContent />;
-  }
-
   const queryClient = createServerQueryClient();
 
   try {
