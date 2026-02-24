@@ -1,4 +1,4 @@
-import { getTrendDetail } from '@/generated/api/server/display/display';
+import { getDetail } from '@/generated/api/server/hotpick/hotpick';
 import { COMMON_METADATA, OG_IMAGE, SITE_KEYWORDS, SITE_NAME } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -13,25 +13,23 @@ export async function generateMetadata({ params }: HotpickPageProps): Promise<Me
   try {
     const { hotpickAlias } = await params;
 
-    const response = await getTrendDetail(hotpickAlias, { next: { revalidate: 60 } });
+    const response = await getDetail(hotpickAlias, { next: { revalidate: 60 } });
     const hotpickData = response.status === 200 ? response.data.data : null;
 
     if (!hotpickData) {
       return COMMON_METADATA;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const hotpickType = (hotpickData as any)?.type as string | undefined;
-    const { title } = hotpickData;
+    const hotpick = hotpickData.hotpick;
+    const election = hotpick?.election;
+    const title = election?.title ?? hotpick?.slug ?? '';
 
     // SINGLE: 옵션 기반 description 생성
-    let description = hotpickData.label ?? '';
-    if (hotpickType === 'SINGLE') {
-      const options = hotpickData.items?.[0]?.options ?? [];
-      if (options.length >= 2) {
-        const optionTexts = options.map((o) => o.title).join(' vs ');
-        description = `${optionTexts} - 지금 바로 투표하세요!`;
-      }
+    let description = '';
+    const items = election?.items ?? [];
+    if (items.length >= 2) {
+      const optionTexts = items.map((item) => item.title).join(' vs ');
+      description = `${optionTexts} - 지금 바로 투표하세요!`;
     }
 
     return {

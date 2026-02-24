@@ -1,244 +1,142 @@
-import { useState, useEffect, type FC } from 'react';
+import type { FC } from 'react';
 
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-
-import { Button } from '@/components/common/Button';
-import type { TFormData } from '@/components/features/Admin/AdminHotpickForm/AdminHotpickForm';
-import { ElectionCard } from '@/components/features/Admin/AdminHotpickForm/ElectionCard';
+import { ImageUpload } from '@/components/common/ImageUpload';
+import type {
+  TFormData,
+  TElectionItem,
+} from '@/components/features/Admin/AdminHotpickForm/AdminHotpickForm';
 import styles from '@/components/features/Admin/AdminHotpickForm/ElectionListSection.module.scss';
-import { useModal } from '@/contexts/ModalContext';
-import { useSearchElections } from '@/hooks/api/useElection';
-import type { Election } from '@/types/election';
-import type { HotpickType } from '@/types/hotpick';
 
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
-interface ElectionListSectionProps {
+const MAX_OPTIONS = 4;
+const MIN_OPTIONS = 2;
+
+interface ElectionInlineSectionProps {
   setValue: UseFormSetValue<TFormData>;
   watch: UseFormWatch<TFormData>;
-  hotpickType: HotpickType;
 }
 
-export const ElectionListSection: FC<ElectionListSectionProps> = ({
-  setValue,
-  watch,
-  hotpickType,
-}) => {
-  const { showAlert } = useModal();
-  const electionIdList = watch('electionIdList');
+/**
+ * 인라인 선거 편집 섹션
+ * 기존 선거 검색/선택 방식에서 인라인 편집으로 변경
+ */
+export const ElectionInlineSection: FC<ElectionInlineSectionProps> = ({ setValue, watch }) => {
+  const election = watch('election');
+  const items = election.items;
 
-  // 선거 상세 정보를 로컬 상태로 관리
-  const [electionDetailMap, setElectionDetailMap] = useState<Record<string, Election>>({});
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchResults, setSearchResults] = useState<Election[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-
-  const { mutateAsync: searchElections, isPending } = useSearchElections();
-
-  // Edit 모드에서 기존 선거 정보 로드
-  useEffect(() => {
-    const loadExistingElections = async () => {
-      const missingIds = electionIdList.filter((id) => !(id in electionDetailMap));
-
-      if (missingIds.length === 0) {
-        return;
-      }
-
-      // 검색으로 기존 선거 정보를 가져옴
-      try {
-        const result = await searchElections({ size: 100 });
-        const newDetails: Record<string, Election> = {};
-
-        for (const election of result.content) {
-          if (missingIds.includes(election.id)) {
-            newDetails[election.id] = election;
-          }
-        }
-
-        if (Object.keys(newDetails).length > 0) {
-          setElectionDetailMap((prev) => ({ ...prev, ...newDetails }));
-        }
-      } catch (error) {
-        console.error('Failed to load existing elections:', error);
-      }
-    };
-
-    void loadExistingElections();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = electionIdList.indexOf(active.id as string);
-      const newIndex = electionIdList.indexOf(over.id as string);
-
-      const newElectionIdList = arrayMove(electionIdList, oldIndex, newIndex);
-      setValue('electionIdList', newElectionIdList);
-    }
+  const handleTitleChange = (value: string) => {
+    setValue('election', { ...election, title: value });
   };
 
-  const handleSearch = async () => {
-    try {
-      const result = await searchElections({
-        keyword: searchKeyword.trim() || undefined,
-        size: 20,
-      });
-      setSearchResults(result.content);
-      setHasSearched(true);
-    } catch {
-      showAlert('선거 검색에 실패했습니다.');
-    }
+  const handleElectionImageChange = (url: string | null) => {
+    setValue('election', { ...election, imageUrl: url || undefined });
   };
 
-  const handleSelectElection = (election: Election) => {
-    if (electionIdList.includes(election.id)) {
-      showAlert('이미 추가된 선거입니다.');
+  const handleItemChange = (index: number, field: keyof TElectionItem, value: string) => {
+    const updatedItems = [...items];
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    setValue('election', { ...election, items: updatedItems });
+  };
+
+  const handleItemImageChange = (index: number, url: string | null) => {
+    const updatedItems = [...items];
+    updatedItems[index] = { ...updatedItems[index], imageUrl: url || undefined };
+    setValue('election', { ...election, items: updatedItems });
+  };
+
+  const handleAddItem = () => {
+    if (items.length >= MAX_OPTIONS) {
       return;
     }
+    setValue('election', { ...election, items: [...items, { title: '' }] });
+  };
 
-    // SINGLE 타입은 1개만 허용
-    if (hotpickType === 'SINGLE' && electionIdList.length >= 1) {
-      showAlert('SINGLE 타입은 선거를 1개만 등록할 수 있습니다.');
+  const handleRemoveItem = (index: number) => {
+    if (items.length <= MIN_OPTIONS) {
       return;
     }
-
-    setValue('electionIdList', [...electionIdList, election.id]);
-    setElectionDetailMap((prev) => ({
-      ...prev,
-      [election.id]: election,
-    }));
+    const updatedItems = items.filter((_, i) => i !== index);
+    setValue('election', { ...election, items: updatedItems });
   };
-
-  const handleRemoveClick = (electionId: string) => {
-    const updatedIdList = electionIdList.filter((id) => id !== electionId);
-
-    setValue('electionIdList', updatedIdList);
-    setElectionDetailMap((prev) => {
-      const updated = { ...prev };
-      delete updated[electionId];
-      return updated;
-    });
-  };
-
-  const isBundleMode = hotpickType === 'BUNDLE';
 
   return (
     <section className={styles.section}>
-      <h2 className={styles.sectionTitle}>연결된 선거</h2>
+      <h2 className={styles.sectionTitle}>선거 정보</h2>
       <p className={styles.sectionDescription}>
-        {isBundleMode
-          ? '선거를 2개 이상 선택하세요. 드래그하여 순서를 변경할 수 있습니다.'
-          : '선거를 1개 선택하세요.'}
+        투표 질문과 선택지를 입력하세요. 옵션은 {MIN_OPTIONS}~{MAX_OPTIONS}개까지 등록 가능합니다.
       </p>
 
-      {/* 검색 영역 */}
-      <div className={styles.arrayInput}>
+      {/* 선거 제목 */}
+      <div className={styles.field}>
+        <label htmlFor="electionTitle" className={styles.label}>
+          투표 질문 <span className={styles.required}>*</span>
+        </label>
         <input
+          id="electionTitle"
           type="text"
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
+          value={election.title}
+          onChange={(e) => handleTitleChange(e.target.value)}
           className={styles.input}
-          placeholder="선거 제목으로 검색"
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              await handleSearch();
-            }
-          }}
+          placeholder="예: 짜장면 vs 짬뽕, 당신의 선택은?"
         />
-        <Button
-          type="button"
-          onClick={handleSearch}
-          variant="outline"
-          height={40}
-          disabled={isPending}
-        >
-          {isPending ? '검색 중...' : '검색'}
-        </Button>
       </div>
 
-      {/* 검색 결과 */}
-      {hasSearched && (
-        <div className={styles.searchResults}>
-          {searchResults.length === 0 ? (
-            <p className={styles.emptyResults}>검색 결과가 없습니다</p>
-          ) : (
-            searchResults.map((election) => {
-              const isSelected = electionIdList.includes(election.id);
-              return (
-                <div
-                  key={election.id}
-                  className={`${styles.searchItem} ${isSelected ? styles.searchItemSelected : ''}`}
-                  onClick={() => !isSelected && handleSelectElection(election)}
-                >
-                  <div className={styles.searchItemInfo}>
-                    <span className={styles.searchItemTitle}>{election.title}</span>
-                    <div className={styles.searchItemMeta}>
-                      <span className={styles.searchItemBadge} data-type={election.voteType}>
-                        {election.voteType}
-                      </span>
-                      <span className={styles.searchItemOptions}>
-                        옵션 {election.options.length}개
-                      </span>
-                    </div>
-                  </div>
-                  <span className={styles.searchItemAction}>
-                    {isSelected ? '선택됨' : '+ 추가'}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
+      {/* 선거 대표 이미지 */}
+      <div className={styles.field}>
+        <label className={styles.label}>투표 이미지</label>
+        <p className={styles.fieldHint}>텍스트 투표일 때 질문 옆에 표시되는 이미지입니다</p>
+        <ImageUpload
+          value={election.imageUrl || null}
+          onChange={handleElectionImageChange}
+          uploadOptions={{ prefix: 'election' }}
+        />
+      </div>
 
-      {/* 선택된 선거 리스트 */}
-      {electionIdList.length > 0 && (
-        <>
-          <h3 className={styles.selectedTitle}>선택된 선거 ({electionIdList.length}개)</h3>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={electionIdList} strategy={verticalListSortingStrategy}>
-              <div className={styles.electionList}>
-                {electionIdList.map((id) => (
-                  <ElectionCard
-                    key={id}
-                    id={id}
-                    detail={electionDetailMap[id]}
-                    handleRemoveClick={handleRemoveClick}
-                  />
-                ))}
+      {/* 선택지 목록 */}
+      <div className={styles.field}>
+        <label className={styles.label}>
+          선택지 <span className={styles.required}>*</span>
+        </label>
+        <div className={styles.itemList}>
+          {items.map((item, index) => (
+            <div key={index} className={styles.itemRow}>
+              <div className={styles.itemHeader}>
+                <span className={styles.itemIndex}>옵션 {index + 1}</span>
+                {items.length > MIN_OPTIONS && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(index)}
+                    className={styles.removeButton}
+                  >
+                    삭제
+                  </button>
+                )}
               </div>
-            </SortableContext>
-          </DndContext>
-        </>
-      )}
+              <input
+                type="text"
+                value={item.title}
+                onChange={(e) => handleItemChange(index, 'title', e.target.value)}
+                className={styles.input}
+                placeholder={`옵션 ${index + 1} 제목`}
+              />
+              <div className={styles.itemImage}>
+                <ImageUpload
+                  value={item.imageUrl || null}
+                  onChange={(url) => handleItemImageChange(index, url)}
+                  uploadOptions={{ prefix: 'election-item' }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {items.length < MAX_OPTIONS && (
+          <button type="button" onClick={handleAddItem} className={styles.addButton}>
+            + 옵션 추가
+          </button>
+        )}
+      </div>
     </section>
   );
 };

@@ -1,4 +1,4 @@
-import { getMainDisplay } from '@/generated/api/server/display/display';
+import { getMain } from '@/generated/api/server/hotpick/hotpick';
 
 import type { MetadataRoute } from 'next';
 
@@ -6,17 +6,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://hotpick.votebox.kr';
 
   try {
-    const response = await getMainDisplay({ size: 100 }, { next: { revalidate: 60 } });
+    const response = await getMain({ size: 100 }, { next: { revalidate: 60 } });
     const data = response.status === 200 ? response.data.data : null;
 
     if (!data) {
-      throw new Error('Failed to fetch main display data');
+      throw new Error('Failed to fetch main hotpick data');
     }
 
     // 동적 핫픽 페이지들
-    // NOTE: data.trends is a generated model field name (will be renamed after BE migration)
-    const hotpickPages = (data.trends ?? []).map((hotpick) => ({
-      url: `${baseUrl}/hotpick/${hotpick.alias}`,
+    const hotpickPages = (data.hotpicks ?? []).map((hotpick) => ({
+      url: `${baseUrl}/hotpick/${hotpick.slug}`,
       lastModified: new Date(),
       changeFrequency: 'hourly' as const,
       priority: 0.8,

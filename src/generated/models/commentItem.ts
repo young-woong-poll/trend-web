@@ -11,6 +11,7 @@ export interface CommentItem {
   content?: string;
   likeCount?: number;
   liked?: boolean;
+  edited?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

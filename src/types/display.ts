@@ -1,28 +1,45 @@
 // ──────────────────────────────────────────────────────────
-// [DEPRECATED] Orval 생성 타입의 수동 확장 — BE API 스펙 업데이트 후 이 파일 전체를 삭제하세요.
+// 새 HotpickDetailResponse 기반 확장 타입
 //
-// BE API 스펙이 업데이트되기 전까지, 기존 Orval 타입에 없는
-// voteType, mainImageUrl, deadline, status 등의 필드를 확장한다.
-// Orval 재생성 후 생성된 타입에 이 필드들이 포함되면, 이 파일을 삭제하고
-// import를 Orval 생성 타입으로 교체하세요.
-//
-// 사용처:
-// - src/components/features/Hotpick/VoteView.tsx (ExtendedElectionItem, ExtendedHotpickDetail)
-// - src/components/features/Hotpick/VoteCard/VoteCard.tsx (VoteType)
+// 새 Orval 생성 타입(HotpickCardResponse, ElectionViewResponse 등)에서
+// 컴포넌트가 직접 참조할 확장 인터페이스를 정의합니다.
 // ──────────────────────────────────────────────────────────
 
-import type { DisplayTrendDetailResponse, DisplayTrendItemResponse } from '@/generated/models';
+import type {
+  ElectionItemViewResponse,
+  ElectionViewResponse,
+  HotpickCardResponse,
+  HotpickDetailResponse,
+} from '@/generated/models';
 import type { VoteType } from '@/types/election';
 import type { HotpickStatus, HotpickType } from '@/types/hotpick';
 
-export interface ExtendedElectionItem extends DisplayTrendItemResponse {
+/**
+ * HotpickCardResponse를 확장하여 FE 전용 필드를 추가
+ */
+export interface ExtendedHotpickCard extends HotpickCardResponse {
   voteType?: VoteType;
-  mainImageUrl?: string;
+  status?: HotpickStatus;
 }
 
-export interface ExtendedHotpickDetail extends Omit<DisplayTrendDetailResponse, 'items'> {
-  items?: ExtendedElectionItem[];
+/**
+ * ElectionViewResponse를 확장 (컴포넌트 호환용)
+ */
+export type ExtendedElectionItem = ElectionViewResponse & {
+  voteType?: VoteType;
+  mainImageUrl?: string;
+  options?: ElectionItemViewResponse[];
+};
+
+/**
+ * HotpickDetailResponse를 확장 (컴포넌트 호환용)
+ */
+export type ExtendedHotpickDetail = HotpickDetailResponse & {
+  trendId?: number;
+  title?: string;
   type?: HotpickType;
   deadline?: string;
   status?: HotpickStatus;
-}
+  imageUrls?: string[];
+  items?: ExtendedElectionItem[];
+};

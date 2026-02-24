@@ -9,7 +9,7 @@
  * 응답 데이터
  */
 export interface CommentVerifyResponse {
-  editToken?: string;
+  verifyToken?: string;
   expiresIn?: number;
-  expiresAt?: string;
+  expiredAt?: string;
 }

@@ -4,10 +4,10 @@ import Image from 'next/image';
 
 import { Button } from '@/components/common/Button/Button';
 import styles from '@/components/features/Admin/AdminHotpickList/HotpickListItem.module.scss';
-import type { AdminHotpickResponse } from '@/types/hotpick';
+import type { AdminHotpickSummaryResponse } from '@/generated/models';
 
 interface HotpickListItemProps {
-  hotpick: AdminHotpickResponse;
+  hotpick: AdminHotpickSummaryResponse;
   onEdit: (id: number) => void;
 }
 
@@ -18,34 +18,27 @@ export default function HotpickListItem({ hotpick, onEdit }: HotpickListItemProp
       <td>
         <div className={styles.thumbnailGroup}>
           <div className={styles.thumbnail}>
-            <Image
-              src={hotpick.imageUrls?.[0] || ''}
-              alt={`${hotpick.title} 이미지 1`}
-              width={40}
-              height={40}
-              style={{ objectFit: 'cover', borderRadius: '4px' }}
-            />
-          </div>
-          <div className={styles.thumbnail}>
-            <Image
-              src={hotpick.imageUrls?.[1] || ''}
-              alt={`${hotpick.title} 이미지 2`}
-              width={40}
-              height={40}
-              style={{ objectFit: 'cover', borderRadius: '4px' }}
-            />
+            {hotpick.imageUrl && (
+              <Image
+                src={hotpick.imageUrl}
+                alt={`${hotpick.slug} 이미지`}
+                width={40}
+                height={40}
+                style={{ objectFit: 'cover', borderRadius: '4px' }}
+              />
+            )}
           </div>
         </div>
       </td>
 
       {/* 제목 */}
       <td>
-        <span className={styles.title}>{hotpick.title}</span>
+        <span className={styles.title}>{hotpick.electionTitle || hotpick.slug}</span>
       </td>
 
-      {/* Alias */}
+      {/* Slug */}
       <td>
-        <code className={styles.alias}>@{hotpick.alias}</code>
+        <code className={styles.alias}>@{hotpick.slug}</code>
       </td>
 
       {/* 상태 */}
@@ -58,21 +51,23 @@ export default function HotpickListItem({ hotpick, onEdit }: HotpickListItemProp
       {/* 생성일 */}
       <td>
         <span className={styles.date}>
-          {new Date(hotpick.createdAt)
-            .toLocaleDateString('ko-KR', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-            })
-            .replace(/\. /g, '.')
-            .replace(/\.$/, '')}
+          {hotpick.createdAt
+            ? new Date(hotpick.createdAt)
+                .toLocaleDateString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })
+                .replace(/\. /g, '.')
+                .replace(/\.$/, '')
+            : '-'}
         </span>
       </td>
 
       {/* 액션 */}
       <td>
         <div className={styles.actions}>
-          <Button variant="outline" size="small" onClick={() => onEdit(hotpick.id)}>
+          <Button variant="outline" size="small" onClick={() => onEdit(hotpick.id ?? 0)}>
             수정
           </Button>
         </div>

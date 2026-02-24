@@ -9,21 +9,26 @@ import type {
 import styles from '@/components/features/Admin/AdminHotpickForm/BasicInfoSection.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useCheckHotpickAlias } from '@/hooks/api/useAdmin';
-import type { CategoryCode, HotpickType } from '@/types/hotpick';
+import type { HotpickType } from '@/types/hotpick';
 
 import type { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
-const CATEGORIES: { code: CategoryCode; label: string }[] = [
-  { code: 'LOVE', label: '연애' },
-  { code: 'MARRIAGE', label: '결혼' },
-  { code: 'FINANCE', label: '재테크' },
-  { code: 'WORK', label: '직장' },
-  { code: 'SPORTS', label: '스포츠' },
-  { code: 'FOOD', label: '음식' },
-  { code: 'GAME', label: '게임' },
-  { code: 'CAR', label: '자동차' },
-  { code: 'HEALTH', label: '건강' },
-  { code: 'TREND', label: '트렌드' },
+/**
+ * 카테고리 목록
+ * BE에서 카테고리 API 제공 시 동적으로 변경 예정
+ * 현재는 AdminCategoryResponse.id 기준으로 하드코딩
+ */
+const CATEGORIES: { id: number; label: string }[] = [
+  { id: 1, label: '연애' },
+  { id: 2, label: '결혼' },
+  { id: 3, label: '재테크' },
+  { id: 4, label: '직장' },
+  { id: 5, label: '스포츠' },
+  { id: 6, label: '음식' },
+  { id: 7, label: '게임' },
+  { id: 8, label: '자동차' },
+  { id: 9, label: '건강' },
+  { id: 10, label: '트렌드' },
 ];
 
 interface BasicInfoSectionProps {
@@ -43,37 +48,37 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   checkStatus,
   setCheckStatus,
   mode = 'create',
-  hotpickType,
+  hotpickType: _hotpickType,
 }) => {
-  const imageUrls = watch('imageUrls');
-  const hotpickAlias = watch('alias');
-  const deadline = watch('deadline');
+  const imageUrl = watch('imageUrl');
+  const hotpickSlug = watch('slug');
+  const expiredAt = watch('expiredAt');
 
   const { showAlert } = useModal();
   const { mutateAsync: checkHotpickAlias, isPending } = useCheckHotpickAlias();
 
-  const hasDeadline = !!deadline;
+  const hasExpiredAt = !!expiredAt;
 
-  const handleHotpickAliasChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // 영문 소문자와 숫자와 하이픈만 허용
     const sanitized = value.replace(/[^a-z0-9-]/g, '');
-    setValue('alias', sanitized);
+    setValue('slug', sanitized);
     setCheckStatus('unchecked');
   };
 
   const handleCheckDuplicate = async () => {
-    const trimmedAlias = hotpickAlias.trim();
+    const trimmedSlug = hotpickSlug.trim();
 
-    if (!trimmedAlias) {
+    if (!trimmedSlug) {
       return;
     }
 
-    setValue('alias', trimmedAlias);
+    setValue('slug', trimmedSlug);
     setCheckStatus('checking');
 
     try {
-      const result = await checkHotpickAlias(trimmedAlias);
+      const result = await checkHotpickAlias(trimmedSlug);
       setCheckStatus(result.exists ? 'duplicate' : 'available');
     } catch (error: unknown) {
       setCheckStatus('idle');
@@ -83,29 +88,18 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
     }
   };
 
-  const handleAddImage = () => {
-    setValue('imageUrls', [...imageUrls, '']);
+  const handleImageChange = (url: string | null) => {
+    setValue('imageUrl', url || '');
   };
 
-  const handleRemoveImage = (index: number) => {
-    const updated = imageUrls.filter((_, i) => i !== index);
-    setValue('imageUrls', updated);
-  };
-
-  const handleImageChange = (index: number, url: string | null) => {
-    const updated = [...imageUrls];
-    updated[index] = url || '';
-    setValue('imageUrls', updated);
-  };
-
-  const handleDeadlineToggle = () => {
-    if (hasDeadline) {
-      setValue('deadline', undefined);
+  const handleExpiredAtToggle = () => {
+    if (hasExpiredAt) {
+      setValue('expiredAt', undefined);
     } else {
       // 기본값: 7일 후
       const defaultDate = new Date();
       defaultDate.setDate(defaultDate.getDate() + 7);
-      setValue('deadline', defaultDate.toISOString().slice(0, 16));
+      setValue('expiredAt', defaultDate.toISOString().slice(0, 16));
     }
   };
 
@@ -115,8 +109,8 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 
       <div className={styles.field}>
         <div className={styles.labelWithTooltip}>
-          <label htmlFor="hotpickAlias" className={styles.label}>
-            Hotpick Alias <span className={styles.required}>*</span>
+          <label htmlFor="hotpickSlug" className={styles.label}>
+            Hotpick Slug <span className={styles.required}>*</span>
           </label>
           <Tooltip content="영문 소문자와 숫자와 하이픈(-)만 입력 가능합니다">
             <span className={styles.tooltipButton}>?</span>
@@ -124,10 +118,10 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
         </div>
         <div className={styles.inputWithButton}>
           <input
-            id="hotpickAlias"
+            id="hotpickSlug"
             type="text"
-            value={hotpickAlias}
-            onChange={handleHotpickAliasChange}
+            value={hotpickSlug}
+            onChange={handleSlugChange}
             className={`${styles.input} ${mode === 'edit' ? styles.disabled : ''}`}
             placeholder="love-hotpick-2025"
             disabled={mode === 'edit'}
@@ -136,7 +130,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
             <button
               type="button"
               onClick={handleCheckDuplicate}
-              disabled={!hotpickAlias.trim() || isPending}
+              disabled={!hotpickSlug.trim() || isPending}
               className={styles.checkButton}
             >
               {isPending ? '확인중...' : '중복확인'}
@@ -144,57 +138,26 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
           )}
         </div>
         {checkStatus === 'available' && (
-          <p className={styles.successMessage}>사용 가능한 ID입니다</p>
+          <p className={styles.successMessage}>사용 가능한 Slug입니다</p>
         )}
         {checkStatus === 'duplicate' && (
-          <p className={styles.errorMessage}>이미 사용중인 ID입니다</p>
+          <p className={styles.errorMessage}>이미 사용중인 Slug입니다</p>
         )}
-        {checkStatus === 'unchecked' && hotpickAlias.trim() && (
+        {checkStatus === 'unchecked' && hotpickSlug.trim() && (
           <p className={styles.warningMessage}>중복 확인이 필요합니다</p>
         )}
       </div>
-
-      {/* 제목 & 부제 - BUNDLE 타입만 */}
-      {hotpickType === 'BUNDLE' && (
-        <>
-          <div className={styles.field}>
-            <label htmlFor="title" className={styles.label}>
-              제목 <span className={styles.required}>*</span>
-            </label>
-            <input
-              id="title"
-              type="text"
-              {...register('title', { required: hotpickType === 'BUNDLE' })}
-              className={styles.input}
-              placeholder="2025 핫픽"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label htmlFor="label" className={styles.label}>
-              부제 <span className={styles.required}>*</span>
-            </label>
-            <input
-              id="label"
-              type="text"
-              {...register('label', { required: hotpickType === 'BUNDLE' })}
-              className={styles.input}
-              placeholder="HOTPICK2025"
-            />
-          </div>
-        </>
-      )}
 
       {/* 카테고리 (다중 선택) */}
       <div className={styles.field}>
         <label className={styles.label}>카테고리</label>
         <div className={styles.categoryGrid}>
           {CATEGORIES.map((cat) => {
-            const categoryCodes = watch('categoryCodes');
-            const isChecked = categoryCodes.includes(cat.code);
+            const categoryIds = watch('categoryIds');
+            const isChecked = categoryIds.includes(cat.id);
             return (
               <label
-                key={cat.code}
+                key={cat.id}
                 className={`${styles.categoryChip} ${isChecked ? styles.categoryChipActive : ''}`}
               >
                 <input
@@ -202,9 +165,9 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
                   checked={isChecked}
                   onChange={() => {
                     const updated = isChecked
-                      ? categoryCodes.filter((c) => c !== cat.code)
-                      : [...categoryCodes, cat.code];
-                    setValue('categoryCodes', updated);
+                      ? categoryIds.filter((id) => id !== cat.id)
+                      : [...categoryIds, cat.id];
+                    setValue('categoryIds', updated);
                   }}
                   className={styles.toggleInput}
                 />
@@ -222,61 +185,38 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
           <label className={styles.toggleLabel}>
             <input
               type="checkbox"
-              checked={!hasDeadline}
-              onChange={handleDeadlineToggle}
+              checked={!hasExpiredAt}
+              onChange={handleExpiredAtToggle}
               className={styles.toggleInput}
             />
             <span className={styles.toggleSwitch} />
             <span className={styles.toggleText}>상시 (마감 없음)</span>
           </label>
-          {!hasDeadline && <p className={styles.toggleHint}>마감 없이 상시 운영됩니다</p>}
+          {!hasExpiredAt && <p className={styles.toggleHint}>마감 없이 상시 운영됩니다</p>}
         </div>
-        {hasDeadline && (
+        {hasExpiredAt && (
           <input
             type="datetime-local"
-            value={deadline || ''}
-            onChange={(e) => setValue('deadline', e.target.value || undefined)}
+            value={expiredAt || ''}
+            onChange={(e) => setValue('expiredAt', e.target.value || undefined)}
             className={styles.input}
             style={{ marginTop: 8 }}
           />
         )}
       </div>
 
-      {/* 커버 이미지 - BUNDLE 타입만 */}
-      {hotpickType === 'BUNDLE' && (
-        <div className={styles.field}>
-          <label className={styles.label}>
-            커버 이미지 <span className={styles.required}>*</span>
-          </label>
-          <p className={styles.toggleHint}>BUNDLE 타입은 커버 이미지가 1장 이상 필요합니다</p>
-          {imageUrls.map((url, index) => (
-            <div key={index} className={styles.imageItem}>
-              <ImageUpload
-                value={url || null}
-                onChange={(newUrl) => handleImageChange(index, newUrl)}
-                uploadOptions={{ prefix: 'hotpick' }}
-              />
-              {imageUrls.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className={styles.removeImageButton}
-                >
-                  삭제
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={handleAddImage}
-            className={styles.checkButton}
-            style={{ marginTop: 8 }}
-          >
-            + 이미지 추가
-          </button>
+      {/* 대표 이미지 */}
+      <div className={styles.field}>
+        <label className={styles.label}>대표 이미지</label>
+        <p className={styles.toggleHint}>핫픽 카드에 표시될 대표 이미지입니다</p>
+        <div className={styles.imageItem}>
+          <ImageUpload
+            value={imageUrl || null}
+            onChange={handleImageChange}
+            uploadOptions={{ prefix: 'hotpick' }}
+          />
         </div>
-      )}
+      </div>
 
       {/* 공개 여부 */}
       <div className={styles.field}>

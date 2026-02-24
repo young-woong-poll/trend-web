@@ -42,6 +42,7 @@ export default defineConfig({
       target: './src/generated/api/client',
       schemas: './src/generated/models',
       client: 'axios-functions',
+      clean: true,
       override: {
         mutator: {
           path: './src/lib/axios-mutator.ts',
@@ -65,6 +66,7 @@ export default defineConfig({
       mode: 'tags-split',
       target: './src/generated/api/server',
       client: 'fetch',
+      clean: true,
       override: {
         mutator: {
           path: './src/lib/server-fetch-mutator.ts',

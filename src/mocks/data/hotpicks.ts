@@ -1,4 +1,8 @@
-import type { DisplayMainResponse } from '@/generated/models';
+import type {
+  MainHotpickResponse,
+  HotpickCardResponse,
+  HotpickDetailResponse,
+} from '@/generated/models';
 
 // ──────────────────────────────────────────────────────────
 // 메인피드 Mock 데이터 — 싱글/번들 혼합 피드
@@ -407,8 +411,8 @@ export const singleVoteDataMap: Record<string, MockSingleVote> = {
  * 메인 전시 Mock — 혼합 피드
  * 싱글 7~10개당 번들 1개 삽입
  */
-export const mockMainDisplay: DisplayMainResponse = {
-  fixedTrends: [],
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mockMainDisplayLegacy: any = {
   trends: [
     // ── 페이지 1: 싱글 #1~#7 ──
     {
@@ -1083,30 +1087,170 @@ export const trendExtensions: Record<string, TrendExtension> = {
   },
 };
 
-/**
- * 메인 전시 Mock — SINGLE만 (하위호환용)
- */
-export const mockSingleDisplay: DisplayMainResponse = {
-  fixedTrends: [],
-  trends:
-    mockMainDisplay.trends?.filter((t) => {
-      const ext = trendExtensions[t.alias ?? ''];
-      return ext?.type === 'SINGLE';
-    }) ?? [],
-  hasMore: false,
-  nextCursor: undefined,
-  totalCount: 0,
-};
+// ──────────────────────────────────────────────────────────
+// 구 → 신 변환 유틸
+// ──────────────────────────────────────────────────────────
+
+interface LegacyTrend {
+  id: number;
+  alias: string;
+  title: string;
+  label?: string;
+  imageUrls?: string[];
+  createdAt?: string;
+  participantsCount?: number;
+}
 
 /**
- * 트렌드 배열에 확장 필드를 주입하는 유틸
+ * 구 mockMainDisplay 항목을 새 HotpickCardResponse 형태로 변환
  */
-export const injectExtensions = <T extends { alias?: string }>(trends: T[]): T[] =>
-  trends.map((t) => {
-    const ext = trendExtensions[t.alias ?? ''];
-    const singleVote = singleVoteDataMap[t.alias ?? ''];
-    return ext ? { ...t, ...ext, ...(singleVote ? { singleVote } : {}) } : t;
-  });
+function convertToHotpickCard(item: LegacyTrend): HotpickCardResponse {
+  const ext = trendExtensions[item.alias];
+  const svData = singleVoteDataMap[item.alias];
+  const type = ext?.type ?? 'SINGLE';
+  const categories = (ext?.categoryCodes ?? []).map((code: string, i: number) => ({
+    id: i + 1,
+    name: code,
+    slug: code,
+  }));
+
+  // SINGLE: election을 singleVoteData + extension에서 빌드
+  if (type === 'SINGLE' && svData) {
+    return {
+      hotpickId: item.id,
+      type: 'SINGLE',
+      slug: item.alias,
+      imageUrl: item.imageUrls?.[0] ?? ext?.mainImageUrl,
+      expiredAt: ext?.deadline,
+      categories,
+      election: {
+        electionId: Number(svData.electionId.replace(/\D/g, '')) || item.id * 10,
+        title: item.title,
+        imageUrl: ext?.mainImageUrl,
+        totalVoteCount: item.participantsCount ?? 0,
+        totalCommentCount: 0,
+        items: svData.options.map((opt, i) => ({
+          electionItemId: Number(opt.id.replace(/\D/g, '')) || i + 1,
+          displayOrder: i,
+          title: opt.text,
+          imageUrl: opt.imageUrl,
+          voteCount: opt.voteCount ?? undefined,
+          voteRate: undefined,
+        })),
+        voted: svData.voted,
+        myElectionItemId: svData.myChoiceId
+          ? Number(svData.myChoiceId.replace(/\D/g, '')) || undefined
+          : undefined,
+      },
+    };
+  }
+
+  // BUNDLE: 간단한 카드 (election은 첫 번째 항목만 표시)
+  return {
+    hotpickId: item.id,
+    type: 'BUNDLE',
+    slug: item.alias,
+    imageUrl: item.imageUrls?.[0],
+    expiredAt: ext?.deadline,
+    categories,
+    election: {
+      title: item.title,
+      totalVoteCount: item.participantsCount ?? 0,
+      totalCommentCount: 0,
+    },
+  };
+}
+
+/**
+ * 구 상세 데이터를 새 HotpickDetailResponse 형태로 변환
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function convertToHotpickDetail(detail: any): HotpickDetailResponse {
+  const slug = detail.alias ?? '';
+  const ext = trendExtensions[slug];
+  const categories = (ext?.categoryCodes ?? []).map((code: string, i: number) => ({
+    id: i + 1,
+    name: code,
+    slug: code,
+  }));
+
+  if (detail.type === 'SINGLE' && detail.items?.[0]) {
+    const election = detail.items[0];
+    const svData = singleVoteDataMap[slug];
+    return {
+      hotpick: {
+        hotpickId: detail.trendId,
+        type: 'SINGLE',
+        slug,
+        imageUrl: detail.imageUrls?.[0],
+        expiredAt: ext?.deadline ?? detail.deadline,
+        categories,
+        election: {
+          electionId: Number(String(election.id).replace(/\D/g, '')) || detail.trendId * 10,
+          title: election.title,
+          imageUrl: election.mainImageUrl ?? election.imageUrl,
+          totalVoteCount: detail.participantsCount ?? 0,
+          totalCommentCount: 0,
+          items: (election.options ?? []).map(
+            (opt: { id: string; title: string; imageUrl?: string }, i: number) => ({
+              electionItemId: Number(opt.id.replace(/\D/g, '')) || i + 1,
+              displayOrder: i,
+              title: opt.title,
+              imageUrl: opt.imageUrl,
+              voteCount: undefined,
+              voteRate: undefined,
+            })
+          ),
+          voted: svData?.voted ?? false,
+          myElectionItemId: svData?.myChoiceId
+            ? Number(svData.myChoiceId.replace(/\D/g, '')) || undefined
+            : undefined,
+        },
+      },
+      relatedHotpicks: [],
+    };
+  }
+
+  // BUNDLE
+  const firstItem = detail.items?.[0];
+  return {
+    hotpick: {
+      hotpickId: detail.trendId,
+      type: 'BUNDLE',
+      slug,
+      imageUrl: detail.imageUrls?.[0],
+      expiredAt: ext?.deadline ?? detail.deadline,
+      categories,
+      election: firstItem
+        ? {
+            electionId: Number(String(firstItem.id).replace(/\D/g, '')) || detail.trendId * 10,
+            title: firstItem.title,
+            imageUrl: firstItem.mainImageUrl,
+            totalVoteCount: 0,
+            totalCommentCount: 0,
+            items: (firstItem.options ?? []).map(
+              (opt: { id: string; title: string; imageUrl?: string }, i: number) => ({
+                electionItemId: Number(opt.id.replace(/\D/g, '')) || i + 1,
+                displayOrder: i,
+                title: opt.title,
+                imageUrl: opt.imageUrl,
+              })
+            ),
+          }
+        : undefined,
+    },
+    relatedHotpicks: [],
+  };
+}
+
+/**
+ * 새 API 형태의 메인 핫픽 응답
+ */
+export const mockMainHotpicks: MainHotpickResponse = {
+  hotpicks: (mockMainDisplayLegacy.trends ?? []).map(convertToHotpickCard),
+  hasMore: true,
+  nextCursor: undefined,
+};
 
 // ──────────────────────────────────────────────────────────
 // Hotpick 상세 Mock (투표 페이지)
@@ -1732,9 +1876,9 @@ const mockHotpickDetailFixed = {
   ],
 };
 
-/** alias → 상세 데이터 매핑 */
+/** alias → 구 상세 데이터 (내부용) */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const mockHotpickDetailMap: Record<string, any> = {
+const legacyDetailMap: Record<string, any> = {
   // BUNDLE
   'fixed-trend': mockHotpickDetailFixed,
   'love-dilemma': mockHotpickDetailBundle,
@@ -1751,6 +1895,15 @@ export const mockHotpickDetailMap: Record<string, any> = {
   'single-work': mockHotpickDetailSingleWork,
   'single-trend': mockHotpickDetailSingleTrend,
 };
+
+/** alias → 새 HotpickDetailResponse 형태 매핑 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const mockHotpickDetailMap: Record<string, any> = Object.fromEntries(
+  Object.entries(legacyDetailMap).map(([slug, detail]) => [slug, convertToHotpickDetail(detail)])
+);
+
+/** BUNDLE 기본 상세 (변환된 형태, handlers.ts 폴백용) */
+export const mockHotpickDetailBundleConverted = convertToHotpickDetail(mockHotpickDetailBundle);
 
 /** 선거별 투표 수 Mock */
 export const mockVoteCountMap: Record<string, { options: { id: string; count: number }[] }> = {

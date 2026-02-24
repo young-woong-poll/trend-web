@@ -13,22 +13,21 @@ import { CommentForm } from '@/components/features/Hotpick/CommentModal/CommentF
 import { CommentList } from '@/components/features/Hotpick/CommentModal/CommentList';
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
 import { useModal } from '@/contexts/ModalContext';
-import type { CommentItem } from '@/generated/models';
 import { useDeleteComment, useCommentCount } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
+import type { CommentItem } from '@/types/comment';
 
 interface CommentBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  hotpickId: string;
-  hotpickAlias: string;
+  slug: string;
   electionId: string;
 }
 
 export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   isOpen,
   onClose,
-  hotpickId,
+  slug,
   electionId,
 }) => {
   const pathname = usePathname();
@@ -40,12 +39,12 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   const [editToken, setEditToken] = useState<string>('');
   const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
 
-  const { data: commentCountData } = useCommentCount(Number(hotpickId), electionId);
+  const { data: commentCountData } = useCommentCount(slug, electionId);
   const commentCount = commentCountData?.count;
 
   const { showToast, showConfirm } = useModal();
   const { mutate: deleteComment } = useDeleteComment();
-  const { handleLikeClick } = useCommentLike(hotpickId, electionId, sort, {
+  const { handleLikeClick } = useCommentLike(slug, electionId, sort, {
     onError: () => {
       showToast('좋아요 처리에 실패했습니다');
     },
@@ -207,7 +206,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           deleteComment(
             {
               commentId: selectedComment.id ?? '',
-              hotpickId,
+              slug,
               electionId,
               data: { verifyToken: token },
             },
@@ -298,7 +297,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           <div className={styles.commentListWrapper}>
             <div ref={commentListContainerRef} className={styles.commentListContainer}>
               <CommentList
-                hotpickId={hotpickId}
+                slug={slug}
                 electionId={electionId}
                 sort={sort}
                 onEditRequest={handleEditRequest}
@@ -316,11 +315,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 
           {/* 댓글 작성 폼 (고정 하단) */}
           <div className={styles.commentFormContainer}>
-            <CommentForm
-              hotpickId={hotpickId}
-              electionId={electionId}
-              onSuccess={handleCommentSuccess}
-            />
+            <CommentForm slug={slug} electionId={electionId} onSuccess={handleCommentSuccess} />
           </div>
         </div>
       </div>
@@ -342,7 +337,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
           onClose={handleEditModalClose}
           comment={selectedComment}
           editToken={editToken}
-          hotpickId={hotpickId}
+          slug={slug}
           electionId={electionId}
         />
       )}

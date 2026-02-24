@@ -8,11 +8,14 @@ import type {
   BaseResponseCommentCountResponse,
   BaseResponseCommentCreateResponse,
   BaseResponseCommentLikeResponse,
+  BaseResponseCommentListResponse,
   BaseResponseCommentUpdateResponse,
   BaseResponseCommentVerifyResponse,
+  BaseResponseObject,
   BaseResponseVoid,
   CreateCommentRequest,
   DeleteCommentRequest,
+  GetCommentsParams,
   UpdateCommentRequest,
   VerifyCommentRequest,
 } from '../openAPIDefinition.schemas';
@@ -20,16 +23,16 @@ import type {
 import { serverFetchInstance } from '../../../../lib/server-fetch-mutator';
 
 /**
- * @summary 댓글 수정
+ * @summary Update comment
  */
 export type updateCommentResponse200 = {
   data: BaseResponseCommentUpdateResponse;
   status: 200;
 };
 
-export type updateCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type updateCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type updateCommentResponse429 = {
@@ -46,7 +49,7 @@ export type updateCommentResponseSuccess = updateCommentResponse200 & {
   headers: Headers;
 };
 export type updateCommentResponseError = (
-  | updateCommentResponse400
+  | updateCommentResponse409
   | updateCommentResponse429
   | updateCommentResponse500
 ) & {
@@ -56,7 +59,7 @@ export type updateCommentResponseError = (
 export type updateCommentResponse = updateCommentResponseSuccess | updateCommentResponseError;
 
 export const getUpdateCommentUrl = (commentId: string) => {
-  return `/api/v1/comment/${commentId}`;
+  return `/api/v1/comments/${commentId}`;
 };
 
 export const updateComment = async (
@@ -73,16 +76,16 @@ export const updateComment = async (
 };
 
 /**
- * @summary 댓글 삭제
+ * @summary Delete comment
  */
 export type deleteCommentResponse200 = {
   data: BaseResponseVoid;
   status: 200;
 };
 
-export type deleteCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type deleteCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type deleteCommentResponse429 = {
@@ -99,7 +102,7 @@ export type deleteCommentResponseSuccess = deleteCommentResponse200 & {
   headers: Headers;
 };
 export type deleteCommentResponseError = (
-  | deleteCommentResponse400
+  | deleteCommentResponse409
   | deleteCommentResponse429
   | deleteCommentResponse500
 ) & {
@@ -109,7 +112,7 @@ export type deleteCommentResponseError = (
 export type deleteCommentResponse = deleteCommentResponseSuccess | deleteCommentResponseError;
 
 export const getDeleteCommentUrl = (commentId: string) => {
-  return `/api/v1/comment/${commentId}`;
+  return `/api/v1/comments/${commentId}`;
 };
 
 export const deleteComment = async (
@@ -126,16 +129,80 @@ export const deleteComment = async (
 };
 
 /**
- * @summary 댓글 생성
+ * @summary Get comment list
+ */
+export type getCommentsResponse200 = {
+  data: BaseResponseCommentListResponse;
+  status: 200;
+};
+
+export type getCommentsResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getCommentsResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getCommentsResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getCommentsResponseSuccess = getCommentsResponse200 & {
+  headers: Headers;
+};
+export type getCommentsResponseError = (
+  | getCommentsResponse409
+  | getCommentsResponse429
+  | getCommentsResponse500
+) & {
+  headers: Headers;
+};
+
+export type getCommentsResponse = getCommentsResponseSuccess | getCommentsResponseError;
+
+export const getGetCommentsUrl = (slug: string, electionId: number, params?: GetCommentsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/hotpicks/${slug}/elections/${electionId}/comments?${stringifiedParams}`
+    : `/api/v1/hotpicks/${slug}/elections/${electionId}/comments`;
+};
+
+export const getComments = async (
+  slug: string,
+  electionId: number,
+  params?: GetCommentsParams,
+  options?: RequestInit
+): Promise<getCommentsResponse> => {
+  return serverFetchInstance<getCommentsResponse>(getGetCommentsUrl(slug, electionId, params), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+/**
+ * @summary Create comment
  */
 export type createCommentResponse200 = {
   data: BaseResponseCommentCreateResponse;
   status: 200;
 };
 
-export type createCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type createCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type createCommentResponse429 = {
@@ -152,7 +219,7 @@ export type createCommentResponseSuccess = createCommentResponse200 & {
   headers: Headers;
 };
 export type createCommentResponseError = (
-  | createCommentResponse400
+  | createCommentResponse409
   | createCommentResponse429
   | createCommentResponse500
 ) & {
@@ -161,15 +228,17 @@ export type createCommentResponseError = (
 
 export type createCommentResponse = createCommentResponseSuccess | createCommentResponseError;
 
-export const getCreateCommentUrl = () => {
-  return `/api/v1/comment`;
+export const getCreateCommentUrl = (slug: string, electionId: number) => {
+  return `/api/v1/hotpicks/${slug}/elections/${electionId}/comments`;
 };
 
 export const createComment = async (
+  slug: string,
+  electionId: number,
   createCommentRequest: CreateCommentRequest,
   options?: RequestInit
 ): Promise<createCommentResponse> => {
-  return serverFetchInstance<createCommentResponse>(getCreateCommentUrl(), {
+  return serverFetchInstance<createCommentResponse>(getCreateCommentUrl(slug, electionId), {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -178,16 +247,16 @@ export const createComment = async (
 };
 
 /**
- * @summary 댓글 비밀번호 검증
+ * @summary Verify comment password
  */
 export type verifyCommentResponse200 = {
   data: BaseResponseCommentVerifyResponse;
   status: 200;
 };
 
-export type verifyCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type verifyCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type verifyCommentResponse429 = {
@@ -204,7 +273,7 @@ export type verifyCommentResponseSuccess = verifyCommentResponse200 & {
   headers: Headers;
 };
 export type verifyCommentResponseError = (
-  | verifyCommentResponse400
+  | verifyCommentResponse409
   | verifyCommentResponse429
   | verifyCommentResponse500
 ) & {
@@ -214,7 +283,7 @@ export type verifyCommentResponseError = (
 export type verifyCommentResponse = verifyCommentResponseSuccess | verifyCommentResponseError;
 
 export const getVerifyCommentUrl = (commentId: string) => {
-  return `/api/v1/comment/${commentId}/verify`;
+  return `/api/v1/comments/${commentId}/verify`;
 };
 
 export const verifyComment = async (
@@ -231,16 +300,16 @@ export const verifyComment = async (
 };
 
 /**
- * @summary 댓글 좋아요
+ * @summary Like comment
  */
 export type likeCommentResponse200 = {
   data: BaseResponseCommentLikeResponse;
   status: 200;
 };
 
-export type likeCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type likeCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type likeCommentResponse429 = {
@@ -257,7 +326,7 @@ export type likeCommentResponseSuccess = likeCommentResponse200 & {
   headers: Headers;
 };
 export type likeCommentResponseError = (
-  | likeCommentResponse400
+  | likeCommentResponse409
   | likeCommentResponse429
   | likeCommentResponse500
 ) & {
@@ -267,7 +336,7 @@ export type likeCommentResponseError = (
 export type likeCommentResponse = likeCommentResponseSuccess | likeCommentResponseError;
 
 export const getLikeCommentUrl = (commentId: string) => {
-  return `/api/v1/comment/${commentId}/like`;
+  return `/api/v1/comments/${commentId}/like`;
 };
 
 export const likeComment = async (
@@ -281,16 +350,16 @@ export const likeComment = async (
 };
 
 /**
- * @summary 댓글 좋아요 취소
+ * @summary Unlike comment
  */
 export type unlikeCommentResponse200 = {
   data: BaseResponseCommentLikeResponse;
   status: 200;
 };
 
-export type unlikeCommentResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type unlikeCommentResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type unlikeCommentResponse429 = {
@@ -307,7 +376,7 @@ export type unlikeCommentResponseSuccess = unlikeCommentResponse200 & {
   headers: Headers;
 };
 export type unlikeCommentResponseError = (
-  | unlikeCommentResponse400
+  | unlikeCommentResponse409
   | unlikeCommentResponse429
   | unlikeCommentResponse500
 ) & {
@@ -317,7 +386,7 @@ export type unlikeCommentResponseError = (
 export type unlikeCommentResponse = unlikeCommentResponseSuccess | unlikeCommentResponseError;
 
 export const getUnlikeCommentUrl = (commentId: string) => {
-  return `/api/v1/comment/${commentId}/like`;
+  return `/api/v1/comments/${commentId}/like`;
 };
 
 export const unlikeComment = async (
@@ -331,16 +400,16 @@ export const unlikeComment = async (
 };
 
 /**
- * @summary 댓글 개수 조회
+ * @summary Get comment count
  */
 export type countCommentsResponse200 = {
   data: BaseResponseCommentCountResponse;
   status: 200;
 };
 
-export type countCommentsResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type countCommentsResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type countCommentsResponse429 = {
@@ -357,7 +426,7 @@ export type countCommentsResponseSuccess = countCommentsResponse200 & {
   headers: Headers;
 };
 export type countCommentsResponseError = (
-  | countCommentsResponse400
+  | countCommentsResponse409
   | countCommentsResponse429
   | countCommentsResponse500
 ) & {
@@ -366,16 +435,16 @@ export type countCommentsResponseError = (
 
 export type countCommentsResponse = countCommentsResponseSuccess | countCommentsResponseError;
 
-export const getCountCommentsUrl = (trendId: number, itemId: string) => {
-  return `/api/v1/comment/${trendId}/item/${itemId}/count`;
+export const getCountCommentsUrl = (slug: string, electionId: number) => {
+  return `/api/v1/hotpicks/${slug}/elections/${electionId}/comments/count`;
 };
 
 export const countComments = async (
-  trendId: number,
-  itemId: string,
+  slug: string,
+  electionId: number,
   options?: RequestInit
 ): Promise<countCommentsResponse> => {
-  return serverFetchInstance<countCommentsResponse>(getCountCommentsUrl(trendId, itemId), {
+  return serverFetchInstance<countCommentsResponse>(getCountCommentsUrl(slug, electionId), {
     ...options,
     method: 'GET',
   });

@@ -6,25 +6,17 @@
  */
 
 export interface CreateCommentRequest {
-  /** 트렌드 ID */
-  trendId: number;
-  /** 아이템 ID */
-  itemId: string;
   /**
-   * 닉네임 (1~10자, 영문/한글/숫자/공백/-_. 허용)
    * @minLength 0
-   * @maxLength 10
-   * @pattern ^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s._-]*$
+   * @maxLength 80
    */
   nickname: string;
   /**
-   * 댓글 비밀번호 (4~15자)
-   * @minLength 4
-   * @maxLength 15
+   * @minLength 1
+   * @maxLength 64
    */
   password: string;
   /**
-   * 댓글 내용 (1~200자)
    * @minLength 0
    * @maxLength 200
    */

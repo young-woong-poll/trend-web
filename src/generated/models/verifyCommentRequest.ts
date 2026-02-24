@@ -6,6 +6,9 @@
  */
 
 export interface VerifyCommentRequest {
-  /** 댓글 비밀번호 */
+  /**
+   * @minLength 1
+   * @maxLength 64
+   */
   password: string;
 }

@@ -5,15 +5,15 @@ import { useState, useEffect, type FC } from 'react';
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Hotpick/CommentModal/CommentEditModal.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { CommentItem } from '@/generated/models';
 import { useUpdateComment } from '@/hooks/api/useComment';
+import type { CommentItem } from '@/types/comment';
 
 interface CommentEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   comment: CommentItem;
   editToken: string;
-  hotpickId: string;
+  slug: string;
   electionId: string;
 }
 
@@ -24,7 +24,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
   onClose,
   comment,
   editToken,
-  hotpickId,
+  slug,
   electionId,
 }) => {
   const [content, setContent] = useState(comment.content ?? '');
@@ -69,7 +69,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
     updateComment(
       {
         commentId: comment.id ?? '',
-        hotpickId,
+        slug,
         electionId,
         data: {
           verifyToken: editToken,

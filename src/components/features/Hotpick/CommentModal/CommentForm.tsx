@@ -4,12 +4,11 @@ import { useState, type FC } from 'react';
 
 import styles from '@/components/features/Hotpick/CommentModal/CommentForm.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import type { CreateCommentRequest } from '@/generated/models';
 import { useCreateComment } from '@/hooks/api/useComment';
 import { validateNickname, isValidNicknameCharacters, NICKNAME_MAX_LENGTH } from '@/lib/utils';
 
 interface CommentFormProps {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   onSuccess: () => void;
 }
@@ -18,7 +17,7 @@ const COMMENT_MAX_LENGTH = 200;
 const PASSWORD_MIN_LENGTH = 4;
 const PASSWORD_MAX_LENGTH = 15;
 
-export const CommentForm: FC<CommentFormProps> = ({ hotpickId, electionId, onSuccess }) => {
+export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess }) => {
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [content, setContent] = useState('');
@@ -111,31 +110,31 @@ export const CommentForm: FC<CommentFormProps> = ({ hotpickId, electionId, onSuc
     }
 
     // 댓글 작성 API 호출
-    // NOTE: trendId/itemId are generated model field names (will be renamed after BE migration)
-    const requestData: CreateCommentRequest = {
-      trendId: Number(hotpickId),
-      itemId: electionId,
-      nickname: trimmedNickname,
-      password: trimmedPassword,
-      content: trimmedContent,
-    };
-
-    createComment(requestData, {
-      onSuccess: () => {
-        // 폼 초기화
-        setNickname('');
-        setPassword('');
-        setContent('');
-        setErrors({});
-
-        // 부모 컴포넌트에 성공 알림
-        onSuccess();
+    createComment(
+      {
+        slug,
+        electionId,
+        nickname: trimmedNickname,
+        password: trimmedPassword,
+        content: trimmedContent,
       },
-      onError: (error) => {
-        showToast('댓글 작성에 실패했습니다');
-        console.error('Failed to create comment:', error);
-      },
-    });
+      {
+        onSuccess: () => {
+          // 폼 초기화
+          setNickname('');
+          setPassword('');
+          setContent('');
+          setErrors({});
+
+          // 부모 컴포넌트에 성공 알림
+          onSuccess();
+        },
+        onError: (error) => {
+          showToast('댓글 작성에 실패했습니다');
+          console.error('Failed to create comment:', error);
+        },
+      }
+    );
   };
 
   return (

@@ -31,9 +31,9 @@ interface SingleCardProps {
   singleVote: SingleVoteData;
   voteType?: VoteType;
   mainImageUrl?: string;
-  onVote: (hotpickId: string, optionId: string, singleVote: SingleVoteData) => void;
+  onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
-  onComment: (hotpickId: string, electionId: string) => void;
+  onComment: (slug: string, electionId: string) => void;
 }
 
 const formatCount = (count: number): string => {
@@ -44,7 +44,7 @@ const formatCount = (count: number): string => {
 };
 
 export const SingleCard: FC<SingleCardProps> = ({
-  id,
+  id: _id,
   alias,
   title,
   categories = [],
@@ -61,8 +61,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
 
-  const hotpickId = String(id);
-  const { data: commentCountData } = useCommentCount(Number(id), singleVote.electionId);
+  const { data: commentCountData } = useCommentCount(alias, singleVote.electionId);
 
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
@@ -73,7 +72,7 @@ export const SingleCard: FC<SingleCardProps> = ({
     if (isClosed || voted) {
       return;
     }
-    onVote(hotpickId, optionId, singleVote);
+    onVote(alias, optionId, singleVote);
   };
 
   // TEXT 타입만 질문 옆 로고 표시, IMAGE 타입은 옵션 이미지로 대체
@@ -231,7 +230,7 @@ export const SingleCard: FC<SingleCardProps> = ({
           className={styles.iconButtonWithCount}
           onClick={(e) => {
             e.stopPropagation();
-            onComment(hotpickId, singleVote.electionId);
+            onComment(alias, singleVote.electionId);
           }}
           aria-label="댓글"
         >

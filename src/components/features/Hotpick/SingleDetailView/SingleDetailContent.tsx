@@ -2,11 +2,11 @@ import type { FC } from 'react';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { SingleDetailView } from '@/components/features/Hotpick/SingleDetailView/SingleDetailView';
-import type { DisplayTrendDetailResponse } from '@/generated/models';
+import type { HotpickDetailResponse } from '@/generated/models';
 
 type SingleDetailContentProps = {
   hotpickAlias: string;
-  data?: DisplayTrendDetailResponse;
+  data?: HotpickDetailResponse;
 };
 
 export const SingleDetailContent: FC<SingleDetailContentProps> = ({ hotpickAlias, data }) => (

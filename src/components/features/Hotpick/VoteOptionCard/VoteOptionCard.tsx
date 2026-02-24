@@ -3,11 +3,17 @@
 import type { FC } from 'react';
 
 import styles from '@/components/features/Hotpick/VoteOptionCard/VoteOptionCard.module.scss';
-import type { DisplayTrendOptionResponse } from '@/generated/models';
 import { useImagePreload } from '@/hooks/useImagePreload';
 
+/** 투표 옵션 (구 DisplayTrendOptionResponse 대체) */
+interface VoteOption {
+  id?: string;
+  title?: string;
+  imageUrl?: string;
+}
+
 interface VoteOptionCardProps {
-  option: DisplayTrendOptionResponse;
+  option: VoteOption;
   isSelected: boolean;
   hasVoted: boolean;
   voteCount?: number;

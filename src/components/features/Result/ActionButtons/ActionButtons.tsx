@@ -7,18 +7,14 @@ import CheckIcon from '@/assets/icon/CheckIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { Button } from '@/components/common/Button';
-import { PollCard } from '@/components/features/Main/PollCard/PollCard';
 import styles from '@/components/features/Result/ActionButtons/ActionButtons.module.scss';
-import { HOTPICK_SORT } from '@/constants/sort';
 import { useModal } from '@/contexts/ModalContext';
-import { useHotpickNavigation } from '@/hooks/api/useDisplay';
 
 interface ActionButtonsProps {
   hotpickAlias: string;
 }
 
 export const ActionButtons: FC<ActionButtonsProps> = ({ hotpickAlias }) => {
-  const { data: navigation } = useHotpickNavigation(hotpickAlias, HOTPICK_SORT);
   const { showToast } = useModal();
 
   // 내 유형 저장하기 - 현재 페이지(ResultPage) URL 복사
@@ -57,33 +53,6 @@ export const ActionButtons: FC<ActionButtonsProps> = ({ hotpickAlias }) => {
         투표 공유하기
       </Button>
 
-      {navigation?.prev && (
-        <div className={styles.voteSection}>
-          <p className={styles.voteSectionLabel}>이전 투표 하러가기</p>
-          <PollCard
-            alias={navigation.prev.alias ?? ''}
-            title={navigation.prev.title ?? ''}
-            subtitle={navigation.prev.label}
-            createdAt={navigation.prev.createdAt}
-            imageUrls={navigation.prev.imageUrls ?? []}
-            participantCount={navigation.prev.participantCount}
-          />
-        </div>
-      )}
-
-      {navigation?.next && (
-        <div className={styles.voteSection}>
-          <p className={styles.voteSectionLabel}>다음 투표 하러가기</p>
-          <PollCard
-            alias={navigation.next.alias ?? ''}
-            title={navigation.next.title ?? ''}
-            subtitle={navigation.next.label}
-            createdAt={navigation.next.createdAt}
-            imageUrls={navigation.next.imageUrls ?? []}
-            participantCount={navigation.next.participantCount}
-          />
-        </div>
-      )}
       <button
         type="button"
         className={styles.backToMainButton}

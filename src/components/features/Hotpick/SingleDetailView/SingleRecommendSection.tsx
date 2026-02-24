@@ -7,23 +7,16 @@ import Link from 'next/link';
 
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
-import { useRecommendSingles } from '@/hooks/api/useDisplay';
+import type { HotpickCardResponse } from '@/generated/models';
 import { OPTION_LABELS } from '@/types/singleVote';
 
 interface SingleRecommendSectionProps {
   hotpickAlias: string;
-  categoryCode?: string;
+  relatedHotpicks?: HotpickCardResponse[];
 }
 
-export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({
-  hotpickAlias,
-  categoryCode,
-}) => {
-  const { data: recommendData } = useRecommendSingles(hotpickAlias, categoryCode);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const trends = (recommendData as any)?.trends as any[] | undefined;
-  if (!trends || trends.length === 0) {
+export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({ relatedHotpicks }) => {
+  if (!relatedHotpicks || relatedHotpicks.length === 0) {
     return null;
   }
 
@@ -31,26 +24,31 @@ export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({
     <div className={styles.recommendSection}>
       <h2 className={styles.recommendTitle}>이런 투표는 어때요?</h2>
       <div className={styles.recommendCards}>
-        {trends.map((trend) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const item = trend as any;
-          const alias = trend.alias ?? '';
-
-          if (item.type !== 'SINGLE' || !item.singleVote) {
+        {relatedHotpicks.map((hotpick) => {
+          const slug = hotpick.slug ?? '';
+          const election = hotpick.election;
+          if (!election) {
             return null;
           }
 
-          const options = item.singleVote?.options ?? [];
-          const count = trend.participantsCount ?? 0;
-          const imageUrl = trend.imageUrls?.[0] as string | undefined;
+          const options = (election.items ?? []).map((item) => ({
+            id: String(item.electionItemId ?? ''),
+            text: item.title ?? '',
+          }));
+          const count = election.totalVoteCount ?? 0;
+          const imageUrl = election.imageUrl ?? hotpick.imageUrl;
 
           return (
-            <Link key={trend.id} href={`/hotpick/${alias}`} className={styles.recommendCard}>
+            <Link
+              key={hotpick.hotpickId}
+              href={`/hotpick/${slug}`}
+              className={styles.recommendCard}
+            >
               {imageUrl && (
                 <div className={styles.recommendCardImageWrap}>
                   <Image
                     src={imageUrl}
-                    alt={trend.title ?? ''}
+                    alt={election.title ?? ''}
                     width={40}
                     height={40}
                     className={styles.recommendCardImage}
@@ -58,9 +56,9 @@ export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({
                 </div>
               )}
               <div className={styles.recommendCardBody}>
-                <span className={styles.recommendCardTitle}>{trend.title ?? ''}</span>
+                <span className={styles.recommendCardTitle}>{election.title ?? ''}</span>
                 <div className={styles.recommendCardOptions}>
-                  {options.slice(0, 2).map((opt: { id: string; text: string }, i: number) => (
+                  {options.slice(0, 2).map((opt, i) => (
                     <span key={opt.id} className={styles.recommendCardOption}>
                       <span className={styles.recommendCardLabel}>{OPTION_LABELS[i]}</span>
                       {opt.text}

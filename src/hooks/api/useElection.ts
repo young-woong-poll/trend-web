@@ -1,16 +1,18 @@
-// ──────────────────────────────────────────────────────────
-// [DEPRECATED] 수동 작성된 electionApi 기반 — BE API 연동 후 Orval 생성 함수로 교체 예정.
-// Orval 재생성 후 이 파일의 queryFn들을 Orval 함수로 교체하세요.
-// 관련 파일: src/services/api/election.ts (함께 삭제/교체)
-// ──────────────────────────────────────────────────────────
+/**
+ * Election hooks — 스텁 처리
+ *
+ * 선거(election)가 핫픽에 내장되어 별도 CRUD API가 제거됨.
+ * Admin election 페이지에서 참조하므로 인터페이스만 유지.
+ */
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useModal } from '@/contexts/ModalContext';
-import { electionApi } from '@/services/api/election';
 import type {
   CreateElectionRequest,
   UpdateElectionRequest,
   ElectionListParams,
+  ElectionListResponse,
+  Election,
 } from '@/types/election';
 
 /**
@@ -22,103 +24,85 @@ export const electionKeys = {
   detail: (id: string) => [...electionKeys.all, 'detail', id] as const,
 };
 
+const EMPTY_LIST: ElectionListResponse = {
+  content: [],
+  totalElements: 0,
+  totalPages: 0,
+  number: 0,
+  size: 20,
+};
+
 /**
- * Admin: 선거 목록 조회 Hook
+ * Admin: 선거 목록 조회 Hook (스텁)
  */
-export const useElectionList = (params?: ElectionListParams) =>
+export const useElectionList = (_params?: ElectionListParams) =>
   useQuery({
-    queryKey: electionKeys.list(params),
-    queryFn: () => electionApi.getElections(params),
+    queryKey: electionKeys.list(_params),
+    queryFn: () => Promise.resolve(EMPTY_LIST),
   });
 
 /**
- * Admin: 선거 상세 조회 Hook
+ * Admin: 선거 상세 조회 Hook (스텁)
  */
 export const useElectionDetail = (electionId: string) =>
   useQuery({
     queryKey: electionKeys.detail(electionId),
-    queryFn: () => electionApi.getElection(electionId),
+    queryFn: () => Promise.resolve(null as Election | null),
     enabled: !!electionId,
   });
 
 /**
- * Admin: 선거 생성 Hook
+ * Admin: 선거 생성 Hook (스텁)
  */
 export const useCreateElection = () => {
   const queryClient = useQueryClient();
-  const { showAlert } = useModal();
 
   return useMutation({
-    mutationFn: (data: CreateElectionRequest) => electionApi.createElection(data),
-    onSuccess: (result) => {
-      void queryClient.invalidateQueries({ queryKey: electionKeys.all });
-      showAlert(`선거가 생성되었습니다! 제목: ${result.title}`, {
-        onConfirm: () => {
-          window.location.href = '/admin/election';
-        },
-      });
+    mutationFn: async (_data: CreateElectionRequest) => {
+      throw new Error('선거는 핫픽에 내장되어 별도 생성이 불필요합니다');
     },
-    onError: (error: Error) => {
-      showAlert(`선거 생성 실패: ${error.message}`);
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: electionKeys.all });
     },
   });
 };
 
 /**
- * Admin: 선거 수정 Hook
+ * Admin: 선거 수정 Hook (스텁)
  */
 export const useUpdateElection = () => {
   const queryClient = useQueryClient();
-  const { showAlert } = useModal();
 
   return useMutation({
-    mutationFn: ({ electionId, data }: { electionId: string; data: UpdateElectionRequest }) =>
-      electionApi.updateElection(electionId, data),
-    onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: electionKeys.all });
-      void queryClient.invalidateQueries({
-        queryKey: electionKeys.detail(variables.electionId),
-      });
-      showAlert('선거가 수정되었습니다.', {
-        onConfirm: () => {
-          window.location.href = '/admin/election';
-        },
-      });
+    mutationFn: async (_params: { electionId: string; data: UpdateElectionRequest }) => {
+      throw new Error('선거는 핫픽에 내장되어 별도 수정이 불필요합니다');
     },
-    onError: () => {
-      showAlert('선거 수정에 실패했습니다.');
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: electionKeys.all });
     },
   });
 };
 
 /**
- * Admin: 선거 삭제 Hook
+ * Admin: 선거 삭제 Hook (스텁)
  */
 export const useDeleteElection = () => {
   const queryClient = useQueryClient();
-  const { showAlert } = useModal();
 
   return useMutation({
-    mutationFn: (electionId: string) => electionApi.deleteElection(electionId),
+    mutationFn: async (_electionId: string) => {
+      throw new Error('선거는 핫픽에 내장되어 별도 삭제가 불필요합니다');
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: electionKeys.all });
-      showAlert('선거가 삭제되었습니다.', {
-        onConfirm: () => {
-          window.location.href = '/admin/election';
-        },
-      });
-    },
-    onError: (error: Error) => {
-      showAlert(error.message || '선거 삭제에 실패했습니다.');
     },
   });
 };
 
 /**
- * Admin: 선거 검색 Hook (핫픽 폼에서 사용)
- * 검색어로 선거 목록을 조회하는 mutation
+ * Admin: 선거 검색 Hook (스텁)
  */
 export const useSearchElections = () =>
   useMutation({
-    mutationFn: (params: ElectionListParams) => electionApi.getElections(params),
+    mutationFn: async (_params: ElectionListParams) => EMPTY_LIST,
   });

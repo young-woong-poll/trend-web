@@ -1,54 +1,58 @@
+/**
+ * Comment API hooks
+ *
+ * 새 Comment API (swagger 2차) 기반 실제 API 호출.
+ * - 목록/생성/카운트: slug + electionId 기반
+ * - 수정/삭제/검증: commentId 기반
+ */
+
 import {
-  useMutation,
+  queryOptions,
   useQuery,
   useInfiniteQuery,
+  useMutation,
   useQueryClient,
-  queryOptions,
 } from '@tanstack/react-query';
 
 import {
+  getComments,
   createComment,
   updateComment,
-  verifyComment,
   deleteComment,
-  likeComment,
-  unlikeComment,
+  verifyComment,
   countComments,
 } from '@/generated/api/client/comment/comment';
-import { getComments } from '@/generated/api/client/display/display';
 import type {
-  CommentCountResponse,
   CommentItem,
   CommentListResponse,
-  CreateCommentRequest,
-  UpdateCommentRequest,
-  VerifyCommentRequest,
-  DeleteCommentRequest,
+  CommentVerifyResponse,
+  CommentCountResponse,
 } from '@/generated/models';
+import { getTKUID } from '@/lib/tkuid';
 
 /**
  * Comment Query Keys
  */
 export const commentKeys = {
   all: ['comment'] as const,
-  count: (hotpickId: number, electionId: string) =>
-    [...commentKeys.all, 'count', hotpickId, electionId] as const,
+  count: (slug: string, electionId: string) =>
+    [...commentKeys.all, 'count', slug, electionId] as const,
   lists: () => [...commentKeys.all, 'list'] as const,
-  list: (hotpickId: string, electionId: string, sort: string) =>
-    [...commentKeys.lists(), hotpickId, electionId, sort] as const,
+  list: (slug: string, electionId: string, sort: string) =>
+    [...commentKeys.lists(), slug, electionId, sort] as const,
 };
 
 /**
  * Comment Query Options (서버 pre-fetch용)
  */
 export const commentQueries = {
-  /**
-   * 댓글 개수 쿼리 옵션
-   */
-  count: (hotpickId: number, electionId: string) =>
+  count: (slug: string, electionId: string) =>
     queryOptions<CommentCountResponse>({
-      queryKey: commentKeys.count(hotpickId, electionId),
-      queryFn: () => countComments(hotpickId, electionId),
+      queryKey: commentKeys.count(slug, electionId),
+      queryFn: () =>
+        countComments(slug, Number(electionId), {
+          headers: { 'x-tku-id': typeof window !== 'undefined' ? getTKUID() : '' },
+        }) as Promise<CommentCountResponse>,
       staleTime: 30 * 1000,
     }),
 };
@@ -56,30 +60,38 @@ export const commentQueries = {
 /**
  * 댓글 개수 조회 Hook
  */
-export const useCommentCount = (hotpickId: number, electionId: string) =>
-  useQuery(commentQueries.count(hotpickId, electionId));
+export const useCommentCount = (slug: string, electionId: string) =>
+  useQuery(commentQueries.count(slug, electionId));
 
 /**
  * 댓글 목록 무한 스크롤 Hook
  */
 export const useInfiniteComments = (params: {
-  hotpickId: string;
+  slug: string;
   electionId: string;
   sort?: 'latest' | 'popular';
   size?: number;
   tkuId?: string;
 }) =>
   useInfiniteQuery({
-    queryKey: commentKeys.list(params.hotpickId, params.electionId, params.sort ?? 'latest'),
-    queryFn: ({ pageParam }) =>
-      getComments(
-        Number(params.hotpickId),
-        params.electionId,
-        { sort: params.sort, cursor: pageParam, size: params.size ?? 20 },
-        params.tkuId ? { headers: { 'x-tku-id': params.tkuId } } : undefined
-      ),
+    queryKey: commentKeys.list(params.slug, params.electionId, params.sort ?? 'latest'),
+    queryFn: async ({ pageParam }) => {
+      const result = await getComments(
+        params.slug,
+        Number(params.electionId),
+        {
+          sort: params.sort,
+          cursor: pageParam,
+          size: params.size ?? 20,
+        },
+        {
+          headers: params.tkuId ? { 'x-tku-id': params.tkuId } : undefined,
+        }
+      );
+      return result as CommentListResponse;
+    },
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage?.nextId ?? undefined,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
     staleTime: 30 * 1000,
   });
 
@@ -90,52 +102,31 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateCommentRequest) => createComment(data),
-    onSuccess: async (responseData, variables) => {
-      // NOTE: trendId/itemId are generated model field names (will be renamed after BE migration)
-      const hotpickId = variables.trendId;
-      const electionId = variables.itemId;
-      const newComment: CommentItem = {
-        id: responseData?.id,
-        nickname: variables.nickname,
-        content: variables.content,
-        likeCount: 0,
-        liked: false,
-        createdAt: new Date().toISOString(),
-      };
-
-      const latestQueryKey = commentKeys.list(String(hotpickId), electionId, 'latest');
-
-      queryClient.setQueryData(latestQueryKey, (old: unknown) => {
-        if (!old || typeof old !== 'object') {
-          return old;
+    mutationFn: async (data: {
+      slug: string;
+      electionId: string;
+      nickname: string;
+      password: string;
+      content: string;
+    }) => {
+      const result = await createComment(
+        data.slug,
+        Number(data.electionId),
+        {
+          nickname: data.nickname,
+          password: data.password,
+          content: data.content,
+        },
+        {
+          headers: { 'x-tku-id': getTKUID() },
         }
-
-        const oldData = old as {
-          pages: Array<CommentListResponse>;
-          pageParams: unknown[];
-        };
-
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page, index) =>
-            index === 0
-              ? {
-                  ...page,
-                  comments: [newComment, ...(page.comments ?? [])],
-                  totalSize: (page.totalSize ?? 0) + 1,
-                }
-              : page
-          ),
-        };
-      });
-
+      );
+      return result;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
       void queryClient.invalidateQueries({
-        queryKey: commentKeys.list(String(hotpickId), electionId, 'popular'),
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(hotpickId, electionId),
+        queryKey: commentKeys.count(variables.slug, variables.electionId),
       });
     },
   });
@@ -148,41 +139,22 @@ export const useUpdateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      commentId,
-      data,
-    }: {
+    mutationFn: async (params: {
       commentId: string;
-      data: UpdateCommentRequest;
-      hotpickId: string;
+      data: { verifyToken: string; content: string };
+      slug: string;
       electionId: string;
-    }) => updateComment(commentId, data),
-    onSuccess: (_, variables) => {
-      ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(String(variables.hotpickId), variables.electionId, sort);
-
-        queryClient.setQueryData(queryKey, (old: unknown) => {
-          if (!old || typeof old !== 'object') {
-            return old;
-          }
-
-          const oldData = old as {
-            pages: Array<CommentListResponse>;
-            pageParams: unknown[];
-          };
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              comments: (page.comments ?? []).map((comment) =>
-                comment.id === variables.commentId
-                  ? { ...comment, content: variables.data.content }
-                  : comment
-              ),
-            })),
-          };
-        });
+    }) => {
+      const result = await updateComment(params.commentId, {
+        verifyToken: params.data.verifyToken,
+        content: params.data.content,
+      });
+      return result;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({
+        queryKey: commentKeys.count(variables.slug, variables.electionId),
       });
     },
   });
@@ -193,39 +165,13 @@ export const useUpdateComment = () => {
  */
 export const useVerifyComment = () =>
   useMutation({
-    mutationFn: ({ commentId, data }: { commentId: string; data: VerifyCommentRequest }) =>
-      verifyComment(commentId, data),
-  });
-
-/**
- * 댓글 좋아요 Hook
- */
-export const useLikeComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      likeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+    mutationFn: async (params: { commentId: string; data: { password: string } }) => {
+      const result = await verifyComment(params.commentId, {
+        password: params.data.password,
+      });
+      return result as CommentVerifyResponse;
     },
   });
-};
-
-/**
- * 댓글 좋아요 취소 Hook
- */
-export const useUnlikeComment = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ commentId, tkuId }: { commentId: string; tkuId: string }) =>
-      unlikeComment(commentId, { headers: { 'x-tku-id': tkuId } }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
-    },
-  });
-};
 
 /**
  * 댓글 삭제 Hook
@@ -234,46 +180,24 @@ export const useDeleteComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      commentId,
-      data,
-    }: {
+    mutationFn: async (params: {
       commentId: string;
-      data: DeleteCommentRequest;
-      hotpickId: string;
+      data: { verifyToken: string };
+      slug: string;
       electionId: string;
-    }) => deleteComment(commentId, data),
-    onSuccess: async (_, variables) => {
-      const { hotpickId, electionId } = variables;
-      ['latest', 'popular'].forEach((sort) => {
-        const queryKey = commentKeys.list(hotpickId, electionId, sort);
-
-        queryClient.setQueryData(queryKey, (old: unknown) => {
-          if (!old || typeof old !== 'object') {
-            return old;
-          }
-
-          const oldData = old as {
-            pages: Array<CommentListResponse>;
-            pageParams: unknown[];
-          };
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => ({
-              ...page,
-              comments: (page.comments ?? []).filter(
-                (comment) => comment.id !== variables.commentId
-              ),
-              totalSize: (page.totalSize ?? 1) - 1,
-            })),
-          };
-        });
+    }) => {
+      const result = await deleteComment(params.commentId, {
+        verifyToken: params.data.verifyToken,
       });
-
-      await queryClient.invalidateQueries({
-        queryKey: commentKeys.count(Number(hotpickId), electionId),
+      return result;
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({
+        queryKey: commentKeys.count(variables.slug, variables.electionId),
       });
     },
   });
 };
+
+export type { CommentItem, CommentVerifyResponse };
