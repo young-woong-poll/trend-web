@@ -520,8 +520,7 @@ export interface AdminHotpickSummaryResponse {
   createdAt?: string;
   expiredAt?: string;
   categories?: AdminCategoryResponse[];
-  electionId?: number;
-  electionTitle?: string;
+  election?: AdminElectionResponse;
 }
 
 /**

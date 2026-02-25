@@ -1357,8 +1357,7 @@
             "type": "array",
             "items": { "$ref": "#/components/schemas/AdminCategoryResponse" }
           },
-          "electionId": { "type": "integer", "format": "int64" },
-          "electionTitle": { "type": "string" }
+          "election": { "$ref": "#/components/schemas/AdminElectionResponse" }
         },
         "description": "응답 데이터"
       },
