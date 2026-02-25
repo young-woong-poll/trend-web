@@ -86,9 +86,10 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>
-          {categories.map((code) => (
-            <span key={code} className={styles.categoryTag}>
-              {code}
+          {categories.map((code, i) => (
+            <span key={code}>
+              {i > 0 && <span className={styles.categorySeparator}>·</span>}
+              <span className={styles.categoryTag}>{code}</span>
             </span>
           ))}
         </div>
