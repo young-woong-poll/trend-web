@@ -20,6 +20,13 @@
   }
 }
 
+.totalCount {
+  font-size: 0.875rem;
+  color: $text-tertiary;
+  margin-top: 4px;
+  display: block;
+}
+
 .loading {
   display: flex;
   justify-content: center;
@@ -55,6 +62,11 @@
 
         &:first-child {
           padding-left: 1.5rem;
+          width: 50px;
+          text-align: center;
+        }
+
+        &:nth-child(2) {
           width: 80px;
         }
 

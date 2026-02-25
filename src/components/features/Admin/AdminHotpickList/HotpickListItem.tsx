@@ -8,19 +8,25 @@ import type { AdminHotpickSummaryResponse } from '@/generated/models';
 
 interface HotpickListItemProps {
   hotpick: AdminHotpickSummaryResponse;
+  orderNumber: number;
   onEdit: (id: number) => void;
 }
 
-export default function HotpickListItem({ hotpick, onEdit }: HotpickListItemProps) {
+export default function HotpickListItem({ hotpick, orderNumber, onEdit }: HotpickListItemProps) {
   return (
     <tr className={styles.row}>
+      {/* 순서 */}
+      <td>
+        <span className={styles.orderNumber}>{orderNumber}</span>
+      </td>
+
       {/* 썸네일 */}
       <td>
         <div className={styles.thumbnailGroup}>
           <div className={styles.thumbnail}>
-            {hotpick.imageUrl && (
+            {hotpick.election?.imageUrl && (
               <Image
-                src={hotpick.imageUrl}
+                src={hotpick.election.imageUrl}
                 alt={`${hotpick.slug} 이미지`}
                 width={40}
                 height={40}
@@ -33,7 +39,7 @@ export default function HotpickListItem({ hotpick, onEdit }: HotpickListItemProp
 
       {/* 제목 */}
       <td>
-        <span className={styles.title}>{hotpick.electionTitle || hotpick.slug}</span>
+        <span className={styles.title}>{hotpick.election?.title || hotpick.slug}</span>
       </td>
 
       {/* Slug */}

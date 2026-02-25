@@ -101,10 +101,12 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
     if (hasExpiredAt) {
       setValue('expiredAt', undefined);
     } else {
-      // 기본값: 7일 후
+      // 기본값: 7일 후 (KST)
       const defaultDate = new Date();
       defaultDate.setDate(defaultDate.getDate() + 7);
-      setValue('expiredAt', defaultDate.toISOString().slice(0, 16));
+      const kstOffset = 9 * 60 * 60 * 1000;
+      const kstDate = new Date(defaultDate.getTime() + kstOffset);
+      setValue('expiredAt', kstDate.toISOString().slice(0, 16));
     }
   };
 

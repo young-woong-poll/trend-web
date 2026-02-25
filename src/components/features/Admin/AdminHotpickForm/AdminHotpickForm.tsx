@@ -153,6 +153,11 @@ export const AdminHotpickForm = ({
       return;
     }
 
+    if (data.categoryIds.length === 0) {
+      showAlert('카테고리를 1개 이상 선택해주세요.');
+      return;
+    }
+
     // SINGLE 타입일 때만 선거 검증
     if (data.type === 'SINGLE') {
       if (!data.election.title.trim()) {
@@ -164,6 +169,21 @@ export const AdminHotpickForm = ({
       if (validItems.length < 2) {
         showAlert('선거 옵션을 2개 이상 입력해주세요.');
         return;
+      }
+
+      if (data.election.voteType === 'IMAGE') {
+        const missingImage = validItems.some((item) => !item.imageUrl);
+        if (missingImage) {
+          showAlert('IMAGE 타입에서는 모든 옵션에 이미지를 등록해주세요.');
+          return;
+        }
+      }
+
+      if (data.election.voteType === 'TEXT') {
+        if (!data.election.imageUrl) {
+          showAlert('TEXT 타입에서는 투표 이미지를 등록해주세요.');
+          return;
+        }
       }
     }
 
@@ -178,7 +198,7 @@ export const AdminHotpickForm = ({
     // Create 모드일 경우 기존 로직 실행
     try {
       await createHotpick(request);
-      router.push('/admin/hotpick');
+      window.location.href = '/admin/hotpick';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
       showAlert(`핫픽 생성 실패: ${errorMessage}`);

@@ -23,7 +23,12 @@ export default function AdminHotpickList() {
     <div className={styles.container}>
       {/* 헤더 */}
       <header className={styles.header}>
-        <h1>핫픽 목록</h1>
+        <div>
+          <h1>핫픽 목록</h1>
+          {hotpicks && hotpicks.length > 0 && (
+            <span className={styles.totalCount}>총 {hotpicks.length}개</span>
+          )}
+        </div>
         <Button variant="outline" onClick={() => router.push('/admin/hotpick/create')}>
           + 핫픽 생성
         </Button>
@@ -35,6 +40,7 @@ export default function AdminHotpickList() {
           <table className={styles.table}>
             <thead>
               <tr>
+                <th>#</th>
                 <th>썸네일</th>
                 <th>제목</th>
                 <th>Alias</th>
@@ -44,10 +50,11 @@ export default function AdminHotpickList() {
               </tr>
             </thead>
             <tbody>
-              {hotpicks.map((hotpick) => (
+              {hotpicks.map((hotpick, index) => (
                 <HotpickListItem
                   key={hotpick.id}
                   hotpick={hotpick}
+                  orderNumber={hotpicks.length - index}
                   onEdit={(id) => router.push(`/admin/hotpick/edit/${id}`)}
                 />
               ))}
