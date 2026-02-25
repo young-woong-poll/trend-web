@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import CommentIcon from '@/assets/icon/CommentIcon';
 import styles from '@/components/features/Hotpick/VoteCard/VoteCard.module.scss';
 import { useHotpickElectionOptionsCount } from '@/hooks/api/useHotpick';
-import type { VoteType } from '@/types/election';
+import type { VoteType } from '@/types/hotpick';
 
 /** 투표 옵션 (구 DisplayTrendOptionResponse 대체) */
 interface VoteOption {

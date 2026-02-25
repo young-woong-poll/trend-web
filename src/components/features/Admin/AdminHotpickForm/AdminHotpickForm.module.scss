@@ -118,6 +118,22 @@
   }
 }
 
+.bundleNotice {
+  margin: 24px 0;
+  padding: 24px;
+  background: $bg-tertiary;
+  border: 1px dashed $border-placeholder;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: $font-weight-medium;
+    color: $text-tertiary;
+  }
+}
+
 .actions {
   gap: 12px;
   margin-top: 40px;

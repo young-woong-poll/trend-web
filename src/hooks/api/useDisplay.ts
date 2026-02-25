@@ -8,7 +8,11 @@ import {
 
 import * as clientApi from '@/generated/api/client/hotpick/hotpick';
 import * as serverApi from '@/generated/api/server/hotpick/hotpick';
-import type { MainHotpickResponse, HotpickDetailResponse } from '@/generated/models';
+import type {
+  CategoryTabResponse,
+  MainHotpickResponse,
+  HotpickDetailResponse,
+} from '@/generated/models';
 import { getTKUID } from '@/lib/tkuid';
 
 /**
@@ -21,6 +25,7 @@ const isServer = () => typeof window === 'undefined';
  */
 export const displayKeys = {
   all: ['display'] as const,
+  categories: () => [...displayKeys.all, 'categories'] as const,
   main: (params?: { size?: number; cursor?: number }) =>
     [...displayKeys.all, 'main', params] as const,
   mainInfinite: (params?: { size?: number; category?: string }) =>
@@ -33,6 +38,24 @@ export const displayKeys = {
  * Query Options (서버 pre-fetch + 클라이언트 사용)
  */
 export const displayQueries = {
+  /**
+   * 카테고리 탭 목록 쿼리 옵션
+   */
+  categories: () =>
+    queryOptions<CategoryTabResponse[] | null>({
+      queryKey: displayKeys.categories(),
+      queryFn: async () => {
+        if (isServer()) {
+          const response = await serverApi.getCategories1(undefined, {
+            next: { revalidate: 300 },
+          });
+          return response.status === 200 ? (response.data.data ?? null) : null;
+        }
+        return clientApi.getCategories1();
+      },
+      staleTime: 5 * 60 * 1000,
+    }),
+
   /**
    * 메인 전시 쿼리 옵션
    */
@@ -111,6 +134,11 @@ export const displayQueries = {
       staleTime: 60 * 1000,
     }),
 };
+
+/**
+ * 카테고리 탭 목록 Hook
+ */
+export const useCategories = () => useQuery(displayQueries.categories());
 
 /**
  * 메인 전시 Hook

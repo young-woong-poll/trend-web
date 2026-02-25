@@ -8,7 +8,6 @@ export interface BaseProps {
 /* eslint-disable no-restricted-imports */
 export * from './api';
 export * from './common';
-export * from './election';
 export * from './result';
 export * from './hotpick';
 export * from './localStorage';

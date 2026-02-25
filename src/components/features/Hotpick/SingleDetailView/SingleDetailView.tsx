@@ -25,7 +25,7 @@ import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { HotpickDetailResponse, VoteResultResponse } from '@/generated/models';
 import { useHotpickDetail } from '@/hooks/api/useDisplay';
 import { getTKUID } from '@/lib/tkuid';
-import type { VoteType } from '@/types/election';
+import type { VoteType } from '@/types/hotpick';
 import {
   calcPercentage,
   OPTION_LABELS,

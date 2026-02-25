@@ -21,6 +21,7 @@ export { useSingleVote } from '@/hooks/api/useSingleVote';
 export {
   displayKeys,
   displayQueries,
+  useCategories,
   useMainDisplay,
   useInfiniteMainDisplay,
   useHotpickDetail,
@@ -36,6 +37,10 @@ export {
   useDeleteHotpick,
   useGeneratePresignedUrl,
   useCheckHotpickAlias,
+  useAdminCategories,
+  useCreateCategory,
+  useUpdateCategory,
+  useDeleteCategory,
 } from '@/hooks/api/useAdmin';
 
 // Hotpick Hooks
@@ -44,17 +49,6 @@ export {
   useHotpickElectionOptionsCount,
   useHotpickElectionOptionsCountMap,
 } from '@/hooks/api/useHotpick';
-
-// Election Hooks
-export {
-  electionKeys,
-  useElectionList,
-  useElectionDetail,
-  useCreateElection,
-  useUpdateElection,
-  useDeleteElection,
-  useSearchElections,
-} from '@/hooks/api/useElection';
 
 // Result Hooks
 export { resultKeys, useCheckResultExists, useCreateResult } from '@/hooks/api/useResult';

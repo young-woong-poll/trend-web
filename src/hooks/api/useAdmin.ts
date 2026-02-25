@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from '@/generated/api/client/admin-category/admin-category';
+import {
   getHotpicks,
   getHotpick,
   createHotpick,
@@ -10,9 +16,12 @@ import {
 } from '@/generated/api/client/admin-hotpick/admin-hotpick';
 import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
 import type {
+  AdminCategoryResponse,
   AdminHotpickSummaryResponse,
   AdminHotpickDetailResponse,
+  CreateCategoryRequest,
   CreateHotpickRequest,
+  UpdateCategoryRequest,
   UpdateHotpickRequest,
   HotpickSlugCheckResponse,
 } from '@/generated/models';
@@ -25,7 +34,12 @@ export const adminKeys = {
   all: ['admin'] as const,
   hotpicks: () => [...adminKeys.all, 'hotpicks'] as const,
   hotpick: (id: number) => [...adminKeys.all, 'hotpick', id] as const,
+  categories: () => [...adminKeys.all, 'categories'] as const,
 };
+
+// ──────────────────────────────────────────────────────────
+// Hotpick Hooks
+// ──────────────────────────────────────────────────────────
 
 /**
  * Admin: 핫픽 목록 조회 Hook
@@ -122,3 +136,75 @@ export const useCheckHotpickAlias = () =>
       return result as HotpickSlugCheckResponse;
     },
   });
+
+// ──────────────────────────────────────────────────────────
+// Category Hooks
+// ──────────────────────────────────────────────────────────
+
+/**
+ * Admin: 카테고리 목록 조회 Hook
+ */
+export const useAdminCategories = (enabled = true) =>
+  useQuery({
+    queryKey: adminKeys.categories(),
+    queryFn: () => getCategories() as Promise<AdminCategoryResponse[]>,
+    enabled,
+  });
+
+/**
+ * Admin: 카테고리 생성 Hook
+ */
+export const useCreateCategory = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (data: CreateCategoryRequest) => createCategory(data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.categories() });
+      showToast('카테고리가 생성되었습니다.');
+    },
+    onError: () => {
+      showToast('카테고리 생성에 실패했습니다.');
+    },
+  });
+};
+
+/**
+ * Admin: 카테고리 수정 Hook
+ */
+export const useUpdateCategory = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ categoryId, data }: { categoryId: number; data: UpdateCategoryRequest }) =>
+      updateCategory(categoryId, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.categories() });
+      showToast('카테고리가 수정되었습니다.');
+    },
+    onError: () => {
+      showToast('카테고리 수정에 실패했습니다.');
+    },
+  });
+};
+
+/**
+ * Admin: 카테고리 삭제 Hook
+ */
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (categoryId: number) => deleteCategory(categoryId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.categories() });
+      showToast('카테고리가 삭제되었습니다.');
+    },
+    onError: () => {
+      showToast('카테고리 삭제에 실패했습니다.');
+    },
+  });
+};

@@ -8,9 +8,10 @@ import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
 import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
+import type { CategoryFilterItem } from '@/constants/category';
 import { useModal } from '@/contexts/ModalContext';
 import type { MainHotpickResponse, HotpickCardResponse } from '@/generated/models';
-import { useInfiniteMainDisplay, useSingleVote } from '@/hooks/api';
+import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
 type TMainViewProps = {
@@ -19,13 +20,18 @@ type TMainViewProps = {
 };
 
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [commentTarget, setCommentTarget] = useState<{
     slug: string;
     electionId: string;
   } | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
+  const { data: apiCategories } = useCategories();
+
+  const dynamicCategories: CategoryFilterItem[] | undefined = apiCategories
+    ? apiCategories.map((c) => ({ label: c.name ?? '', slug: c.slug ?? '' }))
+    : undefined;
 
   const handleShare = useCallback(
     (slug: string) => {
@@ -106,9 +112,15 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
-        <div className={styles.statusContainer}>
-          <p className={styles.statusText}>핫픽을 불러오는 중...</p>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
+        <div className={styles.skeletonGroup}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       </div>
     );
@@ -118,7 +130,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
         <div className={styles.statusContainer}>
           <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
           <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
@@ -131,7 +147,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   if (!isFetching && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
           <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
@@ -206,7 +226,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        <CategoryFilter selectedSlug={selectedCategory} onChange={handleCategoryChange} />
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
 
         {/* 핫픽 피드 */}
         {hotpicks.map((hotpick) => renderHotpick(hotpick))}

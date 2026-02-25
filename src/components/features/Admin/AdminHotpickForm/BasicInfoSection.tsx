@@ -8,17 +8,15 @@ import type {
 } from '@/components/features/Admin/AdminHotpickForm/AdminHotpickForm';
 import styles from '@/components/features/Admin/AdminHotpickForm/BasicInfoSection.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { useCheckHotpickAlias } from '@/hooks/api/useAdmin';
+import { useCheckHotpickAlias, useAdminCategories } from '@/hooks/api/useAdmin';
 import type { HotpickType } from '@/types/hotpick';
 
 import type { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 /**
- * 카테고리 목록
- * BE에서 카테고리 API 제공 시 동적으로 변경 예정
- * 현재는 AdminCategoryResponse.id 기준으로 하드코딩
+ * 카테고리 목록 (API 로딩 전 fallback)
  */
-const CATEGORIES: { id: number; label: string }[] = [
+const FALLBACK_CATEGORIES: { id: number; label: string }[] = [
   { id: 1, label: '연애' },
   { id: 2, label: '결혼' },
   { id: 3, label: '재테크' },
@@ -48,7 +46,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
   checkStatus,
   setCheckStatus,
   mode = 'create',
-  hotpickType: _hotpickType,
+  hotpickType,
 }) => {
   const imageUrl = watch('imageUrl');
   const hotpickSlug = watch('slug');
@@ -56,8 +54,15 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
 
   const { showAlert } = useModal();
   const { mutateAsync: checkHotpickAlias, isPending } = useCheckHotpickAlias();
+  const { data: apiCategories } = useAdminCategories();
 
   const hasExpiredAt = !!expiredAt;
+
+  // API에서 카테고리 로드되면 사용, 아니면 fallback
+  const categories =
+    apiCategories && apiCategories.length > 0
+      ? apiCategories.map((c) => ({ id: c.id ?? 0, label: c.name ?? '' }))
+      : FALLBACK_CATEGORIES;
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -107,6 +112,32 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
     <section className={styles.section}>
       <h2 className={styles.sectionTitle}>기본 정보</h2>
 
+      {/* 핫픽 유형 */}
+      <div className={styles.field}>
+        <label className={styles.label}>핫픽 유형</label>
+        <div className={styles.typeSelector}>
+          <label
+            className={`${styles.typeOption} ${hotpickType === 'SINGLE' ? styles.typeOptionActive : ''}`}
+          >
+            <input
+              type="radio"
+              value="SINGLE"
+              checked={hotpickType === 'SINGLE'}
+              onChange={() => setValue('type', 'SINGLE')}
+              className={styles.toggleInput}
+            />
+            <span className={styles.typeLabel}>SINGLE</span>
+            <span className={styles.typeDesc}>단일 이지선다 투표</span>
+          </label>
+          <label className={`${styles.typeOption} ${styles.typeOptionDisabled}`}>
+            <input type="radio" value="BUNDLE" disabled className={styles.toggleInput} />
+            <span className={styles.typeLabel}>BUNDLE</span>
+            <span className={styles.typeDesc}>준비 중</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Hotpick Slug */}
       <div className={styles.field}>
         <div className={styles.labelWithTooltip}>
           <label htmlFor="hotpickSlug" className={styles.label}>
@@ -152,7 +183,7 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
       <div className={styles.field}>
         <label className={styles.label}>카테고리</label>
         <div className={styles.categoryGrid}>
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const categoryIds = watch('categoryIds');
             const isChecked = categoryIds.includes(cat.id);
             return (
@@ -205,18 +236,20 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
         )}
       </div>
 
-      {/* 대표 이미지 */}
-      <div className={styles.field}>
-        <label className={styles.label}>대표 이미지</label>
-        <p className={styles.toggleHint}>핫픽 카드에 표시될 대표 이미지입니다</p>
-        <div className={styles.imageItem}>
-          <ImageUpload
-            value={imageUrl || null}
-            onChange={handleImageChange}
-            uploadOptions={{ prefix: 'hotpick' }}
-          />
+      {/* 대표 이미지 — SINGLE은 선거 이미지를 그대로 사용하므로 숨김 */}
+      {hotpickType !== 'SINGLE' && (
+        <div className={styles.field}>
+          <label className={styles.label}>대표 이미지</label>
+          <p className={styles.toggleHint}>핫픽 카드에 표시될 대표 이미지입니다</p>
+          <div className={styles.imageItem}>
+            <ImageUpload
+              value={imageUrl || null}
+              onChange={handleImageChange}
+              uploadOptions={{ prefix: 'hotpick' }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 공개 여부 */}
       <div className={styles.field}>

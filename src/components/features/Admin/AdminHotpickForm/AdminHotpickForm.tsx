@@ -18,7 +18,7 @@ import type {
   UpdateHotpickRequest,
 } from '@/generated/models';
 import { useCreateHotpick } from '@/hooks/api/useAdmin';
-import type { HotpickType } from '@/types/hotpick';
+import type { HotpickType, VoteType } from '@/types/hotpick';
 
 export type HotpickAliasCheckStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'unchecked';
 
@@ -31,6 +31,7 @@ export type TElectionItem = {
 /** 인라인 선거 데이터 */
 export type TElectionData = {
   title: string;
+  voteType: VoteType;
   imageUrl?: string;
   items: TElectionItem[];
 };
@@ -54,6 +55,7 @@ interface AdminHotpickFormProps {
 
 const DEFAULT_ELECTION: TElectionData = {
   title: '',
+  voteType: 'IMAGE',
   items: [{ title: '' }, { title: '' }],
 };
 
@@ -88,6 +90,10 @@ export const AdminHotpickForm = ({
   useEffect(() => {
     if (mode === 'edit' && hotpick) {
       const election = hotpick.election;
+      // 선거 아이템에 이미지가 있으면 IMAGE, 없으면 TEXT
+      const hasItemImages = election?.items?.some((item) => !!item.imageUrl) ?? false;
+      const inferredVoteType: VoteType = hasItemImages ? 'IMAGE' : 'TEXT';
+
       reset({
         slug: hotpick.slug ?? '',
         type: (hotpick.type as HotpickType) || 'SINGLE',
@@ -101,6 +107,7 @@ export const AdminHotpickForm = ({
         election: election
           ? {
               title: election.title ?? '',
+              voteType: inferredVoteType,
               imageUrl: election.imageUrl,
               items:
                 election.items && election.items.length > 0
@@ -146,17 +153,18 @@ export const AdminHotpickForm = ({
       return;
     }
 
-    // 선거 제목 검증
-    if (!data.election.title.trim()) {
-      showAlert('선거 제목을 입력해주세요.');
-      return;
-    }
+    // SINGLE 타입일 때만 선거 검증
+    if (data.type === 'SINGLE') {
+      if (!data.election.title.trim()) {
+        showAlert('선거 제목을 입력해주세요.');
+        return;
+      }
 
-    // 옵션 검증 (최소 2개)
-    const validItems = data.election.items.filter((item) => item.title.trim());
-    if (validItems.length < 2) {
-      showAlert('선거 옵션을 2개 이상 입력해주세요.');
-      return;
+      const validItems = data.election.items.filter((item) => item.title.trim());
+      if (validItems.length < 2) {
+        showAlert('선거 옵션을 2개 이상 입력해주세요.');
+        return;
+      }
     }
 
     const request = buildRequest(data);
@@ -170,12 +178,7 @@ export const AdminHotpickForm = ({
     // Create 모드일 경우 기존 로직 실행
     try {
       await createHotpick(request);
-
-      showAlert('핫픽이 생성되었습니다!', {
-        onConfirm: () => {
-          window.location.href = '/admin/hotpick';
-        },
-      });
+      router.push('/admin/hotpick');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
       showAlert(`핫픽 생성 실패: ${errorMessage}`);
@@ -211,8 +214,13 @@ export const AdminHotpickForm = ({
           hotpickType={hotpickType}
         />
 
-        {/* 인라인 선거 편집 */}
-        <ElectionInlineSection setValue={setValue} watch={watch} />
+        {/* 인라인 선거 편집 — SINGLE 전용 */}
+        {hotpickType === 'SINGLE' && <ElectionInlineSection setValue={setValue} watch={watch} />}
+        {hotpickType === 'BUNDLE' && (
+          <section className={styles.bundleNotice}>
+            <p>BUNDLE 기능은 준비 중입니다.</p>
+          </section>
+        )}
 
         {/* Submit */}
         <div className={styles.actions}>

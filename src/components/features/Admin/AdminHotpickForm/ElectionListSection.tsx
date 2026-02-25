@@ -6,6 +6,7 @@ import type {
   TElectionItem,
 } from '@/components/features/Admin/AdminHotpickForm/AdminHotpickForm';
 import styles from '@/components/features/Admin/AdminHotpickForm/ElectionListSection.module.scss';
+import type { VoteType } from '@/types/hotpick';
 
 import type { UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
@@ -24,6 +25,23 @@ interface ElectionInlineSectionProps {
 export const ElectionInlineSection: FC<ElectionInlineSectionProps> = ({ setValue, watch }) => {
   const election = watch('election');
   const items = election.items;
+  const voteType = election.voteType;
+
+  const handleVoteTypeChange = (type: VoteType) => {
+    if (type === voteType) {
+      return;
+    }
+
+    // 타입 전환 시 해당 타입에서 불필요한 이미지 데이터 초기화
+    if (type === 'TEXT') {
+      // TEXT로 전환: 선택지 이미지 제거
+      const clearedItems = items.map((item) => ({ title: item.title }));
+      setValue('election', { ...election, voteType: type, items: clearedItems });
+    } else {
+      // IMAGE로 전환: 선거 대표 이미지 제거
+      setValue('election', { ...election, voteType: type, imageUrl: undefined });
+    }
+  };
 
   const handleTitleChange = (value: string) => {
     setValue('election', { ...election, title: value });
@@ -67,6 +85,41 @@ export const ElectionInlineSection: FC<ElectionInlineSectionProps> = ({ setValue
         투표 질문과 선택지를 입력하세요. 옵션은 {MIN_OPTIONS}~{MAX_OPTIONS}개까지 등록 가능합니다.
       </p>
 
+      {/* 투표 타입 선택 */}
+      <div className={styles.field}>
+        <label className={styles.label}>
+          투표 타입 <span className={styles.required}>*</span>
+        </label>
+        <div className={styles.voteTypeSelector}>
+          <label
+            className={`${styles.voteTypeOption} ${voteType === 'IMAGE' ? styles.voteTypeOptionActive : ''}`}
+          >
+            <input
+              type="radio"
+              value="IMAGE"
+              checked={voteType === 'IMAGE'}
+              onChange={() => handleVoteTypeChange('IMAGE')}
+              className={styles.voteTypeInput}
+            />
+            <span className={styles.voteTypeLabel}>IMAGE</span>
+            <span className={styles.voteTypeDesc}>이미지로 선택지 표시</span>
+          </label>
+          <label
+            className={`${styles.voteTypeOption} ${voteType === 'TEXT' ? styles.voteTypeOptionActive : ''}`}
+          >
+            <input
+              type="radio"
+              value="TEXT"
+              checked={voteType === 'TEXT'}
+              onChange={() => handleVoteTypeChange('TEXT')}
+              className={styles.voteTypeInput}
+            />
+            <span className={styles.voteTypeLabel}>TEXT</span>
+            <span className={styles.voteTypeDesc}>텍스트로 선택지 표시</span>
+          </label>
+        </div>
+      </div>
+
       {/* 선거 제목 */}
       <div className={styles.field}>
         <label htmlFor="electionTitle" className={styles.label}>
@@ -82,16 +135,18 @@ export const ElectionInlineSection: FC<ElectionInlineSectionProps> = ({ setValue
         />
       </div>
 
-      {/* 선거 대표 이미지 */}
-      <div className={styles.field}>
-        <label className={styles.label}>투표 이미지</label>
-        <p className={styles.fieldHint}>텍스트 투표일 때 질문 옆에 표시되는 이미지입니다</p>
-        <ImageUpload
-          value={election.imageUrl || null}
-          onChange={handleElectionImageChange}
-          uploadOptions={{ prefix: 'election' }}
-        />
-      </div>
+      {/* 선거 대표 이미지 — TEXT 타입일 때만 표시 */}
+      {voteType === 'TEXT' && (
+        <div className={styles.field}>
+          <label className={styles.label}>투표 이미지</label>
+          <p className={styles.fieldHint}>텍스트 투표일 때 질문 옆에 표시되는 이미지입니다</p>
+          <ImageUpload
+            value={election.imageUrl || null}
+            onChange={handleElectionImageChange}
+            uploadOptions={{ prefix: 'election' }}
+          />
+        </div>
+      )}
 
       {/* 선택지 목록 */}
       <div className={styles.field}>
@@ -120,13 +175,16 @@ export const ElectionInlineSection: FC<ElectionInlineSectionProps> = ({ setValue
                 className={styles.input}
                 placeholder={`옵션 ${index + 1} 제목`}
               />
-              <div className={styles.itemImage}>
-                <ImageUpload
-                  value={item.imageUrl || null}
-                  onChange={(url) => handleItemImageChange(index, url)}
-                  uploadOptions={{ prefix: 'election-item' }}
-                />
-              </div>
+              {/* 선택지 이미지 — IMAGE 타입일 때만 표시 */}
+              {voteType === 'IMAGE' && (
+                <div className={styles.itemImage}>
+                  <ImageUpload
+                    value={item.imageUrl || null}
+                    onChange={(url) => handleItemImageChange(index, url)}
+                    uploadOptions={{ prefix: 'election-item' }}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>

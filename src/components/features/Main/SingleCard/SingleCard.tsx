@@ -17,7 +17,7 @@ import {
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useCommentCount } from '@/hooks/api/useComment';
-import type { VoteType } from '@/types/election';
+import type { VoteType } from '@/types/hotpick';
 import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
 
 interface SingleCardProps {
