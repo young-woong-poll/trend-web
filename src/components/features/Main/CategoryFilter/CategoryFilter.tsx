@@ -15,12 +15,7 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({ selectedSlug, onChange
   const filters = categories && categories.length > 0 ? categories : CATEGORY_FILTERS;
 
   const handleClick = (slug: string | null) => {
-    if (slug === selectedSlug) {
-      // 이미 선택된 항목 클릭 → 전체로 복귀
-      onChange('all');
-    } else {
-      onChange(slug);
-    }
+    onChange(slug);
   };
 
   return (

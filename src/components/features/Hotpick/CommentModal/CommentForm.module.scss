@@ -3,140 +3,122 @@
 .commentForm {
   display: flex;
   flex-direction: column;
-}
-
-// 닉네임 & 비밀번호 입력 행
-.inputRow {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
   gap: 8px;
-  margin-bottom: 8px;
-  width: calc(100% - 56px - 8px);
 }
 
-.input {
+// 댓글 입력 영역
+.textareaWrapper {
+  position: relative;
+}
+
+.textarea {
   width: 100%;
-  flex: 1;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  padding-bottom: 36px;
   border: 1px solid $border-placeholder;
   background-color: $bg-primary;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-14;
+  font-family: inherit;
+  resize: none;
+  min-height: 80px;
+  caret-color: $white;
+  color: $white;
+  line-height: 1.5;
   transition: border-color 0.2s;
-  caret-color: #fff;
-  color: #fff;
 
   &::placeholder {
-    color: #999;
+    color: $text-tertiary;
   }
 
   &:focus {
     outline: none;
-    border-color: #fff;
+    border-color: $text-secondary;
   }
 
   &.error {
-    border-color: #d32f2f;
+    border-color: $error;
   }
 
   &:disabled {
-    background-color: $bg-tertiary;
-    color: $text-secondary;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }
 
-.nicknameInput {
-  flex: 2; // 닉네임 최대 10자
+.charCount {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: 11px;
+  color: $text-tertiary;
+  pointer-events: none;
 }
 
-.passwordInput {
-  flex: 3; // 비밀번호 최대 15자
+// 하단: 닉네임 + 비밀번호 + 게시
+.bottomRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-// 댓글 내용 & 게시 버튼 행
-.contentRow {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-  align-items: stretch;
-}
-
-.textarea {
+.input {
   flex: 1;
-  padding: 10px 12px;
+  min-width: 0;
+  padding: 8px 12px;
   border: 1px solid $border-placeholder;
   background-color: $bg-primary;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-  resize: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-12;
+  caret-color: $white;
+  color: $white;
   transition: border-color 0.2s;
-  min-height: 48px;
-  caret-color: #fff;
-  color: #fff;
 
   &::placeholder {
-    color: #999;
+    color: $text-tertiary;
   }
 
   &:focus {
     outline: none;
-    border-color: #fff;
+    border-color: $text-secondary;
   }
 
   &.error {
-    border-color: #d32f2f;
+    border-color: $error;
   }
 
   &:disabled {
-    background-color: $bg-tertiary;
-    color: $text-secondary;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 }
 
 .submitButton {
   flex-shrink: 0;
-  padding: 10px 16px;
-  background: $primary-500;
-  color: #fff;
+  padding: 8px 16px;
+  background: $primary-gradient;
+  color: $white;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: $border-radius-md;
+  font-size: $font-size-12;
   font-weight: $font-weight-bold;
   cursor: pointer;
-  transition: all 0.2s;
-  min-width: 56px;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.96);
   }
 
   &:disabled {
-    background-color: $bg-tertiary;
-    color: $text-secondary;
+    background: $bg-tertiary;
+    color: $text-tertiary;
     cursor: not-allowed;
     transform: none;
-  }
-}
-
-// 반응형
-@media (max-width: 480px) {
-  .inputRow {
-    gap: 8px;
-  }
-
-  .nicknameInput,
-  .passwordInput {
-    flex: 1;
-  }
-
-  .contentRow {
-    flex-direction: column;
-  }
-
-  .submitButton {
-    width: 100%;
   }
 }

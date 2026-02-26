@@ -85,7 +85,10 @@ export const displayQueries = {
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getDetail(slug);
+        const tkuId = getTKUID();
+        return clientApi.getDetail(slug, {
+          headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+        });
       },
       staleTime: 60 * 1000,
     }),
@@ -171,9 +174,11 @@ export const useInfiniteMainDisplay = (params?: {
 
 /**
  * 핫픽 상세 Hook
+ * - staleTime: 0으로 설정하여 서버 dehydrate 데이터(x-tku-id 없음)를
+ *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
 export const useHotpickDetail = (slug: string) =>
-  useQuery({ ...displayQueries.hotpick(slug), enabled: !!slug });
+  useQuery({ ...displayQueries.hotpick(slug), enabled: !!slug, staleTime: 0 });
 
 /**
  * 결과 상세 Hook (BUNDLE 전용 — 스텁)

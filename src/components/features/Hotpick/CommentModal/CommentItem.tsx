@@ -4,7 +4,7 @@ import { type FC } from 'react';
 
 import LikeIcon from '@/assets/icon/LikeIcon';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
-import { getRelativeTime } from '@/lib/utils';
+import { getRelativeTime, sanitizeComment } from '@/lib/utils';
 import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
@@ -49,7 +49,7 @@ export const CommentItem: FC<CommentItemProps> = ({
       </div>
 
       {/* 댓글 내용 */}
-      <p className={styles.content}>{comment.content}</p>
+      <p className={styles.content}>{sanitizeComment(comment.content ?? '')}</p>
 
       {/* 하단: 좋아요, 수정/삭제 버튼 */}
       <div className={styles.footer}>

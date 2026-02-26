@@ -10,7 +10,7 @@ import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/BundleCard/BundleCard.module.scss';
-import { isWithin24Hours } from '@/lib/utils';
+import { formatCount, isWithin24Hours } from '@/lib/utils';
 
 interface BundleCardProps {
   alias: string;
@@ -26,13 +26,6 @@ interface BundleCardProps {
   participated?: boolean;
   onShare?: (alias: string) => void;
 }
-
-const formatCount = (count: number): string => {
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
-};
 
 export const BundleCard: FC<BundleCardProps> = ({
   alias,

@@ -29,9 +29,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { showToast } = useModal();
   const { data: apiCategories } = useCategories();
 
-  const dynamicCategories: CategoryFilterItem[] | undefined = apiCategories
-    ? apiCategories.map((c) => ({ label: c.name ?? '', slug: c.slug ?? '' }))
-    : undefined;
+  const dynamicCategories: CategoryFilterItem[] | undefined = apiCategories?.map((c) => ({
+    label: c.name ?? '',
+    slug: c.slug ?? '',
+  }));
 
   const handleShare = useCallback(
     (slug: string) => {
@@ -96,19 +97,9 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   }, []);
 
   // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
-  const hotpicks = (() => {
-    const all = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
-    const seen = new Set<number | undefined>();
-    return all.filter((h) => {
-      if (seen.has(h.hotpickId)) {
-        return false;
-      }
-      seen.add(h.hotpickId);
-      return true;
-    });
-  })();
+  const allHotpicks = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
+  const hotpicks = [...new Map(allHotpicks.map((h) => [h.hotpickId, h])).values()];
 
-  // 초기 로딩 상태
   if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
@@ -126,7 +117,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  // 에러 상태
   if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
@@ -143,7 +133,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
-  // 빈 상태 (fetching 중이면 빈 상태 표시하지 않음)
   if (!isFetching && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
@@ -169,20 +158,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
     const election = hotpick.election;
     const categoryList = (hotpick.categories ?? []).map((c) => c.name ?? '');
-
-    // expiredAt 기반 상태 판단
-    const isExpired = hotpick.expiredAt ? new Date(hotpick.expiredAt) < new Date() : false;
-    const status = isExpired ? 'CLOSED' : 'OPEN';
-
-    // voteType 추론: election items에 imageUrl이 있으면 IMAGE
+    const status = hotpick.expiredAt && new Date(hotpick.expiredAt) < new Date() ? 'CLOSED' : 'OPEN';
     const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
-    const voteType = hasOptionImages ? 'IMAGE' : 'TEXT';
 
-    // SINGLE 타입 + election 존재: 인라인 투표 카드
     if (hotpick.type === 'SINGLE' && election) {
-      const singleVote = electionToSingleVoteData(election);
-      const mainImageUrl = !hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined;
-
       return (
         <div key={key} id={slug} className={styles.cardWrapper}>
           <SingleCard
@@ -191,11 +170,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             title={election.title ?? ''}
             categories={categoryList}
             participantCount={election.totalVoteCount}
+            commentCount={election.totalCommentCount}
             deadline={hotpick.expiredAt}
             status={status}
-            singleVote={singleVote}
-            voteType={voteType}
-            mainImageUrl={mainImageUrl}
+            singleVote={electionToSingleVoteData(election)}
+            voteType={hasOptionImages ? 'IMAGE' : 'TEXT'}
+            mainImageUrl={!hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined}
             onVote={handleVote}
             onShare={handleShare}
             onComment={handleComment}
@@ -204,7 +184,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       );
     }
 
-    // BUNDLE 타입: BundleCard
     return (
       <div key={key} id={slug} className={styles.cardWrapper}>
         <BundleCard
@@ -232,7 +211,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           categories={dynamicCategories}
         />
 
-        {/* 핫픽 피드 */}
         {hotpicks.map((hotpick) => renderHotpick(hotpick))}
 
         {/* 하향 무한스크롤 트리거 */}
@@ -257,7 +235,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
       {/* 댓글 바텀시트 */}
       {commentTarget && (
         <CommentBottomSheet
-          isOpen={!!commentTarget}
+          isOpen
           onClose={handleCloseComment}
           slug={commentTarget.slug}
           electionId={commentTarget.electionId}
