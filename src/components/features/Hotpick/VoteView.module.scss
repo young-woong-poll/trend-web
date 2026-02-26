@@ -16,11 +16,9 @@
   overflow-x: hidden;
 }
 
+// MainHeader가 container padding을 무시하고 full-width로 표시
 .headerRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  margin: 0 -16px;
 }
 
 .closedNotice {

@@ -16,8 +16,8 @@ import {
   barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
-import { useCommentCount } from '@/hooks/api/useComment';
-import type { VoteType } from '@/types/election';
+import { formatCount } from '@/lib/utils';
+import type { VoteType } from '@/types/hotpick';
 import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
 
 interface SingleCardProps {
@@ -26,6 +26,7 @@ interface SingleCardProps {
   title: string;
   categories?: string[];
   participantCount?: number;
+  commentCount?: number;
   deadline?: string;
   status?: string;
   singleVote: SingleVoteData;
@@ -36,19 +37,13 @@ interface SingleCardProps {
   onComment: (slug: string, electionId: string) => void;
 }
 
-const formatCount = (count: number): string => {
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
-};
-
 export const SingleCard: FC<SingleCardProps> = ({
   id: _id,
   alias,
   title,
   categories = [],
   participantCount = 0,
+  commentCount,
   deadline,
   status,
   singleVote,
@@ -61,12 +56,9 @@ export const SingleCard: FC<SingleCardProps> = ({
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
 
-  const { data: commentCountData } = useCommentCount(alias, singleVote.electionId);
-
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
   const isImageType = voteType === 'IMAGE';
-  const commentCount = commentCountData?.count;
 
   const handleOptionClick = (optionId: string) => {
     if (isClosed || voted) {
@@ -86,9 +78,10 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>
-          {categories.map((code) => (
-            <span key={code} className={styles.categoryTag}>
-              {code}
+          {categories.map((code, i) => (
+            <span key={code}>
+              {i > 0 && <span className={styles.categorySeparator}>·</span>}
+              <span className={styles.categoryTag}>{code}</span>
             </span>
           ))}
         </div>

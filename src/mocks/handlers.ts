@@ -23,6 +23,23 @@ import {
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
+ * Mock 카테고리 데이터 (Admin CRUD + Public 탭 공유)
+ */
+const mockCategories = [
+  { id: 1, name: '연애', slug: 'LOVE' },
+  { id: 2, name: '결혼', slug: 'MARRIAGE' },
+  { id: 3, name: '재테크', slug: 'FINANCE' },
+  { id: 4, name: '직장', slug: 'WORK' },
+  { id: 5, name: '스포츠', slug: 'SPORTS' },
+  { id: 6, name: '음식', slug: 'FOOD' },
+  { id: 7, name: '게임', slug: 'GAME' },
+  { id: 8, name: '자동차', slug: 'CAR' },
+  { id: 9, name: '건강', slug: 'HEALTH' },
+  { id: 10, name: '트렌드', slug: 'TREND' },
+];
+let nextCategoryId = 11;
+
+/**
  * BaseResponse 형식으로 응답 래핑
  */
 const wrapResponse = <T>(data: T) => ({
@@ -266,20 +283,7 @@ export const handlers = [
    * GET /api/v1/hotpicks/categories
    */
   http.get(`${baseURL}/api/v1/hotpicks/categories`, () =>
-    HttpResponse.json(
-      wrapResponse([
-        { id: 1, name: '연애', slug: 'LOVE' },
-        { id: 2, name: '결혼', slug: 'MARRIAGE' },
-        { id: 3, name: '재테크', slug: 'FINANCE' },
-        { id: 4, name: '직장', slug: 'WORK' },
-        { id: 5, name: '스포츠', slug: 'SPORTS' },
-        { id: 6, name: '음식', slug: 'FOOD' },
-        { id: 7, name: '게임', slug: 'GAME' },
-        { id: 8, name: '자동차', slug: 'CAR' },
-        { id: 9, name: '건강', slug: 'HEALTH' },
-        { id: 10, name: '트렌드', slug: 'TREND' },
-      ])
-    )
+    HttpResponse.json(wrapResponse(mockCategories))
   ),
 
   // ──────────────────────────────────────────────────────────
@@ -515,4 +519,67 @@ export const handlers = [
    * DELETE /admin/api/v1/hotpicks/:id
    */
   http.delete(`${baseURL}/admin/api/v1/hotpicks/:id`, () => HttpResponse.json(wrapResponse(null))),
+
+  // ──────────────────────────────────────────────────────────
+  // Admin Category CRUD
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 카테고리 목록 조회
+   * GET /admin/api/v1/categories
+   */
+  http.get(`${baseURL}/admin/api/v1/categories`, () =>
+    HttpResponse.json(wrapResponse(mockCategories))
+  ),
+
+  /**
+   * 카테고리 생성
+   * POST /admin/api/v1/categories
+   */
+  http.post(`${baseURL}/admin/api/v1/categories`, async ({ request }) => {
+    const body = (await request.json()) as { name: string; slug: string };
+    const newCategory = { id: nextCategoryId++, name: body.name, slug: body.slug };
+    mockCategories.push(newCategory);
+    return HttpResponse.json(wrapResponse(newCategory), { status: 201 });
+  }),
+
+  /**
+   * 카테고리 수정
+   * PUT /admin/api/v1/categories/:categoryId
+   */
+  http.put(`${baseURL}/admin/api/v1/categories/:categoryId`, async ({ request, params }) => {
+    const categoryId = Number(params.categoryId);
+    const body = (await request.json()) as { name?: string; slug?: string };
+    const idx = mockCategories.findIndex((c) => c.id === categoryId);
+    if (idx === -1) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '카테고리를 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+    if (body.name !== undefined) {
+      mockCategories[idx].name = body.name;
+    }
+    if (body.slug !== undefined) {
+      mockCategories[idx].slug = body.slug;
+    }
+    return HttpResponse.json(wrapResponse(mockCategories[idx]));
+  }),
+
+  /**
+   * 카테고리 삭제
+   * DELETE /admin/api/v1/categories/:categoryId
+   */
+  http.delete(`${baseURL}/admin/api/v1/categories/:categoryId`, ({ params }) => {
+    const categoryId = Number(params.categoryId);
+    const idx = mockCategories.findIndex((c) => c.id === categoryId);
+    if (idx === -1) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '카테고리를 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+    mockCategories.splice(idx, 1);
+    return HttpResponse.json(wrapResponse(null));
+  }),
 ];

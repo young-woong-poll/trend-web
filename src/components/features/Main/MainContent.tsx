@@ -5,19 +5,10 @@ import styles from '@/components/features/Main/MainContent.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { MainView } from '@/components/features/Main/MainView';
 import type { MainHotpickResponse } from '@/generated/models';
+import { formatCount } from '@/lib/utils';
 
 type TMainContentProps = {
   data?: MainHotpickResponse;
-};
-
-const formatCount = (count: number | undefined): string => {
-  if (!count) {
-    return '0';
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
 };
 
 export const MainContent: FC<TMainContentProps> = ({ data }) => (

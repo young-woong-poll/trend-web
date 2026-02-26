@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type { AdminCategoryResponse } from './adminCategoryResponse';
+import type { AdminElectionResponse } from './adminElectionResponse';
 
 /**
  * 응답 데이터
@@ -18,6 +19,5 @@ export interface AdminHotpickSummaryResponse {
   createdAt?: string;
   expiredAt?: string;
   categories?: AdminCategoryResponse[];
-  electionId?: number;
-  electionTitle?: string;
+  election?: AdminElectionResponse;
 }

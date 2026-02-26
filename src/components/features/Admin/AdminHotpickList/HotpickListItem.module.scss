@@ -15,6 +15,14 @@
   }
 }
 
+.orderNumber {
+  font-size: 0.875rem;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  text-align: center;
+  display: block;
+}
+
 .thumbnailGroup {
   display: flex;
   gap: 0.5rem;

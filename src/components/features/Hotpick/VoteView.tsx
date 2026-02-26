@@ -7,12 +7,11 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
-import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import { ProgressBar } from '@/components/common/ProgressBar';
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
 import { VoteCard } from '@/components/features/Hotpick/VoteCard';
-import { VoteHeader } from '@/components/features/Hotpick/VoteHeader';
 import styles from '@/components/features/Hotpick/VoteView.module.scss';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import type { HotpickDetailResponse } from '@/generated/models';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -59,7 +58,6 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
   const slug = hotpickCard?.slug ?? hotpickAlias;
   const isExpired = hotpickCard?.expiredAt ? new Date(hotpickCard.expiredAt) < new Date() : false;
   const isClosed = isExpired;
-  const title = election?.title ?? '';
 
   if (!hotpickData || !hotpickId || !slug || !elections.length) {
     return null;
@@ -104,8 +102,7 @@ export const HotpickView: FC<HotpickViewProps> = ({ hotpickAlias, initialData, c
 
       <div className={styles.container}>
         <div className={styles.headerRow}>
-          <VoteHeader title={title} />
-          <DeadlineBadge deadline={hotpickCard?.expiredAt} />
+          <MainHeader />
         </div>
 
         {isClosed && <p className={styles.closedNotice}>마감된 투표입니다</p>}

@@ -238,6 +238,50 @@
   cursor: not-allowed;
 }
 
+// 핫픽 유형 선택
+.typeSelector {
+  display: flex;
+  gap: 12px;
+}
+
+.typeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 24px;
+  border-radius: 8px;
+  border: 2px solid $border-placeholder;
+  background: $bg-tertiary;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(.typeOptionDisabled) {
+    border-color: $neutral-500;
+  }
+}
+
+.typeOptionActive {
+  border-color: $btn-left;
+  background: rgba($btn-left, 0.1);
+}
+
+.typeOptionDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.typeLabel {
+  font-size: 15px;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+.typeDesc {
+  font-size: 12px;
+  color: $text-tertiary;
+  margin-top: 4px;
+}
+
 // 카테고리 다중 선택
 .categoryGrid {
   display: flex;

@@ -6,6 +6,7 @@ import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Hotpick/CommentModal/CommentEditModal.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useUpdateComment } from '@/hooks/api/useComment';
+import { sanitizeComment } from '@/lib/utils';
 import type { CommentItem } from '@/types/comment';
 
 interface CommentEditModalProps {
@@ -51,7 +52,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
 
   // 수정 버튼 클릭 핸들러
   const handleUpdate = () => {
-    const trimmedContent = content.trim();
+    const trimmedContent = sanitizeComment(content);
 
     // 유효성 검증
     if (!trimmedContent) {

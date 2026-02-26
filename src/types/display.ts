@@ -11,8 +11,7 @@ import type {
   HotpickCardResponse,
   HotpickDetailResponse,
 } from '@/generated/models';
-import type { VoteType } from '@/types/election';
-import type { HotpickStatus, HotpickType } from '@/types/hotpick';
+import type { HotpickStatus, HotpickType, VoteType } from '@/types/hotpick';
 
 /**
  * HotpickCardResponse를 확장하여 FE 전용 필드를 추가

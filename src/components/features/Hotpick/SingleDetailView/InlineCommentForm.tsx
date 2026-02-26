@@ -5,7 +5,12 @@ import { useRef, useState, type FC } from 'react';
 import styles from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateComment } from '@/hooks/api/useComment';
-import { isValidNicknameCharacters, NICKNAME_MAX_LENGTH, validateNickname } from '@/lib/utils';
+import {
+  isValidNicknameCharacters,
+  NICKNAME_MAX_LENGTH,
+  sanitizeComment,
+  validateNickname,
+} from '@/lib/utils';
 
 interface InlineCommentFormProps {
   slug: string;
@@ -84,7 +89,13 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
   const handleSubmit = () => {
     const trimmedNickname = nickname.trim();
     const trimmedPassword = password.trim();
-    const trimmedContent = content.trim();
+    const trimmedContent = sanitizeComment(content);
+
+    if (!trimmedContent) {
+      setErrors({ content: true });
+      showToast('댓글 내용을 입력해주세요');
+      return;
+    }
 
     const nicknameValidation = validateNickname(trimmedNickname);
     if (!nicknameValidation.isValid) {
@@ -102,12 +113,6 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
     if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
       setErrors({ password: true });
       showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
-      return;
-    }
-
-    if (!trimmedContent) {
-      setErrors({ content: true });
-      showToast('댓글 내용을 입력해주세요');
       return;
     }
 

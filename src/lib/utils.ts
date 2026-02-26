@@ -162,6 +162,34 @@ export function getRelativeTime(dateString: string): string {
  * Check if a date is within the last 48 hours
  * Used for displaying NEW badge on recent trends
  */
+/**
+ * Format count with K/M suffix
+ * 1500 → 1.5K, 10000 → 10K, 1000000 → 1M, 1500000 → 1.5M
+ */
+export function formatCount(count: number | undefined): string {
+  if (!count) {
+    return '0';
+  }
+  if (count >= 1_000_000) {
+    const val = count / 1_000_000;
+    return `${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}M`;
+  }
+  if (count >= 1_000) {
+    const val = count / 1_000;
+    return `${val % 1 === 0 ? val.toFixed(0) : val.toFixed(1)}K`;
+  }
+  return count.toString();
+}
+
+/**
+ * Sanitize comment content
+ * - Collapse 3+ consecutive newlines into 2
+ * - Trim leading/trailing whitespace
+ */
+export function sanitizeComment(text: string): string {
+  return text.replace(/\n{3,}/g, '\n\n').trim();
+}
+
 export function isWithin24Hours(dateString: string): boolean {
   const now = new Date();
   const past = new Date(dateString);

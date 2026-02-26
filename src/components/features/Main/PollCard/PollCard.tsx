@@ -10,7 +10,7 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/PollCard/PollCard.module.scss';
 import { PollCardSkeleton } from '@/components/features/Main/PollCard/PollCardSkeleton';
-import { isWithin24Hours } from '@/lib/utils';
+import { formatCount, isWithin24Hours } from '@/lib/utils';
 
 type TPollCardProps = {
   alias: string;
@@ -41,13 +41,6 @@ export const PollCard: FC<TPollCardProps> = ({
   const router = useRouter();
   const isNew = isWithin24Hours(createdAt ?? '');
   const isClosed = status === 'CLOSED';
-
-  const formatCount = (count: number): string => {
-    if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K`;
-    }
-    return count.toString();
-  };
 
   return (
     <>

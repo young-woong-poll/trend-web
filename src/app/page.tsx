@@ -13,7 +13,10 @@ export default async function Home() {
 
   try {
     // 서버에서 pre-fetch (queryOptions의 queryFn이 서버 API 호출)
-    const mainData = await queryClient.fetchQuery(displayQueries.main({ size: 20 }));
+    const [mainData] = await Promise.all([
+      queryClient.fetchQuery(displayQueries.main({ size: 20 })),
+      queryClient.prefetchQuery(displayQueries.categories()),
+    ]);
 
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>

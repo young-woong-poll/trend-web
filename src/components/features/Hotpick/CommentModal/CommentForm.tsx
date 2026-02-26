@@ -5,7 +5,12 @@ import { useState, type FC } from 'react';
 import styles from '@/components/features/Hotpick/CommentModal/CommentForm.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateComment } from '@/hooks/api/useComment';
-import { validateNickname, isValidNicknameCharacters, NICKNAME_MAX_LENGTH } from '@/lib/utils';
+import {
+  validateNickname,
+  isValidNicknameCharacters,
+  NICKNAME_MAX_LENGTH,
+  sanitizeComment,
+} from '@/lib/utils';
 
 interface CommentFormProps {
   slug: string;
@@ -79,7 +84,14 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
     // 유효성 검증
     const trimmedNickname = nickname.trim();
     const trimmedPassword = password.trim();
-    const trimmedContent = content.trim();
+    const trimmedContent = sanitizeComment(content);
+
+    // 댓글 내용 검증
+    if (!trimmedContent) {
+      setErrors({ content: true });
+      showToast('댓글 내용을 입력해주세요');
+      return;
+    }
 
     // 닉네임 검증
     const nicknameValidation = validateNickname(trimmedNickname);
@@ -99,13 +111,6 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
     if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
       setErrors({ password: true });
       showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
-      return;
-    }
-
-    // 댓글 내용 검증
-    if (!trimmedContent) {
-      setErrors({ content: true });
-      showToast('댓글 내용을 입력해주세요');
       return;
     }
 
@@ -139,11 +144,27 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
 
   return (
     <div className={styles.commentForm}>
-      {/* 닉네임 & 비밀번호 입력 */}
-      <div className={styles.inputRow}>
+      {/* 댓글 입력 */}
+      <div className={styles.textareaWrapper}>
+        <textarea
+          className={`${styles.textarea} ${errors.content ? styles.error : ''}`}
+          placeholder="댓글을 입력하세요..."
+          value={content}
+          onChange={handleContentChange}
+          maxLength={COMMENT_MAX_LENGTH}
+          rows={2}
+          disabled={isPending}
+        />
+        <span className={styles.charCount}>
+          {content.length}/{COMMENT_MAX_LENGTH}
+        </span>
+      </div>
+
+      {/* 닉네임 + 비밀번호 + 게시 */}
+      <div className={styles.bottomRow}>
         <input
           type="text"
-          className={`${styles.input} ${styles.nicknameInput} ${errors.nickname ? styles.error : ''}`}
+          className={`${styles.input} ${errors.nickname ? styles.error : ''}`}
           placeholder="닉네임"
           value={nickname}
           onChange={handleNicknameChange}
@@ -153,7 +174,7 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
         />
         <input
           type="password"
-          className={`${styles.input} ${styles.passwordInput} ${errors.password ? styles.error : ''}`}
+          className={`${styles.input} ${errors.password ? styles.error : ''}`}
           placeholder="비밀번호"
           value={password}
           onChange={handlePasswordChange}
@@ -162,19 +183,6 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
           autoComplete="new-password"
           data-1p-ignore
           data-lpignore="true"
-        />
-      </div>
-
-      {/* 댓글 내용 & 게시 버튼 */}
-      <div className={styles.contentRow}>
-        <textarea
-          className={`${styles.textarea} ${errors.content ? styles.error : ''}`}
-          placeholder="댓글을 입력하세요 (최대 200자)"
-          value={content}
-          onChange={handleContentChange}
-          maxLength={COMMENT_MAX_LENGTH}
-          rows={2}
-          disabled={isPending}
         />
         <button
           type="button"
