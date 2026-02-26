@@ -7,6 +7,20 @@
   background: $bg-secondary;
   border: 1px solid $border-placeholder;
   padding: 16px;
+
+  &.closed {
+    opacity: 0.85;
+  }
+}
+
+.closedBadge {
+  padding: 2px 8px;
+  border-radius: $border-radius-sm;
+  background: rgba($neutral-500, 0.2);
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
 }
 
 // ── 상단: 카테고리 + 공유 ──
@@ -323,4 +337,44 @@
   margin-right: 4px;
   color: $primary-start;
   vertical-align: middle;
+}
+
+// ── topComment 미리보기 ──
+.topCommentPreview {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: calc(100% + 32px);
+  margin: 10px -16px -16px;
+  padding: 10px 16px;
+  border: none;
+  border-top: 1px solid rgba($border-placeholder, 0.4);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+  overflow: hidden;
+
+  &:hover {
+    background: rgba($white, 0.03);
+  }
+}
+
+.topCommentNickname {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.topCommentText {
+  font-size: $font-size-12;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  min-width: 0;
 }

@@ -1,9 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": { "title": "OpenAPI definition", "version": "v0" },
-  "servers": [
-    { "url": "https://beta-hotpick-api.votebox.kr", "description": "Generated server url" }
-  ],
+  "servers": [{ "url": "https://hotpick-api.votebox.kr", "description": "Generated server url" }],
   "tags": [
     { "name": "Admin Category", "description": "Category admin API" },
     { "name": "Comment", "description": "Hotpick comment API" },
@@ -1212,10 +1210,12 @@
           "slug": { "type": "string" },
           "imageUrl": { "type": "string" },
           "expiredAt": { "type": "string", "format": "date-time" },
+          "isExpired": { "type": "boolean" },
           "categories": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/HotpickCategoryResponse" }
           },
+          "topComment": { "$ref": "#/components/schemas/TopCommentResponse" },
           "election": { "$ref": "#/components/schemas/ElectionViewResponse" }
         }
       },
@@ -1237,6 +1237,16 @@
           }
         },
         "description": "응답 데이터"
+      },
+      "TopCommentResponse": {
+        "type": "object",
+        "properties": {
+          "commentId": { "type": "string" },
+          "nickname": { "type": "string" },
+          "content": { "type": "string" },
+          "likeCount": { "type": "integer", "format": "int64" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
       },
       "BaseResponseCommentListResponse": {
         "type": "object",

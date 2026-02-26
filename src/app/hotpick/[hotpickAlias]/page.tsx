@@ -1,3 +1,5 @@
+import { notFound } from 'next/navigation';
+
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
 import { SingleDetailContent } from '@/components/features/Hotpick/SingleDetailView/SingleDetailContent';
@@ -27,28 +29,30 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
   try {
     const hotpickData = await queryClient.fetchQuery(hotpickQuery);
 
-    const hotpickType = hotpickData?.hotpick?.type;
+    if (!hotpickData?.hotpick) {
+      notFound();
+    }
 
-    // SINGLE 타입: 단일 투표 상세페이지
+    const hotpickType = hotpickData.hotpick.type;
+
+    // SINGLE 타입: 단일 투표 상세페이지 (클라이언트에서 fetch)
     if (hotpickType === 'SINGLE') {
-      return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <SingleDetailContent hotpickAlias={hotpickAlias} data={hotpickData ?? undefined} />
-        </HydrationBoundary>
-      );
+      return <SingleDetailContent hotpickAlias={hotpickAlias} />;
     }
 
     // BUNDLE 타입: 5개 묶음 투표 (BE 미지원 — 현재 준비 중)
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <HotpickContent hotpickAlias={hotpickAlias} data={hotpickData ?? undefined} />
+        <HotpickContent hotpickAlias={hotpickAlias} data={hotpickData} />
       </HydrationBoundary>
     );
   } catch (error) {
+    // notFound()는 내부적으로 에러를 throw하므로 그대로 전파
+    if (error instanceof Error && error.message === 'NEXT_NOT_FOUND') {
+      throw error;
+    }
     // eslint-disable-next-line no-console
     console.error('[HotpickPage] Failed to fetch hotpick data:', error);
+    notFound();
   }
-
-  // 실패 시 BUNDLE로 폴백 렌더링 (클라이언트에서 재시도)
-  return <HotpickContent hotpickAlias={hotpickAlias} />;
 }

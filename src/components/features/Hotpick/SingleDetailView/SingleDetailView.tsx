@@ -21,7 +21,6 @@ import {
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useModal } from '@/contexts/ModalContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
-import type { HotpickDetailResponse } from '@/generated/models';
 import { displayKeys, useHotpickDetail } from '@/hooks/api/useDisplay';
 import { getTKUID } from '@/lib/tkuid';
 import { formatCount } from '@/lib/utils';
@@ -29,18 +28,16 @@ import { calcPercentage, OPTION_LABELS } from '@/types/singleVote';
 
 interface SingleDetailViewProps {
   hotpickAlias: string;
-  initialData?: HotpickDetailResponse;
 }
 
-export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, initialData }) => {
+export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) => {
   const queryClient = useQueryClient();
-  const { data: queryData } = useHotpickDetail(hotpickAlias);
+  const { data: rawData, isLoading } = useHotpickDetail(hotpickAlias);
 
   const { showToast } = useModal();
   const pendingRef = useRef(false);
   const tkuIdRef = useRef(getTKUID());
 
-  const rawData = queryData ?? initialData;
   const hotpickCard = rawData?.hotpick;
   const election = hotpickCard?.election;
   const items = election?.items ?? [];
@@ -94,8 +91,68 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias, init
     });
   }, [hotpickAlias, showToast]);
 
-  if (!rawData || !hotpickCard || !election) {
-    return null;
+  if (isLoading || !rawData || !hotpickCard || !election) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.voteCard}>
+          {/* 카테고리 + 마감 */}
+          <div className={styles.topRow}>
+            <div className={styles.categoryRow}>
+              <span
+                className={`${styles.categoryTag} ${styles.skeletonPulse}`}
+                style={{ width: 52, height: 18 }}
+              />
+              <span
+                className={`${styles.categoryTag} ${styles.skeletonPulse}`}
+                style={{ width: 40, height: 18 }}
+              />
+            </div>
+            <span
+              className={styles.skeletonPulse}
+              style={{ width: 64, height: 18, borderRadius: 9999 }}
+            />
+          </div>
+          {/* 질문 */}
+          <div className={styles.questionRow}>
+            <div
+              className={styles.skeletonPulse}
+              style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0 }}
+            />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div
+                className={styles.skeletonPulse}
+                style={{ width: '90%', height: 20, borderRadius: 6 }}
+              />
+              <div
+                className={styles.skeletonPulse}
+                style={{ width: '60%', height: 20, borderRadius: 6 }}
+              />
+            </div>
+          </div>
+          {/* 투표 버튼 */}
+          <div className={styles.voteArea}>
+            <div className={styles.buttonGroupTwo}>
+              <div className={styles.skeletonPulse} style={{ height: 52, borderRadius: 8 }} />
+              <div className={styles.skeletonPulse} style={{ height: 52, borderRadius: 8 }} />
+            </div>
+          </div>
+          {/* 메타 */}
+          <div className={styles.metaRow}>
+            <span
+              className={styles.skeletonPulse}
+              style={{ width: 80, height: 14, borderRadius: 6 }}
+            />
+          </div>
+          {/* CTA */}
+          <div className={styles.shareCta}>
+            <div
+              className={styles.skeletonPulse}
+              style={{ width: '100%', height: 48, borderRadius: 8 }}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -9,6 +9,28 @@
   padding-bottom: 60px;
 }
 
+// ── 스켈레톤 ──
+.skeletonPulse {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    rgba($white, 0.06) 25%,
+    rgba($white, 0.1) 50%,
+    rgba($white, 0.06) 75%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 // ── 투표 카드 섹션 ──
 .voteCard {
   background: $bg-secondary;

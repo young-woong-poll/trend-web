@@ -362,6 +362,14 @@ export interface HotpickCategoryResponse {
   slug?: string;
 }
 
+export interface TopCommentResponse {
+  commentId?: string;
+  nickname?: string;
+  content?: string;
+  likeCount?: number;
+  createdAt?: string;
+}
+
 export interface ElectionViewResponse {
   electionId?: number;
   title?: string;
@@ -379,7 +387,9 @@ export interface HotpickCardResponse {
   slug?: string;
   imageUrl?: string;
   expiredAt?: string;
+  isExpired?: boolean;
   categories?: HotpickCategoryResponse[];
+  topComment?: TopCommentResponse;
   election?: ElectionViewResponse;
 }
 

@@ -6,6 +6,7 @@
  */
 import type { ElectionViewResponse } from './electionViewResponse';
 import type { HotpickCategoryResponse } from './hotpickCategoryResponse';
+import type { TopCommentResponse } from './topCommentResponse';
 
 export interface HotpickCardResponse {
   hotpickId?: number;
@@ -13,6 +14,8 @@ export interface HotpickCardResponse {
   slug?: string;
   imageUrl?: string;
   expiredAt?: string;
+  isExpired?: boolean;
   categories?: HotpickCategoryResponse[];
+  topComment?: TopCommentResponse;
   election?: ElectionViewResponse;
 }

@@ -48,6 +48,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     setCommentTarget({ slug, electionId });
   }, []);
 
+  const handleCommentBlocked = useCallback(() => {
+    showToast('댓글은 투표 후 확인 가능합니다');
+  }, [showToast]);
+
   const handleCloseComment = useCallback(() => {
     setCommentTarget(null);
   }, []);
@@ -158,8 +162,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
     const election = hotpick.election;
     const categoryList = (hotpick.categories ?? []).map((c) => c.name ?? '');
-    const status =
-      hotpick.expiredAt && new Date(hotpick.expiredAt) < new Date() ? 'CLOSED' : 'OPEN';
+    const status = hotpick.isExpired ? 'CLOSED' : 'OPEN';
     const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
 
     if (hotpick.type === 'SINGLE' && election) {
@@ -177,9 +180,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             singleVote={electionToSingleVoteData(election)}
             voteType={hasOptionImages ? 'IMAGE' : 'TEXT'}
             mainImageUrl={!hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined}
+            topComment={hotpick.topComment}
             onVote={handleVote}
             onShare={handleShare}
             onComment={handleComment}
+            onCommentBlocked={handleCommentBlocked}
           />
         </div>
       );

@@ -112,6 +112,7 @@ export const BundleCard: FC<BundleCardProps> = ({
                 <span className={styles.bundleBadge}>
                   {electionCount ? `${electionCount}개 투표` : '투표 모음'}
                 </span>
+                {isClosed && <span className={styles.closedBadge}>마감</span>}
                 {isNew && !isClosed && !participated && (
                   <span className={styles.newBadge}>NEW</span>
                 )}
