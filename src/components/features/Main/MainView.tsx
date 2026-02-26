@@ -48,6 +48,10 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     setCommentTarget({ slug, electionId });
   }, []);
 
+  const handleCommentBlocked = useCallback(() => {
+    showToast('댓글은 투표 후 확인 가능합니다');
+  }, [showToast]);
+
   const handleCloseComment = useCallback(() => {
     setCommentTarget(null);
   }, []);
@@ -180,6 +184,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
             onVote={handleVote}
             onShare={handleShare}
             onComment={handleComment}
+            onCommentBlocked={handleCommentBlocked}
           />
         </div>
       );

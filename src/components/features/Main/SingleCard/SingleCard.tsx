@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
-import LikeIcon from '@/assets/icon/LikeIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
@@ -38,6 +37,7 @@ interface SingleCardProps {
   onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
   onComment: (slug: string, electionId: string) => void;
+  onCommentBlocked?: () => void;
 }
 
 export const SingleCard: FC<SingleCardProps> = ({
@@ -56,6 +56,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   onVote,
   onShare,
   onComment,
+  onCommentBlocked,
 }) => {
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
@@ -214,29 +215,6 @@ export const SingleCard: FC<SingleCardProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* topComment 미리보기 */}
-      {topComment?.content && (
-        <button
-          type="button"
-          className={styles.topCommentPreview}
-          onClick={(e) => {
-            e.stopPropagation();
-            onComment(alias, singleVote.electionId);
-          }}
-        >
-          <div className={styles.topCommentContent}>
-            <span className={styles.topCommentNickname}>{topComment.nickname}</span>
-            <span className={styles.topCommentText}>{topComment.content}</span>
-          </div>
-          {topComment.likeCount !== undefined && topComment.likeCount > 0 && (
-            <div className={styles.topCommentLike}>
-              <LikeIcon width={12} height={12} />
-              <span>{formatCount(topComment.likeCount)}</span>
-            </div>
-          )}
-        </button>
-      )}
-
       {/* 하단: 메타 + 액션 버튼 */}
       <div className={styles.bottomRow}>
         <div className={styles.metaRow}>
@@ -253,7 +231,11 @@ export const SingleCard: FC<SingleCardProps> = ({
           className={styles.iconButtonWithCount}
           onClick={(e) => {
             e.stopPropagation();
-            onComment(alias, singleVote.electionId);
+            if (showResult) {
+              onComment(alias, singleVote.electionId);
+            } else {
+              onCommentBlocked?.();
+            }
           }}
           aria-label="댓글"
         >
@@ -263,6 +245,21 @@ export const SingleCard: FC<SingleCardProps> = ({
           </span>
         </button>
       </div>
+
+      {/* topComment 미리보기 — 투표 완료 시에만 노출 */}
+      {showResult && topComment?.content && (
+        <button
+          type="button"
+          className={styles.topCommentPreview}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComment(alias, singleVote.electionId);
+          }}
+        >
+          <span className={styles.topCommentNickname}>{topComment.nickname}</span>
+          <span className={styles.topCommentText}>{topComment.content}</span>
+        </button>
+      )}
     </div>
   );
 };
