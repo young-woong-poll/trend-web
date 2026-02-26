@@ -59,6 +59,7 @@ export * from './hotpickElectionItemRequest';
 export * from './hotpickElectionRequest';
 export * from './hotpickSlugCheckResponse';
 export * from './mainHotpickResponse';
+export * from './topCommentResponse';
 export * from './updateCategoryRequest';
 export * from './updateCommentRequest';
 export * from './updateHotpickRequest';
