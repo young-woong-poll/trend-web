@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
+import LikeIcon from '@/assets/icon/LikeIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
@@ -16,6 +17,7 @@ import {
   barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
+import type { TopCommentResponse } from '@/generated/models';
 import { formatCount } from '@/lib/utils';
 import type { VoteType } from '@/types/hotpick';
 import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
@@ -32,6 +34,7 @@ interface SingleCardProps {
   singleVote: SingleVoteData;
   voteType?: VoteType;
   mainImageUrl?: string;
+  topComment?: TopCommentResponse;
   onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
   onComment: (slug: string, electionId: string) => void;
@@ -49,6 +52,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   singleVote,
   voteType,
   mainImageUrl,
+  topComment,
   onVote,
   onShare,
   onComment,
@@ -74,7 +78,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${isClosed ? styles.closed : ''}`}>
       {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>
@@ -85,17 +89,20 @@ export const SingleCard: FC<SingleCardProps> = ({
             </span>
           ))}
         </div>
-        <button
-          type="button"
-          className={styles.iconButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            onShare?.(alias);
-          }}
-          aria-label="공유"
-        >
-          <ShareIcon />
-        </button>
+        <div className={styles.actionButtons}>
+          {isClosed && <span className={styles.closedBadge}>마감</span>}
+          <button
+            type="button"
+            className={styles.iconButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShare?.(alias);
+            }}
+            aria-label="공유"
+          >
+            <ShareIcon />
+          </button>
+        </div>
       </div>
 
       {/* 질문: 로고 이미지 + 텍스트 */}
@@ -206,6 +213,29 @@ export const SingleCard: FC<SingleCardProps> = ({
           )}
         </AnimatePresence>
       </div>
+
+      {/* topComment 미리보기 */}
+      {topComment?.content && (
+        <button
+          type="button"
+          className={styles.topCommentPreview}
+          onClick={(e) => {
+            e.stopPropagation();
+            onComment(alias, singleVote.electionId);
+          }}
+        >
+          <div className={styles.topCommentContent}>
+            <span className={styles.topCommentNickname}>{topComment.nickname}</span>
+            <span className={styles.topCommentText}>{topComment.content}</span>
+          </div>
+          {topComment.likeCount !== undefined && topComment.likeCount > 0 && (
+            <div className={styles.topCommentLike}>
+              <LikeIcon width={12} height={12} />
+              <span>{formatCount(topComment.likeCount)}</span>
+            </div>
+          )}
+        </button>
+      )}
 
       {/* 하단: 메타 + 액션 버튼 */}
       <div className={styles.bottomRow}>
