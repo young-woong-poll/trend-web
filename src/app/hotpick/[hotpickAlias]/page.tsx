@@ -35,13 +35,9 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
 
     const hotpickType = hotpickData.hotpick.type;
 
-    // SINGLE 타입: 단일 투표 상세페이지
+    // SINGLE 타입: 단일 투표 상세페이지 (클라이언트에서 fetch)
     if (hotpickType === 'SINGLE') {
-      return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <SingleDetailContent hotpickAlias={hotpickAlias} data={hotpickData} />
-        </HydrationBoundary>
-      );
+      return <SingleDetailContent hotpickAlias={hotpickAlias} />;
     }
 
     // BUNDLE 타입: 5개 묶음 투표 (BE 미지원 — 현재 준비 중)
