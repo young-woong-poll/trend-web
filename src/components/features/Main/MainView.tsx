@@ -158,7 +158,8 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
     const election = hotpick.election;
     const categoryList = (hotpick.categories ?? []).map((c) => c.name ?? '');
-    const status = hotpick.expiredAt && new Date(hotpick.expiredAt) < new Date() ? 'CLOSED' : 'OPEN';
+    const status =
+      hotpick.expiredAt && new Date(hotpick.expiredAt) < new Date() ? 'CLOSED' : 'OPEN';
     const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
 
     if (hotpick.type === 'SINGLE' && election) {
