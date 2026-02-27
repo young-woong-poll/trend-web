@@ -1,5 +1,5 @@
 import { getDetail } from '@/generated/api/server/hotpick/hotpick';
-import { COMMON_METADATA, OG_IMAGE, SITE_KEYWORDS, SITE_NAME } from '@/lib/seo/constants';
+import { COMMON_METADATA, OG_IMAGE, SITE_KEYWORDS, SITE_NAME, SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -32,15 +32,21 @@ export async function generateMetadata({ params }: HotpickPageProps): Promise<Me
       description = `${optionTexts} - 지금 바로 투표하세요!`;
     }
 
+    const canonicalUrl = `${SITE_URL}/hotpick/${hotpickAlias}`;
+
     return {
       title,
       description,
       keywords: SITE_KEYWORDS,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         type: 'website',
         siteName: SITE_NAME,
         title,
         description,
+        url: canonicalUrl,
         images: [OG_IMAGE],
       },
       twitter: {
