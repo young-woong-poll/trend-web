@@ -1,5 +1,5 @@
 import { getDetail } from '@/generated/api/server/hotpick/hotpick';
-import { COMMON_METADATA, OG_IMAGE, SITE_KEYWORDS, SITE_NAME, SITE_URL } from '@/lib/seo/constants';
+import { COMMON_METADATA, SITE_KEYWORDS, SITE_NAME, SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -47,13 +47,11 @@ export async function generateMetadata({ params }: HotpickPageProps): Promise<Me
         title,
         description,
         url: canonicalUrl,
-        images: [OG_IMAGE],
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        images: [OG_IMAGE.url],
       },
     };
   } catch (error) {
