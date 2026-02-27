@@ -2,10 +2,12 @@ import { notFound } from 'next/navigation';
 
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 
+import { StructuredData } from '@/components/common/StructuredData/StructuredData';
 import { SingleDetailContent } from '@/components/features/Hotpick/SingleDetailView/SingleDetailContent';
 import { HotpickContent } from '@/components/features/Hotpick/VoteContent';
 import { displayQueries } from '@/hooks/api/useDisplay';
 import { createServerQueryClient } from '@/lib/react-query';
+import { generateHotpickStructuredData } from '@/lib/seo/structuredData';
 
 interface HotpickPageProps {
   params: Promise<{
@@ -35,14 +37,22 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
 
     const hotpickType = hotpickData.hotpick.type;
 
+    const structuredData = generateHotpickStructuredData(hotpickData.hotpick, hotpickAlias);
+
     // SINGLE 타입: 단일 투표 상세페이지 (클라이언트에서 fetch)
     if (hotpickType === 'SINGLE') {
-      return <SingleDetailContent hotpickAlias={hotpickAlias} />;
+      return (
+        <>
+          <StructuredData data={structuredData} />
+          <SingleDetailContent hotpickAlias={hotpickAlias} />
+        </>
+      );
     }
 
     // BUNDLE 타입: 5개 묶음 투표 (BE 미지원 — 현재 준비 중)
     return (
       <HydrationBoundary state={dehydrate(queryClient)}>
+        <StructuredData data={structuredData} />
         <HotpickContent hotpickAlias={hotpickAlias} data={hotpickData} />
       </HydrationBoundary>
     );
