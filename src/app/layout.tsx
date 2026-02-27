@@ -1,5 +1,5 @@
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Roboto } from 'next/font/google';
-import Script from 'next/script';
 
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
@@ -29,20 +29,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-52Z1FDXWHD"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-52Z1FDXWHD');
-          `}
-        </Script>
-      </head>
       <body className={roboto.variable}>
         <ClientProviders>
           <QueryProvider>
@@ -52,6 +38,7 @@ export default function RootLayout({
             </ModalProvider>
           </QueryProvider>
         </ClientProviders>
+        <GoogleAnalytics gaId="G-52Z1FDXWHD" />
       </body>
     </html>
   );
