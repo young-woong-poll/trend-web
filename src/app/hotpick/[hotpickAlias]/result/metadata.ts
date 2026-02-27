@@ -1,5 +1,5 @@
 import { getDetail } from '@/generated/api/server/hotpick/hotpick';
-import { SITE_NAME, COMMON_METADATA, SITE_KEYWORDS } from '@/lib/seo/constants';
+import { SITE_NAME, SITE_URL, COMMON_METADATA, SITE_KEYWORDS } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -19,7 +19,7 @@ export async function createResultMetadata(hotpickAlias: string): Promise<Metada
     url: '/og-result.jpg',
     width: 1200,
     height: 630,
-    alt: 'HotPick - 오늘 대한민국은 이걸로 싸운다',
+    alt: '애매하면? 핫픽 — 내 결과 확인하기',
   } as const;
 
   try {
@@ -42,15 +42,20 @@ export async function createResultMetadata(hotpickAlias: string): Promise<Metada
 
     // 티저 전략: 핫픽 주제 + VS 대결구도
     const title = `${questionTitle} ${optionA} VS ${optionB}`;
-    const description = 'HotPick 테스트를 완료했어요! 결과 보러가기 →';
+    const description = `나는 어떤 유형일까? ${optionA} vs ${optionB} 결과 확인하기 →`;
+    const canonicalUrl = `${SITE_URL}/hotpick/${hotpickAlias}/result`;
 
     return {
       title,
       description,
       keywords: SITE_KEYWORDS,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title,
         description,
+        url: canonicalUrl,
         type: 'website',
         siteName: SITE_NAME,
         images: [ogImage],
