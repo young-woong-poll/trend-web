@@ -4,18 +4,18 @@ import { getDetail } from '@/generated/api/server/hotpick/hotpick';
 import { SITE_URL } from '@/lib/seo/constants';
 
 export const runtime = 'edge';
+export const revalidate = false; // 무기한 캐싱 (투표 정보 변경 없음)
 export const alt = 'HotPick - 투표 플랫폼';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-// 한글 폰트 로드 (Google Fonts - Noto Sans KR TTF)
-const fontBold = fetch(
-  'https://fonts.gstatic.com/s/notosanskr/v39/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzg01eLQ.ttf'
-).then((res) => res.arrayBuffer());
-
-const fontRegular = fetch(
-  'https://fonts.gstatic.com/s/notosanskr/v39/PbyxFmXiEBPT4ITbgNA5Cgms3VYcOA-vvnIzzuoyeLQ.ttf'
-).then((res) => res.arrayBuffer());
+// 한글 폰트 로드 (로컬 번들링 — 외부 CDN 의존 제거)
+const fontBold = fetch(new URL('/fonts/NotoSansKR-Bold.ttf', SITE_URL)).then((res) =>
+  res.arrayBuffer()
+);
+const fontRegular = fetch(new URL('/fonts/NotoSansKR-Regular.ttf', SITE_URL)).then((res) =>
+  res.arrayBuffer()
+);
 
 const logoUrl = `${SITE_URL}/main-logo.png`;
 
@@ -24,7 +24,7 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
   const [boldFont, regularFont] = await Promise.all([fontBold, fontRegular]);
 
   try {
-    const response = await getDetail(hotpickAlias, { next: { revalidate: 60 } });
+    const response = await getDetail(hotpickAlias);
     const hotpickData = response.status === 200 ? response.data.data : null;
     const election = hotpickData?.hotpick?.election;
     const items = election?.items ?? [];
