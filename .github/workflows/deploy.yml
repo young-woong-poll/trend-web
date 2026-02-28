@@ -17,14 +17,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 24
+          cache: pnpm
 
       - name: Install Vercel CLI
-        run: npm install -g vercel
+        run: pnpm add -g vercel
 
       # Preview 배포 (develop 브랜치)
       - name: Pull Vercel Environment (Preview)
