@@ -10,17 +10,16 @@ import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
 import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
 import type { CategoryFilterItem } from '@/constants/category';
 import { useModal } from '@/contexts/ModalContext';
-import type { MainHotpickResponse, HotpickCardResponse } from '@/generated/models';
+import type { HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
 type TMainViewProps = {
-  initialData?: MainHotpickResponse;
   children?: ReactNode;
 };
 
-export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
+export const MainView: FC<TMainViewProps> = ({ children }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
   const [commentTarget, setCommentTarget] = useState<{
     slug: string;
@@ -28,7 +27,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   } | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
-  const { data: apiCategories } = useCategories();
+  const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
     ? apiCategories.map((c) => ({
@@ -71,7 +70,6 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   } = useInfiniteMainDisplay({
     size: 20,
     category: selectedCategory ?? undefined,
-    initialData: selectedCategory === null || selectedCategory === 'all' ? initialData : undefined,
   });
 
   const observerTarget = useInfiniteScroll({
@@ -95,6 +93,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           selectedSlug={selectedCategory}
           onChange={handleCategoryChange}
           categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
         />
         <div className={styles.skeletonGroup}>
           <SkeletonCard />
@@ -112,6 +111,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           selectedSlug={selectedCategory}
           onChange={handleCategoryChange}
           categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
         />
         <div className={styles.statusContainer}>
           <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
@@ -128,6 +128,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           selectedSlug={selectedCategory}
           onChange={handleCategoryChange}
           categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
         />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
@@ -199,6 +200,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           selectedSlug={selectedCategory}
           onChange={handleCategoryChange}
           categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
         />
 
         {hotpicks.map((hotpick) => renderHotpick(hotpick))}
