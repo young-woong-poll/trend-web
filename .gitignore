@@ -5,12 +5,20 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+docs/
+scripts/
+docs/contents/
+.playwright-mcp
 
 # testing
 /coverage
+
+# playwright / e2e
+e2e/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+playwright.config.ts
 
 # next.js
 /.next/

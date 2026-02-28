@@ -67,8 +67,8 @@ export const handlers = [
 
     let hotpicks = [...(mockMainHotpicks.hotpicks ?? [])];
 
-    // 카테고리 필터링
-    if (category) {
+    // 카테고리 필터링 ("all" 또는 빈값은 전체 조회)
+    if (category && category !== 'all') {
       hotpicks = hotpicks.filter((hp) => {
         const cats = hp.categories ?? [];
         return cats.some((c) => c.slug === category || c.name === category);

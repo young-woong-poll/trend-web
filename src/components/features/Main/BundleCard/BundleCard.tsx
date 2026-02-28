@@ -58,6 +58,7 @@ export const BundleCard: FC<BundleCardProps> = ({
   return (
     <div
       className={`${styles.card} ${isClosed ? styles.closed : ''}`}
+      data-testid="bundle-card"
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -112,7 +113,11 @@ export const BundleCard: FC<BundleCardProps> = ({
                 <span className={styles.bundleBadge}>
                   {electionCount ? `${electionCount}개 투표` : '투표 모음'}
                 </span>
-                {isClosed && <span className={styles.closedBadge}>마감</span>}
+                {isClosed && (
+                  <span className={styles.closedBadge} data-testid="closed-badge">
+                    마감
+                  </span>
+                )}
                 {isNew && !isClosed && !participated && (
                   <span className={styles.newBadge}>NEW</span>
                 )}
