@@ -15,7 +15,7 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
   <>
     <MainHeader />
     <FlexibleLayout>
-      <MainView initialData={data}>
+      <MainView>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         {data && (data.hotpicks?.length ?? 0) > 0 && (
           <div className={styles.container}>

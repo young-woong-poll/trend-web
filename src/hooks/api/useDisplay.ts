@@ -151,24 +151,16 @@ export const useMainDisplay = (params?: { size?: number; cursor?: number }) =>
 
 /**
  * 메인 전시 무한 스크롤 Hook
+ * - staleTime: 0으로 설정하여 서버 dehydrate 데이터(x-tku-id 없음)를
+ *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
-export const useInfiniteMainDisplay = (params?: {
-  size?: number;
-  category?: string;
-  initialData?: MainHotpickResponse;
-}) => {
-  const { initialData: initData, ...queryKeyParams } = params ?? {};
-
-  const baseOptions = displayQueries.infiniteMain(queryKeyParams);
+export const useInfiniteMainDisplay = (params?: { size?: number; category?: string }) => {
+  const baseOptions = displayQueries.infiniteMain(params);
 
   return useInfiniteQuery({
     ...baseOptions,
-    initialData: initData
-      ? {
-          pages: [initData],
-          pageParams: [undefined],
-        }
-      : undefined,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 };
 
