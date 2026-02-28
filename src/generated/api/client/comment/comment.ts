@@ -8,11 +8,13 @@ import type {
   BaseResponseCommentCountResponse,
   BaseResponseCommentCreateResponse,
   BaseResponseCommentLikeResponse,
+  BaseResponseCommentListResponse,
   BaseResponseCommentUpdateResponse,
   BaseResponseCommentVerifyResponse,
   BaseResponseVoid,
   CreateCommentRequest,
   DeleteCommentRequest,
+  GetCommentsParams,
   UpdateCommentRequest,
   VerifyCommentRequest,
 } from '../../../models';
@@ -23,7 +25,7 @@ import type { BodyType } from '../../../../lib/axios-mutator';
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * @summary 댓글 수정
+ * @summary Update comment
  */
 export const updateComment = (
   commentId: string,
@@ -32,7 +34,7 @@ export const updateComment = (
 ) => {
   return customInstance<BaseResponseCommentUpdateResponse>(
     {
-      url: `/api/v1/comment/${commentId}`,
+      url: `/api/v1/comments/${commentId}`,
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       data: updateCommentRequest,
@@ -41,7 +43,7 @@ export const updateComment = (
   );
 };
 /**
- * @summary 댓글 삭제
+ * @summary Delete comment
  */
 export const deleteComment = (
   commentId: string,
@@ -50,7 +52,7 @@ export const deleteComment = (
 ) => {
   return customInstance<BaseResponseVoid>(
     {
-      url: `/api/v1/comment/${commentId}`,
+      url: `/api/v1/comments/${commentId}`,
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       data: deleteCommentRequest,
@@ -59,15 +61,31 @@ export const deleteComment = (
   );
 };
 /**
- * @summary 댓글 생성
+ * @summary Get comment list
+ */
+export const getComments = (
+  slug: string,
+  electionId: number,
+  params?: GetCommentsParams,
+  options?: SecondParameter<typeof customInstance<BaseResponseCommentListResponse>>
+) => {
+  return customInstance<BaseResponseCommentListResponse>(
+    { url: `/api/v1/hotpicks/${slug}/elections/${electionId}/comments`, method: 'GET', params },
+    options
+  );
+};
+/**
+ * @summary Create comment
  */
 export const createComment = (
+  slug: string,
+  electionId: number,
   createCommentRequest: BodyType<CreateCommentRequest>,
   options?: SecondParameter<typeof customInstance<BaseResponseCommentCreateResponse>>
 ) => {
   return customInstance<BaseResponseCommentCreateResponse>(
     {
-      url: `/api/v1/comment`,
+      url: `/api/v1/hotpicks/${slug}/elections/${electionId}/comments`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       data: createCommentRequest,
@@ -76,7 +94,7 @@ export const createComment = (
   );
 };
 /**
- * @summary 댓글 비밀번호 검증
+ * @summary Verify comment password
  */
 export const verifyComment = (
   commentId: string,
@@ -85,7 +103,7 @@ export const verifyComment = (
 ) => {
   return customInstance<BaseResponseCommentVerifyResponse>(
     {
-      url: `/api/v1/comment/${commentId}/verify`,
+      url: `/api/v1/comments/${commentId}/verify`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       data: verifyCommentRequest,
@@ -94,44 +112,45 @@ export const verifyComment = (
   );
 };
 /**
- * @summary 댓글 좋아요
+ * @summary Like comment
  */
 export const likeComment = (
   commentId: string,
   options?: SecondParameter<typeof customInstance<BaseResponseCommentLikeResponse>>
 ) => {
   return customInstance<BaseResponseCommentLikeResponse>(
-    { url: `/api/v1/comment/${commentId}/like`, method: 'POST' },
+    { url: `/api/v1/comments/${commentId}/like`, method: 'POST' },
     options
   );
 };
 /**
- * @summary 댓글 좋아요 취소
+ * @summary Unlike comment
  */
 export const unlikeComment = (
   commentId: string,
   options?: SecondParameter<typeof customInstance<BaseResponseCommentLikeResponse>>
 ) => {
   return customInstance<BaseResponseCommentLikeResponse>(
-    { url: `/api/v1/comment/${commentId}/like`, method: 'DELETE' },
+    { url: `/api/v1/comments/${commentId}/like`, method: 'DELETE' },
     options
   );
 };
 /**
- * @summary 댓글 개수 조회
+ * @summary Get comment count
  */
 export const countComments = (
-  trendId: number,
-  itemId: string,
+  slug: string,
+  electionId: number,
   options?: SecondParameter<typeof customInstance<BaseResponseCommentCountResponse>>
 ) => {
   return customInstance<BaseResponseCommentCountResponse>(
-    { url: `/api/v1/comment/${trendId}/item/${itemId}/count`, method: 'GET' },
+    { url: `/api/v1/hotpicks/${slug}/elections/${electionId}/comments/count`, method: 'GET' },
     options
   );
 };
 export type UpdateCommentResult = NonNullable<Awaited<ReturnType<typeof updateComment>>>;
 export type DeleteCommentResult = NonNullable<Awaited<ReturnType<typeof deleteComment>>>;
+export type GetCommentsResult = NonNullable<Awaited<ReturnType<typeof getComments>>>;
 export type CreateCommentResult = NonNullable<Awaited<ReturnType<typeof createComment>>>;
 export type VerifyCommentResult = NonNullable<Awaited<ReturnType<typeof verifyComment>>>;
 export type LikeCommentResult = NonNullable<Awaited<ReturnType<typeof likeComment>>>;

@@ -1,97 +1,137 @@
 'use client';
 
-import { useEffect, useRef, type FC, type ReactNode } from 'react';
+import { useCallback, useState, type FC, type ReactNode } from 'react';
 
+import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
+import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
+import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
-import { PollCard } from '@/components/features/Main/PollCard/PollCard';
-import { TREND_SORT } from '@/constants';
-import type { DisplayMainResponse } from '@/generated/models';
-import { useInfiniteMainDisplay } from '@/hooks/api';
+import { SingleCard } from '@/components/features/Main/SingleCard/SingleCard';
+import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCard';
+import type { CategoryFilterItem } from '@/constants/category';
+import { useModal } from '@/contexts/ModalContext';
+import type { MainHotpickResponse, HotpickCardResponse } from '@/generated/models';
+import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { electionToSingleVoteData } from '@/types/singleVote';
 
 type TMainViewProps = {
-  initialData?: DisplayMainResponse;
+  initialData?: MainHotpickResponse;
   children?: ReactNode;
 };
 
-const isValidImageUrl = (url: string | undefined): boolean => {
-  if (!url) {
-    return false;
-  }
-  try {
-    const urlObj = new URL(url);
-    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
-  } catch {
-    return false;
-  }
-};
-
 export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
-  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage, error } =
-    useInfiniteMainDisplay({ size: 20, sort: TREND_SORT, initialData });
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('all');
+  const [commentTarget, setCommentTarget] = useState<{
+    slug: string;
+    electionId: string;
+  } | null>(null);
+  const { handleVote } = useSingleVote();
+  const { showToast } = useModal();
+  const { data: apiCategories } = useCategories();
 
-  const observerTarget = useRef<HTMLDivElement>(null);
+  const dynamicCategories: CategoryFilterItem[] | undefined = apiCategories?.map((c) => ({
+    label: c.name ?? '',
+    slug: c.slug ?? '',
+  }));
 
-  // Intersection Observer로 무한스크롤 구현
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
+  const handleShare = useCallback(
+    (slug: string) => {
+      const url = `${window.location.origin}/hotpick/${slug}`;
+      void navigator.clipboard.writeText(url).then(() => {
+        showToast('링크가 복사되었습니다');
+      });
+    },
+    [showToast]
+  );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
+  const handleComment = useCallback((slug: string, electionId: string) => {
+    setCommentTarget({ slug, electionId });
+  }, []);
 
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const handleCommentBlocked = useCallback(() => {
+    showToast('댓글은 투표 후 확인 가능합니다');
+  }, [showToast]);
 
-  // 페이지 데이터 병합
-  // initialData가 useInfiniteQuery에 주입되므로 data만 사용
-  const fixedTrends = data.pages[0]?.fixedTrends ?? [];
-  const trends = data.pages.flatMap((page) => page?.trends ?? []);
+  const handleCloseComment = useCallback(() => {
+    setCommentTarget(null);
+  }, []);
 
-  // 초기 로딩 상태 (initialData가 없는 경우 대비)
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (isLoading && trends.length === 0) {
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    error,
+  } = useInfiniteMainDisplay({
+    size: 20,
+    category: selectedCategory ?? undefined,
+    initialData: selectedCategory === null ? initialData : undefined,
+  });
+
+  const observerTarget = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage: () => void fetchNextPage(),
+  });
+
+  const handleCategoryChange = useCallback((slug: string | null) => {
+    setSelectedCategory(slug);
+  }, []);
+
+  // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
+  const allHotpicks = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
+  const hotpicks = [...new Map(allHotpicks.map((h) => [h.hotpickId, h])).values()];
+
+  if (isLoading && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
-        <div className={styles.statusContainer}>
-          <p className={styles.statusText}>트렌드를 불러오는 중...</p>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
+        <div className={styles.skeletonGroup}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
       </div>
     );
   }
 
-  // 에러 상태
-  if (isError && trends.length === 0) {
+  if (isError && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
         <div className={styles.statusContainer}>
-          <p className={styles.errorText}>트렌드를 불러오는데 실패했습니다.</p>
+          <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
           <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
         </div>
       </div>
     );
   }
 
-  // 빈 상태 (고정 트렌드와 일반 트렌드 모두 없을 때)
-  if (fixedTrends.length === 0 && trends.length === 0) {
+  if (!isFetching && hotpicks.length === 0) {
     return (
       <div className={styles.container}>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
         <div className={styles.emptyState}>
           <div className={styles.icon}>📊</div>
-          <h2 className={styles.title}>아직 진행중인 트렌드가 없어요</h2>
+          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
           <p className={styles.description}>
-            새로운 트렌드 투표가 시작되면 여기에 표시됩니다.
+            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
             <br />곧 흥미로운 주제로 찾아뵙겠습니다!
           </p>
         </div>
@@ -99,64 +139,76 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     );
   }
 
+  const renderHotpick = (hotpick: HotpickCardResponse, keyPrefix?: string) => {
+    const slug = hotpick.slug ?? '';
+    const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
+    const election = hotpick.election;
+    const categoryList = (hotpick.categories ?? []).map((c) => c.name ?? '');
+    const status = hotpick.isExpired ? 'CLOSED' : 'OPEN';
+    const hasOptionImages = (election?.items ?? []).some((item) => !!item.imageUrl);
+
+    if (hotpick.type === 'SINGLE' && election) {
+      return (
+        <div key={key} id={slug} className={styles.cardWrapper}>
+          <SingleCard
+            id={hotpick.hotpickId ?? 0}
+            alias={slug}
+            title={election.title ?? ''}
+            categories={categoryList}
+            participantCount={election.totalVoteCount}
+            commentCount={election.totalCommentCount}
+            deadline={hotpick.expiredAt}
+            status={status}
+            singleVote={electionToSingleVoteData(election)}
+            voteType={hasOptionImages ? 'IMAGE' : 'TEXT'}
+            mainImageUrl={!hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined}
+            topComment={hotpick.topComment}
+            onVote={handleVote}
+            onShare={handleShare}
+            onComment={handleComment}
+            onCommentBlocked={handleCommentBlocked}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div key={key} id={slug} className={styles.cardWrapper}>
+        <BundleCard
+          alias={slug}
+          title={election?.title ?? ''}
+          categories={categoryList}
+          participantCount={election?.totalVoteCount}
+          imageUrls={hotpick.imageUrl ? [hotpick.imageUrl] : undefined}
+          deadline={hotpick.expiredAt}
+          status={status}
+          onShare={handleShare}
+        />
+      </div>
+    );
+  };
+
   return (
     <>
-      {/* 서버에서 생성된 정적 HTML (SEO용) - children은 서버에서 렌더링됨 */}
       <noscript>{children}</noscript>
 
       <div className={styles.container}>
-        {/* 고정 트렌드 먼저 노출 */}
-        {fixedTrends.map((trend) => {
-          const rawImageUrls = trend.imageUrls ?? [];
-          const validImageUrls = [
-            isValidImageUrl(rawImageUrls[0])
-              ? rawImageUrls[0]
-              : 'https://picsum.photos/400/300?random=placeholder1',
-            isValidImageUrl(rawImageUrls[1])
-              ? rawImageUrls[1]
-              : 'https://picsum.photos/400/300?random=placeholder2',
-          ];
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+        />
 
-          return (
-            <PollCard
-              key={`fixed-${trend.id}`}
-              alias={trend.alias ?? ''}
-              title={trend.title ?? ''}
-              subtitle={trend.label}
-              createdAt={trend.createdAt}
-              imageUrls={validImageUrls}
-              participantCount={trend.participantsCount}
-            />
-          );
-        })}
-        {/* 일반 트렌드 */}
-        {trends.map((trend) => {
-          const rawImageUrls = trend.imageUrls ?? [];
-          const validImageUrls = [
-            isValidImageUrl(rawImageUrls[0])
-              ? rawImageUrls[0]
-              : 'https://picsum.photos/400/300?random=placeholder1',
-            isValidImageUrl(rawImageUrls[1])
-              ? rawImageUrls[1]
-              : 'https://picsum.photos/400/300?random=placeholder2',
-          ];
+        {hotpicks.map((hotpick) => renderHotpick(hotpick))}
 
-          return (
-            <PollCard
-              key={trend.id}
-              alias={trend.alias ?? ''}
-              title={trend.title ?? ''}
-              subtitle={trend.label}
-              createdAt={trend.createdAt}
-              imageUrls={validImageUrls}
-              participantCount={trend.participantsCount}
-            />
-          );
-        })}
-
-        {/* 무한스크롤 트리거 */}
+        {/* 하향 무한스크롤 트리거 */}
         <div ref={observerTarget} className={styles.observerTarget}>
-          {isFetchingNextPage && <p className={styles.loadingMore}>트렌드를 더 불러오는 중...</p>}
+          {isFetchingNextPage && (
+            <div className={styles.skeletonGroup}>
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
+          )}
           {!isFetchingNextPage && error && hasNextPage && (
             <div className={styles.loadMoreError}>
               <p>불러오기 실패</p>
@@ -167,6 +219,16 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
           )}
         </div>
       </div>
+
+      {/* 댓글 바텀시트 */}
+      {commentTarget && (
+        <CommentBottomSheet
+          isOpen
+          onClose={handleCloseComment}
+          slug={commentTarget.slug}
+          electionId={commentTarget.electionId}
+        />
+      )}
     </>
   );
 };

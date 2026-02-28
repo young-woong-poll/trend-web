@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseMapStringString,
+  BaseResponseObject,
   BaseResponseVoid,
   GeneratePresignedUrlParams,
 } from '../openAPIDefinition.schemas';
@@ -21,9 +22,9 @@ export type generatePresignedUrlResponse200 = {
   status: 200;
 };
 
-export type generatePresignedUrlResponse400 = {
-  data: BaseResponseVoid;
-  status: 400;
+export type generatePresignedUrlResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
 };
 
 export type generatePresignedUrlResponse429 = {
@@ -40,7 +41,7 @@ export type generatePresignedUrlResponseSuccess = generatePresignedUrlResponse20
   headers: Headers;
 };
 export type generatePresignedUrlResponseError = (
-  | generatePresignedUrlResponse400
+  | generatePresignedUrlResponse409
   | generatePresignedUrlResponse429
   | generatePresignedUrlResponse500
 ) & {

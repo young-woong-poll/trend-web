@@ -1,0 +1,124 @@
+@use '@/styles/variables' as *;
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+// 댓글 입력 영역
+.textareaWrapper {
+  position: relative;
+}
+
+.textarea {
+  width: 100%;
+  padding: 12px 14px;
+  padding-bottom: 36px;
+  border: 1px solid $border-placeholder;
+  background-color: $bg-primary;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-14;
+  font-family: inherit;
+  resize: none;
+  min-height: 80px;
+  caret-color: $white;
+  color: $white;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $text-secondary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.charCount {
+  position: absolute;
+  bottom: 10px;
+  right: 14px;
+  font-size: 11px;
+  color: $text-tertiary;
+  pointer-events: none;
+}
+
+// 하단: 닉네임 + 비밀번호 + 게시
+.bottomRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid $border-placeholder;
+  background-color: $bg-primary;
+  border-radius: $border-radius-md;
+  font-size: $font-size-12;
+  caret-color: $white;
+  color: $white;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $text-secondary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.submitButton {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    background: $bg-tertiary;
+    color: $text-tertiary;
+    cursor: not-allowed;
+    transform: none;
+  }
+}

@@ -6,6 +6,5 @@
  */
 
 export interface DeleteCommentRequest {
-  /** 검증 토큰 */
   verifyToken: string;
 }

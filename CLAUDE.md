@@ -1,6 +1,58 @@
-# Claude Code 작업 지침
+# HotPick
 
-이 문서는 Claude Code가 이 프로젝트에서 작업할 때 따라야 할 지침을 정의합니다.
+바이럴 투표 플랫폼. 5개 이지선다 투표 묶음.
+타겟: 20-40대 한국 남성, 모바일 우선
+
+## 기술 스택
+
+- Next.js 14+ (App Router)
+- TypeScript (strict mode)
+- SCSS Modules (\*.module.scss)
+- React Query (TanStack Query v5)
+
+## 프로젝트 구조
+
+- `src/app/` — App Router 페이지
+- `src/components/` — UI 컴포넌트
+- `src/hooks/` — 커스텀 훅
+- `src/api/` — API 호출 함수
+- `src/types/` — TypeScript 타입 정의
+
+## 디자인 시스템
+
+- 다크 테마 (#121212 배경)
+- Primary Gradient: #ff00ff → #ff4500
+- Attention: #DFFF00
+- 상세 토큰: `docs/design-system/tokens.md` 참조
+
+## 문서 위치
+
+- 기획서: /docs/specs/
+- 디자인 가이드: /docs/design/
+- BE 개발요청서: /docs/api/
+- 디자인 시스템: /design-system/
+
+## 상세 기획서
+
+- `docs/specs/00-overview.md` — 서비스 개요
+- `docs/specs/01-main-page.md` — Main 페이지 (탭 네비게이션 포함)
+- `docs/specs/02-vote-page.md` — Vote 페이지
+- `docs/specs/06-single-page.md` — Single(단일 투표) 상세 기획서
+- `docs/specs/new-hotpick-election-system.md` — 선거 시스템 내재화 설계서
+- `docs/design-system/tokens.md` — 디자인 토큰
+
+## 코딩 컨벤션
+
+- 컴포넌트: PascalCase (SingleCard.tsx)
+- 훅: camelCase (useSingleList.ts)
+- 스타일: 컴포넌트명.module.scss
+- API 응답 타입: 기획서 섹션 13 참조
+- 서버 API 미구현 시: MSW 또는 하드코딩 mock 데이터로 대체
+
+## 팀 구성
+
+- 기획 + FE: 웅일
+- BE: 동료 2명
 
 ## Git 작업 규칙
 

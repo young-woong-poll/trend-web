@@ -1,7 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+/**
+ * Result hooks — 스텁 처리
+ *
+ * BUNDLE 전용. Result API가 새 swagger에서 제거됨.
+ */
 
-import { createResult, checkResultExists } from '@/generated/api/client/result/result';
-import type { CreateResultRequest } from '@/generated/models';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 /**
  * Result Query Keys
@@ -12,20 +15,22 @@ export const resultKeys = {
 };
 
 /**
- * Result 존재 여부 확인 Hook
+ * Result 존재 여부 확인 Hook (스텁)
  */
 export const useCheckResultExists = (resultId: string, enabled = true) =>
   useQuery({
     queryKey: resultKeys.exists(resultId),
-    queryFn: () => checkResultExists(resultId),
+    queryFn: () => Promise.resolve(null),
     enabled: !!resultId && enabled,
     staleTime: 60 * 1000,
   });
 
 /**
- * Result 생성 Hook
+ * Result 생성 Hook (스텁)
  */
 export const useCreateResult = () =>
   useMutation({
-    mutationFn: (data: CreateResultRequest) => createResult(data),
+    mutationFn: async (_data: unknown) => {
+      throw new Error('BUNDLE 투표는 준비 중입니다');
+    },
   });

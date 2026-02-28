@@ -1,0 +1,156 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  min-height: 100vh;
+  background: $bg-primary;
+}
+
+.header {
+  margin-bottom: 40px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.title {
+  font-size: 32px;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: $text-tertiary;
+}
+
+.form {
+  background: $bg-secondary;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+// 핫픽 유형 선택
+.typeSection {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid $border-placeholder;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: 16px;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.radioLabel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: $bg-tertiary;
+  border: 2px solid $border-placeholder;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $neutral-500;
+  }
+
+  &.active {
+    border-color: $neutral-400;
+    background: rgba($neutral-400, 0.1);
+  }
+}
+
+.radioInput {
+  display: none;
+}
+
+.radioText {
+  font-size: 16px;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+.radioDesc {
+  font-size: 12px;
+  color: $text-tertiary;
+  text-align: center;
+}
+
+.noElectionBanner {
+  margin: 24px 0;
+  padding: 20px;
+  background: $bg-tertiary;
+  border: 1px solid $border-placeholder;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: $font-weight-medium;
+    color: $text-tertiary;
+  }
+}
+
+.bundleNotice {
+  margin: 24px 0;
+  padding: 24px;
+  background: $bg-tertiary;
+  border: 1px dashed $border-placeholder;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: $font-weight-medium;
+    color: $text-tertiary;
+  }
+}
+
+.actions {
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 2px solid $border-placeholder;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 16px;
+  }
+
+  .form {
+    padding: 24px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}

@@ -9,8 +9,6 @@
  * 응답 데이터
  */
 export interface CommentLikeResponse {
-  /** 현재 liked 상태 */
   liked?: boolean;
-  /** 서버가 계산한 likeCount */
   likeCount?: number;
 }

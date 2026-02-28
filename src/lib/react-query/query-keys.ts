@@ -16,18 +16,18 @@ export const queryKeys = {
       [...queryKeys.display.all, 'main', params] as const,
     mainInfinite: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
       [...queryKeys.display.all, 'mainInfinite', params] as const,
-    trend: (trendAlias: string) => [...queryKeys.display.all, 'trend', trendAlias] as const,
+    hotpick: (hotpickAlias: string) => [...queryKeys.display.all, 'hotpick', hotpickAlias] as const,
     result: (resultId: string) => [...queryKeys.display.all, 'result', resultId] as const,
-    comments: (trendId: string, itemId: string, sort: string) =>
-      [...queryKeys.display.all, 'comments', trendId, itemId, sort] as const,
+    comments: (hotpickId: string, electionId: string, sort: string) =>
+      [...queryKeys.display.all, 'comments', hotpickId, electionId, sort] as const,
   },
 
-  // Trend 관련
-  trend: {
-    all: ['trend'] as const,
-    voteCount: (trendId: string) => [...queryKeys.trend.all, 'voteCount', trendId] as const,
-    itemOptions: (trendAlias: string, itemId: string) =>
-      [...queryKeys.trend.all, 'itemOptions', trendAlias, itemId] as const,
+  // Hotpick 관련
+  hotpick: {
+    all: ['hotpick'] as const,
+    voteCount: (hotpickId: string) => [...queryKeys.hotpick.all, 'voteCount', hotpickId] as const,
+    electionOptions: (hotpickAlias: string, electionId: string) =>
+      [...queryKeys.hotpick.all, 'electionOptions', hotpickAlias, electionId] as const,
   },
 
   // Result 관련
@@ -39,8 +39,8 @@ export const queryKeys = {
   // Comment 관련
   comment: {
     all: ['comment'] as const,
-    count: (trendId: number, itemId: string) =>
-      [...queryKeys.comment.all, 'count', trendId, itemId] as const,
+    count: (hotpickId: number, electionId: string) =>
+      [...queryKeys.comment.all, 'count', hotpickId, electionId] as const,
   },
 } as const;
 

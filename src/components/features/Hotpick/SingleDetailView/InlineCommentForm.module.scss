@@ -1,0 +1,170 @@
+@use '@/styles/variables' as *;
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+// ── 메인 텍스트 입력 ──
+.commentInput {
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid $border-placeholder;
+  background: transparent;
+  color: $white;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: none;
+  overflow: hidden;
+  caret-color: $white;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-bottom-color: $white;
+  }
+
+  &.expanded {
+    border-bottom-color: $white;
+  }
+
+  &.error {
+    border-bottom-color: $error;
+  }
+
+  &:disabled {
+    color: $text-secondary;
+    cursor: not-allowed;
+  }
+}
+
+// ── 확장 영역 ──
+.expandedArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── 닉네임/비밀번호 인라인 ──
+.metaInputs {
+  display: flex;
+  gap: 8px;
+}
+
+.metaInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-md;
+  background: transparent;
+  color: $white;
+  font-size: 13px;
+  font-family: inherit;
+  caret-color: $white;
+  transition: border-color 0.2s;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $white;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+
+  &:disabled {
+    color: $text-secondary;
+    cursor: not-allowed;
+  }
+}
+
+// ── 하단 액션 ──
+.formActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.charCount {
+  font-size: 12px;
+  color: $text-tertiary;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.cancelButton {
+  padding: 6px 14px;
+  border: none;
+  border-radius: $border-rounded;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 13px;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.06);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.submitButton {
+  padding: 6px 14px;
+  border: none;
+  border-radius: $border-rounded;
+  background: rgba($white, 0.08);
+  color: $text-tertiary;
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+  cursor: default;
+  transition: all 0.15s ease;
+
+  &.active {
+    background: $primary-gradient;
+    color: $white;
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+
+    &.active {
+      opacity: 0.6;
+    }
+  }
+}

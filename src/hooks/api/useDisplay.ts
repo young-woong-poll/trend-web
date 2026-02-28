@@ -6,13 +6,14 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 
-import * as clientApi from '@/generated/api/client/display/display';
-import * as serverApi from '@/generated/api/server/display/display';
+import * as clientApi from '@/generated/api/client/hotpick/hotpick';
+import * as serverApi from '@/generated/api/server/hotpick/hotpick';
 import type {
-  DisplayMainResponse,
-  DisplayTrendDetailResponse,
-  DisplayResultResponse,
+  CategoryTabResponse,
+  MainHotpickResponse,
+  HotpickDetailResponse,
 } from '@/generated/models';
+import { getTKUID } from '@/lib/tkuid';
 
 /**
  * 서버/클라이언트 환경 구분 유틸리티
@@ -24,14 +25,13 @@ const isServer = () => typeof window === 'undefined';
  */
 export const displayKeys = {
   all: ['display'] as const,
-  main: (params?: { size?: number; cursor?: number; sort?: 'latest' | 'popular' }) =>
+  categories: () => [...displayKeys.all, 'categories'] as const,
+  main: (params?: { size?: number; cursor?: number }) =>
     [...displayKeys.all, 'main', params] as const,
-  mainInfinite: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
+  mainInfinite: (params?: { size?: number; category?: string }) =>
     [...displayKeys.all, 'mainInfinite', params] as const,
-  trend: (alias: string) => [...displayKeys.all, 'trend', alias] as const,
+  hotpick: (slug: string) => [...displayKeys.all, 'hotpick', slug] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
-  navigation: (alias: string, sort?: string) =>
-    [...displayKeys.all, 'navigation', alias, sort] as const,
 };
 
 /**
@@ -39,76 +39,98 @@ export const displayKeys = {
  */
 export const displayQueries = {
   /**
-   * 메인 전시 쿼리 옵션
+   * 카테고리 탭 목록 쿼리 옵션
    */
-  main: (params?: { size?: number; cursor?: number; sort?: 'latest' | 'popular' }) =>
-    queryOptions<DisplayMainResponse | null>({
-      queryKey: displayKeys.main(params),
+  categories: () =>
+    queryOptions<CategoryTabResponse[] | null>({
+      queryKey: displayKeys.categories(),
       queryFn: async () => {
         if (isServer()) {
-          const response = await serverApi.getMainDisplay(params, { next: { revalidate: 60 } });
-          return response.status === 200 ? (response.data.data ?? null) : null;
-        }
-        return clientApi.getMainDisplay(params);
-      },
-      staleTime: 60 * 1000,
-    }),
-
-  /**
-   * 트렌드 상세 쿼리 옵션
-   */
-  trend: (trendAlias: string) =>
-    queryOptions<DisplayTrendDetailResponse | null>({
-      queryKey: displayKeys.trend(trendAlias),
-      queryFn: async () => {
-        if (isServer()) {
-          const response = await serverApi.getTrendDetail(trendAlias, { next: { revalidate: 60 } });
-          return response.status === 200 ? (response.data.data ?? null) : null;
-        }
-        return clientApi.getTrendDetail(trendAlias);
-      },
-      staleTime: 60 * 1000,
-    }),
-
-  /**
-   * 결과 상세 쿼리 옵션
-   */
-  result: (resultId: string) =>
-    queryOptions<DisplayResultResponse | null>({
-      queryKey: displayKeys.result(resultId),
-      queryFn: async () => {
-        if (isServer()) {
-          const response = await serverApi.getResultDetail(resultId, {
-            next: { revalidate: 3600 },
+          const response = await serverApi.getCategories1(undefined, {
+            next: { revalidate: 300 },
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getResultDetail(resultId);
+        return clientApi.getCategories1();
       },
+      staleTime: 5 * 60 * 1000,
+    }),
+
+  /**
+   * 메인 전시 쿼리 옵션
+   */
+  main: (params?: { size?: number; cursor?: number }) =>
+    queryOptions<MainHotpickResponse | null>({
+      queryKey: displayKeys.main(params),
+      queryFn: async () => {
+        if (isServer()) {
+          const response = await serverApi.getMain(params, { next: { revalidate: 60 } });
+          return response.status === 200 ? (response.data.data ?? null) : null;
+        }
+        return clientApi.getMain(params);
+      },
+      staleTime: 60 * 1000,
+    }),
+
+  /**
+   * 핫픽 상세 쿼리 옵션
+   */
+  hotpick: (slug: string) =>
+    queryOptions<HotpickDetailResponse | null>({
+      queryKey: displayKeys.hotpick(slug),
+      queryFn: async () => {
+        if (isServer()) {
+          const response = await serverApi.getDetail(slug, {
+            next: { revalidate: 60 },
+          });
+          return response.status === 200 ? (response.data.data ?? null) : null;
+        }
+        const tkuId = getTKUID();
+        return clientApi.getDetail(slug, {
+          headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+        });
+      },
+      staleTime: 60 * 1000,
+    }),
+
+  /**
+   * 결과 상세 쿼리 옵션 (BUNDLE 전용 — 현재 스텁)
+   */
+  result: (resultId: string) =>
+    queryOptions<null>({
+      queryKey: displayKeys.result(resultId),
+      queryFn: () => null,
       staleTime: 60 * 60 * 1000,
     }),
 
   /**
    * 메인 전시 무한 스크롤 쿼리 옵션
    */
-  infiniteMain: (params?: { size?: number; sort?: 'latest' | 'popular' }) =>
+  infiniteMain: (params?: { size?: number; category?: string }) =>
     infiniteQueryOptions<
-      DisplayMainResponse | null,
+      MainHotpickResponse | null,
       Error,
-      InfiniteData<DisplayMainResponse | null>,
+      InfiniteData<MainHotpickResponse | null>,
       ReturnType<typeof displayKeys.mainInfinite>,
       number | undefined
     >({
       queryKey: displayKeys.mainInfinite(params),
       queryFn: async ({ pageParam }) => {
-        const queryParams = { ...params, cursor: pageParam, size: params?.size ?? 20 };
+        const queryParams = {
+          category: params?.category,
+          cursor: pageParam,
+          size: params?.size ?? 20,
+        };
         if (isServer()) {
-          const response = await serverApi.getMainDisplay(queryParams, {
+          const response = await serverApi.getMain(queryParams, {
             next: { revalidate: 60 },
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        return clientApi.getMainDisplay(queryParams);
+        const tkuId = getTKUID();
+        return clientApi.getMain(queryParams, {
+          headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+        });
       },
       initialPageParam: undefined,
       getNextPageParam: (lastPage) => (lastPage?.hasMore ? lastPage.nextCursor : undefined),
@@ -117,26 +139,30 @@ export const displayQueries = {
 };
 
 /**
+ * 카테고리 탭 목록 Hook
+ */
+export const useCategories = () => useQuery(displayQueries.categories());
+
+/**
  * 메인 전시 Hook
  */
-export const useMainDisplay = (params?: {
-  size?: number;
-  cursor?: number;
-  sort?: 'latest' | 'popular';
-}) => useQuery(displayQueries.main(params));
+export const useMainDisplay = (params?: { size?: number; cursor?: number }) =>
+  useQuery(displayQueries.main(params));
 
 /**
  * 메인 전시 무한 스크롤 Hook
  */
 export const useInfiniteMainDisplay = (params?: {
   size?: number;
-  sort?: 'latest' | 'popular';
-  initialData?: DisplayMainResponse;
+  category?: string;
+  initialData?: MainHotpickResponse;
 }) => {
-  const { initialData: initData, ...queryParams } = params ?? {};
+  const { initialData: initData, ...queryKeyParams } = params ?? {};
+
+  const baseOptions = displayQueries.infiniteMain(queryKeyParams);
 
   return useInfiniteQuery({
-    ...displayQueries.infiniteMain(queryParams),
+    ...baseOptions,
     initialData: initData
       ? {
           pages: [initData],
@@ -147,24 +173,15 @@ export const useInfiniteMainDisplay = (params?: {
 };
 
 /**
- * 트렌드 상세 Hook
+ * 핫픽 상세 Hook
+ * - staleTime: 0으로 설정하여 서버 dehydrate 데이터(x-tku-id 없음)를
+ *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
-export const useTrendDetail = (trendAlias: string) =>
-  useQuery({ ...displayQueries.trend(trendAlias), enabled: !!trendAlias });
+export const useHotpickDetail = (slug: string) =>
+  useQuery({ ...displayQueries.hotpick(slug), enabled: !!slug, staleTime: 0 });
 
 /**
- * 결과 상세 Hook
+ * 결과 상세 Hook (BUNDLE 전용 — 스텁)
  */
 export const useResultDetail = (resultId: string) =>
   useQuery({ ...displayQueries.result(resultId), enabled: !!resultId });
-
-/**
- * 트렌드 네비게이션 Hook
- */
-export const useTrendNavigation = (trendAlias: string, sort?: 'latest' | 'popular') =>
-  useQuery({
-    queryKey: displayKeys.navigation(trendAlias, sort),
-    queryFn: () => clientApi.getTrendNavigation(trendAlias, { sort }),
-    enabled: !!trendAlias,
-    staleTime: 60 * 1000,
-  });

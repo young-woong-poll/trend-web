@@ -10,7 +10,7 @@ import type { CommentItem } from './commentItem';
  * 응답 데이터
  */
 export interface CommentListResponse {
-  totalSize?: number;
-  nextId?: string;
+  totalCount?: number;
+  nextCursor?: string;
   comments?: CommentItem[];
 }

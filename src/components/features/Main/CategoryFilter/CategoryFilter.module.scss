@@ -1,0 +1,39 @@
+@use 'sass:color';
+@use '@/styles/variables' as *;
+
+.container {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  padding: 4px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: $border-rounded;
+  background: $bg-tertiary;
+  border: 1px solid $border-placeholder;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chipActive {
+  background: $primary-gradient;
+  border-color: transparent;
+  color: $white;
+  font-weight: $font-weight-semibold;
+  box-shadow: 0 0 0 1px rgba($primary-start, 0.4);
+}

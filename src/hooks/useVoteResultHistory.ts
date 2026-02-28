@@ -4,7 +4,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import {
   MAX_RESULT_HISTORY_ITEMS,
   STORAGE_KEYS,
-  type VoteResultHistoryItem,
+  type HotpickResultHistoryItem,
 } from '@/types/localStorage';
 
 /**
@@ -12,8 +12,8 @@ import {
  * - localStorage에 결과 조회 기록을 저장/관리
  * - 중복 방지, 최대 개수 제한 적용
  */
-export function useVoteResultHistory() {
-  const [history, setHistory] = useLocalStorage<VoteResultHistoryItem[]>(
+export function useHotpickResultHistory() {
+  const [history, setHistory] = useLocalStorage<HotpickResultHistoryItem[]>(
     STORAGE_KEYS.VOTE_RESULT_HISTORY,
     []
   );
@@ -23,19 +23,19 @@ export function useVoteResultHistory() {
    * - 이미 존재하는 경우 타임스탬프 업데이트 후 최상단으로 이동
    */
   const addToHistory = useCallback(
-    (item: Omit<VoteResultHistoryItem, 'viewedAt'>) => {
+    (item: Omit<HotpickResultHistoryItem, 'viewedAt'>) => {
       setHistory((prev) => {
-        // 중복 체크: 같은 trendAlias + resultId 조합이 있는지 확인
+        // 중복 체크: 같은 hotpickAlias + resultId 조합이 있는지 확인
         const existingIndex = prev.findIndex(
-          (h) => h.trendAlias === item.trendAlias && h.resultId === item.resultId
+          (h) => h.hotpickAlias === item.hotpickAlias && h.resultId === item.resultId
         );
 
-        const newItem: VoteResultHistoryItem = {
+        const newItem: HotpickResultHistoryItem = {
           ...item,
           viewedAt: new Date().toISOString(),
         };
 
-        let updated: VoteResultHistoryItem[];
+        let updated: HotpickResultHistoryItem[];
 
         if (existingIndex !== -1) {
           // 이미 존재하면 해당 항목 제거 후 맨 앞에 추가 (최근 조회로 업데이트)
@@ -56,8 +56,8 @@ export function useVoteResultHistory() {
    * 특정 결과가 히스토리에 있는지 확인
    */
   const isInHistory = useCallback(
-    (trendAlias: string, resultId: string) =>
-      history.some((h) => h.trendAlias === trendAlias && h.resultId === resultId),
+    (hotpickAlias: string, resultId: string) =>
+      history.some((h) => h.hotpickAlias === hotpickAlias && h.resultId === resultId),
     [history]
   );
 
@@ -72,9 +72,9 @@ export function useVoteResultHistory() {
    * 특정 항목 삭제
    */
   const removeFromHistory = useCallback(
-    (trendAlias: string, resultId: string) => {
+    (hotpickAlias: string, resultId: string) => {
       setHistory((prev) =>
-        prev.filter((h) => !(h.trendAlias === trendAlias && h.resultId === resultId))
+        prev.filter((h) => !(h.hotpickAlias === hotpickAlias && h.resultId === resultId))
       );
     },
     [setHistory]
