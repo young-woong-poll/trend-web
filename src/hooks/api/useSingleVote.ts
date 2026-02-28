@@ -62,7 +62,8 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
                         myElectionItemId: updated.myChoiceId
                           ? Number(updated.myChoiceId)
                           : undefined,
-                        totalVoteCount: updated.totalVotes ?? hotpick.election.totalVoteCount,
+                        totalVoteCount:
+                          updated.totalVotes ?? (hotpick.election.totalVoteCount ?? 0) + 1,
                         items: (hotpick.election.items ?? []).map((item) => {
                           const updatedOpt = updated.options.find(
                             (o) => o.id === String(item.electionItemId)
@@ -101,18 +102,19 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
       }
 
       // 낙관적 업데이트
+      // 투표 전에는 voteCount/totalVotes가 null이므로 개별 합산하면 안 됨
+      // updater에서 원본 election.totalVoteCount를 활용하도록 null로 전달
       const newOptions = singleVote.options.map((opt) => ({
         ...opt,
-        voteCount: opt.id === optionId ? (opt.voteCount ?? 0) + 1 : (opt.voteCount ?? 0),
+        voteCount: opt.id === optionId ? (opt.voteCount ?? 0) + 1 : opt.voteCount,
       }));
-      const newTotalVotes = newOptions.reduce((sum, opt) => sum + (opt.voteCount ?? 0), 0);
 
       updateCacheOptimistically(slug, () => ({
         ...singleVote,
         options: newOptions,
         voted: true,
         myChoiceId: optionId,
-        totalVotes: newTotalVotes,
+        totalVotes: null,
       }));
 
       pendingRef.current.add(slug);

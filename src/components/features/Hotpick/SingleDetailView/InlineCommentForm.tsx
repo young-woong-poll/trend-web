@@ -3,14 +3,7 @@
 import { useRef, useState, type FC } from 'react';
 
 import styles from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm.module.scss';
-import { useModal } from '@/contexts/ModalContext';
-import { useCreateComment } from '@/hooks/api/useComment';
-import {
-  isValidNicknameCharacters,
-  NICKNAME_MAX_LENGTH,
-  sanitizeComment,
-  validateNickname,
-} from '@/lib/utils';
+import { useCommentForm, COMMENT_FORM_LIMITS } from '@/hooks/useCommentForm';
 
 interface InlineCommentFormProps {
   slug: string;
@@ -18,24 +11,30 @@ interface InlineCommentFormProps {
   onSuccess: () => void;
 }
 
-const COMMENT_MAX_LENGTH = 200;
-const PASSWORD_MIN_LENGTH = 4;
-const PASSWORD_MAX_LENGTH = 15;
-
 export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId, onSuccess }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
-  const [content, setContent] = useState('');
-  const [errors, setErrors] = useState<{
-    nickname?: boolean;
-    password?: boolean;
-    content?: boolean;
-  }>({});
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { showToast } = useModal();
-  const { mutate: createComment, isPending } = useCreateComment();
+
+  const {
+    nickname,
+    password,
+    content,
+    errors,
+    isPending,
+    handleNicknameChange,
+    handleNicknameBlur,
+    handlePasswordChange,
+    handleContentChange: baseHandleContentChange,
+    handleSubmit,
+    resetForm,
+  } = useCommentForm({
+    slug,
+    electionId,
+    onSuccess: () => {
+      setIsExpanded(false);
+      onSuccess();
+    },
+  });
 
   const handleFocus = () => {
     setIsExpanded(true);
@@ -43,40 +42,11 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
 
   const handleCancel = () => {
     setIsExpanded(false);
-    setNickname('');
-    setPassword('');
-    setContent('');
-    setErrors({});
-  };
-
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    if (value.length > NICKNAME_MAX_LENGTH) {
-      value = value.slice(0, NICKNAME_MAX_LENGTH);
-    }
-    if (value && !isValidNicknameCharacters(value)) {
-      return;
-    }
-    setNickname(value);
-    setErrors((prev) => ({ ...prev, nickname: false }));
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-    if (value.length > PASSWORD_MAX_LENGTH) {
-      value = value.slice(0, PASSWORD_MAX_LENGTH);
-    }
-    setPassword(value);
-    setErrors((prev) => ({ ...prev, password: false }));
+    resetForm();
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let value = e.target.value;
-    if (value.length > COMMENT_MAX_LENGTH) {
-      value = value.slice(0, COMMENT_MAX_LENGTH);
-    }
-    setContent(value);
-    setErrors((prev) => ({ ...prev, content: false }));
+    baseHandleContentChange(e);
 
     // Auto-resize textarea
     const textarea = textareaRef.current;
@@ -84,57 +54,6 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
       textarea.style.height = 'auto';
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
-  };
-
-  const handleSubmit = () => {
-    const trimmedNickname = nickname.trim();
-    const trimmedPassword = password.trim();
-    const trimmedContent = sanitizeComment(content);
-
-    if (!trimmedContent) {
-      setErrors({ content: true });
-      showToast('댓글 내용을 입력해주세요');
-      return;
-    }
-
-    const nicknameValidation = validateNickname(trimmedNickname);
-    if (!nicknameValidation.isValid) {
-      setErrors({ nickname: true });
-      showToast(nicknameValidation.error || '닉네임을 입력해주세요');
-      return;
-    }
-
-    if (!trimmedPassword) {
-      setErrors({ password: true });
-      showToast('비밀번호를 입력해주세요');
-      return;
-    }
-
-    if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
-      setErrors({ password: true });
-      showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
-      return;
-    }
-
-    createComment(
-      {
-        slug,
-        electionId,
-        nickname: trimmedNickname,
-        password: trimmedPassword,
-        content: trimmedContent,
-      },
-      {
-        onSuccess: () => {
-          handleCancel();
-          onSuccess();
-        },
-        onError: (error) => {
-          showToast('댓글 작성에 실패했습니다');
-          console.error('Failed to create comment:', error);
-        },
-      }
-    );
   };
 
   const hasContent = content.trim().length > 0;
@@ -148,7 +67,7 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
         value={content}
         onChange={handleContentChange}
         onFocus={handleFocus}
-        maxLength={COMMENT_MAX_LENGTH}
+        maxLength={COMMENT_FORM_LIMITS.COMMENT_MAX_LENGTH}
         rows={1}
         disabled={isPending}
       />
@@ -162,8 +81,8 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
               placeholder="닉네임"
               value={nickname}
               onChange={handleNicknameChange}
-              onBlur={() => setNickname(nickname.trim())}
-              maxLength={NICKNAME_MAX_LENGTH}
+              onBlur={handleNicknameBlur}
+              maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
               disabled={isPending}
             />
             <input
@@ -172,7 +91,7 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
               placeholder="비밀번호"
               value={password}
               onChange={handlePasswordChange}
-              maxLength={PASSWORD_MAX_LENGTH}
+              maxLength={COMMENT_FORM_LIMITS.PASSWORD_MAX_LENGTH}
               disabled={isPending}
               autoComplete="new-password"
               data-1p-ignore
@@ -181,7 +100,7 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
           </div>
           <div className={styles.formActions}>
             <span className={styles.charCount}>
-              {content.length}/{COMMENT_MAX_LENGTH}
+              {content.length}/{COMMENT_FORM_LIMITS.COMMENT_MAX_LENGTH}
             </span>
             <div className={styles.actionButtons}>
               <button
