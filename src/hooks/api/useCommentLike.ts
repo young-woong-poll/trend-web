@@ -25,13 +25,16 @@ export const useCommentLike = (
   options?: UseCommentLikeOptions
 ) => {
   const queryClient = useQueryClient();
-  const queryKey = commentKeys.list(slug, electionId, sort);
+  const allSorts: Array<'latest' | 'popular'> = ['latest', 'popular'];
 
-  const handleLikeClick = useCallback(
-    async (commentId: string, currentLiked: boolean) => {
-      // 낙관적 업데이트
-      const previousData = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (old: { pages: CommentListResponse[] } | undefined) => {
+  /** 모든 sort 캐시에 대해 댓글 좋아요 상태를 업데이트 */
+  const updateAllSortCaches = (
+    commentId: string,
+    updater: (comment: CommentItem) => CommentItem
+  ) => {
+    for (const s of allSorts) {
+      const key = commentKeys.list(slug, electionId, s);
+      queryClient.setQueryData(key, (old: { pages: CommentListResponse[] } | undefined) => {
         if (!old) {
           return old;
         }
@@ -40,17 +43,28 @@ export const useCommentLike = (
           pages: old.pages.map((page) => ({
             ...page,
             comments: (page.comments ?? []).map((comment: CommentItem) =>
-              comment.id === commentId
-                ? {
-                    ...comment,
-                    liked: !currentLiked,
-                    likeCount: (comment.likeCount ?? 0) + (currentLiked ? -1 : 1),
-                  }
-                : comment
+              comment.id === commentId ? updater(comment) : comment
             ),
           })),
         };
       });
+    }
+  };
+
+  const handleLikeClick = useCallback(
+    async (commentId: string, currentLiked: boolean) => {
+      // 롤백용 스냅샷 (모든 sort)
+      const snapshots = allSorts.map((s) => ({
+        key: commentKeys.list(slug, electionId, s),
+        data: queryClient.getQueryData(commentKeys.list(slug, electionId, s)),
+      }));
+
+      // 낙관적 업데이트 — 모든 sort 캐시 반영
+      updateAllSortCaches(commentId, (comment) => ({
+        ...comment,
+        liked: !currentLiked,
+        likeCount: (comment.likeCount ?? 0) + (currentLiked ? -1 : 1),
+      }));
 
       try {
         const tkuId = getTKUID();
@@ -60,35 +74,22 @@ export const useCommentLike = (
           ? await unlikeComment(commentId, apiOptions)
           : await likeComment(commentId, apiOptions);
 
-        // 서버 응답으로 실제 값 갱신
+        // 서버 응답으로 실제 값 갱신 — 모든 sort 캐시 반영
         const likeResult = result as CommentLikeResponse;
-        queryClient.setQueryData(queryKey, (old: { pages: CommentListResponse[] } | undefined) => {
-          if (!old) {
-            return old;
-          }
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              comments: (page.comments ?? []).map((comment: CommentItem) =>
-                comment.id === commentId
-                  ? {
-                      ...comment,
-                      liked: likeResult.liked ?? !currentLiked,
-                      likeCount: likeResult.likeCount ?? comment.likeCount,
-                    }
-                  : comment
-              ),
-            })),
-          };
-        });
+        updateAllSortCaches(commentId, (comment) => ({
+          ...comment,
+          liked: likeResult.liked ?? !currentLiked,
+          likeCount: likeResult.likeCount ?? comment.likeCount,
+        }));
       } catch (error) {
-        // 롤백
-        queryClient.setQueryData(queryKey, previousData);
+        // 롤백 — 모든 sort 캐시 복원
+        for (const { key, data } of snapshots) {
+          queryClient.setQueryData(key, data);
+        }
         options?.onError?.(error);
       }
     },
-    [queryClient, queryKey, options]
+    [queryClient, slug, electionId, options]
   );
 
   return {

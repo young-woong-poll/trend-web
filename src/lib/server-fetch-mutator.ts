@@ -6,6 +6,7 @@
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
+const isMSW = process.env.ENABLE_MSW === 'true';
 
 type FetchOptions = RequestInit & {
   next?: { revalidate?: number | false; tags?: string[] };
@@ -15,12 +16,16 @@ export const serverFetchInstance = async <T>(url: string, options?: FetchOptions
   // URL이 상대 경로인 경우 API_URL을 앞에 붙임
   const fullUrl = url.startsWith('http') ? url : `${API_URL}${url}`;
 
-  const response = await fetch(fullUrl, {
+  // MSW 환경에서는 Next.js Data Cache를 비활성화하여 항상 MSW 핸들러를 사용
+  const fetchOptions: FetchOptions = {
     headers: {
       'Content-Type': 'application/json',
     },
     ...options,
-  });
+    ...(isMSW ? { cache: 'no-store' as const, next: undefined } : {}),
+  };
+
+  const response = await fetch(fullUrl, fetchOptions);
 
   // 응답 전체를 반환 (status, data, headers 포함)
   const data = await response.json();
