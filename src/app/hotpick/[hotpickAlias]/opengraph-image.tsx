@@ -30,12 +30,11 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
     const items = election?.items ?? [];
     const title = election?.title ?? '';
     const totalVotes = election?.totalVoteCount ?? 0;
-    const electionImage = election?.imageUrl;
     const optionA = items[0]?.title ?? '';
     const optionB = items[1]?.title ?? '';
     const imageA = items[0]?.imageUrl;
     const imageB = items[1]?.imageUrl;
-    const hasOptionImages = !!imageA && !!imageB;
+    const hasImages = !!imageA && !!imageB;
 
     return new ImageResponse(
       (
@@ -50,7 +49,7 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
             fontFamily: '"Noto Sans KR"',
           }}
         >
-          {/* Header: Logo */}
+          {/* Header: Logo Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoUrl}
@@ -64,163 +63,134 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
           <div
             style={{
               display: 'flex',
-              flexDirection: electionImage ? 'row' : 'column',
+              flexDirection: 'column',
               flex: 1,
               marginTop: '28px',
               backgroundColor: '#1e1e1e',
               borderRadius: '16px',
               border: '1px solid #555555',
-              overflow: 'hidden',
+              padding: '36px 44px',
             }}
           >
-            {/* election.imageUrl이 있으면 왼쪽에 대표 이미지 */}
-            {electionImage && (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={electionImage}
-                alt={title}
-                width="440"
-                height="500"
-                style={{
-                  width: '440px',
-                  height: '100%',
-                  objectFit: 'cover',
-                  flexShrink: 0,
-                }}
-              />
-            )}
+            {/* Question */}
+            <div
+              style={{
+                fontSize: '44px',
+                fontWeight: 700,
+                color: '#ffffff',
+                lineHeight: 1.3,
+                wordBreak: 'keep-all',
+              }}
+            >
+              {title}
+            </div>
 
-            {/* 오른쪽 (또는 전체) 콘텐츠 영역 */}
+            {/* Options with Images */}
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                gap: '20px',
                 flex: 1,
-                padding: '36px 44px',
-                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '24px',
               }}
             >
-              {/* Question */}
-              <div
-                style={{
-                  fontSize: electionImage ? '38px' : '44px',
-                  fontWeight: 700,
-                  color: '#ffffff',
-                  lineHeight: 1.3,
-                  wordBreak: 'keep-all',
-                }}
-              >
-                {title}
-              </div>
-
-              {/* Options */}
+              {/* Option A */}
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: electionImage ? 'column' : 'row',
-                  gap: electionImage ? '12px' : '20px',
-                  flex: electionImage ? undefined : 1,
-                  alignItems: electionImage ? 'stretch' : 'center',
-                  marginTop: '24px',
-                }}
-              >
-                {/* Option A */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: hasOptionImages && !electionImage ? 'column' : 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '14px',
-                    flex: 1,
-                    height: hasOptionImages && !electionImage ? '260px' : '70px',
-                    borderRadius: '14px',
-                    border: '2px solid #555555',
-                    backgroundColor: 'rgba(255, 0, 255, 0.06)',
-                    padding: hasOptionImages && !electionImage ? '16px' : '0 28px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {hasOptionImages && !electionImage && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={imageA}
-                      alt={optionA}
-                      width="480"
-                      height="160"
-                      style={{
-                        width: '100%',
-                        height: '160px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                      }}
-                    />
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '32px', fontWeight: 700, color: '#ff00ff' }}>A</span>
-                    <span style={{ fontSize: '32px', fontWeight: 600, color: '#ffffff' }}>
-                      {optionA}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Option B */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: hasOptionImages && !electionImage ? 'column' : 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '14px',
-                    flex: 1,
-                    height: hasOptionImages && !electionImage ? '260px' : '70px',
-                    borderRadius: '14px',
-                    border: '2px solid #555555',
-                    backgroundColor: 'rgba(255, 69, 0, 0.06)',
-                    padding: hasOptionImages && !electionImage ? '16px' : '0 28px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {hasOptionImages && !electionImage && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={imageB}
-                      alt={optionB}
-                      width="480"
-                      height="160"
-                      style={{
-                        width: '100%',
-                        height: '160px',
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                      }}
-                    />
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '32px', fontWeight: 700, color: '#ff4500' }}>B</span>
-                    <span style={{ fontSize: '32px', fontWeight: 600, color: '#ffffff' }}>
-                      {optionB}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div
-                style={{
-                  display: 'flex',
+                  flexDirection: hasImages ? 'column' : 'row',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginTop: '20px',
+                  justifyContent: 'center',
+                  gap: hasImages ? '14px' : '14px',
+                  flex: 1,
+                  height: hasImages ? '260px' : '90px',
+                  borderRadius: '14px',
+                  border: '2px solid #555555',
+                  backgroundColor: 'rgba(255, 0, 255, 0.06)',
+                  padding: hasImages ? '16px' : '0 28px',
+                  overflow: 'hidden',
                 }}
               >
-                <span style={{ fontSize: '28px', fontWeight: 500, color: '#8a8a8a' }}>
-                  {totalVotes > 0 ? `${totalVotes.toLocaleString()}명 참여` : '투표 진행 중'}
-                </span>
-                <span style={{ fontSize: '26px', fontWeight: 700, color: '#ff00ff' }}>
-                  투표하고 결과확인하기 →
-                </span>
+                {hasImages && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={imageA}
+                    alt={optionA}
+                    width="480"
+                    height="160"
+                    style={{
+                      width: '100%',
+                      height: '160px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                    }}
+                  />
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '36px', fontWeight: 700, color: '#ff00ff' }}>A</span>
+                  <span style={{ fontSize: '36px', fontWeight: 600, color: '#ffffff' }}>
+                    {optionA}
+                  </span>
+                </div>
               </div>
+
+              {/* Option B */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: hasImages ? 'column' : 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: hasImages ? '14px' : '14px',
+                  flex: 1,
+                  height: hasImages ? '260px' : '90px',
+                  borderRadius: '14px',
+                  border: '2px solid #555555',
+                  backgroundColor: 'rgba(255, 69, 0, 0.06)',
+                  padding: hasImages ? '16px' : '0 28px',
+                  overflow: 'hidden',
+                }}
+              >
+                {hasImages && (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={imageB}
+                    alt={optionB}
+                    width="480"
+                    height="160"
+                    style={{
+                      width: '100%',
+                      height: '160px',
+                      objectFit: 'cover',
+                      borderRadius: '8px',
+                    }}
+                  />
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '36px', fontWeight: 700, color: '#ff4500' }}>B</span>
+                  <span style={{ fontSize: '36px', fontWeight: 600, color: '#ffffff' }}>
+                    {optionB}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer: 참여 인원 + CTA */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginTop: '20px',
+              }}
+            >
+              <span style={{ fontSize: '30px', fontWeight: 500, color: '#8a8a8a' }}>
+                {totalVotes > 0 ? `${totalVotes.toLocaleString()}명 참여` : '투표 진행 중'}
+              </span>
+              <span style={{ fontSize: '28px', fontWeight: 700, color: '#ff00ff' }}>
+                투표하고 결과확인하기 →
+              </span>
             </div>
           </div>
         </div>
