@@ -7,14 +7,11 @@ export class MainPage {
   readonly singleCards: Locator;
   readonly bundleCards: Locator;
 
-  // SingleCard 내부 요소
+  // 마감 배지
   readonly closedBadges: Locator;
-  readonly resultBars: Locator;
-  readonly optionButtons: Locator;
-  readonly topCommentPreviews: Locator;
 
-  // BundleCard 내부 요소
-  readonly bundleClosedBadges: Locator;
+  // topComment 미리보기
+  readonly topCommentPreviews: Locator;
 
   // 댓글 바텀시트
   readonly commentBottomSheet: Locator;
@@ -22,21 +19,30 @@ export class MainPage {
   constructor(page: Page) {
     this.page = page;
 
-    this.singleCards = page.locator('[class*="SingleCard_card"]');
-    this.bundleCards = page.locator('[class*="BundleCard_card"]');
+    this.singleCards = page.getByTestId('single-card');
+    this.bundleCards = page.getByTestId('bundle-card');
 
-    this.closedBadges = page.locator('[class*="SingleCard_closedBadge"]');
-    this.resultBars = page.locator('[class*="SingleCard_resultBar"]');
-    this.optionButtons = page.locator('[class*="SingleCard_optionButton"]');
-    this.topCommentPreviews = page.locator('[class*="SingleCard_topCommentPreview"]');
+    this.closedBadges = page.getByTestId('closed-badge');
 
-    this.bundleClosedBadges = page.locator('[class*="BundleCard_closedBadge"]');
+    this.topCommentPreviews = page.getByTestId('top-comment-preview');
 
-    this.commentBottomSheet = page.locator('[class*="CommentBottomSheet_bottomSheet"]');
+    this.commentBottomSheet = page.getByTestId('comment-bottom-sheet');
   }
 
   async goto() {
     await this.page.goto('/');
-    await this.page.waitForLoadState('networkidle');
+    // MSW mock 데이터 로딩 대기: 카드가 렌더링되거나 에러/빈 상태가 표시될 때까지
+    await this.page.waitForFunction(
+      () => {
+        return (
+          document.querySelector('[data-testid="single-card"]') !== null ||
+          document.querySelector('[data-testid="bundle-card"]') !== null ||
+          document.body.textContent?.includes('실패') === true ||
+          document.body.textContent?.includes('에러') === true ||
+          document.body.textContent?.includes('핫픽이 없어요') === true
+        );
+      },
+      { timeout: 30_000 }
+    );
   }
 }

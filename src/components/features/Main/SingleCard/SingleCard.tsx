@@ -79,7 +79,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   return (
-    <div className={`${styles.card} ${isClosed ? styles.closed : ''}`}>
+    <div className={`${styles.card} ${isClosed ? styles.closed : ''}`} data-testid="single-card">
       {/* 상단: 카테고리 + 공유 */}
       <div className={styles.topRow}>
         <div className={styles.categoryRow}>
@@ -91,7 +91,11 @@ export const SingleCard: FC<SingleCardProps> = ({
           ))}
         </div>
         <div className={styles.actionButtons}>
-          {isClosed && <span className={styles.closedBadge}>마감</span>}
+          {isClosed && (
+            <span className={styles.closedBadge} data-testid="closed-badge">
+              마감
+            </span>
+          )}
           <button
             type="button"
             className={styles.iconButton}
@@ -251,6 +255,7 @@ export const SingleCard: FC<SingleCardProps> = ({
         <button
           type="button"
           className={styles.topCommentPreview}
+          data-testid="top-comment-preview"
           onClick={(e) => {
             e.stopPropagation();
             onComment(alias, singleVote.electionId);

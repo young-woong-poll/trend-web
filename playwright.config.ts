@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const PORT = process.env.CI ? 3002 : 3099;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -10,7 +12,7 @@ export default defineConfig({
   timeout: 30_000,
 
   use: {
-    baseURL: 'http://localhost:3002',
+    baseURL: `http://localhost:${PORT}`,
     trace: 'on-first-retry',
     permissions: ['clipboard-write', 'clipboard-read'],
   },
@@ -25,9 +27,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'pnpm next dev --turbo --port 3002',
-    url: 'http://localhost:3002',
+    command: `NEXT_PUBLIC_ENABLE_MSW=true ENABLE_MSW=true pnpm next dev --turbo --port ${PORT}`,
+    url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
+    timeout: 120_000,
   },
 });

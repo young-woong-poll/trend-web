@@ -106,7 +106,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   };
 
   return (
-    <div className={styles.commentSection}>
+    <div className={styles.commentSection} data-testid="comment-section">
       {/* 헤더 */}
       <div className={styles.commentHeader}>
         <h2 className={styles.commentTitle}>

@@ -90,7 +90,7 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   return (
     <Portal>
       <div className={styles.dimmed} onClick={handleDimmedClick}>
-        <div className={styles.bottomSheet}>
+        <div className={styles.bottomSheet} data-testid="comment-bottom-sheet">
           {/* 헤더 */}
           <div className={styles.header}>
             <div className={styles.titleRow}>
