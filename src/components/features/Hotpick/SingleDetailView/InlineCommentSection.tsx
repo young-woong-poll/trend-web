@@ -12,10 +12,10 @@ import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal
 import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { useInfiniteComments, useDeleteComment } from '@/hooks/api';
+import { useInfiniteComments } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
+import { useCommentActions } from '@/hooks/useCommentActions';
 import { getTKUID } from '@/lib/tkuid';
-import type { CommentItem } from '@/types/comment';
 
 interface InlineCommentSectionProps {
   slug: string;
@@ -41,76 +41,24 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
   const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
 
-  // ── 댓글 수정/삭제 상태 ──
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
-  const [editToken, setEditToken] = useState('');
-  const [actionType, setActionType] = useState<'edit' | 'delete'>('edit');
-
-  const { showToast, showConfirm } = useModal();
-  const { mutate: deleteComment } = useDeleteComment();
+  const { showToast } = useModal();
   const { handleLikeClick } = useCommentLike(slug, electionId, sort, {
     onError: () => showToast('좋아요 처리에 실패했습니다'),
   });
 
+  const {
+    selectedComment,
+    editToken,
+    isPasswordModalOpen,
+    isEditModalOpen,
+    handleEditRequest,
+    handleDeleteRequest,
+    handlePasswordVerified,
+    handlePasswordModalClose,
+    handleEditModalClose,
+  } = useCommentActions({ slug, electionId });
+
   const comments = data?.pages.flatMap((page) => page.comments ?? []) ?? [];
-
-  // ── 핸들러 ──
-  const handleEditRequest = (comment: CommentItem) => {
-    setSelectedComment(comment);
-    setActionType('edit');
-    setIsPasswordModalOpen(true);
-  };
-
-  const handleDeleteRequest = (comment: CommentItem) => {
-    setSelectedComment(comment);
-    setActionType('delete');
-    setIsPasswordModalOpen(true);
-  };
-
-  const handlePasswordVerified = (token: string) => {
-    setEditToken(token);
-    setIsPasswordModalOpen(false);
-
-    if (actionType === 'edit') {
-      setIsEditModalOpen(true);
-      return;
-    }
-
-    if (actionType === 'delete') {
-      showConfirm('댓글 삭제', {
-        message: '정말로 이 댓글을 삭제하시겠습니까?',
-        confirmText: '삭제',
-        cancelText: '취소',
-        onConfirm: () => {
-          if (!selectedComment) {
-            return;
-          }
-          deleteComment(
-            {
-              commentId: selectedComment.id ?? '',
-              slug,
-              electionId,
-              data: { verifyToken: token },
-            },
-            {
-              onSuccess: () => {
-                showToast('댓글이 삭제되었습니다');
-                setSelectedComment(null);
-                setEditToken('');
-              },
-              onError: () => showToast('댓글 삭제에 실패했습니다'),
-            }
-          );
-        },
-        onCancel: () => {
-          setSelectedComment(null);
-          setEditToken('');
-        },
-      });
-    }
-  };
 
   const handleCommentSuccess = () => {
     setSort('latest');
@@ -123,18 +71,12 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
     }
 
     if (isError) {
-      return (
-        <p style={{ color: 'var(--text-tertiary)', textAlign: 'center' }}>
-          댓글을 불러오는데 실패했습니다.
-        </p>
-      );
+      return <p className={styles.commentDisabledHint}>댓글을 불러오는데 실패했습니다.</p>;
     }
 
     if (comments.length === 0) {
       return (
-        <p style={{ color: 'var(--text-tertiary)', textAlign: 'center', padding: '16px 0' }}>
-          아직 댓글이 없습니다. 첫 댓글을 작성해보세요!
-        </p>
+        <p className={styles.commentDisabledHint}>아직 댓글이 없습니다. 첫 댓글을 작성해보세요!</p>
       );
     }
 
@@ -193,7 +135,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
         </div>
       </div>
 
-      {/* 댓글 작성 폼 (목록 위에 배치) */}
+      {/* 댓글 작성 폼 */}
       <div className={styles.commentFormArea}>
         {canViewComments ? (
           <InlineCommentForm slug={slug} electionId={electionId} onSuccess={handleCommentSuccess} />
@@ -202,7 +144,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
         )}
       </div>
 
-      {/* 댓글 목록 (투표 전 플레이스홀더 / 무한 확장) */}
+      {/* 댓글 목록 */}
       {!canViewComments ? (
         <div className={styles.commentBlurPlaceholder}>
           <div className={styles.fakeLine} />
@@ -225,10 +167,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
       {selectedComment && (
         <CommentPasswordModal
           isOpen={isPasswordModalOpen}
-          onClose={() => {
-            setIsPasswordModalOpen(false);
-            setSelectedComment(null);
-          }}
+          onClose={handlePasswordModalClose}
           commentId={selectedComment.id ?? ''}
           onVerified={handlePasswordVerified}
         />
@@ -238,11 +177,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
       {selectedComment && (
         <CommentEditModal
           isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedComment(null);
-            setEditToken('');
-          }}
+          onClose={handleEditModalClose}
           comment={selectedComment}
           editToken={editToken}
           slug={slug}

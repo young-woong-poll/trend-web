@@ -9,7 +9,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import CommentIcon from '@/assets/icon/CommentIcon';
 import styles from '@/components/features/Hotpick/VoteCard/VoteCard.module.scss';
 import { useHotpickElectionOptionsCount } from '@/hooks/api/useHotpick';
+import { formatCount } from '@/lib/utils';
 import type { VoteType } from '@/types/hotpick';
+import { OPTION_LABELS } from '@/types/singleVote';
 
 /** 투표 옵션 (구 DisplayTrendOptionResponse 대체) */
 interface VoteOption {
@@ -53,15 +55,6 @@ const fadeInVariants = {
     opacity: 1,
     transition: { delay: 0.25, duration: 0.2 },
   },
-};
-
-const OPTION_LABELS = ['A', 'B', 'C', 'D'] as const;
-
-const formatCount = (count: number): string => {
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
 };
 
 export const VoteCard: FC<VoteCardProps> = ({

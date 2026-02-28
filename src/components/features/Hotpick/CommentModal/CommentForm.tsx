@@ -1,16 +1,9 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import type { FC } from 'react';
 
 import styles from '@/components/features/Hotpick/CommentModal/CommentForm.module.scss';
-import { useModal } from '@/contexts/ModalContext';
-import { useCreateComment } from '@/hooks/api/useComment';
-import {
-  validateNickname,
-  isValidNicknameCharacters,
-  NICKNAME_MAX_LENGTH,
-  sanitizeComment,
-} from '@/lib/utils';
+import { useCommentForm, COMMENT_FORM_LIMITS } from '@/hooks/useCommentForm';
 
 interface CommentFormProps {
   slug: string;
@@ -18,129 +11,19 @@ interface CommentFormProps {
   onSuccess: () => void;
 }
 
-const COMMENT_MAX_LENGTH = 200;
-const PASSWORD_MIN_LENGTH = 4;
-const PASSWORD_MAX_LENGTH = 15;
-
 export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess }) => {
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
-  const [content, setContent] = useState('');
-  const [errors, setErrors] = useState<{
-    nickname?: boolean;
-    password?: boolean;
-    content?: boolean;
-  }>({});
-
-  const { showToast } = useModal();
-  const { mutate: createComment, isPending } = useCreateComment();
-
-  // 닉네임 변경 핸들러
-  const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-
-    // 최대 길이 제한
-    if (value.length > NICKNAME_MAX_LENGTH) {
-      value = value.slice(0, NICKNAME_MAX_LENGTH);
-    }
-
-    // 문자 유효성 검사
-    if (value && !isValidNicknameCharacters(value)) {
-      return;
-    }
-
-    setNickname(value);
-    setErrors((prev) => ({ ...prev, nickname: false }));
-  };
-
-  // 비밀번호 변경 핸들러
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value;
-
-    // 최대 길이 제한
-    if (value.length > PASSWORD_MAX_LENGTH) {
-      value = value.slice(0, PASSWORD_MAX_LENGTH);
-    }
-
-    setPassword(value);
-    setErrors((prev) => ({ ...prev, password: false }));
-  };
-
-  // 댓글 내용 변경 핸들러
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let value = e.target.value;
-
-    // 최대 길이 제한
-    if (value.length > COMMENT_MAX_LENGTH) {
-      value = value.slice(0, COMMENT_MAX_LENGTH);
-    }
-
-    setContent(value);
-    setErrors((prev) => ({ ...prev, content: false }));
-  };
-
-  // 게시 버튼 클릭 핸들러
-  const handleSubmit = () => {
-    // 유효성 검증
-    const trimmedNickname = nickname.trim();
-    const trimmedPassword = password.trim();
-    const trimmedContent = sanitizeComment(content);
-
-    // 댓글 내용 검증
-    if (!trimmedContent) {
-      setErrors({ content: true });
-      showToast('댓글 내용을 입력해주세요');
-      return;
-    }
-
-    // 닉네임 검증
-    const nicknameValidation = validateNickname(trimmedNickname);
-    if (!nicknameValidation.isValid) {
-      setErrors({ nickname: true });
-      showToast(nicknameValidation.error || '닉네임을 입력해주세요');
-      return;
-    }
-
-    // 비밀번호 검증
-    if (!trimmedPassword) {
-      setErrors({ password: true });
-      showToast('비밀번호를 입력해주세요');
-      return;
-    }
-
-    if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
-      setErrors({ password: true });
-      showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
-      return;
-    }
-
-    // 댓글 작성 API 호출
-    createComment(
-      {
-        slug,
-        electionId,
-        nickname: trimmedNickname,
-        password: trimmedPassword,
-        content: trimmedContent,
-      },
-      {
-        onSuccess: () => {
-          // 폼 초기화
-          setNickname('');
-          setPassword('');
-          setContent('');
-          setErrors({});
-
-          // 부모 컴포넌트에 성공 알림
-          onSuccess();
-        },
-        onError: (error) => {
-          showToast('댓글 작성에 실패했습니다');
-          console.error('Failed to create comment:', error);
-        },
-      }
-    );
-  };
+  const {
+    nickname,
+    password,
+    content,
+    errors,
+    isPending,
+    handleNicknameChange,
+    handleNicknameBlur,
+    handlePasswordChange,
+    handleContentChange,
+    handleSubmit,
+  } = useCommentForm({ slug, electionId, onSuccess });
 
   return (
     <div className={styles.commentForm}>
@@ -151,12 +34,12 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
           placeholder="댓글을 입력하세요..."
           value={content}
           onChange={handleContentChange}
-          maxLength={COMMENT_MAX_LENGTH}
+          maxLength={COMMENT_FORM_LIMITS.COMMENT_MAX_LENGTH}
           rows={2}
           disabled={isPending}
         />
         <span className={styles.charCount}>
-          {content.length}/{COMMENT_MAX_LENGTH}
+          {content.length}/{COMMENT_FORM_LIMITS.COMMENT_MAX_LENGTH}
         </span>
       </div>
 
@@ -168,8 +51,8 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
           placeholder="닉네임"
           value={nickname}
           onChange={handleNicknameChange}
-          onBlur={() => setNickname(nickname.trim())}
-          maxLength={NICKNAME_MAX_LENGTH}
+          onBlur={handleNicknameBlur}
+          maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
           disabled={isPending}
         />
         <input
@@ -178,7 +61,7 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
           placeholder="비밀번호"
           value={password}
           onChange={handlePasswordChange}
-          maxLength={PASSWORD_MAX_LENGTH}
+          maxLength={COMMENT_FORM_LIMITS.PASSWORD_MAX_LENGTH}
           disabled={isPending}
           autoComplete="new-password"
           data-1p-ignore

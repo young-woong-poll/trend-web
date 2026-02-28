@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef, type FC, type ReactNode } from 'react';
+import { useCallback, useState, type FC, type ReactNode } from 'react';
 
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
 import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
@@ -12,6 +12,7 @@ import type { CategoryFilterItem } from '@/constants/category';
 import { useModal } from '@/contexts/ModalContext';
 import type { MainHotpickResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
 type TMainViewProps = {
@@ -71,30 +72,11 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
     initialData: selectedCategory === null ? initialData : undefined,
   });
 
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  // 하향 무한스크롤
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const observerTarget = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage: () => void fetchNextPage(),
+  });
 
   const handleCategoryChange = useCallback((slug: string | null) => {
     setSelectedCategory(slug);

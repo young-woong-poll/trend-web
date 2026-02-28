@@ -12,6 +12,7 @@ import LinkIcon from '@/assets/icon/LinkIcon';
 import { Button } from '@/components/common/Button';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetailView/InlineCommentSection';
+import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { SingleRecommendSection } from '@/components/features/Hotpick/SingleDetailView/SingleRecommendSection';
 import {
@@ -92,67 +93,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   }, [hotpickAlias, showToast]);
 
   if (isLoading || !rawData || !hotpickCard || !election) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.voteCard}>
-          {/* 카테고리 + 마감 */}
-          <div className={styles.topRow}>
-            <div className={styles.categoryRow}>
-              <span
-                className={`${styles.categoryTag} ${styles.skeletonPulse}`}
-                style={{ width: 52, height: 18 }}
-              />
-              <span
-                className={`${styles.categoryTag} ${styles.skeletonPulse}`}
-                style={{ width: 40, height: 18 }}
-              />
-            </div>
-            <span
-              className={styles.skeletonPulse}
-              style={{ width: 64, height: 18, borderRadius: 9999 }}
-            />
-          </div>
-          {/* 질문 */}
-          <div className={styles.questionRow}>
-            <div
-              className={styles.skeletonPulse}
-              style={{ width: 48, height: 48, borderRadius: 8, flexShrink: 0 }}
-            />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div
-                className={styles.skeletonPulse}
-                style={{ width: '90%', height: 20, borderRadius: 6 }}
-              />
-              <div
-                className={styles.skeletonPulse}
-                style={{ width: '60%', height: 20, borderRadius: 6 }}
-              />
-            </div>
-          </div>
-          {/* 투표 버튼 */}
-          <div className={styles.voteArea}>
-            <div className={styles.buttonGroupTwo}>
-              <div className={styles.skeletonPulse} style={{ height: 52, borderRadius: 8 }} />
-              <div className={styles.skeletonPulse} style={{ height: 52, borderRadius: 8 }} />
-            </div>
-          </div>
-          {/* 메타 */}
-          <div className={styles.metaRow}>
-            <span
-              className={styles.skeletonPulse}
-              style={{ width: 80, height: 14, borderRadius: 6 }}
-            />
-          </div>
-          {/* CTA */}
-          <div className={styles.shareCta}>
-            <div
-              className={styles.skeletonPulse}
-              style={{ width: '100%', height: 48, borderRadius: 8 }}
-            />
-          </div>
-        </div>
-      </div>
-    );
+    return <SingleDetailSkeleton />;
   }
 
   return (
