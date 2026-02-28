@@ -1207,6 +1207,7 @@ function convertToHotpickDetail(detail: any): HotpickDetailResponse {
             : undefined,
         },
       },
+      // relatedHotpicks는 빌드 후 lazy하게 채움 (아래 buildRelatedHotpicks)
       relatedHotpicks: [],
     };
   }
@@ -1901,6 +1902,18 @@ const legacyDetailMap: Record<string, any> = {
 export const mockHotpickDetailMap: Record<string, any> = Object.fromEntries(
   Object.entries(legacyDetailMap).map(([slug, detail]) => [slug, convertToHotpickDetail(detail)])
 );
+
+// relatedHotpicks 채우기: 각 상세 페이지에 자신을 제외한 SINGLE 핫픽 최대 2개
+{
+  const allCards: HotpickCardResponse[] = (mockMainDisplayLegacy.trends ?? []).map(
+    (t: LegacyTrend) => convertToHotpickCard(t)
+  );
+  const singleCards = allCards.filter((c: HotpickCardResponse) => c.type === 'SINGLE');
+  for (const [slug, detail] of Object.entries(mockHotpickDetailMap)) {
+    const related = singleCards.filter((c: HotpickCardResponse) => c.slug !== slug).slice(0, 2);
+    (detail as HotpickDetailResponse).relatedHotpicks = related;
+  }
+}
 
 /** BUNDLE 기본 상세 (변환된 형태, handlers.ts 폴백용) */
 export const mockHotpickDetailBundleConverted = convertToHotpickDetail(mockHotpickDetailBundle);

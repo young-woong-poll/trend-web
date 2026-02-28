@@ -30,10 +30,12 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   const { showToast } = useModal();
   const { data: apiCategories } = useCategories();
 
-  const dynamicCategories: CategoryFilterItem[] | undefined = apiCategories?.map((c) => ({
-    label: c.name ?? '',
-    slug: c.slug ?? '',
-  }));
+  const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
+    ? apiCategories.map((c) => ({
+        label: c.name ?? '',
+        slug: c.slug ?? '',
+      }))
+    : undefined;
 
   const handleShare = useCallback(
     (slug: string) => {
@@ -69,7 +71,7 @@ export const MainView: FC<TMainViewProps> = ({ initialData, children }) => {
   } = useInfiniteMainDisplay({
     size: 20,
     category: selectedCategory ?? undefined,
-    initialData: selectedCategory === null ? initialData : undefined,
+    initialData: selectedCategory === null || selectedCategory === 'all' ? initialData : undefined,
   });
 
   const observerTarget = useInfiniteScroll({

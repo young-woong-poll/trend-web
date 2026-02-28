@@ -21,9 +21,9 @@ export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({ relate
   }
 
   return (
-    <div className={styles.recommendSection}>
+    <div className={styles.recommendSection} data-testid="recommend-section">
       <h2 className={styles.recommendTitle}>이런 투표는 어때요?</h2>
-      <div className={styles.recommendCards}>
+      <div className={styles.recommendCards} data-testid="recommend-cards">
         {relatedHotpicks.map((hotpick) => {
           const slug = hotpick.slug ?? '';
           const election = hotpick.election;
