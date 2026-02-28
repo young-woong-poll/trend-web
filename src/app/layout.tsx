@@ -39,7 +39,7 @@ export default function RootLayout({
             </ModalProvider>
           </QueryProvider>
         </ClientProviders>
-        <GoogleAnalytics gaId="G-52Z1FDXWHD" />
+        <GoogleAnalytics gaId="G-CBJFPV9C95" />
       </body>
     </html>
   );
