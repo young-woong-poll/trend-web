@@ -43,9 +43,7 @@
   "paths": {
     "/api/v1/comments/{commentId}": {
       "put": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Update comment",
         "operationId": "updateComment",
         "parameters": [
@@ -112,9 +110,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Delete comment",
         "operationId": "deleteComment",
         "parameters": [
@@ -183,9 +179,7 @@
     },
     "/admin/api/v1/server-metas/{id}": {
       "get": {
-        "tags": [
-          "Admin ServerMeta"
-        ],
+        "tags": ["Admin ServerMeta"],
         "summary": "Get server meta detail",
         "operationId": "get",
         "parameters": [
@@ -242,9 +236,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Admin ServerMeta"
-        ],
+        "tags": ["Admin ServerMeta"],
         "summary": "Update server meta",
         "operationId": "update",
         "parameters": [
@@ -311,9 +303,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Admin ServerMeta"
-        ],
+        "tags": ["Admin ServerMeta"],
         "summary": "Delete server meta",
         "operationId": "delete",
         "parameters": [
@@ -372,9 +362,7 @@
     },
     "/admin/api/v1/hotpicks/{hotpickId}": {
       "get": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Get hotpick detail",
         "operationId": "getHotpick",
         "parameters": [
@@ -432,9 +420,7 @@
         }
       },
       "put": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Update hotpick",
         "operationId": "updateHotpick",
         "parameters": [
@@ -502,9 +488,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Delete hotpick",
         "operationId": "deleteHotpick",
         "parameters": [
@@ -564,9 +548,7 @@
     },
     "/admin/api/v1/categories/{categoryId}": {
       "put": {
-        "tags": [
-          "Admin Category"
-        ],
+        "tags": ["Admin Category"],
         "summary": "Update category",
         "operationId": "updateCategory",
         "parameters": [
@@ -634,9 +616,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Admin Category"
-        ],
+        "tags": ["Admin Category"],
         "summary": "Delete category",
         "operationId": "deleteCategory",
         "parameters": [
@@ -696,9 +676,7 @@
     },
     "/api/v1/hotpicks/{slug}/votes": {
       "post": {
-        "tags": [
-          "Hotpick"
-        ],
+        "tags": ["Hotpick"],
         "summary": "Submit vote for a hotpick",
         "operationId": "vote",
         "parameters": [
@@ -775,9 +753,7 @@
     },
     "/api/v1/hotpicks/{slug}/elections/{electionId}/comments": {
       "get": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Get comment list",
         "operationId": "getComments",
         "parameters": [
@@ -877,9 +853,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Create comment",
         "operationId": "createComment",
         "parameters": [
@@ -957,9 +931,7 @@
     },
     "/api/v1/comments/{commentId}/verify": {
       "post": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Verify comment password",
         "operationId": "verifyComment",
         "parameters": [
@@ -1028,9 +1000,7 @@
     },
     "/api/v1/comments/{commentId}/like": {
       "post": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Like comment",
         "operationId": "likeComment",
         "parameters": [
@@ -1095,9 +1065,7 @@
         }
       },
       "delete": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Unlike comment",
         "operationId": "unlikeComment",
         "parameters": [
@@ -1164,9 +1132,7 @@
     },
     "/admin/api/v1/server-metas": {
       "get": {
-        "tags": [
-          "Admin ServerMeta"
-        ],
+        "tags": ["Admin ServerMeta"],
         "summary": "Get server meta list",
         "operationId": "getAll",
         "responses": {
@@ -1213,9 +1179,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Admin ServerMeta"
-        ],
+        "tags": ["Admin ServerMeta"],
         "summary": "Create server meta",
         "operationId": "create",
         "requestBody": {
@@ -1274,9 +1238,7 @@
     },
     "/admin/api/v1/hotpicks": {
       "get": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Get hotpick list",
         "operationId": "getHotpicks",
         "responses": {
@@ -1323,9 +1285,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Create hotpick",
         "operationId": "createHotpick",
         "requestBody": {
@@ -1384,9 +1344,7 @@
     },
     "/admin/api/v1/categories": {
       "get": {
-        "tags": [
-          "Admin Category"
-        ],
+        "tags": ["Admin Category"],
         "summary": "Get category list",
         "operationId": "getCategories",
         "responses": {
@@ -1433,9 +1391,7 @@
         }
       },
       "post": {
-        "tags": [
-          "Admin Category"
-        ],
+        "tags": ["Admin Category"],
         "summary": "Create category",
         "operationId": "createCategory",
         "requestBody": {
@@ -1494,9 +1450,7 @@
     },
     "/api/v1/server-metas/{id}": {
       "get": {
-        "tags": [
-          "ServerMeta"
-        ],
+        "tags": ["ServerMeta"],
         "summary": "Get server meta",
         "operationId": "get_1",
         "parameters": [
@@ -1555,9 +1509,7 @@
     },
     "/api/v1/hotpicks/{slug}": {
       "get": {
-        "tags": [
-          "Hotpick"
-        ],
+        "tags": ["Hotpick"],
         "summary": "Get hotpick detail",
         "operationId": "getDetail",
         "parameters": [
@@ -1624,9 +1576,7 @@
     },
     "/api/v1/hotpicks/{slug}/elections/{electionId}/comments/count": {
       "get": {
-        "tags": [
-          "Comment"
-        ],
+        "tags": ["Comment"],
         "summary": "Get comment count",
         "operationId": "countComments",
         "parameters": [
@@ -1694,9 +1644,7 @@
     },
     "/api/v1/hotpicks/main": {
       "get": {
-        "tags": [
-          "Hotpick"
-        ],
+        "tags": ["Hotpick"],
         "summary": "Get main hotpick display",
         "operationId": "getMain",
         "parameters": [
@@ -1781,9 +1729,7 @@
     },
     "/api/v1/hotpicks/categories": {
       "get": {
-        "tags": [
-          "Hotpick"
-        ],
+        "tags": ["Hotpick"],
         "summary": "Get category tabs",
         "operationId": "getCategories_1",
         "parameters": [
@@ -1842,9 +1788,7 @@
     },
     "/admin/api/v1/storage/presigned": {
       "get": {
-        "tags": [
-          "Admin Storage"
-        ],
+        "tags": ["Admin Storage"],
         "summary": "관리자 업로드용 Pre-signed URL 발급",
         "description": "파일명을 전달하면 S3 업로드 URL과 CDN 경로를 반환합니다.",
         "operationId": "generatePresignedUrl",
@@ -1904,9 +1848,7 @@
     },
     "/admin/api/v1/hotpicks/check-slug": {
       "get": {
-        "tags": [
-          "Admin Hotpick"
-        ],
+        "tags": ["Admin Hotpick"],
         "summary": "Check hotpick slug duplicate",
         "operationId": "checkSlug",
         "parameters": [
@@ -2007,10 +1949,7 @@
         "description": "공통 응답 포맷"
       },
       "UpdateCommentRequest": {
-        "required": [
-          "content",
-          "verifyToken"
-        ],
+        "required": ["content", "verifyToken"],
         "type": "object",
         "properties": {
           "verifyToken": {
@@ -2058,9 +1997,7 @@
         "type": "object"
       },
       "UpdateServerMetaRequest": {
-        "required": [
-          "meta"
-        ],
+        "required": ["meta"],
         "type": "object",
         "properties": {
           "meta": {
@@ -2108,9 +2045,7 @@
         "description": "응답 데이터"
       },
       "HotpickElectionItemRequest": {
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "type": "object",
         "properties": {
           "displayOrder": {
@@ -2131,10 +2066,7 @@
         }
       },
       "HotpickElectionRequest": {
-        "required": [
-          "items",
-          "title"
-        ],
+        "required": ["items", "title"],
         "type": "object",
         "properties": {
           "title": {
@@ -2161,19 +2093,12 @@
         }
       },
       "UpdateHotpickRequest": {
-        "required": [
-          "election",
-          "slug",
-          "type",
-          "visible"
-        ],
+        "required": ["election", "slug", "type", "visible"],
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "SINGLE"
-            ]
+            "enum": ["SINGLE"]
           },
           "slug": {
             "maxLength": 120,
@@ -2338,10 +2263,7 @@
         "description": "공통 응답 포맷"
       },
       "UpdateCategoryRequest": {
-        "required": [
-          "name",
-          "slug"
-        ],
+        "required": ["name", "slug"],
         "type": "object",
         "properties": {
           "name": {
@@ -2376,9 +2298,7 @@
         "description": "공통 응답 포맷"
       },
       "CreateVoteRequest": {
-        "required": [
-          "electionItemId"
-        ],
+        "required": ["electionItemId"],
         "type": "object",
         "properties": {
           "electionItemId": {
@@ -2477,11 +2397,7 @@
         "description": "응답 데이터"
       },
       "CreateCommentRequest": {
-        "required": [
-          "content",
-          "nickname",
-          "password"
-        ],
+        "required": ["content", "nickname", "password"],
         "type": "object",
         "properties": {
           "nickname": {
@@ -2530,9 +2446,7 @@
         "description": "응답 데이터"
       },
       "VerifyCommentRequest": {
-        "required": [
-          "password"
-        ],
+        "required": ["password"],
         "type": "object",
         "properties": {
           "password": {
@@ -2610,9 +2524,7 @@
         "description": "응답 데이터"
       },
       "CreateServerMetaRequest": {
-        "required": [
-          "meta"
-        ],
+        "required": ["meta"],
         "type": "object",
         "properties": {
           "meta": {
@@ -2649,19 +2561,12 @@
         "description": "응답 데이터"
       },
       "CreateHotpickRequest": {
-        "required": [
-          "election",
-          "slug",
-          "type",
-          "visible"
-        ],
+        "required": ["election", "slug", "type", "visible"],
         "type": "object",
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "SINGLE"
-            ]
+            "enum": ["SINGLE"]
           },
           "slug": {
             "maxLength": 120,
@@ -2693,10 +2598,7 @@
         }
       },
       "CreateCategoryRequest": {
-        "required": [
-          "name",
-          "slug"
-        ],
+        "required": ["name", "slug"],
         "type": "object",
         "properties": {
           "name": {
@@ -3198,9 +3100,7 @@
         "description": "공통 응답 포맷"
       },
       "DeleteCommentRequest": {
-        "required": [
-          "verifyToken"
-        ],
+        "required": ["verifyToken"],
         "type": "object",
         "properties": {
           "verifyToken": {
