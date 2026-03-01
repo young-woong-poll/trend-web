@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+
+  @font-face {
+    font-family: 'Maplestory';
+    src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Maplestory/Maplestory-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: block;
+  }
+  @font-face {
+    font-family: 'Maplestory';
+    src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Maplestory/Maplestory-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-display: block;
+  }
+
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: #FFFFFF;
+    color: #111;
+    font-family: 'Maplestory', sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 52px 52px 40px;
+  }
+
+  .title {
+    font-size: 76px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 28px;
+    word-break: keep-all;
+  }
+
+  .title.long {
+    font-size: 64px;
+  }
+
+  .image-area {
+    width: 100%;
+    height: 540px;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    border: 2px solid #E0E0E0;
+    flex-shrink: 0;
+  }
+
+  .image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #F0F0F0;
+  }
+
+  .story-box {
+    background: #F5F5F5;
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .story-label {
+    font-size: 26px;
+    font-weight: 700;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  .story-text {
+    font-size: 34px;
+    font-weight: 300;
+    color: #555;
+    line-height: 1.55;
+    word-break: keep-all;
+  }
+
+  .options {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  .option {
+    font-size: 52px;
+    font-weight: 300;
+  }
+
+  .vs {
+    font-size: 34px;
+    font-weight: 300;
+    color: #999;
+  }
+
+  .options-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .option-item {
+    font-size: 48px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .image-options {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+
+  .image-option {
+    flex: 1;
+    height: 400px;
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .image-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .image-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, transparent 50%);
+  }
+
+  .image-label {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    z-index: 2;
+  }
+
+  .image-vs {
+    font-size: 34px;
+    font-weight: 300;
+    color: #999;
+    flex-shrink: 0;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #E0E0E0;
+    margin-top: auto;
+  }
+
+  .logo img {
+    height: 48px;
+    width: auto;
+  }
+
+</style>
+</head>
+<body>
+<div class="content">
+  <h1 class="title long">카톡 프사 없는 사람, 어떤 인상이에요?</h1>
+      <div class="image-area">
+        <img src="https://trend-image.votebox.kr/uploads/2026/02/28/cdc281ed01354616be40796b944931a5.jpg" alt="">
+      </div>
+      <div class="story-box">
+        <div class="story-label">사연</div>
+        <p class="story-text">카톡 프로필 사진을 뺐더니, 친구가 &quot;무슨 일 있냐&quot;고 물어봐요. 그냥 깔끔하게 비워둔 건데, 다른 사람들한테 이상하게 보이나요?</p>
+      </div>
+      <div class="options-list">
+        <div class="option-item">아무 느낌 없다</div>
+        <div class="option-item">뭔가 숨기는 것 같다</div>
+        <div class="option-item">쿨한 느낌</div>
+      </div>
+  <div class="footer">
+    <div class="logo">
+      <img src="../../../public/main-logo.png" alt="HotPick">
+    </div>
+  </div>
+</div>
+</body>
+</html>
