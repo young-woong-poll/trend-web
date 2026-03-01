@@ -13,6 +13,12 @@ const SLUGS = {
   SINGLE: 'single-text-finance',
   /** 존재하지 않는 slug */
   NOT_FOUND: 'nonexistent-slug-e2e-test-12345',
+  /** 마감된 SINGLE (옵션 2개, TEXT 타입) */
+  CLOSED: 'single-food-closed',
+  /** IMAGE 타입 SINGLE (옵션 2개) */
+  IMAGE_TYPE: 'single-love',
+  /** 멀티 카테고리 SINGLE */
+  MULTI_CATEGORY: 'single-lovefinance',
 } as const;
 
 // ─── 라우팅 ───
@@ -64,6 +70,101 @@ test.describe('투표 전 상태', () => {
   test('투표 전에 공유 CTA가 미노출되고 힌트 텍스트가 표시된다', async () => {
     await expect(detail.shareButton).not.toBeVisible();
     await expect(detail.voteHint).toBeVisible();
+  });
+
+  test('참여자 수가 표시된다', async () => {
+    await expect(detail.participantCount.first()).toBeVisible();
+    await expect(detail.participantCount.first()).toHaveText(/\d+.*명 참여/);
+  });
+
+  test('카테고리 태그가 표시된다', async () => {
+    const tagCount = await detail.categoryTags.count();
+    expect(tagCount).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// ─── 투표 플로우 ───
+
+test.describe('투표 플로우', () => {
+  let detail: DetailPage;
+
+  test.beforeEach(async ({ page }) => {
+    detail = new DetailPage(page);
+    await detail.goto(SLUGS.SINGLE);
+  });
+
+  test('투표 시 결과 바와 퍼센트가 표시된다', async () => {
+    await detail.voteFirstOption();
+
+    // 결과 바가 표시되는지 확인
+    const barCount = await detail.resultBars.count();
+    expect(barCount).toBe(3); // single-text-finance는 3개 옵션
+
+    // 퍼센트가 표시되는지 확인
+    await expect(detail.resultPercentages.first()).toBeVisible();
+    await expect(detail.resultPercentages.first()).toHaveText(/\d+%/);
+  });
+
+  test('투표 후 선택한 옵션에 체크 표시가 된다', async () => {
+    await detail.voteFirstOption();
+
+    // myChoice 클래스가 적용된 결과 바가 1개 있어야 함
+    await expect(detail.myChoiceBars).toHaveCount(1);
+  });
+
+  test('투표 후 공유 CTA 버튼이 활성화된다', async () => {
+    await detail.voteFirstOption();
+
+    await expect(detail.shareButton).toBeVisible({ timeout: 5_000 });
+    await expect(detail.voteHint).not.toBeVisible();
+  });
+
+  test('투표 후 댓글 블러가 해제되고 댓글이 표시된다', async () => {
+    await detail.voteFirstOption();
+
+    // 블러 오버레이가 사라져야 함
+    await expect(detail.blurOverlay).not.toBeVisible({ timeout: 10_000 });
+
+    // 댓글 목록이 나타나야 함
+    await expect(detail.commentItems.first()).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('투표 후 공유하기 클릭 시 "링크가 복사되었습니다" 토스트가 표시된다', async () => {
+    await detail.voteFirstOption();
+
+    await detail.shareButton.click();
+
+    await expect(detail.page.getByText('링크가 복사되었습니다')).toBeVisible({ timeout: 5_000 });
+  });
+});
+
+// ─── 마감된 투표 상세 ───
+
+test.describe('마감된 투표 상세', () => {
+  test('마감된 투표는 결과만 표시된다', async ({ page }) => {
+    const detail = new DetailPage(page);
+    await detail.goto(SLUGS.CLOSED);
+
+    // 결과 바가 보여야 함
+    await expect(detail.resultBars.first()).toBeVisible({ timeout: 10_000 });
+
+    // 퍼센트가 표시되어야 함
+    await expect(detail.resultPercentages.first()).toHaveText(/\d+%/);
+  });
+
+  test('마감된 투표에서도 댓글이 표시된다', async ({ page }) => {
+    const detail = new DetailPage(page);
+    await detail.goto(SLUGS.CLOSED);
+
+    // 블러 없이 댓글 목록이 보여야 함
+    await expect(detail.blurOverlay).not.toBeVisible({ timeout: 5_000 });
+  });
+
+  test('마감된 투표에서 공유 CTA가 활성화된다', async ({ page }) => {
+    const detail = new DetailPage(page);
+    await detail.goto(SLUGS.CLOSED);
+
+    await expect(detail.shareButton).toBeVisible({ timeout: 10_000 });
   });
 });
 

@@ -16,6 +16,12 @@ export class MainPage {
   // 댓글 바텀시트
   readonly commentBottomSheet: Locator;
 
+  // 참여자 수
+  readonly participantCounts: Locator;
+
+  // 결과 바
+  readonly resultBars: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -27,6 +33,45 @@ export class MainPage {
     this.topCommentPreviews = page.getByTestId('top-comment-preview');
 
     this.commentBottomSheet = page.getByTestId('comment-bottom-sheet');
+
+    this.participantCounts = page.locator('[class*="participants"]');
+
+    this.resultBars = page.locator('[class*="resultBar"]');
+  }
+
+  /** 카테고리 버튼 클릭 (라벨 텍스트로 찾기) */
+  categoryButton(label: string): Locator {
+    return this.page.getByRole('button', { name: label, exact: true });
+  }
+
+  /** 특정 카드의 공유 버튼 */
+  shareButton(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).getByRole('button', { name: '공유' });
+  }
+
+  /** 특정 카드의 옵션 버튼들 */
+  optionButtons(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="optionButton"]');
+  }
+
+  /** 특정 카드의 결과 바들 */
+  cardResultBars(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="resultBar"]');
+  }
+
+  /** 특정 카드의 퍼센트 텍스트들 */
+  cardPercentages(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="barPercent"]');
+  }
+
+  /** 특정 카드의 myChoice 표시 */
+  cardMyChoice(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="myChoice"]');
+  }
+
+  /** 특정 카드의 카테고리 태그들 */
+  cardCategories(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="categoryTag"]');
   }
 
   async goto() {
