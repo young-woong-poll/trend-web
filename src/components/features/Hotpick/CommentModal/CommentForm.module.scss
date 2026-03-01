@@ -93,6 +93,80 @@
   }
 }
 
+// 닉네임 input + 랜덤 버튼 (border 공유)
+.nicknameWrapper {
+  flex: 2.6;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-md;
+  background-color: $bg-primary;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: $text-secondary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+}
+
+.nicknameInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+}
+
+.passwordInput {
+  flex: 1;
+}
+
+.generateButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  margin-right: 3px;
+  border: none;
+  border-left: 1px solid $border-placeholder;
+  border-radius: 0;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+
+  &:hover {
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.generateIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.generateLabel {
+  font-size: 11px;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .submitButton {
   flex-shrink: 0;
   padding: 8px 16px;

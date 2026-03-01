@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FC } from 'react';
 
+import DiceIcon from '@/assets/icon/DiceIcon';
 import styles from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm.module.scss';
 import { useCommentForm, COMMENT_FORM_LIMITS } from '@/hooks/useCommentForm';
 
@@ -21,6 +22,7 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
     content,
     errors,
     isPending,
+    handleGenerateNickname,
     handleNicknameChange,
     handleNicknameBlur,
     handlePasswordChange,
@@ -75,19 +77,31 @@ export const InlineCommentForm: FC<InlineCommentFormProps> = ({ slug, electionId
       {isExpanded && (
         <div className={styles.expandedArea}>
           <div className={styles.metaInputs}>
-            <input
-              type="text"
-              className={`${styles.metaInput} ${errors.nickname ? styles.error : ''}`}
-              placeholder="닉네임"
-              value={nickname}
-              onChange={handleNicknameChange}
-              onBlur={handleNicknameBlur}
-              maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
-              disabled={isPending}
-            />
+            <div className={`${styles.nicknameWrapper} ${errors.nickname ? styles.error : ''}`}>
+              <input
+                type="text"
+                className={`${styles.metaInput} ${styles.nicknameInput}`}
+                placeholder="닉네임"
+                value={nickname}
+                onChange={handleNicknameChange}
+                onBlur={handleNicknameBlur}
+                maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
+                disabled={isPending}
+              />
+              <button
+                type="button"
+                className={styles.generateButton}
+                onClick={handleGenerateNickname}
+                disabled={isPending}
+                aria-label="닉네임 자동생성"
+              >
+                <DiceIcon className={styles.generateIcon} />
+                <span className={styles.generateLabel}>랜덤</span>
+              </button>
+            </div>
             <input
               type="password"
-              className={`${styles.metaInput} ${errors.password ? styles.error : ''}`}
+              className={`${styles.metaInput} ${styles.passwordInput} ${errors.password ? styles.error : ''}`}
               placeholder="비밀번호"
               value={password}
               onChange={handlePasswordChange}
