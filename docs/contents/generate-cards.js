@@ -188,7 +188,11 @@ const BASE_CSS = `
 `;
 
 function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 function isLongTitle(title) {
@@ -229,7 +233,9 @@ function buildOptionsHtml(item) {
   }
 
   // TEXT + 3개 이상: 세로 리스트
-  const items = opts.map(o => `        <div class="option-item">${escapeHtml(o)}</div>`).join('\n');
+  const items = opts
+    .map((o) => `        <div class="option-item">${escapeHtml(o)}</div>`)
+    .join('\n');
   return `
       <div class="options-list">
 ${items}

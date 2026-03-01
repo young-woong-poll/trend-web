@@ -50,9 +50,10 @@ async function main() {
   });
   const page = await context.newPage();
 
-  const htmlFiles = fs.readdirSync(CARDS_DIR)
-    .filter(f => f.endsWith('.html'))
-    .filter(f => !f.startsWith('001-'))  // Skip id:1 (already generated)
+  const htmlFiles = fs
+    .readdirSync(CARDS_DIR)
+    .filter((f) => f.endsWith('.html'))
+    .filter((f) => !f.startsWith('001-')) // Skip id:1 (already generated)
     .sort();
 
   console.log(`Processing ${htmlFiles.length} files...`);

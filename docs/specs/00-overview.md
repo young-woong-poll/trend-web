@@ -19,11 +19,11 @@
 
 ## 2. 타겟 사용자
 
-| 항목      | 내용                                            |
-| --------- | ----------------------------------------------- |
-| 주 타겟   | 트렌드에 민감한 20-40대 한국 청년               |
-| 디바이스  | 모바일 우선 (Mobile First)                      |
-| 사용 맥락 | 대중 의견 확인, 고민 해결, 친구와 공유, SNS 바이럴 |
+| 항목      | 내용                                                        |
+| --------- | ----------------------------------------------------------- |
+| 주 타겟   | 트렌드에 민감한 20-40대 한국 청년                           |
+| 디바이스  | 모바일 우선 (Mobile First)                                  |
+| 사용 맥락 | 대중 의견 확인, 고민 해결, 친구와 공유, SNS 바이럴          |
 | 유입 채널 | 에펨코리아, 블라인드, 에브리타임, 인스타그램, 카카오톡 공유 |
 
 ---
@@ -46,18 +46,18 @@
 
 ## 4. 용어 정의
 
-| 용어                     | 정의                                                                   | 예시                              |
-| ------------------------ | ---------------------------------------------------------------------- | --------------------------------- |
-| HotPick (핫픽)           | 콘텐츠 단위. SINGLE(개별 투표) 또는 BUNDLE(5개 묶음) 타입으로 구분됨   | "연인이 전 애인 사진 안 지우면?"  |
-| 싱글 핫픽 (Single)       | 메인 피드에서 바로 투표 가능한 개별 이지선다 투표                       | 피드에서 인라인 투표              |
-| 번들 핫픽 (Bundle)       | 테마로 묶인 5개 투표 세트. 완료 시 유형 결과 카드 제공 (BE 미구현)      | "2024 최고의 치킨 브랜드" 5문항   |
-| Election (선거)          | 서버 도메인에서의 투표 단위. 하나의 질문 + 선택지 세트                  | "바삭한 치킨 vs 촉촉한 치킨?"    |
-| Election Item (선택지)   | 투표 선택지. 2~4개                                                     | "바삭한 치킨", "촉촉한 치킨"     |
-| Slug                     | 핫픽의 URL용 고유 식별자                                               | chicken-2024                     |
-| VoteType (투표 유형)     | FE에서 추론하는 투표 표시 방식. IMAGE(옵션별 이미지) 또는 TEXT(질문 이미지) | IMAGE / TEXT                     |
-| TKUID                    | 익명 사용자 식별용 UUID. 첫 방문 시 생성, localStorage 저장            | hp_tkuid                         |
-| Result Type (유형)       | 번들 투표 결과로 분류되는 6가지 성향 (BE 미구현)                       | "명예 한국인", "지구에 온 외계인" |
-| TopComment               | 각 핫픽의 가장 좋아요가 많은 댓글. 피드 카드 하단에 미리보기 표시       | 피드 카드 하단 댓글 미리보기     |
+| 용어                   | 정의                                                                        | 예시                              |
+| ---------------------- | --------------------------------------------------------------------------- | --------------------------------- |
+| HotPick (핫픽)         | 콘텐츠 단위. SINGLE(개별 투표) 또는 BUNDLE(5개 묶음) 타입으로 구분됨        | "연인이 전 애인 사진 안 지우면?"  |
+| 싱글 핫픽 (Single)     | 메인 피드에서 바로 투표 가능한 개별 이지선다 투표                           | 피드에서 인라인 투표              |
+| 번들 핫픽 (Bundle)     | 테마로 묶인 5개 투표 세트. 완료 시 유형 결과 카드 제공 (BE 미구현)          | "2024 최고의 치킨 브랜드" 5문항   |
+| Election (선거)        | 서버 도메인에서의 투표 단위. 하나의 질문 + 선택지 세트                      | "바삭한 치킨 vs 촉촉한 치킨?"     |
+| Election Item (선택지) | 투표 선택지. 2~4개                                                          | "바삭한 치킨", "촉촉한 치킨"      |
+| Slug                   | 핫픽의 URL용 고유 식별자                                                    | chicken-2024                      |
+| VoteType (투표 유형)   | FE에서 추론하는 투표 표시 방식. IMAGE(옵션별 이미지) 또는 TEXT(질문 이미지) | IMAGE / TEXT                      |
+| TKUID                  | 익명 사용자 식별용 UUID. 첫 방문 시 생성, localStorage 저장                 | hp_tkuid                          |
+| Result Type (유형)     | 번들 투표 결과로 분류되는 6가지 성향 (BE 미구현)                            | "명예 한국인", "지구에 온 외계인" |
+| TopComment             | 각 핫픽의 가장 좋아요가 많은 댓글. 피드 카드 하단에 미리보기 표시           | 피드 카드 하단 댓글 미리보기      |
 
 ---
 
@@ -119,42 +119,42 @@
 
 ### 7.1 사용자 페이지
 
-| 페이지                 | 경로                                       | 설명                                       | 상태         |
-| ---------------------- | ------------------------------------------ | ------------------------------------------ | ------------ |
-| Main                   | `/`                                        | 핫픽 피드, 카테고리 필터, 무한스크롤        | ✅ 구현 완료 |
-| Hotpick 상세 (Single)  | `/hotpick/{slug}`                          | 싱글 핫픽 상세 + 인라인 댓글 + 추천 핫픽   | ✅ 구현 완료 |
-| Hotpick 상세 (Bundle)  | `/hotpick/{slug}`                          | 번들 핫픽 5개 순차 투표                    | ⚠️ BE 미구현 |
-| Result                 | `/hotpick/{slug}/result?id={resultId}`     | 번들 투표 결과 및 유형 표시                | ⚠️ BE 미구현 |
+| 페이지                | 경로                                   | 설명                                     | 상태         |
+| --------------------- | -------------------------------------- | ---------------------------------------- | ------------ |
+| Main                  | `/`                                    | 핫픽 피드, 카테고리 필터, 무한스크롤     | ✅ 구현 완료 |
+| Hotpick 상세 (Single) | `/hotpick/{slug}`                      | 싱글 핫픽 상세 + 인라인 댓글 + 추천 핫픽 | ✅ 구현 완료 |
+| Hotpick 상세 (Bundle) | `/hotpick/{slug}`                      | 번들 핫픽 5개 순차 투표                  | ⚠️ BE 미구현 |
+| Result                | `/hotpick/{slug}/result?id={resultId}` | 번들 투표 결과 및 유형 표시              | ⚠️ BE 미구현 |
 
 ### 7.2 관리자 페이지 (개발환경 전용)
 
-| 페이지               | 경로                           | 설명                                       |
-| -------------------- | ------------------------------ | ------------------------------------------ |
-| Admin Hotpick List   | `/admin/hotpick`               | 핫픽 목록 조회/삭제                        |
-| Admin Hotpick Create | `/admin/hotpick/create`        | 핫픽 생성 (SINGLE만 활성화)                |
-| Admin Hotpick Edit   | `/admin/hotpick/edit/{id}`     | 핫픽 수정                                  |
-| Admin Category       | `/admin/category`              | 카테고리 CRUD (인라인 편집)                |
+| 페이지               | 경로                       | 설명                        |
+| -------------------- | -------------------------- | --------------------------- |
+| Admin Hotpick List   | `/admin/hotpick`           | 핫픽 목록 조회/삭제         |
+| Admin Hotpick Create | `/admin/hotpick/create`    | 핫픽 생성 (SINGLE만 활성화) |
+| Admin Hotpick Edit   | `/admin/hotpick/edit/{id}` | 핫픽 수정                   |
+| Admin Category       | `/admin/category`          | 카테고리 CRUD (인라인 편집) |
 
 ### 7.3 시스템 경로
 
-| 경로             | 설명                                |
-| ---------------- | ----------------------------------- |
+| 경로             | 설명                                   |
+| ---------------- | -------------------------------------- |
 | `/api/og`        | OG 이미지 생성 (Next.js Route Handler) |
-| `/sitemap.xml`   | 동적 사이트맵                       |
-| `/robots.txt`    | robots.txt 생성                     |
-| `/manifest.json` | PWA manifest                        |
+| `/sitemap.xml`   | 동적 사이트맵                          |
+| `/robots.txt`    | robots.txt 생성                        |
+| `/manifest.json` | PWA manifest                           |
 
 ---
 
 ## 8. 사용자 식별 시스템 (TKUID)
 
-| 항목         | 내용                                                          |
-| ------------ | ------------------------------------------------------------- |
-| 식별자       | UUID v4 (`hp_tkuid` 키로 localStorage 저장)                   |
-| 생성 시점    | 사이트 첫 방문 시 자동 생성                                   |
-| 전달 방식    | `x-tku-id` HTTP 요청 헤더                                     |
-| 용도         | 투표 중복 방지, 댓글 좋아요 중복 방지, 투표/좋아요 상태 조회  |
-| 소실 시      | 새 UUID 생성 → 이전 투표 이력 연결 불가, 새 사용자로 취급     |
+| 항목      | 내용                                                         |
+| --------- | ------------------------------------------------------------ |
+| 식별자    | UUID v4 (`hp_tkuid` 키로 localStorage 저장)                  |
+| 생성 시점 | 사이트 첫 방문 시 자동 생성                                  |
+| 전달 방식 | `x-tku-id` HTTP 요청 헤더                                    |
+| 용도      | 투표 중복 방지, 댓글 좋아요 중복 방지, 투표/좋아요 상태 조회 |
+| 소실 시   | 새 UUID 생성 → 이전 투표 이력 연결 불가, 새 사용자로 취급    |
 
 ---
 
@@ -162,13 +162,13 @@
 
 ### 9.1 싱글 핫픽 투표
 
-| 항목        | 내용                                                   |
-| ----------- | ------------------------------------------------------ |
-| API         | `POST /api/v1/hotpicks/{slug}/votes`                   |
-| 요청 본문   | `{ electionItemId: number }`                           |
-| 헤더        | `x-tku-id` (TKUID)                                    |
-| 중복 방지   | 서버에서 TKUID + hotpickId 조합 중복 체크 → 409 응답   |
-| 재투표      | 불가                                                   |
+| 항목      | 내용                                                 |
+| --------- | ---------------------------------------------------- |
+| API       | `POST /api/v1/hotpicks/{slug}/votes`                 |
+| 요청 본문 | `{ electionItemId: number }`                         |
+| 헤더      | `x-tku-id` (TKUID)                                   |
+| 중복 방지 | 서버에서 TKUID + hotpickId 조합 중복 체크 → 409 응답 |
+| 재투표    | 불가                                                 |
 
 ### 9.2 피드 인라인 투표 (Optimistic Update)
 
@@ -183,8 +183,8 @@
 
 FE에서 `election.items[].imageUrl` 유무로 추론:
 
-| VoteType | 조건                          | UI 표시                           |
-| -------- | ----------------------------- | --------------------------------- |
+| VoteType | 조건                           | UI 표시                           |
+| -------- | ------------------------------ | --------------------------------- |
 | IMAGE    | 옵션 중 하나라도 imageUrl 있음 | 옵션별 이미지 + 텍스트 버튼       |
 | TEXT     | 모든 옵션에 imageUrl 없음      | 질문 옆 대표 이미지 + 텍스트 버튼 |
 
@@ -200,33 +200,33 @@ FE에서 `election.items[].imageUrl` 유무로 추론:
 
 ### 10.2 진입점
 
-| 위치           | 형태                     | 정렬 기본값 |
-| -------------- | ------------------------ | ----------- |
-| 메인 피드 카드 | 바텀시트 (CommentBottomSheet) | 인기순     |
-| 싱글 상세 페이지 | 인라인 섹션 (InlineCommentSection) | 인기순 |
+| 위치             | 형태                               | 정렬 기본값 |
+| ---------------- | ---------------------------------- | ----------- |
+| 메인 피드 카드   | 바텀시트 (CommentBottomSheet)      | 인기순      |
+| 싱글 상세 페이지 | 인라인 섹션 (InlineCommentSection) | 인기순      |
 
 ### 10.3 댓글 기능
 
-| 기능     | 설명                                                              |
-| -------- | ----------------------------------------------------------------- |
-| 작성     | 닉네임(10자), 비밀번호(4-15자), 내용(200자) 입력                  |
-| 수정     | 비밀번호 인증 → verifyToken 발급 → 내용 수정                      |
-| 삭제     | 비밀번호 인증 → verifyToken 발급 → 삭제 확인 → 삭제               |
-| 좋아요   | TKUID 기반 토글. Optimistic update + 롤백                         |
-| TopComment | 가장 좋아요가 많은 댓글을 피드 카드 하단에 미리보기로 표시        |
+| 기능       | 설명                                                       |
+| ---------- | ---------------------------------------------------------- |
+| 작성       | 닉네임(10자), 비밀번호(4-15자), 내용(200자) 입력           |
+| 수정       | 비밀번호 인증 → verifyToken 발급 → 내용 수정               |
+| 삭제       | 비밀번호 인증 → verifyToken 발급 → 삭제 확인 → 삭제        |
+| 좋아요     | TKUID 기반 토글. Optimistic update + 롤백                  |
+| TopComment | 가장 좋아요가 많은 댓글을 피드 카드 하단에 미리보기로 표시 |
 
 ### 10.4 댓글 API
 
-| Method | Endpoint                                                    | 설명          |
-| ------ | ----------------------------------------------------------- | ------------- |
-| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments`           | 댓글 목록     |
-| POST   | `/api/v1/hotpicks/{slug}/elections/{id}/comments`           | 댓글 작성     |
-| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments/count`     | 댓글 수 조회  |
-| PUT    | `/api/v1/comments/{commentId}`                              | 댓글 수정     |
-| DELETE | `/api/v1/comments/{commentId}`                              | 댓글 삭제     |
-| POST   | `/api/v1/comments/{commentId}/verify`                       | 비밀번호 인증 |
-| POST   | `/api/v1/comments/{commentId}/like`                         | 좋아요        |
-| DELETE | `/api/v1/comments/{commentId}/like`                         | 좋아요 취소   |
+| Method | Endpoint                                                | 설명          |
+| ------ | ------------------------------------------------------- | ------------- |
+| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 목록     |
+| POST   | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 작성     |
+| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments/count` | 댓글 수 조회  |
+| PUT    | `/api/v1/comments/{commentId}`                          | 댓글 수정     |
+| DELETE | `/api/v1/comments/{commentId}`                          | 댓글 삭제     |
+| POST   | `/api/v1/comments/{commentId}/verify`                   | 비밀번호 인증 |
+| POST   | `/api/v1/comments/{commentId}/like`                     | 좋아요        |
+| DELETE | `/api/v1/comments/{commentId}/like`                     | 좋아요 취소   |
 
 ---
 
@@ -309,36 +309,36 @@ MainContent
 
 ## 14. 핵심 기능 요약
 
-| 기능                  | 설명                                                        | 상태         |
-| --------------------- | ----------------------------------------------------------- | ------------ |
-| 싱글 인라인 투표      | 메인 피드에서 카드 내 바로 투표, 즉시 결과 확인              | ✅ 구현 완료 |
-| 카테고리 필터         | 가로 스크롤 칩 버튼으로 카테고리별 피드 필터링               | ✅ 구현 완료 |
-| 무한스크롤 피드       | 커서 기반 무한스크롤                                        | ✅ 구현 완료 |
-| 싱글 상세 페이지      | 투표 + 인라인 댓글 + 추천 핫픽                              | ✅ 구현 완료 |
-| 댓글 (비밀번호 기반)  | 작성, 수정, 삭제, 좋아요, 인기순/최신순 정렬                | ✅ 구현 완료 |
-| TopComment 미리보기   | 피드 카드 하단에 인기 댓글 미리보기                          | ✅ 구현 완료 |
-| Optimistic Update     | 투표, 댓글 좋아요에 낙관적 업데이트 + 롤백                   | ✅ 구현 완료 |
-| 관리자 핫픽 CRUD      | 핫픽 생성/수정/삭제 (개발환경 전용)                          | ✅ 구현 완료 |
-| 관리자 카테고리 CRUD  | 카테고리 생성/수정/삭제 (개발환경 전용)                      | ✅ 구현 완료 |
-| OG 이미지 생성        | 동적 OG 이미지 + 구조화 데이터(JSON-LD)                      | ✅ 구현 완료 |
-| 번들 투표             | 5개 묶음 투표 순차 진행                                     | ⚠️ BE 미구현 |
-| 번들 결과/유형        | 6가지 유형 분류 + 대중성 지수                               | ⚠️ BE 미구현 |
-| 공유 기능             | 번들 결과 카드 공유                                         | ⚠️ BE 미구현 |
+| 기능                 | 설명                                            | 상태         |
+| -------------------- | ----------------------------------------------- | ------------ |
+| 싱글 인라인 투표     | 메인 피드에서 카드 내 바로 투표, 즉시 결과 확인 | ✅ 구현 완료 |
+| 카테고리 필터        | 가로 스크롤 칩 버튼으로 카테고리별 피드 필터링  | ✅ 구현 완료 |
+| 무한스크롤 피드      | 커서 기반 무한스크롤                            | ✅ 구현 완료 |
+| 싱글 상세 페이지     | 투표 + 인라인 댓글 + 추천 핫픽                  | ✅ 구현 완료 |
+| 댓글 (비밀번호 기반) | 작성, 수정, 삭제, 좋아요, 인기순/최신순 정렬    | ✅ 구현 완료 |
+| TopComment 미리보기  | 피드 카드 하단에 인기 댓글 미리보기             | ✅ 구현 완료 |
+| Optimistic Update    | 투표, 댓글 좋아요에 낙관적 업데이트 + 롤백      | ✅ 구현 완료 |
+| 관리자 핫픽 CRUD     | 핫픽 생성/수정/삭제 (개발환경 전용)             | ✅ 구현 완료 |
+| 관리자 카테고리 CRUD | 카테고리 생성/수정/삭제 (개발환경 전용)         | ✅ 구현 완료 |
+| OG 이미지 생성       | 동적 OG 이미지 + 구조화 데이터(JSON-LD)         | ✅ 구현 완료 |
+| 번들 투표            | 5개 묶음 투표 순차 진행                         | ⚠️ BE 미구현 |
+| 번들 결과/유형       | 6가지 유형 분류 + 대중성 지수                   | ⚠️ BE 미구현 |
+| 공유 기능            | 번들 결과 카드 공유                             | ⚠️ BE 미구현 |
 
 ---
 
 ## 15. 기술 스택
 
-| 분류       | 기술                          |
-| ---------- | ----------------------------- |
-| 프레임워크 | Next.js 14+ (App Router)      |
-| 언어       | TypeScript (strict mode)      |
-| 스타일링   | SCSS Modules                  |
-| 상태관리   | React Query (TanStack Query v5) |
-| 애니메이션 | Framer Motion                 |
-| API 타입   | Orval (OpenAPI → 자동 생성)   |
-| 테스트     | Playwright (E2E) + MSW (Mock) |
-| 분석       | Google Analytics (GA4)        |
+| 분류       | 기술                                         |
+| ---------- | -------------------------------------------- |
+| 프레임워크 | Next.js 14+ (App Router)                     |
+| 언어       | TypeScript (strict mode)                     |
+| 스타일링   | SCSS Modules                                 |
+| 상태관리   | React Query (TanStack Query v5)              |
+| 애니메이션 | Framer Motion                                |
+| API 타입   | Orval (OpenAPI → 자동 생성)                  |
+| 테스트     | Playwright (E2E) + MSW (Mock)                |
+| 분석       | Google Analytics (GA4)                       |
 | SEO        | 구조화 데이터 (JSON-LD), 사이트맵, OG 이미지 |
 
 ---
@@ -347,25 +347,25 @@ MainContent
 
 ### 16.1 공개 API (`/api/v1/hotpicks/...`)
 
-| Method | Endpoint                          | 설명                  |
-| ------ | --------------------------------- | --------------------- |
-| GET    | `/api/v1/hotpicks/main`           | 메인 피드 (카테고리, 커서, 사이즈) |
-| GET    | `/api/v1/hotpicks/categories`     | 카테고리 탭 목록      |
-| GET    | `/api/v1/hotpicks/{slug}`         | 핫픽 상세             |
-| POST   | `/api/v1/hotpicks/{slug}/votes`   | 투표 제출             |
+| Method | Endpoint                        | 설명                               |
+| ------ | ------------------------------- | ---------------------------------- |
+| GET    | `/api/v1/hotpicks/main`         | 메인 피드 (카테고리, 커서, 사이즈) |
+| GET    | `/api/v1/hotpicks/categories`   | 카테고리 탭 목록                   |
+| GET    | `/api/v1/hotpicks/{slug}`       | 핫픽 상세                          |
+| POST   | `/api/v1/hotpicks/{slug}/votes` | 투표 제출                          |
 
 ### 16.2 관리자 API (`/admin/api/v1/...`)
 
-| Method | Endpoint                              | 설명              |
-| ------ | ------------------------------------- | ----------------- |
-| GET    | `/admin/api/v1/hotpicks`              | 핫픽 목록         |
-| POST   | `/admin/api/v1/hotpicks`              | 핫픽 생성         |
-| GET    | `/admin/api/v1/hotpicks/{id}`         | 핫픽 상세         |
-| PUT    | `/admin/api/v1/hotpicks/{id}`         | 핫픽 수정         |
-| DELETE | `/admin/api/v1/hotpicks/{id}`         | 핫픽 삭제         |
-| GET    | `/admin/api/v1/hotpicks/check-slug`   | 슬러그 중복 확인  |
-| GET    | `/admin/api/v1/categories`            | 카테고리 목록     |
-| POST   | `/admin/api/v1/categories`            | 카테고리 생성     |
-| PUT    | `/admin/api/v1/categories/{id}`       | 카테고리 수정     |
-| DELETE | `/admin/api/v1/categories/{id}`       | 카테고리 삭제     |
-| GET    | `/admin/api/v1/storage/presigned`     | S3 업로드 URL     |
+| Method | Endpoint                            | 설명             |
+| ------ | ----------------------------------- | ---------------- |
+| GET    | `/admin/api/v1/hotpicks`            | 핫픽 목록        |
+| POST   | `/admin/api/v1/hotpicks`            | 핫픽 생성        |
+| GET    | `/admin/api/v1/hotpicks/{id}`       | 핫픽 상세        |
+| PUT    | `/admin/api/v1/hotpicks/{id}`       | 핫픽 수정        |
+| DELETE | `/admin/api/v1/hotpicks/{id}`       | 핫픽 삭제        |
+| GET    | `/admin/api/v1/hotpicks/check-slug` | 슬러그 중복 확인 |
+| GET    | `/admin/api/v1/categories`          | 카테고리 목록    |
+| POST   | `/admin/api/v1/categories`          | 카테고리 생성    |
+| PUT    | `/admin/api/v1/categories/{id}`     | 카테고리 수정    |
+| DELETE | `/admin/api/v1/categories/{id}`     | 카테고리 삭제    |
+| GET    | `/admin/api/v1/storage/presigned`   | S3 업로드 URL    |
