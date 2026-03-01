@@ -21,9 +21,9 @@ const logoUrl = `${SITE_URL}/main-logo.png`;
 
 export default async function OgImage({ params }: { params: Promise<{ hotpickAlias: string }> }) {
   const { hotpickAlias } = await params;
-  const [boldFont, regularFont] = await Promise.all([fontBold, fontRegular]);
 
   try {
+    const [boldFont, regularFont] = await Promise.all([fontBold, fontRegular]);
     const response = await getDetail(hotpickAlias);
     const hotpickData = response.status === 200 ? response.data.data : null;
     const election = hotpickData?.hotpick?.election;
@@ -203,8 +203,10 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
         ],
       }
     );
-  } catch {
-    // fallback: 로고 + 슬로건
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[OG Image Error]', err);
+    // fallback: 폰트 없이 간단한 이미지
     return new ImageResponse(
       (
         <div
@@ -216,7 +218,6 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: '#121212',
-            fontFamily: '"Noto Sans KR"',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -229,10 +230,7 @@ export default async function OgImage({ params }: { params: Promise<{ hotpickAli
           />
         </div>
       ),
-      {
-        ...size,
-        fonts: [{ name: 'Noto Sans KR', data: regularFont, weight: 400 }],
-      }
+      { ...size }
     );
   }
 }
