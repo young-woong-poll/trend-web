@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, type FC } from 'react';
+import { useCallback, useRef, useState, type FC } from 'react';
 
 import Image from 'next/image';
 
@@ -11,6 +11,7 @@ import CheckIcon from '@/assets/icon/CheckIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import { Button } from '@/components/common/Button';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
+import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
 import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetailView/InlineCommentSection';
 import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
@@ -38,6 +39,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   const { showToast } = useModal();
   const pendingRef = useRef(false);
   const tkuIdRef = useRef(getTKUID());
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const hotpickCard = rawData?.hotpick;
   const election = hotpickCard?.election;
@@ -86,11 +88,8 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   );
 
   const handleShare = useCallback(() => {
-    const url = `${window.location.origin}/hotpick/${hotpickAlias}`;
-    void navigator.clipboard.writeText(url).then(() => {
-      showToast('링크가 복사되었습니다', <CheckIcon width={16} height={16} />);
-    });
-  }, [hotpickAlias, showToast]);
+    setIsShareOpen(true);
+  }, []);
 
   if (isLoading || !rawData || !hotpickCard || !election) {
     return <SingleDetailSkeleton />;
@@ -265,6 +264,14 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
         voted={voted}
         isClosed={isExpired}
         commentCount={commentCount}
+      />
+
+      <ShareBottomSheet
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        hotpickAlias={hotpickAlias}
+        voted={voted}
+        title={title}
       />
     </div>
   );
