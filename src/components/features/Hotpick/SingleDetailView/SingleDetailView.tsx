@@ -272,6 +272,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
         hotpickAlias={hotpickAlias}
         title={title}
         options={items.map((item) => item.title ?? '')}
+        imageUrl={election.imageUrl ?? hotpickCard.imageUrl}
       />
     </div>
   );

@@ -2,6 +2,8 @@ import { Roboto } from 'next/font/google';
 
 import { GoogleAnalytics } from '@next/third-parties/google';
 
+import { KakaoScript } from '@/components/common/KakaoScript';
+
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
 import { ClientProviders } from '@/providers/ClientProviders';
@@ -46,6 +48,7 @@ export default function RootLayout({
           </QueryProvider>
         </ClientProviders>
         <GoogleAnalytics gaId="G-CBJFPV9C95" />
+        <KakaoScript />
       </body>
     </html>
   );

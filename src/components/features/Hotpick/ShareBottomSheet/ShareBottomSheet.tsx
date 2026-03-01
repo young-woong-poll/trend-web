@@ -20,6 +20,8 @@ export interface ShareBottomSheetProps {
   title: string;
   /** 투표 옵션 제목 목록 (예: ['짜장면', '짬뽕']) */
   options?: string[];
+  /** OG 이미지 URL (카카오 공유 썸네일) */
+  imageUrl?: string;
 }
 
 export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
@@ -28,6 +30,7 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
   hotpickAlias,
   title,
   options = [],
+  imageUrl,
 }) => {
   const { showToast } = useModal();
   const [useMyLink, setUseMyLink] = useState(true);
@@ -46,14 +49,34 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
 
   const handleKakaoShare = useCallback(() => {
     const url = getShareUrl();
+    const description = options.length > 0 ? options.join(' vs ') : '';
 
-    // TODO: 카카오 SDK 연동 시 Kakao.Share.sendDefault({ title, url })로 교체
-    // 현재는 클립보드 복사 fallback
+    // 카카오 SDK 로드 여부 확인
+    if (window.Kakao?.isInitialized()) {
+      window.Kakao.Share.sendDefault({
+        objectType: 'feed',
+        content: {
+          title,
+          description,
+          imageUrl: imageUrl || `${window.location.origin}/og-vote.jpg`,
+          link: { mobileWebUrl: url, webUrl: url },
+        },
+        buttons: [
+          {
+            title: '투표하기',
+            link: { mobileWebUrl: url, webUrl: url },
+          },
+        ],
+      });
+      return;
+    }
+
+    // SDK 미로드 시 클립보드 복사 fallback
     const shareText = title ? `${title} - HotPick\n${url}` : url;
     void navigator.clipboard.writeText(shareText).then(() => {
       showToast('카카오톡 공유 링크가 복사되었습니다');
     });
-  }, [getShareUrl, title, showToast]);
+  }, [getShareUrl, title, options, imageUrl, showToast]);
 
   const handleCopyLink = useCallback(() => {
     const url = getShareUrl();

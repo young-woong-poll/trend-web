@@ -30,6 +30,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     slug: string;
     title: string;
     options: string[];
+    imageUrl?: string;
   } | null>(null);
   const { handleVote } = useSingleVote();
   const { showToast } = useModal();
@@ -92,6 +93,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
         slug,
         title: election?.title ?? '',
         options: (election?.items ?? []).map((item) => item.title ?? ''),
+        imageUrl: election?.imageUrl ?? hotpick?.imageUrl,
       });
     },
     [hotpicks]
@@ -237,6 +239,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
           hotpickAlias={shareTarget.slug}
           title={shareTarget.title}
           options={shareTarget.options}
+          imageUrl={shareTarget.imageUrl}
         />
       )}
     </>
