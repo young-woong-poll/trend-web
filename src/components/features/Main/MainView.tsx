@@ -97,62 +97,6 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     [hotpicks]
   );
 
-  if (isLoading && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.skeletonGroup}>
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      </div>
-    );
-  }
-
-  if (isError && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.statusContainer}>
-          <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
-          <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isFetching && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.emptyState}>
-          <div className={styles.icon}>📊</div>
-          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
-          <p className={styles.description}>
-            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
-            <br />곧 흥미로운 주제로 찾아뵙겠습니다!
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const renderHotpick = (hotpick: HotpickCardResponse, keyPrefix?: string) => {
     const slug = hotpick.slug ?? '';
     const key = keyPrefix ? `${keyPrefix}-${hotpick.hotpickId}` : hotpick.hotpickId;
@@ -202,18 +146,41 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     );
   };
 
-  return (
-    <>
-      <noscript>{children}</noscript>
+  const renderContent = () => {
+    if (isLoading && hotpicks.length === 0) {
+      return (
+        <div className={styles.skeletonGroup}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      );
+    }
 
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
+    if (isError && hotpicks.length === 0) {
+      return (
+        <div className={styles.statusContainer}>
+          <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
+          <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
+        </div>
+      );
+    }
 
+    if (!isFetching && hotpicks.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.icon}>📊</div>
+          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
+          <p className={styles.description}>
+            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
+            <br />곧 흥미로운 주제로 찾아뵙겠습니다!
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <>
         {hotpicks.map((hotpick) => renderHotpick(hotpick))}
 
         {/* 하향 무한스크롤 트리거 */}
@@ -233,6 +200,23 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             </div>
           )}
         </div>
+      </>
+    );
+  };
+
+  return (
+    <>
+      <noscript>{children}</noscript>
+
+      <div className={styles.container}>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
+        />
+
+        {renderContent()}
       </div>
 
       {/* 댓글 바텀시트 */}
