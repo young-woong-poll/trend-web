@@ -4,7 +4,6 @@ import { useCallback, useState, type FC } from 'react';
 
 import CopyIcon from '@/assets/icon/CopyIcon';
 import InfoIcon from '@/assets/icon/InfoIcon';
-import InstagramIcon from '@/assets/icon/InstagramIcon';
 import KakaoIcon from '@/assets/icon/KakaoIcon';
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Hotpick/ShareBottomSheet/ShareBottomSheet.module.scss';
@@ -17,21 +16,21 @@ export interface ShareBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   hotpickAlias: string;
-  /** 투표 완료 여부 — 결과 카드 공유 가능 여부 결정 */
-  voted: boolean;
-  /** 투표 제목 (카카오 SDK 연동 시 사용) */
+  /** 투표 제목 */
   title: string;
+  /** 투표 옵션 제목 목록 (예: ['짜장면', '짬뽕']) */
+  options?: string[];
 }
 
 export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
   isOpen,
   onClose,
   hotpickAlias,
-  voted,
   title,
+  options = [],
 }) => {
   const { showToast } = useModal();
-  const [useMyLink, setUseMyLink] = useState(false);
+  const [useMyLink, setUseMyLink] = useState(true);
 
   useBodyScrollLock(isOpen);
   useEscapeKey(isOpen, onClose);
@@ -54,47 +53,14 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
     void navigator.clipboard.writeText(shareText).then(() => {
       showToast('카카오톡 공유 링크가 복사되었습니다');
     });
-
-    onClose();
-  }, [getShareUrl, title, showToast, onClose]);
-
-  const handleInstagramStory = useCallback(() => {
-    if (!voted) {
-      showToast('투표 후 결과 카드를 저장할 수 있습니다');
-      return;
-    }
-
-    onClose();
-
-    // 결과 카드 이미지를 생성하여 다운로드
-    // TODO: /api/og/share-card 엔드포인트 구현 필요
-    const imageUrl = `${window.location.origin}/api/og/share-card?alias=${hotpickAlias}&tkuid=${getTKUID()}`;
-
-    void fetch(imageUrl)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `hotpick-${hotpickAlias}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('이미지가 저장되었습니다. 인스타 스토리에 올려보세요!');
-      })
-      .catch(() => {
-        showToast('이미지 저장에 실패했습니다');
-      });
-  }, [voted, hotpickAlias, showToast, onClose]);
+  }, [getShareUrl, title, showToast]);
 
   const handleCopyLink = useCallback(() => {
     const url = getShareUrl();
     void navigator.clipboard.writeText(url).then(() => {
       showToast('링크가 복사되었습니다');
     });
-    onClose();
-  }, [getShareUrl, showToast, onClose]);
+  }, [getShareUrl, showToast]);
 
   if (!isOpen) {
     return null;
@@ -125,6 +91,26 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
             </div>
           </div>
 
+          {/* 공유 대상 핫픽 프리뷰 */}
+          <div className={styles.hotpickPreview}>
+            <div className={styles.hotpickCard}>
+              <div className={styles.hotpickAccent} />
+              <div className={styles.hotpickCardContent}>
+                <p className={styles.hotpickTitle}>{title}</p>
+                {options.length > 0 && (
+                  <div className={styles.hotpickOptions}>
+                    {options.map((opt, i) => (
+                      <span key={opt} className={styles.hotpickOption}>
+                        {i > 0 && <span className={styles.hotpickVs}>vs</span>}
+                        {opt}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* 콘텐츠 */}
           <div className={styles.content}>
             {/* 공유 버튼 그리드 */}
@@ -135,16 +121,6 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
                   <KakaoIcon width={24} height={24} />
                 </div>
                 <span className={styles.shareLabel}>카카오톡</span>
-              </button>
-
-              {/* 인스타그램 스토리 */}
-              <button type="button" className={styles.shareButton} onClick={handleInstagramStory}>
-                <div className={`${styles.shareIconWrapper} ${styles.instaIconBg}`}>
-                  <InstagramIcon width={24} height={24} />
-                </div>
-                <span className={styles.shareLabel}>
-                  {voted ? '결과 카드 저장' : '스토리 카드'}
-                </span>
               </button>
 
               {/* 링크 복사 */}

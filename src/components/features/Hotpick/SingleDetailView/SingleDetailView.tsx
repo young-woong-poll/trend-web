@@ -270,8 +270,8 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
         hotpickAlias={hotpickAlias}
-        voted={voted}
         title={title}
+        options={items.map((item) => item.title ?? '')}
       />
     </div>
   );
