@@ -66,6 +66,35 @@ export interface BaseResponseCommentUpdateResponse {
   data?: CommentUpdateResponse;
 }
 
+export interface JsonNode {
+  [key: string]: unknown;
+}
+
+export interface UpdateServerMetaRequest {
+  meta: JsonNode;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface ServerMetaResponse {
+  id?: string;
+  meta?: JsonNode;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: ServerMetaResponse;
+}
+
 export interface HotpickElectionItemRequest {
   /** @minimum 0 */
   displayOrder?: number;
@@ -199,6 +228,8 @@ export interface BaseResponseAdminCategoryResponse {
 
 export interface CreateVoteRequest {
   electionItemId: number;
+  serverMetaId?: string;
+  clientMeta?: JsonNode;
 }
 
 export interface ElectionItemViewResponse {
@@ -316,6 +347,28 @@ export interface BaseResponseCommentLikeResponse {
   /** 응답 메시지 */
   message?: string;
   data?: CommentLikeResponse;
+}
+
+export interface CreateServerMetaRequest {
+  meta: JsonNode;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreateServerMetaResponse {
+  id?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreateServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreateServerMetaResponse;
 }
 
 export type CreateHotpickRequestType =
@@ -516,6 +569,18 @@ export interface BaseResponseMapStringString {
   message?: string;
   /** 응답 데이터 */
   data?: BaseResponseMapStringStringData;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: ServerMetaResponse[];
 }
 
 /**
