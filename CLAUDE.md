@@ -1,7 +1,8 @@
 # HotPick
 
-바이럴 투표 플랫폼. 5개 이지선다 투표 묶음.
-타겟: 20-40대 한국 남성, 모바일 우선
+애매한 고민을 대중 투표로 해결하는 실용 도구형 플랫폼.
+싱글 핫픽(인라인 투표) + 번들 핫픽(5개 묶음, BE 미구현).
+타겟: 20-40대 한국 청년, 모바일 우선
 
 ## 기술 스택
 
@@ -34,11 +35,9 @@
 
 ## 상세 기획서
 
-- `docs/specs/00-overview.md` — 서비스 개요
-- `docs/specs/01-main-page.md` — Main 페이지 (탭 네비게이션 포함)
-- `docs/specs/02-vote-page.md` — Vote 페이지
-- `docs/specs/06-single-page.md` — Single(단일 투표) 상세 기획서
-- `docs/specs/new-hotpick-election-system.md` — 선거 시스템 내재화 설계서
+- `docs/specs/00-overview.md` — 서비스 기술 개요 (페이지 구성, API, 투표/댓글 시스템)
+- `docs/specs/hotpick.md` — 서비스 전체 기획서 (비전, 콘텐츠 전략, 성장 전략, 로드맵)
+- `docs/specs/branding.md` — 브랜딩 전략
 - `docs/design-system/tokens.md` — 디자인 토큰
 
 ## 코딩 컨벤션

@@ -9,6 +9,7 @@ import {
   isValidNicknameCharacters,
   NICKNAME_MAX_LENGTH,
   sanitizeComment,
+  generateRandomNickname,
 } from '@/lib/utils';
 
 const COMMENT_MAX_LENGTH = 200;
@@ -35,7 +36,7 @@ export const COMMENT_FORM_LIMITS = {
 } as const;
 
 export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormParams) {
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(() => generateRandomNickname());
   const [password, setPassword] = useState('');
   const [content, setContent] = useState('');
   const [errors, setErrors] = useState<CommentFormErrors>({});
@@ -44,10 +45,16 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
   const { mutate: createComment, isPending } = useCreateComment();
 
   const resetForm = useCallback(() => {
-    setNickname('');
+    setNickname(generateRandomNickname());
     setPassword('');
     setContent('');
     setErrors({});
+  }, []);
+
+  const handleGenerateNickname = useCallback(() => {
+    const generated = generateRandomNickname();
+    setNickname(generated);
+    setErrors((prev) => ({ ...prev, nickname: false }));
   }, []);
 
   const handleNicknameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,6 +158,7 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
     content,
     errors,
     isPending,
+    handleGenerateNickname,
     handleNicknameChange,
     handleNicknameBlur,
     handlePasswordChange,
