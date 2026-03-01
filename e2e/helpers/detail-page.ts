@@ -18,6 +18,11 @@ export class DetailPage {
   readonly blurOverlay: Locator;
   readonly commentFormHint: Locator;
 
+  // 댓글 정렬/좋아요
+  readonly sortPopular: Locator;
+  readonly sortLatest: Locator;
+  readonly commentItems: Locator;
+
   // 추천 섹션
   readonly recommendSection: Locator;
   readonly recommendCards: Locator;
@@ -58,6 +63,10 @@ export class DetailPage {
     this.commentSection = page.getByTestId('comment-section');
     this.blurOverlay = page.getByText('투표 후 댓글을 확인할 수 있습니다');
     this.commentFormHint = page.getByText('투표 후 댓글을 작성할 수 있습니다');
+
+    this.sortPopular = this.commentSection.getByRole('button', { name: /인기순/ });
+    this.sortLatest = this.commentSection.getByRole('button', { name: /최신순/ });
+    this.commentItems = this.commentSection.locator('[class*="commentItem"]');
 
     this.recommendSection = page.getByTestId('recommend-section');
     this.recommendCards = page.getByTestId('recommend-cards').locator('a');
