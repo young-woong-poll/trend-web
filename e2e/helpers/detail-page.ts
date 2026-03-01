@@ -41,6 +41,7 @@ export class DetailPage {
   // 댓글 폼 요소
   readonly commentTextarea: Locator;
   readonly commentNicknameInput: Locator;
+  readonly commentNicknameGenerateButton: Locator;
   readonly commentPasswordInput: Locator;
   readonly commentSubmitButton: Locator;
   readonly commentCancelButton: Locator;
@@ -81,6 +82,9 @@ export class DetailPage {
 
     this.commentTextarea = this.commentSection.locator('textarea');
     this.commentNicknameInput = this.commentSection.locator('input[type="text"]');
+    this.commentNicknameGenerateButton = this.commentSection.getByRole('button', {
+      name: '닉네임 자동생성',
+    });
     this.commentPasswordInput = this.commentSection.locator('input[type="password"]');
     this.commentSubmitButton = this.commentSection.locator('[class*="submitButton"]');
     this.commentCancelButton = this.commentSection.locator('[class*="cancelButton"]');

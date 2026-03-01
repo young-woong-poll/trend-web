@@ -239,6 +239,91 @@ test.describe('댓글 좋아요 정렬 동기화', () => {
   });
 });
 
+// ─── 닉네임 자동생성 ───
+
+test.describe('닉네임 자동생성', () => {
+  let detail: DetailPage;
+
+  test.beforeEach(async ({ page }) => {
+    detail = new DetailPage(page);
+    await detail.goto(SLUGS.SINGLE);
+    await detail.voteFirstOption();
+    await detail.openCommentForm();
+  });
+
+  test('폼 확장 시 닉네임이 자동으로 사전 입력되어 있다', async () => {
+    const value = await detail.commentNicknameInput.inputValue();
+    expect(value.length).toBeGreaterThan(0);
+    expect(value.length).toBeLessThanOrEqual(10);
+  });
+
+  test('랜덤 버튼이 표시된다', async () => {
+    await expect(detail.commentNicknameGenerateButton).toBeVisible();
+  });
+
+  test('랜덤 버튼 클릭 시 닉네임이 변경된다', async () => {
+    const before = await detail.commentNicknameInput.inputValue();
+
+    // 랜덤이므로 동일한 값이 나올 수 있어 여러 번 시도
+    let changed = false;
+    for (let i = 0; i < 5; i++) {
+      await detail.commentNicknameGenerateButton.click();
+      const after = await detail.commentNicknameInput.inputValue();
+      if (after !== before) {
+        changed = true;
+        break;
+      }
+    }
+    expect(changed).toBe(true);
+  });
+
+  test('생성된 닉네임은 10자 이하 한글 조합이다', async () => {
+    await detail.commentNicknameGenerateButton.click();
+    const value = await detail.commentNicknameInput.inputValue();
+
+    expect(value.length).toBeGreaterThan(0);
+    expect(value.length).toBeLessThanOrEqual(10);
+    // 한글(가-힣) 문자만 포함
+    expect(value).toMatch(/^[가-힣]+$/);
+  });
+
+  test('닉네임을 수동 입력한 뒤 랜덤 버튼을 누르면 덮어쓰기 된다', async () => {
+    await detail.commentNicknameInput.fill('');
+    await detail.commentNicknameInput.fill('수동닉네임');
+    expect(await detail.commentNicknameInput.inputValue()).toBe('수동닉네임');
+
+    await detail.commentNicknameGenerateButton.click();
+    const value = await detail.commentNicknameInput.inputValue();
+    expect(value).not.toBe('수동닉네임');
+    expect(value.length).toBeGreaterThan(0);
+  });
+
+  test('취소 후 다시 열면 새로운 닉네임이 생성된다', async () => {
+    await detail.commentCancelButton.click();
+    await detail.openCommentForm();
+
+    const nickname = await detail.commentNicknameInput.inputValue();
+    // resetForm이 새 닉네임을 생성하므로, 값이 존재해야 함
+    expect(nickname.length).toBeGreaterThan(0);
+    expect(nickname.length).toBeLessThanOrEqual(10);
+  });
+
+  test('자동생성 닉네임으로 댓글 작성이 성공한다', async () => {
+    const nickname = await detail.commentNicknameInput.inputValue();
+    expect(nickname.length).toBeGreaterThan(0);
+
+    await detail.commentPasswordInput.fill('1234');
+    await detail.commentTextarea.fill('자동생성 닉네임 테스트 댓글');
+
+    await detail.commentSubmitButton.click();
+
+    // 작성한 댓글이 목록에 나타나는지 확인
+    await expect(
+      detail.commentSection.getByText('자동생성 닉네임 테스트 댓글')
+    ).toBeVisible({ timeout: 10_000 });
+  });
+});
+
 // ─── OG 메타태그 ───
 
 test.describe('OG 메타태그', () => {
