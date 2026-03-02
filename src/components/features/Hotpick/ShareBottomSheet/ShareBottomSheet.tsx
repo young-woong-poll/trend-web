@@ -1,16 +1,14 @@
 'use client';
 
-import { useCallback, useState, type FC } from 'react';
+import { useCallback, type FC } from 'react';
 
 import CopyIcon from '@/assets/icon/CopyIcon';
-import InfoIcon from '@/assets/icon/InfoIcon';
 import KakaoIcon from '@/assets/icon/KakaoIcon';
 import { Portal } from '@/components/common/Portal/Portal';
 import styles from '@/components/features/Hotpick/ShareBottomSheet/ShareBottomSheet.module.scss';
 import { useModal } from '@/contexts/ModalContext';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
-import { getTKUID } from '@/lib/tkuid';
 
 export interface ShareBottomSheetProps {
   isOpen: boolean;
@@ -33,19 +31,14 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
   imageUrl,
 }) => {
   const { showToast } = useModal();
-  const [useMyLink, setUseMyLink] = useState(true);
 
   useBodyScrollLock(isOpen);
   useEscapeKey(isOpen, onClose);
 
-  const getShareUrl = useCallback(() => {
-    const baseUrl = `${window.location.origin}/hotpick/${hotpickAlias}`;
-    if (useMyLink) {
-      const tkuid = getTKUID();
-      return `${baseUrl}?ref=${tkuid}`;
-    }
-    return baseUrl;
-  }, [hotpickAlias, useMyLink]);
+  const getShareUrl = useCallback(
+    () => `${window.location.origin}/hotpick/${hotpickAlias}`,
+    [hotpickAlias]
+  );
 
   const handleKakaoShare = useCallback(() => {
     const url = getShareUrl();
@@ -153,38 +146,6 @@ export const ShareBottomSheet: FC<ShareBottomSheetProps> = ({
                 </div>
                 <span className={styles.shareLabel}>링크 복사</span>
               </button>
-            </div>
-
-            {/* 구분선 */}
-            <div className={styles.divider} />
-
-            {/* 내 링크 옵션 */}
-            <div className={styles.myLinkSection}>
-              <div className={styles.myLinkToggle}>
-                <div className={styles.myLinkLeft}>
-                  <span className={styles.myLinkLabel}>내 링크로 공유</span>
-                </div>
-                <label className={styles.toggleSwitch}>
-                  <input
-                    type="checkbox"
-                    className={styles.toggleInput}
-                    checked={useMyLink}
-                    onChange={(e) => setUseMyLink(e.target.checked)}
-                  />
-                  <span className={styles.toggleSlider} />
-                </label>
-              </div>
-
-              {/* 내 링크 설명 */}
-              <div className={styles.myLinkDescription}>
-                <InfoIcon width={16} height={16} />
-                <p className={styles.myLinkDescriptionText}>
-                  <strong>내 링크</strong>를 켜면 공유한 링크로 투표한 사람들의 결과를 따로 모아볼
-                  수 있어요.
-                  <br />
-                  카카오톡, 링크 복사 모두 적용됩니다.
-                </p>
-              </div>
             </div>
           </div>
         </div>
