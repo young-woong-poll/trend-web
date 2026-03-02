@@ -40,30 +40,24 @@ test.describe('메인 페이지 좋아요 버튼', () => {
     // 좋아요 클릭
     await likeButton.click();
 
-    // 좋아요 아이콘의 filled 상태 확인 (svg fill 속성이 none이 아님)
+    // filled 상태로 전환될 때까지 대기 (낙관적 업데이트 후 re-render)
     const svgPath = likeButton.locator('svg path');
-    const fill = await svgPath.getAttribute('fill');
-    expect(fill).not.toBe('none');
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
   });
 
   test('좋아요 취소 시 아이콘이 원래 상태로 돌아간다', async () => {
     const likeButton = main.likeButton(0);
     await expect(likeButton).toBeVisible({ timeout: 10_000 });
 
-    // 좋아요 클릭
-    await likeButton.click();
-
-    // filled 상태 확인
     const svgPath = likeButton.locator('svg path');
-    let fill = await svgPath.getAttribute('fill');
-    expect(fill).not.toBe('none');
 
-    // 좋아요 취소 클릭
+    // 좋아요 클릭 → filled 상태 대기
     await likeButton.click();
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
 
-    // 원래 상태 복귀
-    fill = await svgPath.getAttribute('fill');
-    expect(fill).toBe('none');
+    // 좋아요 취소 클릭 → none 상태 복귀 대기
+    await likeButton.click();
+    await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
   });
 });
 
@@ -87,23 +81,23 @@ test.describe('상세 페이지 좋아요 버튼', () => {
     // 좋아요 클릭
     await detail.likeButton.click();
 
-    // filled 상태 확인
+    // filled 상태로 전환될 때까지 대기 (낙관적 업데이트 후 re-render)
     const svgPath = detail.likeButton.locator('svg path');
-    const fill = await svgPath.getAttribute('fill');
-    expect(fill).not.toBe('none');
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
   });
 
   test('좋아요 취소 시 아이콘이 원래 상태로 돌아간다', async () => {
     await expect(detail.likeButton).toBeVisible({ timeout: 10_000 });
 
-    // 좋아요 → 취소
-    await detail.likeButton.click();
-    await detail.likeButton.click();
-
-    // 원래 상태 복귀
     const svgPath = detail.likeButton.locator('svg path');
-    const fill = await svgPath.getAttribute('fill');
-    expect(fill).toBe('none');
+
+    // 좋아요 클릭 → filled 상태 대기
+    await detail.likeButton.click();
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
+
+    // 좋아요 취소 클릭 → none 상태 복귀 대기
+    await detail.likeButton.click();
+    await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
   });
 });
 
@@ -128,10 +122,19 @@ test.describe('상세 페이지 좋아요 카운트', () => {
     // 좋아요 클릭
     await likeButton.click();
 
-    // 카운트가 증가했는지 확인 (낙관적 업데이트)
-    const countAfter = await likeButton.locator('[class*="likeCount"]').textContent();
-    const numAfter = parseInt(countAfter ?? '0', 10) || 0;
-    expect(numAfter).toBeGreaterThan(numBefore);
+    // 카운트가 증가할 때까지 대기 (낙관적 업데이트 후 re-render)
+    await expect
+      .poll(
+        async () => {
+          const text = await likeButton
+            .locator('[class*="likeCount"]')
+            .textContent()
+            .catch(() => '0');
+          return parseInt(text ?? '0', 10) || 0;
+        },
+        { timeout: 5_000 }
+      )
+      .toBeGreaterThan(numBefore);
   });
 });
 
@@ -147,9 +150,8 @@ test.describe('마감된 투표 좋아요', () => {
     // 좋아요 클릭
     await detail.likeButton.click();
 
-    // filled 상태 확인
+    // filled 상태로 전환될 때까지 대기 (낙관적 업데이트 후 re-render)
     const svgPath = detail.likeButton.locator('svg path');
-    const fill = await svgPath.getAttribute('fill');
-    expect(fill).not.toBe('none');
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
   });
 });

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-import { getMockCommentListResponse } from '@/mocks/data/comments';
+import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
 import {
   mockMainHotpicks,
   mockHotpickDetailMap,
@@ -373,6 +373,7 @@ export const handlers = [
         edited: false,
         createdAt: new Date().toISOString(),
       };
+      addMockComment(newComment);
       return HttpResponse.json(wrapResponse(newComment), { status: 201 });
     }
   ),
