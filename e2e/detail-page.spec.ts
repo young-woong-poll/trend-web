@@ -129,12 +129,13 @@ test.describe('투표 플로우', () => {
     await expect(detail.commentItems.first()).toBeVisible({ timeout: 10_000 });
   });
 
-  test('투표 후 공유하기 클릭 시 "링크가 복사되었습니다" 토스트가 표시된다', async () => {
+  test('투표 후 공유하기 클릭 시 바텀시트가 열린다', async () => {
     await detail.voteFirstOption();
 
     await detail.shareButton.click();
 
-    await expect(detail.page.getByText('링크가 복사되었습니다')).toBeVisible({ timeout: 5_000 });
+    const sheet = detail.page.getByTestId('share-bottom-sheet');
+    await expect(sheet).toBeVisible({ timeout: 5_000 });
   });
 });
 
