@@ -79,7 +79,9 @@ const MOCK_HOTPICK_DETAILS: Record<string, object> = {
 
 /** 투표 응답 생성 */
 function buildVoteResponse(slug: string, electionItemId: number) {
-  const detail = MOCK_HOTPICK_DETAILS[slug] as { data: { hotpick: { election: { items: { electionItemId: number; title: string }[] } } } } | undefined;
+  const detail = MOCK_HOTPICK_DETAILS[slug] as
+    | { data: { hotpick: { election: { items: { electionItemId: number; title: string }[] } } } }
+    | undefined;
   const items = detail?.data?.hotpick?.election?.items ?? [];
   const total = 891; // 기존 890 + 방금 1표
 
@@ -96,7 +98,8 @@ function buildVoteResponse(slug: string, electionItemId: number) {
       items: items.map((item) => ({
         electionItemId: item.electionItemId,
         title: item.title,
-        voteCount: item.electionItemId === electionItemId ? 341 : item.electionItemId === 2 ? 410 : 140,
+        voteCount:
+          item.electionItemId === electionItemId ? 341 : item.electionItemId === 2 ? 410 : 140,
         voteRate: item.electionItemId === electionItemId ? 38 : item.electionItemId === 2 ? 46 : 16,
       })),
     },
@@ -197,7 +200,11 @@ export class OfflineVotePage {
         await route.fulfill({
           status: 404,
           contentType: 'application/json',
-          body: JSON.stringify({ code: 'NOT_FOUND', message: '서버 메타를 찾을 수 없습니다.', data: null }),
+          body: JSON.stringify({
+            code: 'NOT_FOUND',
+            message: '서버 메타를 찾을 수 없습니다.',
+            data: null,
+          }),
         });
       }
     });

@@ -319,9 +319,9 @@ test.describe('닉네임 자동생성', () => {
     await detail.commentSubmitButton.click();
 
     // 작성한 댓글이 목록에 나타나는지 확인
-    await expect(
-      detail.commentSection.getByText('자동생성 닉네임 테스트 댓글')
-    ).toBeVisible({ timeout: 10_000 });
+    await expect(detail.commentSection.getByText('자동생성 닉네임 테스트 댓글')).toBeVisible({
+      timeout: 10_000,
+    });
   });
 });
 

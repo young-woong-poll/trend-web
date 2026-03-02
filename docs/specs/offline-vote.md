@@ -20,13 +20,13 @@ BE에서 **ServerMeta** 개념을 도입했다. (커밋 `6060755`)
 
 ### 2.2 API 엔드포인트
 
-| API | Method | 용도 |
-|-----|--------|------|
-| `/admin/api/v1/server-metas` | POST | ServerMeta 생성 (어드민) |
-| `/admin/api/v1/server-metas` | GET | ServerMeta 목록 조회 (어드민) |
+| API                               | Method         | 용도                               |
+| --------------------------------- | -------------- | ---------------------------------- |
+| `/admin/api/v1/server-metas`      | POST           | ServerMeta 생성 (어드민)           |
+| `/admin/api/v1/server-metas`      | GET            | ServerMeta 목록 조회 (어드민)      |
 | `/admin/api/v1/server-metas/{id}` | GET/PUT/DELETE | ServerMeta 상세/수정/삭제 (어드민) |
-| `/api/v1/server-metas/{id}` | GET | ServerMeta 조회 (공개) |
-| `/api/v1/hotpicks/{slug}/votes` | POST | 투표 (serverMetaId 포함 가능) |
+| `/api/v1/server-metas/{id}`       | GET            | ServerMeta 조회 (공개)             |
+| `/api/v1/hotpicks/{slug}/votes`   | POST           | 투표 (serverMetaId 포함 가능)      |
 
 ### 2.3 데이터 구조
 
@@ -72,20 +72,20 @@ CreateVoteRequest {
 (2)    (3)      (3)     (2)
 ```
 
-| 코드 | 의미 |
-|------|------|
-| `1100000000` | 서울특별시 |
-| `1168000000` | 서울특별시 강남구 |
+| 코드         | 의미                     |
+| ------------ | ------------------------ |
+| `1100000000` | 서울특별시               |
+| `1168000000` | 서울특별시 강남구        |
 | `1168010100` | 서울특별시 강남구 역삼동 |
 
 #### 코드 기반의 장점
 
-| 문제 | 코드 기반 해결 |
-|------|---------------|
-| "강남" vs "강남구" 불일치 | 코드 `1168000000`으로 통일 |
-| "서울시" 통계에 "강남구" 포함? | SQL `WHERE code LIKE '11%'`로 서울 전체 조회 |
-| 오타/축약어 | 드롭다운 선택이므로 입력 오류 없음 |
-| 행정구역 변경 | 법정동코드는 행정안전부가 관리하며 이력 추적 가능 |
+| 문제                           | 코드 기반 해결                                    |
+| ------------------------------ | ------------------------------------------------- |
+| "강남" vs "강남구" 불일치      | 코드 `1168000000`으로 통일                        |
+| "서울시" 통계에 "강남구" 포함? | SQL `WHERE code LIKE '11%'`로 서울 전체 조회      |
+| 오타/축약어                    | 드롭다운 선택이므로 입력 오류 없음                |
+| 행정구역 변경                  | 법정동코드는 행정안전부가 관리하며 이력 추적 가능 |
 
 #### 법정동코드 조회 API (juso.dev)
 
@@ -96,11 +96,11 @@ CreateVoteRequest {
 GET https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern={pattern}
 ```
 
-| 조회 대상 | pattern | 설명 |
-|----------|---------|------|
-| 시도 목록 | `*00000000` | 서울, 부산, 대구, ... |
-| 서울의 구 목록 | `11*00000` | 종로구, 중구, 강남구, ... |
-| 강남구의 동 목록 | `1168*&is_ignore_zero=true` | 역삼동, 삼성동, ... |
+| 조회 대상        | pattern                     | 설명                      |
+| ---------------- | --------------------------- | ------------------------- |
+| 시도 목록        | `*00000000`                 | 서울, 부산, 대구, ...     |
+| 서울의 구 목록   | `11*00000`                  | 종로구, 중구, 강남구, ... |
+| 강남구의 동 목록 | `1168*&is_ignore_zero=true` | 역삼동, 삼성동, ...       |
 
 #### 어드민 UI: 시도 → 시군구 → 읍면동 3단계 드롭다운
 
@@ -177,10 +177,10 @@ GET https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_patter
 
 #### URL 파라미터
 
-| 파라미터 | 필수 | 설명 |
-|---------|:----:|------|
-| `slug` | O | 핫픽 slug |
-| `serverMetaId` | O | 서버 메타 UUID |
+| 파라미터       | 필수 | 설명           |
+| -------------- | :--: | -------------- |
+| `slug`         |  O   | 핫픽 slug      |
+| `serverMetaId` |  O   | 서버 메타 UUID |
 
 #### 진입 시 처리
 
@@ -194,13 +194,17 @@ GET https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_patter
 
 ```typescript
 // 변경 전
-vote(slug, { electionItemId: optionId }, { headers: { 'x-tku-id': tkuId } })
+vote(slug, { electionItemId: optionId }, { headers: { 'x-tku-id': tkuId } });
 
 // 변경 후
-vote(slug, {
-  electionItemId: optionId,
-  serverMetaId: serverMetaId,   // 서버 메타 UUID 추가
-}, { headers: { 'x-tku-id': tkuId } })
+vote(
+  slug,
+  {
+    electionItemId: optionId,
+    serverMetaId: serverMetaId, // 서버 메타 UUID 추가
+  },
+  { headers: { 'x-tku-id': tkuId } }
+);
 ```
 
 ### 4.3 UI 변경사항
@@ -224,11 +228,11 @@ vote(slug, {
 
 ### 4.4 파일 변경 계획
 
-| 파일 | 변경 |
-|------|------|
-| `src/app/offline-vote/page.tsx` | searchParams에서 slug, serverMetaId 추출 |
-| `src/components/features/OfflineVote/OfflineVotePage.tsx` | setup 제거, serverMeta 검증 로직 추가, vote에 serverMetaId 전송 |
-| `src/components/features/OfflineVote/OfflineVotePage.module.scss` | location 배지, 에러 화면 스타일 추가 |
+| 파일                                                              | 변경                                                            |
+| ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| `src/app/offline-vote/page.tsx`                                   | searchParams에서 slug, serverMetaId 추출                        |
+| `src/components/features/OfflineVote/OfflineVotePage.tsx`         | setup 제거, serverMeta 검증 로직 추가, vote에 serverMetaId 전송 |
+| `src/components/features/OfflineVote/OfflineVotePage.module.scss` | location 배지, 에러 화면 스타일 추가                            |
 
 ### 4.5 clientMeta 활용 (선택)
 
@@ -276,11 +280,11 @@ WHERE meta->'location'->>'code' = '1168010100'
 
 ## 6. 정리
 
-| 항목 | 내용 |
-|------|------|
-| 접근 제어 | URL의 `serverMetaId` 파라미터로 제어 (UUID = 추측 불가) |
-| 메타 전송 | `vote()` 호출 시 `serverMetaId`를 `CreateVoteRequest`에 포함 |
+| 항목      | 내용                                                                             |
+| --------- | -------------------------------------------------------------------------------- |
+| 접근 제어 | URL의 `serverMetaId` 파라미터로 제어 (UUID = 추측 불가)                          |
+| 메타 전송 | `vote()` 호출 시 `serverMetaId`를 `CreateVoteRequest`에 포함                     |
 | 메타 내용 | `location`은 법정동코드 기반 (코드+시도+시군구+읍면동), `from`/`to` 등 확장 가능 |
-| 기존 난수 | ServerMeta의 `id`(UUID)로 대체됨 |
-| FE 역할 | URL에서 serverMetaId 파싱 → 검증 → 투표 시 전송 |
-| BE 역할 | 투표 데이터와 serverMeta 매핑 저장 |
+| 기존 난수 | ServerMeta의 `id`(UUID)로 대체됨                                                 |
+| FE 역할   | URL에서 serverMetaId 파싱 → 검증 → 투표 시 전송                                  |
+| BE 역할   | 투표 데이터와 serverMeta 매핑 저장                                               |
