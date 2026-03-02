@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
+import LikeIcon from '@/assets/icon/LikeIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import { Button } from '@/components/common/Button';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
@@ -24,6 +25,7 @@ import {
 import { useModal } from '@/contexts/ModalContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
 import { displayKeys, useHotpickDetail } from '@/hooks/api/useDisplay';
+import { useLike } from '@/hooks/api/useLike';
 import { getTKUID } from '@/lib/tkuid';
 import { formatCount } from '@/lib/utils';
 import { calcPercentage, OPTION_LABELS } from '@/types/singleVote';
@@ -36,6 +38,7 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   const queryClient = useQueryClient();
   const { data: rawData, isLoading } = useHotpickDetail(hotpickAlias);
 
+  const { handleLike } = useLike();
   const { showToast } = useModal();
   const pendingRef = useRef(false);
   const tkuIdRef = useRef(getTKUID());
@@ -55,6 +58,8 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   const logoUrl = !isImageType ? (election?.imageUrl ?? hotpickCard?.imageUrl) : undefined;
   const categories: string[] = (hotpickCard?.categories ?? []).map((c) => c.name ?? '');
   const commentCount = election?.totalCommentCount ?? 0;
+  const liked = hotpickCard?.liked ?? false;
+  const likeCount = hotpickCard?.likeCount ?? 0;
   const showResult = voted || isExpired;
   const buttonGroupClass = items.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
@@ -228,14 +233,25 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
           </AnimatePresence>
         </div>
 
-        <div className={styles.metaRow}>
-          <span className={styles.participants}>{formatCount(totalVoteCount)}명 참여</span>
-          {hotpickCard.expiredAt && (
-            <>
-              <span className={styles.dot} />
-              <DeadlineBadge deadline={hotpickCard.expiredAt} compact />
-            </>
-          )}
+        <div className={styles.metaActionRow}>
+          <div className={styles.metaRow}>
+            <span className={styles.participants}>{formatCount(totalVoteCount)}명 참여</span>
+            {hotpickCard.expiredAt && (
+              <>
+                <span className={styles.dot} />
+                <DeadlineBadge deadline={hotpickCard.expiredAt} compact />
+              </>
+            )}
+          </div>
+          <button
+            type="button"
+            className={styles.likeButton}
+            onClick={() => handleLike(hotpickAlias, liked, likeCount)}
+            aria-label="좋아요"
+          >
+            <LikeIcon width={20} height={20} filled={liked} />
+            {likeCount > 0 && <span className={styles.likeCount}>{formatCount(likeCount)}</span>}
+          </button>
         </div>
 
         <div className={styles.shareCta}>

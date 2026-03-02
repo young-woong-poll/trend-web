@@ -12,7 +12,7 @@ import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCa
 import type { CategoryFilterItem } from '@/constants/category';
 import { useModal } from '@/contexts/ModalContext';
 import type { HotpickCardResponse } from '@/generated/models';
-import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
+import { useInfiniteMainDisplay, useCategories, useSingleVote, useLike } from '@/hooks/api';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
@@ -33,6 +33,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     imageUrl?: string;
   } | null>(null);
   const { handleVote } = useSingleVote();
+  const { handleLike } = useLike();
   const { showToast } = useModal();
   const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
@@ -119,6 +120,8 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             commentCount={election.totalCommentCount}
             deadline={hotpick.expiredAt}
             status={status}
+            likeCount={hotpick.likeCount}
+            liked={hotpick.liked}
             singleVote={electionToSingleVoteData(election)}
             voteType={hasOptionImages ? 'IMAGE' : 'TEXT'}
             mainImageUrl={!hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined}
@@ -127,6 +130,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             onShare={handleShare}
             onComment={handleComment}
             onCommentBlocked={handleCommentBlocked}
+            onLike={handleLike}
           />
         </div>
       );
