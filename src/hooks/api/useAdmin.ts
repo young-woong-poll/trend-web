@@ -14,6 +14,11 @@ import {
   deleteHotpick,
   checkSlug,
 } from '@/generated/api/client/admin-hotpick/admin-hotpick';
+import {
+  getAll as getServerMetas,
+  create as createServerMeta,
+  _delete as deleteServerMeta,
+} from '@/generated/api/client/admin-servermeta/admin-servermeta';
 import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
 import type {
   AdminCategoryResponse,
@@ -21,6 +26,8 @@ import type {
   AdminHotpickDetailResponse,
   CreateCategoryRequest,
   CreateHotpickRequest,
+  CreateServerMetaRequest,
+  ServerMetaResponse,
   UpdateCategoryRequest,
   UpdateHotpickRequest,
   HotpickSlugCheckResponse,
@@ -35,6 +42,7 @@ export const adminKeys = {
   hotpicks: () => [...adminKeys.all, 'hotpicks'] as const,
   hotpick: (id: number) => [...adminKeys.all, 'hotpick', id] as const,
   categories: () => [...adminKeys.all, 'categories'] as const,
+  serverMetas: () => [...adminKeys.all, 'serverMetas'] as const,
 };
 
 // ──────────────────────────────────────────────────────────
@@ -205,6 +213,58 @@ export const useDeleteCategory = () => {
     },
     onError: () => {
       showToast('카테고리 삭제에 실패했습니다.');
+    },
+  });
+};
+
+// ──────────────────────────────────────────────────────────
+// ServerMeta Hooks
+// ──────────────────────────────────────────────────────────
+
+/**
+ * Admin: ServerMeta 목록 조회 Hook
+ */
+export const useServerMetas = (enabled = true) =>
+  useQuery({
+    queryKey: adminKeys.serverMetas(),
+    queryFn: () => getServerMetas() as Promise<ServerMetaResponse[]>,
+    enabled,
+  });
+
+/**
+ * Admin: ServerMeta 생성 Hook
+ */
+export const useCreateServerMeta = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (data: CreateServerMetaRequest) => createServerMeta(data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.serverMetas() });
+      showToast('서버 메타가 생성되었습니다.');
+    },
+    onError: () => {
+      showToast('서버 메타 생성에 실패했습니다.');
+    },
+  });
+};
+
+/**
+ * Admin: ServerMeta 삭제 Hook
+ */
+export const useDeleteServerMeta = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteServerMeta(id),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.serverMetas() });
+      showToast('서버 메타가 삭제되었습니다.');
+    },
+    onError: () => {
+      showToast('서버 메타 삭제에 실패했습니다.');
     },
   });
 };

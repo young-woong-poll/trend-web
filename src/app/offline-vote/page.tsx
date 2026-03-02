@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { OfflineVotePage } from '@/components/features/OfflineVote/OfflineVotePage';
 
 import type { Metadata } from 'next';
@@ -8,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <OfflineVotePage />;
+  return (
+    <Suspense>
+      <OfflineVotePage />
+    </Suspense>
+  );
 }
