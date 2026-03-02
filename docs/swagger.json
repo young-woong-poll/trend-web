@@ -1,13 +1,44 @@
 {
   "openapi": "3.0.1",
-  "info": { "title": "OpenAPI definition", "version": "v0" },
-  "servers": [{ "url": "https://hotpick-api.votebox.kr", "description": "Generated server url" }],
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "https://beta-hotpick-api.votebox.kr",
+      "description": "Generated server url"
+    }
+  ],
   "tags": [
-    { "name": "Admin Category", "description": "Category admin API" },
-    { "name": "Comment", "description": "Hotpick comment API" },
-    { "name": "Admin Storage", "description": "관리자용 S3 Pre-signed URL API" },
-    { "name": "Hotpick", "description": "Hotpick display and vote API" },
-    { "name": "Admin Hotpick", "description": "Hotpick admin API" }
+    {
+      "name": "Admin Category",
+      "description": "Category admin API"
+    },
+    {
+      "name": "ServerMeta",
+      "description": "Server meta API"
+    },
+    {
+      "name": "Comment",
+      "description": "Hotpick comment API"
+    },
+    {
+      "name": "Admin Storage",
+      "description": "관리자용 S3 Pre-signed URL API"
+    },
+    {
+      "name": "Hotpick",
+      "description": "Hotpick display and vote API"
+    },
+    {
+      "name": "Admin Hotpick",
+      "description": "Hotpick admin API"
+    },
+    {
+      "name": "Admin ServerMeta",
+      "description": "Admin server meta API"
+    }
   ],
   "paths": {
     "/api/v1/comments/{commentId}": {
@@ -16,12 +47,21 @@
         "summary": "Update comment",
         "operationId": "updateComment",
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateCommentRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCommentRequest"
+              }
             }
           },
           "required": true
@@ -29,23 +69,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentUpdateResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentUpdateResponse"
+                }
               }
             }
           }
@@ -56,12 +114,21 @@
         "summary": "Delete comment",
         "operationId": "deleteComment",
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/DeleteCommentRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/DeleteCommentRequest"
+              }
             }
           },
           "required": true
@@ -69,21 +136,226 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/server-metas/{id}": {
+      "get": {
+        "tags": ["Admin ServerMeta"],
+        "summary": "Get server meta detail",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Admin ServerMeta"],
+        "summary": "Update server meta",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateServerMetaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin ServerMeta"],
+        "summary": "Delete server meta",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           }
         }
       }
@@ -98,29 +370,50 @@
             "name": "hotpickId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse"
+                }
               }
             }
           }
@@ -135,13 +428,18 @@
             "name": "hotpickId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateHotpickRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHotpickRequest"
+              }
             }
           },
           "required": true
@@ -149,23 +447,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse"
+                }
               }
             }
           }
@@ -180,27 +496,52 @@
             "name": "hotpickId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           }
         }
       }
@@ -215,13 +556,18 @@
             "name": "categoryId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/UpdateCategoryRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryRequest"
+              }
             }
           },
           "required": true
@@ -229,23 +575,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseAdminCategoryResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminCategoryResponse"
+                }
               }
             }
           }
@@ -260,27 +624,52 @@
             "name": "categoryId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           }
         }
       }
@@ -291,34 +680,72 @@
         "summary": "Submit vote for a hotpick",
         "operationId": "vote",
         "parameters": [
-          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/CreateVoteRequest" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVoteRequest"
+              }
+            }
           },
           "required": true
         },
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoteResultResponse" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoteResultResponse"
+                }
+              }
             }
           }
         }
@@ -330,48 +757,96 @@
         "summary": "Get comment list",
         "operationId": "getComments",
         "parameters": [
-          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "electionId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           },
           {
             "name": "sort",
             "in": "query",
             "required": false,
-            "schema": { "type": "string", "default": "latest" }
+            "schema": {
+              "type": "string",
+              "default": "latest"
+            }
           },
-          { "name": "cursor", "in": "query", "required": false, "schema": { "type": "string" } },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "size",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "format": "int32" }
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentListResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentListResponse"
+                }
               }
             }
           }
@@ -382,18 +857,30 @@
         "summary": "Create comment",
         "operationId": "createComment",
         "parameters": [
-          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "electionId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateCommentRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateCommentRequest"
+              }
             }
           },
           "required": true
@@ -401,23 +888,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentCreateResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentCreateResponse"
+                }
               }
             }
           }
@@ -430,12 +935,21 @@
         "summary": "Verify comment password",
         "operationId": "verifyComment",
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/VerifyCommentRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/VerifyCommentRequest"
+              }
             }
           },
           "required": true
@@ -443,23 +957,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentVerifyResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentVerifyResponse"
+                }
               }
             }
           }
@@ -472,29 +1004,61 @@
         "summary": "Like comment",
         "operationId": "likeComment",
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentLikeResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentLikeResponse"
+                }
               }
             }
           }
@@ -505,29 +1069,167 @@
         "summary": "Unlike comment",
         "operationId": "unlikeComment",
         "parameters": [
-          { "name": "commentId", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentLikeResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentLikeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/server-metas": {
+      "get": {
+        "tags": ["Admin ServerMeta"],
+        "summary": "Get server meta list",
+        "operationId": "getAll",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListServerMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin ServerMeta"],
+        "summary": "Create server meta",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateServerMetaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCreateServerMetaResponse"
+                }
               }
             }
           }
@@ -542,16 +1244,32 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
@@ -573,7 +1291,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateHotpickRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateHotpickRequest"
+              }
             }
           },
           "required": true
@@ -581,23 +1301,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminHotpickDetailResponse"
+                }
               }
             }
           }
@@ -612,23 +1350,41 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseListAdminCategoryResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListAdminCategoryResponse"
+                }
               }
             }
           }
@@ -641,7 +1397,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/CreateCategoryRequest" }
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryRequest"
+              }
             }
           },
           "required": true
@@ -649,23 +1407,100 @@
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseAdminCategoryResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminCategoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/server-metas/{id}": {
+      "get": {
+        "tags": ["ServerMeta"],
+        "summary": "Get server meta",
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
+                }
               }
             }
           }
@@ -678,29 +1513,61 @@
         "summary": "Get hotpick detail",
         "operationId": "getDetail",
         "parameters": [
-          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseHotpickDetailResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseHotpickDetailResponse"
+                }
               }
             }
           }
@@ -713,34 +1580,62 @@
         "summary": "Get comment count",
         "operationId": "countComments",
         "parameters": [
-          { "name": "slug", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "electionId",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseCommentCountResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentCountResponse"
+                }
               }
             }
           }
@@ -753,41 +1648,79 @@
         "summary": "Get main hotpick display",
         "operationId": "getMain",
         "parameters": [
-          { "name": "category", "in": "query", "required": false, "schema": { "type": "string" } },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "cursor",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "format": "int64" }
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
           },
           {
             "name": "size",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "format": "int32" }
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
-          { "name": "x-tku-id", "in": "header", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseMainHotpickResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseMainHotpickResponse"
+                }
               }
             }
           }
@@ -800,28 +1733,53 @@
         "summary": "Get category tabs",
         "operationId": "getCategories_1",
         "parameters": [
-          { "name": "selected", "in": "query", "required": false, "schema": { "type": "string" } }
+          {
+            "name": "selected",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseListCategoryTabResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListCategoryTabResponse"
+                }
               }
             }
           }
@@ -835,27 +1793,54 @@
         "description": "파일명을 전달하면 S3 업로드 URL과 CDN 경로를 반환합니다.",
         "operationId": "generatePresignedUrl",
         "parameters": [
-          { "name": "filename", "in": "query", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "filename",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseMapStringString" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseMapStringString"
+                }
+              }
             }
           }
         }
@@ -867,28 +1852,53 @@
         "summary": "Check hotpick slug duplicate",
         "operationId": "checkSlug",
         "parameters": [
-          { "name": "slug", "in": "query", "required": true, "schema": { "type": "string" } }
+          {
+            "name": "slug",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "429": {
             "description": "Too Many Requests",
-            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseVoid" } } }
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
           "409": {
             "description": "Conflict",
             "content": {
-              "*/*": { "schema": { "$ref": "#/components/schemas/BaseResponseObject" } }
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
             }
           },
           "200": {
             "description": "OK",
             "content": {
               "*/*": {
-                "schema": { "$ref": "#/components/schemas/BaseResponseHotpickSlugCheckResponse" }
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseHotpickSlugCheckResponse"
+                }
               }
             }
           }
@@ -901,18 +1911,40 @@
       "BaseResponseVoid": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "type": "object", "description": "응답 데이터" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "object",
+            "description": "응답 데이터"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "BaseResponseObject": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "type": "object", "description": "응답 데이터" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "object",
+            "description": "응답 데이터"
+          }
         },
         "description": "공통 응답 포맷"
       },
@@ -920,43 +1952,143 @@
         "required": ["content", "verifyToken"],
         "type": "object",
         "properties": {
-          "verifyToken": { "type": "string" },
-          "content": { "maxLength": 200, "minLength": 0, "type": "string" }
+          "verifyToken": {
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          }
         }
       },
       "BaseResponseCommentUpdateResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentUpdateResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentUpdateResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentUpdateResponse": {
         "type": "object",
-        "properties": { "id": { "type": "string" }, "updatedAt": { "type": "string" } },
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "JsonNode": {
+        "type": "object"
+      },
+      "UpdateServerMetaRequest": {
+        "required": ["meta"],
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        }
+      },
+      "BaseResponseServerMetaResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ServerMetaResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "ServerMetaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/JsonNode"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
         "description": "응답 데이터"
       },
       "HotpickElectionItemRequest": {
         "required": ["title"],
         "type": "object",
         "properties": {
-          "displayOrder": { "minimum": 0, "type": "integer", "format": "int32" },
-          "title": { "maxLength": 200, "minLength": 0, "type": "string" },
-          "imageUrl": { "maxLength": 500, "minLength": 0, "type": "string" }
+          "displayOrder": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          }
         }
       },
       "HotpickElectionRequest": {
         "required": ["items", "title"],
         "type": "object",
         "properties": {
-          "title": { "maxLength": 200, "minLength": 0, "type": "string" },
-          "imageUrl": { "maxLength": 500, "minLength": 0, "type": "string" },
-          "totalCommentCount": { "minimum": 0, "type": "integer", "format": "int64" },
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          },
+          "totalCommentCount": {
+            "minimum": 0,
+            "type": "integer",
+            "format": "int64"
+          },
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/HotpickElectionItemRequest" }
+            "items": {
+              "$ref": "#/components/schemas/HotpickElectionItemRequest"
+            }
           }
         }
       },
@@ -964,73 +2096,169 @@
         "required": ["election", "slug", "type", "visible"],
         "type": "object",
         "properties": {
-          "type": { "type": "string", "enum": ["SINGLE"] },
-          "slug": { "maxLength": 120, "minLength": 0, "type": "string" },
-          "visible": { "type": "boolean" },
-          "imageUrl": { "maxLength": 500, "minLength": 0, "type": "string" },
-          "expiredAt": { "type": "string", "format": "date-time" },
-          "categoryIds": { "type": "array", "items": { "type": "integer", "format": "int64" } },
-          "election": { "$ref": "#/components/schemas/HotpickElectionRequest" }
+          "type": {
+            "type": "string",
+            "enum": ["SINGLE"]
+          },
+          "slug": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "election": {
+            "$ref": "#/components/schemas/HotpickElectionRequest"
+          }
         }
       },
       "AdminCategoryResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "name": { "type": "string" },
-          "slug": { "type": "string" }
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
         }
       },
       "AdminElectionItemResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "displayOrder": { "type": "integer", "format": "int32" },
-          "title": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "voteCount": { "type": "integer", "format": "int64" }
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          }
         }
       },
       "AdminElectionResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "hotpickId": { "type": "integer", "format": "int64" },
-          "title": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "totalVoteCount": { "type": "integer", "format": "int64" },
-          "totalCommentCount": { "type": "integer", "format": "int64" },
-          "createdAt": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "totalVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCommentCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/AdminElectionItemResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AdminElectionItemResponse"
+            }
           }
         }
       },
       "AdminHotpickDetailResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "type": { "type": "string" },
-          "slug": { "type": "string" },
-          "visible": { "type": "boolean" },
-          "imageUrl": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "expiredAt": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "categories": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/AdminCategoryResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AdminCategoryResponse"
+            }
           },
-          "election": { "$ref": "#/components/schemas/AdminElectionResponse" }
+          "election": {
+            "$ref": "#/components/schemas/AdminElectionResponse"
+          }
         },
         "description": "응답 데이터"
       },
       "BaseResponseAdminHotpickDetailResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/AdminHotpickDetailResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminHotpickDetailResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
@@ -1038,58 +2266,133 @@
         "required": ["name", "slug"],
         "type": "object",
         "properties": {
-          "name": { "maxLength": 120, "minLength": 0, "type": "string" },
-          "slug": { "maxLength": 120, "minLength": 0, "type": "string" }
+          "name": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          },
+          "slug": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          }
         }
       },
       "BaseResponseAdminCategoryResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/AdminCategoryResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminCategoryResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CreateVoteRequest": {
         "required": ["electionItemId"],
         "type": "object",
-        "properties": { "electionItemId": { "type": "integer", "format": "int64" } }
+        "properties": {
+          "electionItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "serverMetaId": {
+            "type": "string"
+          },
+          "clientMeta": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        }
       },
       "BaseResponseVoteResultResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/VoteResultResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/VoteResultResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "ElectionItemViewResponse": {
         "type": "object",
         "properties": {
-          "electionItemId": { "type": "integer", "format": "int64" },
-          "displayOrder": { "type": "integer", "format": "int32" },
-          "title": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "voteCount": { "type": "integer", "format": "int64" },
-          "voteRate": { "type": "integer", "format": "int32" },
-          "selected": { "type": "boolean" }
+          "electionItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "voteRate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "selected": {
+            "type": "boolean"
+          }
         }
       },
       "VoteResultResponse": {
         "type": "object",
         "properties": {
-          "hotpickId": { "type": "integer", "format": "int64" },
-          "hotpickSlug": { "type": "string" },
-          "electionId": { "type": "integer", "format": "int64" },
-          "myElectionItemId": { "type": "integer", "format": "int64" },
-          "totalVoteCount": { "type": "integer", "format": "int64" },
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myElectionItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/ElectionItemViewResponse" }
+            "items": {
+              "$ref": "#/components/schemas/ElectionItemViewResponse"
+            }
           },
-          "voted": { "type": "boolean" }
+          "voted": {
+            "type": "boolean"
+          }
         },
         "description": "응답 데이터"
       },
@@ -1097,62 +2400,163 @@
         "required": ["content", "nickname", "password"],
         "type": "object",
         "properties": {
-          "nickname": { "maxLength": 80, "minLength": 0, "type": "string" },
-          "password": { "maxLength": 64, "minLength": 1, "type": "string" },
-          "content": { "maxLength": 200, "minLength": 0, "type": "string" }
+          "nickname": {
+            "maxLength": 80,
+            "minLength": 0,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "content": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          }
         }
       },
       "BaseResponseCommentCreateResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentCreateResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentCreateResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentCreateResponse": {
         "type": "object",
-        "properties": { "id": { "type": "string" } },
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
         "description": "응답 데이터"
       },
       "VerifyCommentRequest": {
         "required": ["password"],
         "type": "object",
-        "properties": { "password": { "maxLength": 64, "minLength": 1, "type": "string" } }
+        "properties": {
+          "password": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        }
       },
       "BaseResponseCommentVerifyResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentVerifyResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentVerifyResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentVerifyResponse": {
         "type": "object",
         "properties": {
-          "verifyToken": { "type": "string" },
-          "expiresIn": { "type": "integer", "format": "int64" },
-          "expiredAt": { "type": "string" }
+          "verifyToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiredAt": {
+            "type": "string"
+          }
         },
         "description": "응답 데이터"
       },
       "BaseResponseCommentLikeResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentLikeResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentLikeResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentLikeResponse": {
         "type": "object",
         "properties": {
-          "liked": { "type": "boolean" },
-          "likeCount": { "type": "integer", "format": "int64" }
+          "liked": {
+            "type": "boolean"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "CreateServerMetaRequest": {
+        "required": ["meta"],
+        "type": "object",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/JsonNode"
+          }
+        }
+      },
+      "BaseResponseCreateServerMetaResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateServerMetaResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CreateServerMetaResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
         },
         "description": "응답 데이터"
       },
@@ -1160,80 +2564,173 @@
         "required": ["election", "slug", "type", "visible"],
         "type": "object",
         "properties": {
-          "type": { "type": "string", "enum": ["SINGLE"] },
-          "slug": { "maxLength": 120, "minLength": 0, "type": "string" },
-          "visible": { "type": "boolean" },
-          "imageUrl": { "maxLength": 500, "minLength": 0, "type": "string" },
-          "expiredAt": { "type": "string", "format": "date-time" },
-          "categoryIds": { "type": "array", "items": { "type": "integer", "format": "int64" } },
-          "election": { "$ref": "#/components/schemas/HotpickElectionRequest" }
+          "type": {
+            "type": "string",
+            "enum": ["SINGLE"]
+          },
+          "slug": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "election": {
+            "$ref": "#/components/schemas/HotpickElectionRequest"
+          }
         }
       },
       "CreateCategoryRequest": {
         "required": ["name", "slug"],
         "type": "object",
         "properties": {
-          "name": { "maxLength": 120, "minLength": 0, "type": "string" },
-          "slug": { "maxLength": 120, "minLength": 0, "type": "string" }
+          "name": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          },
+          "slug": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          }
         }
       },
       "BaseResponseHotpickDetailResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/HotpickDetailResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotpickDetailResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "ElectionViewResponse": {
         "type": "object",
         "properties": {
-          "electionId": { "type": "integer", "format": "int64" },
-          "title": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "totalVoteCount": { "type": "integer", "format": "int64" },
-          "totalCommentCount": { "type": "integer", "format": "int64" },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "totalVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCommentCount": {
+            "type": "integer",
+            "format": "int64"
+          },
           "items": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/ElectionItemViewResponse" }
+            "items": {
+              "$ref": "#/components/schemas/ElectionItemViewResponse"
+            }
           },
-          "voted": { "type": "boolean" },
-          "myElectionItemId": { "type": "integer", "format": "int64" }
+          "voted": {
+            "type": "boolean"
+          },
+          "myElectionItemId": {
+            "type": "integer",
+            "format": "int64"
+          }
         }
       },
       "HotpickCardResponse": {
         "type": "object",
         "properties": {
-          "hotpickId": { "type": "integer", "format": "int64" },
-          "type": { "type": "string" },
-          "slug": { "type": "string" },
-          "imageUrl": { "type": "string" },
-          "expiredAt": { "type": "string", "format": "date-time" },
-          "isExpired": { "type": "boolean" },
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isExpired": {
+            "type": "boolean"
+          },
           "categories": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/HotpickCategoryResponse" }
+            "items": {
+              "$ref": "#/components/schemas/HotpickCategoryResponse"
+            }
           },
-          "topComment": { "$ref": "#/components/schemas/TopCommentResponse" },
-          "election": { "$ref": "#/components/schemas/ElectionViewResponse" }
+          "topComment": {
+            "$ref": "#/components/schemas/TopCommentResponse"
+          },
+          "election": {
+            "$ref": "#/components/schemas/ElectionViewResponse"
+          }
         }
       },
       "HotpickCategoryResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "name": { "type": "string" },
-          "slug": { "type": "string" }
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
         }
       },
       "HotpickDetailResponse": {
         "type": "object",
         "properties": {
-          "hotpick": { "$ref": "#/components/schemas/HotpickCardResponse" },
+          "hotpick": {
+            "$ref": "#/components/schemas/HotpickCardResponse"
+          },
           "relatedHotpicks": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/HotpickCardResponse" }
+            "items": {
+              "$ref": "#/components/schemas/HotpickCardResponse"
+            }
           }
         },
         "description": "응답 데이터"
@@ -1241,74 +2738,157 @@
       "TopCommentResponse": {
         "type": "object",
         "properties": {
-          "commentId": { "type": "string" },
-          "nickname": { "type": "string" },
-          "content": { "type": "string" },
-          "likeCount": { "type": "integer", "format": "int64" },
-          "createdAt": { "type": "string", "format": "date-time" }
+          "commentId": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
         }
       },
       "BaseResponseCommentListResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentListResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentListResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentItem": {
         "type": "object",
         "properties": {
-          "id": { "type": "string" },
-          "nickname": { "type": "string" },
-          "content": { "type": "string" },
-          "likeCount": { "type": "integer", "format": "int64" },
-          "liked": { "type": "boolean" },
-          "edited": { "type": "boolean" },
-          "createdAt": { "type": "string" },
-          "updatedAt": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "liked": {
+            "type": "boolean"
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
         }
       },
       "CommentListResponse": {
         "type": "object",
         "properties": {
-          "totalCount": { "type": "integer", "format": "int64" },
-          "nextCursor": { "type": "string" },
-          "comments": { "type": "array", "items": { "$ref": "#/components/schemas/CommentItem" } }
+          "totalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommentItem"
+            }
+          }
         },
         "description": "응답 데이터"
       },
       "BaseResponseCommentCountResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/CommentCountResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentCountResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CommentCountResponse": {
         "type": "object",
-        "properties": { "count": { "type": "integer", "format": "int64" } },
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
         "description": "응답 데이터"
       },
       "BaseResponseMainHotpickResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/MainHotpickResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MainHotpickResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "CategoryTabResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "name": { "type": "string" },
-          "slug": { "type": "string" },
-          "selected": { "type": "boolean" }
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "boolean"
+          }
         }
       },
       "MainHotpickResponse": {
@@ -1316,26 +2896,45 @@
         "properties": {
           "categories": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/CategoryTabResponse" }
+            "items": {
+              "$ref": "#/components/schemas/CategoryTabResponse"
+            }
           },
           "hotpicks": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/HotpickCardResponse" }
+            "items": {
+              "$ref": "#/components/schemas/HotpickCardResponse"
+            }
           },
-          "nextCursor": { "type": "integer", "format": "int64" },
-          "hasMore": { "type": "boolean" }
+          "nextCursor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
         },
         "description": "응답 데이터"
       },
       "BaseResponseListCategoryTabResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
           "data": {
             "type": "array",
             "description": "응답 데이터",
-            "items": { "$ref": "#/components/schemas/CategoryTabResponse" }
+            "items": {
+              "$ref": "#/components/schemas/CategoryTabResponse"
+            }
           }
         },
         "description": "공통 응답 포맷"
@@ -1343,12 +2942,46 @@
       "BaseResponseMapStringString": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
           "data": {
             "type": "object",
-            "additionalProperties": { "type": "string", "description": "응답 데이터" },
+            "additionalProperties": {
+              "type": "string",
+              "description": "응답 데이터"
+            },
             "description": "응답 데이터"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseListServerMetaResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/ServerMetaResponse"
+            }
           }
         },
         "description": "공통 응답 포맷"
@@ -1356,30 +2989,61 @@
       "AdminHotpickSummaryResponse": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer", "format": "int64" },
-          "type": { "type": "string" },
-          "slug": { "type": "string" },
-          "visible": { "type": "boolean" },
-          "imageUrl": { "type": "string" },
-          "createdAt": { "type": "string", "format": "date-time" },
-          "expiredAt": { "type": "string", "format": "date-time" },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "visible": {
+            "type": "boolean"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "categories": {
             "type": "array",
-            "items": { "$ref": "#/components/schemas/AdminCategoryResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AdminCategoryResponse"
+            }
           },
-          "election": { "$ref": "#/components/schemas/AdminElectionResponse" }
+          "election": {
+            "$ref": "#/components/schemas/AdminElectionResponse"
+          }
         },
         "description": "응답 데이터"
       },
       "BaseResponseListAdminHotpickSummaryResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
           "data": {
             "type": "array",
             "description": "응답 데이터",
-            "items": { "$ref": "#/components/schemas/AdminHotpickSummaryResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AdminHotpickSummaryResponse"
+            }
           }
         },
         "description": "공통 응답 포맷"
@@ -1387,26 +3051,50 @@
       "BaseResponseHotpickSlugCheckResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
-          "data": { "$ref": "#/components/schemas/HotpickSlugCheckResponse" }
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotpickSlugCheckResponse"
+          }
         },
         "description": "공통 응답 포맷"
       },
       "HotpickSlugCheckResponse": {
         "type": "object",
-        "properties": { "exists": { "type": "boolean" } },
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          }
+        },
         "description": "응답 데이터"
       },
       "BaseResponseListAdminCategoryResponse": {
         "type": "object",
         "properties": {
-          "code": { "type": "string", "description": "응답 코드", "example": "S0000" },
-          "message": { "type": "string", "description": "응답 메시지", "example": "성공" },
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
           "data": {
             "type": "array",
             "description": "응답 데이터",
-            "items": { "$ref": "#/components/schemas/AdminCategoryResponse" }
+            "items": {
+              "$ref": "#/components/schemas/AdminCategoryResponse"
+            }
           }
         },
         "description": "공통 응답 포맷"
@@ -1414,7 +3102,11 @@
       "DeleteCommentRequest": {
         "required": ["verifyToken"],
         "type": "object",
-        "properties": { "verifyToken": { "type": "string" } }
+        "properties": {
+          "verifyToken": {
+            "type": "string"
+          }
+        }
       }
     }
   }

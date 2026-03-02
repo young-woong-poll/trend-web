@@ -167,13 +167,14 @@ test.describe('메인 카드 인라인 투표', () => {
     await expect(myChoice).toBeVisible({ timeout: 10_000 });
   });
 
-  test('투표 후 공유 버튼이 동작한다', async () => {
+  test('투표 후 공유 버튼 클릭 시 바텀시트가 열린다', async () => {
     // 첫 번째 카드의 공유 버튼 클릭
     const shareBtn = main.shareButton(0);
     await expect(shareBtn).toBeVisible();
     await shareBtn.click();
 
-    // "링크가 복사되었습니다" 토스트 확인
-    await expect(main.page.getByText('링크가 복사되었습니다')).toBeVisible({ timeout: 5_000 });
+    // 공유 바텀시트 확인
+    const sheet = main.page.getByTestId('share-bottom-sheet');
+    await expect(sheet).toBeVisible({ timeout: 5_000 });
   });
 });

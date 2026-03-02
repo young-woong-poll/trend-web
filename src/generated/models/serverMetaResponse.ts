@@ -6,8 +6,12 @@
  */
 import type { JsonNode } from './jsonNode';
 
-export interface CreateVoteRequest {
-  electionItemId: number;
-  serverMetaId?: string;
-  clientMeta?: JsonNode;
+/**
+ * 응답 데이터
+ */
+export interface ServerMetaResponse {
+  id?: string;
+  meta?: JsonNode;
+  createdAt?: string;
+  updatedAt?: string;
 }

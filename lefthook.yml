@@ -4,10 +4,11 @@ pre-commit:
     format:
       glob: '*.{js,jsx,ts,tsx,json,css,scss,md}'
       run: pnpm prettier --write {staged_files}
+      stage_fixed: true
     lint:
-      run: pnpm lint:fix
-    type-check:
-      run: pnpm type-check
+      glob: '*.{js,jsx,ts,tsx}'
+      run: pnpm eslint --fix {staged_files}
+      stage_fixed: true
 
 pre-push:
   parallel: false

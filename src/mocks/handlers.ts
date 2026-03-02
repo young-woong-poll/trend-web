@@ -582,4 +582,55 @@ export const handlers = [
     mockCategories.splice(idx, 1);
     return HttpResponse.json(wrapResponse(null));
   }),
+
+  // ──────────────────────────────────────────────────────────
+  // Server Meta API (오프라인 투표)
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 서버 메타 조회
+   * GET /api/v1/server-metas/:id
+   */
+  http.get(`${baseURL}/api/v1/server-metas/:id`, ({ params }) => {
+    const id = String(params.id);
+
+    // 테스트용 고정 서버 메타
+    if (id === 'test-server-meta-001') {
+      return HttpResponse.json(
+        wrapResponse({
+          id: 'test-server-meta-001',
+          meta: {
+            location: {
+              code: '1100000000',
+              sido: '서울특별시',
+              sigungu: '강남구',
+              eupmyeondong: '역삼동',
+            },
+            from: '2026-01-01',
+            to: '2026-12-31',
+          },
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        })
+      );
+    }
+
+    // 위치 정보 없는 메타
+    if (id === 'test-server-meta-no-location') {
+      return HttpResponse.json(
+        wrapResponse({
+          id: 'test-server-meta-no-location',
+          meta: {},
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        })
+      );
+    }
+
+    // 존재하지 않는 ID
+    return HttpResponse.json(
+      { code: 'NOT_FOUND', message: '서버 메타를 찾을 수 없습니다.', data: null },
+      { status: 404 }
+    );
+  }),
 ];

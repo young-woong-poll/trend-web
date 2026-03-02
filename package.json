@@ -17,6 +17,7 @@
     "prepare": "lefthook install",
     "lefthook:install": "lefthook install",
     "lefthook:uninstall": "lefthook uninstall",
+    "api:fetch-swagger": "bash scripts/fetch-swagger.sh",
     "api:generate": "orval",
     "api:generate:watch": "orval --watch",
     "test:e2e": "playwright test",

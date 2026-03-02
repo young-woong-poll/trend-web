@@ -1,0 +1,396 @@
+@use '@/styles/variables' as *;
+
+.container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0;
+  }
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: $text-tertiary;
+  margin: 4px 0 0 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.125rem;
+  color: $text-tertiary;
+}
+
+// ── 생성 폼 ──
+
+.createForm {
+  background: $bg-secondary;
+  border: 1px solid $border-placeholder;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.formTitle {
+  font-size: 1.25rem;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0 0 1.5rem 0;
+}
+
+.formGroup {
+  margin-bottom: 1.25rem;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 2px solid $border-placeholder;
+  border-radius: 6px;
+  background: $bg-tertiary;
+  color: $white;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $neutral-400;
+    box-shadow: 0 0 0 3px rgba($neutral-400, 0.2);
+  }
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 2px solid $border-placeholder;
+  border-radius: 6px;
+  background: $bg-tertiary;
+  color: $white;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a8a8a' d='M3 5l3 3 3-3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+
+  &:focus {
+    outline: none;
+    border-color: $neutral-400;
+    box-shadow: 0 0 0 3px rgba($neutral-400, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  option {
+    background: $bg-tertiary;
+    color: $white;
+  }
+}
+
+.locationDropdowns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.selectedLocation {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  color: $primary-start;
+}
+
+.timeRange {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timeRangeSeparator {
+  color: $text-tertiary;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+// ── 테이블 ──
+
+.tableWrapper {
+  overflow-x: auto;
+  background: $bg-secondary;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: $bg-tertiary;
+    border-bottom: 2px solid $border-placeholder;
+
+    tr {
+      th {
+        padding: 1rem;
+        text-align: left;
+        font-size: 0.875rem;
+        font-weight: $font-weight-semibold;
+        color: $text-secondary;
+        white-space: nowrap;
+
+        &:first-child {
+          padding-left: 1.5rem;
+        }
+
+        &:last-child {
+          padding-right: 1.5rem;
+          width: 200px;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-placeholder;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $bg-tertiary;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        color: $white;
+        vertical-align: middle;
+
+        &:first-child {
+          padding-left: 1.5rem;
+        }
+
+        &:last-child {
+          padding-right: 1.5rem;
+        }
+      }
+    }
+  }
+}
+
+.idCell {
+  max-width: 120px;
+}
+
+.uuid {
+  font-family: $font-family-mono;
+  font-size: 0.8125rem;
+  color: $text-tertiary;
+}
+
+.code {
+  font-family: $font-family-mono;
+  font-size: 0.8125rem;
+  padding: 2px 6px;
+  background: $bg-tertiary;
+  border-radius: 4px;
+  color: $text-secondary;
+}
+
+.timeInfo {
+  font-size: 0.8125rem;
+  color: $text-secondary;
+}
+
+// ── 액션 버튼 ──
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actionButton {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: $font-weight-medium;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copyButton {
+  @extend .actionButton;
+  color: $primary-start;
+  background: transparent;
+  border: 1px solid rgba($primary-start, 0.4);
+
+  &:hover:not(:disabled) {
+    background: rgba($primary-start, 0.1);
+    border-color: $primary-start;
+  }
+}
+
+.deleteButton {
+  @extend .actionButton;
+  color: #ef4444;
+  background: transparent;
+  border: 1px solid rgba(#ef4444, 0.4);
+
+  &:hover:not(:disabled) {
+    background: rgba(#ef4444, 0.1);
+    border-color: #ef4444;
+  }
+}
+
+.saveButton {
+  @extend .actionButton;
+  color: $white;
+  background: $btn-left;
+  border: 1px solid $btn-left;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelButton {
+  @extend .actionButton;
+  color: $text-tertiary;
+  background: transparent;
+  border: 1px solid $border-placeholder;
+
+  &:hover {
+    color: $white;
+    border-color: $neutral-500;
+  }
+}
+
+// ── Confirm 모달 ──
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: $bg-secondary;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0 0 0.75rem 0;
+}
+
+.modalMessage {
+  font-size: 0.875rem;
+  color: $text-secondary;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.modalActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirmButton {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+// ── 반응형 ──
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .locationDropdowns {
+    grid-template-columns: 1fr;
+  }
+
+  .timeRange {
+    flex-direction: column;
+
+    .timeRangeSeparator {
+      display: none;
+    }
+  }
+
+  .table {
+    min-width: 800px;
+  }
+}
