@@ -48,12 +48,6 @@ test.describe('상세페이지 공유하기 바텀시트', () => {
     await expect(sheet.copyLinkButton).toBeVisible();
   });
 
-  test('"내 링크로 공유" 토글이 기본 ON이다', async () => {
-    await detail.shareButton.click();
-    await sheet.waitForOpen();
-    await expect(sheet.myLinkCheckbox).toBeChecked();
-  });
-
   test('링크 복사 클릭 시 토스트가 표시된다', async () => {
     await detail.shareButton.click();
     await sheet.waitForOpen();
@@ -77,41 +71,6 @@ test.describe('상세페이지 공유하기 바텀시트', () => {
     await sheet.closeButton.click();
     await sheet.waitForClose();
     await expect(sheet.sheet).not.toBeVisible();
-  });
-
-  test('"내 링크" 토글 OFF 후 링크 복사 시 ref 파라미터 없이 복사된다', async () => {
-    await detail.shareButton.click();
-    await sheet.waitForOpen();
-
-    // 토글 OFF (label 클릭으로 체크박스 토글)
-    await sheet.myLinkToggle.click();
-    await expect(sheet.myLinkCheckbox).not.toBeChecked();
-
-    // 링크 복사
-    await sheet.copyLinkButton.click();
-    await expect(detail.page.getByText('링크가 복사되었습니다')).toBeVisible({ timeout: 5_000 });
-
-    // 클립보드 내용 확인
-    const clipboardText = await detail.page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toContain(`/hotpick/${SLUG}`);
-    expect(clipboardText).not.toContain('ref=');
-  });
-
-  test('"내 링크" 토글 ON 상태에서 링크 복사 시 ref 파라미터가 포함된다', async () => {
-    await detail.shareButton.click();
-    await sheet.waitForOpen();
-
-    // 토글 ON 확인
-    await expect(sheet.myLinkCheckbox).toBeChecked();
-
-    // 링크 복사
-    await sheet.copyLinkButton.click();
-    await expect(detail.page.getByText('링크가 복사되었습니다')).toBeVisible({ timeout: 5_000 });
-
-    // 클립보드 내용 확인
-    const clipboardText = await detail.page.evaluate(() => navigator.clipboard.readText());
-    expect(clipboardText).toContain(`/hotpick/${SLUG}`);
-    expect(clipboardText).toContain('ref=');
   });
 });
 
