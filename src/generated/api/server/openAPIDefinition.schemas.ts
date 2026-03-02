@@ -266,6 +266,25 @@ export interface BaseResponseVoteResultResponse {
   data?: VoteResultResponse;
 }
 
+/**
+ * 응답 데이터
+ */
+export interface HotpickLikeResponse {
+  liked?: boolean;
+  likeCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseHotpickLikeResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: HotpickLikeResponse;
+}
+
 export interface CreateCommentRequest {
   /**
    * @minLength 0
@@ -441,6 +460,9 @@ export interface HotpickCardResponse {
   imageUrl?: string;
   expiredAt?: string;
   isExpired?: boolean;
+  tag?: string;
+  likeCount?: number;
+  liked?: boolean;
   categories?: HotpickCategoryResponse[];
   topComment?: TopCommentResponse;
   election?: ElectionViewResponse;
@@ -652,6 +674,7 @@ export type GetCommentsParams = {
 
 export type GetMainParams = {
   category?: string;
+  sort?: string;
   cursor?: number;
   size?: number;
 };

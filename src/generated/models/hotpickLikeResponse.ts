@@ -5,9 +5,10 @@
  * OpenAPI spec version: v0
  */
 
-export type GetMainParams = {
-  category?: string;
-  sort?: string;
-  cursor?: number;
-  size?: number;
-};
+/**
+ * 응답 데이터
+ */
+export interface HotpickLikeResponse {
+  liked?: boolean;
+  likeCount?: number;
+}

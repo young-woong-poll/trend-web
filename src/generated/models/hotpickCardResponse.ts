@@ -15,6 +15,9 @@ export interface HotpickCardResponse {
   imageUrl?: string;
   expiredAt?: string;
   isExpired?: boolean;
+  tag?: string;
+  likeCount?: number;
+  liked?: boolean;
   categories?: HotpickCategoryResponse[];
   topComment?: TopCommentResponse;
   election?: ElectionViewResponse;
