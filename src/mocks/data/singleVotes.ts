@@ -49,6 +49,67 @@ export function getBundleResultId(tkuId: string, trendId: string): string | unde
   return bundleVoteStore.get(makeKey(tkuId, trendId));
 }
 
+// ──────────────────────────────────────────────────────────
+// 핫픽 좋아요 저장소
+// tkuId:slug → liked
+// ──────────────────────────────────────────────────────────
+
+/** tkuId:slug → liked */
+const likeStore = new Map<string, boolean>();
+
+/** slug별 좋아요 수 (mock 초기값) */
+const likeCounts: Record<string, number> = {};
+
+export function toggleLike(tkuId: string, slug: string): { liked: boolean; likeCount: number } {
+  const key = makeKey(tkuId, slug);
+  const wasLiked = likeStore.get(key) ?? false;
+  const newLiked = !wasLiked;
+  likeStore.set(key, newLiked);
+
+  if (!(slug in likeCounts)) {
+    likeCounts[slug] = 0;
+  }
+  likeCounts[slug] += newLiked ? 1 : -1;
+
+  return { liked: newLiked, likeCount: Math.max(0, likeCounts[slug]) };
+}
+
+export function setLike(
+  tkuId: string,
+  slug: string,
+  liked: boolean
+): { liked: boolean; likeCount: number } {
+  const key = makeKey(tkuId, slug);
+  const wasLiked = likeStore.get(key) ?? false;
+
+  if (wasLiked === liked) {
+    return { liked, likeCount: Math.max(0, likeCounts[slug] ?? 0) };
+  }
+
+  likeStore.set(key, liked);
+
+  if (!(slug in likeCounts)) {
+    likeCounts[slug] = 0;
+  }
+  likeCounts[slug] += liked ? 1 : -1;
+
+  return { liked, likeCount: Math.max(0, likeCounts[slug]) };
+}
+
+export function getLikeState(tkuId: string, slug: string): { liked: boolean; likeCount: number } {
+  const key = makeKey(tkuId, slug);
+  return {
+    liked: likeStore.get(key) ?? false,
+    likeCount: Math.max(0, likeCounts[slug] ?? 0),
+  };
+}
+
+export function initLikeCount(slug: string, count: number): void {
+  if (!(slug in likeCounts)) {
+    likeCounts[slug] = count;
+  }
+}
+
 /** 옵션별 투표 수: { optionId: count } */
 export type OptionCounts = Record<string, number>;
 

@@ -24,12 +24,12 @@
       "description": "Hotpick comment API"
     },
     {
-      "name": "Admin Storage",
-      "description": "관리자용 S3 Pre-signed URL API"
-    },
-    {
       "name": "Hotpick",
       "description": "Hotpick display and vote API"
+    },
+    {
+      "name": "Admin Storage",
+      "description": "관리자용 S3 Pre-signed URL API"
     },
     {
       "name": "Admin Hotpick",
@@ -744,6 +744,138 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseVoteResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hotpicks/{slug}/like": {
+      "post": {
+        "tags": ["Hotpick"],
+        "summary": "Like hotpick",
+        "operationId": "likeHotpick",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseHotpickLikeResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Hotpick"],
+        "summary": "Unlike hotpick",
+        "operationId": "unlikeHotpick",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseHotpickLikeResponse"
                 }
               }
             }
@@ -1657,6 +1789,16 @@
             }
           },
           {
+            "name": "sort",
+            "in": "query",
+            "description": "정렬 방식 (기본: recommended)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["recommended", "latest", "popular", "hot"]
+            }
+          },
+          {
             "name": "cursor",
             "in": "query",
             "required": false,
@@ -2396,6 +2538,38 @@
         },
         "description": "응답 데이터"
       },
+      "BaseResponseHotpickLikeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/HotpickLikeResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "HotpickLikeResponse": {
+        "type": "object",
+        "properties": {
+          "liked": {
+            "type": "boolean"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
       "CreateCommentRequest": {
         "required": ["content", "nickname", "password"],
         "type": "object",
@@ -2689,6 +2863,18 @@
             "format": "date-time"
           },
           "isExpired": {
+            "type": "boolean"
+          },
+          "tag": {
+            "type": "string",
+            "description": "메인 노출 태그. main(sort)에서만 값이 내려가며 상세/연관 목록에서는 null일 수 있음",
+            "enum": ["RECOMMENDED", "HOT_THIS_WEEK", "LATEST", "POPULAR", "HOT_NOW"]
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "liked": {
             "type": "boolean"
           },
           "categories": {

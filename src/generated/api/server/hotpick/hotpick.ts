@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseHotpickDetailResponse,
+  BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
   BaseResponseMainHotpickResponse,
   BaseResponseObject,
@@ -64,6 +65,106 @@ export const vote = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(createVoteRequest),
+  });
+};
+
+/**
+ * @summary Like hotpick
+ */
+export type likeHotpickResponse200 = {
+  data: BaseResponseHotpickLikeResponse;
+  status: 200;
+};
+
+export type likeHotpickResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type likeHotpickResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type likeHotpickResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type likeHotpickResponseSuccess = likeHotpickResponse200 & {
+  headers: Headers;
+};
+export type likeHotpickResponseError = (
+  | likeHotpickResponse409
+  | likeHotpickResponse429
+  | likeHotpickResponse500
+) & {
+  headers: Headers;
+};
+
+export type likeHotpickResponse = likeHotpickResponseSuccess | likeHotpickResponseError;
+
+export const getLikeHotpickUrl = (slug: string) => {
+  return `/api/v1/hotpicks/${slug}/like`;
+};
+
+export const likeHotpick = async (
+  slug: string,
+  options?: RequestInit
+): Promise<likeHotpickResponse> => {
+  return serverFetchInstance<likeHotpickResponse>(getLikeHotpickUrl(slug), {
+    ...options,
+    method: 'POST',
+  });
+};
+
+/**
+ * @summary Unlike hotpick
+ */
+export type unlikeHotpickResponse200 = {
+  data: BaseResponseHotpickLikeResponse;
+  status: 200;
+};
+
+export type unlikeHotpickResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type unlikeHotpickResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type unlikeHotpickResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type unlikeHotpickResponseSuccess = unlikeHotpickResponse200 & {
+  headers: Headers;
+};
+export type unlikeHotpickResponseError = (
+  | unlikeHotpickResponse409
+  | unlikeHotpickResponse429
+  | unlikeHotpickResponse500
+) & {
+  headers: Headers;
+};
+
+export type unlikeHotpickResponse = unlikeHotpickResponseSuccess | unlikeHotpickResponseError;
+
+export const getUnlikeHotpickUrl = (slug: string) => {
+  return `/api/v1/hotpicks/${slug}/like`;
+};
+
+export const unlikeHotpick = async (
+  slug: string,
+  options?: RequestInit
+): Promise<unlikeHotpickResponse> => {
+  return serverFetchInstance<unlikeHotpickResponse>(getUnlikeHotpickUrl(slug), {
+    ...options,
+    method: 'DELETE',
   });
 };
 

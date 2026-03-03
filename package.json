@@ -17,11 +17,10 @@
     "prepare": "lefthook install",
     "lefthook:install": "lefthook install",
     "lefthook:uninstall": "lefthook uninstall",
-    "api:fetch-swagger": "bash scripts/fetch-swagger.sh",
-    "api:generate": "orval",
-    "api:generate:watch": "orval --watch",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "swagger": "bash scripts/fetch-swagger.sh",
+    "orval": "orval",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

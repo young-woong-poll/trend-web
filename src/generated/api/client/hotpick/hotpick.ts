@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseHotpickDetailResponse,
+  BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
   BaseResponseMainHotpickResponse,
   BaseResponseVoteResultResponse,
@@ -34,6 +35,30 @@ export const vote = (
       headers: { 'Content-Type': 'application/json' },
       data: createVoteRequest,
     },
+    options
+  );
+};
+/**
+ * @summary Like hotpick
+ */
+export const likeHotpick = (
+  slug: string,
+  options?: SecondParameter<typeof customInstance<BaseResponseHotpickLikeResponse>>
+) => {
+  return customInstance<BaseResponseHotpickLikeResponse>(
+    { url: `/api/v1/hotpicks/${slug}/like`, method: 'POST' },
+    options
+  );
+};
+/**
+ * @summary Unlike hotpick
+ */
+export const unlikeHotpick = (
+  slug: string,
+  options?: SecondParameter<typeof customInstance<BaseResponseHotpickLikeResponse>>
+) => {
+  return customInstance<BaseResponseHotpickLikeResponse>(
+    { url: `/api/v1/hotpicks/${slug}/like`, method: 'DELETE' },
     options
   );
 };
@@ -74,6 +99,8 @@ export const getCategories1 = (
   );
 };
 export type VoteResult = NonNullable<Awaited<ReturnType<typeof vote>>>;
+export type LikeHotpickResult = NonNullable<Awaited<ReturnType<typeof likeHotpick>>>;
+export type UnlikeHotpickResult = NonNullable<Awaited<ReturnType<typeof unlikeHotpick>>>;
 export type GetDetailResult = NonNullable<Awaited<ReturnType<typeof getDetail>>>;
 export type GetMainResult = NonNullable<Awaited<ReturnType<typeof getMain>>>;
 export type GetCategories1Result = NonNullable<Awaited<ReturnType<typeof getCategories1>>>;

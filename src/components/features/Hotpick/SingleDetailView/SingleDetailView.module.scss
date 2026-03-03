@@ -325,11 +325,47 @@
 }
 
 // ── 메타 영역 ──
+.metaActionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
 .metaRow {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 12px;
+}
+
+.likeButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.08);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.likeCount {
+  font-size: 13px;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  line-height: 1;
 }
 
 .dot {

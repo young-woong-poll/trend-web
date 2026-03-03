@@ -21,12 +21,6 @@ export class ShareBottomSheetHelper {
   /** 링크 복사 버튼 */
   readonly copyLinkButton: Locator;
 
-  /** "내 링크로 공유" 토글 스위치 (label 요소, 클릭 가능) */
-  readonly myLinkToggle: Locator;
-
-  /** "내 링크로 공유" 체크박스 (hidden input, 상태 확인용) */
-  readonly myLinkCheckbox: Locator;
-
   /** 핫픽 제목 프리뷰 */
   readonly hotpickTitle: Locator;
 
@@ -40,8 +34,6 @@ export class ShareBottomSheetHelper {
     this.closeButton = this.sheet.getByRole('button', { name: '닫기' });
     this.kakaoShareButton = this.sheet.getByRole('button', { name: '카카오톡' });
     this.copyLinkButton = this.sheet.getByRole('button', { name: '링크 복사' });
-    this.myLinkToggle = this.sheet.locator('[class*="toggleSwitch"]');
-    this.myLinkCheckbox = this.sheet.locator('input[type="checkbox"]');
     this.hotpickTitle = this.sheet.locator('[class*="hotpickTitle"]');
     this.hotpickOptions = this.sheet.locator('[class*="hotpickOptions"]');
   }
