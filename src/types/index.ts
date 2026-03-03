@@ -10,5 +10,4 @@ export * from './api';
 export * from './common';
 export * from './result';
 export * from './hotpick';
-export * from './localStorage';
 /* eslint-enable no-restricted-imports */
