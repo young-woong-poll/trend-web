@@ -129,14 +129,15 @@ test.describe('투표 플로우', () => {
     await expect(detail.commentItems.first()).toBeVisible({ timeout: 10_000 });
   });
 
-  test('투표 후 공유하기 클릭 시 바텀시트가 열린다', async () => {
-    await detail.voteFirstOption();
-
-    await detail.shareButton.click();
-
-    const sheet = detail.page.getByTestId('share-bottom-sheet');
-    await expect(sheet).toBeVisible({ timeout: 5_000 });
-  });
+  // NOTE: 카카오 공유하기 바텀시트 비활성화로 인해 주석 처리 (코드 보존)
+  // test('투표 후 공유하기 클릭 시 바텀시트가 열린다', async () => {
+  //   await detail.voteFirstOption();
+  //
+  //   await detail.shareButton.click();
+  //
+  //   const sheet = detail.page.getByTestId('share-bottom-sheet');
+  //   await expect(sheet).toBeVisible({ timeout: 5_000 });
+  // });
 });
 
 // ─── 마감된 투표 상세 ───
