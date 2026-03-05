@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, type FC } from 'react';
+import { useCallback, useRef, type FC } from 'react';
 
 import Image from 'next/image';
 
@@ -12,7 +12,8 @@ import LikeIcon from '@/assets/icon/LikeIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import { Button } from '@/components/common/Button';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
-import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
+// NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+// import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
 import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetailView/InlineCommentSection';
 import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
@@ -42,7 +43,8 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   const { showToast } = useModal();
   const pendingRef = useRef(false);
   const tkuIdRef = useRef(getTKUID());
-  const [isShareOpen, setIsShareOpen] = useState(false);
+  // NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+  // const [isShareOpen, setIsShareOpen] = useState(false);
 
   const hotpickCard = rawData?.hotpick;
   const election = hotpickCard?.election;
@@ -93,8 +95,14 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
   );
 
   const handleShare = useCallback(() => {
-    setIsShareOpen(true);
-  }, []);
+    const url = `${window.location.origin}/hotpick/${hotpickAlias}`;
+    void navigator.clipboard.writeText(url).then(() => {
+      showToast('링크가 복사되었습니다');
+    });
+
+    // NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+    // setIsShareOpen(true);
+  }, [hotpickAlias, showToast]);
 
   if (isLoading || !rawData || !hotpickCard || !election) {
     return <SingleDetailSkeleton />;
@@ -282,14 +290,15 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
         commentCount={commentCount}
       />
 
-      <ShareBottomSheet
+      {/* NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존) */}
+      {/* <ShareBottomSheet
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
         hotpickAlias={hotpickAlias}
         title={title}
         options={items.map((item) => item.title ?? '')}
         imageUrl={election.imageUrl ?? hotpickCard.imageUrl}
-      />
+      /> */}
     </div>
   );
 };

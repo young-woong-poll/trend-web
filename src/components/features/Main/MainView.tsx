@@ -3,7 +3,8 @@
 import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
-import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
+// NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+// import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
 import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
@@ -26,12 +27,13 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     slug: string;
     electionId: string;
   } | null>(null);
-  const [shareTarget, setShareTarget] = useState<{
-    slug: string;
-    title: string;
-    options: string[];
-    imageUrl?: string;
-  } | null>(null);
+  // NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+  // const [shareTarget, setShareTarget] = useState<{
+  //   slug: string;
+  //   title: string;
+  //   options: string[];
+  //   imageUrl?: string;
+  // } | null>(null);
   const { handleVote } = useSingleVote();
   const { handleLike } = useLike();
   const { showToast } = useModal();
@@ -88,16 +90,22 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
 
   const handleShare = useCallback(
     (slug: string) => {
-      const hotpick = hotpicks.find((h) => h.slug === slug);
-      const election = hotpick?.election;
-      setShareTarget({
-        slug,
-        title: election?.title ?? '',
-        options: (election?.items ?? []).map((item) => item.title ?? ''),
-        imageUrl: election?.imageUrl ?? hotpick?.imageUrl,
+      const url = `${window.location.origin}/hotpick/${slug}`;
+      void navigator.clipboard.writeText(url).then(() => {
+        showToast('링크가 복사되었습니다');
       });
+
+      // NOTE: 카카오 공유하기 바텀시트 코드 보존 (비활성화)
+      // const hotpick = hotpicks.find((h) => h.slug === slug);
+      // const election = hotpick?.election;
+      // setShareTarget({
+      //   slug,
+      //   title: election?.title ?? '',
+      //   options: (election?.items ?? []).map((item) => item.title ?? ''),
+      //   imageUrl: election?.imageUrl ?? hotpick?.imageUrl,
+      // });
     },
-    [hotpicks]
+    [showToast]
   );
 
   const renderHotpick = (hotpick: HotpickCardResponse, keyPrefix?: string) => {
@@ -235,8 +243,8 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
         />
       )}
 
-      {/* 공유하기 바텀시트 */}
-      {shareTarget && (
+      {/* NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존) */}
+      {/* {shareTarget && (
         <ShareBottomSheet
           isOpen
           onClose={() => setShareTarget(null)}
@@ -245,7 +253,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
           options={shareTarget.options}
           imageUrl={shareTarget.imageUrl}
         />
-      )}
+      )} */}
     </>
   );
 };
