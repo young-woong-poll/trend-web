@@ -66,6 +66,35 @@ export interface BaseResponseCommentUpdateResponse {
   data?: CommentUpdateResponse;
 }
 
+export interface JsonNode {
+  [key: string]: unknown;
+}
+
+export interface UpdateServerMetaRequest {
+  meta: JsonNode;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface ServerMetaResponse {
+  id?: string;
+  meta?: JsonNode;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: ServerMetaResponse;
+}
+
 export interface HotpickElectionItemRequest {
   /** @minimum 0 */
   displayOrder?: number;
@@ -199,6 +228,8 @@ export interface BaseResponseAdminCategoryResponse {
 
 export interface CreateVoteRequest {
   electionItemId: number;
+  serverMetaId?: string;
+  clientMeta?: JsonNode;
 }
 
 export interface ElectionItemViewResponse {
@@ -233,6 +264,25 @@ export interface BaseResponseVoteResultResponse {
   /** 응답 메시지 */
   message?: string;
   data?: VoteResultResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface HotpickLikeResponse {
+  liked?: boolean;
+  likeCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseHotpickLikeResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: HotpickLikeResponse;
 }
 
 export interface CreateCommentRequest {
@@ -318,6 +368,28 @@ export interface BaseResponseCommentLikeResponse {
   data?: CommentLikeResponse;
 }
 
+export interface CreateServerMetaRequest {
+  meta: JsonNode;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreateServerMetaResponse {
+  id?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreateServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreateServerMetaResponse;
+}
+
 export type CreateHotpickRequestType =
   (typeof CreateHotpickRequestType)[keyof typeof CreateHotpickRequestType];
 
@@ -356,6 +428,20 @@ export interface CreateCategoryRequest {
   slug: string;
 }
 
+/**
+ * 메인 노출 태그. main(sort)에서만 값이 내려가며 상세/연관 목록에서는 null일 수 있음
+ */
+export type HotpickCardResponseTag =
+  (typeof HotpickCardResponseTag)[keyof typeof HotpickCardResponseTag];
+
+export const HotpickCardResponseTag = {
+  RECOMMENDED: 'RECOMMENDED',
+  HOT_THIS_WEEK: 'HOT_THIS_WEEK',
+  LATEST: 'LATEST',
+  POPULAR: 'POPULAR',
+  HOT_NOW: 'HOT_NOW',
+} as const;
+
 export interface HotpickCategoryResponse {
   id?: number;
   name?: string;
@@ -388,6 +474,10 @@ export interface HotpickCardResponse {
   imageUrl?: string;
   expiredAt?: string;
   isExpired?: boolean;
+  /** 메인 노출 태그. main(sort)에서만 값이 내려가며 상세/연관 목록에서는 null일 수 있음 */
+  tag?: HotpickCardResponseTag;
+  likeCount?: number;
+  liked?: boolean;
   categories?: HotpickCategoryResponse[];
   topComment?: TopCommentResponse;
   election?: ElectionViewResponse;
@@ -519,6 +609,18 @@ export interface BaseResponseMapStringString {
 }
 
 /**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListServerMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: ServerMetaResponse[];
+}
+
+/**
  * 응답 데이터
  */
 export interface AdminHotpickSummaryResponse {
@@ -587,9 +689,22 @@ export type GetCommentsParams = {
 
 export type GetMainParams = {
   category?: string;
+  /**
+   * 정렬 방식 (기본: recommended)
+   */
+  sort?: GetMainSort;
   cursor?: number;
   size?: number;
 };
+
+export type GetMainSort = (typeof GetMainSort)[keyof typeof GetMainSort];
+
+export const GetMainSort = {
+  recommended: 'recommended',
+  latest: 'latest',
+  popular: 'popular',
+  hot: 'hot',
+} as const;
 
 export type GetCategories1Params = {
   selected?: string;

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-import { getMockCommentListResponse } from '@/mocks/data/comments';
+import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
 import {
   mockMainHotpicks,
   mockHotpickDetailMap,
@@ -18,6 +18,9 @@ import {
   getTotalVotes,
   recordBundleVote,
   hasBundleVoted,
+  setLike,
+  getLikeState,
+  initLikeCount,
 } from '@/mocks/data/singleVotes';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
@@ -75,48 +78,54 @@ export const handlers = [
       });
     }
 
-    // x-tku-id 기반 기투표 상태 반영
-    if (tkuId) {
-      hotpicks = hotpicks.map((hp) => {
-        const slug = hp.slug ?? '';
-        const hotpickId = String(hp.hotpickId ?? '');
-        const election = hp.election;
-        if (!election) {
-          return hp;
-        }
+    // 좋아요 초기 카운트 설정 + x-tku-id 기반 상태 반영
+    hotpicks = hotpicks.map((hp) => {
+      const slug = hp.slug ?? '';
+      const hotpickId = String(hp.hotpickId ?? '');
+      const election = hp.election;
 
-        const vote = getVote(tkuId, hotpickId);
-        if (vote) {
-          const optionCounts = getOptionCounts(hotpickId);
-          const total = getTotalVotes(hotpickId);
-          return {
-            ...hp,
-            election: {
-              ...election,
-              voted: true,
-              myElectionItemId: Number(vote.optionId) || undefined,
-              totalVoteCount: total,
-              items: (election.items ?? []).map((item) => {
-                const sc = optionCounts.find((c) => c.id === String(item.electionItemId));
-                return {
-                  ...item,
-                  voteCount: sc?.count ?? item.voteCount,
-                  voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
-                };
-              }),
-            },
-          };
-        }
+      // 좋아요 초기 카운트 등록
+      initLikeCount(slug, hp.likeCount ?? 0);
+      const likeState = tkuId
+        ? getLikeState(tkuId, slug)
+        : { liked: false, likeCount: hp.likeCount ?? 0 };
+      let updated = { ...hp, liked: likeState.liked, likeCount: likeState.likeCount };
 
-        // Bundle 참여 상태
-        const ext = trendExtensions[slug];
-        if (ext?.type === 'BUNDLE' && hasBundleVoted(tkuId, hotpickId)) {
-          return { ...hp, participated: true };
-        }
+      if (!election || !tkuId) {
+        return updated;
+      }
 
-        return hp;
-      });
-    }
+      const vote = getVote(tkuId, hotpickId);
+      if (vote) {
+        const optionCounts = getOptionCounts(hotpickId);
+        const total = getTotalVotes(hotpickId);
+        updated = {
+          ...updated,
+          election: {
+            ...election,
+            voted: true,
+            myElectionItemId: Number(vote.optionId) || undefined,
+            totalVoteCount: total,
+            items: (election.items ?? []).map((item) => {
+              const sc = optionCounts.find((c) => c.id === String(item.electionItemId));
+              return {
+                ...item,
+                voteCount: sc?.count ?? item.voteCount,
+                voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+              };
+            }),
+          },
+        };
+      }
+
+      // Bundle 참여 상태
+      const ext = trendExtensions[slug];
+      if (ext?.type === 'BUNDLE' && hasBundleVoted(tkuId, hotpickId)) {
+        updated = { ...updated, participated: true } as typeof updated;
+      }
+
+      return updated;
+    });
 
     // 커서 기반 페이지네이션
     const cursor = url.searchParams.get('cursor');
@@ -147,6 +156,12 @@ export const handlers = [
     const tkuId = request.headers.get('x-tku-id') ?? '';
     const hotpickId = String(detailData.hotpick?.hotpickId ?? '');
 
+    // 좋아요 초기 카운트 등록 + 상태 반영
+    initLikeCount(slug, detailData.hotpick?.likeCount ?? 0);
+    const likeState = tkuId
+      ? getLikeState(tkuId, slug)
+      : { liked: false, likeCount: detailData.hotpick?.likeCount ?? 0 };
+
     // 기투표 상태 반영
     if (tkuId && detailData.hotpick?.election) {
       const vote = getVote(tkuId, hotpickId);
@@ -159,6 +174,8 @@ export const handlers = [
             ...detailData,
             hotpick: {
               ...detailData.hotpick,
+              liked: likeState.liked,
+              likeCount: likeState.likeCount,
               election: {
                 ...election,
                 voted: true,
@@ -181,7 +198,16 @@ export const handlers = [
       }
     }
 
-    return HttpResponse.json(wrapResponse(detailData));
+    return HttpResponse.json(
+      wrapResponse({
+        ...detailData,
+        hotpick: {
+          ...detailData.hotpick,
+          liked: likeState.liked,
+          likeCount: likeState.likeCount,
+        },
+      })
+    );
   }),
 
   /**
@@ -279,6 +305,28 @@ export const handlers = [
   }),
 
   /**
+   * 핫픽 좋아요
+   * POST /api/v1/hotpicks/:slug/like
+   */
+  http.post(`${baseURL}/api/v1/hotpicks/:slug/like`, ({ request, params }) => {
+    const slug = String(params.slug);
+    const tkuId = request.headers.get('x-tku-id') ?? 'anonymous';
+    const result = setLike(tkuId, slug, true);
+    return HttpResponse.json(wrapResponse(result));
+  }),
+
+  /**
+   * 핫픽 좋아요 취소
+   * DELETE /api/v1/hotpicks/:slug/like
+   */
+  http.delete(`${baseURL}/api/v1/hotpicks/:slug/like`, ({ request, params }) => {
+    const slug = String(params.slug);
+    const tkuId = request.headers.get('x-tku-id') ?? 'anonymous';
+    const result = setLike(tkuId, slug, false);
+    return HttpResponse.json(wrapResponse(result));
+  }),
+
+  /**
    * 카테고리 목록 조회
    * GET /api/v1/hotpicks/categories
    */
@@ -325,6 +373,7 @@ export const handlers = [
         edited: false,
         createdAt: new Date().toISOString(),
       };
+      addMockComment(newComment);
       return HttpResponse.json(wrapResponse(newComment), { status: 201 });
     }
   ),
@@ -581,5 +630,56 @@ export const handlers = [
     }
     mockCategories.splice(idx, 1);
     return HttpResponse.json(wrapResponse(null));
+  }),
+
+  // ──────────────────────────────────────────────────────────
+  // Server Meta API (오프라인 투표)
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 서버 메타 조회
+   * GET /api/v1/server-metas/:id
+   */
+  http.get(`${baseURL}/api/v1/server-metas/:id`, ({ params }) => {
+    const id = String(params.id);
+
+    // 테스트용 고정 서버 메타
+    if (id === 'test-server-meta-001') {
+      return HttpResponse.json(
+        wrapResponse({
+          id: 'test-server-meta-001',
+          meta: {
+            location: {
+              code: '1100000000',
+              sido: '서울특별시',
+              sigungu: '강남구',
+              eupmyeondong: '역삼동',
+            },
+            from: '2026-01-01',
+            to: '2026-12-31',
+          },
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        })
+      );
+    }
+
+    // 위치 정보 없는 메타
+    if (id === 'test-server-meta-no-location') {
+      return HttpResponse.json(
+        wrapResponse({
+          id: 'test-server-meta-no-location',
+          meta: {},
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        })
+      );
+    }
+
+    // 존재하지 않는 ID
+    return HttpResponse.json(
+      { code: 'NOT_FOUND', message: '서버 메타를 찾을 수 없습니다.', data: null },
+      { status: 404 }
+    );
   }),
 ];

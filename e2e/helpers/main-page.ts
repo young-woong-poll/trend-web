@@ -74,6 +74,11 @@ export class MainPage {
     return this.singleCards.nth(cardIndex).locator('[class*="categoryTag"]');
   }
 
+  /** 특정 카드의 좋아요 버튼 */
+  likeButton(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).getByRole('button', { name: '좋아요' });
+  }
+
   async goto() {
     await this.page.goto('/');
     // MSW mock 데이터 로딩 대기: 카드가 렌더링되거나 에러/빈 상태가 표시될 때까지

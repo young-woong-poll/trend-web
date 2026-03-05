@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
+import LikeIcon from '@/assets/icon/LikeIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
@@ -34,10 +35,13 @@ interface SingleCardProps {
   voteType?: VoteType;
   mainImageUrl?: string;
   topComment?: TopCommentResponse;
+  likeCount?: number;
+  liked?: boolean;
   onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   onShare?: (alias: string) => void;
   onComment: (slug: string, electionId: string) => void;
   onCommentBlocked?: () => void;
+  onLike?: (alias: string, liked: boolean, likeCount: number) => void;
 }
 
 export const SingleCard: FC<SingleCardProps> = ({
@@ -49,6 +53,8 @@ export const SingleCard: FC<SingleCardProps> = ({
   commentCount,
   deadline,
   status,
+  likeCount = 0,
+  liked = false,
   singleVote,
   voteType,
   mainImageUrl,
@@ -57,6 +63,7 @@ export const SingleCard: FC<SingleCardProps> = ({
   onShare,
   onComment,
   onCommentBlocked,
+  onLike,
 }) => {
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = singleVote;
@@ -230,24 +237,38 @@ export const SingleCard: FC<SingleCardProps> = ({
             </>
           )}
         </div>
-        <button
-          type="button"
-          className={styles.iconButtonWithCount}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (showResult) {
-              onComment(alias, singleVote.electionId);
-            } else {
-              onCommentBlocked?.();
-            }
-          }}
-          aria-label="댓글"
-        >
-          <CommentIcon />
-          <span className={styles.iconCount}>
-            {commentCount !== undefined ? formatCount(commentCount) : ''}
-          </span>
-        </button>
+        <div className={styles.bottomActions}>
+          <button
+            type="button"
+            className={styles.iconButtonWithCount}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike?.(alias, liked, likeCount);
+            }}
+            aria-label="좋아요"
+          >
+            <LikeIcon width={18} height={18} filled={liked} />
+            {likeCount > 0 && <span className={styles.iconCount}>{formatCount(likeCount)}</span>}
+          </button>
+          <button
+            type="button"
+            className={styles.iconButtonWithCount}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (showResult) {
+                onComment(alias, singleVote.electionId);
+              } else {
+                onCommentBlocked?.();
+              }
+            }}
+            aria-label="댓글"
+          >
+            <CommentIcon />
+            <span className={styles.iconCount}>
+              {commentCount !== undefined ? formatCount(commentCount) : ''}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* topComment 미리보기 — 투표 완료 시에만 노출 */}

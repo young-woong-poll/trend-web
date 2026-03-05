@@ -14,11 +14,18 @@ const createMockComment = (id: string, index: number): CommentItem => ({
 });
 
 /**
- * 댓글 목록 Mock 데이터
+ * 댓글 목록 Mock 데이터 (mutable — POST 핸들러에서 새 댓글 추가 가능)
  */
 export const mockCommentList: CommentItem[] = Array.from({ length: 50 }, (_, i) =>
   createMockComment(`comment-${i + 1}`, i)
 );
+
+/**
+ * 새 댓글을 목록 맨 앞에 추가 (POST 핸들러에서 호출)
+ */
+export const addMockComment = (comment: CommentItem): void => {
+  mockCommentList.unshift(comment);
+};
 
 /**
  * 페이지네이션된 댓글 응답 생성

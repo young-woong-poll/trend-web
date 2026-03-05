@@ -50,6 +50,9 @@ export class DetailPage {
   // 댓글 더보기
   readonly loadMoreComments: Locator;
 
+  // 핫픽 좋아요
+  readonly likeButton: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -91,6 +94,8 @@ export class DetailPage {
     this.commentCharCount = this.commentSection.locator('[class*="charCount"]');
 
     this.loadMoreComments = this.commentSection.getByRole('button', { name: /댓글 더보기/ });
+
+    this.likeButton = this.voteCard.getByRole('button', { name: '좋아요' });
   }
 
   /** 특정 slug의 상세페이지로 이동 */

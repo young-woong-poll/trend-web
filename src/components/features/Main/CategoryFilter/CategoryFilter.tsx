@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { useRef, type FC } from 'react';
 
 import styles from '@/components/features/Main/CategoryFilter/CategoryFilter.module.scss';
 import { CATEGORY_FILTERS, type CategoryFilterItem } from '@/constants/category';
@@ -20,6 +20,8 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({
   categories,
   isLoading,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   if (isLoading && !categories) {
     return (
       <div className={styles.container}>
@@ -32,12 +34,33 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({
 
   const filters = categories && categories.length > 0 ? categories : CATEGORY_FILTERS;
 
-  const handleClick = (slug: string | null) => {
+  const handleClick = (slug: string | null, e: React.MouseEvent<HTMLButtonElement>) => {
     onChange(slug);
+
+    const button = e.currentTarget;
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+
+    if (buttonRect.right > containerRect.right) {
+      container.scrollBy({
+        left: buttonRect.right - containerRect.right + 8,
+        behavior: 'smooth',
+      });
+    } else if (buttonRect.left < containerRect.left) {
+      container.scrollBy({
+        left: buttonRect.left - containerRect.left - 8,
+        behavior: 'smooth',
+      });
+    }
   };
 
   return (
-    <div className={styles.container}>
+    <div ref={containerRef} className={styles.container}>
       {filters.map((filter) => {
         const isActive = filter.slug === selectedSlug;
 
@@ -46,7 +69,7 @@ export const CategoryFilter: FC<CategoryFilterProps> = ({
             key={filter.slug ?? 'all'}
             type="button"
             className={`${styles.chip} ${isActive ? styles.chipActive : ''}`}
-            onClick={() => handleClick(filter.slug)}
+            onClick={(e) => handleClick(filter.slug, e)}
           >
             {filter.label}
           </button>

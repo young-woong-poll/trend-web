@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { CommentBottomSheet } from '@/components/features/Hotpick/CommentModal';
+// NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+// import { ShareBottomSheet } from '@/components/features/Hotpick/ShareBottomSheet';
 import { BundleCard } from '@/components/features/Main/BundleCard/BundleCard';
 import { CategoryFilter } from '@/components/features/Main/CategoryFilter';
 import styles from '@/components/features/Main/MainContent.module.scss';
@@ -11,7 +13,7 @@ import { SkeletonCard } from '@/components/features/Main/SkeletonCard/SkeletonCa
 import type { CategoryFilterItem } from '@/constants/category';
 import { useModal } from '@/contexts/ModalContext';
 import type { HotpickCardResponse } from '@/generated/models';
-import { useInfiniteMainDisplay, useCategories, useSingleVote } from '@/hooks/api';
+import { useInfiniteMainDisplay, useCategories, useSingleVote, useLike } from '@/hooks/api';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
@@ -25,7 +27,15 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     slug: string;
     electionId: string;
   } | null>(null);
+  // NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존)
+  // const [shareTarget, setShareTarget] = useState<{
+  //   slug: string;
+  //   title: string;
+  //   options: string[];
+  //   imageUrl?: string;
+  // } | null>(null);
   const { handleVote } = useSingleVote();
+  const { handleLike } = useLike();
   const { showToast } = useModal();
   const { data: apiCategories, isLoading: isCategoriesLoading } = useCategories();
 
@@ -35,16 +45,6 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
         slug: c.slug ?? '',
       }))
     : undefined;
-
-  const handleShare = useCallback(
-    (slug: string) => {
-      const url = `${window.location.origin}/hotpick/${slug}`;
-      void navigator.clipboard.writeText(url).then(() => {
-        showToast('링크가 복사되었습니다');
-      });
-    },
-    [showToast]
-  );
 
   const handleComment = useCallback((slug: string, electionId: string) => {
     setCommentTarget({ slug, electionId });
@@ -83,64 +83,30 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
   }, []);
 
   // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
-  const allHotpicks = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
-  const hotpicks = [...new Map(allHotpicks.map((h) => [h.hotpickId, h])).values()];
+  const hotpicks = useMemo(() => {
+    const allHotpicks = data?.pages.flatMap((page) => page?.hotpicks ?? []) ?? [];
+    return [...new Map(allHotpicks.map((h) => [h.hotpickId, h])).values()];
+  }, [data?.pages]);
 
-  if (isLoading && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.skeletonGroup}>
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      </div>
-    );
-  }
+  const handleShare = useCallback(
+    (slug: string) => {
+      const url = `${window.location.origin}/hotpick/${slug}`;
+      void navigator.clipboard.writeText(url).then(() => {
+        showToast('링크가 복사되었습니다');
+      });
 
-  if (isError && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.statusContainer}>
-          <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
-          <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isFetching && hotpicks.length === 0) {
-    return (
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
-        <div className={styles.emptyState}>
-          <div className={styles.icon}>📊</div>
-          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
-          <p className={styles.description}>
-            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
-            <br />곧 흥미로운 주제로 찾아뵙겠습니다!
-          </p>
-        </div>
-      </div>
-    );
-  }
+      // NOTE: 카카오 공유하기 바텀시트 코드 보존 (비활성화)
+      // const hotpick = hotpicks.find((h) => h.slug === slug);
+      // const election = hotpick?.election;
+      // setShareTarget({
+      //   slug,
+      //   title: election?.title ?? '',
+      //   options: (election?.items ?? []).map((item) => item.title ?? ''),
+      //   imageUrl: election?.imageUrl ?? hotpick?.imageUrl,
+      // });
+    },
+    [showToast]
+  );
 
   const renderHotpick = (hotpick: HotpickCardResponse, keyPrefix?: string) => {
     const slug = hotpick.slug ?? '';
@@ -162,6 +128,8 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             commentCount={election.totalCommentCount}
             deadline={hotpick.expiredAt}
             status={status}
+            likeCount={hotpick.likeCount}
+            liked={hotpick.liked}
             singleVote={electionToSingleVoteData(election)}
             voteType={hasOptionImages ? 'IMAGE' : 'TEXT'}
             mainImageUrl={!hasOptionImages ? (election.imageUrl ?? hotpick.imageUrl) : undefined}
@@ -170,6 +138,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             onShare={handleShare}
             onComment={handleComment}
             onCommentBlocked={handleCommentBlocked}
+            onLike={handleLike}
           />
         </div>
       );
@@ -191,18 +160,41 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     );
   };
 
-  return (
-    <>
-      <noscript>{children}</noscript>
+  const renderContent = () => {
+    if (isLoading && hotpicks.length === 0) {
+      return (
+        <div className={styles.skeletonGroup}>
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      );
+    }
 
-      <div className={styles.container}>
-        <CategoryFilter
-          selectedSlug={selectedCategory}
-          onChange={handleCategoryChange}
-          categories={dynamicCategories}
-          isLoading={isCategoriesLoading}
-        />
+    if (isError && hotpicks.length === 0) {
+      return (
+        <div className={styles.statusContainer}>
+          <p className={styles.errorText}>핫픽을 불러오는데 실패했습니다.</p>
+          <p className={styles.errorHint}>잠시 후 다시 시도해주세요.</p>
+        </div>
+      );
+    }
 
+    if (!isFetching && hotpicks.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          <div className={styles.icon}>📊</div>
+          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
+          <p className={styles.description}>
+            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
+            <br />곧 흥미로운 주제로 찾아뵙겠습니다!
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <>
         {hotpicks.map((hotpick) => renderHotpick(hotpick))}
 
         {/* 하향 무한스크롤 트리거 */}
@@ -222,6 +214,23 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
             </div>
           )}
         </div>
+      </>
+    );
+  };
+
+  return (
+    <>
+      <noscript>{children}</noscript>
+
+      <div className={styles.container}>
+        <CategoryFilter
+          selectedSlug={selectedCategory}
+          onChange={handleCategoryChange}
+          categories={dynamicCategories}
+          isLoading={isCategoriesLoading}
+        />
+
+        {renderContent()}
       </div>
 
       {/* 댓글 바텀시트 */}
@@ -233,6 +242,18 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
           electionId={commentTarget.electionId}
         />
       )}
+
+      {/* NOTE: 카카오 공유하기 바텀시트 비활성화 (코드 보존) */}
+      {/* {shareTarget && (
+        <ShareBottomSheet
+          isOpen
+          onClose={() => setShareTarget(null)}
+          hotpickAlias={shareTarget.slug}
+          title={shareTarget.title}
+          options={shareTarget.options}
+          imageUrl={shareTarget.imageUrl}
+        />
+      )} */}
     </>
   );
 };

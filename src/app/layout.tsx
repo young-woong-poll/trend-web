@@ -2,6 +2,7 @@ import { Roboto } from 'next/font/google';
 
 import { GoogleAnalytics } from '@next/third-parties/google';
 
+import { KakaoScript } from '@/components/common/KakaoScript';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
 import { ClientProviders } from '@/providers/ClientProviders';
@@ -21,6 +22,12 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   ...COMMON_METADATA,
+  manifest: '/manifest.json',
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+  },
 };
 
 export default function RootLayout({
@@ -40,6 +47,7 @@ export default function RootLayout({
           </QueryProvider>
         </ClientProviders>
         <GoogleAnalytics gaId="G-CBJFPV9C95" />
+        <KakaoScript />
       </body>
     </html>
   );

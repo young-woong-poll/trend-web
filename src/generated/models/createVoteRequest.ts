@@ -4,7 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { JsonNode } from './jsonNode';
 
 export interface CreateVoteRequest {
   electionItemId: number;
+  serverMetaId?: string;
+  clientMeta?: JsonNode;
 }

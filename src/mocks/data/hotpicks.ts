@@ -1122,6 +1122,8 @@ function convertToHotpickCard(item: LegacyTrend): HotpickCardResponse {
       slug: item.alias,
       imageUrl: item.imageUrls?.[0] ?? ext?.mainImageUrl,
       expiredAt: ext?.deadline,
+      likeCount: Math.floor(Math.random() * 50) + 5,
+      liked: false,
       categories,
       election: {
         electionId: Number(svData.electionId.replace(/\D/g, '')) || item.id * 10,
@@ -1152,6 +1154,8 @@ function convertToHotpickCard(item: LegacyTrend): HotpickCardResponse {
     slug: item.alias,
     imageUrl: item.imageUrls?.[0],
     expiredAt: ext?.deadline,
+    likeCount: Math.floor(Math.random() * 30) + 3,
+    liked: false,
     categories,
     election: {
       title: item.title,
@@ -1184,6 +1188,8 @@ function convertToHotpickDetail(detail: any): HotpickDetailResponse {
         slug,
         imageUrl: detail.imageUrls?.[0],
         expiredAt: ext?.deadline ?? detail.deadline,
+        likeCount: Math.floor(Math.random() * 50) + 5,
+        liked: false,
         categories,
         election: {
           electionId: Number(String(election.id).replace(/\D/g, '')) || detail.trendId * 10,
