@@ -37,7 +37,10 @@ export const ResultVoteOption: FC<ResultVoteOptionProps> = ({
         <span className={styles.percentage}>{percentage.toFixed(1)}%</span>
       </div>
       <div className={styles.progressBar}>
-        <div className={styles.progressFill} style={{ width: `${percentage}%` }} />
+        <div
+          className={styles.progressFill}
+          style={{ '--fill-width': `${percentage}%` } as React.CSSProperties}
+        />
       </div>
     </div>
   </div>

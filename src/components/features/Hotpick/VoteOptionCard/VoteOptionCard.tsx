@@ -55,7 +55,10 @@ export const VoteOptionCard: FC<VoteOptionCardProps> = ({
         {hasVoted && (
           <div className={styles.voteResultBar}>
             <div className={styles.progressGradient}>
-              <div className={styles.progressFill} style={{ width: `${percentage}%` }} />
+              <div
+                className={styles.progressFill}
+                style={{ '--fill-width': `${percentage}%` } as React.CSSProperties}
+              />
             </div>
             <div className={styles.voteStats}>
               <span className={styles.voteCount}>{voteCount.toLocaleString()}표</span>
