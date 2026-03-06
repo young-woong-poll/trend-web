@@ -30,7 +30,10 @@ export const TextVoteOption: FC<TextVoteOptionProps> = ({
     {hasVoted && (
       <div className={styles.resultArea}>
         <div className={styles.progressBar}>
-          <div className={styles.progressFill} style={{ width: `${percentage}%` }} />
+          <div
+            className={styles.progressFill}
+            style={{ '--fill-width': `${percentage}%` } as React.CSSProperties}
+          />
         </div>
         <div className={styles.voteStats}>
           <span className={styles.voteCount}>{voteCount.toLocaleString()}표</span>

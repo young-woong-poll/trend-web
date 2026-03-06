@@ -26,7 +26,7 @@ export const barFillVariants = {
   initial: { width: '0%' },
   animate: (percentage: number) => ({
     width: `${percentage}%`,
-    transition: { duration: 0.3, delay: 0.15, ease: VOTE_EASING },
+    transition: { duration: 0.5, ease: VOTE_EASING },
   }),
 };
 
