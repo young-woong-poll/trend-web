@@ -12,7 +12,7 @@ export const MainHeader: FC = () => (
       <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
     </Link>
     <p className={styles.text}>
-      <i>투표하면 결과가 나와요</i>
+      <i>투표하고 사람들의 생각을 확인하세요</i>
     </p>
   </header>
 );
