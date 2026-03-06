@@ -262,19 +262,14 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
           </button>
         </div>
 
-        <div className={styles.shareCta}>
-          {showResult ? (
+        {showResult && (
+          <div className={styles.shareCta}>
             <Button variant="gradient" fullWidth height={48} onClick={handleShare}>
               <LinkIcon />
               투표 공유하기
             </Button>
-          ) : (
-            <div className={styles.voteHint}>
-              <span className={styles.voteHintText}>투표하고 결과 확인하기</span>
-              <span className={styles.voteHintArrow}>▲</span>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </motion.div>
 
       <SingleRecommendSection
