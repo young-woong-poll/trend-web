@@ -13,8 +13,8 @@ import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
 import {
+  VOTE_EASING,
   buttonTapVariants,
-  barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import type { TopCommentResponse } from '@/generated/models';
@@ -181,10 +181,11 @@ export const SingleCard: FC<SingleCardProps> = ({
                   >
                     <motion.div
                       className={styles.barFill}
-                      variants={barFillVariants}
-                      initial="initial"
-                      animate="animate"
-                      custom={percentage}
+                      initial={{ width: '0%' }}
+                      animate={{
+                        width: `${percentage}%`,
+                        transition: { duration: 0.5, ease: VOTE_EASING },
+                      }}
                     />
                     <div className={styles.barContent}>
                       {isImageType && option.imageUrl && (
