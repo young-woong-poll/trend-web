@@ -25,6 +25,7 @@ import {
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useModal } from '@/contexts/ModalContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
+import type { HotpickDetailResponse } from '@/generated/models';
 import { displayKeys, useHotpickDetail } from '@/hooks/api/useDisplay';
 import { useLike } from '@/hooks/api/useLike';
 import { getTKUID } from '@/lib/tkuid';
@@ -73,6 +74,29 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
 
       pendingRef.current = true;
 
+      const queryKey = displayKeys.hotpick(hotpickAlias);
+      const prevData = queryClient.getQueryData<HotpickDetailResponse | null>(queryKey);
+
+      queryClient.setQueryData<HotpickDetailResponse | null>(queryKey, (old) => {
+        if (!old?.hotpick?.election) {
+          return old;
+        }
+        const next = structuredClone(old);
+        const el = next.hotpick?.election;
+        if (!el) {
+          return old;
+        }
+        el.voted = true;
+        el.myElectionItemId = optionId;
+        el.totalVoteCount = (el.totalVoteCount ?? 0) + 1;
+        el.items?.forEach((item) => {
+          if (item.electionItemId === optionId) {
+            item.voteCount = (item.voteCount ?? 0) + 1;
+          }
+        });
+        return next;
+      });
+
       try {
         await vote(
           hotpickAlias,
@@ -80,14 +104,17 @@ export const SingleDetailView: FC<SingleDetailViewProps> = ({ hotpickAlias }) =>
           { headers: { 'x-tku-id': tkuIdRef.current } }
         );
       } catch (error) {
-        // 409(이미 투표) 등 API 에러가 아닌 경우에만 토스트 표시
-        if (!(error && typeof error === 'object' && 'response' in error)) {
-          showToast('투표에 실패했습니다');
+        // 409(이미 투표)는 서버 응답을 무시 (낙관적 업데이트 유지)
+        if (error && typeof error === 'object' && 'response' in error) {
+          const res = (error as { response?: { status?: number } }).response;
+          if (res?.status === 409) {
+            return;
+          }
         }
+        // 그 외 에러: 롤백
+        queryClient.setQueryData(queryKey, prevData);
+        showToast('투표에 실패했습니다');
       } finally {
-        await queryClient.invalidateQueries({
-          queryKey: displayKeys.hotpick(hotpickAlias),
-        });
         pendingRef.current = false;
       }
     },

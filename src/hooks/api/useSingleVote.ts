@@ -41,47 +41,31 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
             return oldData;
           }
 
-          return {
-            ...oldData,
-            pages: oldData.pages.map((page) => {
-              if (!page) {
-                return page;
+          const next = structuredClone(oldData);
+          for (const page of next.pages) {
+            if (!page) {
+              continue;
+            }
+            for (const hotpick of page.hotpicks ?? []) {
+              if (hotpick.slug !== slug || !hotpick.election) {
+                continue;
               }
-              return {
-                ...page,
-                hotpicks: (page.hotpicks ?? []).map((hotpick) => {
-                  if (hotpick.slug === slug && hotpick.election) {
-                    const currentSingleVote = electionToSingleVoteData(hotpick.election);
-                    const updated = updater(currentSingleVote);
-
-                    return {
-                      ...hotpick,
-                      election: {
-                        ...hotpick.election,
-                        voted: updated.voted,
-                        myElectionItemId: updated.myChoiceId
-                          ? Number(updated.myChoiceId)
-                          : undefined,
-                        totalVoteCount:
-                          updated.totalVotes ?? (hotpick.election.totalVoteCount ?? 0) + 1,
-                        items: (hotpick.election.items ?? []).map((item) => {
-                          const updatedOpt = updated.options.find(
-                            (o) => o.id === String(item.electionItemId)
-                          );
-                          return {
-                            ...item,
-                            voteCount: updatedOpt?.voteCount ?? item.voteCount,
-                            selected: String(item.electionItemId) === updated.myChoiceId,
-                          };
-                        }),
-                      },
-                    };
-                  }
-                  return hotpick;
-                }),
-              };
-            }),
-          };
+              const currentSingleVote = electionToSingleVoteData(hotpick.election);
+              const updated = updater(currentSingleVote);
+              const el = hotpick.election;
+              el.voted = updated.voted;
+              el.myElectionItemId = updated.myChoiceId ? Number(updated.myChoiceId) : undefined;
+              el.totalVoteCount = updated.totalVotes ?? (el.totalVoteCount ?? 0) + 1;
+              el.items?.forEach((item) => {
+                const updatedOpt = updated.options.find(
+                  (o) => o.id === String(item.electionItemId)
+                );
+                item.voteCount = updatedOpt?.voteCount ?? item.voteCount;
+                item.selected = String(item.electionItemId) === updated.myChoiceId;
+              });
+            }
+          }
+          return next;
         }
       );
     },
@@ -121,16 +105,7 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
       const tkuId = tkuIdRef.current;
 
       try {
-        const result = await vote(
-          slug,
-          { electionItemId: Number(optionId) },
-          { headers: { 'x-tku-id': tkuId } }
-        );
-
-        if (result) {
-          const voteResult = result as unknown as VoteResultResponse;
-          updateCacheOptimistically(slug, (prev) => voteResultToSingleVoteData(prev, voteResult));
-        }
+        await vote(slug, { electionItemId: Number(optionId) }, { headers: { 'x-tku-id': tkuId } });
       } catch (error) {
         // 409 중복 투표: 서버 응답 데이터로 결과 표시
         if (isAxiosError(error) && error.response?.status === 409) {
