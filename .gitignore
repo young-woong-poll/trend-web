@@ -46,3 +46,8 @@ next-env.d.ts
 /.vscode
 /.idea
 settings.json
+
+# local database
+data/hotpick.db
+data/hotpick.db-wal
+data/hotpick.db-shm
