@@ -10,6 +10,7 @@ const https = require('https');
 const http = require('http');
 
 const CONTENTS_PATH = path.join(__dirname, '../docs/contents/contents-mix.json');
+const URL_MAP_PATH = path.join(__dirname, '../data/url-to-jjal-map.json');
 const API_BASE = 'https://hotpick-api.votebox.kr';
 const USER_AGENT =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -162,6 +163,12 @@ async function sleep(ms) {
 async function main() {
   const contents = JSON.parse(fs.readFileSync(CONTENTS_PATH, 'utf-8'));
 
+  // CDN URL → jjal key 매핑 로드 (기존 매핑 보존)
+  let urlToJjalMap = {};
+  if (fs.existsSync(URL_MAP_PATH)) {
+    urlToJjalMap = JSON.parse(fs.readFileSync(URL_MAP_PATH, 'utf-8'));
+  }
+
   // 모든 짤뱅 URL 수집
   const tasks = [];
   for (const item of contents) {
@@ -188,6 +195,12 @@ async function main() {
     const cdnUrl = await processOneUrl(task.url, i, tasks.length);
 
     if (cdnUrl) {
+      // CDN URL → jjal key 매핑 저장
+      const jjalKeyMatch = task.url.match(/jjalview\/(\d+)/);
+      if (jjalKeyMatch) {
+        urlToJjalMap[cdnUrl] = jjalKeyMatch[1];
+      }
+
       if (task.field === 'image') {
         task.item.image = cdnUrl;
       } else if (task.field === 'optionImages') {
@@ -212,6 +225,11 @@ async function main() {
 
   // 최종 저장
   fs.writeFileSync(CONTENTS_PATH, JSON.stringify(contents, null, 2), 'utf-8');
+
+  // CDN URL → jjal key 매핑 저장
+  fs.writeFileSync(URL_MAP_PATH, JSON.stringify(urlToJjalMap, null, 2), 'utf-8');
+  console.log(`\n매핑 파일 저장: ${URL_MAP_PATH} (${Object.keys(urlToJjalMap).length}건)`);
+
   console.log(`\n완료! 성공: ${successCount}, 실패: ${failCount}`);
   console.log(`저장됨: ${CONTENTS_PATH}`);
 }
