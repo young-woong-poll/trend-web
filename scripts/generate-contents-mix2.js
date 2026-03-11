@@ -1,0 +1,1299 @@
+/**
+ * contents-mix2.json 생성 스크립트
+ * 120개의 새로운 투표 콘텐츠를 생성하고 jjal-db에서 적절한 이미지를 매칭합니다.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const JJAL_DB_PATH = path.join(__dirname, '../docs/contents/jjal-db.json');
+const OUTPUT_PATH = path.join(__dirname, '../docs/contents/contents-mix2.json');
+
+const jjalDb = JSON.parse(fs.readFileSync(JJAL_DB_PATH, 'utf-8'));
+
+function findJjal(searchTags) {
+  let best = null;
+  let bestScore = 0;
+  for (const item of jjalDb) {
+    let score = 0;
+    for (const st of searchTags) {
+      for (const t of item.tag) {
+        if (t.includes(st)) score++;
+      }
+    }
+    if (score > bestScore) {
+      bestScore = score;
+      best = item;
+    }
+  }
+  return best ? 'https://jjalbang.today' + best.url : 'https://jjalbang.today/jjalview/7058';
+}
+
+// 120개 새 콘텐츠 정의
+const rawContents = [
+  // === 연애/사랑 (love) ===
+  {
+    title: '썸 3개월째, 상대가 "좋아한다"는 말을 안 하면?',
+    story:
+      '분위기도 좋고 매일 연락하는데, 3개월째 고백이 없어요. 제가 먼저 물어봐야 할까요, 아니면 기다려야 할까요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['직접 물어본다', '좀 더 기다린다'],
+    imageTags: ['연애', '고민', '사랑'],
+    slug: 'some-3months-no-confession',
+  },
+  {
+    title: '연인이 친구 약속을 항상 우선시하면?',
+    story:
+      '데이트 날짜를 잡으려는데, 여자친구가 항상 "그날 친구 약속 있어"라고 해요. 제가 후순위인 느낌이라 서운한데, 너무 집착하는 걸까요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['서운하다, 말해야 한다', '친구도 중요하다, 이해한다'],
+    imageTags: ['연애', '서운', '커플'],
+    slug: 'partner-prioritizes-friends',
+  },
+  {
+    title: '전 애인이 연락해오면 답장해요?',
+    story:
+      '헤어진 지 1년 된 전 여자친구한테 카톡이 왔어요. "잘 지내?"라는 한 마디인데, 지금 새 연인이 있거든요. 답장하면 문제가 될까요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['답장한다', '무시한다'],
+    imageTags: ['카톡', '고민', '연애'],
+    slug: 'ex-contacts-you-reply',
+  },
+  {
+    title: '연인 간 다툼 후 먼저 연락하는 쪽이 지는 건가요?',
+    story:
+      '여자친구랑 크게 싸웠는데 이틀째 서로 연락을 안 하고 있어요. 먼저 연락하면 지는 거라고 친구가 그러는데, 그런 건가요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['먼저 연락하는 게 맞다', '상대가 먼저 해야 한다'],
+    imageTags: ['싸움', '커플', '화해'],
+    slug: 'fight-who-contacts-first',
+  },
+  {
+    title: '결혼 전에 상대 신용정보 공유해야 할까요?',
+    story:
+      '결혼 준비 중인데, 예비 신부가 "서로 신용등급 공유하자"고 했어요. 합리적인 것 같으면서도 뭔가 기분이 묘해요.',
+    categories: ['love', 'marriage', 'finance'],
+    type: 'TEXT',
+    options: ['당연히 공유한다', '그건 좀 선 넘는다'],
+    imageTags: ['결혼', '돈', '고민'],
+    slug: 'share-credit-before-marriage',
+  },
+  {
+    title: '연인의 이상형이 나랑 다르면 신경 쓰여요?',
+    story:
+      '여자친구한테 이상형 물어봤더니 저랑 정반대를 말하더라고요. 좋아서 사귀는 거겠지만, 왜 기분이 이상한 걸까요.',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['신경 쓰인다', '사귀고 있으면 됐다'],
+    imageTags: ['연애', '표정', '고민'],
+    slug: 'partners-ideal-type-different',
+  },
+  {
+    title: '데이트 비용 비율, 어떻게 나눠야 할까요?',
+    story:
+      '월급이 제가 더 많아서 7:3으로 내고 있는데, 요즘 부담이 커져요. 5:5로 바꾸자고 하면 서운해할까요?',
+    categories: ['love', 'finance'],
+    type: 'TEXT',
+    options: ['수입 비율에 맞게', '무조건 5:5', '많이 버는 쪽이 더 낸다'],
+    imageTags: ['돈', '커플', '계산'],
+    slug: 'date-cost-split-ratio',
+  },
+  {
+    title: '100일 선물, 얼마짜리가 적당할까요?',
+    story:
+      '여자친구랑 100일인데, 너무 비싸면 부담이고 싸면 성의 없어 보이고. 직장인 기준 적정 금액이 어느 정도인가요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['5만원 이하', '5~10만원', '10~20만원', '20만원 이상'],
+    imageTags: ['선물', '사랑', '커플'],
+    slug: '100day-gift-budget',
+  },
+  {
+    title: '남사친/여사친 연락처 삭제해달라고 하면?',
+    story:
+      '여자친구가 제 카톡에서 여사친 연락처를 삭제해달라고 해요. 10년 넘은 친구인데, 이건 좀 과한 거 아닌가요?',
+    categories: ['love', 'relationship'],
+    type: 'TEXT',
+    options: ['과하다, 거절한다', '연인이 우선이다, 삭제한다'],
+    imageTags: ['카톡', '커플', '싸움'],
+    slug: 'delete-opposite-gender-friend',
+  },
+  {
+    title: '고백은 직접 만나서 해야 할까요?',
+    story:
+      '좋아하는 사람이 있는데, 직접 만나면 긴장돼서 말이 안 나와요. 카톡으로 하면 진심이 안 전해질까요?',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['직접 만나서', '카톡/전화도 괜찮다'],
+    imageTags: ['고백', '사랑', '긴장'],
+    slug: 'confess-in-person-or-text',
+  },
+
+  // === 직장/커리어 (work) ===
+  {
+    title: '팀장이 회의에서 내 아이디어를 자기 것처럼 말하면?',
+    story:
+      '제가 낸 아이디어를 팀장님이 임원 회의에서 자기 것처럼 발표했어요. 다른 팀원들도 다 아는데, 참아야 할까요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['참는다', '정중하게 문제 제기한다'],
+    imageTags: ['회사', '화남', '빡침'],
+    slug: 'boss-steals-idea',
+  },
+  {
+    title: '연봉 협상, 얼마나 더 달라고 해야 적당할까요?',
+    story:
+      '연봉 협상 시기인데, 현재 3,800만원이에요. 업계 평균은 4,200인데, 너무 많이 부르면 밉보일까 봐 고민이에요.',
+    categories: ['work', 'finance'],
+    type: 'TEXT',
+    options: ['10% 정도', '업계 평균만큼', '원하는 만큼 부른다'],
+    imageTags: ['회사', '돈', '고민'],
+    slug: 'salary-negotiation-how-much',
+  },
+  {
+    title: '입사 동기가 먼저 승진하면 축하할 수 있나요?',
+    story:
+      '같이 입사한 동기가 먼저 대리 달았어요. 축하한다고 했는데 솔직히 속이 쓰려요. 이런 감정 느끼는 게 나쁜 건가요?',
+    categories: ['work', 'relationship'],
+    type: 'TEXT',
+    options: ['인간적인 감정이다', '진심으로 축하한다'],
+    imageTags: ['회사', '좌절', '고민'],
+    slug: 'peer-promoted-first',
+  },
+  {
+    title: '재택근무 vs 사무실 출근, 뭐가 나아요?',
+    story:
+      '코로나 이후 재택하다가 다시 출근하라고 하는데, 집에서 일할 때가 훨씬 효율적이었어요. 다시 재택 가능한 회사로 옮겨야 할까요?',
+    categories: ['work', 'life'],
+    type: 'TEXT',
+    options: ['재택이 낫다', '사무실이 낫다', '하이브리드가 최선'],
+    imageTags: ['회사', '출근', '재택'],
+    slug: 'remote-vs-office-work',
+  },
+  {
+    title: '야근 수당 없는 야근, 하는 게 맞나요?',
+    story:
+      '매주 2~3일은 야근인데, 포괄임금제라 수당이 없어요. 다들 하니까 저도 하고 있는데, 이게 정상인 건지 모르겠어요.',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['칼퇴한다', '분위기상 어쩔 수 없다'],
+    imageTags: ['야근', '퇴근', '회사'],
+    slug: 'unpaid-overtime-acceptable',
+  },
+  {
+    title: '상사가 술자리에서 사적인 질문하면?',
+    story:
+      '회식에서 부장님이 "여자친구 있냐", "집은 어디냐" 계속 물어봐요. 대답하기 싫은데, 안 하면 분위기를 깨는 것 같아요.',
+    categories: ['work', 'relationship'],
+    type: 'TEXT',
+    options: ['적당히 대답한다', '선 긋는다'],
+    imageTags: ['회식', '술', '회사'],
+    slug: 'boss-personal-questions-at-drinks',
+  },
+  {
+    title: '퇴사하고 프리랜서 전환, 현실적인가요?',
+    story:
+      '개발자 5년 차인데 프리랜서로 전환하고 싶어요. 자유로운 건 좋은데, 4대 보험이랑 안정적인 수입이 없어지는 게 걱정돼요.',
+    categories: ['work', 'finance'],
+    type: 'TEXT',
+    options: ['해볼 만하다', '안정이 우선이다'],
+    imageTags: ['퇴사', '자유', '고민'],
+    slug: 'quit-for-freelance',
+  },
+  {
+    title: '회사에서 점심시간에 낮잠 자는 거, 괜찮나요?',
+    story:
+      '점심 먹고 30분 정도 책상에서 엎드려 자는데, 선배가 "인상 안 좋다"고 하더라고요. 오후에 집중하려면 낮잠이 필요한데요.',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['당연히 괜찮다', '좀 안 좋아보인다'],
+    imageTags: ['피곤', '잠', '회사'],
+    slug: 'nap-at-work-lunch',
+  },
+  {
+    title: '면접에서 "왜 퇴사하셨어요?" 진짜 이유를 말해야 할까요?',
+    story:
+      '전 직장 상사가 너무 심해서 퇴사했는데, 면접에서 진짜 이유를 말하면 부정적으로 볼까 봐 "새로운 도전"이라고 했어요. 이게 맞나요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['포장해서 말한다', '솔직하게 말한다'],
+    imageTags: ['면접', '긴장', '회사'],
+    slug: 'interview-real-reason-for-quitting',
+  },
+  {
+    title: '사수가 제대로 안 알려주면 어떻게 해야 할까요?',
+    story:
+      '입사 2개월 차인데, 사수가 "알아서 해"만 반복해요. 모르는 걸 물어보면 귀찮아하고. 다른 팀원한테 물어봐도 될까요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['다른 사람한테 물어본다', '계속 사수한테 물어본다', '독학한다'],
+    imageTags: ['회사', '답답', '고민'],
+    slug: 'mentor-doesnt-teach',
+  },
+
+  // === 돈/재테크 (finance) ===
+  {
+    title: '친구 결혼식 2개가 같은 날이면 어디를 가야 할까요?',
+    story:
+      '같은 날 오후에 결혼식이 두 개 잡혔어요. 한쪽은 대학 동기, 한쪽은 고등학교 친구. 축의금만 보내면 예의 없는 건가요?',
+    categories: ['relationship', 'finance'],
+    type: 'TEXT',
+    options: ['더 친한 쪽 간다', '둘 다 얼굴만 비춘다', '한쪽은 축의금만 보낸다'],
+    imageTags: ['결혼', '고민', '돈'],
+    slug: 'two-weddings-same-day',
+  },
+  {
+    title: '연봉 5천이면 어떤 차를 사야 할까요?',
+    story:
+      '첫 차를 사려는데, 연봉 5천 기준으로 국산 경차를 사야 할지 중고 수입차를 사야 할지 고민이에요. 차가 체면이라는 말도 있고.',
+    categories: ['finance', 'life'],
+    type: 'TEXT',
+    options: ['신차 국산차', '중고 수입차', '차 없이 대중교통'],
+    imageTags: ['자동차', '돈', '고민'],
+    slug: 'first-car-salary-5000',
+  },
+  {
+    title: '보험, 20대에 가입해야 할까요?',
+    story:
+      '보험 설계사 친구가 "빨리 가입할수록 싸다"고 하는데, 월 15만원이 부담돼요. 아직 건강한데 꼭 지금 들어야 할까요?',
+    categories: ['finance', 'life'],
+    type: 'TEXT',
+    options: ['일찍 가입하는 게 유리하다', '30대에 해도 된다', '필요 없다'],
+    imageTags: ['돈', '고민', '보험'],
+    slug: 'insurance-in-20s',
+  },
+  {
+    title: '비트코인 투자, 아직 해도 될까요?',
+    story:
+      '주변에서 비트코인으로 돈 번 사람이 있는데, 지금 시작해도 늦지 않은 건지 모르겠어요. 변동성이 무섭긴 한데 안 하면 후회할 것 같아요.',
+    categories: ['finance', 'trend'],
+    type: 'TEXT',
+    options: ['지금이라도 시작한다', '너무 위험하다'],
+    imageTags: ['비트코인', '투자', '가즈아'],
+    slug: 'bitcoin-investment-still-ok',
+  },
+  {
+    title: '신용카드 vs 체크카드, 뭘 써야 할까요?',
+    story:
+      '신용카드가 혜택이 많다는데, 과소비가 걱정돼요. 체크카드는 쓴 만큼만 빠져서 안전한데 혜택이 적고. 어떤 게 나을까요?',
+    categories: ['finance'],
+    type: 'TEXT',
+    options: ['신용카드', '체크카드', '둘 다 쓴다'],
+    imageTags: ['돈', '소비', '고민'],
+    slug: 'credit-vs-debit-card',
+  },
+  {
+    title: '월세 보증금으로 전세자금대출 받는 거, 괜찮을까요?',
+    story:
+      '전세를 알아보는데, 대출 이자가 월세보다 싼 경우도 있대요. 빚을 지는 게 불안한데, 계산상으로는 전세가 이득인 것 같아요.',
+    categories: ['finance', 'life'],
+    type: 'TEXT',
+    options: ['전세 대출이 합리적이다', '빚지는 건 불안하다'],
+    imageTags: ['전세', '돈', '집'],
+    slug: 'jeonse-loan-worth-it',
+  },
+  {
+    title: '부모님한테 돈 빌리는 거, 부끄러운 건가요?',
+    story:
+      '갑자기 목돈이 필요한데 통장에 잔고가 없어요. 부모님한테 말씀드리면 당장 주실 것 같은데, 30살 넘어서 손 벌리는 게 창피해요.',
+    categories: ['finance', 'relationship'],
+    type: 'TEXT',
+    options: ['가족이니 괜찮다', '자존심상 못한다'],
+    imageTags: ['돈', '부모', '고민'],
+    slug: 'borrow-money-from-parents',
+  },
+  {
+    title: '커피값 아끼면 진짜 목돈 모을 수 있을까요?',
+    story:
+      '매일 아메리카노 4,500원씩 사먹고 있어요. 한 달이면 약 10만원인데, 이거 안 마시면 1년에 120만원 모을 수 있잖아요. 의미 있을까요?',
+    categories: ['finance', 'life'],
+    type: 'TEXT',
+    options: ['확실히 의미있다', '삶의 질이 더 중요하다'],
+    imageTags: ['커피', '돈', '저축'],
+    slug: 'save-by-skipping-coffee',
+  },
+  {
+    title: '결혼 비용, 누가 더 많이 내야 할까요?',
+    story:
+      '결혼 준비 중인데, 양가 부담 비율로 매일 싸워요. 예식장, 예물, 혼수... 전통적으로 나누는 건 시대에 안 맞는 것 같은데.',
+    categories: ['finance', 'marriage'],
+    type: 'TEXT',
+    options: ['전통대로 나눈다', '총비용 반반', '상황에 맞게 조율'],
+    imageTags: ['결혼', '돈', '고민'],
+    slug: 'wedding-cost-who-pays-more',
+  },
+  {
+    title: '사회초년생 첫 목표 저축액, 얼마가 적당할까요?',
+    story:
+      '25살 첫 직장 다니는데, 목표 금액을 정하고 싶어요. 3천만원? 5천만원? 1억? 현실적인 첫 목표가 뭘까요?',
+    categories: ['finance'],
+    type: 'TEXT',
+    options: ['3천만원', '5천만원', '1억'],
+    imageTags: ['돈', '저축', '목표'],
+    slug: 'first-savings-goal-amount',
+  },
+
+  // === 인간관계 (relationship) ===
+  {
+    title: '단톡방에서 나만 답 안 하면 눈치 보이나요?',
+    story:
+      '30명짜리 동창 단톡방에서 회비 공지가 올라왔는데, 읽고 답 안 한 사람이 저뿐이에요. 참여하기 싫은데, 읽씹하면 욕할까요?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['답장 안 해도 된다', '읽었으면 뭐라도 해야 한다'],
+    imageTags: ['카톡', '눈치', '고민'],
+    slug: 'group-chat-no-reply',
+  },
+  {
+    title: '친구 부탁, 거절 못 하는 성격 고쳐야 할까요?',
+    story:
+      '친구가 부탁하면 늘 "어"라고 하는데, 나중에 후회해요. 이사 도와달라, 공항 데려다 달라. 거절하면 나쁜 놈 되는 것 같아요.',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['거절하는 연습을 해야 한다', '도울 수 있으면 돕는 거다'],
+    imageTags: ['친구', '고민', '스트레스'],
+    slug: 'cant-say-no-to-friends',
+  },
+  {
+    title: '동네 이웃한테 인사하시나요?',
+    story:
+      '아파트 같은 동에 사는데, 엘리베이터에서 만나면 인사해야 할지 모르겠어요. 저는 하는데 상대가 무시하면 좀 민망하거든요.',
+    categories: ['relationship', 'life'],
+    type: 'TEXT',
+    options: ['당연히 한다', '굳이 안 해도 된다'],
+    imageTags: ['인사', '이웃', '아파트'],
+    slug: 'greet-apartment-neighbors',
+  },
+  {
+    title: '경조사에 빠지면 관계 끝인가요?',
+    story:
+      '친구 결혼식에 못 가서 축의금만 보냈더니, 그 이후로 연락이 뚝 끊겼어요. 직접 가지 않으면 진심이 아닌 건가요?',
+    categories: ['relationship', 'marriage'],
+    type: 'TEXT',
+    options: ['직접 가는 게 예의다', '축의금 보내면 충분하다'],
+    imageTags: ['결혼', '친구', '서운'],
+    slug: 'skip-ceremony-relationship-over',
+  },
+  {
+    title: 'SNS에서 친구 삭제한 거 들키면 어떻게 해요?',
+    story:
+      '관계 정리하려고 조용히 인스타 언팔했는데, 상대가 알아차렸어요. "왜 나 언팔했어?"라고 카톡이 왔는데, 뭐라고 대답해야 할까요?',
+    categories: ['relationship', 'life'],
+    type: 'TEXT',
+    options: ['솔직히 말한다', '실수라고 한다'],
+    imageTags: ['카톡', '친구', '당황'],
+    slug: 'caught-unfollowing-friend',
+  },
+  {
+    title: '동창회 가야 하나요?',
+    story:
+      '10년 만에 고등학교 동창회가 잡혔는데, 가면 연봉 비교당할 것 같아요. 반가운 사람도 있지만, 스트레스받을 것 같은 사람도 있고.',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['가야 한다, 어차피 한 번뿐', '안 가도 된다'],
+    imageTags: ['동창', '친구', '모임'],
+    slug: 'attend-high-school-reunion',
+  },
+  {
+    title: '친구가 네트워크 마케팅 권유하면?',
+    story:
+      '오랜만에 연락한 친구가 만나자고 해서 갔더니, 네트워크 마케팅(MLM) 설명회였어요. 우정이 깨진 느낌인데, 어떻게 해야 하죠?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['정중하게 거절하고 거리둔다', '친구니까 한 번은 들어본다'],
+    imageTags: ['친구', '배신', '당황'],
+    slug: 'friend-mlm-recruitment',
+  },
+  {
+    title: '밥 먹을 때 핸드폰 보는 사람, 예의 없다고 생각해요?',
+    story:
+      '같이 밥 먹는데 친구가 계속 인스타 보고 있어요. 대화를 안 하니까 혼밥하는 느낌이에요. 지적하면 예민한 건가요?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['예의 없다', '요즘은 그럴 수 있다'],
+    imageTags: ['핸드폰', '식사', '짜증'],
+    slug: 'phone-while-eating-rude',
+  },
+  {
+    title: '"괜찮아"라고 했지만 속으로 서운할 때?',
+    story:
+      '친구가 약속을 취소했는데 "괜찮아"라고 했어요. 사실 서운한데 티 내기 싫어서요. 솔직하게 말하는 게 맞을까요?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['솔직하게 말한다', '그냥 넘어간다'],
+    imageTags: ['서운', '속마음', '친구'],
+    slug: 'said-ok-but-upset',
+  },
+
+  // === 결혼/가정 (marriage) ===
+  {
+    title: '신혼여행 어디로 가야 할까요?',
+    story:
+      '아내는 유럽을 원하고 저는 동남아를 원해요. 유럽은 예산이 2배인데, 평생 한 번인 신혼여행이라 아내 의견을 따라야 할까요?',
+    categories: ['marriage', 'finance'],
+    type: 'TEXT',
+    options: ['유럽, 평생 한 번이다', '동남아, 현실적으로'],
+    imageTags: ['여행', '결혼', '고민'],
+    slug: 'honeymoon-destination',
+  },
+  {
+    title: '시부모님/장인어른과 같이 사는 거, 가능해요?',
+    story:
+      '결혼하면 시어머니랑 같이 살자는 얘기가 나왔어요. 집값 절약된다는데, 사생활이 없어질 것 같아서 걱정이에요.',
+    categories: ['marriage', 'relationship'],
+    type: 'TEXT',
+    options: ['절대 안 된다', '상황에 따라 가능하다'],
+    imageTags: ['가족', '결혼', '고민'],
+    slug: 'live-with-in-laws',
+  },
+  {
+    title: '육아, 아빠도 똑같이 분담해야 할까요?',
+    story:
+      '맞벌이인데, 아내가 "육아를 완전 반반으로 하자"고 해요. 저도 동의하는데, 야근이 잦아서 현실적으로 어렵거든요.',
+    categories: ['marriage'],
+    type: 'TEXT',
+    options: ['상황에 맞게 유연하게', '무조건 반반'],
+    imageTags: ['아이', '아빠', '육아'],
+    slug: 'equal-parenting-duty',
+  },
+  {
+    title: '둘째 갖는 거, 경제적으로 가능할까요?',
+    story:
+      '첫째가 5살인데, 아내가 둘째를 원해요. 양육비가 월 100만원 넘게 드는데, 제 연봉으로 둘을 키울 수 있을지 계산기를 두드리고 있어요.',
+    categories: ['marriage', 'finance'],
+    type: 'TEXT',
+    options: ['되든 안 되든 낳는다', '경제적 여건을 먼저 따진다'],
+    imageTags: ['아이', '가족', '돈'],
+    slug: 'afford-second-child',
+  },
+  {
+    title: '명절 음식 준비, 시댁에서만 해야 하나요?',
+    story:
+      '결혼 3년 차인데, 명절마다 시댁에서 음식을 해요. 우리 집에서도 하고 싶은데, 시어머니가 "왜 필요하냐"고 하세요.',
+    categories: ['marriage', 'relationship'],
+    type: 'TEXT',
+    options: ['양가 번갈아 한다', '시댁 전통을 따른다', '각자 집에서 한다'],
+    imageTags: ['명절', '가족', '음식'],
+    slug: 'holiday-cooking-whose-house',
+  },
+  {
+    title: '아이 훈육할 때 할머니/할아버지가 말리면?',
+    story:
+      '아이를 혼내고 있는데, 옆에서 시어머니가 "애가 뭘 알겠냐"고 감싸요. 훈육 기준이 흔들리는 게 싫은데, 어른 앞에서 계속 혼내기도 어려워요.',
+    categories: ['marriage', 'relationship'],
+    type: 'TEXT',
+    options: ['양육 방침은 부모가 정한다', '어른 의견도 존중한다'],
+    imageTags: ['가족', '엄마', '아이'],
+    slug: 'grandparents-interfere-discipline',
+  },
+  {
+    title: '결혼 후 친구 모임 줄어드는 거, 어쩔 수 없나요?',
+    story:
+      '결혼하고 나서 친구들이 잘 안 불러요. "유부남은 바쁘잖아"라는데, 저는 나가고 싶거든요. 결혼하면 원래 이런 건가요?',
+    categories: ['marriage', 'relationship'],
+    type: 'TEXT',
+    options: ['어쩔 수 없다', '노력하면 유지된다'],
+    imageTags: ['결혼', '친구', '외로움'],
+    slug: 'married-less-hangouts',
+  },
+  {
+    title: '신혼집 인테리어, 누구 취향으로 해야 할까요?',
+    story:
+      '저는 미니멀 좋아하는데 아내는 아기자기한 걸 좋아해요. 매일 가구 고르면서 싸우는데, 결국 누가 양보해야 하는 건가요?',
+    categories: ['marriage', 'life'],
+    type: 'TEXT',
+    options: ['사는 시간 많은 쪽', '반반 타협', '전문가한테 맡긴다'],
+    imageTags: ['결혼', '집', '인테리어'],
+    slug: 'newlywed-interior-whose-taste',
+  },
+
+  // === 생활/일상 (life) ===
+  {
+    title: '아침에 일어나면 핸드폰부터 보시나요?',
+    story:
+      '눈 뜨자마자 카톡, 인스타, 뉴스 순서로 30분은 보고 일어나요. 시간 낭비인 건 아는데, 손이 자동으로 가거든요.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['나도 그렇다', '핸드폰보다 다른 거 먼저'],
+    imageTags: ['핸드폰', '아침', '출근'],
+    slug: 'phone-first-thing-morning',
+  },
+  {
+    title: '자취방 청소, 얼마나 자주 해요?',
+    story:
+      '1주일에 한 번 하는데, 여자친구가 와서 "더럽다"고 하네요. 혼자 사는데 깨끗한 기준이 다른 건가요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['매일 한다', '주 1~2회', '더러워지면 한다'],
+    imageTags: ['청소', '자취', '더러움'],
+    slug: 'how-often-clean-studio',
+  },
+  {
+    title: '잠자기 전 유튜브 보는 거, 끊어야 할까요?',
+    story:
+      '자기 전에 유튜브 쇼츠 보기 시작하면 1~2시간이 훌쩍 가요. 다음 날 피곤한 건 아는데, 멈출 수가 없어요.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['적당히 보면 괜찮다', '끊어야 한다'],
+    imageTags: ['유튜브', '잠', '핸드폰'],
+    slug: 'youtube-before-sleep',
+  },
+  {
+    title: '헬스장 vs 홈트, 어디가 더 효과 있을까요?',
+    story:
+      '유튜브 보고 홈트 했는데, 3개월째 변화가 없어요. 헬스장 가면 다를까요? 근데 월 5만원이 아깝기도 하고.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['헬스장이 확실하다', '홈트로도 충분하다'],
+    imageTags: ['운동', '다이어트', '헬스'],
+    slug: 'gym-vs-home-workout',
+  },
+  {
+    title: '반려동물 키우면 정말 행복해질까요?',
+    story:
+      '혼자 사는 게 외로워서 고양이를 입양하려는데, 병원비에 사료비에 한 달 20만원은 든대요. 외로움 해소가 될까요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['확실히 행복해진다', '현실은 힘들다'],
+    imageTags: ['고양이', '강아지', '귀여운'],
+    slug: 'pet-makes-you-happy',
+  },
+  {
+    title: '배달음식 vs 직접 요리, 뭐가 이득일까요?',
+    story:
+      '자취하면서 거의 매일 배달시키는데, 한 달 배달비가 40만원이 넘어요. 직접 해먹으면 15만원이면 된다는데, 시간이 없어요.',
+    categories: ['life', 'finance'],
+    type: 'TEXT',
+    options: ['돈 아껴서 직접 요리', '시간이 곧 돈, 배달이 낫다'],
+    imageTags: ['음식', '먹방', '배달'],
+    slug: 'delivery-vs-cooking',
+  },
+  {
+    title: '대중교통에서 이어폰 없이 영상 보는 사람, 어떤가요?',
+    story:
+      '지하철에서 옆 사람이 이어폰 없이 유튜브를 틀고 있어요. 소리가 거슬리는데, 말해야 할까요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['말한다', '참는다'],
+    imageTags: ['짜증', '화남', '대중교통'],
+    slug: 'no-earphones-public-transport',
+  },
+  {
+    title: '택시 탈 때 앞자리 vs 뒷자리?',
+    story:
+      '혼자 택시 탈 때 항상 뒷자리 가는데, 친구가 "앞자리가 예의"라고 하더라고요. 뒤에 타면 기사님이 기분 나쁘실까요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['뒷자리', '앞자리'],
+    imageTags: ['택시', '운전', '예절'],
+    slug: 'taxi-front-or-back-seat',
+  },
+  {
+    title: '식당에서 밥 남기는 거, 실례인가요?',
+    story:
+      '양이 너무 많아서 반 정도 남겼는데, 사장님이 "남기면 음식물 쓰레기 처리가 힘들다"고 하셨어요. 미안하긴 한데, 배부른 걸 어떡해요.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['남길 수 있다', '가능하면 다 먹어야 한다'],
+    imageTags: ['음식', '식당', '남기기'],
+    slug: 'leaving-food-at-restaurant',
+  },
+
+  // === 음식 대결 (IMAGE type) ===
+  {
+    title: '편의점에서 삼각김밥 vs 컵라면, 점심으로?',
+    story:
+      '바쁜 날 점심을 편의점에서 때우는데, 삼각김밥 2개를 먹을지 컵라면을 먹을지 매번 고민이에요.',
+    categories: ['life'],
+    type: 'IMAGE',
+    options: ['삼각김밥', '컵라면'],
+    optionImageTags: [
+      ['음식', '먹방', '삼각'],
+      ['라면', '먹방', '컵'],
+    ],
+    slug: 'triangle-kimbap-vs-cup-noodle',
+  },
+  {
+    title: '라면 끓일 때 스프 먼저 vs 면 먼저?',
+    story:
+      '라면 끓이는 순서로 친구랑 20분째 싸우고 있어요. 저는 물 끓인 후 스프 먼저 넣는데, 친구는 면을 먼저 넣어야 맛있대요.',
+    categories: ['trend'],
+    type: 'IMAGE',
+    options: ['스프 먼저', '면 먼저'],
+    optionImageTags: [
+      ['라면', '음식', '먹방'],
+      ['라면', '먹방', '레전드'],
+    ],
+    slug: 'ramen-soup-first-or-noodle',
+  },
+  {
+    title: '여름에 팥빙수 vs 아이스 아메리카노?',
+    story:
+      '여름에 카페 가면 팥빙수를 시킬지 아아를 시킬지 매번 고민이에요. 팥빙수는 비싸고, 아아는 식사 후에 좋고.',
+    categories: ['trend'],
+    type: 'IMAGE',
+    options: ['팥빙수', '아이스 아메리카노'],
+    optionImageTags: [
+      ['빙수', '여름', '디저트'],
+      ['커피', '아이스', '음료'],
+    ],
+    slug: 'patbingsu-vs-iced-americano',
+  },
+  {
+    title: '떡볶이 밀떡 vs 쌀떡?',
+    story:
+      '떡볶이 시킬 때 밀떡파와 쌀떡파로 나뉘는데, 누가 더 많을까요? 밀떡은 쫄깃하고, 쌀떡은 쫀득하고.',
+    categories: ['trend'],
+    type: 'IMAGE',
+    options: ['밀떡', '쌀떡'],
+    optionImageTags: [
+      ['음식', '먹방', '떡'],
+      ['음식', '맛', '먹방'],
+    ],
+    slug: 'tteokbokki-wheat-vs-rice',
+  },
+  {
+    title: '삼겹살 vs 목살?',
+    story:
+      '고기집 가면 삼겹살이냐 목살이냐로 항상 갈려요. 삼겹은 기름져서 맛있고, 목살은 담백하고.',
+    categories: ['trend'],
+    type: 'IMAGE',
+    options: ['삼겹살', '목살'],
+    optionImageTags: [
+      ['삼겹살', '고기', '먹방'],
+      ['고기', '먹방', '맛'],
+    ],
+    slug: 'samgyeopsal-vs-moksal',
+  },
+  {
+    title: '마라탕 vs 마라샹궈?',
+    story:
+      '마라 먹으러 가면 매번 탕이냐 샹궈냐 고민이에요. 탕은 국물이 좋고, 샹궈는 볶은 맛이 좋고.',
+    categories: ['trend'],
+    type: 'IMAGE',
+    options: ['마라탕', '마라샹궈'],
+    optionImageTags: [
+      ['음식', '맛집', '먹방'],
+      ['음식', '먹방', '매운'],
+    ],
+    slug: 'malatang-vs-malaxiangguo',
+  },
+
+  // === 트렌드/사회 (trend) ===
+  {
+    title: '한국에서 자녀 없이 사는 선택, 존중받아야 할까요?',
+    story:
+      '결혼 5년 차인데, 아이를 안 갖기로 했어요. 부모님이 "나중에 후회한다"고 하시는데, 우리 부부의 선택이잖아요.',
+    categories: ['trend', 'marriage'],
+    type: 'TEXT',
+    options: ['존중받아야 한다', '충분히 고민은 해봐야 한다'],
+    imageTags: ['가족', '선택', '고민'],
+    slug: 'childfree-choice-respected',
+  },
+  {
+    title: '현금 없이 생활하는 거, 불편한 적 있나요?',
+    story:
+      '카드랑 페이만 쓰는데, 전통시장이나 노점에서 현금만 받을 때 당황해요. 현금 아예 안 들고 다녀도 될까요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['현금 없어도 문제없다', '소액은 챙기는 게 좋다'],
+    imageTags: ['돈', '카드', '결제'],
+    slug: 'cashless-life-ok',
+  },
+  {
+    title: 'OTT 계정 공유, 불법이라는데 괜찮나요?',
+    story:
+      '넷플릭스 계정을 친구 4명이서 나눠 쓰고 있어요. 이제 단속한다는 뉴스 봤는데, 그냥 각자 결제해야 할까요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['각자 결제한다', '아직은 괜찮다'],
+    imageTags: ['넷플릭스', '공유', '돈'],
+    slug: 'ott-account-sharing-ok',
+  },
+  {
+    title: '전기차 사야 할까요, 아직 이른가요?',
+    story:
+      '차를 바꾸려는데, 전기차가 유지비가 싸다고 하잖아요. 근데 충전 인프라가 아직 부족하다는 말도 있고. 2026년 기준 어떤가요?',
+    categories: ['trend', 'finance'],
+    type: 'TEXT',
+    options: ['전기차로 간다', '아직 내연기관이 낫다', '하이브리드가 정답'],
+    imageTags: ['자동차', '전기', '미래'],
+    slug: 'electric-car-2026-worth-it',
+  },
+  {
+    title: 'AI가 만든 콘텐츠, 진짜 콘텐츠로 인정해야 할까요?',
+    story:
+      'AI가 그린 그림이 미술대회에서 상을 탔다는 뉴스 봤어요. 사람이 안 만든 건데 예술로 인정해야 하나요?',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['인정해야 한다', '사람이 만든 것만 예술이다'],
+    imageTags: ['만화', '예술', '미래'],
+    slug: 'ai-generated-content-valid',
+  },
+  {
+    title: '결혼식 축의금 문화, 없어져야 할까요?',
+    story:
+      '올해만 축의금으로 80만원 넘게 나갔어요. 축하하는 마음은 있지만, 돈 부담이 크거든요. 외국처럼 선물로 대체하면 안 될까요?',
+    categories: ['trend', 'finance', 'marriage'],
+    type: 'TEXT',
+    options: ['없어져야 한다', '한국 문화다, 유지해야 한다'],
+    imageTags: ['결혼', '돈', '문화'],
+    slug: 'abolish-wedding-money-culture',
+  },
+  {
+    title: '키오스크가 어려운 사람들, 배려해야 할까요?',
+    story:
+      '패스트푸드점에서 할머니가 키오스크 앞에서 10분째 헤매고 계세요. 뒤에 줄이 길어지는데, 도와드려야 할까요?',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['당연히 도와드린다', '직원이 도와야 한다'],
+    imageTags: ['기계', '도움', '고민'],
+    slug: 'kiosk-difficult-help-elderly',
+  },
+  {
+    title: '유튜브 프리미엄, 돈 값 할까요?',
+    story:
+      '유튜브 프리미엄이 월 14,900원인데, 광고 없는 건 좋지만 좀 비싸요. 무료로 광고 보면서 쓰는 게 나을까요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['광고 없는 게 최고, 결제한다', '무료로 충분하다'],
+    imageTags: ['유튜브', '돈', '구독'],
+    slug: 'youtube-premium-worth-it',
+  },
+  {
+    title: '요즘 한국 드라마 vs 일본 애니, 뭐가 더 재밌나요?',
+    story:
+      '주변에서 일본 애니 추천하는 사람이 많아졌어요. 한국 드라마도 좋은데, 요즘 애니가 더 재밌다는 의견도 있더라고요.',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['한국 드라마', '일본 애니'],
+    imageTags: ['드라마', '만화', '애니'],
+    slug: 'kdrama-vs-anime',
+  },
+  {
+    title: '집에서 혼술, 문제 있다고 생각해요?',
+    story:
+      '퇴근하고 맥주 한 캔 마시는 게 유일한 낙인데, 가족이 "알코올 의존이다"라고 해요. 매일 한 캔씩만 마시는데도?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['적당하면 괜찮다', '습관이 되면 위험하다'],
+    imageTags: ['맥주', '술', '혼술'],
+    slug: 'solo-drinking-at-home-ok',
+  },
+  {
+    title: '정시 퇴근하면 눈치 보이는 문화, 바뀌어야 하나요?',
+    story:
+      '5시 50분에 짐 챙기면 선배들이 쳐다봐요. 6시 정퇴가 규정인데도요. 이 문화가 바뀌려면 얼마나 걸릴까요?',
+    categories: ['trend', 'work'],
+    type: 'TEXT',
+    options: ['이미 많이 바뀌었다', '아직 갈 길이 멀다'],
+    imageTags: ['퇴근', '회사', '시계'],
+    slug: 'on-time-leave-frowned-upon',
+  },
+  {
+    title: '중고거래에서 네고 요청, 예의 없는 건가요?',
+    story:
+      '당근마켓에서 5만원짜리 물건에 "4만원에 안 되나요?"라고 했더니, 판매자가 "가격 제시 금지"라고 하네요. 네고가 원래 예의 없는 건가요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['네고는 당연하다', '올린 가격 존중해야 한다'],
+    imageTags: ['중고', '거래', '돈'],
+    slug: 'secondhand-negotiate-rude',
+  },
+  {
+    title: '식당에서 잔반 남기면 추가금 받는 거, 괜찮나요?',
+    story:
+      '뷔페에서 음식 남기면 1인당 3,000원 추가금을 받는대요. 음식 낭비를 줄이는 건 좋지만, 좀 불편하기도 해요.',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['합리적이다', '좀 과하다'],
+    imageTags: ['음식', '돈', '식당'],
+    slug: 'leftover-surcharge-ok',
+  },
+  {
+    title: 'AI 그림으로 프로필 사진 쓰는 거, 어떻게 생각해요?',
+    story:
+      'AI로 만든 프로필 사진이 실물보다 훨씬 잘 나왔어요. 소개팅 앱에 올렸는데, 만나면 실물과 다르다고 실망할까요?',
+    categories: ['trend', 'love'],
+    type: 'TEXT',
+    options: ['재밌다, 써도 된다', '실물과 달라서 문제다'],
+    imageTags: ['사진', '프로필', '고민'],
+    slug: 'ai-profile-photo-ok',
+  },
+  {
+    title: '무인매장에서 계산 안 하고 나가는 사람 봤으면?',
+    story:
+      '무인 아이스크림 가게에서 옆 사람이 계산 안 하고 나가는 걸 봤어요. 직접 말해야 할지, 내 일이 아니니까 넘어가야 할지 고민했어요.',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['직접 말한다', '내 일이 아니다'],
+    imageTags: ['양심', '고민', '도둑'],
+    slug: 'unmanned-store-shoplifting',
+  },
+  {
+    title: '새벽 배송, 꼭 필요한가요?',
+    story:
+      '밤 11시에 주문하면 아침 6시에 오는 게 신기하긴 한데, 새벽에 일하는 사람들 생각하면 좀 미안해요. 당일 배송이면 충분하지 않나요?',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['필요하다, 편리함이 최고', '당일 배송이면 충분하다'],
+    imageTags: ['택배', '새벽', '배송'],
+    slug: 'dawn-delivery-necessary',
+  },
+  {
+    title: '한국 남자의 화장품 소비, 과한가요?',
+    story:
+      '기초 화장품만 5개 쓰는데, 해외 친구가 "한국 남자들 스킨케어 레벨 다르다"고 하더라고요. 다른 나라에 비해 과한 건가요?',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['자기 관리다, 좋은 거다', '좀 과한 것 같다'],
+    imageTags: ['남자', '화장', '관리'],
+    slug: 'korean-men-skincare-too-much',
+  },
+  {
+    title: '로봇이 서빙하는 식당, 편한가요 불편한가요?',
+    story:
+      '서빙 로봇이 음식을 가져다주는 식당에 갔는데, 뭔가 어색해요. 사람한테 "감사합니다" 하는 게 자연스러웠거든요.',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['편하다', '어색하다'],
+    imageTags: ['식당', '로봇', '미래'],
+    slug: 'robot-serving-restaurant',
+  },
+  {
+    title: 'MBTI로 사람 판단하는 거, 괜찮다고 생각해요?',
+    story:
+      '소개팅에서 처음 묻는 게 MBTI예요. "T라서 공감 못하겠다"는 말을 듣는데, 4글자로 사람을 판단해도 되나요?',
+    categories: ['trend'],
+    type: 'TEXT',
+    options: ['재미로 보는 거다', '너무 의존하면 안 된다'],
+    imageTags: ['성격', '판단', '고민'],
+    slug: 'mbti-judging-people-ok',
+  },
+  {
+    title: '지방 살기 vs 서울 살기, 2026년 기준?',
+    story:
+      '서울 집값에 지쳐서 지방 이주를 고려 중이에요. 세종시나 부산은 삶의 질이 높다는데, 커리어를 생각하면 서울을 못 떠나겠어요.',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['서울이 답이다', '지방도 충분히 괜찮다'],
+    imageTags: ['서울', '집', '이사'],
+    slug: 'seoul-vs-provincial-city-2026',
+  },
+  {
+    title: '걸어서 10분 거리도 택시 타나요?',
+    story:
+      '친구가 500m 거리도 택시 불러요. 걸으면 되는 거리인데, "왜 걸어?"라고 하더라고요. 요즘은 다 이런 건가요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['걸어야지', '편한 게 최고, 타도 된다'],
+    imageTags: ['택시', '걷기', '편리'],
+    slug: 'taxi-for-short-distance',
+  },
+  {
+    title: '나이 들면 외모 관리 포기해도 될까요?',
+    story:
+      '35살인데 헬스도 안 가고 피부 관리도 안 하게 됐어요. 어차피 나이 드는 건 어쩔 수 없는데, 자연스럽게 나이 드는 것도 괜찮지 않나요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['자연스러운 게 좋다', '관리는 평생 해야 한다'],
+    imageTags: ['나이', '관리', '외모'],
+    slug: 'aging-stop-grooming-ok',
+  },
+  {
+    title: '"갓생" 살기, 진짜 행복한가요?',
+    story:
+      '새벽 5시 기상, 운동, 독서, 출근. 갓생 루틴 따라하고 있는데, 솔직히 피곤하기만 해요. 이게 진짜 좋은 삶인 건가요?',
+    categories: ['trend', 'life'],
+    type: 'TEXT',
+    options: ['습관이 되면 좋아진다', '무리하지 않는 게 낫다'],
+    imageTags: ['아침', '출근', '피곤'],
+    slug: 'god-life-routine-happy',
+  },
+
+  // === 혼합 카테고리 추가 ===
+  {
+    title: '30대에 새로운 취미 시작하는 거, 늦지 않나요?',
+    story:
+      '서핑을 배우고 싶은데, 주변에서 "30대에 무슨 서핑"이라고 해요. 체력이 걱정되긴 하는데, 하고 싶은 건 해봐야 하지 않나요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['전혀 늦지 않다', '현실적으로 어렵다'],
+    imageTags: ['운동', '취미', '도전'],
+    slug: 'new-hobby-in-30s-late',
+  },
+  {
+    title: '혼자 영화 보러 가는 거, 어색한가요?',
+    story: '보고 싶은 영화가 있는데, 같이 갈 사람이 없어요. 혼영하면 주변에서 이상하게 볼까요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['혼영 최고다', '아직 좀 어색하다'],
+    imageTags: ['영화', '혼자', '솔로'],
+    slug: 'watching-movie-alone',
+  },
+  {
+    title: '아파트 층간소음, 어디까지 참아야 할까요?',
+    story:
+      '윗집 아이가 뛰어다니는 소리가 밤 11시까지 들려요. 세 번 올라가서 말씀드렸는데, "아이가 있으니 이해해달라"고 하세요.',
+    categories: ['life', 'relationship'],
+    type: 'TEXT',
+    options: ['아이가 있으면 어느 정도 이해한다', '시간대는 지켜야 한다'],
+    imageTags: ['아파트', '소음', '짜증'],
+    slug: 'apartment-noise-how-much-tolerate',
+  },
+  {
+    title: '운전면허 따고 운전 안 하는 사람, 많나요?',
+    story:
+      '면허 딴 지 3년인데, 한 번도 운전 안 했어요. 서울 살면 대중교통이 너무 편해서요. 장롱면허 괜찮은 건가요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['나도 그렇다', '운전은 해봐야 한다'],
+    imageTags: ['운전', '자동차', '면허'],
+    slug: 'got-license-never-drive',
+  },
+  {
+    title: '요즘 결혼, 사랑보다 현실인가요?',
+    story:
+      '좋아하는 사람이 있는데, 조건이 안 맞아요. 부모님은 "사랑은 식는다, 조건을 봐라"고 하시는데, 현실적인 조건이 더 중요한 건가요?',
+    categories: ['love', 'marriage'],
+    type: 'TEXT',
+    options: ['사랑이 우선이다', '현실 조건이 중요하다'],
+    imageTags: ['결혼', '사랑', '현실'],
+    slug: 'marriage-love-vs-reality',
+  },
+  {
+    title: '장례식에서 울면 안 되나요?',
+    story:
+      '친구 아버지 장례식에 갔는데, 눈물이 나오려 해서 참았어요. 유족도 아닌데 우는 건 좀 그런 건가요?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['슬프면 울어도 된다', '유족 앞에서는 참는 게 좋다'],
+    imageTags: ['눈물', '슬픔', '장례'],
+    slug: 'crying-at-funeral-ok',
+  },
+  {
+    title: '생일에 혼자 케이크 사먹는 거, 슬픈가요?',
+    story:
+      '생일인데 축하해주는 사람이 없어요. 혼자 케이크 사서 먹으려는데, 갑자기 좀 서글퍼졌어요. 다들 이런 경험 있나요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['나를 위한 선물이다', '솔직히 좀 슬프다'],
+    imageTags: ['생일', '축하', '혼자'],
+    slug: 'solo-birthday-cake-sad',
+  },
+  {
+    title: 'KTX에서 옆자리 사람이 팔꿈치 넘어오면?',
+    story:
+      'KTX 타는데 옆 사람 팔꿈치가 팔걸이를 넘어서 제 자리로 왔어요. 2시간 내내 불편한데, 말하기가 애매해요.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['정중하게 말한다', '그냥 참는다'],
+    imageTags: ['짜증', '참기', '좌석'],
+    slug: 'ktx-armrest-space-invasion',
+  },
+  {
+    title: '주말에 아무것도 안 하고 집에만 있어도 괜찮나요?',
+    story:
+      '토요일부터 일요일까지 집에서만 있었어요. 넷플릭스, 게임, 잠. 월요일에 "주말에 뭐 했어?" 물어보면 할 말이 없어요.',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['완벽한 휴식이다', '좀 나가야 한다'],
+    imageTags: ['집', '휴식', '게임'],
+    slug: 'do-nothing-weekend-ok',
+  },
+  {
+    title: '연봉보다 복지가 좋은 회사가 나을까요?',
+    story:
+      '연봉 4천에 복지 없는 회사 vs 연봉 3,500에 재택+유연근무+식대. 돈으로 따지면 비슷한데, 삶의 질은 복지가 좋은 쪽이 나은 것 같아요.',
+    categories: ['work', 'finance'],
+    type: 'TEXT',
+    options: ['연봉이 최고다', '복지가 좋은 게 낫다'],
+    imageTags: ['회사', '돈', '복지'],
+    slug: 'salary-vs-benefits',
+  },
+  {
+    title: '회사에서 점심 혼밥 vs 같이 밥?',
+    story:
+      '팀 분위기상 다 같이 밥 먹는데, 저는 혼자 조용히 먹고 싶어요. 빠지면 "왜 안 가?"라고 하는데, 개인 시간이 필요한 건 이기적인 건가요?',
+    categories: ['work', 'life'],
+    type: 'TEXT',
+    options: ['혼밥 할 자유 있다', '팀원이면 같이 먹는 게 낫다'],
+    imageTags: ['혼밥', '회사', '점심'],
+    slug: 'solo-lunch-vs-team-lunch',
+  },
+  {
+    title: '부모님께 월급 얼마 받는지 말해야 할까요?',
+    story:
+      '부모님이 "요즘 얼마 받냐" 물어보시는데, 말하면 비교하시고 안 말하면 서운해하세요. 솔직하게 말해야 할까요?',
+    categories: ['relationship', 'finance'],
+    type: 'TEXT',
+    options: ['솔직하게 말한다', '대충 얼버무린다'],
+    imageTags: ['부모', '돈', '고민'],
+    slug: 'tell-parents-your-salary',
+  },
+  {
+    title: '친구 사업에 투자하라고 하면?',
+    story:
+      '절친이 사업 시작한다면서 500만원만 투자해달라고 해요. 성공하면 2배로 돌려준대요. 친구를 믿고 싶은데, 돈과 우정은 다른 거잖아요.',
+    categories: ['relationship', 'finance'],
+    type: 'TEXT',
+    options: ['절대 안 한다', '금액이 적으면 해줄 수 있다'],
+    imageTags: ['돈', '친구', '투자'],
+    slug: 'invest-in-friend-business',
+  },
+  {
+    title: '소개팅 첫 만남, 카페 vs 식사?',
+    story:
+      '소개팅 잡혔는데, 첫 만남을 카페에서 할지 식사로 할지 고민이에요. 카페는 부담 없는데 시간이 짧고, 식사는 길지만 비용이 더 들고.',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['카페가 부담 없다', '식사가 더 알 수 있다'],
+    imageTags: ['커피', '식사', '소개팅'],
+    slug: 'first-blind-date-cafe-or-meal',
+  },
+  {
+    title: '직장인 점심값, 한 끼에 얼마가 적당할까요?',
+    story:
+      '회사 근처 점심이 만원 넘는 게 기본이에요. 매일 만원씩 쓰면 한 달에 22만원인데, 도시락 싸야 할까요?',
+    categories: ['finance', 'work'],
+    type: 'TEXT',
+    options: ['8천원 이하', '만원 정도', '만원 이상도 괜찮다'],
+    imageTags: ['점심', '돈', '식사'],
+    slug: 'office-lunch-budget',
+  },
+  {
+    title: '매일 같은 옷 입고 다니는 사람, 어떤가요?',
+    story:
+      '스티브 잡스처럼 같은 옷을 여러 벌 사서 매일 입고 있어요. 고민이 줄어서 좋은데, 회사 사람들이 "세탁 안 하냐"고 물어봐요.',
+    categories: ['life', 'trend'],
+    type: 'TEXT',
+    options: ['효율적이다', '좀 그렇다'],
+    imageTags: ['옷', '패션', '스타일'],
+    slug: 'same-clothes-everyday-ok',
+  },
+  {
+    title: '연인 생일에 서프라이즈, 필수인가요?',
+    story:
+      '여자친구 생일인데, 서프라이즈 안 하면 서운해하더라고요. 선물이면 충분하지 않나요? 매년 이벤트 준비하는 게 부담돼요.',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['서프라이즈가 중요하다', '선물만으로 충분하다'],
+    imageTags: ['생일', '선물', '사랑'],
+    slug: 'birthday-surprise-necessary',
+  },
+  {
+    title: '부모님한테 효도 여행 보내드려야 할까요?',
+    story:
+      '부모님이 해외여행 한 번도 못 가보셨어요. 보내드리고 싶은데, 경비가 300만원이 넘어요. 아직 여유가 없는데 무리해서라도 해야 할까요?',
+    categories: ['relationship', 'finance'],
+    type: 'TEXT',
+    options: ['형편이 되면 보내드린다', '무리하지 않아도 된다'],
+    imageTags: ['부모', '여행', '효도'],
+    slug: 'parents-travel-gift',
+  },
+  {
+    title: '잠을 줄여서라도 자기계발해야 할까요?',
+    story:
+      '자기계발 유튜버들이 4시간 자고 공부하라고 하는데, 저는 8시간은 자야 사람이에요. 성공하려면 잠을 줄여야 하는 건가요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['수면이 더 중요하다', '노력하려면 줄여야 한다'],
+    imageTags: ['잠', '피곤', '공부'],
+    slug: 'sleep-less-for-self-improvement',
+  },
+  {
+    title: '회사에 사표 쓸 때 진짜 이유를 말해야 할까요?',
+    story:
+      '연봉 때문에 퇴사하는 건데, 팀장님한테 "더 성장하고 싶어서"라고 할까 "연봉 때문"이라고 할까 고민이에요.',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['진짜 이유를 말한다', '좋게 포장한다'],
+    imageTags: ['퇴사', '회사', '사표'],
+    slug: 'real-reason-for-resignation',
+  },
+  {
+    title: '카페에서 공부하는 게 집보다 나은가요?',
+    story:
+      '집에서 공부하면 10분 만에 침대로 가는데, 카페 가면 3시간은 집중돼요. 음료값이 아깝긴 한데, 집중력 대비 가성비가 좋은 건가요?',
+    categories: ['life'],
+    type: 'TEXT',
+    options: ['카페가 확실히 낫다', '집에서도 충분하다'],
+    imageTags: ['커피', '공부', '카페'],
+    slug: 'study-cafe-vs-home',
+  },
+  {
+    title: '회식에서 노래방 빠져도 될까요?',
+    story:
+      '회식 2차가 노래방인데, 노래를 못해서 가기 싫어요. 1차까지만 참석하고 빠지면 눈치 보일까요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['1차만 가도 충분하다', '2차까지는 가는 게 좋다'],
+    imageTags: ['회식', '노래방', '회사'],
+    slug: 'skip-karaoke-after-dinner',
+  },
+  {
+    title: '연인 간 카톡 답장 시간, 얼마나 기다릴 수 있나요?',
+    story:
+      '여자친구 카톡 보내고 3시간째 답이 없어요. 바쁜 건 알겠는데, 읽었으면 한마디라도 해주면 좋겠어요.',
+    categories: ['love'],
+    type: 'TEXT',
+    options: ['1시간 이내', '반나절', '하루'],
+    imageTags: ['카톡', '연애', '기다림'],
+    slug: 'partner-reply-time-limit',
+  },
+  {
+    title: '연봉 올려달라고 직접 말해본 적 있나요?',
+    story:
+      '동기보다 연봉이 500만원 적다는 걸 알게 됐어요. 직접 부장님한테 올려달라고 말할 수 있을까요?',
+    categories: ['work', 'finance'],
+    type: 'TEXT',
+    options: ['말해야 한다', '한국에서는 어렵다'],
+    imageTags: ['회사', '돈', '용기'],
+    slug: 'ask-for-raise-directly',
+  },
+  {
+    title: '편의점 도시락 vs 김밥천국?',
+    story:
+      '빠른 한 끼를 해결할 때, 편의점 도시락이 나을까 김밥천국이 나을까. 편의점은 3,500원, 김밥천국은 5,000원.',
+    categories: ['life'],
+    type: 'IMAGE',
+    options: ['편의점 도시락', '김밥천국'],
+    optionImageTags: [
+      ['음식', '먹방', '도시락'],
+      ['김밥', '음식', '먹방'],
+    ],
+    slug: 'convenience-store-vs-kimbap',
+  },
+  {
+    title: '회사 워크숍, 진짜 도움이 되나요?',
+    story:
+      '1박 2일 워크숍을 간대요. 팀빌딩이라고 하는데, 주말 반납하고 억지 레크레이션 하는 게 팀워크에 도움이 될까요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['하는 게 낫다', '차라리 쉬는 게 낫다'],
+    imageTags: ['회사', '워크숍', '팀'],
+    slug: 'company-workshop-helpful',
+  },
+  {
+    title: '이사할 때 친구들 도움 받는 거, 아직도 괜찮나요?',
+    story:
+      '이사하는데 친구들한테 도와달라고 하려다가 "요즘은 업체 부르는 거 아니냐"는 말을 들었어요. 친구한테 부탁하면 민폐인가요?',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['친구한테 부탁해도 된다', '요즘은 업체 쓰는 게 맞다'],
+    imageTags: ['이사', '친구', '도움'],
+    slug: 'ask-friends-help-moving',
+  },
+  {
+    title: '직장인 영어 공부, 퇴근 후 가능할까요?',
+    story:
+      '글로벌 팀으로 옮기려면 영어가 필수인데, 퇴근하면 녹초예요. 학원은 시간이 안 맞고, 인강은 3일 만에 포기했어요.',
+    categories: ['work', 'life'],
+    type: 'TEXT',
+    options: ['충분히 가능하다', '퇴근 후는 비현실적이다'],
+    imageTags: ['공부', '영어', '피곤'],
+    slug: 'study-english-after-work',
+  },
+  {
+    title: '회사에서 사적인 감정을 표현해도 될까요?',
+    story:
+      '프로젝트가 엎어졌는데, 팀장한테 "이건 아닌 것 같다"고 강하게 말했어요. 동료가 "감정적이다"라고 하는데, 할 말은 해야 하지 않나요?',
+    categories: ['work'],
+    type: 'TEXT',
+    options: ['할 말은 해야 한다', '감정은 자제해야 한다'],
+    imageTags: ['회사', '화남', '감정'],
+    slug: 'express-emotions-at-work',
+  },
+  {
+    title: '아이 유치원 영어 교육, 빠를수록 좋을까요?',
+    story:
+      '5살 아이를 영어 유치원에 보내려는데, 한 달에 100만원이에요. 빨리 시작하면 좋다는 사람도 있고, 어차피 나중에 다 배운다는 사람도 있고.',
+    categories: ['marriage'],
+    type: 'TEXT',
+    options: ['빠를수록 유리하다', '초등 때 시작해도 된다'],
+    imageTags: ['아이', '교육', '영어'],
+    slug: 'early-english-education-kids',
+  },
+  {
+    title: '퇴근 후 헬스 vs 퇴근 후 넷플릭스?',
+    story:
+      '오늘도 피곤한데, 헬스장을 가야 할까 소파에 눕고 넷플릭스를 틀어야 할까. 매일 이 갈림길에서 넷플릭스가 이겨요.',
+    categories: ['life'],
+    type: 'IMAGE',
+    options: ['헬스장 간다', '넷플릭스 본다'],
+    optionImageTags: [
+      ['운동', '근육', '헬스'],
+      ['쉬자', '휴식', '집'],
+    ],
+    slug: 'gym-vs-netflix-after-work',
+  },
+  {
+    title: '부모님 카톡 답장, 항상 바로 해야 할까요?',
+    story:
+      '엄마가 하루에 5번은 카톡을 보내세요. 바쁠 때 답장을 못 하면 전화가 와서 "왜 답 안 하냐"고 하세요.',
+    categories: ['relationship'],
+    type: 'TEXT',
+    options: ['부모님이니까 바로 한다', '여유 있을 때 해도 된다'],
+    imageTags: ['카톡', '엄마', '부모'],
+    slug: 'reply-parents-kakao-immediately',
+  },
+  {
+    title: '2026년 취업 시장, 전망이 어둡다고 느끼나요?',
+    story:
+      '100군데 넘게 넣었는데 서류 통과가 3곳이에요. AI 때문에 채용이 줄었다는 말도 있고, 경기가 안 좋다는 말도 있고.',
+    categories: ['trend', 'work'],
+    type: 'TEXT',
+    options: ['솔직히 어둡다', '분야에 따라 다르다'],
+    imageTags: ['취업', '좌절', '고민'],
+    slug: 'job-market-2026-outlook',
+  },
+  {
+    title: '친한 친구끼리 여행 가면 싸우나요?',
+    story:
+      '절친 4명이서 제주도 2박 3일 갔는데, 마지막 날 분위기 최악이었어요. 동선 갈등, 식당 선택, 돈 문제로 다 짜증 내더라고요.',
+    categories: ['relationship', 'life'],
+    type: 'TEXT',
+    options: ['한 번씩은 싸운다', '안 싸우는 게 정상이다'],
+    imageTags: ['여행', '친구', '싸움'],
+    slug: 'fight-with-friends-on-trip',
+  },
+  {
+    title: '회사 화장실에서 쉬는 거, 다들 하나요?',
+    story:
+      '업무 중 스트레스 받으면 화장실에서 5분씩 쉬고 와요. 핸드폰도 좀 보고요. 같은 팀원이 "화장실 오래 간다"고 하는데, 다들 이러지 않나요?',
+    categories: ['work', 'life'],
+    type: 'TEXT',
+    options: ['다들 그렇다', '적당히 해야 한다'],
+    imageTags: ['회사', '휴식', '스트레스'],
+    slug: 'bathroom-break-at-work',
+  },
+];
+
+// Process
+const output = rawContents.map((c, i) => {
+  const item = {
+    id: i + 1,
+    title: c.title,
+    story: c.story,
+    categories: c.categories,
+    type: c.type,
+    options: c.options,
+    slug: c.slug,
+  };
+
+  if (c.type === 'TEXT') {
+    item.image = findJjal(c.imageTags);
+  } else if (c.type === 'IMAGE') {
+    item.optionImages = c.optionImageTags.map((tags) => findJjal(tags));
+  }
+
+  return item;
+});
+
+console.log('Generated', output.length, 'items');
+fs.writeFileSync(OUTPUT_PATH, JSON.stringify(output, null, 2), 'utf-8');
+console.log('Written to', OUTPUT_PATH);

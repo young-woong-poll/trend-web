@@ -1,0 +1,29 @@
+{
+  "comic_strip": {
+    "title": "연인의 전화 비밀번호 공유 딜레마 (Lover's Phone Password Dilemma)",
+
+    "art_style": "디지털 일러스트레이션, 만화 스타일, 부드러운 색감 (Digital illustration, cartoonish, soft colors)",
+
+    "panels": [
+      {
+        "panel_number": 2,
+
+        "position": "오른쪽 상단 (Top-right)",
+
+        "scene_description": "여자친구의 클로즈업. 의심스럽고 약간 화난 듯한 표정으로 남자친구를 쳐다봅니다. 배경은 흐릿한 카페 내부입니다.",
+
+        "characters": [
+          {
+            "name": "여자친구 (Woman)",
+
+            "appearance": "긴 갈색 머리, 블라우스 착용, 의심스러운 표정",
+
+            "action": "남자친구를 의심하며 질문함"
+          }
+        ],
+
+        "dialogue": ["여자친구 : 뭐야 숨기는거 있어? 왜 안알려줘?"]
+      }
+    ]
+  }
+}
