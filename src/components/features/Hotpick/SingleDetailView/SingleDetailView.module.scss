@@ -386,56 +386,6 @@
   margin-top: 16px;
 }
 
-.voteHint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 14px;
-  border-radius: $border-radius-md;
-  background: rgba($white, 0.04);
-  border: 1px solid rgba($white, 0.06);
-  font-size: 14px;
-  font-weight: $font-weight-medium;
-  color: $text-secondary;
-  cursor: default;
-  animation: hintPulse 2.4s ease-in-out infinite;
-}
-
-.voteHintText {
-  background: $primary-gradient;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: $font-weight-semibold;
-}
-
-.voteHintArrow {
-  font-size: 12px;
-  color: $primary-start;
-  animation: hintBounce 1.6s ease-in-out infinite;
-}
-
-@keyframes hintPulse {
-  0%,
-  100% {
-    border-color: rgba($white, 0.06);
-  }
-  50% {
-    border-color: rgba($primary-start, 0.2);
-  }
-}
-
-@keyframes hintBounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 // ── 인라인 댓글 섹션 ──
 .commentSection {
   margin: 28px 16px 0;
