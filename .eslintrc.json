@@ -16,7 +16,7 @@
     "server.js",
     "public/mockServiceWorker.js",
     "next-env.d.ts",
-    "scripts/*.js",
+    "scripts/*",
     "src/generated",
     "orval.config.ts",
     "e2e",
