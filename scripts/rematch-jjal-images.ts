@@ -14,9 +14,9 @@
 import fs from 'fs';
 import path from 'path';
 
+import { createHotpick } from './db/hotpicks';
 import { getDb, closeDb } from './db/index';
 import { linkJjalToHotpick } from './db/jjals';
-import { createHotpick } from './db/hotpicks';
 import { generateEmbedding, cosineSimilarity } from './db/similarity';
 
 const CONTENTS_PATH = path.join(__dirname, '../docs/contents/contents-mix2.json');
@@ -84,7 +84,9 @@ function findBestJjal(
   scored.sort((a, b) => b.score - a.score);
   const candidates = scored.slice(0, topK);
 
-  if (candidates.length === 0) return null;
+  if (candidates.length === 0) {
+    return null;
+  }
 
   // 상위 후보 중 use_count가 가장 낮은 것 선택
   candidates.sort((a, b) => a.use_count - b.use_count);
@@ -173,7 +175,9 @@ async function main() {
         linkJjalToHotpick(best.key, hotpickId, 'main_image');
         // 메모리상 use_count도 증가
         const jjal = allJjals.find((j) => j.key === best.key);
-        if (jjal) jjal.use_count++;
+        if (jjal) {
+          jjal.use_count++;
+        }
         matchedCount++;
       } else {
         console.log('    ⚠ 매칭 실패');
@@ -201,7 +205,9 @@ async function main() {
           usedKeys.add(best.key);
           linkJjalToHotpick(best.key, hotpickId, `option_image_${optIdx}`);
           const jjal = allJjals.find((j) => j.key === best.key);
-          if (jjal) jjal.use_count++;
+          if (jjal) {
+            jjal.use_count++;
+          }
           matchedCount++;
         } else {
           optionImages.push('');
