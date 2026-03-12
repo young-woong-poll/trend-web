@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS jjals (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   key          TEXT NOT NULL UNIQUE,
   url          TEXT NOT NULL,
+  s3_url       TEXT,                 -- S3 CDN URL (업로드 완료 시 저장)
   tags         TEXT NOT NULL,        -- JSON array of Korean keywords
   embedding    TEXT,                 -- JSON array (multilingual-e5-small, 384차원)
   use_count    INTEGER NOT NULL DEFAULT 0,
