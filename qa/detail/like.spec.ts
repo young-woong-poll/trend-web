@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-import { DetailPage } from './helpers/detail-page';
-import { MainPage } from './helpers/main-page';
+import { DetailPage } from '../helpers/detail-page';
+import { MainPage } from '../helpers/main-page';
 
 /**
  * 핫픽 좋아요 기능 — E2E 테스트 (MSW mock 데이터 사용)

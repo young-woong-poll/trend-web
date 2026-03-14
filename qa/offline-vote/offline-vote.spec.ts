@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { OfflineVotePage } from './helpers/offline-vote-page';
+import { OfflineVotePage } from '../helpers/offline-vote-page';
 
 /**
  * 오프라인 투표 페이지 — E2E 테스트

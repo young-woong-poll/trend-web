@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { DetailPage } from './helpers/detail-page';
+import { DetailPage } from '../helpers/detail-page';
 
 /**
  * 상세페이지 (hotpick/[slug]) — E2E 테스트 (MSW mock 데이터 사용)

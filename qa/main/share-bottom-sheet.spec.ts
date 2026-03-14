@@ -2,9 +2,9 @@
 
 // import { test, expect } from '@playwright/test';
 //
-// import { DetailPage } from './helpers/detail-page';
-// import { MainPage } from './helpers/main-page';
-// import { ShareBottomSheetHelper } from './helpers/share-bottom-sheet';
+// import { DetailPage } from '../helpers/detail-page';
+// import { MainPage } from '../helpers/main-page';
+// import { ShareBottomSheetHelper } from '../helpers/share-bottom-sheet';
 //
 // /**
 //  * 공유하기 바텀시트 — E2E 테스트 (MSW mock 데이터 사용)

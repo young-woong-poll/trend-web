@@ -20,7 +20,8 @@
     "src/generated",
     "orval.config.ts",
     "e2e",
-    "docs"
+    "docs",
+    "qa"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

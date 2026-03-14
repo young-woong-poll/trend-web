@@ -22,6 +22,16 @@ export class MainPage {
   // 결과 바
   readonly resultBars: Locator;
 
+  // 스켈레톤 로딩
+  readonly skeletonCards: Locator;
+
+  // 에러/빈 상태
+  readonly errorText: Locator;
+  readonly emptyState: Locator;
+
+  // 데드라인 배지
+  readonly deadlineBadges: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -37,6 +47,15 @@ export class MainPage {
     this.participantCounts = page.locator('[class*="participants"]');
 
     this.resultBars = page.locator('[class*="resultBar"]');
+
+    this.skeletonCards = page.locator('[class*="skeleton"]');
+
+    this.errorText = page.getByText('핫픽을 불러오는데 실패했습니다');
+    this.emptyState = page.getByText('아직 진행중인 핫픽이 없어요');
+
+    this.deadlineBadges = page
+      .locator('[class*="badge"]')
+      .filter({ has: page.locator('[class*="DeadlineBadge"]') });
   }
 
   /** 카테고리 버튼 클릭 (라벨 텍스트로 찾기) */
@@ -77,6 +96,29 @@ export class MainPage {
   /** 특정 카드의 좋아요 버튼 */
   likeButton(cardIndex: number): Locator {
     return this.singleCards.nth(cardIndex).getByRole('button', { name: '좋아요' });
+  }
+
+  /** 특정 카드의 댓글 수 표시 */
+  cardCommentCount(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).locator('[class*="commentCount"]');
+  }
+
+  /** 특정 카드의 댓글 버튼 */
+  commentButton(cardIndex: number): Locator {
+    return this.singleCards.nth(cardIndex).getByRole('button', { name: /댓글/ });
+  }
+
+  /** 특정 카드의 데드라인 배지 */
+  cardDeadlineBadge(cardIndex: number): Locator {
+    return this.singleCards
+      .nth(cardIndex)
+      .locator('[class*="DeadlineBadge"], [class*="deadlineBadge"], [class*="badge"]')
+      .first();
+  }
+
+  /** 무한스크롤 옵저버 타겟 */
+  get observerTarget(): Locator {
+    return this.page.locator('[class*="observerTarget"], [class*="observer"]').first();
   }
 
   async goto() {
