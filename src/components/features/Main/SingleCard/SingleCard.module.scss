@@ -7,6 +7,8 @@
   background: $bg-secondary;
   border: 1px solid $border-placeholder;
   padding: 16px;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 320px;
 
   &.closed {
     opacity: 0.85;
