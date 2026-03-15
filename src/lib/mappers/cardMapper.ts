@@ -1,5 +1,11 @@
-import type { HotpickCardResponse } from '@/generated/models';
-import type { CardModel, SingleCardModel, BundleCardModel } from '@/types/card';
+import type { HotpickCardResponse, HotpickDetailResponse } from '@/generated/models';
+import type {
+  CardModel,
+  SingleCardModel,
+  BundleCardModel,
+  DetailVoteOption,
+  SingleDetailModel,
+} from '@/types/card';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
 export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel {
@@ -49,4 +55,38 @@ export function toCardModel(hotpick: HotpickCardResponse): CardModel {
     return { type: 'SINGLE', data: toSingleCardModel(hotpick) };
   }
   return { type: 'BUNDLE', data: toBundleCardModel(hotpick) };
+}
+
+export function toSingleDetailModel(data: HotpickDetailResponse, slug: string): SingleDetailModel {
+  const hotpick = data.hotpick;
+  const election = hotpick!.election!;
+  const items: DetailVoteOption[] = (election.items ?? []).map((item) => ({
+    electionItemId: item.electionItemId ?? 0,
+    title: item.title ?? '',
+    imageUrl: item.imageUrl,
+    voteCount: item.voteCount ?? 0,
+  }));
+  const hasOptionImages = items.some((item) => !!item.imageUrl);
+
+  return {
+    // passthrough
+    slug,
+    expiredAt: hotpick?.expiredAt,
+    likeCount: hotpick?.likeCount ?? 0,
+    liked: hotpick?.liked ?? false,
+    // election passthrough
+    electionId: String(election.electionId ?? ''),
+    title: election.title ?? '',
+    totalVoteCount: election.totalVoteCount ?? 0,
+    totalCommentCount: election.totalCommentCount ?? 0,
+    voted: election.voted ?? false,
+    myElectionItemId: election.myElectionItemId,
+    items,
+    // derived
+    categories: (hotpick?.categories ?? []).map((c) => c.name ?? ''),
+    isExpired: hotpick?.expiredAt ? new Date(hotpick.expiredAt) < new Date() : false,
+    voteType: hasOptionImages ? 'IMAGE' : 'TEXT',
+    logoUrl: !hasOptionImages ? (election.imageUrl ?? hotpick?.imageUrl) : undefined,
+    relatedHotpicks: data.relatedHotpicks,
+  };
 }
