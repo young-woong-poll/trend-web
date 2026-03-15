@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-import { DetailPage } from './helpers/detail-page';
-import { MainPage } from './helpers/main-page';
+import { DetailPage } from '../helpers/detail-page';
+import { MainPage } from '../helpers/main-page';
 
 /**
  * 핫픽 좋아요 기능 — E2E 테스트 (MSW mock 데이터 사용)
@@ -29,6 +29,8 @@ test.describe('메인 페이지 좋아요 버튼', () => {
   });
 
   test('싱글 카드에 좋아요 버튼이 표시된다', async () => {
+    // 카드가 완전히 렌더링될 때까지 대기
+    await expect(main.singleCards.first()).toBeVisible({ timeout: 10_000 });
     const likeButton = main.likeButton(0);
     await expect(likeButton).toBeVisible({ timeout: 10_000 });
   });

@@ -2,6 +2,8 @@
 
 import type { FC } from 'react';
 
+import { LazyMotion, domAnimation } from 'framer-motion';
+
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { SingleDetailView } from '@/components/features/Hotpick/SingleDetailView/SingleDetailView';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
@@ -14,7 +16,9 @@ export const SingleDetailContent: FC<SingleDetailContentProps> = ({ hotpickAlias
   <>
     <MainHeader />
     <FlexibleLayout>
-      <SingleDetailView hotpickAlias={hotpickAlias} />
+      <LazyMotion features={domAnimation}>
+        <SingleDetailView hotpickAlias={hotpickAlias} />
+      </LazyMotion>
     </FlexibleLayout>
   </>
 );

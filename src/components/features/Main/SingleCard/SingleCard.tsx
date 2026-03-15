@@ -1,10 +1,10 @@
 'use client';
 
-import type { FC } from 'react';
+import { memo } from 'react';
 
 import Image from 'next/image';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
@@ -17,73 +17,51 @@ import {
   buttonTapVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
-import type { TopCommentResponse } from '@/generated/models';
+import { useCardActions } from '@/contexts/CardActionsContext';
 import { formatCount } from '@/lib/utils';
-import type { VoteType } from '@/types/hotpick';
-import { calcPercentage, OPTION_LABELS, type SingleVoteData } from '@/types/singleVote';
+import type { SingleCardModel } from '@/types/card';
+import { calcPercentage, OPTION_LABELS } from '@/types/singleVote';
+
+const EMPTY_CATEGORIES: string[] = [];
 
 interface SingleCardProps {
-  id: number | string;
-  alias: string;
-  title: string;
-  categories?: string[];
-  participantCount?: number;
-  commentCount?: number;
-  deadline?: string;
-  status?: string;
-  singleVote: SingleVoteData;
-  voteType?: VoteType;
-  mainImageUrl?: string;
-  topComment?: TopCommentResponse;
-  likeCount?: number;
-  liked?: boolean;
-  onVote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
-  onShare?: (alias: string) => void;
-  onComment: (slug: string, electionId: string) => void;
-  onCommentBlocked?: () => void;
-  onLike?: (alias: string, liked: boolean, likeCount: number) => void;
+  data: SingleCardModel;
 }
 
-export const SingleCard: FC<SingleCardProps> = ({
-  id: _id,
-  alias,
-  title,
-  categories = [],
-  participantCount = 0,
-  commentCount,
-  deadline,
-  status,
-  likeCount = 0,
-  liked = false,
-  singleVote,
-  voteType,
-  mainImageUrl,
-  topComment,
-  onVote,
-  onShare,
-  onComment,
-  onCommentBlocked,
-  onLike,
-}) => {
-  const isClosed = status === 'CLOSED';
-  const { voted, myChoiceId, options, totalVotes } = singleVote;
+// eslint-disable-next-line react/display-name
+export const SingleCard = memo<SingleCardProps>(({ data }) => {
+  const {
+    slug,
+    title,
+    categories = EMPTY_CATEGORIES,
+    status,
+    voteType,
+    vote,
+    totalVoteCount,
+    totalCommentCount,
+    expiredAt,
+    likeCount,
+    liked,
+    mainImageUrl,
+    topComment,
+  } = data;
 
+  const actions = useCardActions();
+
+  const isClosed = status === 'CLOSED';
+  const { voted, myChoiceId, options, totalVotes } = vote;
   const showResult = voted || isClosed;
   const total = totalVotes ?? 0;
   const isImageType = voteType === 'IMAGE';
+  const logoUrl = !isImageType ? mainImageUrl : undefined;
+  const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   const handleOptionClick = (optionId: string) => {
     if (isClosed || voted) {
       return;
     }
-    onVote(alias, optionId, singleVote);
+    actions.vote(slug, optionId, vote);
   };
-
-  // TEXT 타입만 질문 옆 로고 표시, IMAGE 타입은 옵션 이미지로 대체
-  const logoUrl = !isImageType ? mainImageUrl : undefined;
-
-  // 2개 옵션: 2열 그리드, 3~4개: 세로 배치
-  const buttonGroupClass = options.length === 2 ? styles.buttonGroupTwo : styles.buttonGroupMulti;
 
   return (
     <div className={`${styles.card} ${isClosed ? styles.closed : ''}`} data-testid="single-card">
@@ -108,7 +86,7 @@ export const SingleCard: FC<SingleCardProps> = ({
             className={styles.iconButton}
             onClick={(e) => {
               e.stopPropagation();
-              onShare?.(alias);
+              actions.share(slug);
             }}
             aria-label="공유"
           >
@@ -129,15 +107,14 @@ export const SingleCard: FC<SingleCardProps> = ({
       <div className={styles.voteArea}>
         <AnimatePresence mode="wait">
           {!showResult ? (
-            /* 투표 전: 옵션 버튼 */
-            <motion.div
+            <m.div
               key="buttons"
               className={buttonGroupClass}
               initial={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
               {options.map((option, i) => (
-                <motion.button
+                <m.button
                   key={option.id}
                   className={styles.optionButton}
                   onClick={() => handleOptionClick(option.id)}
@@ -156,12 +133,11 @@ export const SingleCard: FC<SingleCardProps> = ({
                   )}
                   <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
                   <span className={styles.optionText}>{option.text}</span>
-                </motion.button>
+                </m.button>
               ))}
-            </motion.div>
+            </m.div>
           ) : (
-            /* 투표 후: 결과 바 */
-            <motion.div
+            <m.div
               key="results"
               className={styles.resultGroup}
               initial={{ opacity: 0 }}
@@ -169,17 +145,14 @@ export const SingleCard: FC<SingleCardProps> = ({
             >
               {options.map((option, i) => {
                 const isSelected = myChoiceId === option.id;
-                const percentage =
-                  showResult && option.voteCount !== null
-                    ? calcPercentage(option.voteCount, total)
-                    : 0;
+                const percentage = showResult ? calcPercentage(option.voteCount, total) : 0;
 
                 return (
                   <div
                     key={option.id}
                     className={`${styles.resultBar} ${isSelected ? styles.myChoice : ''}`}
                   >
-                    <motion.div
+                    <m.div
                       className={styles.barFill}
                       initial={{ width: '0%' }}
                       animate={{
@@ -197,7 +170,7 @@ export const SingleCard: FC<SingleCardProps> = ({
                           className={styles.barImage}
                         />
                       )}
-                      <motion.span
+                      <m.span
                         className={styles.barText}
                         variants={fadeInVariants}
                         initial="initial"
@@ -209,20 +182,20 @@ export const SingleCard: FC<SingleCardProps> = ({
                           </span>
                         )}
                         <span className={styles.barLabel}>{OPTION_LABELS[i]}</span> {option.text}
-                      </motion.span>
-                      <motion.span
+                      </m.span>
+                      <m.span
                         className={styles.barPercent}
                         variants={fadeInVariants}
                         initial="initial"
                         animate="animate"
                       >
                         {percentage}%
-                      </motion.span>
+                      </m.span>
                     </div>
                   </div>
                 );
               })}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
@@ -230,11 +203,11 @@ export const SingleCard: FC<SingleCardProps> = ({
       {/* 하단: 메타 + 액션 버튼 */}
       <div className={styles.bottomRow}>
         <div className={styles.metaRow}>
-          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-          {deadline && (
+          <span className={styles.participants}>{formatCount(totalVoteCount)}명 참여</span>
+          {expiredAt && (
             <>
               <span className={styles.dot} />
-              <DeadlineBadge deadline={deadline} compact />
+              <DeadlineBadge deadline={expiredAt} compact />
             </>
           )}
         </div>
@@ -244,7 +217,7 @@ export const SingleCard: FC<SingleCardProps> = ({
             className={styles.iconButtonWithCount}
             onClick={(e) => {
               e.stopPropagation();
-              onLike?.(alias, liked, likeCount);
+              actions.like(slug, liked, likeCount);
             }}
             aria-label="좋아요"
           >
@@ -257,16 +230,16 @@ export const SingleCard: FC<SingleCardProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               if (showResult) {
-                onComment(alias, singleVote.electionId);
+                actions.openComment(slug, vote.electionId);
               } else {
-                onCommentBlocked?.();
+                actions.blockComment();
               }
             }}
             aria-label="댓글"
           >
             <CommentIcon />
             <span className={styles.iconCount}>
-              {commentCount !== undefined ? formatCount(commentCount) : ''}
+              {totalCommentCount > 0 ? formatCount(totalCommentCount) : ''}
             </span>
           </button>
         </div>
@@ -280,7 +253,7 @@ export const SingleCard: FC<SingleCardProps> = ({
           data-testid="top-comment-preview"
           onClick={(e) => {
             e.stopPropagation();
-            onComment(alias, singleVote.electionId);
+            actions.openComment(slug, vote.electionId);
           }}
         >
           <span className={styles.topCommentNickname}>{topComment.nickname}</span>
@@ -289,4 +262,4 @@ export const SingleCard: FC<SingleCardProps> = ({
       )}
     </div>
   );
-};
+});

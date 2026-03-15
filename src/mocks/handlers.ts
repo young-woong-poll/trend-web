@@ -259,14 +259,16 @@ export const handlers = [
             voted: true,
             myElectionItemId: Number(voteRecord?.optionId ?? optionId),
             totalVoteCount: total,
-            items: svData.options.map((opt) => {
+            items: svData.options.map((opt, idx) => {
               const sc = optionCounts.find((c) => c.id === opt.id);
               return {
                 electionItemId: Number(opt.id.replace(/\D/g, '')) || 0,
+                displayOrder: idx + 1,
                 title: opt.text,
                 imageUrl: opt.imageUrl,
                 voteCount: sc?.count ?? opt.voteCount ?? 0,
                 voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+                selected: opt.id === (voteRecord?.optionId ?? optionId),
               };
             }),
           },
@@ -290,14 +292,16 @@ export const handlers = [
         voted: true,
         myElectionItemId: Number(optionId),
         totalVoteCount: total,
-        items: svData.options.map((opt) => {
+        items: svData.options.map((opt, idx) => {
           const sc = optionCounts.find((c) => c.id === opt.id);
           return {
             electionItemId: Number(opt.id.replace(/\D/g, '')) || 0,
+            displayOrder: idx + 1,
             title: opt.text,
             imageUrl: opt.imageUrl,
             voteCount: sc?.count ?? opt.voteCount ?? 0,
             voteRate: total > 0 ? Math.round(((sc?.count ?? 0) / total) * 100) : 0,
+            selected: opt.id === optionId,
           };
         }),
       })

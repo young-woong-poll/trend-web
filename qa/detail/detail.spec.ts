@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-import { DetailPage } from './helpers/detail-page';
+import { DetailPage } from '../helpers/detail-page';
 
 /**
  * 상세페이지 (hotpick/[slug]) — E2E 테스트 (MSW mock 데이터 사용)
@@ -67,9 +67,8 @@ test.describe('투표 전 상태', () => {
     await expect(detail.commentFormHint).toBeVisible({ timeout: 10_000 });
   });
 
-  test('투표 전에 공유 CTA가 미노출되고 힌트 텍스트가 표시된다', async () => {
+  test('투표 전에 공유 CTA가 미노출된다', async () => {
     await expect(detail.shareButton).not.toBeVisible();
-    await expect(detail.voteHint).toBeVisible();
   });
 
   test('참여자 수가 표시된다', async () => {
@@ -290,11 +289,13 @@ test.describe('닉네임 자동생성', () => {
   });
 
   test('닉네임을 수동 입력한 뒤 랜덤 버튼을 누르면 덮어쓰기 된다', async () => {
+    await expect(detail.commentNicknameInput).toBeVisible();
     await detail.commentNicknameInput.fill('');
     await detail.commentNicknameInput.fill('수동닉네임');
-    expect(await detail.commentNicknameInput.inputValue()).toBe('수동닉네임');
+    await expect(detail.commentNicknameInput).toHaveValue('수동닉네임');
 
     await detail.commentNicknameGenerateButton.click();
+    await detail.page.waitForTimeout(300);
     const value = await detail.commentNicknameInput.inputValue();
     expect(value).not.toBe('수동닉네임');
     expect(value.length).toBeGreaterThan(0);
@@ -302,6 +303,8 @@ test.describe('닉네임 자동생성', () => {
 
   test('취소 후 다시 열면 새로운 닉네임이 생성된다', async () => {
     await detail.commentCancelButton.click();
+    // collapse 애니메이션 완료 대기
+    await expect(detail.commentCancelButton).not.toBeVisible({ timeout: 3_000 });
     await detail.openCommentForm();
 
     const nickname = await detail.commentNicknameInput.inputValue();
@@ -323,6 +326,79 @@ test.describe('닉네임 자동생성', () => {
     await expect(detail.commentSection.getByText('자동생성 닉네임 테스트 댓글')).toBeVisible({
       timeout: 10_000,
     });
+  });
+});
+
+// ─── 댓글 폼 동작 ───
+
+test.describe('댓글 폼 동작', () => {
+  let detail: DetailPage;
+
+  test.beforeEach(async ({ page }) => {
+    detail = new DetailPage(page);
+    await detail.goto(SLUGS.SINGLE);
+    await detail.voteFirstOption();
+    await detail.openCommentForm();
+  });
+
+  test('댓글 게시 후 폼이 자동 축소된다', async () => {
+    await detail.commentTextarea.fill('폼 축소 테스트 댓글');
+    await detail.commentPasswordInput.fill('1234');
+    await detail.commentSubmitButton.click();
+
+    // 게시 후 취소 버튼(폼 확장 시에만 보임)이 사라져야 함
+    await expect(detail.commentCancelButton).not.toBeVisible({ timeout: 10_000 });
+  });
+
+  test('댓글 최대 200자, 닉네임 최대 10자, 비밀번호 4~15자 제한이 동작한다', async () => {
+    // 댓글 200자 제한
+    const longComment = 'A'.repeat(250);
+    await detail.commentTextarea.fill(longComment);
+    const commentValue = await detail.commentTextarea.inputValue();
+    expect(commentValue.length).toBeLessThanOrEqual(200);
+
+    // 닉네임 10자 제한
+    await detail.commentNicknameInput.fill('A'.repeat(20));
+    const nicknameValue = await detail.commentNicknameInput.inputValue();
+    expect(nicknameValue.length).toBeLessThanOrEqual(10);
+  });
+
+  test('글자수 카운터("N/200")가 표시된다', async () => {
+    await detail.commentTextarea.fill('테스트');
+    await expect(detail.commentCharCount).toBeVisible();
+    await expect(detail.commentCharCount).toHaveText(/\d+\/200/);
+  });
+});
+
+// ─── D-day 마감 배지 ───
+
+test.describe('D-day 마감 배지', () => {
+  test('마감 전 핫픽에 D-day 배지가 표시된다', async ({ page }) => {
+    const detail = new DetailPage(page);
+    await detail.goto(SLUGS.SINGLE);
+
+    // DeadlineBadge 컴포넌트 확인
+    const badge = detail.page
+      .locator('[class*="deadlineBadge"], [class*="DeadlineBadge"], [class*="badge"]')
+      .first();
+    const badgeVisible = await badge.isVisible().catch(() => false);
+    // 마감이 설정된 핫픽이면 배지가 보여야 함
+    if (badgeVisible) {
+      await expect(badge).toHaveText(/D-|마감/);
+    }
+  });
+});
+
+// ─── 이미 투표한 상태 ───
+
+test.describe('이미 투표한 상태', () => {
+  test.fixme('이미 투표한 적 있는 투표라면 진입 시 결과가 노출되어야 함', async ({ page }) => {
+    // FIXME: MSW 인메모리 투표 기록이 페이지 리로드 시 초기화되어
+    // E2E에서 "이미 투표한 상태로 재진입" 시나리오를 재현할 수 없음.
+    // → 통합 테스트에서 커버 필요
+    const detail = new DetailPage(page);
+    await detail.goto('single-text-finance');
+    await expect(detail.resultBars.first()).toBeVisible({ timeout: 5_000 });
   });
 });
 

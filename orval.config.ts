@@ -32,7 +32,7 @@ export default defineConfig({
   // Client API (Axios 기반) - React Query hooks 없이 함수만 생성
   clientApi: {
     input: {
-      target: './docs/swagger.json',
+      target: './swagger.json',
       override: {
         transformer: transformContentType,
       },
@@ -57,7 +57,7 @@ export default defineConfig({
   // Server API (Next.js fetch 기반) - ISR 캐싱 지원
   serverApi: {
     input: {
-      target: './docs/swagger.json',
+      target: './swagger.json',
       override: {
         transformer: transformContentType,
       },

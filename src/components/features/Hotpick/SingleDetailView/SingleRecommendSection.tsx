@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { memo } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,7 +15,8 @@ interface SingleRecommendSectionProps {
   relatedHotpicks?: HotpickCardResponse[];
 }
 
-export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({ relatedHotpicks }) => {
+// eslint-disable-next-line react/display-name
+export const SingleRecommendSection = memo<SingleRecommendSectionProps>(({ relatedHotpicks }) => {
   if (!relatedHotpicks || relatedHotpicks.length === 0) {
     return null;
   }
@@ -77,4 +78,4 @@ export const SingleRecommendSection: FC<SingleRecommendSectionProps> = ({ relate
       </Link>
     </div>
   );
-};
+});

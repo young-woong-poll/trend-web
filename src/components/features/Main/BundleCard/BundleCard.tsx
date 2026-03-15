@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { memo, useState } from 'react';
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -10,40 +10,35 @@ import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/BundleCard/BundleCard.module.scss';
-import { formatCount, isWithin24Hours } from '@/lib/utils';
+import { useCardActions } from '@/contexts/CardActionsContext';
+import { formatCount } from '@/lib/utils';
+import type { BundleCardModel } from '@/types/card';
+
+const EMPTY_CATEGORIES: string[] = [];
 
 interface BundleCardProps {
-  alias: string;
-  title: string;
-  subtitle?: string;
-  categories?: string[];
-  createdAt?: string;
-  participantCount?: number;
-  electionCount?: number;
-  imageUrls?: string[];
-  deadline?: string;
-  status?: string;
-  participated?: boolean;
-  onShare?: (alias: string) => void;
+  data: BundleCardModel;
 }
 
-export const BundleCard: FC<BundleCardProps> = ({
-  alias,
-  title,
-  subtitle,
-  categories = [],
-  createdAt,
-  participantCount = 0,
-  electionCount,
-  imageUrls,
-  deadline,
-  status,
-  participated = false,
-  onShare,
-}) => {
+// eslint-disable-next-line react/display-name
+export const BundleCard = memo<BundleCardProps>(({ data }) => {
+  const {
+    slug,
+    title,
+    subtitle,
+    categories = EMPTY_CATEGORIES,
+    totalVoteCount,
+    electionCount,
+    imageUrls,
+    expiredAt,
+    status,
+    participated,
+  } = data;
+
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
-  const isNew = isWithin24Hours(createdAt ?? '');
+  const actions = useCardActions();
+
   const isClosed = status === 'CLOSED';
   const thumbnailUrl = imageUrls?.[0];
 
@@ -52,7 +47,7 @@ export const BundleCard: FC<BundleCardProps> = ({
       return;
     }
     setIsNavigating(true);
-    router.push(`/hotpick/${alias}`);
+    router.push(`/hotpick/${slug}`);
   };
 
   return (
@@ -68,7 +63,6 @@ export const BundleCard: FC<BundleCardProps> = ({
         }
       }}
     >
-      {/* 좌측 그라데이션 보더 */}
       <div className={styles.accentBorder} />
 
       <div className={styles.content}>
@@ -87,7 +81,7 @@ export const BundleCard: FC<BundleCardProps> = ({
             className={styles.shareButton}
             onClick={(e) => {
               e.stopPropagation();
-              onShare?.(alias);
+              actions.share(slug);
             }}
             aria-label="공유"
           >
@@ -95,7 +89,7 @@ export const BundleCard: FC<BundleCardProps> = ({
           </button>
         </div>
 
-        {/* 제목: 로고 이미지 + 텍스트 + 배지 */}
+        {/* 제목 */}
         <div className={styles.titleRow}>
           {thumbnailUrl && (
             <Image
@@ -117,9 +111,6 @@ export const BundleCard: FC<BundleCardProps> = ({
                   <span className={styles.closedBadge} data-testid="closed-badge">
                     마감
                   </span>
-                )}
-                {isNew && !isClosed && !participated && (
-                  <span className={styles.newBadge}>NEW</span>
                 )}
               </div>
             </div>
@@ -150,13 +141,13 @@ export const BundleCard: FC<BundleCardProps> = ({
           )}
         </button>
 
-        {/* 메타: 참여자 · 데드라인 · 참여완료 */}
+        {/* 메타 */}
         <div className={styles.metaRow}>
-          <span className={styles.participants}>{formatCount(participantCount)}명 참여</span>
-          {deadline && (
+          <span className={styles.participants}>{formatCount(totalVoteCount)}명 참여</span>
+          {expiredAt && (
             <>
               <span className={styles.dot} />
-              <DeadlineBadge deadline={deadline} compact />
+              <DeadlineBadge deadline={expiredAt} compact />
             </>
           )}
           {participated && (
@@ -171,4 +162,4 @@ export const BundleCard: FC<BundleCardProps> = ({
       </div>
     </div>
   );
-};
+});
