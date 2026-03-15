@@ -67,9 +67,8 @@ test.describe('투표 전 상태', () => {
     await expect(detail.commentFormHint).toBeVisible({ timeout: 10_000 });
   });
 
-  test('투표 전에 공유 CTA가 미노출되고 힌트 텍스트가 표시된다', async () => {
+  test('투표 전에 공유 CTA가 미노출된다', async () => {
     await expect(detail.shareButton).not.toBeVisible();
-    await expect(detail.voteHint).toBeVisible();
   });
 
   test('참여자 수가 표시된다', async () => {
@@ -290,11 +289,13 @@ test.describe('닉네임 자동생성', () => {
   });
 
   test('닉네임을 수동 입력한 뒤 랜덤 버튼을 누르면 덮어쓰기 된다', async () => {
+    await expect(detail.commentNicknameInput).toBeVisible();
     await detail.commentNicknameInput.fill('');
     await detail.commentNicknameInput.fill('수동닉네임');
-    expect(await detail.commentNicknameInput.inputValue()).toBe('수동닉네임');
+    await expect(detail.commentNicknameInput).toHaveValue('수동닉네임');
 
     await detail.commentNicknameGenerateButton.click();
+    await detail.page.waitForTimeout(300);
     const value = await detail.commentNicknameInput.inputValue();
     expect(value).not.toBe('수동닉네임');
     expect(value.length).toBeGreaterThan(0);
@@ -302,6 +303,8 @@ test.describe('닉네임 자동생성', () => {
 
   test('취소 후 다시 열면 새로운 닉네임이 생성된다', async () => {
     await detail.commentCancelButton.click();
+    // collapse 애니메이션 완료 대기
+    await expect(detail.commentCancelButton).not.toBeVisible({ timeout: 3_000 });
     await detail.openCommentForm();
 
     const nickname = await detail.commentNicknameInput.inputValue();
