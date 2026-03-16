@@ -25,7 +25,8 @@
     "db:embed": "tsx scripts/db/similarity.ts --generate",
     "db:embed:all": "tsx scripts/db/similarity.ts --generate --jjals",
     "db:check-duplicates": "tsx scripts/db/similarity.ts --check-all",
-    "db:upload": "tsx scripts/upload-hotpicks.ts"
+    "db:upload": "tsx scripts/upload-hotpicks.ts",
+    "db:validate-scenarios": "tsx scripts/db/validate-scenarios.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
