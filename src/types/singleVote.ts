@@ -12,7 +12,7 @@ export interface SingleVoteOption {
   id: string;
   text: string;
   imageUrl?: string; // IMAGE 타입 선거에서 옵션별 이미지
-  voteCount: number | null;
+  voteCount: number;
 }
 
 /** 옵션 라벨 (최대 4개) */
@@ -47,7 +47,7 @@ export function electionToSingleVoteData(election: ElectionViewResponse): Single
       id: String(item.electionItemId ?? ''),
       text: item.title ?? '',
       imageUrl: item.imageUrl,
-      voteCount: election.voted ? (item.voteCount ?? null) : null,
+      voteCount: item.voteCount ?? 0,
     })),
     voted: election.voted ?? false,
     myChoiceId: election.myElectionItemId ? String(election.myElectionItemId) : null,

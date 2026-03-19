@@ -11,6 +11,8 @@
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
 
   &:hover {
     transform: translateY(-2px);

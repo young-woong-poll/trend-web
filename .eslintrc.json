@@ -16,11 +16,12 @@
     "server.js",
     "public/mockServiceWorker.js",
     "next-env.d.ts",
-    "scripts/*.js",
+    "scripts/*",
     "src/generated",
     "orval.config.ts",
     "e2e",
-    "docs"
+    "docs",
+    "qa"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

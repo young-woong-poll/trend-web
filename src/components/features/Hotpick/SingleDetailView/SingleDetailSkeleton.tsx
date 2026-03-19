@@ -31,7 +31,7 @@ export const SingleDetailSkeleton: FC = () => (
         </div>
       </div>
       {/* 메타 */}
-      <div className={styles.metaRow}>
+      <div className={styles.metaActionRow}>
         <span className={`${styles.skeletonPulse} ${styles.skeletonMeta}`} />
       </div>
       {/* CTA */}

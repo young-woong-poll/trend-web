@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = process.env.CI ? 3002 : 3099;
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: './qa',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

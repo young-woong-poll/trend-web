@@ -23,9 +23,14 @@ export const MSWProvider = ({ children }: MSWProviderProps) => {
     const init = async () => {
       if (process.env.NEXT_PUBLIC_ENABLE_MSW === 'true') {
         const { worker } = await import('@/mocks/browser');
+        const msw = await import('msw');
         await worker.start({
           onUnhandledRequest: 'bypass',
         });
+        // E2E 테스트에서 worker.use()로 핸들러 오버라이드 가능하도록 노출
+        (window as Record<string, unknown>).__mswWorker = worker;
+        (window as Record<string, unknown>).__mswHttp = msw.http;
+        (window as Record<string, unknown>).__mswHttpResponse = msw.HttpResponse;
         // eslint-disable-next-line no-console
         console.log('[MSW] Browser-side mocking enabled');
       }
