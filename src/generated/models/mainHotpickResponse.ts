@@ -13,6 +13,6 @@ import type { HotpickCardResponse } from './hotpickCardResponse';
 export interface MainHotpickResponse {
   categories?: CategoryTabResponse[];
   hotpicks?: HotpickCardResponse[];
-  nextCursor?: number;
+  nextCursor?: string;
   hasMore?: boolean;
 }

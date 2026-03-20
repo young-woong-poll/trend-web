@@ -390,6 +390,23 @@ export interface BaseResponseCreateServerMetaResponse {
   data?: CreateServerMetaResponse;
 }
 
+/**
+ * 응답 데이터
+ */
+export type BaseResponseMapStringObjectData = { [key: string]: { [key: string]: unknown } };
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseMapStringObject {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: BaseResponseMapStringObjectData;
+}
+
 export type CreateHotpickRequestType =
   (typeof CreateHotpickRequestType)[keyof typeof CreateHotpickRequestType];
 
@@ -564,7 +581,7 @@ export interface CategoryTabResponse {
 export interface MainHotpickResponse {
   categories?: CategoryTabResponse[];
   hotpicks?: HotpickCardResponse[];
-  nextCursor?: number;
+  nextCursor?: string;
   hasMore?: boolean;
 }
 
@@ -687,13 +704,31 @@ export type GetCommentsParams = {
   size?: number;
 };
 
+export type SearchParams = {
+  q: string;
+  /**
+   * 정렬 방식 (기본: relevance, 관련도순)
+   */
+  sort?: SearchSort;
+  limit?: number;
+  offset?: number;
+};
+
+export type SearchSort = (typeof SearchSort)[keyof typeof SearchSort];
+
+export const SearchSort = {
+  relevance: 'relevance',
+  latest: 'latest',
+  popular: 'popular',
+} as const;
+
 export type GetMainParams = {
   category?: string;
   /**
    * 정렬 방식 (기본: recommended)
    */
   sort?: GetMainSort;
-  cursor?: number;
+  cursor?: string;
   size?: number;
 };
 
