@@ -1,0 +1,267 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  padding: $spacing-8 0 $spacing-32;
+}
+
+// 카테고리 필터
+.categoryFilter {
+  display: flex;
+  gap: $spacing-8;
+  padding: $spacing-8 $spacing-16;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.categoryChip {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: 6px $spacing-16;
+  background-color: $bg-tertiary;
+  border: 1px solid transparent;
+  border-radius: $border-rounded;
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: $border-placeholder;
+  }
+}
+
+.categoryChipActive {
+  background: $primary-gradient;
+  color: $white;
+  font-weight: $font-weight-semibold;
+}
+
+.categoryCount {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+// 결과 메타
+.resultMeta {
+  @include flex-between;
+  padding: $spacing-8 $spacing-16;
+}
+
+.resultCount {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.sortSelect {
+  background-color: transparent;
+  border: none;
+  color: $text-secondary;
+  font-size: $font-size-12;
+  cursor: pointer;
+  outline: none;
+}
+
+// 결과 카드 리스트
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: $spacing-8 $spacing-16;
+}
+
+.resultCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  padding: $spacing-16;
+  background-color: $bg-secondary;
+  border-radius: $border-radius-md;
+
+  &.closed {
+    opacity: 0.6;
+  }
+}
+
+.cardTopRow {
+  @include flex-between;
+}
+
+.cardCategories {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.categorySeparator {
+  color: $text-tertiary;
+  margin: 0 4px;
+  font-size: $font-size-12;
+}
+
+.categoryTag {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.closedBadge {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  background-color: $bg-tertiary;
+  padding: 2px 8px;
+  border-radius: $border-radius-sm;
+}
+
+.cardTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0;
+  line-height: 1.4;
+
+  em {
+    font-style: normal;
+    color: $attention;
+  }
+}
+
+// 투표 결과 바
+.voteResults {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.resultBar {
+  position: relative;
+  height: 40px;
+  background-color: $bg-tertiary;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+}
+
+.barFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba($primary-start, 0.3), rgba($primary-end, 0.2));
+  border-radius: $border-radius-lg;
+  transition: width 0.5s ease-out;
+}
+
+.barContent {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 $spacing-16;
+  z-index: 1;
+}
+
+.barText {
+  font-size: $font-size-14;
+  color: $text-secondary;
+}
+
+.barLabel {
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-right: $spacing-4;
+}
+
+.barPercent {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+// 하단 메타
+.cardBottom {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  padding-top: $spacing-4;
+}
+
+.participants {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: $text-tertiary;
+}
+
+.comments {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+// 빈 결과
+.emptyContainer {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px $spacing-16 $spacing-32;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: $text-tertiary;
+  opacity: 0.4;
+  margin-bottom: $spacing-24;
+}
+
+.emptyTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0 0 $spacing-8;
+}
+
+.emptyDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  margin: 0 0 $spacing-4;
+  line-height: 1.5;
+}
+
+.emptySuggestion {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  margin: 0 0 $spacing-24;
+}
+
+.suggestChips {
+  display: flex;
+  gap: $spacing-8;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.suggestChip {
+  padding: 6px $spacing-16;
+  background-color: $bg-tertiary;
+  border-radius: $border-rounded;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $border-placeholder;
+  }
+}
