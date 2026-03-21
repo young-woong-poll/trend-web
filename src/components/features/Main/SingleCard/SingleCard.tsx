@@ -98,7 +98,7 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
       {/* 질문: 로고 이미지 + 텍스트 */}
       <div className={styles.questionRow}>
         {logoUrl && (
-          <Image src={logoUrl} alt={title} width={40} height={40} className={styles.questionLogo} />
+          <Image src={logoUrl} alt={title} width={62} height={62} className={styles.questionLogo} />
         )}
         <h3 className={styles.question}>{title}</h3>
       </div>
@@ -109,7 +109,7 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
           {!showResult ? (
             <m.div
               key="buttons"
-              className={buttonGroupClass}
+              className={`${buttonGroupClass} ${isImageType ? styles.imageType : ''}`}
               initial={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
             >
@@ -126,13 +126,15 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
                     <Image
                       src={option.imageUrl}
                       alt={option.text}
-                      width={24}
-                      height={24}
+                      width={44}
+                      height={44}
                       className={styles.optionImage}
                     />
                   )}
-                  <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
-                  <span className={styles.optionText}>{option.text}</span>
+                  <span className={styles.optionLabelText}>
+                    <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
+                    <span className={styles.optionText}>{option.text}</span>
+                  </span>
                 </m.button>
               ))}
             </m.div>
@@ -165,8 +167,8 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
                         <Image
                           src={option.imageUrl}
                           alt={option.text}
-                          width={24}
-                          height={24}
+                          width={44}
+                          height={44}
                           className={styles.barImage}
                         />
                       )}
