@@ -32,7 +32,7 @@
 - 디자인 가이드: /docs/design/
 - BE 개발요청서: /docs/api/
 - 디자인 시스템: /design-system/
-- 콘텐츠 자동화: /docs/contents/scenarios/
+- 콘텐츠 자동화: ../hotpick-content/ (별도 레포)
 
 ## 상세 기획서
 
@@ -40,21 +40,6 @@
 - `docs/specs/hotpick.md` — 서비스 전체 기획서 (비전, 콘텐츠 전략, 성장 전략, 로드맵)
 - `docs/specs/branding.md` — 브랜딩 전략
 - `docs/design-system/tokens.md` — 디자인 토큰
-
-## 콘텐츠 자동화 (4컷 만화 시나리오)
-
-- 가이드: `docs/contents/scenarios/scenario-guide.md`
-- 예시: `docs/contents/scenarios/test-scenarios.json`
-- 시나리오 파일: `docs/contents/scenarios/{hotpick_id}-{slug}.json` (git으로 버전관리)
-- 명령어: `pnpm db:validate-scenarios`, `pnpm db:validate-scenarios -- --file {path}`
-- 워크플로우: 시나리오 생성 → `validate-scenarios`로 검증 → git 커밋
-
-## 릴스/쇼츠 바이럴 전략
-
-- 치트시트: `docs/contents/reels-cheatsheet.md` — 1페이지 요약 (제작 순서, CTA 공식, 캡션 공식)
-- 전략 문서: `docs/contents/reels-viral-strategy.md` — 트렌드 분석, 바이럴 랭킹, 완전한 스크립트
-- 제작 템플릿: `docs/contents/reels-production-template.md` — 영상 편집 타임라인/자막 스펙
-- 파일럿 우선순위: #8 소개팅 밥값 (virality_rank 1위)
 
 ## 코딩 컨벤션
 
