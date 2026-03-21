@@ -113,8 +113,8 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
             <Image
               src={logoUrl}
               alt={title}
-              width={48}
-              height={48}
+              width={62}
+              height={62}
               className={styles.questionLogo}
             />
           )}
@@ -126,7 +126,7 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
             {!showResult ? (
               <m.div
                 key="buttons"
-                className={buttonGroupClass}
+                className={`${buttonGroupClass} ${isImageType ? styles.imageType : ''}`}
                 initial={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.15 } }}
               >
@@ -143,13 +143,15 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
                       <Image
                         src={item.imageUrl}
                         alt={item.title}
-                        width={28}
-                        height={28}
+                        width={44}
+                        height={44}
                         className={styles.optionImage}
                       />
                     )}
-                    <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
-                    <span className={styles.optionText}>{item.title}</span>
+                    <span className={styles.optionLabelText}>
+                      <span className={styles.optionLabel}>{OPTION_LABELS[i]}</span>
+                      <span className={styles.optionText}>{item.title}</span>
+                    </span>
                   </m.button>
                 ))}
               </m.div>
@@ -182,8 +184,8 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
                           <Image
                             src={item.imageUrl}
                             alt={item.title}
-                            width={28}
-                            height={28}
+                            width={44}
+                            height={44}
                             className={styles.barImage}
                           />
                         )}
