@@ -32,6 +32,9 @@ export class MainPage {
   // 데드라인 배지
   readonly deadlineBadges: Locator;
 
+  // 반응형 레이아웃: 열
+  readonly cardColumns: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -56,6 +59,8 @@ export class MainPage {
     this.deadlineBadges = page
       .locator('[class*="badge"]')
       .filter({ has: page.locator('[class*="DeadlineBadge"]') });
+
+    this.cardColumns = page.locator('[class*="cardColumn"]');
   }
 
   /** 카테고리 버튼 클릭 (라벨 텍스트로 찾기) */
@@ -114,6 +119,22 @@ export class MainPage {
       .nth(cardIndex)
       .locator('[class*="DeadlineBadge"], [class*="deadlineBadge"], [class*="badge"]')
       .first();
+  }
+
+  /** 특정 열의 카드들 */
+  columnCards(colIndex: number): Locator {
+    return this.cardColumns.nth(colIndex).locator('[class*="cardWrapper"]');
+  }
+
+  /** 특정 열의 카드 ID 목록 */
+  async columnCardIds(colIndex: number): Promise<string[]> {
+    const cards = this.columnCards(colIndex);
+    const count = await cards.count();
+    const ids: string[] = [];
+    for (let i = 0; i < count; i++) {
+      ids.push((await cards.nth(i).getAttribute('id')) ?? '');
+    }
+    return ids;
   }
 
   /** 무한스크롤 옵저버 타겟 */
