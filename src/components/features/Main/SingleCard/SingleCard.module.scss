@@ -129,11 +129,12 @@
 }
 
 .questionLogo {
-  width: 40px;
-  height: 40px;
-  border-radius: $border-radius-md;
+  width: 62px;
+  height: 62px;
+  border-radius: $border-radius-lg;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba($primary-start, 0.3);
 }
 
 .question {
@@ -200,6 +201,19 @@
   gap: 8px;
 }
 
+// IMAGE 타입: 이미지 강조 레이아웃
+.imageType {
+  &.buttonGroupTwo .optionButton {
+    flex-direction: column;
+    padding: 14px 12px;
+    gap: 10px;
+  }
+
+  &.buttonGroupMulti .optionButton {
+    justify-content: flex-start;
+  }
+}
+
 .optionButton {
   display: flex;
   align-items: center;
@@ -235,11 +249,17 @@
 }
 
 .optionImage {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-md;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.optionLabelText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .optionLabel {
@@ -306,9 +326,9 @@
 }
 
 .barImage {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-md;
   object-fit: cover;
   flex-shrink: 0;
 }

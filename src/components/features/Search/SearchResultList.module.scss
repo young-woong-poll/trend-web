@@ -1,0 +1,257 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  padding: $spacing-8 0 $spacing-32;
+}
+
+// 미리보기 카드 리스트
+.resultList {
+  display: flex;
+  flex-direction: column;
+}
+
+.previewCard {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-16;
+  padding: $spacing-16;
+  border-bottom: 1px solid rgba($border-placeholder, 0.3);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    background-color: rgba($bg-tertiary, 0.5);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.closed {
+    opacity: 0.6;
+  }
+}
+
+// 썸네일
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.thumbnailSplit {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.thumbnailHalf {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  background-color: $bg-tertiary;
+  flex-shrink: 0;
+}
+
+// 카드 정보
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.cardCategories {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.categorySeparator {
+  color: $text-tertiary;
+  margin: 0 4px;
+  font-size: $font-size-12;
+}
+
+.categoryTag {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+}
+
+.closedBadge {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  background-color: $bg-tertiary;
+  padding: 2px 6px;
+  border-radius: $border-radius-sm;
+  margin-left: $spacing-8;
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0;
+  line-height: 1.4;
+  @include line-clamp(2);
+
+  em {
+    font-style: normal;
+    color: $attention;
+  }
+}
+
+// 메타 정보
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+// 스켈레톤 로딩
+.skeletonCard {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-16;
+  padding: $spacing-16;
+  border-bottom: 1px solid rgba($border-placeholder, 0.3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.skeletonThumb {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  background-color: $bg-tertiary;
+  flex-shrink: 0;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonCategory {
+  width: 60px;
+  height: 12px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonTitle {
+  width: 80%;
+  height: 16px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonMeta {
+  width: 120px;
+  height: 12px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+// 빈 결과
+.emptyContainer {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: $spacing-32 $spacing-16;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: $text-tertiary;
+  opacity: 0.4;
+  margin-bottom: $spacing-16;
+}
+
+.emptyTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0 0 $spacing-8;
+}
+
+.emptyDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  margin: 0 0 $spacing-4;
+  line-height: 1.5;
+}
+
+.emptySuggestion {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  margin: 0 0 $spacing-24;
+}
+
+.suggestChips {
+  display: flex;
+  gap: $spacing-8;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.suggestChip {
+  padding: 6px $spacing-16;
+  background-color: $bg-tertiary;
+  border: none;
+  border-radius: $border-rounded;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $border-placeholder;
+  }
+}

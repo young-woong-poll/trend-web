@@ -3,14 +3,13 @@
 
 .container {
   @include flex-column;
-  align-items: center;
   width: 100%;
-  max-width: 640px;
-  margin: 0 auto;
+  min-width: 0;
   height: 100%;
   padding: $spacing-16;
   gap: 16px;
-  overflow: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   @include tablet {
     padding: $spacing-24;
@@ -18,9 +17,34 @@
   }
 }
 
-// ── 카드 래퍼: 동일 width 보장 ──
+// ── 카드 그리드: Masonry (벽돌형) 레이아웃 ──
+.cardGrid {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+
+  @include tablet {
+    gap: 20px;
+  }
+}
+
+// ── 카드 열: 각 열이 독립적으로 쌓임 ──
+.cardColumn {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 16px;
+
+  @include tablet {
+    gap: 20px;
+  }
+}
+
+// ── 카드 래퍼 ──
 .cardWrapper {
   width: 100%;
+  min-width: 0;
 }
 
 .emptyState {
@@ -101,10 +125,19 @@
 
 // ── 스켈레톤 카드 그룹 (무한 스크롤 로딩) ──
 .skeletonGroup {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 16px;
   width: 100%;
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @include desktop {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .loadMoreError {

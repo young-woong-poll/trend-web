@@ -39,7 +39,7 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
     isFetchingNextPage,
     error,
   } = useInfiniteMainDisplay({
-    size: 20,
+    size: 18,
     category: selectedCategory ?? undefined,
   });
 

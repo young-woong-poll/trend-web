@@ -2,28 +2,157 @@
 @use '@/styles/mixins' as *;
 
 .header {
-  @include flex-between;
   width: 100%;
   height: 48px;
-  padding: 0 $spacing-16;
   background-color: $bg-primary;
   border-bottom: 1px solid $border-placeholder;
+  position: relative;
+  z-index: $z-index-sticky + 1;
+}
+
+.headerInner {
+  @include flex-between;
+  max-width: 1350px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-16;
 }
 
 .logoContainer {
   display: flex;
   align-items: center;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logo {
   height: 24px;
 }
 
-.text {
-  font-size: $font-size-12;
-  font-weight: $font-weight-regular;
+// ─── PC 검색바 Wrapper (≥768px) ───
+.searchBarWrapper {
+  display: none;
+  position: relative;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: flex;
+    flex: 1;
+    max-width: 400px;
+  }
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  width: 100%;
+  height: 36px;
+  padding: 0 $spacing-16;
+  background-color: $bg-tertiary;
+  border-radius: $border-rounded;
+  cursor: text;
+  transition: outline 0.15s;
+
+  &:hover {
+    outline: 1px solid $border-placeholder;
+  }
+}
+
+.searchBarIcon {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.searchBarPlaceholder {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  flex: 1;
+}
+
+.searchBarInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: $white;
+  font-size: $font-size-14;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+}
+
+.searchBarClear {
+  @include flex-center;
+  background: none;
+  border: none;
+  color: $text-tertiary;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+// ─── PC 검색 모달 (드롭다운) ───
+.searchModal {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 400px;
+  max-height: 480px;
+  overflow-y: auto;
+  background-color: $bg-secondary;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  z-index: $z-index-dropdown;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $border-placeholder;
+    border-radius: 3px;
+  }
+}
+
+// ─── Backdrop ───
+.backdrop {
+  display: none;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: $z-index-sticky;
+  }
+}
+
+// ─── Mobile 돋보기 (<768px) ───
+.searchIconButton {
+  @include flex-center;
+  margin-left: auto;
   color: $text-secondary;
-  margin: 0;
-  line-height: 20px;
+  padding: $spacing-4;
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @media (min-width: $breakpoint-tablet) {
+    display: none;
+  }
 }

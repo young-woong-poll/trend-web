@@ -12,6 +12,6 @@ export type GetMainParams = {
    * 정렬 방식 (기본: recommended)
    */
   sort?: GetMainSort;
-  cursor?: number;
+  cursor?: string;
   size?: number;
 };

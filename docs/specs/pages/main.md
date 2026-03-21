@@ -34,7 +34,7 @@ MainContent
 ### 무한스크롤
 
 - 커서 기반 페이지네이션 (`nextCursor`, `hasMore`)
-- `GET /api/v1/hotpicks/main?category={slug}&cursor={cursor}&size=20`
+- `GET /api/v1/hotpicks/main?category={slug}&cursor={cursor}&size=18`
 - IntersectionObserver로 하단 감지 -> 다음 페이지 자동 로드
 - 핫픽 ID 기반 중복 제거
 
@@ -116,7 +116,54 @@ MainContent
 
 ---
 
-## 6. 에러 처리
+## 6. 반응형 레이아웃
+
+### Masonry 그리드
+
+카드 높이가 옵션 수에 따라 다르므로, 행 높이 통일 대신 Masonry(벽돌형) 레이아웃을 사용한다.
+각 열이 독립적으로 카드를 쌓아 빈 공간 없이 빽빽하게 채운다.
+
+| 뷰포트   | 열 수 | 브레이크포인트 |
+| -------- | ----- | -------------- |
+| 모바일   | 1열   | < 768px        |
+| 태블릿   | 2열   | ≥ 768px        |
+| 데스크톱 | 3열   | ≥ 1024px       |
+
+### 카드 분배 순서
+
+행 우선(row-first) 라운드로빈 방식으로 분배한다.
+카드 [1,2,3,4,5,6]이 3열일 때: col1=[1,4], col2=[2,5], col3=[3,6]
+
+- `useColumnCount` 훅이 뷰포트 너비를 감지하여 열 수(1/2/3) 반환
+- `CardList`에서 카드를 `index % columnCount`로 각 열에 분배
+- 각 열은 flex-column으로 독립적으로 쌓임
+
+### 페이지 사이즈
+
+- 한 번에 **18개**씩 로드 (2와 3의 공배수 → 모든 열 수에서 균등 분배)
+
+### 스켈레톤
+
+- 초기 로딩: 6개 (CSS Grid, 2열: 3행, 3열: 2행)
+- 추가 로딩: 3개 (CSS Grid, 2열: 2행, 3열: 1행)
+- 스켈레톤은 CSS Grid로 렌더링하여 카드 전환 시 순서가 일치
+
+### 컨테이너 너비
+
+- `FlexibleLayout`: max-width **1200px**
+- `MainHeader`: max-width 1350px
+- 카드/열에 `min-width: 0` 적용하여 축소 시 overflow 방지
+
+### 관련 파일
+
+- `src/hooks/useColumnCount.ts` — 열 수 감지 훅
+- `src/components/features/Main/CardList/CardList.tsx` — 카드 분배 및 렌더링
+- `src/components/features/Main/MainContent.module.scss` — Masonry 레이아웃 스타일
+- `src/components/common/FlexibleLayout/FlexibleLayout.module.scss` — 컨테이너 너비
+
+---
+
+## 7. 에러 처리
 
 - 불러오기 실패 -> "핫픽을 불러오는데 실패했습니다."
 - 카테고리별 핫픽 0개 -> "아직 진행중인 핫픽이 없어요"
@@ -141,4 +188,5 @@ MainContent
 
 ## Changelog
 
+- 2026-03-21: 반응형 Masonry 레이아웃 추가 (섹션 6), 페이지 사이즈 20→18 변경
 - 2026-03-01: 초기 작성 (00-overview.md에서 분리)

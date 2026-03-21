@@ -18,7 +18,7 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
       <MainView>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
         {data && (data.hotpicks?.length ?? 0) > 0 && (
-          <div className={styles.container}>
+          <div className={styles.cardGrid}>
             {(data.hotpicks ?? []).map((hotpick) => (
               <div key={hotpick.hotpickId} className={styles.cardWrapper}>
                 <a href={`/hotpick/${hotpick.slug}`}>
