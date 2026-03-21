@@ -53,3 +53,7 @@ export {
 
 // Result Hooks
 export { resultKeys, useCheckResultExists, useCreateResult } from '@/hooks/api/useResult';
+
+// Search Hooks
+export { searchKeys, searchQueries, useSearch } from '@/hooks/api/useSearch';
+export type { SearchResponse, SearchHit } from '@/hooks/api/useSearch';

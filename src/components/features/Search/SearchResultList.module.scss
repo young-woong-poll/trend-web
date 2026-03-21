@@ -18,6 +18,8 @@
   padding: $spacing-16;
   border-bottom: 1px solid rgba($border-placeholder, 0.3);
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 
   &:hover {
     background-color: rgba($bg-tertiary, 0.5);
@@ -39,6 +41,21 @@
   border-radius: $border-radius-md;
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.thumbnailSplit {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+}
+
+.thumbnailHalf {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .thumbnailPlaceholder {
@@ -117,19 +134,85 @@
   flex-shrink: 0;
 }
 
+// 스켈레톤 로딩
+.skeletonCard {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-16;
+  padding: $spacing-16;
+  border-bottom: 1px solid rgba($border-placeholder, 0.3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.skeletonThumb {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-md;
+  background-color: $bg-tertiary;
+  flex-shrink: 0;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeletonCategory {
+  width: 60px;
+  height: 12px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonTitle {
+  width: 80%;
+  height: 16px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonMeta {
+  width: 120px;
+  height: 12px;
+  border-radius: $border-radius-sm;
+  background-color: $bg-tertiary;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
 // 빈 결과
 .emptyContainer {
   @include flex-column;
   align-items: center;
   justify-content: center;
-  padding: 80px $spacing-16 $spacing-32;
+  min-height: 50vh;
+  padding: $spacing-32 $spacing-16;
   text-align: center;
 }
 
 .emptyIcon {
   color: $text-tertiary;
   opacity: 0.4;
-  margin-bottom: $spacing-24;
+  margin-bottom: $spacing-16;
 }
 
 .emptyTitle {

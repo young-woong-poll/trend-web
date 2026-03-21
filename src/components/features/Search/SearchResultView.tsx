@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { type FC } from 'react';
 
 import SearchIcon from '@/assets/icon/SearchIcon';
 import styles from '@/components/features/Search/SearchResultView.module.scss';
@@ -10,21 +10,7 @@ interface SearchResultViewProps {
   onSearch: (keyword: string) => void;
 }
 
-const MOCK_CATEGORIES = [
-  { slug: 'all', label: '전체', count: 12 },
-  { slug: 'politics', label: '정치', count: 5 },
-  { slug: 'economy', label: '경제', count: 3 },
-  { slug: 'society', label: '사회', count: 2 },
-  { slug: 'tech', label: '기술', count: 2 },
-];
-
-const SORT_OPTIONS = [
-  { value: 'relevance', label: '관련도순' },
-  { value: 'newest', label: '최신순' },
-  { value: 'popular', label: '참여자순' },
-];
-
-type MockResult = {
+type MockPreviewItem = {
   id: number;
   title: string;
   formattedTitle: string;
@@ -32,12 +18,11 @@ type MockResult = {
   totalVoteCount: number;
   totalCommentCount: number;
   likeCount: number;
-  expiredAt: string;
-  options: { label: string; text: string; percentage: number }[];
+  imageUrl?: string;
   status: 'ACTIVE' | 'CLOSED';
 };
 
-const MOCK_RESULTS: MockResult[] = [
+const MOCK_RESULTS: MockPreviewItem[] = [
   {
     id: 1,
     title: '대통령 탄핵 찬성 vs 반대',
@@ -46,11 +31,7 @@ const MOCK_RESULTS: MockResult[] = [
     totalVoteCount: 15234,
     totalCommentCount: 892,
     likeCount: 342,
-    expiredAt: '2026-04-01T00:00:00Z',
-    options: [
-      { label: 'A', text: '찬성', percentage: 62 },
-      { label: 'B', text: '반대', percentage: 38 },
-    ],
+    imageUrl: 'https://picsum.photos/seed/hp1/96/96',
     status: 'ACTIVE',
   },
   {
@@ -61,12 +42,7 @@ const MOCK_RESULTS: MockResult[] = [
     totalVoteCount: 9876,
     totalCommentCount: 456,
     likeCount: 198,
-    expiredAt: '2026-03-28T00:00:00Z',
-    options: [
-      { label: 'A', text: '이재명', percentage: 45 },
-      { label: 'B', text: '김문수', percentage: 32 },
-      { label: 'C', text: '이준석', percentage: 23 },
-    ],
+    imageUrl: 'https://picsum.photos/seed/hp2/96/96',
     status: 'ACTIVE',
   },
   {
@@ -77,11 +53,6 @@ const MOCK_RESULTS: MockResult[] = [
     totalVoteCount: 7654,
     totalCommentCount: 321,
     likeCount: 156,
-    expiredAt: '2026-04-15T00:00:00Z',
-    options: [
-      { label: 'A', text: '영향 크다', percentage: 71 },
-      { label: 'B', text: '별로 없다', percentage: 29 },
-    ],
     status: 'ACTIVE',
   },
   {
@@ -92,12 +63,7 @@ const MOCK_RESULTS: MockResult[] = [
     totalVoteCount: 5432,
     totalCommentCount: 234,
     likeCount: 89,
-    expiredAt: '2026-03-20T00:00:00Z',
-    options: [
-      { label: 'A', text: '상승', percentage: 35 },
-      { label: 'B', text: '하락', percentage: 48 },
-      { label: 'C', text: '횡보', percentage: 17 },
-    ],
+    imageUrl: 'https://picsum.photos/seed/hp4/96/96',
     status: 'ACTIVE',
   },
   {
@@ -108,11 +74,6 @@ const MOCK_RESULTS: MockResult[] = [
     totalVoteCount: 3210,
     totalCommentCount: 98,
     likeCount: 45,
-    expiredAt: '2026-05-01T00:00:00Z',
-    options: [
-      { label: 'A', text: '이번이 심각', percentage: 67 },
-      { label: 'B', text: '과거가 심각', percentage: 33 },
-    ],
     status: 'CLOSED',
   },
 ];
@@ -124,8 +85,6 @@ const isEmptyResult = (q: string) =>
   q.includes('asdfsdf') || q.includes('없는검색어') || q.length > 20;
 
 export const SearchResultView: FC<SearchResultViewProps> = ({ query, onSearch }) => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedSort, setSelectedSort] = useState('relevance');
   const showEmpty = isEmptyResult(query);
 
   if (showEmpty) {
@@ -160,85 +119,46 @@ export const SearchResultView: FC<SearchResultViewProps> = ({ query, onSearch })
 
   return (
     <div className={styles.container}>
-      {/* 카테고리 필터 */}
-      <div className={styles.categoryFilter}>
-        {MOCK_CATEGORIES.map((cat) => (
-          <button
-            key={cat.slug}
-            type="button"
-            className={`${styles.categoryChip} ${selectedCategory === cat.slug ? styles.categoryChipActive : ''}`}
-            onClick={() => setSelectedCategory(cat.slug)}
-          >
-            {cat.label}
-            <span className={styles.categoryCount}>{cat.count}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* 결과 메타 */}
-      <div className={styles.resultMeta}>
-        <span className={styles.resultCount}>검색 결과 {MOCK_RESULTS.length}건</span>
-        <select
-          className={styles.sortSelect}
-          value={selectedSort}
-          onChange={(e) => setSelectedSort(e.target.value)}
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* 검색 결과 카드 리스트 */}
       <div className={styles.resultList}>
-        {MOCK_RESULTS.map((result) => (
+        {MOCK_RESULTS.map((item) => (
           <div
-            key={result.id}
-            className={`${styles.resultCard} ${result.status === 'CLOSED' ? styles.closed : ''}`}
+            key={item.id}
+            className={`${styles.previewCard} ${item.status === 'CLOSED' ? styles.closed : ''}`}
           >
-            {/* 상단: 카테고리 */}
-            <div className={styles.cardTopRow}>
+            {/* 썸네일 */}
+            {item.imageUrl ? (
+              <img src={item.imageUrl} alt="" className={styles.thumbnail} />
+            ) : (
+              <div className={styles.thumbnailPlaceholder} />
+            )}
+
+            {/* 정보 */}
+            <div className={styles.cardInfo}>
+              {/* 카테고리 */}
               <div className={styles.cardCategories}>
-                {result.categories.map((cat, i) => (
+                {item.categories.map((cat, i) => (
                   <span key={cat}>
                     {i > 0 && <span className={styles.categorySeparator}>·</span>}
                     <span className={styles.categoryTag}>{cat}</span>
                   </span>
                 ))}
+                {item.status === 'CLOSED' && <span className={styles.closedBadge}>마감</span>}
               </div>
-              {result.status === 'CLOSED' && <span className={styles.closedBadge}>마감</span>}
-            </div>
 
-            {/* 제목 (하이라이팅) */}
-            <h3
-              className={styles.cardTitle}
-              dangerouslySetInnerHTML={{ __html: result.formattedTitle }}
-            />
+              {/* 제목 (하이라이팅) */}
+              <h3
+                className={styles.cardTitle}
+                dangerouslySetInnerHTML={{ __html: item.formattedTitle }}
+              />
 
-            {/* 투표 결과 바 */}
-            <div className={styles.voteResults}>
-              {result.options.map((opt) => (
-                <div key={opt.label} className={styles.resultBar}>
-                  <div className={styles.barFill} style={{ width: `${opt.percentage}%` }} />
-                  <div className={styles.barContent}>
-                    <span className={styles.barText}>
-                      <span className={styles.barLabel}>{opt.label}</span> {opt.text}
-                    </span>
-                    <span className={styles.barPercent}>{opt.percentage}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* 하단 메타 */}
-            <div className={styles.cardBottom}>
-              <span className={styles.participants}>
-                {result.totalVoteCount.toLocaleString()}명 참여
-              </span>
-              <span className={styles.dot} />
-              <span className={styles.comments}>댓글 {result.totalCommentCount}</span>
+              {/* 메타: 투표수 · 댓글 · 공감 */}
+              <div className={styles.cardMeta}>
+                <span>{item.totalVoteCount.toLocaleString()}명 참여</span>
+                <span className={styles.dot} />
+                <span>댓글 {item.totalCommentCount.toLocaleString()}</span>
+                <span className={styles.dot} />
+                <span>♡ {item.likeCount.toLocaleString()}</span>
+              </div>
             </div>
           </div>
         ))}

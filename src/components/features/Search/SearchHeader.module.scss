@@ -62,14 +62,3 @@
   cursor: pointer;
   padding: $spacing-4;
 }
-
-.cancelButton {
-  background: none;
-  border: none;
-  color: $text-secondary;
-  font-size: $font-size-14;
-  cursor: pointer;
-  padding: $spacing-4 $spacing-8;
-  flex-shrink: 0;
-  white-space: nowrap;
-}

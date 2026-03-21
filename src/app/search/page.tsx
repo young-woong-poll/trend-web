@@ -1,36 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { SearchHeader } from '@/components/features/Search/SearchHeader';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
-import { SearchResultView } from '@/components/features/Search/SearchResultView';
+import {
+  SearchMinLengthHint,
+  SearchResultList,
+} from '@/components/features/Search/SearchResultList';
 
-export default function MockSearchPage() {
+export default function SearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [activeQuery, setActiveQuery] = useState('');
 
-  const handleSearch = (keyword: string) => {
+  const handleSearch = useCallback((keyword: string) => {
     setQuery(keyword);
     setActiveQuery(keyword);
-  };
+  }, []);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setQuery('');
     setActiveQuery('');
-  };
+  }, []);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (activeQuery) {
       handleClear();
     } else {
-      router.push('/');
+      router.back();
     }
-  };
+  }, [activeQuery, handleClear, router]);
+
+  // 1글자만 입력된 상태 판별
+  const trimmed = query.trim();
+  const showHint = trimmed.length === 1;
 
   return (
     <>
@@ -42,8 +49,10 @@ export default function MockSearchPage() {
         onBack={handleBack}
       />
       <FlexibleLayout>
-        {activeQuery ? (
-          <SearchResultView query={activeQuery} onSearch={handleSearch} />
+        {showHint ? (
+          <SearchMinLengthHint />
+        ) : activeQuery ? (
+          <SearchResultList query={activeQuery} />
         ) : (
           <SearchInitialView onSearch={handleSearch} />
         )}

@@ -14,6 +14,8 @@ interface SearchHeaderProps {
   onBack: () => void;
 }
 
+const MIN_SEARCH_LENGTH = 2;
+
 export const SearchHeader: FC<SearchHeaderProps> = ({
   query,
   onQueryChange,
@@ -33,11 +35,11 @@ export const SearchHeader: FC<SearchHeaderProps> = ({
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
-    if (value.trim()) {
+    if (value.trim().length >= MIN_SEARCH_LENGTH) {
       debounceRef.current = setTimeout(() => {
         onSearch(value.trim());
       }, 300);
-    } else {
+    } else if (value.trim().length === 0) {
       onClear();
     }
   };
@@ -71,10 +73,6 @@ export const SearchHeader: FC<SearchHeaderProps> = ({
           </button>
         )}
       </div>
-
-      <button type="button" className={styles.cancelButton} onClick={onBack}>
-        취소
-      </button>
     </header>
   );
 };
