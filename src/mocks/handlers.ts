@@ -183,7 +183,7 @@ export const handlers = [
         hotpickId: hp.hotpickId,
         type: hp.type,
         slug: hp.slug,
-        isExpired: hp.status === 'CLOSED',
+        isExpired: hp.expiredAt ? new Date(hp.expiredAt) < new Date() : false,
         likeCount: hp.likeCount ?? 0,
         categories: hp.categories ?? [],
         election: hp.election
