@@ -146,6 +146,72 @@ export const handlers = [
   }),
 
   /**
+   * 검색
+   * GET /api/v1/hotpicks/search
+   * ⚠️ :slug 핸들러보다 앞에 위치해야 함 (MSW는 순서대로 매칭)
+   */
+  http.get(`${baseURL}/api/v1/hotpicks/search`, ({ request }) => {
+    const url = new URL(request.url);
+    const q = (url.searchParams.get('q') ?? '').trim();
+    const limit = parseInt(url.searchParams.get('limit') ?? '20', 10);
+    const offset = parseInt(url.searchParams.get('offset') ?? '0', 10);
+
+    if (q.length < 2) {
+      return HttpResponse.json(
+        wrapResponse({
+          hits: [],
+          query: q,
+          processingTimeMs: 1,
+          limit,
+          offset,
+          estimatedTotalHits: 0,
+        })
+      );
+    }
+
+    const allHotpicks = mockMainHotpicks.hotpicks ?? [];
+
+    // 제목에서 검색어 포함 여부로 필터 (Meilisearch 시뮬레이션)
+    const hits = allHotpicks
+      .filter((hp) => {
+        const title = hp.election?.title ?? '';
+        return title.includes(q) || q.length >= 2; // mock에서는 2글자 이상이면 전체 반환
+      })
+      .slice(offset, offset + limit)
+      .map((hp) => ({
+        id: hp.hotpickId,
+        hotpickId: hp.hotpickId,
+        type: hp.type,
+        slug: hp.slug,
+        isExpired: hp.status === 'CLOSED',
+        likeCount: hp.likeCount ?? 0,
+        categories: hp.categories ?? [],
+        election: hp.election
+          ? {
+              electionId: hp.election.electionId,
+              title: hp.election.title,
+              totalVoteCount: hp.election.totalVoteCount ?? 0,
+              totalCommentCount: hp.election.totalCommentCount ?? 0,
+              items: hp.election.items ?? [],
+              imageUrl: hp.election.imageUrl,
+            }
+          : undefined,
+        imageUrl: hp.imageUrl,
+      }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        hits,
+        query: q,
+        processingTimeMs: 5,
+        limit,
+        offset,
+        estimatedTotalHits: hits.length,
+      })
+    );
+  }),
+
+  /**
    * 핫픽 상세 조회
    * GET /api/v1/hotpicks/:slug
    */

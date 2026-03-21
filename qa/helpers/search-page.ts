@@ -1,80 +1,5 @@
 import type { Page, Locator } from '@playwright/test';
 
-import type { SearchHit } from '@/hooks/api/useSearch';
-
-/**
- * 검색 API mock 응답 생성 헬퍼
- */
-export function createSearchResponse(hits: SearchHit[], query: string) {
-  return {
-    code: 'SUCCESS',
-    message: '성공',
-    data: {
-      hits,
-      query,
-      processingTimeMs: 5,
-      limit: 20,
-      offset: 0,
-      estimatedTotalHits: hits.length,
-    },
-  };
-}
-
-/** 테스트용 검색 결과 mock 데이터 */
-export const mockSearchHits: SearchHit[] = [
-  {
-    id: 1,
-    hotpickId: 1,
-    type: 'SINGLE',
-    slug: 'first-date-spot',
-    isExpired: false,
-    likeCount: 342,
-    categories: [{ categoryId: 1, name: '연애', slug: 'LOVE' }],
-    election: {
-      electionId: 1,
-      title: '첫 데이트 장소는?',
-      totalVoteCount: 15234,
-      totalCommentCount: 892,
-      items: [],
-    },
-    imageUrl: null,
-  },
-  {
-    id: 2,
-    hotpickId: 2,
-    type: 'SINGLE',
-    slug: 'stock-vs-savings',
-    isExpired: false,
-    likeCount: 198,
-    categories: [{ categoryId: 3, name: '재테크', slug: 'FINANCE' }],
-    election: {
-      electionId: 2,
-      title: '적금 vs 주식?',
-      totalVoteCount: 9876,
-      totalCommentCount: 456,
-      items: [],
-    },
-    imageUrl: null,
-  },
-  {
-    id: 3,
-    hotpickId: 3,
-    type: 'SINGLE',
-    slug: 'chicken-fried-vs-seasoned',
-    isExpired: true,
-    likeCount: 88,
-    categories: [{ categoryId: 6, name: '음식', slug: 'FOOD' }],
-    election: {
-      electionId: 3,
-      title: '치킨은 후라이드 vs 양념?',
-      totalVoteCount: 4521,
-      totalCommentCount: 123,
-      items: [],
-    },
-    imageUrl: null,
-  },
-];
-
 export class SearchPage {
   readonly page: Page;
 
@@ -113,7 +38,7 @@ export class SearchPage {
     this.clearButton = page.getByRole('button', { name: '검색어 삭제' });
 
     // 최근 검색어
-    this.recentSection = page.locator('[class*="section"]').filter({ hasText: '최근 검색어' });
+    this.recentSection = page.getByRole('heading', { name: '최근 검색어' });
     this.recentItems = page.locator('[class*="recentItem"]');
     this.clearAllButton = page.getByRole('button', { name: '전체 삭제' });
     this.emptyRecentText = page.getByText('최근 검색어가 없습니다');
@@ -159,7 +84,7 @@ export class SearchPage {
     return this.previewCards.nth(cardIndex).locator('[class*="cardMeta"]');
   }
 
-  /** localStorage에 최근 검색어 설정 */
+  /** localStorage에 최근 검색어 설정 (페이지 이동 후 호출해야 함) */
   async setRecentKeywords(keywords: string[]) {
     await this.page.evaluate(
       (kw) => localStorage.setItem('hotpick_recent_search', JSON.stringify(kw)),
@@ -175,46 +100,9 @@ export class SearchPage {
     });
   }
 
-  /** localStorage 최근 검색어 초기화 */
+  /** localStorage 최근 검색어 초기화 (페이지 이동 후 호출해야 함) */
   async clearRecentKeywords() {
     await this.page.evaluate(() => localStorage.removeItem('hotpick_recent_search'));
-  }
-
-  /** 검색 API mock 설정 — query에 따라 응답을 결정하는 라우트 */
-  async setupSearchMock(hits: SearchHit[] = mockSearchHits) {
-    await this.page.route('**/api/v1/hotpicks/search*', (route) => {
-      const url = new URL(route.request().url());
-      const q = url.searchParams.get('q') ?? '';
-
-      // 결과가 없는 검색어
-      if (q === '없는검색어' || q === 'noresult') {
-        return route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify(createSearchResponse([], q)),
-        });
-      }
-
-      // 일반 검색: query를 포함하는 결과만 필터
-      const filtered = hits.filter((h) => h.election?.title?.includes(q) || q.length >= 2);
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(createSearchResponse(filtered.length > 0 ? filtered : hits, q)),
-      });
-    });
-  }
-
-  /** 검색 API를 지연시키는 mock (로딩 상태 테스트용) */
-  async setupSearchMockWithDelay(delayMs: number) {
-    await this.page.route('**/api/v1/hotpicks/search*', async (route) => {
-      await new Promise((r) => setTimeout(r, delayMs));
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(createSearchResponse(mockSearchHits, 'test')),
-      });
-    });
   }
 
   /** Mobile: /search 페이지로 이동 */
@@ -223,9 +111,43 @@ export class SearchPage {
     await this.page.waitForLoadState('domcontentloaded');
   }
 
+  /**
+   * Mobile: /search 페이지로 이동 (최근 검색어 설정 포함)
+   * localStorage를 먼저 설정한 후 /search로 이동한다.
+   */
+  async gotoWithRecentKeywords(keywords: string[]) {
+    // 먼저 아무 페이지로 이동하여 origin 확보
+    await this.page.goto('/search');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.setRecentKeywords(keywords);
+    // reload하여 최근 검색어가 반영된 상태로 다시 렌더링
+    await this.page.reload();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  /**
+   * Mobile: /search 페이지로 이동 (최근 검색어 초기화 포함)
+   */
+  async gotoWithCleanState() {
+    await this.page.goto('/search');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.clearRecentKeywords();
+    await this.page.reload();
+    await this.page.waitForLoadState('domcontentloaded');
+  }
+
   /** 메인 페이지로 이동 */
   async gotoMain() {
     await this.page.goto('/');
     await this.page.waitForLoadState('domcontentloaded');
+  }
+
+  /**
+   * 메인 페이지로 이동 (최근 검색어 설정 포함)
+   */
+  async gotoMainWithRecentKeywords(keywords: string[]) {
+    await this.page.goto('/');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.setRecentKeywords(keywords);
   }
 }
