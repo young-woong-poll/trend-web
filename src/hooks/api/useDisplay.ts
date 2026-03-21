@@ -26,7 +26,7 @@ const isServer = () => typeof window === 'undefined';
 export const displayKeys = {
   all: ['display'] as const,
   categories: () => [...displayKeys.all, 'categories'] as const,
-  main: (params?: { size?: number; cursor?: number }) =>
+  main: (params?: { size?: number; cursor?: string }) =>
     [...displayKeys.all, 'main', params] as const,
   mainInfinite: (params?: { size?: number; category?: string }) =>
     [...displayKeys.all, 'mainInfinite', params] as const,
@@ -59,7 +59,7 @@ export const displayQueries = {
   /**
    * 메인 전시 쿼리 옵션
    */
-  main: (params?: { size?: number; cursor?: number }) =>
+  main: (params?: { size?: number; cursor?: string }) =>
     queryOptions<MainHotpickResponse | null>({
       queryKey: displayKeys.main(params),
       queryFn: async () => {
@@ -112,7 +112,7 @@ export const displayQueries = {
       Error,
       InfiniteData<MainHotpickResponse | null>,
       ReturnType<typeof displayKeys.mainInfinite>,
-      number | undefined
+      string | undefined
     >({
       queryKey: displayKeys.mainInfinite(params),
       queryFn: async ({ pageParam }) => {
@@ -146,7 +146,7 @@ export const useCategories = () => useQuery(displayQueries.categories());
 /**
  * 메인 전시 Hook
  */
-export const useMainDisplay = (params?: { size?: number; cursor?: number }) =>
+export const useMainDisplay = (params?: { size?: number; cursor?: string }) =>
   useQuery(displayQueries.main(params));
 
 /**
