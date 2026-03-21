@@ -120,10 +120,13 @@ const SearchPreviewCard: FC<{ item: SearchHit; query: string }> = ({ item, query
     >
       {isImageType && imageItems.length >= 2 ? (
         <div className={styles.thumbnailSplit}>
-          <img src={imageItems[0].imageUrl!} alt="" className={styles.thumbnailHalf} />
-          <img src={imageItems[1].imageUrl!} alt="" className={styles.thumbnailHalf} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageItems[0].imageUrl ?? ''} alt="" className={styles.thumbnailHalf} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageItems[1].imageUrl ?? ''} alt="" className={styles.thumbnailHalf} />
         </div>
       ) : singleImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={singleImageUrl} alt="" className={styles.thumbnail} />
       ) : (
         <div className={styles.thumbnailPlaceholder} />

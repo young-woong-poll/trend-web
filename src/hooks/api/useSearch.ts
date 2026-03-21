@@ -61,7 +61,7 @@ export const searchQueries = {
         });
         // axios-mutator가 BaseResponse.data를 자동 추출
         // 결과가 Map<String, Object> 형태이므로 SearchResponse로 캐스팅
-        return (result as unknown as SearchResponse) ?? null;
+        return (result as unknown as SearchResponse) || null;
       },
       staleTime: 30 * 1000,
     }),
