@@ -62,51 +62,54 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
 
   return (
     <nav
-      ref={containerRef}
       role="tablist"
       aria-label="콘텐츠 필터"
       className={styles.container}
       data-testid="content-tabs"
     >
-      {/* 필터 탭: NEW, HOT, MY */}
-      {FILTER_TABS.map((tab) => {
-        const isActive = isTabActive(selectedTab, 'filter', tab.type);
-        return (
-          <button
-            key={tab.type}
-            role="tab"
-            type="button"
-            aria-selected={isActive}
-            data-testid={`content-tab-${tab.type}`}
-            className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-            onClick={(e) => handleFilterClick(tab.type, e)}
-          >
-            {TAB_ICONS[tab.type]}
-            {tab.label}
-          </button>
-        );
-      })}
+      <div ref={containerRef} className={styles.tabList}>
+        {/* 필터 탭: NEW, HOT, MY */}
+        {FILTER_TABS.map((tab) => {
+          const isActive = isTabActive(selectedTab, 'filter', tab.type);
+          return (
+            <button
+              key={tab.type}
+              role="tab"
+              type="button"
+              aria-selected={isActive}
+              data-testid={`content-tab-${tab.type}`}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+              onClick={(e) => handleFilterClick(tab.type, e)}
+            >
+              {TAB_ICONS[tab.type]}
+              {tab.label}
+            </button>
+          );
+        })}
 
-      {/* 구분자 */}
-      {categories && categories.length > 0 && <div className={styles.divider} aria-hidden="true" />}
+        {/* 구분자 */}
+        {categories && categories.length > 0 && (
+          <div className={styles.divider} aria-hidden="true" />
+        )}
 
-      {/* 카테고리 탭 */}
-      {categories?.map((cat) => {
-        const isActive = isTabActive(selectedTab, 'category', cat.slug);
-        return (
-          <button
-            key={cat.slug}
-            role="tab"
-            type="button"
-            aria-selected={isActive}
-            data-testid={`content-tab-category-${cat.slug}`}
-            className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-            onClick={(e) => handleCategoryClick(cat, e)}
-          >
-            {cat.label}
-          </button>
-        );
-      })}
+        {/* 카테고리 탭 */}
+        {categories?.map((cat) => {
+          const isActive = isTabActive(selectedTab, 'category', cat.slug);
+          return (
+            <button
+              key={cat.slug}
+              role="tab"
+              type="button"
+              aria-selected={isActive}
+              data-testid={`content-tab-category-${cat.slug}`}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+              onClick={(e) => handleCategoryClick(cat, e)}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 };
