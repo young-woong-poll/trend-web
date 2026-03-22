@@ -60,11 +60,15 @@ export const COMMON_METADATA: Omit<Metadata, 'metadataBase'> = {
   },
   description: SITE_DESCRIPTION.main,
   keywords: SITE_KEYWORDS,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
     title: SITE_TITLE.og,
     description: SITE_DESCRIPTION.og,
+    url: SITE_URL,
     images: [OG_IMAGE],
   },
   twitter: {
