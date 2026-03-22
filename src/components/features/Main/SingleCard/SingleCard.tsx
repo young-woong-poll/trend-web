@@ -3,6 +3,7 @@
 import { memo } from 'react';
 
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { AnimatePresence, m } from 'framer-motion';
 
@@ -96,12 +97,12 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
       </div>
 
       {/* 질문: 로고 이미지 + 텍스트 */}
-      <div className={styles.questionRow}>
+      <Link href={`/hotpick/${slug}`} className={styles.questionRow}>
         {logoUrl && (
           <Image src={logoUrl} alt={title} width={62} height={62} className={styles.questionLogo} />
         )}
         <h3 className={styles.question}>{title}</h3>
-      </div>
+      </Link>
 
       {/* 투표 영역 */}
       <div className={styles.voteArea}>

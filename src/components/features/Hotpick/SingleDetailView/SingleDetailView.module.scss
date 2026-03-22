@@ -6,6 +6,7 @@
   flex-direction: column;
   min-height: 100dvh;
   background: $bg-primary;
+  padding-top: 56px; // fixed 헤더 높이
   padding-bottom: 60px;
 }
 
