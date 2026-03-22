@@ -4,9 +4,9 @@ import Link from 'next/link';
 import gmailImg from '@/assets/img/gmail.png';
 import instagramImg from '@/assets/img/instagram.png';
 import kakaotalkImg from '@/assets/img/kakaotalk.png';
-import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/About/AboutPage.module.scss';
 import { FaqAccordion } from '@/components/features/About/FaqAccordion';
+import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 
 const FEATURES = [
   {
@@ -75,31 +75,7 @@ const CONTACTS = [
 
 export const AboutPage = () => (
   <div className={styles.page}>
-    <header className={styles.header}>
-      <div className={styles.headerInner}>
-        <Link href="/" className={styles.logoContainer} aria-label="메인으로 이동">
-          <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
-        </Link>
-        <Link href="/" className={styles.homeLink}>
-          홈으로
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M9 18l6-6-6-6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
-      </div>
-    </header>
+    <MainHeader showSearch={false} />
 
     <main className={styles.main}>
       {/* Hero */}

@@ -7,52 +7,6 @@
   background-color: $bg-primary;
 }
 
-// ─── 헤더 (로고만) ───
-.header {
-  width: 100%;
-  height: 56px;
-  background-color: $bg-primary;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: $z-index-sticky + 1;
-}
-
-.headerInner {
-  @include flex-between;
-  max-width: 1350px;
-  height: 100%;
-  margin: 0 auto;
-  padding: 0 $spacing-16;
-}
-
-.logoContainer {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.logo {
-  height: 24px;
-}
-
-.homeLink {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: $font-size-14;
-  font-weight: $font-weight-medium;
-  color: $text-secondary;
-  text-decoration: none;
-  @include transition(color, 0.2s, ease);
-
-  &:hover {
-    color: $white;
-  }
-}
-
 // ─── 메인 콘텐츠 ───
 .main {
   max-width: 640px;
