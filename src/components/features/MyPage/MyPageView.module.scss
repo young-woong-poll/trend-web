@@ -1,0 +1,131 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+.profileSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.profileImage {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #2c2c2c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: #8a8a8a;
+  }
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.nickname {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.editButton {
+  font-size: 13px;
+  color: #8a8a8a;
+  background: none;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 16px;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #8a8a8a;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+
+  &.active {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+}
+
+.listItem {
+  padding: 16px 0;
+  border-bottom: 1px solid #2c2c2c;
+}
+
+.listItemTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.listItemSub {
+  font-size: 13px;
+  color: #8a8a8a;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 0;
+  color: #8a8a8a;
+  font-size: 14px;
+}
+
+.footer {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logoutButton {
+  font-size: 15px;
+  color: #d1d1d1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 8px 0;
+}
+
+.withdrawButton {
+  font-size: 13px;
+  color: #8a8a8a;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 8px 0;
+}

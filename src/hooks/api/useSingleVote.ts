@@ -3,6 +3,7 @@ import { useCallback, useRef } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { MainHotpickResponse, VoteResultResponse } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
@@ -27,7 +28,7 @@ interface UseSingleVoteOptions {
 export const useSingleVote = (options?: UseSingleVoteOptions) => {
   const queryClient = useQueryClient();
   const pendingRef = useRef<Set<string>>(new Set());
-  const tkuIdRef = useRef<string>(getTKUID());
+  const { isLoggedIn } = useAuth();
 
   /**
    * infinite query 캐시에서 특정 핫픽의 election을 SingleVoteData로 매핑하여 업데이트
@@ -102,10 +103,10 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
       }));
 
       pendingRef.current.add(slug);
-      const tkuId = tkuIdRef.current;
 
       try {
-        await vote(slug, { electionItemId: Number(optionId) }, { headers: { 'x-tku-id': tkuId } });
+        const headers = isLoggedIn ? {} : { 'x-tku-id': getTKUID() };
+        await vote(slug, { electionItemId: Number(optionId) }, { headers });
       } catch (error) {
         // 409 중복 투표: 서버 응답 데이터로 결과 표시
         if (isAxiosError(error) && error.response?.status === 409) {
@@ -128,7 +129,7 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
         pendingRef.current.delete(slug);
       }
     },
-    [updateCacheOptimistically, options]
+    [updateCacheOptimistically, options, isLoggedIn]
   );
 
   return { handleVote };

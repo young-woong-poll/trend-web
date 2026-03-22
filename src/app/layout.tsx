@@ -5,6 +5,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { KakaoScript } from '@/components/common/KakaoScript';
 import { ModalProvider } from '@/contexts/ModalContext';
 import { COMMON_METADATA, SITE_URL } from '@/lib/seo/constants';
+import AuthProvider from '@/providers/AuthProvider';
 import { ClientProviders } from '@/providers/ClientProviders';
 import { QueryProvider } from '@/providers/QueryProvider';
 
@@ -41,7 +42,7 @@ export default function RootLayout({
         <ClientProviders>
           <QueryProvider>
             <ModalProvider>
-              {children}
+              <AuthProvider>{children}</AuthProvider>
               <div id="portal-root" />
             </ModalProvider>
           </QueryProvider>

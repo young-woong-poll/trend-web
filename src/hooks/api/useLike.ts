@@ -9,6 +9,7 @@ import { useCallback, useRef } from 'react';
 
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { likeHotpick, unlikeHotpick } from '@/generated/api/client/hotpick/hotpick';
 import type { HotpickLikeResponse, MainHotpickResponse } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
@@ -17,7 +18,7 @@ import { getTKUID } from '@/lib/tkuid';
 export const useLike = () => {
   const queryClient = useQueryClient();
   const pendingRef = useRef<Set<string>>(new Set());
-  const tkuIdRef = useRef<string>(getTKUID());
+  const { isLoggedIn, requireLogin } = useAuth();
 
   /** infinite main 캐시에서 특정 핫픽의 liked / likeCount 업데이트 */
   const updateInfiniteCache = useCallback(
@@ -72,6 +73,11 @@ export const useLike = () => {
 
   const handleLike = useCallback(
     async (slug: string, currentLiked: boolean, currentLikeCount: number) => {
+      if (!isLoggedIn) {
+        requireLogin('like');
+        return;
+      }
+
       if (pendingRef.current.has(slug)) {
         return;
       }
@@ -86,8 +92,7 @@ export const useLike = () => {
       pendingRef.current.add(slug);
 
       try {
-        const tkuId = tkuIdRef.current;
-        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : undefined;
+        const apiOptions = isLoggedIn ? undefined : { headers: { 'x-tku-id': getTKUID() } };
 
         const result = currentLiked
           ? await unlikeHotpick(slug, apiOptions)
@@ -108,7 +113,7 @@ export const useLike = () => {
         pendingRef.current.delete(slug);
       }
     },
-    [updateInfiniteCache, updateDetailCache]
+    [updateInfiniteCache, updateDetailCache, isLoggedIn, requireLogin]
   );
 
   return { handleLike };
