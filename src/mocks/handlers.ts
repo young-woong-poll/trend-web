@@ -27,6 +27,31 @@ import {
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
+ * Mock 인증 사용자 데이터
+ */
+let mockUser: { id: number; nickname: string | null; profileImageUrl: string | null } | null = null;
+const usedNicknames = new Set<string>();
+
+const nicknameAdjectives = [
+  '용감한',
+  '빛나는',
+  '귀여운',
+  '멋진',
+  '즐거운',
+  '활발한',
+  '따뜻한',
+  '신나는',
+];
+const nicknameNouns = ['호랑이', '고양이', '강아지', '토끼', '판다', '여우', '사자', '돌고래'];
+
+function generateRandomNickname(): string {
+  const adj = nicknameAdjectives[Math.floor(Math.random() * nicknameAdjectives.length)];
+  const noun = nicknameNouns[Math.floor(Math.random() * nicknameNouns.length)];
+  const num = Math.floor(Math.random() * 1000);
+  return `${adj}${noun}${num}`;
+}
+
+/**
  * Mock 카테고리 데이터 (Admin CRUD + Public 탭 공유)
  */
 const mockCategories = [
@@ -56,6 +81,193 @@ const wrapResponse = <T>(data: T) => ({
  * MSW Handlers — 새 Hotpick API 기반
  */
 export const handlers = [
+  // ──────────────────────────────────────────────────────────
+  // Auth API (카카오 로그인 / 사용자 인증)
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 카카오 로그인
+   * POST /api/auth/kakao
+   */
+  http.post(`${baseURL}/api/auth/kakao`, async ({ request }) => {
+    const body = (await request.json()) as { code: string; redirectUri: string };
+    const isNewUser = body.code.includes('new');
+    mockUser = {
+      id: 1001,
+      nickname: isNewUser ? null : '테스트유저',
+      profileImageUrl: 'https://via.placeholder.com/100',
+    };
+    return HttpResponse.json(
+      wrapResponse({
+        user: mockUser,
+        isNewUser,
+      })
+    );
+  }),
+
+  /**
+   * 내 정보 조회
+   * GET /api/auth/me
+   */
+  http.get(`${baseURL}/api/auth/me`, () => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(mockUser));
+  }),
+
+  /**
+   * 토큰 갱신
+   * POST /api/auth/refresh
+   */
+  http.post(`${baseURL}/api/auth/refresh`, () => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 로그아웃
+   * POST /api/auth/logout
+   */
+  http.post(`${baseURL}/api/auth/logout`, () => {
+    mockUser = null;
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 익명 투표 연동
+   * POST /api/auth/link
+   */
+  http.post(`${baseURL}/api/auth/link`, async ({ request }) => {
+    const body = (await request.json()) as { tkuId: string };
+    return HttpResponse.json(
+      wrapResponse({
+        linked: true,
+        votesCount: Math.floor(Math.random() * 10) + 1,
+        tkuId: body.tkuId,
+      })
+    );
+  }),
+
+  /**
+   * 회원 탈퇴
+   * DELETE /api/auth/me
+   */
+  http.delete(`${baseURL}/api/auth/me`, () => {
+    mockUser = null;
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 닉네임 추천
+   * GET /api/auth/nickname/suggest
+   */
+  http.get(`${baseURL}/api/auth/nickname/suggest`, () => {
+    const nickname = generateRandomNickname();
+    return HttpResponse.json(wrapResponse({ nickname }));
+  }),
+
+  /**
+   * 닉네임 중복 체크
+   * GET /api/auth/nickname/check
+   */
+  http.get(`${baseURL}/api/auth/nickname/check`, ({ request }) => {
+    const url = new URL(request.url);
+    const nickname = url.searchParams.get('nickname') ?? '';
+    const isDuplicate = usedNicknames.has(nickname);
+    return HttpResponse.json(wrapResponse({ nickname, available: !isDuplicate }));
+  }),
+
+  /**
+   * 닉네임 설정/변경
+   * PATCH /api/auth/me
+   */
+  http.patch(`${baseURL}/api/auth/me`, async ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const body = (await request.json()) as { nickname: string };
+    usedNicknames.add(body.nickname);
+    mockUser = { ...mockUser, nickname: body.nickname };
+    return HttpResponse.json(wrapResponse(mockUser));
+  }),
+
+  /**
+   * 내 투표 목록 조회
+   * GET /api/users/me/votes
+   */
+  http.get(`${baseURL}/api/users/me/votes`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor');
+    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+
+    const mockVotes = Array.from({ length: size }, (_, i) => ({
+      hotpickId: 100 + i + (cursor ? parseInt(cursor, 10) : 0),
+      slug: `mock-vote-${100 + i}`,
+      title: `투표한 핫픽 ${100 + i}`,
+      myElectionItemId: i % 2 === 0 ? 1 : 2,
+      votedAt: new Date(Date.now() - i * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        votes: mockVotes,
+        hasMore: true,
+        nextCursor: String((cursor ? parseInt(cursor, 10) : 0) + size),
+      })
+    );
+  }),
+
+  /**
+   * 내 댓글 목록 조회
+   * GET /api/users/me/comments
+   */
+  http.get(`${baseURL}/api/users/me/comments`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor');
+    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+
+    const mockComments = Array.from({ length: size }, (_, i) => ({
+      commentId: `comment-${200 + i}`,
+      hotpickSlug: `mock-hotpick-${i}`,
+      hotpickTitle: `핫픽 제목 ${i}`,
+      content: `내가 쓴 댓글 ${200 + i}`,
+      likeCount: Math.floor(Math.random() * 50),
+      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        comments: mockComments,
+        hasMore: true,
+        nextCursor: String((cursor ? parseInt(cursor, 10) : 0) + size),
+      })
+    );
+  }),
+
   // ──────────────────────────────────────────────────────────
   // Hotpick API (사용자 화면)
   // ──────────────────────────────────────────────────────────

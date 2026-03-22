@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { likeComment, unlikeComment } from '@/generated/api/client/comment/comment';
 import type { CommentItem, CommentLikeResponse, CommentListResponse } from '@/generated/models';
 import { commentKeys } from '@/hooks/api/useComment';
@@ -25,6 +26,7 @@ export const useCommentLike = (
   options?: UseCommentLikeOptions
 ) => {
   const queryClient = useQueryClient();
+  const { isLoggedIn, requireLogin } = useAuth();
   const allSorts: Array<'latest' | 'popular'> = ['latest', 'popular'];
 
   /** 모든 sort 캐시에 대해 댓글 좋아요 상태를 업데이트 */
@@ -53,6 +55,11 @@ export const useCommentLike = (
 
   const handleLikeClick = useCallback(
     async (commentId: string, currentLiked: boolean) => {
+      if (!isLoggedIn) {
+        requireLogin('like');
+        return;
+      }
+
       // 롤백용 스냅샷 (모든 sort)
       const snapshots = allSorts.map((s) => ({
         key: commentKeys.list(slug, electionId, s),
@@ -67,8 +74,7 @@ export const useCommentLike = (
       }));
 
       try {
-        const tkuId = getTKUID();
-        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : undefined;
+        const apiOptions = isLoggedIn ? undefined : { headers: { 'x-tku-id': getTKUID() } };
 
         const result = currentLiked
           ? await unlikeComment(commentId, apiOptions)
@@ -89,7 +95,7 @@ export const useCommentLike = (
         options?.onError?.(error);
       }
     },
-    [queryClient, slug, electionId, options]
+    [queryClient, slug, electionId, options, isLoggedIn, requireLogin]
   );
 
   return {

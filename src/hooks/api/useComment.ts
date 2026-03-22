@@ -14,6 +14,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import {
   getComments,
   createComment,
@@ -100,6 +101,7 @@ export const useInfiniteComments = (params: {
  */
 export const useCreateComment = () => {
   const queryClient = useQueryClient();
+  const { isLoggedIn, requireLogin } = useAuth();
 
   return useMutation({
     mutationFn: async (data: {
@@ -109,6 +111,11 @@ export const useCreateComment = () => {
       password: string;
       content: string;
     }) => {
+      if (!isLoggedIn) {
+        requireLogin('comment');
+        return;
+      }
+
       const result = await createComment(
         data.slug,
         Number(data.electionId),
@@ -118,7 +125,9 @@ export const useCreateComment = () => {
           content: data.content,
         },
         {
-          headers: { 'x-tku-id': getTKUID() },
+          headers: isLoggedIn
+            ? {}
+            : { 'x-tku-id': typeof window !== 'undefined' ? getTKUID() : '' },
         }
       );
       return result;
