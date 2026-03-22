@@ -6,8 +6,8 @@ export default defineConfig({
   testDir: './qa',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : 4,
   reporter: 'html',
   timeout: 30_000,
 

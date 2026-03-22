@@ -1,34 +1,41 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
-import styles from '@/app/error.module.scss';
+import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import { Button } from '@/components/common/Button';
+import styles from '@/components/common/ErrorPage/ErrorPage.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 
 interface ErrorPageProps {
   message: string;
+  statusCode?: string;
   showRetry?: boolean;
+  simpleHeader?: boolean;
   onRetry?: () => void;
 }
 
-export const ErrorPage = ({ message, showRetry = false, onRetry }: ErrorPageProps) => (
+export const ErrorPage = ({
+  message,
+  statusCode,
+  showRetry = false,
+  simpleHeader = false,
+  onRetry,
+}: ErrorPageProps) => (
   <div className={styles.page}>
-    <MainHeader />
+    {simpleHeader ? (
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link href="/" className={styles.logoContainer} aria-label="메인으로 이동">
+            <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
+          </Link>
+        </div>
+      </header>
+    ) : (
+      <MainHeader />
+    )}
     <div className={styles.container}>
       <div className={styles.content}>
-        <div className={styles.iconWrapper}>
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className={styles.icon}
-          >
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-            <path d="M12 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            <circle cx="12" cy="16" r="1" fill="currentColor" />
-          </svg>
-        </div>
+        {statusCode && <p className={styles.statusCode}>{statusCode}</p>}
         <p className={styles.message}>{message}</p>
 
         <p className={styles.contact}>

@@ -202,8 +202,7 @@ test.describe('댓글 좋아요 정렬 동기화', () => {
     await detail.goto(SLUGS.SINGLE);
 
     // 투표 실행 (댓글 잠금 해제)
-    const optionButton = detail.optionButtons.first();
-    await optionButton.click();
+    await detail.voteFirstOption();
 
     // 댓글 목록이 로딩될 때까지 대기
     await detail.commentItems.first().waitFor({ state: 'visible', timeout: 10_000 });

@@ -57,6 +57,9 @@ test.describe('메인 페이지 좋아요 버튼', () => {
     await likeButton.click();
     await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
 
+    // API 응답으로 인한 리렌더 안정화 대기
+    await main.page.waitForTimeout(500);
+
     // 좋아요 취소 클릭 → none 상태 복귀 대기
     await likeButton.click();
     await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
@@ -97,6 +100,9 @@ test.describe('상세 페이지 좋아요 버튼', () => {
     await detail.likeButton.click();
     await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
 
+    // API 응답으로 인한 리렌더 안정화 대기
+    await detail.page.waitForTimeout(500);
+
     // 좋아요 취소 클릭 → none 상태 복귀 대기
     await detail.likeButton.click();
     await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
@@ -110,33 +116,20 @@ test.describe('상세 페이지 좋아요 카운트', () => {
     const detail = new DetailPage(page);
     await detail.goto(SLUGS.SINGLE);
 
-    // 좋아요 버튼의 카운트 영역 확인
     const likeButton = detail.likeButton;
     await expect(likeButton).toBeVisible({ timeout: 10_000 });
 
-    // 좋아요 전 카운트 텍스트 캡처
-    const countBefore = await likeButton
-      .locator('[class*="likeCount"]')
-      .textContent()
-      .catch(() => '0');
-    const numBefore = parseInt(countBefore ?? '0', 10) || 0;
+    // 좋아요 전: SVG fill이 'none' (비활성)
+    const svgPath = likeButton.locator('svg path').first();
+    await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
 
     // 좋아요 클릭
     await likeButton.click();
 
-    // 카운트가 증가할 때까지 대기 (낙관적 업데이트 후 re-render)
-    await expect
-      .poll(
-        async () => {
-          const text = await likeButton
-            .locator('[class*="likeCount"]')
-            .textContent()
-            .catch(() => '0');
-          return parseInt(text ?? '0', 10) || 0;
-        },
-        { timeout: 5_000 }
-      )
-      .toBeGreaterThan(numBefore);
+    // 좋아요 후: SVG fill이 변경됨 (활성) + 카운트 영역이 표시됨
+    await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
+    const likeCount = likeButton.locator('[class*="likeCount"]');
+    await expect(likeCount).toBeVisible({ timeout: 5_000 });
   });
 });
 

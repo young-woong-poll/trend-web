@@ -10,6 +10,7 @@
 | 상세          | `/hotpick/{slug}` | [checklist.md](detail/checklist.md)       | [detail.spec.ts](detail/detail.spec.ts)                                                                                                                        | [detail.md](../docs/specs/pages/detail.md)             | -       |
 | 오프라인 투표 | `/offline-vote`   | [checklist.md](offline-vote/checklist.md) | [offline-vote.spec.ts](offline-vote/offline-vote.spec.ts)                                                                                                      | [offline-vote.md](../docs/specs/pages/offline-vote.md) | -       |
 | 검색          | `/search`         | [checklist.md](search/checklist.md)       | [search.spec.ts](search/search.spec.ts), [recent-search.spec.ts](search/recent-search.spec.ts), [search-pc.spec.ts](search/search-pc.spec.ts)                  | [search.md](../docs/specs/pages/search.md)             | -       |
+| 탭 네비게이션 | `/`               | [checklist.md](tab/checklist.md)          | [tab.spec.ts](tab/tab.spec.ts)                                                                                                                                 | [tab.md](../docs/specs/pages/tab.md)                   | -       |
 | 관리자        | `/admin/*`        | [checklist.md](admin/checklist.md)        | -                                                                                                                                                              | [admin.md](../docs/specs/pages/admin.md)               | -       |
 
 ## 우선순위 기준

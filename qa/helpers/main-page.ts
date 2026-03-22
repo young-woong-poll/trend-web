@@ -63,9 +63,17 @@ export class MainPage {
     this.cardColumns = page.locator('[class*="cardColumn"]');
   }
 
-  /** 카테고리 버튼 클릭 (라벨 텍스트로 찾기) */
-  categoryButton(label: string): Locator {
-    return this.page.getByRole('button', { name: label, exact: true });
+  /** 카테고리 SelectBox 컨테이너 */
+  get categorySelect(): Locator {
+    return this.page.getByTestId('category-filter');
+  }
+
+  /** 카테고리 선택 (라벨 텍스트로 커스텀 SelectBox 옵션 클릭) */
+  async selectCategory(label: string) {
+    // SelectBox 트리거 클릭하여 드롭다운 열기
+    await this.categorySelect.getByRole('button').first().click();
+    // 옵션 클릭
+    await this.categorySelect.getByRole('option', { name: label }).getByRole('button').click();
   }
 
   /** 특정 카드의 공유 버튼 */
@@ -144,18 +152,26 @@ export class MainPage {
 
   async goto() {
     await this.page.goto('/');
-    // MSW mock 데이터 로딩 대기: 카드가 렌더링되거나 에러/빈 상태가 표시될 때까지
-    await this.page.waitForFunction(
-      () => {
-        return (
+    // MSW mock 데이터 로딩 대기: 카드가 렌더링될 때까지
+    const hasCards = await this.page
+      .waitForFunction(
+        () =>
           document.querySelector('[data-testid="single-card"]') !== null ||
-          document.querySelector('[data-testid="bundle-card"]') !== null ||
-          document.body.textContent?.includes('실패') === true ||
-          document.body.textContent?.includes('에러') === true ||
-          document.body.textContent?.includes('핫픽이 없어요') === true
-        );
-      },
-      { timeout: 30_000 }
-    );
+          document.querySelector('[data-testid="bundle-card"]') !== null,
+        { timeout: 10_000 }
+      )
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasCards) {
+      // MSW Service Worker가 아직 활성화되지 않은 경우 리로드하여 재시도
+      await this.page.reload();
+      await this.page.waitForFunction(
+        () =>
+          document.querySelector('[data-testid="single-card"]') !== null ||
+          document.querySelector('[data-testid="bundle-card"]') !== null,
+        { timeout: 10_000 }
+      );
+    }
   }
 }

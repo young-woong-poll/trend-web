@@ -101,19 +101,40 @@ export class DetailPage {
   /** 특정 slug의 상세페이지로 이동 */
   async goto(slug: string) {
     await this.page.goto(`/hotpick/${slug}`);
-    await this.voteCard.waitFor({ state: 'visible', timeout: 15_000 }).catch(async () => {
+    await this.voteCard.waitFor({ state: 'visible', timeout: 10_000 }).catch(async () => {
       // MSW Service Worker가 아직 활성화되지 않은 경우 리로드하여 재시도
       await this.page.reload();
-      await this.voteCard.waitFor({ state: 'visible', timeout: 15_000 });
+      await this.voteCard.waitFor({ state: 'visible', timeout: 10_000 });
     });
   }
 
   /** 첫 번째 옵션을 클릭하여 투표 수행 */
   async voteFirstOption() {
+    // 이미 투표된 상태(resultBar 표시)이면 스킵
+    const alreadyVoted = await this.resultBars
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (alreadyVoted) {
+      return;
+    }
+
     const firstOption = this.voteCard.locator('[class*="optionButton"]').first();
+    await firstOption.waitFor({ state: 'visible', timeout: 10_000 });
     await firstOption.click();
-    // 결과 바가 나타날 때까지 대기
-    await this.resultBars.first().waitFor({ state: 'visible', timeout: 10_000 });
+
+    // 결과 바가 나타날 때까지 대기 (투표 POST → 응답 → 상태 업데이트 → 리렌더)
+    await this.resultBars
+      .first()
+      .waitFor({ state: 'visible', timeout: 10_000 })
+      .catch(async () => {
+        // MSW 응답이 지연된 경우: 옵션 버튼이 여전히 보이면 재클릭
+        const stillVisible = await firstOption.isVisible().catch(() => false);
+        if (stillVisible) {
+          await firstOption.click();
+        }
+        await this.resultBars.first().waitFor({ state: 'visible', timeout: 10_000 });
+      });
   }
 
   /** 댓글 작성 폼 열기 (textarea 포커스) */

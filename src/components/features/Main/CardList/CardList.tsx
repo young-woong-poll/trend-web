@@ -28,6 +28,11 @@ const skeletonGroupMore = (
   </div>
 );
 
+interface EmptyStateConfig {
+  title: string;
+  description: string;
+}
+
 interface CardListProps {
   cards: CardModel[];
   isLoading: boolean;
@@ -38,6 +43,7 @@ interface CardListProps {
   error: Error | null;
   observerTarget: RefObject<HTMLDivElement | null>;
   onRetry: () => void;
+  emptyState?: EmptyStateConfig;
 }
 
 // eslint-disable-next-line react/display-name
@@ -52,6 +58,7 @@ export const CardList = memo<CardListProps>(
     error,
     observerTarget,
     onRetry,
+    emptyState,
   }) => {
     const columnCount = useColumnCount();
 
@@ -78,14 +85,15 @@ export const CardList = memo<CardListProps>(
     }
 
     if (!isFetching && cards.length === 0) {
+      const empty = emptyState ?? {
+        title: '아직 진행중인 핫픽이 없어요',
+        description:
+          '새로운 핫픽 투표가 시작되면 여기에 표시됩니다.\n곧 흥미로운 주제로 찾아뵙겠습니다!',
+      };
       return (
         <div className={styles.emptyState}>
-          <div className={styles.icon}>📊</div>
-          <h2 className={styles.title}>아직 진행중인 핫픽이 없어요</h2>
-          <p className={styles.description}>
-            새로운 핫픽 투표가 시작되면 여기에 표시됩니다.
-            <br />곧 흥미로운 주제로 찾아뵙겠습니다!
-          </p>
+          <h2 className={styles.title}>{empty.title}</h2>
+          <p className={styles.description}>{empty.description}</p>
         </div>
       );
     }

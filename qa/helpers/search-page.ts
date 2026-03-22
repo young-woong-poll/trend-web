@@ -136,10 +136,27 @@ export class SearchPage {
     await this.page.waitForLoadState('domcontentloaded');
   }
 
-  /** 메인 페이지로 이동 */
+  /** 메인 페이지로 이동 (MSW 초기화 대기 포함) */
   async gotoMain() {
     await this.page.goto('/');
-    await this.page.waitForLoadState('domcontentloaded');
+    // MSW 초기화 후 API 응답이 도착하여 카드가 렌더링될 때까지 대기
+    await this.page
+      .waitForFunction(
+        () =>
+          document.querySelector('[data-testid="single-card"]') !== null ||
+          document.querySelector('[data-testid="bundle-card"]') !== null,
+        { timeout: 10_000 }
+      )
+      .catch(async () => {
+        // MSW Service Worker 미초기화 시 리로드
+        await this.page.reload();
+        await this.page.waitForFunction(
+          () =>
+            document.querySelector('[data-testid="single-card"]') !== null ||
+            document.querySelector('[data-testid="bundle-card"]') !== null,
+          { timeout: 10_000 }
+        );
+      });
   }
 
   /**

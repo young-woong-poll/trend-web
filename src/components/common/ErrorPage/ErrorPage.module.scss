@@ -1,0 +1,91 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: $bg-primary;
+}
+
+// ─── 심플 헤더 (로고만) ───
+.header {
+  width: 100%;
+  height: 56px;
+  background-color: $bg-primary;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-sticky + 1;
+}
+
+.headerInner {
+  @include flex-between;
+  max-width: 1350px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-16;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 24px;
+}
+
+// ─── 콘텐츠 ───
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 20px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.statusCode {
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0 0 4px;
+  background: $primary-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.message {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: $white;
+  margin: 0 0 8px;
+}
+
+.contact {
+  font-size: 14px;
+  line-height: 1.6;
+  color: $text-tertiary;
+  text-align: center;
+  margin: 0 0 24px;
+}
+
+.link {
+  width: 100%;
+  text-decoration: none;
+}
