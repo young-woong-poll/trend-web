@@ -1,19 +1,23 @@
 @use '@/styles/variables' as *;
 @use '@/styles/mixins' as *;
 
+.pageWrapper {
+  padding-top: 98px; // fixed 헤더(56px) + 탭바(42px)
+}
+
 .container {
   @include flex-column;
   width: 100%;
   min-width: 0;
   height: 100%;
   padding: $spacing-16;
-  gap: 16px;
+  gap: 12px;
   overflow-y: auto;
   overflow-x: hidden;
 
   @include tablet {
     padding: $spacing-24;
-    gap: 20px;
+    gap: 16px;
   }
 }
 

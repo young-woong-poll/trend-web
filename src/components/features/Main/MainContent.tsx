@@ -12,7 +12,7 @@ type TMainContentProps = {
 };
 
 export const MainContent: FC<TMainContentProps> = ({ data }) => (
-  <>
+  <div className={styles.pageWrapper}>
     <MainHeader />
     <FlexibleLayout>
       <MainView>
@@ -54,5 +54,5 @@ export const MainContent: FC<TMainContentProps> = ({ data }) => (
         )}
       </MainView>
     </FlexibleLayout>
-  </>
+  </div>
 );
