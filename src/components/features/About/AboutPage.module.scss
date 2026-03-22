@@ -1,0 +1,245 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+  @include flex-column;
+  min-height: 100vh;
+  background-color: $bg-primary;
+}
+
+// ─── 헤더 (로고만) ───
+.header {
+  width: 100%;
+  height: 56px;
+  background-color: $bg-primary;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-sticky + 1;
+}
+
+.headerInner {
+  @include flex-between;
+  max-width: 1350px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-16;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo {
+  height: 24px;
+}
+
+.homeLink {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-decoration: none;
+  @include transition(color, 0.2s, ease);
+
+  &:hover {
+    color: $white;
+  }
+}
+
+// ─── 메인 콘텐츠 ───
+.main {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 76px 20px 60px; // 56px header + 20px gap
+}
+
+// ─── Hero 섹션 ───
+.hero {
+  text-align: center;
+  padding: $spacing-48 0;
+}
+
+.heroTitle {
+  font-size: $font-size-32;
+  font-weight: $font-weight-bold;
+  line-height: 1.25;
+  margin: 0 0 $spacing-8;
+  background: $primary-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  @include tablet {
+    font-size: $font-size-40;
+  }
+}
+
+.heroSub {
+  font-size: $font-size-16;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin: 0 0 $spacing-32;
+
+  @include tablet {
+    font-size: $font-size-18;
+  }
+}
+
+.ctaLink {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 $spacing-32;
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  background: $primary-gradient;
+  border-radius: $border-rounded;
+  box-shadow:
+    0 0 20px rgba($primary-start, 0.4),
+    0 0 40px rgba($primary-end, 0.2);
+  @include transition;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 28px rgba($primary-start, 0.5),
+      0 0 56px rgba($primary-end, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ─── 공통 섹션 ───
+.section {
+  padding: $spacing-32 0;
+
+  & + & {
+    border-top: 1px solid $bg-tertiary;
+  }
+}
+
+.sectionTitle {
+  font-size: $font-size-22;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0 0 $spacing-8;
+
+  @include tablet {
+    font-size: $font-size-24;
+  }
+}
+
+.sectionDesc {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.6;
+  margin: 0 0 $spacing-24;
+}
+
+// ─── 서비스 소개 카드 ───
+.featureGrid {
+  @include flex-column;
+  gap: $spacing-16;
+}
+
+.featureCard {
+  background-color: $bg-secondary;
+  border-radius: $border-radius-lg;
+  padding: $spacing-24;
+}
+
+.featureTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0 0 $spacing-8;
+}
+
+.featureDesc {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+// ─── 문의 채널 ───
+.contactList {
+  @include flex-column;
+  gap: $spacing-8;
+}
+
+.contactCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+  background-color: $bg-secondary;
+  border-radius: $border-radius-md;
+  padding: $spacing-16;
+  text-decoration: none;
+  @include transition;
+
+  &:hover {
+    background-color: $bg-tertiary;
+  }
+}
+
+.contactIcon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: $border-radius-sm;
+  object-fit: contain;
+}
+
+.contactInfo {
+  @include flex-column;
+  gap: 2px;
+}
+
+.contactLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.contactValue {
+  font-size: $font-size-14;
+  color: $white;
+  font-weight: $font-weight-medium;
+}
+
+// ─── 저작권 ───
+.footer {
+  padding: $spacing-32 0 $spacing-16;
+  border-top: 1px solid $bg-tertiary;
+  text-align: center;
+}
+
+.copyright {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  margin: 0 0 $spacing-8;
+}
+
+.legal {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.6;
+  margin: 0;
+}
