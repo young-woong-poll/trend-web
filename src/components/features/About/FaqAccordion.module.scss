@@ -1,0 +1,61 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.accordion {
+  @include flex-column;
+}
+
+.item {
+  border-bottom: 1px solid $bg-tertiary;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.question {
+  @include flex-between;
+  width: 100%;
+  padding: $spacing-16 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: $spacing-8;
+}
+
+.questionText {
+  font-size: $font-size-16;
+  font-weight: $font-weight-medium;
+  color: $white;
+  line-height: 1.5;
+}
+
+.arrow {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  flex-shrink: 0;
+  @include transition(transform, 0.25s, ease);
+}
+
+.arrowOpen {
+  transform: rotate(90deg);
+}
+
+.answerWrapper {
+  max-height: 0;
+  overflow: hidden;
+  @include transition(max-height, 0.3s, ease);
+}
+
+.answerOpen {
+  max-height: 300px;
+}
+
+.answer {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 0 $spacing-16;
+}

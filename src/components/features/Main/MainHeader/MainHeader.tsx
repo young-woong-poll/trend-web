@@ -85,9 +85,14 @@ export const MainHeader: FC = () => {
     <>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link href="/" className={styles.logoContainer} aria-label="메인으로 이동">
-            <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
-          </Link>
+          <div className={styles.leftGroup}>
+            <Link href="/" className={styles.logoContainer} aria-label="메인으로 이동">
+              <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
+            </Link>
+            <Link href="/about" className={styles.aboutLink}>
+              핫픽이란?
+            </Link>
+          </div>
 
           {/* PC: 검색 입력 필드 + 모달 (≥768px) */}
           <div className={styles.searchBarWrapper} ref={wrapperRef}>

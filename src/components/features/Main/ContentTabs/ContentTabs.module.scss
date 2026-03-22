@@ -2,23 +2,13 @@
 @use '@/styles/mixins' as *;
 
 .container {
-  display: flex;
-  align-items: center;
   width: 100%;
-  gap: 0;
   background-color: $bg-primary;
-  overflow-x: auto;
-  scrollbar-width: none;
   position: fixed;
   top: 56px;
   left: 0;
   right: 0;
   z-index: $z-index-sticky;
-  padding: 0 $spacing-16;
-
-  @include tablet {
-    padding: 0 $spacing-24;
-  }
 
   &::after {
     content: '';
@@ -29,6 +19,17 @@
     height: 1px;
     background: rgba($white, 0.06);
   }
+}
+
+.tabList {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  max-width: 1350px;
+  margin: 0 auto;
+  padding: 0 $spacing-16;
+  overflow-x: auto;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
