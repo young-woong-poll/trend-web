@@ -1,6 +1,6 @@
 # 메인 페이지 (`/`)
 
-> 최종 업데이트: 2026-03-01
+> 최종 업데이트: 2026-03-22
 
 ## 개요
 
@@ -13,23 +13,46 @@
 ### 구조
 
 ```
-MainContent
-  └── MainHeader (로고 + 네비게이션)
+MainContent (pageWrapper: padding-top 98px)
+  └── MainHeader (fixed, 56px, 로고 + 검색)
   └── FlexibleLayout (max-width 컨테이너)
       └── MainView (클라이언트 컴포넌트)
-          ├── CategoryFilter (가로 스크롤 칩 버튼)
-          ├── SingleCard / BundleCard (핫픽 카드)
+          ├── ContentTabs (fixed, 필터탭 + 구분자 + 카테고리탭)
+          ├── CardList (Masonry 카드 그리드)
           ├── IntersectionObserver (무한스크롤 트리거)
           └── CommentBottomSheet (포탈, 댓글 버튼 클릭 시)
 ```
 
-### 카테고리 필터
+### 탭 네비게이션 (ContentTabs)
 
-- 가로 스크롤 칩 버튼 UI
-- 데이터: `GET /api/v1/hotpicks/categories` -> `CategoryTabResponse[]`
-- 기본값: "전체" (slug: `'all'` -> API에는 카테고리 파라미터 미전송)
-- 카테고리 변경 시 피드 리셋 및 재조회
-- 동일 카테고리 두번 클릭 시 전체로 복귀
+> 상세 스펙: [tab.md](tab.md)
+
+Polymarket 스타일 단일 탭 바. 필터탭과 카테고리탭을 하나의 가로 스크롤 바에 통합.
+
+```
+[ ✦ NEW   🔥 HOT   ☑ MY  │  연애  결혼  관계  재테크  직장  라이프  트렌드 ]
+```
+
+- 필터탭(NEW/HOT/MY) + 구분자(│) + 카테고리탭이 하나의 `<nav>` 안에 배치
+- `position: fixed`, `top: 56px`, 가로 스크롤, 스크롤바 숨김
+- 상호 배타적 선택, 기본값: NEW
+- 탭 전환 시 스크롤 최상단 초기화 + 새 데이터 fetch
+- API 파라미터 매핑:
+  - NEW: `sort=latest` (최신순)
+  - HOT: `sort=hot` (인기순)
+  - MY: `filter=voted` (내 투표, x-tku-id 기반)
+  - 카테고리: `category={slug}&sort=popular` (카테고리별 인기순)
+- 카테고리 데이터: `GET /api/v1/hotpicks/categories` API 동적 로드 (폴백: 하드코딩 상수)
+- API 응답의 "전체"(`slug: 'all'`) 카테고리는 제외 (NEW 탭이 대체)
+
+### 탭별 빈 상태
+
+각 탭에서 결과가 없을 때 맞춤 메시지 표시:
+
+- NEW: "새로운 핫픽이 없어요"
+- HOT: "아직 HOT 핫픽이 없어요"
+- MY: "투표한 핫픽이 없어요"
+- 카테고리: "'{카테고리명}' 핫픽이 없어요"
 
 ### 무한스크롤
 
@@ -151,7 +174,7 @@ MainContent
 ### 컨테이너 너비
 
 - `FlexibleLayout`: max-width **1200px**
-- `MainHeader`: max-width 1350px
+- `MainHeader`: max-width 1350px, height 56px, `position: fixed`
 - 카드/열에 `min-width: 0` 적용하여 축소 시 overflow 방지
 
 ### 관련 파일
@@ -166,27 +189,28 @@ MainContent
 ## 7. 에러 처리
 
 - 불러오기 실패 -> "핫픽을 불러오는데 실패했습니다."
-- 카테고리별 핫픽 0개 -> "아직 진행중인 핫픽이 없어요"
+- 탭별 핫픽 0개 -> 탭별 빈 상태 메시지 (섹션 1 참조)
 
 ---
 
 ## API 요약
 
-| Method | Endpoint                                                | 설명                               |
-| ------ | ------------------------------------------------------- | ---------------------------------- |
-| GET    | `/api/v1/hotpicks/main`                                 | 메인 피드 (카테고리, 커서, 사이즈) |
-| GET    | `/api/v1/hotpicks/categories`                           | 카테고리 탭 목록                   |
-| POST   | `/api/v1/hotpicks/{slug}/votes`                         | 투표 제출                          |
-| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 목록                          |
-| POST   | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 작성                          |
-| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments/count` | 댓글 수                            |
-| PUT    | `/api/v1/comments/{commentId}`                          | 댓글 수정                          |
-| DELETE | `/api/v1/comments/{commentId}`                          | 댓글 삭제                          |
-| POST   | `/api/v1/comments/{commentId}/verify`                   | 비밀번호 인증                      |
-| POST   | `/api/v1/comments/{commentId}/like`                     | 좋아요                             |
-| DELETE | `/api/v1/comments/{commentId}/like`                     | 좋아요 취소                        |
+| Method | Endpoint                                                | 설명                                             |
+| ------ | ------------------------------------------------------- | ------------------------------------------------ |
+| GET    | `/api/v1/hotpicks/main`                                 | 메인 피드 (sort, filter, category, cursor, size) |
+| GET    | `/api/v1/hotpicks/categories`                           | 카테고리 탭 목록                                 |
+| POST   | `/api/v1/hotpicks/{slug}/votes`                         | 투표 제출                                        |
+| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 목록                                        |
+| POST   | `/api/v1/hotpicks/{slug}/elections/{id}/comments`       | 댓글 작성                                        |
+| GET    | `/api/v1/hotpicks/{slug}/elections/{id}/comments/count` | 댓글 수                                          |
+| PUT    | `/api/v1/comments/{commentId}`                          | 댓글 수정                                        |
+| DELETE | `/api/v1/comments/{commentId}`                          | 댓글 삭제                                        |
+| POST   | `/api/v1/comments/{commentId}/verify`                   | 비밀번호 인증                                    |
+| POST   | `/api/v1/comments/{commentId}/like`                     | 좋아요                                           |
+| DELETE | `/api/v1/comments/{commentId}/like`                     | 좋아요 취소                                      |
 
 ## Changelog
 
+- 2026-03-22: 탭 리디자인 — Polymarket 스타일 단일 탭 바 (전체/HOT/내투표/마감 → NEW/HOT/MY + 카테고리), FilterBar/PeriodSelector/CategoryFilter 삭제, 헤더 fixed 전환
 - 2026-03-21: 반응형 Masonry 레이아웃 추가 (섹션 6), 페이지 사이즈 20→18 변경
 - 2026-03-01: 초기 작성 (00-overview.md에서 분리)

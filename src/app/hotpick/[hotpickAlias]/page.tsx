@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+
 import { StructuredData } from '@/components/common/StructuredData/StructuredData';
 import { SingleDetailContent } from '@/components/features/Hotpick/SingleDetailView/SingleDetailContent';
 import { displayQueries } from '@/hooks/api/useDisplay';
@@ -37,13 +39,14 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
       notFound();
     }
 
-    const structuredData = generateHotpickStructuredData(hotpickData.hotpick, hotpickAlias);
+    const hotpick = hotpickData.hotpick;
+    const structuredData = generateHotpickStructuredData(hotpick, hotpickAlias);
 
     return (
-      <>
+      <HydrationBoundary state={dehydrate(queryClient)}>
         <StructuredData data={structuredData} />
-        <SingleDetailContent hotpickAlias={hotpickAlias} />
-      </>
+        <SingleDetailContent hotpickAlias={hotpickAlias} data={hotpickData} />
+      </HydrationBoundary>
     );
   } catch (error) {
     if (error instanceof Error && error.message === 'NEXT_NOT_FOUND') {

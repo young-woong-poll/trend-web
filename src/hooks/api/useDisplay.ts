@@ -28,8 +28,13 @@ export const displayKeys = {
   categories: () => [...displayKeys.all, 'categories'] as const,
   main: (params?: { size?: number; cursor?: string }) =>
     [...displayKeys.all, 'main', params] as const,
-  mainInfinite: (params?: { size?: number; category?: string }) =>
-    [...displayKeys.all, 'mainInfinite', params] as const,
+  mainInfinite: (params?: {
+    size?: number;
+    category?: string;
+    filter?: string;
+    sort?: string;
+    period?: string;
+  }) => [...displayKeys.all, 'mainInfinite', params] as const,
   hotpick: (slug: string) => [...displayKeys.all, 'hotpick', slug] as const,
   result: (id: string) => [...displayKeys.all, 'result', id] as const,
 };
@@ -106,7 +111,13 @@ export const displayQueries = {
   /**
    * 메인 전시 무한 스크롤 쿼리 옵션
    */
-  infiniteMain: (params?: { size?: number; category?: string }) =>
+  infiniteMain: (params?: {
+    size?: number;
+    category?: string;
+    filter?: string;
+    sort?: string;
+    period?: string;
+  }) =>
     infiniteQueryOptions<
       MainHotpickResponse | null,
       Error,
@@ -116,19 +127,29 @@ export const displayQueries = {
     >({
       queryKey: displayKeys.mainInfinite(params),
       queryFn: async ({ pageParam }) => {
-        const queryParams = {
+        const queryParams: Record<string, string | number | undefined> = {
           category: params?.category,
           cursor: pageParam,
           size: params?.size ?? 20,
         };
+        if (params?.filter) {
+          queryParams.filter = params.filter;
+        }
+        if (params?.sort) {
+          queryParams.sort = params.sort;
+        }
+        if (params?.period) {
+          queryParams.period = params.period;
+        }
+
         if (isServer()) {
-          const response = await serverApi.getMain(queryParams, {
+          const response = await serverApi.getMain(queryParams as any, {
             next: { revalidate: 60 },
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
         const tkuId = getTKUID();
-        return clientApi.getMain(queryParams, {
+        return clientApi.getMain(queryParams as any, {
           headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
         });
       },
@@ -154,7 +175,13 @@ export const useMainDisplay = (params?: { size?: number; cursor?: string }) =>
  * - staleTime: 0으로 설정하여 서버 dehydrate 데이터(x-tku-id 없음)를
  *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
-export const useInfiniteMainDisplay = (params?: { size?: number; category?: string }) => {
+export const useInfiniteMainDisplay = (params?: {
+  size?: number;
+  category?: string;
+  filter?: string;
+  sort?: string;
+  period?: string;
+}) => {
   const baseOptions = displayQueries.infiniteMain(params);
 
   return useInfiniteQuery({

@@ -82,53 +82,7 @@ test.describe('마감된 투표 UI', () => {
   });
 });
 
-// ─── 카테고리 필터링 ───
-
-test.describe('카테고리 필터', () => {
-  let main: MainPage;
-
-  test.beforeEach(async ({ page }) => {
-    main = new MainPage(page);
-    await main.goto();
-  });
-
-  test('카테고리 필터 버튼이 표시된다', async () => {
-    await expect(main.categoryButton('전체')).toBeVisible();
-  });
-
-  test('카테고리 클릭 시 해당 카테고리 핫픽만 필터링된다', async () => {
-    const totalBefore = await main.singleCards.count();
-
-    // '재테크' 카테고리 클릭
-    await main.categoryButton('재테크').click();
-
-    // 필터링 후 카드 로딩 대기
-    await main.page.waitForTimeout(1_000);
-
-    const totalAfter = await main.singleCards.count();
-    // 전체보다 적거나 같은 수의 카드가 표시되어야 함
-    expect(totalAfter).toBeLessThanOrEqual(totalBefore);
-    expect(totalAfter).toBeGreaterThanOrEqual(0);
-  });
-
-  test('"전체" 클릭 시 전체 핫픽으로 복귀한다', async () => {
-    const totalBefore = await main.singleCards.count();
-    const bundleBefore = await main.bundleCards.count();
-
-    // '재테크' 카테고리 클릭 → 필터링
-    await main.categoryButton('재테크').click();
-    await main.page.waitForTimeout(1_500);
-
-    // '전체' 클릭 → 전체로 복귀
-    await main.categoryButton('전체').click();
-    await main.page.waitForTimeout(1_500);
-
-    const totalAfter = await main.singleCards.count();
-    const bundleAfter = await main.bundleCards.count();
-    // 카드 수가 원래와 같아야 함
-    expect(totalAfter + bundleAfter).toBe(totalBefore + bundleBefore);
-  });
-});
+// ─── 카테고리 필터링 → tab.spec.ts로 이관됨 ───
 
 // ─── 무한스크롤 ───
 
