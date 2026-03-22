@@ -110,7 +110,17 @@ export class DetailPage {
 
   /** 첫 번째 옵션을 클릭하여 투표 수행 */
   async voteFirstOption() {
+    // 이미 투표된 상태(resultBar 표시)이면 스킵
+    const alreadyVoted = await this.resultBars
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (alreadyVoted) {
+      return;
+    }
+
     const firstOption = this.voteCard.locator('[class*="optionButton"]').first();
+    await firstOption.waitFor({ state: 'visible', timeout: 10_000 });
     await firstOption.click();
     // 결과 바가 나타날 때까지 대기
     await this.resultBars.first().waitFor({ state: 'visible', timeout: 10_000 });
