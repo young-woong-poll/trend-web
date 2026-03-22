@@ -126,6 +126,11 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
+  text-decoration: none;
+
+  &:hover .question {
+    text-decoration: underline;
+  }
 }
 
 .questionLogo {
