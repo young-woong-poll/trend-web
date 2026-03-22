@@ -1,6 +1,12 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+
+const isMSWEnabled = process.env.NEXT_PUBLIC_ENABLE_MSW === 'true';
+
+const MSWReadyContext = createContext<boolean>(!isMSWEnabled);
+
+export const useMSWReady = () => useContext(MSWReadyContext);
 
 interface MSWProviderProps {
   children: ReactNode;
@@ -13,6 +19,7 @@ interface MSWProviderProps {
  */
 export const MSWProvider = ({ children }: MSWProviderProps) => {
   const started = useRef(false);
+  const [isReady, setIsReady] = useState(!isMSWEnabled);
 
   useEffect(() => {
     if (started.current) {
@@ -21,7 +28,7 @@ export const MSWProvider = ({ children }: MSWProviderProps) => {
     started.current = true;
 
     const init = async () => {
-      if (process.env.NEXT_PUBLIC_ENABLE_MSW === 'true') {
+      if (isMSWEnabled) {
         const { worker } = await import('@/mocks/browser');
         const msw = await import('msw');
         await worker.start({
@@ -33,11 +40,12 @@ export const MSWProvider = ({ children }: MSWProviderProps) => {
         (window as Record<string, unknown>).__mswHttpResponse = msw.HttpResponse;
         // eslint-disable-next-line no-console
         console.log('[MSW] Browser-side mocking enabled');
+        setIsReady(true);
       }
     };
 
     void init();
   }, []);
 
-  return <>{children}</>;
+  return <MSWReadyContext.Provider value={isReady}>{children}</MSWReadyContext.Provider>;
 };

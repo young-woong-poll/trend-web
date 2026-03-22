@@ -4,17 +4,22 @@ import { useCallback, useEffect, useRef, useState, type FC } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
 import SearchIcon from '@/assets/icon/SearchIcon';
+import UserIcon from '@/assets/icon/UserIcon';
 import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
 import { SearchResultList } from '@/components/features/Search/SearchResultList';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MIN_SEARCH_LENGTH = 2;
 
 export const MainHeader: FC = () => {
+  const { isLoggedIn, user, requireLogin } = useAuth();
+  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeQuery, setActiveQuery] = useState('');
@@ -145,6 +150,30 @@ export const MainHeader: FC = () => {
           <Link href="/search" className={styles.searchIconButton} aria-label="검색">
             <SearchIcon width={20} height={20} />
           </Link>
+
+          {/* 로그인 / 프로필 버튼 */}
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className={styles.profileButton}
+              onClick={() => router.push('/my')}
+            >
+              {user?.profileImageUrl ? (
+                <img src={user.profileImageUrl} alt="프로필" />
+              ) : (
+                <UserIcon />
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.loginButton}
+              onClick={() => requireLogin('default')}
+            >
+              <span className={styles.loginText}>로그인</span>
+              <UserIcon className={styles.loginIcon} width={20} height={20} />
+            </button>
+          )}
         </div>
       </header>
 

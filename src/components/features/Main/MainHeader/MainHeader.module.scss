@@ -166,7 +166,7 @@
 .searchIconButton {
   @include flex-center;
   margin-left: auto;
-  color: $text-secondary;
+  color: $white;
   padding: $spacing-4;
   text-decoration: none;
   flex-shrink: 0;
@@ -181,5 +181,75 @@
 
   @media (min-width: $breakpoint-tablet) {
     display: none;
+  }
+}
+
+// ─── 로그인 버튼 (PC: 텍스트, Mobile: 아이콘) ───
+.loginButton {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ff00ff, #ff4500);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  // Mobile: 아이콘만 표시
+  @media (max-width: $breakpoint-tablet - 1) {
+    padding: $spacing-4;
+    background: none;
+    border-radius: 50%;
+
+    .loginText {
+      display: none;
+    }
+
+    .loginIcon {
+      display: block;
+    }
+  }
+
+  // PC: 텍스트만 표시
+  @media (min-width: $breakpoint-tablet) {
+    .loginText {
+      display: inline;
+    }
+
+    .loginIcon {
+      display: none;
+    }
+  }
+}
+
+// ─── 프로필 버튼 ───
+.profileButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: none;
+  background: #2c2c2c;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #8a8a8a;
   }
 }
