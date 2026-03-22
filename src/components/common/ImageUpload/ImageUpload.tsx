@@ -176,15 +176,20 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       >
         {preview ? (
           <div className={styles.preview}>
-            <Image
-              src={preview}
-              alt="Preview"
-              className={styles.previewImage}
-              width={400}
-              height={300}
-              style={{ objectFit: 'contain' }}
-              unoptimized
-            />
+            {preview.startsWith('data:') ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={preview} alt="Preview" className={styles.previewImage} />
+            ) : (
+              <Image
+                src={preview}
+                alt="Preview"
+                className={styles.previewImage}
+                width={400}
+                height={300}
+                style={{ objectFit: 'contain', width: 'auto', height: 'auto' }}
+                unoptimized
+              />
+            )}
             {isUploading && (
               <div className={styles.uploadingOverlay}>
                 <p>업로드 중...</p>

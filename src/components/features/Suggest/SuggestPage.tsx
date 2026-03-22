@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useCallback, useRef, type FC } from 'react';
+import { useState, useCallback, type FC } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
-import CameraIcon from '@/assets/icon/CameraIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
+import { ImageUpload } from '@/components/common/ImageUpload/ImageUpload';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import styles from '@/components/features/Suggest/SuggestPage.module.scss';
 
 const MAX_OPTIONS = 4;
 const MIN_OPTIONS = 2;
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
 
 const CATEGORIES = [
   { id: 1, label: '연애' },
@@ -27,7 +26,7 @@ const CATEGORIES = [
 interface SuggestFormData {
   title: string;
   options: string[];
-  imagePreview: string | null;
+  imageUrl: string | null;
   categoryIds: number[];
 }
 
@@ -35,12 +34,11 @@ export const SuggestPage: FC = () => {
   const [formData, setFormData] = useState<SuggestFormData>({
     title: '',
     options: ['', ''],
-    imagePreview: null,
+    imageUrl: null,
     categoryIds: [],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const updateField = useCallback(
     <K extends keyof SuggestFormData>(key: K, value: SuggestFormData[K]) => {
@@ -85,39 +83,6 @@ export const SuggestPage: FC = () => {
     });
   }, []);
 
-  const handleImageSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) {
-        return;
-      }
-
-      if (file.size > MAX_IMAGE_SIZE) {
-        setErrors((prev) => ({ ...prev, image: '이미지는 5MB 이하만 가능해요' }));
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateField('imagePreview', reader.result as string);
-        setErrors((prev) => {
-          const next = { ...prev };
-          delete next['image'];
-          return next;
-        });
-      };
-      reader.readAsDataURL(file);
-    },
-    [updateField]
-  );
-
-  const handleImageRemove = useCallback(() => {
-    updateField('imagePreview', null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  }, [updateField]);
-
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -128,6 +93,11 @@ export const SuggestPage: FC = () => {
     const validOptions = formData.options.filter((opt) => opt.trim());
     if (validOptions.length < MIN_OPTIONS) {
       newErrors.options = `선택지를 ${MIN_OPTIONS}개 이상 입력해주세요`;
+    } else {
+      const uniqueOptions = new Set(validOptions.map((opt) => opt.trim()));
+      if (uniqueOptions.size !== validOptions.length) {
+        newErrors.options = '중복된 선택지가 있어요';
+      }
     }
 
     if (formData.categoryIds.length === 0) {
@@ -164,7 +134,7 @@ export const SuggestPage: FC = () => {
         categoryLabels: formData.categoryIds.map(
           (id) => CATEGORIES.find((c) => c.id === id)?.label
         ),
-        hasImage: !!formData.imagePreview,
+        hasImage: !!formData.imageUrl,
         createdAt: new Date().toISOString(),
       });
       localStorage.setItem('hotpick-suggestions', JSON.stringify(existing));
@@ -191,7 +161,7 @@ export const SuggestPage: FC = () => {
               <br />
               검토 후 핫픽으로 등록될 예정이에요.
             </p>
-            {!formData.imagePreview && (
+            {!formData.imageUrl && (
               <div className={styles.successNote}>
                 <p>이미지를 첨부하지 않으셨네요.</p>
                 <p>주제에 어울리는 이미지가 자동으로 매칭됩니다!</p>
@@ -234,7 +204,7 @@ export const SuggestPage: FC = () => {
                   setFormData({
                     title: '',
                     options: ['', ''],
-                    imagePreview: null,
+                    imageUrl: null,
                     categoryIds: [],
                   });
                 }}
@@ -359,40 +329,12 @@ export const SuggestPage: FC = () => {
             <p className={styles.hint}>
               투표에 어울리는 이미지를 올려주세요. 없으면 자동으로 매칭돼요!
             </p>
-            {formData.imagePreview ? (
-              <div className={styles.imagePreviewWrapper}>
-                <Image
-                  src={formData.imagePreview}
-                  alt="미리보기"
-                  className={styles.imagePreview}
-                  width={400}
-                  height={250}
-                  style={{ objectFit: 'contain' }}
-                  unoptimized
-                />
-                <button
-                  type="button"
-                  onClick={handleImageRemove}
-                  className={styles.imageRemoveButton}
-                >
-                  &times;
-                </button>
-              </div>
-            ) : (
-              <label className={styles.imageDropzone}>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.gif,.webp"
-                  onChange={handleImageSelect}
-                  className={styles.fileInput}
-                />
-                <CameraIcon width={28} height={28} className={styles.imageDropzoneIcon} />
-                <span className={styles.imageDropzoneText}>이미지를 선택하거나 드래그해주세요</span>
-                <span className={styles.imageDropzoneHint}>최대 5MB, jpg/png/gif/webp</span>
-              </label>
-            )}
-            {errors.image && <p className={styles.errorText}>{errors.image}</p>}
+            <ImageUpload
+              value={formData.imageUrl}
+              onChange={(cdnUrl) => updateField('imageUrl', cdnUrl)}
+              uploadOptions={{ prefix: 'suggest' }}
+              maxSize={MAX_IMAGE_SIZE}
+            />
           </div>
 
           {/* 안내 배너 */}

@@ -202,8 +202,12 @@
   @include transition(all, 0.2s, ease);
 
   &:hover {
-    border-color: $neutral-500;
     color: $white;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
   }
 }
 
@@ -238,6 +242,12 @@
     border-color: $primary-500;
     background: rgba($primary-500, 0.04);
   }
+}
+
+.imageDropzoneActive {
+  border-color: $primary-500;
+  background: rgba($primary-500, 0.08);
+  box-shadow: 0 0 12px rgba($primary-500, 0.2);
 }
 
 .fileInput {

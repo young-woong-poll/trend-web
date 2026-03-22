@@ -115,6 +115,10 @@
   word-break: keep-all;
 }
 
+.card:hover .title {
+  text-decoration: underline;
+}
+
 .titleBadges {
   display: flex;
   align-items: center;
