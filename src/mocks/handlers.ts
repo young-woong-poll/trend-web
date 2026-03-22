@@ -66,9 +66,30 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/hotpicks/main`, ({ request }) => {
     const url = new URL(request.url);
     const category = url.searchParams.get('category');
+    const filter = url.searchParams.get('filter');
+    const sort = url.searchParams.get('sort');
+    const _period = url.searchParams.get('period'); // BE 구현 시 기간별 필터링 적용 예정
     const tkuId = request.headers.get('x-tku-id') ?? '';
 
     let hotpicks = [...(mockMainHotpicks.hotpicks ?? [])];
+
+    // 콘텐츠 필터: voted (투표한 핫픽만), closed (마감된 핫픽만)
+    if (filter === 'voted') {
+      hotpicks = hotpicks.filter((hp) => hp.election?.voted === true);
+    } else if (filter === 'closed') {
+      hotpicks = hotpicks.filter((hp) => hp.isExpired === true);
+    }
+
+    // 정렬
+    if (sort === 'hot' || sort === 'popular') {
+      hotpicks = [...hotpicks].sort(
+        (a, b) => (b.election?.totalVoteCount ?? 0) - (a.election?.totalVoteCount ?? 0)
+      );
+    } else if (sort === 'latest') {
+      hotpicks = [...hotpicks].sort(
+        (a, b) => new Date(b.expiredAt ?? 0).getTime() - new Date(a.expiredAt ?? 0).getTime()
+      );
+    }
 
     // 카테고리 필터링 ("all" 또는 빈값은 전체 조회)
     if (category && category !== 'all') {
