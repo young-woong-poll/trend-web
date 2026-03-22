@@ -57,6 +57,9 @@ test.describe('메인 페이지 좋아요 버튼', () => {
     await likeButton.click();
     await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
 
+    // API 응답으로 인한 리렌더 안정화 대기
+    await main.page.waitForTimeout(500);
+
     // 좋아요 취소 클릭 → none 상태 복귀 대기
     await likeButton.click();
     await expect(svgPath).toHaveAttribute('fill', 'none', { timeout: 5_000 });
@@ -96,6 +99,9 @@ test.describe('상세 페이지 좋아요 버튼', () => {
     // 좋아요 클릭 → filled 상태 대기
     await detail.likeButton.click();
     await expect(svgPath).not.toHaveAttribute('fill', 'none', { timeout: 5_000 });
+
+    // API 응답으로 인한 리렌더 안정화 대기
+    await detail.page.waitForTimeout(500);
 
     // 좋아요 취소 클릭 → none 상태 복귀 대기
     await detail.likeButton.click();

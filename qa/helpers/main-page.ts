@@ -158,7 +158,7 @@ export class MainPage {
         () =>
           document.querySelector('[data-testid="single-card"]') !== null ||
           document.querySelector('[data-testid="bundle-card"]') !== null,
-        { timeout: 15_000 }
+        { timeout: 10_000 }
       )
       .then(() => true)
       .catch(() => false);
@@ -170,7 +170,7 @@ export class MainPage {
         () =>
           document.querySelector('[data-testid="single-card"]') !== null ||
           document.querySelector('[data-testid="bundle-card"]') !== null,
-        { timeout: 15_000 }
+        { timeout: 10_000 }
       );
     }
   }
