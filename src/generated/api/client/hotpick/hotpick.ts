@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type {
+  BaseResponseElectionSeriesResponse,
   BaseResponseHotpickDetailResponse,
   BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
@@ -12,6 +13,7 @@ import type {
   BaseResponseVoteResultResponse,
   CreateVoteRequest,
   GetCategories1Params,
+  GetElectionSeriesParams,
   GetMainParams,
 } from '../../../models';
 
@@ -75,6 +77,19 @@ export const getDetail = (
   );
 };
 /**
+ * @summary Get election series for chart
+ */
+export const getElectionSeries = (
+  slug: string,
+  params?: GetElectionSeriesParams,
+  options?: SecondParameter<typeof customInstance<BaseResponseElectionSeriesResponse>>
+) => {
+  return customInstance<BaseResponseElectionSeriesResponse>(
+    { url: `/api/v1/hotpicks/${slug}/election-series`, method: 'GET', params },
+    options
+  );
+};
+/**
  * @summary Get main hotpick display
  */
 export const getMain = (
@@ -102,5 +117,6 @@ export type VoteResult = NonNullable<Awaited<ReturnType<typeof vote>>>;
 export type LikeHotpickResult = NonNullable<Awaited<ReturnType<typeof likeHotpick>>>;
 export type UnlikeHotpickResult = NonNullable<Awaited<ReturnType<typeof unlikeHotpick>>>;
 export type GetDetailResult = NonNullable<Awaited<ReturnType<typeof getDetail>>>;
+export type GetElectionSeriesResult = NonNullable<Awaited<ReturnType<typeof getElectionSeries>>>;
 export type GetMainResult = NonNullable<Awaited<ReturnType<typeof getMain>>>;
 export type GetCategories1Result = NonNullable<Awaited<ReturnType<typeof getCategories1>>>;

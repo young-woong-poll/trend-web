@@ -1591,6 +1591,115 @@
         }
       }
     },
+    "/admin/api/v1/hotpicks/{hotpickId}/election-series/rebuild": {
+      "post": {
+        "tags": ["Admin Hotpick"],
+        "summary": "Rebuild election series buckets",
+        "operationId": "rebuildElectionSeries",
+        "parameters": [
+          {
+            "name": "hotpickId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseElectionSeriesRebuildResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/hotpicks/election-series/rebuild": {
+      "post": {
+        "tags": ["Admin Hotpick"],
+        "summary": "Rebuild all election series buckets",
+        "operationId": "rebuildAllElectionSeries",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseElectionSeriesRebuildAllResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/v1/categories": {
       "get": {
         "tags": ["Admin Category"],
@@ -1891,6 +2000,75 @@
         }
       }
     },
+    "/api/v1/hotpicks/{slug}/election-series": {
+      "get": {
+        "tags": ["Hotpick"],
+        "summary": "Get election series for chart",
+        "operationId": "getElectionSeries",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interval",
+            "in": "query",
+            "description": "집계 간격 (기본: 1h)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["5m", "1h", "1d"]
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseElectionSeriesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/hotpicks/search": {
       "get": {
         "tags": ["Hotpick Search"],
@@ -2002,6 +2180,16 @@
             "schema": {
               "type": "string",
               "enum": ["recommended", "latest", "popular", "hot"]
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "필터 방식",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["voted"]
             }
           },
           {
@@ -3000,6 +3188,79 @@
           }
         }
       },
+      "BaseResponseElectionSeriesRebuildResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ElectionSeriesRebuildResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "ElectionSeriesRebuildResponse": {
+        "type": "object",
+        "properties": {
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "rebuiltBucketCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseElectionSeriesRebuildAllResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ElectionSeriesRebuildAllResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "ElectionSeriesRebuildAllResponse": {
+        "type": "object",
+        "properties": {
+          "electionCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "rebuiltBucketCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
       "CreateCategoryRequest": {
         "required": ["name", "slug"],
         "type": "object",
@@ -3265,6 +3526,101 @@
           "count": {
             "type": "integer",
             "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseElectionSeriesResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ElectionSeriesResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "ElectionItemSeriesResponse": {
+        "type": "object",
+        "properties": {
+          "electionItemId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ElectionSeriesPointResponse"
+            }
+          }
+        }
+      },
+      "ElectionSeriesPointResponse": {
+        "type": "object",
+        "properties": {
+          "ts": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "voteRate": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ElectionSeriesResponse": {
+        "type": "object",
+        "properties": {
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "interval": {
+            "type": "string"
+          },
+          "openedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ElectionItemSeriesResponse"
+            }
           }
         },
         "description": "응답 데이터"
