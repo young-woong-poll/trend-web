@@ -1,0 +1,242 @@
+@use '@/styles/variables' as *;
+
+// ── 차트 섹션 ──
+.chartSection {
+  margin: 16px 16px 0;
+  padding: 16px 16px 12px;
+  background: $bg-secondary;
+  border: 1px solid rgba($white, 0.06);
+  border-radius: $border-radius-lg;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.chartTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+// ── 범례 (차트 상단 — Polymarket 스타일) ──
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.legendRate {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+}
+
+// ── 차트 래퍼 (블러 제어) ──
+.chartWrapper {
+  position: relative;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}
+
+.chartVisible {
+  filter: none;
+  transition: filter 0.5s ease;
+}
+
+.chartBlurred {
+  filter: blur(10px) saturate(0.3);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.5s ease;
+}
+
+// ── 블러 오버레이 (투표 전) ──
+.blurOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba($bg-primary, 0.45);
+  backdrop-filter: blur(2px);
+  border-radius: $border-radius-md;
+}
+
+.blurIcon {
+  color: $text-tertiary;
+}
+
+.blurText {
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-align: center;
+  line-height: 1.4;
+}
+
+// ── 빈 상태 (데이터 부족) ──
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 220px;
+}
+
+.emptyText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  text-align: center;
+  line-height: 1.4;
+}
+
+// ── Polymarket 스타일 Pill 툴팁 ──
+.tooltip {
+  background: rgba(#0d0d0d, 0.95);
+  border: 1px solid rgba($white, 0.08);
+  border-radius: $border-radius-md;
+  padding: 10px 12px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  min-width: 140px;
+}
+
+.tooltipTime {
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.tooltipPills {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tooltipPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: $border-radius-sm;
+  border: 1px solid transparent;
+}
+
+.tooltipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pillName {
+  font-size: $font-size-12;
+  color: $text-secondary;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pillValue {
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+}
+
+// ── 하단 푸터: 참여자 수 + 시간 범위 탭 ──
+.chartFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba($white, 0.06);
+}
+
+.totalVotes {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.timeTabs {
+  display: flex;
+  gap: 2px;
+  background: rgba($white, 0.04);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.timeTab {
+  all: unset;
+  padding: 4px 10px;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.timeTabActive {
+  color: $white;
+  background: rgba($white, 0.1);
+}
+
+// ── 최신 포인트 pulse 애니메이션 ──
+.pulseDot {
+  animation: pulse 2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    r: 3;
+  }
+
+  50% {
+    opacity: 0.3;
+    r: 8;
+  }
+}

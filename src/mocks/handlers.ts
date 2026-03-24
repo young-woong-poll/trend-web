@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
+import { getMockElectionSeries } from '@/mocks/data/electionSeries';
 import {
   mockMainHotpicks,
   mockHotpickDetailMap,
@@ -415,6 +416,22 @@ export const handlers = [
     const tkuId = request.headers.get('x-tku-id') ?? 'anonymous';
     const result = setLike(tkuId, slug, false);
     return HttpResponse.json(wrapResponse(result));
+  }),
+
+  /**
+   * 투표 시계열 데이터 조회
+   * GET /api/v1/hotpicks/:slug/election-series
+   */
+  http.get(`${baseURL}/api/v1/hotpicks/:slug/election-series`, ({ params, request }) => {
+    const slug = String(params.slug);
+    const url = new URL(request.url);
+    const interval = url.searchParams.get('interval') ?? '1d';
+    const voteData = singleVoteDataMap[slug];
+    const series = getMockElectionSeries(slug, voteData, interval);
+    if (!series) {
+      return HttpResponse.json(wrapResponse(null), { status: 404 });
+    }
+    return HttpResponse.json(wrapResponse({ ...series, hotpickSlug: slug }));
   }),
 
   /**

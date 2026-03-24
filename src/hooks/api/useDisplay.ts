@@ -197,7 +197,12 @@ export const useInfiniteMainDisplay = (params?: {
  *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
 export const useHotpickDetail = (slug: string) =>
-  useQuery({ ...displayQueries.hotpick(slug), enabled: !!slug, staleTime: 0 });
+  useQuery({
+    ...displayQueries.hotpick(slug),
+    enabled: !!slug,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
 
 /**
  * 결과 상세 Hook (BUNDLE 전용 — 스텁)

@@ -6,6 +6,8 @@
  */
 import type {
   BaseResponseAdminHotpickDetailResponse,
+  BaseResponseElectionSeriesRebuildAllResponse,
+  BaseResponseElectionSeriesRebuildResponse,
   BaseResponseHotpickSlugCheckResponse,
   BaseResponseListAdminHotpickSummaryResponse,
   BaseResponseVoid,
@@ -90,6 +92,29 @@ export const createHotpick = (
   );
 };
 /**
+ * @summary Rebuild election series buckets
+ */
+export const rebuildElectionSeries = (
+  hotpickId: number,
+  options?: SecondParameter<typeof customInstance<BaseResponseElectionSeriesRebuildResponse>>
+) => {
+  return customInstance<BaseResponseElectionSeriesRebuildResponse>(
+    { url: `/admin/api/v1/hotpicks/${hotpickId}/election-series/rebuild`, method: 'POST' },
+    options
+  );
+};
+/**
+ * @summary Rebuild all election series buckets
+ */
+export const rebuildAllElectionSeries = (
+  options?: SecondParameter<typeof customInstance<BaseResponseElectionSeriesRebuildAllResponse>>
+) => {
+  return customInstance<BaseResponseElectionSeriesRebuildAllResponse>(
+    { url: `/admin/api/v1/hotpicks/election-series/rebuild`, method: 'POST' },
+    options
+  );
+};
+/**
  * @summary Check hotpick slug duplicate
  */
 export const checkSlug = (
@@ -106,4 +131,10 @@ export type UpdateHotpickResult = NonNullable<Awaited<ReturnType<typeof updateHo
 export type DeleteHotpickResult = NonNullable<Awaited<ReturnType<typeof deleteHotpick>>>;
 export type GetHotpicksResult = NonNullable<Awaited<ReturnType<typeof getHotpicks>>>;
 export type CreateHotpickResult = NonNullable<Awaited<ReturnType<typeof createHotpick>>>;
+export type RebuildElectionSeriesResult = NonNullable<
+  Awaited<ReturnType<typeof rebuildElectionSeries>>
+>;
+export type RebuildAllElectionSeriesResult = NonNullable<
+  Awaited<ReturnType<typeof rebuildAllElectionSeries>>
+>;
 export type CheckSlugResult = NonNullable<Awaited<ReturnType<typeof checkSlug>>>;
