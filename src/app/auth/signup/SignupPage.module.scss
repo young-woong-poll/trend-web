@@ -1,0 +1,233 @@
+@use '@/styles/variables' as *;
+
+.page {
+  min-height: 100vh;
+  background: $bg-primary;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px 40px;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.title {
+  font-size: $font-size-24;
+  font-weight: $font-weight-bold;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+// ── 섹션 공통 ──
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sectionLabel {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+}
+
+.required {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.coinBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  background: rgba(223, 255, 0, 0.12);
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $attention;
+}
+
+// ── 닉네임 입력 ──
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px 0 16px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: #fff;
+  font-size: $font-size-16;
+  outline: none;
+
+  &:focus {
+    border-color: $text-tertiary;
+  }
+
+  &.inputError {
+    border-color: $error;
+  }
+}
+
+.refreshButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: $text-tertiary;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.errorText {
+  font-size: $font-size-12;
+  color: $error;
+  min-height: 20px;
+  margin-top: 4px;
+}
+
+// ── 성별 선택 ──
+.genderGroup {
+  display: flex;
+  gap: 12px;
+}
+
+.genderButton {
+  flex: 1;
+  height: 48px;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  background: $bg-tertiary;
+  color: $text-tertiary;
+  font-size: $font-size-16;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $text-tertiary;
+    color: $text-secondary;
+  }
+
+  &.selected {
+    border-color: transparent;
+    background: $primary-gradient;
+    color: #fff;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// ── 나이대 선택 ──
+.ageGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ageButton {
+  height: 44px;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  background: $bg-tertiary;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $text-tertiary;
+    color: $text-secondary;
+  }
+
+  &.selected {
+    border-color: transparent;
+    background: $primary-gradient;
+    color: #fff;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// ── 보상 안내 ──
+.rewardInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+
+  strong {
+    color: $attention;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// ── 제출 버튼 ──
+.submitButton {
+  width: 100%;
+  height: 52px;
+  margin-top: 20px;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: #fff;
+  cursor: pointer;
+  background: $primary-gradient;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ── 건너뛰기 ──
+.skipButton {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: none;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
