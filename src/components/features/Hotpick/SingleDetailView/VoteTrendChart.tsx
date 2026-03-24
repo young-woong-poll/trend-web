@@ -25,12 +25,19 @@ const MIN_POINTS = 2;
 /** 옵션별 차트 색상 */
 const CHART_COLORS = ['#ff00ff', '#ff4500', '#c8ff00', '#636ae8'];
 
-/** 시간 범위 탭 — 초기에는 투표수가 적으므로 넓은 단위 사용 */
-const TIME_TABS: { label: string; value: GetElectionSeriesInterval }[] = [
+/** 집계 간격 탭 — API interval 값과 1:1 매칭 */
+const INTERVAL_TABS: { label: string; value: GetElectionSeriesInterval }[] = [
+  { label: '5분', value: '5m' as GetElectionSeriesInterval },
   { label: '1시간', value: '1h' as GetElectionSeriesInterval },
   { label: '1일', value: '1d' as GetElectionSeriesInterval },
-  { label: '전체', value: 'all' as GetElectionSeriesInterval },
 ];
+
+/** interval별 최대 포인트 수 (최근 N개만 표시) */
+const MAX_POINTS_BY_INTERVAL: Record<string, number> = {
+  '5m': 60, // 최근 5시간
+  '1h': 72, // 최근 3일
+  '1d': 30, // 최근 30일
+};
 
 interface VoteTrendChartProps {
   hotpickAlias: string;
@@ -38,30 +45,36 @@ interface VoteTrendChartProps {
   isExpired: boolean;
 }
 
-/** 시간 포맷 — interval에 따라 날짜 or 시각 표시 */
+/** UTC 문자열을 KST Date로 변환 (Z 없는 ISO 문자열 대응) */
+function toKST(ts: string): Date {
+  const raw = ts.endsWith('Z') || ts.includes('+') ? ts : `${ts}Z`;
+  return new Date(new Date(raw).getTime() + 9 * 60 * 60 * 1000);
+}
+
+/** 시간 포맷 — interval에 따라 날짜 or 시각 표시 (KST) */
 function formatTickByInterval(interval: string) {
   return (ts: string): string => {
-    const d = new Date(ts);
+    const d = toKST(ts);
     if (isNaN(d.getTime())) {
       return '--';
     }
-    if (interval === 'all') {
-      return `${d.getMonth() + 1}/${d.getDate()}`;
+    if (interval === '1d') {
+      return `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
     }
-    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+    return `${d.getUTCHours().toString().padStart(2, '0')}:${d.getUTCMinutes().toString().padStart(2, '0')}`;
   };
 }
 
-/** 날짜+시간 포맷 (tooltip 용) */
+/** 날짜+시간 포맷 (tooltip 용, KST) */
 function formatDateTime(ts: string): string {
-  const d = new Date(ts);
+  const d = toKST(ts);
   if (isNaN(d.getTime())) {
     return '--/-- --:--';
   }
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-  const hour = d.getHours().toString().padStart(2, '0');
-  const min = d.getMinutes().toString().padStart(2, '0');
+  const month = d.getUTCMonth() + 1;
+  const day = d.getUTCDate();
+  const hour = d.getUTCHours().toString().padStart(2, '0');
+  const min = d.getUTCMinutes().toString().padStart(2, '0');
   return `${month}/${day} ${hour}:${min}`;
 }
 
@@ -99,7 +112,7 @@ interface ChartBuildResult {
   yDomain: [number, number];
 }
 
-function buildChartData(series: ElectionSeriesResponse): ChartBuildResult {
+function buildChartData(series: ElectionSeriesResponse, maxPoints?: number): ChartBuildResult {
   const items = series.items ?? [];
   if (items.length === 0) {
     return { data: [], itemKeys: [], itemNames: [], latestRates: [], yDomain: [0, 100] };
@@ -107,13 +120,17 @@ function buildChartData(series: ElectionSeriesResponse): ChartBuildResult {
 
   const itemKeys = items.map((_, i) => `rate${i}`);
   const itemNames = items.map((item) => item.title ?? `옵션 ${item.displayOrder}`);
-  const basePoints = items[0]?.points ?? [];
+  const allPoints = items[0]?.points ?? [];
+  // 최근 N개만 슬라이스
+  const basePoints =
+    maxPoints && allPoints.length > maxPoints ? allPoints.slice(-maxPoints) : allPoints;
+  const startIndex = allPoints.length - basePoints.length;
 
   const allRates: number[] = [];
   const data: ChartDataPoint[] = basePoints.map((pt, pi) => {
     const point: ChartDataPoint = { ts: pt.ts ?? '' };
     items.forEach((item, ii) => {
-      const p = item.points?.[pi];
+      const p = item.points?.[startIndex + pi];
       const rate = p?.voteRate ?? 0;
       point[itemKeys[ii]] = rate;
       allRates.push(rate);
@@ -187,7 +204,7 @@ function PulseDot({
   totalPoints: number;
   color: string;
 }) {
-  if (cx == null || cy == null || index !== totalPoints - 1) {
+  if (cx === undefined || cy === undefined || index !== totalPoints - 1) {
     return null;
   }
 
@@ -211,23 +228,23 @@ export const VoteTrendChart = ({ hotpickAlias, voted, isExpired }: VoteTrendChar
     if (!series) {
       return null;
     }
-    return buildChartData(series);
-  }, [series]);
+    return buildChartData(series, MAX_POINTS_BY_INTERVAL[interval]);
+  }, [series, interval]);
 
   const handleTabClick = useCallback((value: GetElectionSeriesInterval) => {
     setInterval(value);
   }, []);
 
-  if (isLoading || !series || !chartInfo) {
-    return null;
-  }
+  const pointCount = series?.items?.[0]?.points?.length ?? 0;
+  const hasEnoughData = !isLoading && !!chartInfo && pointCount >= MIN_POINTS;
 
-  const pointCount = series.items?.[0]?.points?.length ?? 0;
-  if (pointCount < MIN_POINTS) {
-    return null;
-  }
-
-  const { data, itemKeys, itemNames, latestRates, yDomain } = chartInfo;
+  const { data, itemKeys, itemNames, latestRates, yDomain } = chartInfo ?? {
+    data: [],
+    itemKeys: [],
+    itemNames: [],
+    latestRates: [],
+    yDomain: [0, 100] as [number, number],
+  };
 
   return (
     <m.div
@@ -241,131 +258,149 @@ export const VoteTrendChart = ({ hotpickAlias, voted, isExpired }: VoteTrendChar
         <h3 className={styles.chartTitle}>투표 추이</h3>
       </div>
 
-      {/* 범례 — Polymarket 스타일: 차트 위에 가로 배치 */}
-      {showResult && (
-        <div className={styles.legend}>
-          {itemNames.map((name, i) => (
-            <div key={i} className={styles.legendItem}>
-              <span
-                className={styles.legendDot}
-                style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
-              />
-              <span className={styles.legendLabel}>{name}</span>
-              <span
-                className={styles.legendRate}
-                style={{ color: CHART_COLORS[i % CHART_COLORS.length] }}
-              >
-                {latestRates[i]?.toFixed(1)}%
-              </span>
+      {hasEnoughData ? (
+        <>
+          {/* 범례 — Polymarket 스타일: 차트 위에 가로 배치 */}
+          {showResult && (
+            <div className={styles.legend}>
+              {itemNames.map((name, i) => (
+                <div key={i} className={styles.legendItem}>
+                  <span
+                    className={styles.legendDot}
+                    style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
+                  />
+                  <span className={styles.legendLabel}>{name}</span>
+                  <span
+                    className={styles.legendRate}
+                    style={{ color: CHART_COLORS[i % CHART_COLORS.length] }}
+                  >
+                    {latestRates[i]?.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* 차트 영역 */}
-      <div className={styles.chartWrapper}>
-        {!showResult && (
-          <div className={styles.blurOverlay}>
-            <ChartIcon width={28} height={28} className={styles.blurIcon} />
-            <span className={styles.blurText}>투표하면 실시간 추이를 확인할 수 있어요</span>
-          </div>
-        )}
+          {/* 차트 영역 */}
+          <div className={styles.chartWrapper}>
+            {!showResult && (
+              <div className={styles.blurOverlay}>
+                <ChartIcon width={28} height={28} className={styles.blurIcon} />
+                <span className={styles.blurText}>투표하면 실시간 추이를 확인할 수 있어요</span>
+              </div>
+            )}
 
-        <div className={showResult ? styles.chartVisible : styles.chartBlurred}>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: -12 }}>
-              <defs>
-                {itemKeys.map((key, i) => {
-                  const color = CHART_COLORS[i % CHART_COLORS.length];
-                  return (
-                    <linearGradient key={key} id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={color} stopOpacity={0.25} />
-                      <stop offset="100%" stopColor={color} stopOpacity={0.02} />
-                    </linearGradient>
-                  );
-                })}
-              </defs>
+            <div className={showResult ? styles.chartVisible : styles.chartBlurred}>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: -12 }}>
+                  <defs>
+                    {itemKeys.map((key, i) => {
+                      const color = CHART_COLORS[i % CHART_COLORS.length];
+                      return (
+                        <linearGradient key={key} id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={color} stopOpacity={0.25} />
+                          <stop offset="100%" stopColor={color} stopOpacity={0.02} />
+                        </linearGradient>
+                      );
+                    })}
+                  </defs>
 
-              <CartesianGrid
-                strokeDasharray="1 4"
-                stroke="rgba(255,255,255,0.06)"
-                vertical={false}
-              />
+                  <CartesianGrid
+                    strokeDasharray="1 4"
+                    stroke="rgba(255,255,255,0.06)"
+                    vertical={false}
+                  />
 
-              <XAxis
-                dataKey="ts"
-                tickFormatter={formatTickByInterval(interval)}
-                stroke="transparent"
-                tick={{ fontSize: 11, fill: '#8a8a8a' }}
-                tickLine={false}
-                axisLine={false}
-                interval="preserveStartEnd"
-                minTickGap={50}
-              />
+                  <XAxis
+                    dataKey="ts"
+                    tickFormatter={formatTickByInterval(interval)}
+                    stroke="transparent"
+                    tick={{ fontSize: 11, fill: '#8a8a8a' }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval="preserveStartEnd"
+                    minTickGap={50}
+                  />
 
-              <YAxis
-                orientation="right"
-                domain={yDomain}
-                stroke="transparent"
-                tick={{ fontSize: 11, fill: '#8a8a8a' }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v: number) => `${v}%`}
-                width={38}
-                tickCount={5}
-              />
+                  <YAxis
+                    orientation="right"
+                    domain={yDomain}
+                    stroke="transparent"
+                    tick={{ fontSize: 11, fill: '#8a8a8a' }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v: number) => `${v}%`}
+                    width={38}
+                    tickCount={5}
+                  />
 
-              <Tooltip
-                content={<ChartTooltip />}
-                cursor={{
-                  stroke: 'rgba(255,255,255,0.15)',
-                  strokeWidth: 1.5,
-                }}
-              />
-
-              {itemKeys.map((key, i) => {
-                const color = CHART_COLORS[i % CHART_COLORS.length];
-                return (
-                  <Area
-                    key={key}
-                    type="monotone"
-                    dataKey={key}
-                    name={itemNames[i]}
-                    stroke={color}
-                    strokeWidth={2}
-                    fill={`url(#grad-${key})`}
-                    dot={(props) => <PulseDot {...props} totalPoints={data.length} color={color} />}
-                    activeDot={{
-                      r: 4,
-                      stroke: color,
-                      strokeWidth: 2,
-                      fill: '#1e1e1e',
+                  <Tooltip
+                    content={<ChartTooltip />}
+                    isAnimationActive={false}
+                    cursor={{
+                      stroke: 'rgba(255,255,255,0.15)',
+                      strokeWidth: 1.5,
                     }}
                   />
-                );
-              })}
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
-      {/* 하단: 참여자 수 + 시간 범위 탭 */}
-      {showResult && (
-        <div className={styles.chartFooter}>
-          <div className={styles.totalVotes}>{series.totalVoteCount?.toLocaleString()}명 참여</div>
-          <div className={styles.timeTabs} role="tablist">
-            {TIME_TABS.map((tab) => (
-              <button
-                key={tab.value}
-                role="tab"
-                aria-selected={interval === tab.value}
-                className={`${styles.timeTab} ${interval === tab.value ? styles.timeTabActive : ''}`}
-                onClick={() => handleTabClick(tab.value)}
-              >
-                {tab.label}
-              </button>
-            ))}
+                  {itemKeys.map((key, i) => {
+                    const color = CHART_COLORS[i % CHART_COLORS.length];
+                    return (
+                      <Area
+                        key={key}
+                        type="monotone"
+                        dataKey={key}
+                        name={itemNames[i]}
+                        stroke={color}
+                        strokeWidth={2}
+                        fill={`url(#grad-${key})`}
+                        dot={(props) => (
+                          <PulseDot {...props} totalPoints={data.length} color={color} />
+                        )}
+                        activeDot={{
+                          r: 4,
+                          stroke: color,
+                          strokeWidth: 2,
+                          fill: '#1e1e1e',
+                        }}
+                      />
+                    );
+                  })}
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
+
+          {/* 하단: 참여자 수 + 시간 범위 탭 */}
+          {showResult && (
+            <div className={styles.chartFooter}>
+              <div className={styles.totalVotes}>
+                {series?.totalVoteCount?.toLocaleString()}명 참여
+              </div>
+              <div className={styles.timeTabs} role="tablist">
+                {INTERVAL_TABS.map((tab) => (
+                  <button
+                    key={tab.value}
+                    role="tab"
+                    aria-selected={interval === tab.value}
+                    className={`${styles.timeTab} ${interval === tab.value ? styles.timeTabActive : ''}`}
+                    onClick={() => handleTabClick(tab.value)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className={styles.emptyState}>
+          <ChartIcon width={28} height={28} className={styles.blurIcon} />
+          <span className={styles.emptyText}>
+            {isLoading
+              ? '추이 데이터를 불러오는 중...'
+              : '아직 데이터가 부족하여 추이를 표시할 수 없어요'}
+          </span>
         </div>
       )}
     </m.div>
