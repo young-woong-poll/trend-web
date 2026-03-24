@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
+import { getMockElectionSeries } from '@/mocks/data/electionSeries';
 import {
   mockMainHotpicks,
   mockHotpickDetailMap,
@@ -29,6 +30,7 @@ const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.vot
  * Mock 인증 사용자 데이터
  */
 let mockUser: { id: number; nickname: string | null; profileImageUrl: string | null } | null = null;
+let hasLoggedInBefore = false;
 const usedNicknames = new Set<string>();
 
 const nicknameAdjectives = [
@@ -88,9 +90,9 @@ export const handlers = [
    * 카카오 로그인
    * POST /api/auth/kakao
    */
-  http.post(`${baseURL}/api/auth/kakao`, async ({ request }) => {
-    const body = (await request.json()) as { code: string; redirectUri: string };
-    const isNewUser = body.code.includes('new');
+  http.post(`${baseURL}/api/auth/kakao`, async () => {
+    const isNewUser = !hasLoggedInBefore;
+    hasLoggedInBefore = true;
     mockUser = {
       id: 1001,
       nickname: isNewUser ? null : '테스트유저',
@@ -100,6 +102,8 @@ export const handlers = [
       wrapResponse({
         user: mockUser,
         isNewUser,
+        genderConsent: false,
+        ageConsent: false,
       })
     );
   }),
@@ -133,11 +137,44 @@ export const handlers = [
   }),
 
   /**
+   * 가입 프로필 설정
+   * POST /api/auth/signup/profile
+   */
+  http.post(`${baseURL}/api/auth/signup/profile`, async ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const body = (await request.json()) as {
+      nickname: string;
+      gender?: string;
+      ageGroup?: string;
+    };
+    mockUser = { ...mockUser, nickname: body.nickname };
+    let rewardCoins = 0;
+    if (body.gender) {
+      rewardCoins += 5;
+    }
+    if (body.ageGroup) {
+      rewardCoins += 5;
+    }
+    return HttpResponse.json(
+      wrapResponse({
+        user: mockUser,
+        rewardCoins,
+      })
+    );
+  }),
+
+  /**
    * 로그아웃
    * POST /api/auth/logout
    */
   http.post(`${baseURL}/api/auth/logout`, () => {
     mockUser = null;
+    hasLoggedInBefore = false;
     return HttpResponse.json(wrapResponse(null));
   }),
 
@@ -162,6 +199,7 @@ export const handlers = [
    */
   http.delete(`${baseURL}/api/auth/me`, () => {
     mockUser = null;
+    hasLoggedInBefore = false;
     return HttpResponse.json(wrapResponse(null));
   }),
 
@@ -627,6 +665,22 @@ export const handlers = [
     const tkuId = request.headers.get('x-tku-id') ?? 'anonymous';
     const result = setLike(tkuId, slug, false);
     return HttpResponse.json(wrapResponse(result));
+  }),
+
+  /**
+   * 투표 시계열 데이터 조회
+   * GET /api/v1/hotpicks/:slug/election-series
+   */
+  http.get(`${baseURL}/api/v1/hotpicks/:slug/election-series`, ({ params, request }) => {
+    const slug = String(params.slug);
+    const url = new URL(request.url);
+    const interval = url.searchParams.get('interval') ?? '1d';
+    const voteData = singleVoteDataMap[slug];
+    const series = getMockElectionSeries(slug, voteData, interval);
+    if (!series) {
+      return HttpResponse.json(wrapResponse(null), { status: 404 });
+    }
+    return HttpResponse.json(wrapResponse({ ...series, hotpickSlug: slug }));
   }),
 
   /**

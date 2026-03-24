@@ -6,14 +6,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { postKakaoLogin } from '@/hooks/api/useAuthApi';
+import { useMSWReady } from '@/providers/MSWProvider';
 
 const KakaoCallbackContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser, setIsNewUserFlag } = useAuth();
+  const mswReady = useMSWReady();
   const processedRef = useRef(false);
 
   useEffect(() => {
+    if (!mswReady) {
+      return;
+    }
     if (processedRef.current) {
       return;
     }
@@ -30,8 +35,18 @@ const KakaoCallbackContent = () => {
         const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? '';
         const result = await postKakaoLogin(code, redirectUri);
         setUser(result.user);
+
         if (result.isNewUser) {
           setIsNewUserFlag(true);
+          sessionStorage.setItem(
+            'signup_consent',
+            JSON.stringify({
+              genderConsent: result.genderConsent,
+              ageConsent: result.ageConsent,
+            })
+          );
+          router.replace('/auth/signup');
+          return;
         }
 
         const intentStr = sessionStorage.getItem('auth_intent');
@@ -55,7 +70,7 @@ const KakaoCallbackContent = () => {
     };
 
     void handleCallback();
-  }, [searchParams, router, setUser, setIsNewUserFlag]);
+  }, [searchParams, router, setUser, setIsNewUserFlag, mswReady]);
 
   return (
     <div

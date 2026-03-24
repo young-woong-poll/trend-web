@@ -7,6 +7,7 @@ import NicknameModal from '@/components/features/Auth/NicknameModal';
 import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
 import { getMe, postLink, postLogout } from '@/hooks/api/useAuthApi';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
+import { useMSWReady } from '@/providers/MSWProvider';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -20,12 +21,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     isOpen: false,
     trigger: 'default',
   });
+  const isMSWReady = useMSWReady();
 
   const isLoggedIn = user !== null;
-  const needsNickname = isLoggedIn && user.nickname === null;
+  const needsNickname = isLoggedIn && user.nickname === null && !isNewUserFlag;
 
-  // 앱 마운트 시 로그인 상태 확인
+  // 앱 마운트 시 로그인 상태 확인 (개발 환경에서는 MSW 준비 후 실행)
   useEffect(() => {
+    if (!isMSWReady) {
+      return;
+    }
+
     const checkAuth = async () => {
       try {
         const me = await getMe();
@@ -37,7 +43,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     };
     void checkAuth();
-  }, []);
+  }, [isMSWReady]);
 
   // 401 interceptor에서 보낸 로그아웃 이벤트 수신
   useEffect(() => {

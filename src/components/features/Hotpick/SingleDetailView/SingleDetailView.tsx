@@ -15,6 +15,7 @@ import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetail
 import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { SingleRecommendSection } from '@/components/features/Hotpick/SingleDetailView/SingleRecommendSection';
+import { VoteTrendChart } from '@/components/features/Hotpick/SingleDetailView/VoteTrendChart';
 import {
   buttonTapVariants,
   barFillVariants,
@@ -258,6 +259,8 @@ export const SingleDetailView = ({ hotpickAlias, serverData }: SingleDetailViewP
           </div>
         )}
       </m.div>
+
+      <VoteTrendChart hotpickAlias={hotpickAlias} voted={voted} isExpired={isExpired} />
 
       <SingleRecommendSection hotpickAlias={hotpickAlias} relatedHotpicks={relatedHotpicks} />
 

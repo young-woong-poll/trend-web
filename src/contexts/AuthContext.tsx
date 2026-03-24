@@ -11,6 +11,8 @@ export interface User {
 export interface LoginResponse {
   user: User;
   isNewUser: boolean;
+  genderConsent: boolean;
+  ageConsent: boolean;
 }
 
 export type LoginTrigger = 'comment' | 'like' | 'default';
