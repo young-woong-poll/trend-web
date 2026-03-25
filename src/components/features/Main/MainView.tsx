@@ -8,7 +8,12 @@ import { CardList } from '@/components/features/Main/CardList/CardList';
 import { ContentTabs } from '@/components/features/Main/ContentTabs';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import type { CategoryFilterItem } from '@/constants/category';
-import { DEFAULT_TAB, type TabSelection } from '@/constants/contentTab';
+import {
+  DEFAULT_HOT_PERIOD,
+  DEFAULT_TAB,
+  type HotPeriod,
+  type TabSelection,
+} from '@/constants/contentTab';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
 import type { HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
@@ -22,22 +27,22 @@ type TMainViewProps = {
 /**
  * TabSelection → API 파라미터 변환
  */
-function buildQueryParams(tab: TabSelection) {
+function buildQueryParams(tab: TabSelection, hotPeriod: HotPeriod) {
   const base = { size: 18 };
 
   if (tab.kind === 'filter') {
     switch (tab.type) {
       case 'new':
-        return { ...base, sort: 'latest' };
+        return { ...base, sort: 'latest', filter: 'new' };
       case 'hot':
-        return { ...base, sort: 'hot' };
+        return { ...base, sort: 'hot', filter: `hot_${hotPeriod}` };
       case 'my':
-        return { ...base, filter: 'voted' };
+        return { ...base, sort: 'latest', filter: 'voted' };
     }
   }
 
   // 카테고리 탭
-  return { ...base, category: tab.slug, sort: 'popular' };
+  return { ...base, category: tab.slug, sort: 'latest' };
 }
 
 /**
@@ -72,6 +77,7 @@ function getEmptyState(tab: TabSelection): { title: string; description: string 
 
 export const MainView: FC<TMainViewProps> = ({ children }) => {
   const [selectedTab, setSelectedTab] = useState<TabSelection>(DEFAULT_TAB);
+  const [hotPeriod, setHotPeriod] = useState<HotPeriod>(DEFAULT_HOT_PERIOD);
   const { data: apiCategories } = useCategories();
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
@@ -83,7 +89,10 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
         }))
     : undefined;
 
-  const queryParams = useMemo(() => buildQueryParams(selectedTab), [selectedTab]);
+  const queryParams = useMemo(
+    () => buildQueryParams(selectedTab, hotPeriod),
+    [selectedTab, hotPeriod]
+  );
 
   const {
     data,
@@ -126,6 +135,8 @@ export const MainView: FC<TMainViewProps> = ({ children }) => {
         selectedTab={selectedTab}
         onChange={handleTabChange}
         categories={dynamicCategories}
+        hotPeriod={hotPeriod}
+        onHotPeriodChange={setHotPeriod}
       />
 
       <div className={styles.container}>
