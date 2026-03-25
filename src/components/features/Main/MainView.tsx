@@ -28,16 +28,16 @@ function buildQueryParams(tab: TabSelection) {
   if (tab.kind === 'filter') {
     switch (tab.type) {
       case 'new':
-        return { ...base, sort: 'latest' };
+        return { ...base, sort: 'latest', filter: 'new' };
       case 'hot':
-        return { ...base, sort: 'hot' };
+        return { ...base, sort: 'hot', filter: 'hot_1d' };
       case 'my':
-        return { ...base, filter: 'voted' };
+        return { ...base, sort: 'latest', filter: 'voted' };
     }
   }
 
   // 카테고리 탭
-  return { ...base, category: tab.slug, sort: 'popular' };
+  return { ...base, category: tab.slug, sort: 'latest' };
 }
 
 /**
