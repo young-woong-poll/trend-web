@@ -177,9 +177,7 @@ export const ContentTabs: FC<ContentTabsProps> = ({
                 onClick={handleHotClick}
               >
                 {TAB_ICONS.hot}
-                {isActive && (
-                  <span className={styles.periodBadge}>{getHotPeriodLabel(hotPeriod)}</span>
-                )}
+                <span className={styles.periodBadge}>{getHotPeriodLabel(hotPeriod)}</span>
                 <span>HOT</span>
                 {isActive && (
                   <span className={`${styles.chevron} ${isDropdownOpen ? styles.chevronOpen : ''}`}>
