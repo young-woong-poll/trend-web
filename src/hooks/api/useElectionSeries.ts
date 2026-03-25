@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getElectionSeries } from '@/generated/api/client/hotpick/hotpick';
 import type { GetElectionSeriesParams } from '@/generated/models';
 
-const electionSeriesKeys = {
+export const electionSeriesKeys = {
   all: ['electionSeries'] as const,
   detail: (slug: string, params?: GetElectionSeriesParams) =>
     [...electionSeriesKeys.all, slug, params] as const,

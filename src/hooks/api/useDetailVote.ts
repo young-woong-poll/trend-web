@@ -6,6 +6,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { HotpickDetailResponse } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
+import { electionSeriesKeys } from '@/hooks/api/useElectionSeries';
 import { getTKUID } from '@/lib/tkuid';
 
 interface UseDetailVoteReturn {
@@ -60,6 +61,8 @@ export const useDetailVote = (
           { electionItemId: optionId },
           { headers: { 'x-tku-id': tkuIdRef.current } }
         );
+        // 투표 성공 후 그래프 데이터 갱신 — 내 투표가 반영된 최신 추이 표시
+        void queryClient.invalidateQueries({ queryKey: electionSeriesKeys.all });
       } catch (error) {
         // 409 (already voted): keep optimistic state
         if (error && typeof error === 'object' && 'response' in error) {

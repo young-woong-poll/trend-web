@@ -146,6 +146,35 @@ function buildChartData(series: ElectionSeriesResponse, maxPoints?: number): Cha
   return { data, itemKeys, itemNames, latestRates, yDomain: calcNormalizedDomain(allRates) };
 }
 
+/** 블러 상태에서 실제 데이터 대신 보여줄 더미 데이터 생성 */
+function buildDummyChartData(optionCount: number): ChartBuildResult {
+  const itemKeys = Array.from({ length: optionCount }, (_, i) => `rate${i}`);
+  const itemNames = Array.from({ length: optionCount }, (_, i) => `옵션 ${i + 1}`);
+  const pointCount = 12;
+  const now = Date.now();
+
+  const allRates: number[] = [];
+  const data: ChartDataPoint[] = Array.from({ length: pointCount }, (_, pi) => {
+    const point: ChartDataPoint = {
+      ts: new Date(now - (pointCount - 1 - pi) * 3600000).toISOString(),
+    };
+    // 옵션별로 일정한 더미 비율 (50/50 또는 균등 분배)
+    const baseRate = 100 / optionCount;
+    itemKeys.forEach((key, ii) => {
+      // 약간의 사인 곡선 변동으로 자연스러운 그래프 형태
+      const variation = Math.sin((pi + ii * 3) * 0.8) * 5;
+      const rate = Math.round((baseRate + variation) * 10) / 10;
+      point[key] = rate;
+      allRates.push(rate);
+    });
+    return point;
+  });
+
+  const latestRates = itemKeys.map(() => Math.round((100 / optionCount) * 10) / 10);
+
+  return { data, itemKeys, itemNames, latestRates, yDomain: calcNormalizedDomain(allRates) };
+}
+
 /** Polymarket 스타일 Pill 툴팁 */
 interface TooltipPayloadEntry {
   stroke: string;
@@ -231,14 +260,24 @@ export const VoteTrendChart = ({ hotpickAlias, voted, isExpired }: VoteTrendChar
     return buildChartData(series, MAX_POINTS_BY_INTERVAL[interval]);
   }, [series, interval]);
 
+  /** 블러 상태에서는 더미 데이터 사용 — 실제 데이터 형태 노출 방지 */
+  const optionCount = series?.items?.length ?? 2;
+  const dummyInfo = useMemo(() => buildDummyChartData(optionCount), [optionCount]);
+
   const handleTabClick = useCallback((value: GetElectionSeriesInterval) => {
     setInterval(value);
   }, []);
 
   const pointCount = series?.items?.[0]?.points?.length ?? 0;
-  const hasEnoughData = !isLoading && !!chartInfo && pointCount >= MIN_POINTS;
+  /** 투표 전에는 더미 데이터로 항상 차트 표시, 투표 후에는 실제 데이터 충분 여부 확인 */
+  const hasEnoughData = showResult
+    ? !isLoading && !!chartInfo && pointCount >= MIN_POINTS
+    : !isLoading;
 
-  const { data, itemKeys, itemNames, latestRates, yDomain } = chartInfo ?? {
+  /** 투표 전: 더미 데이터, 투표 후: 실제 데이터 */
+  const displayInfo = showResult ? chartInfo : dummyInfo;
+
+  const { data, itemKeys, itemNames, latestRates, yDomain } = displayInfo ?? {
     data: [],
     itemKeys: [],
     itemNames: [],
@@ -249,6 +288,7 @@ export const VoteTrendChart = ({ hotpickAlias, voted, isExpired }: VoteTrendChar
   return (
     <m.div
       className={styles.chartSection}
+      data-testid="vote-trend-chart"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
