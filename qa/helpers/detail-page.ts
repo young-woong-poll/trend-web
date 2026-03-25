@@ -53,6 +53,15 @@ export class DetailPage {
   // 핫픽 좋아요
   readonly likeButton: Locator;
 
+  // 투표 추이 그래프
+  readonly chartSection: Locator;
+  readonly chartBlurOverlay: Locator;
+  readonly chartEmptyState: Locator;
+  readonly chartLegend: Locator;
+  readonly chartFooter: Locator;
+  readonly chartIntervalTabs: Locator;
+  readonly chartTotalVotes: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -96,6 +105,15 @@ export class DetailPage {
     this.loadMoreComments = this.commentSection.getByRole('button', { name: /댓글 더보기/ });
 
     this.likeButton = this.voteCard.getByRole('button', { name: '좋아요' });
+
+    // 투표 추이 그래프
+    this.chartSection = page.getByTestId('vote-trend-chart');
+    this.chartBlurOverlay = this.chartSection.getByText('투표하면 실시간 추이를 확인할 수 있어요');
+    this.chartEmptyState = this.chartSection.locator('[class*="emptyState"]');
+    this.chartLegend = this.chartSection.locator('[class*="legend"]').first();
+    this.chartFooter = this.chartSection.locator('[class*="chartFooter"]');
+    this.chartIntervalTabs = this.chartSection.locator('[role="tablist"]');
+    this.chartTotalVotes = this.chartSection.locator('[class*="totalVotes"]');
   }
 
   /** 특정 slug의 상세페이지로 이동 */
