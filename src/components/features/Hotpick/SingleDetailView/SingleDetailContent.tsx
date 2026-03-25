@@ -7,19 +7,16 @@ import { LazyMotion, domAnimation } from 'framer-motion';
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
 import { SingleDetailView } from '@/components/features/Hotpick/SingleDetailView/SingleDetailView';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import type { HotpickDetailResponse } from '@/generated/models';
-
 type SingleDetailContentProps = {
   hotpickAlias: string;
-  data?: HotpickDetailResponse;
 };
 
-export const SingleDetailContent: FC<SingleDetailContentProps> = ({ hotpickAlias, data }) => (
+export const SingleDetailContent: FC<SingleDetailContentProps> = ({ hotpickAlias }) => (
   <>
     <MainHeader />
     <FlexibleLayout>
       <LazyMotion features={domAnimation}>
-        <SingleDetailView hotpickAlias={hotpickAlias} serverData={data} />
+        <SingleDetailView hotpickAlias={hotpickAlias} />
       </LazyMotion>
     </FlexibleLayout>
   </>

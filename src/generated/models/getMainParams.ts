@@ -4,6 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { GetMainFilter } from './getMainFilter';
 import type { GetMainSort } from './getMainSort';
 
 export type GetMainParams = {
@@ -12,6 +13,10 @@ export type GetMainParams = {
    * 정렬 방식 (기본: recommended)
    */
   sort?: GetMainSort;
+  /**
+   * 필터 방식
+   */
+  filter?: GetMainFilter;
   cursor?: string;
   size?: number;
 };

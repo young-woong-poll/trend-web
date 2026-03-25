@@ -6,6 +6,8 @@
  */
 import type {
   BaseResponseAdminHotpickDetailResponse,
+  BaseResponseElectionSeriesRebuildAllResponse,
+  BaseResponseElectionSeriesRebuildResponse,
   BaseResponseHotpickSlugCheckResponse,
   BaseResponseListAdminHotpickSummaryResponse,
   BaseResponseObject,
@@ -266,6 +268,112 @@ export const createHotpick = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(createHotpickRequest),
+  });
+};
+
+/**
+ * @summary Rebuild election series buckets
+ */
+export type rebuildElectionSeriesResponse200 = {
+  data: BaseResponseElectionSeriesRebuildResponse;
+  status: 200;
+};
+
+export type rebuildElectionSeriesResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type rebuildElectionSeriesResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type rebuildElectionSeriesResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type rebuildElectionSeriesResponseSuccess = rebuildElectionSeriesResponse200 & {
+  headers: Headers;
+};
+export type rebuildElectionSeriesResponseError = (
+  | rebuildElectionSeriesResponse409
+  | rebuildElectionSeriesResponse429
+  | rebuildElectionSeriesResponse500
+) & {
+  headers: Headers;
+};
+
+export type rebuildElectionSeriesResponse =
+  | rebuildElectionSeriesResponseSuccess
+  | rebuildElectionSeriesResponseError;
+
+export const getRebuildElectionSeriesUrl = (hotpickId: number) => {
+  return `/admin/api/v1/hotpicks/${hotpickId}/election-series/rebuild`;
+};
+
+export const rebuildElectionSeries = async (
+  hotpickId: number,
+  options?: RequestInit
+): Promise<rebuildElectionSeriesResponse> => {
+  return serverFetchInstance<rebuildElectionSeriesResponse>(
+    getRebuildElectionSeriesUrl(hotpickId),
+    {
+      ...options,
+      method: 'POST',
+    }
+  );
+};
+
+/**
+ * @summary Rebuild all election series buckets
+ */
+export type rebuildAllElectionSeriesResponse200 = {
+  data: BaseResponseElectionSeriesRebuildAllResponse;
+  status: 200;
+};
+
+export type rebuildAllElectionSeriesResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type rebuildAllElectionSeriesResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type rebuildAllElectionSeriesResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type rebuildAllElectionSeriesResponseSuccess = rebuildAllElectionSeriesResponse200 & {
+  headers: Headers;
+};
+export type rebuildAllElectionSeriesResponseError = (
+  | rebuildAllElectionSeriesResponse409
+  | rebuildAllElectionSeriesResponse429
+  | rebuildAllElectionSeriesResponse500
+) & {
+  headers: Headers;
+};
+
+export type rebuildAllElectionSeriesResponse =
+  | rebuildAllElectionSeriesResponseSuccess
+  | rebuildAllElectionSeriesResponseError;
+
+export const getRebuildAllElectionSeriesUrl = () => {
+  return `/admin/api/v1/hotpicks/election-series/rebuild`;
+};
+
+export const rebuildAllElectionSeries = async (
+  options?: RequestInit
+): Promise<rebuildAllElectionSeriesResponse> => {
+  return serverFetchInstance<rebuildAllElectionSeriesResponse>(getRebuildAllElectionSeriesUrl(), {
+    ...options,
+    method: 'POST',
   });
 };
 

@@ -15,13 +15,13 @@ import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetail
 import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { SingleRecommendSection } from '@/components/features/Hotpick/SingleDetailView/SingleRecommendSection';
+import { VoteTrendChart } from '@/components/features/Hotpick/SingleDetailView/VoteTrendChart';
 import {
   buttonTapVariants,
   barFillVariants,
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useModal } from '@/contexts/ModalContext';
-import type { HotpickDetailResponse } from '@/generated/models';
 import { useDetailVote } from '@/hooks/api/useDetailVote';
 import { useHotpickDetail } from '@/hooks/api/useDisplay';
 import { useLike } from '@/hooks/api/useLike';
@@ -33,16 +33,14 @@ const detailSkeleton = <SingleDetailSkeleton />;
 
 interface SingleDetailViewProps {
   hotpickAlias: string;
-  serverData?: HotpickDetailResponse;
 }
 
-export const SingleDetailView = ({ hotpickAlias, serverData }: SingleDetailViewProps) => {
+export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
   const { data: rawData, isLoading } = useHotpickDetail(hotpickAlias);
   const { handleLike } = useLike();
   const { showToast } = useModal();
 
-  // 클라이언트 데이터 우선, 없으면 서버 데이터 사용
-  const effectiveData = rawData ?? serverData;
+  const effectiveData = rawData;
 
   const detail = useMemo(
     () => (effectiveData ? toSingleDetailModel(effectiveData, hotpickAlias) : null),
@@ -258,6 +256,8 @@ export const SingleDetailView = ({ hotpickAlias, serverData }: SingleDetailViewP
           </div>
         )}
       </m.div>
+
+      <VoteTrendChart hotpickAlias={hotpickAlias} voted={voted} isExpired={isExpired} />
 
       <SingleRecommendSection hotpickAlias={hotpickAlias} relatedHotpicks={relatedHotpicks} />
 

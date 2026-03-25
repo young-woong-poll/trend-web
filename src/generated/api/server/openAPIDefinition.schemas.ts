@@ -432,6 +432,46 @@ export interface CreateHotpickRequest {
   election: HotpickElectionRequest;
 }
 
+/**
+ * 응답 데이터
+ */
+export interface ElectionSeriesRebuildResponse {
+  hotpickId?: number;
+  hotpickSlug?: string;
+  electionId?: number;
+  rebuiltBucketCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseElectionSeriesRebuildResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: ElectionSeriesRebuildResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface ElectionSeriesRebuildAllResponse {
+  electionCount?: number;
+  rebuiltBucketCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseElectionSeriesRebuildAllResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: ElectionSeriesRebuildAllResponse;
+}
+
 export interface CreateCategoryRequest {
   /**
    * @minLength 0
@@ -566,6 +606,44 @@ export interface BaseResponseCommentCountResponse {
   /** 응답 메시지 */
   message?: string;
   data?: CommentCountResponse;
+}
+
+export interface ElectionSeriesPointResponse {
+  ts?: string;
+  voteCount?: number;
+  voteRate?: number;
+}
+
+export interface ElectionItemSeriesResponse {
+  electionItemId?: number;
+  displayOrder?: number;
+  title?: string;
+  imageUrl?: string;
+  points?: ElectionSeriesPointResponse[];
+}
+
+/**
+ * 응답 데이터
+ */
+export interface ElectionSeriesResponse {
+  hotpickId?: number;
+  hotpickSlug?: string;
+  electionId?: number;
+  interval?: string;
+  openedAt?: string;
+  totalVoteCount?: number;
+  items?: ElectionItemSeriesResponse[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseElectionSeriesResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: ElectionSeriesResponse;
 }
 
 export interface CategoryTabResponse {
@@ -704,6 +782,22 @@ export type GetCommentsParams = {
   size?: number;
 };
 
+export type GetElectionSeriesParams = {
+  /**
+   * 집계 간격 (기본: 1h)
+   */
+  interval?: GetElectionSeriesInterval;
+};
+
+export type GetElectionSeriesInterval =
+  (typeof GetElectionSeriesInterval)[keyof typeof GetElectionSeriesInterval];
+
+export const GetElectionSeriesInterval = {
+  '5m': '5m',
+  '1h': '1h',
+  '1d': '1d',
+} as const;
+
 export type SearchParams = {
   q: string;
   /**
@@ -728,6 +822,10 @@ export type GetMainParams = {
    * 정렬 방식 (기본: recommended)
    */
   sort?: GetMainSort;
+  /**
+   * 필터 방식
+   */
+  filter?: GetMainFilter;
   cursor?: string;
   size?: number;
 };
@@ -739,6 +837,12 @@ export const GetMainSort = {
   latest: 'latest',
   popular: 'popular',
   hot: 'hot',
+} as const;
+
+export type GetMainFilter = (typeof GetMainFilter)[keyof typeof GetMainFilter];
+
+export const GetMainFilter = {
+  voted: 'voted',
 } as const;
 
 export type GetCategories1Params = {

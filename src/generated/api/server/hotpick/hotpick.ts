@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 import type {
+  BaseResponseElectionSeriesResponse,
   BaseResponseHotpickDetailResponse,
   BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
@@ -14,6 +15,7 @@ import type {
   BaseResponseVoteResultResponse,
   CreateVoteRequest,
   GetCategories1Params,
+  GetElectionSeriesParams,
   GetMainParams,
 } from '../openAPIDefinition.schemas';
 
@@ -213,6 +215,71 @@ export const getDetail = async (
   options?: RequestInit
 ): Promise<getDetailResponse> => {
   return serverFetchInstance<getDetailResponse>(getGetDetailUrl(slug), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+/**
+ * @summary Get election series for chart
+ */
+export type getElectionSeriesResponse200 = {
+  data: BaseResponseElectionSeriesResponse;
+  status: 200;
+};
+
+export type getElectionSeriesResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getElectionSeriesResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getElectionSeriesResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getElectionSeriesResponseSuccess = getElectionSeriesResponse200 & {
+  headers: Headers;
+};
+export type getElectionSeriesResponseError = (
+  | getElectionSeriesResponse409
+  | getElectionSeriesResponse429
+  | getElectionSeriesResponse500
+) & {
+  headers: Headers;
+};
+
+export type getElectionSeriesResponse =
+  | getElectionSeriesResponseSuccess
+  | getElectionSeriesResponseError;
+
+export const getGetElectionSeriesUrl = (slug: string, params?: GetElectionSeriesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/hotpicks/${slug}/election-series?${stringifiedParams}`
+    : `/api/v1/hotpicks/${slug}/election-series`;
+};
+
+export const getElectionSeries = async (
+  slug: string,
+  params?: GetElectionSeriesParams,
+  options?: RequestInit
+): Promise<getElectionSeriesResponse> => {
+  return serverFetchInstance<getElectionSeriesResponse>(getGetElectionSeriesUrl(slug, params), {
     ...options,
     method: 'GET',
   });
