@@ -126,7 +126,7 @@ test.describe('투표 추이 — 투표 후', () => {
     // 네트워크 요청으로 series API가 호출되었는지 확인
     // (투표 후 invalidateQueries로 재요청됨)
     const seriesRequest = page.waitForResponse(
-      (resp) => resp.url().includes('/elections/series') && resp.status() === 200,
+      (resp) => resp.url().includes('/election-series') && resp.status() === 200,
       { timeout: 5_000 }
     );
     // 탭 전환으로 series 재요청 트리거
