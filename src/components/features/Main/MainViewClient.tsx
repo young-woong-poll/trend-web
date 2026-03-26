@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -18,7 +18,7 @@ import {
   type FilterTabType,
 } from '@/constants/contentTab';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
-import type { HotpickCardResponse } from '@/generated/models';
+import type { CategoryTabResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { toCardModel } from '@/lib/mappers/cardMapper';
@@ -27,67 +27,45 @@ type TMainViewClientProps = {
   children?: ReactNode;
 };
 
+const FILTER_TAB_TYPES: FilterTabType[] = ['new', 'hot', 'my'];
+
 /**
  * URL 쿼리에서 탭 정보 파싱
  */
-function parseTabFromQuery(searchParams: URLSearchParams): TabSelection {
+function parseTabFromQuery(
+  searchParams: URLSearchParams,
+  categories?: CategoryTabResponse[]
+): TabSelection {
   const filter = searchParams.get('filter');
   const category = searchParams.get('category');
 
   // 카테고리 탭이 지정되었으면 우선 적용
   if (category) {
-    const categoryLabel = searchParams.get('categoryLabel');
-    return {
-      kind: 'category',
-      slug: category,
-      label: categoryLabel || category,
-    };
+    const label = categories?.find((c) => c.slug === category)?.name ?? category;
+    return { kind: 'category', slug: category, label };
   }
 
   // 필터 탭 (new, hot, my)
-  if (filter && ['new', 'hot', 'my'].includes(filter)) {
-    return {
-      kind: 'filter',
-      type: filter as FilterTabType,
-    };
+  if (filter && FILTER_TAB_TYPES.includes(filter as FilterTabType)) {
+    return { kind: 'filter', type: filter as FilterTabType };
   }
 
   return DEFAULT_TAB;
 }
 
 /**
- * URL 쿼리에서 HOT 기간 파싱
- */
-function parseHotPeriodFromQuery(searchParams: URLSearchParams): HotPeriod {
-  const period = searchParams.get('period');
-  if (period && ['1d', '1w', '1m', '1y'].includes(period)) {
-    return period as HotPeriod;
-  }
-  return DEFAULT_HOT_PERIOD;
-}
-
-/**
  * 탭 정보를 URL 쿼리로 업데이트
  */
-function updateUrlWithTab(
-  tab: TabSelection,
-  period: HotPeriod,
-  router: ReturnType<typeof useRouter>
-) {
+function buildUrlParams(tab: TabSelection): string {
   const params = new URLSearchParams();
 
   if (tab.kind === 'filter') {
     params.set('filter', tab.type);
   } else {
     params.set('category', tab.slug);
-    params.set('categoryLabel', tab.label);
   }
 
-  if (tab.kind === 'filter' && tab.type === 'hot') {
-    params.set('period', period);
-  }
-
-  router.push(`/?${params.toString()}`);
+  return `/?${params.toString()}`;
 }
 
 /**
@@ -145,19 +123,16 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedTab, setSelectedTab] = useState<TabSelection>(DEFAULT_TAB);
-  const [hotPeriod, setHotPeriod] = useState<HotPeriod>(DEFAULT_HOT_PERIOD);
-
   const { data: apiCategories } = useCategories();
 
-  // 마운트 후 URL 쿼리에서 초기값 로드
-  useEffect(() => {
-    const initialTab = parseTabFromQuery(searchParams);
-    const initialPeriod = parseHotPeriodFromQuery(searchParams);
+  // URL searchParams를 single source of truth로 사용
+  const selectedTab = useMemo(
+    () => parseTabFromQuery(searchParams, Array.isArray(apiCategories) ? apiCategories : undefined),
+    [searchParams, apiCategories]
+  );
 
-    setSelectedTab(initialTab);
-    setHotPeriod(initialPeriod);
-  }, [searchParams]);
+  // HOT 기간은 로컬 상태로 유지 (탭 전환해도 선택값 보존)
+  const [hotPeriod, setHotPeriod] = useState<HotPeriod>(DEFAULT_HOT_PERIOD);
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
     ? apiCategories
@@ -190,25 +165,13 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
     fetchNextPage: () => void fetchNextPage(),
   });
 
-  // 탭 변경 시 URL 업데이트
+  // 탭 변경 시 URL 업데이트 (replace로 히스토리 오염 방지)
   const handleTabChange = useCallback(
     (tab: TabSelection) => {
-      setSelectedTab(tab);
-      updateUrlWithTab(tab, hotPeriod, router);
+      router.replace(buildUrlParams(tab));
       window.scrollTo({ top: 0 });
     },
-    [hotPeriod, router]
-  );
-
-  // HOT 기간 변경 시 URL 업데이트
-  const handleHotPeriodChange = useCallback(
-    (period: HotPeriod) => {
-      setHotPeriod(period);
-      if (selectedTab.kind === 'filter' && selectedTab.type === 'hot') {
-        updateUrlWithTab(selectedTab, period, router);
-      }
-    },
-    [selectedTab, router]
+    [router]
   );
 
   // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
@@ -231,7 +194,7 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
         onChange={handleTabChange}
         categories={dynamicCategories}
         hotPeriod={hotPeriod}
-        onHotPeriodChange={handleHotPeriodChange}
+        onHotPeriodChange={setHotPeriod}
       />
 
       <div className={styles.container}>

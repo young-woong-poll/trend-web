@@ -64,10 +64,6 @@
     border-radius: 1px;
     transition: background 0.2s ease;
   }
-
-  &:hover {
-    color: $text-secondary;
-  }
 }
 
 .tabActive {
@@ -142,11 +138,6 @@
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: rgba($white, 0.06);
-  }
 }
 
 .dropdownItemActive {
