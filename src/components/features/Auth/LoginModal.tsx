@@ -16,7 +16,11 @@ const TRIGGER_MESSAGES: Record<LoginTrigger, string> = {
   default: '로그인하고 더 많은 기능을 이용해보세요',
 };
 
-const BENEFITS = ['댓글로 의견을 나눠보세요', '마음에 드는 핫픽에 좋아요', '내 투표 기록을 한눈에'];
+const BENEFITS = [
+  '내 활동이 저장돼요',
+  '내 투표 기록을 한눈에 볼 수 있어요',
+  '친구와 가치관 비교 가능해요!',
+];
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -74,7 +78,7 @@ const LoginModalContent = ({
         카카오로 시작하기
       </button>
 
-      <p className={styles.subText}>비로그인으로 투표는 가능해요</p>
+      {/* <p className={styles.subText}>비로그인으로 투표는 가능해요</p> */}
     </div>
   );
 };
