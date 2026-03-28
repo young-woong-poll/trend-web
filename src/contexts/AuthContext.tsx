@@ -24,7 +24,6 @@ export interface AuthContextValue {
   requireLogin: (trigger: LoginTrigger) => void;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
-  setIsNewUserFlag: (isNew: boolean) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

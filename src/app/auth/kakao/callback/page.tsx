@@ -18,7 +18,7 @@ const parseReturnUrl = (stateParam: string | null) => {
 const KakaoCallbackContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser, setIsNewUserFlag } = useAuth();
+  const { setUser } = useAuth();
   const { showToast } = useModal();
   const processedRef = useRef(false);
 
@@ -43,7 +43,6 @@ const KakaoCallbackContent = () => {
         const result = await postKakaoLogin(code, redirectUri);
 
         if (result.isSignUp) {
-          setIsNewUserFlag(true);
           const signupParams = new URLSearchParams({ returnUrl });
           router.replace(`/auth/signup?${signupParams.toString()}`);
           return;
@@ -58,7 +57,7 @@ const KakaoCallbackContent = () => {
     };
 
     void handleCallback();
-  }, [code, returnUrl, router, setUser, setIsNewUserFlag, showToast]);
+  }, [code, returnUrl, router, setUser, showToast]);
 
   return (
     <div
