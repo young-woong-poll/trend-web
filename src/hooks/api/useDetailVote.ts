@@ -21,7 +21,6 @@ export const useDetailVote = (
   const queryClient = useQueryClient();
   const { showToast } = useModal();
   const pendingRef = useRef(false);
-  const tkuIdRef = useRef(getTKUID());
 
   const handleVote = useCallback(
     async (optionId: number) => {
@@ -56,11 +55,8 @@ export const useDetailVote = (
       });
 
       try {
-        await vote(
-          slug,
-          { electionItemId: optionId },
-          { headers: { 'x-tku-id': tkuIdRef.current } }
-        );
+        const headers = { 'x-tku-id': getTKUID() };
+        await vote(slug, { electionItemId: optionId }, { headers });
         // 투표 성공 후 그래프 데이터 갱신 — 내 투표가 반영된 최신 추이 표시
         void queryClient.invalidateQueries({ queryKey: electionSeriesKeys.all });
       } catch (error) {

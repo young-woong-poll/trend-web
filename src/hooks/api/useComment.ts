@@ -118,7 +118,7 @@ export const useCreateComment = () => {
           content: data.content,
         },
         {
-          headers: { 'x-tku-id': getTKUID() },
+          headers: { 'x-tku-id': typeof window !== 'undefined' ? getTKUID() : '' },
         }
       );
       return result;
