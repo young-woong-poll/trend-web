@@ -5,13 +5,25 @@ import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useModal } from '@/contexts/ModalContext';
 import { postKakaoLogin } from '@/hooks/api/useAuthApi';
+
+const parseReturnUrl = (stateParam: string | null) => {
+  if (!stateParam) {
+    return '/';
+  }
+  return new URLSearchParams(stateParam).get('returnUrl') || '/';
+};
 
 const KakaoCallbackContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser, setIsNewUserFlag } = useAuth();
+  const { showToast } = useModal();
   const processedRef = useRef(false);
+
+  const code = searchParams.get('code');
+  const returnUrl = parseReturnUrl(searchParams.get('state'));
 
   useEffect(() => {
     if (processedRef.current) {
@@ -19,9 +31,9 @@ const KakaoCallbackContent = () => {
     }
     processedRef.current = true;
 
-    const code = searchParams.get('code');
     if (!code) {
-      router.replace('/');
+      showToast('로그인에 실패했습니다');
+      router.replace(returnUrl);
       return;
     }
 
@@ -33,29 +45,14 @@ const KakaoCallbackContent = () => {
         if (result.isNewUser) {
           setIsNewUserFlag(true);
         }
-
-        const intentStr = sessionStorage.getItem('auth_intent');
-        sessionStorage.removeItem('auth_intent');
-
-        if (intentStr) {
-          try {
-            const intent = JSON.parse(intentStr) as { returnUrl?: string };
-            if (intent.returnUrl) {
-              router.replace(intent.returnUrl);
-              return;
-            }
-          } catch {
-            // parse 실패 시 메인으로
-          }
-        }
-        router.replace('/');
       } catch {
-        router.replace('/');
+        showToast('로그인에 실패했습니다');
       }
+      router.replace(returnUrl);
     };
 
     void handleCallback();
-  }, [searchParams, router, setUser, setIsNewUserFlag]);
+  }, [code, returnUrl, router, setUser, setIsNewUserFlag, showToast]);
 
   return (
     <div

@@ -47,14 +47,14 @@ const LoginModalContent = ({
   onClose: () => void;
 }) => {
   const handleKakaoLogin = () => {
-    sessionStorage.setItem(
-      'auth_intent',
-      JSON.stringify({ trigger, returnUrl: window.location.href })
-    );
-
     const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
     const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
-    window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+    const state = encodeURIComponent(
+      new URLSearchParams({
+        returnUrl: window.location.pathname + window.location.search,
+      }).toString()
+    );
+    window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&state=${state}`;
   };
 
   return (
