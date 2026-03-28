@@ -1,0 +1,349 @@
+@use '@/styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: $bg-primary;
+  padding: 0 $spacing-24;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: $spacing-32;
+}
+
+.title {
+  font-size: $font-size-24;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: $spacing-8;
+}
+
+.subtitle {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  margin-bottom: $spacing-32;
+}
+
+// ─── 필드 공통 ───
+.fieldGroup {
+  margin-bottom: $spacing-24;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  margin-bottom: $spacing-8;
+}
+
+.required {
+  color: $primary-start;
+}
+
+.optional {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  font-weight: $font-weight-regular;
+}
+
+// ─── 닉네임 입력 ───
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px 0 $spacing-16;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-16;
+  outline: none;
+
+  &::placeholder {
+    color: $border-placeholder;
+  }
+
+  &:focus {
+    border-color: $text-tertiary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+}
+
+.refreshButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: $text-tertiary;
+  font-size: $font-size-18;
+  cursor: pointer;
+  padding: $spacing-8;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.errorText {
+  width: 100%;
+  font-size: $font-size-12;
+  color: $error;
+  margin-top: $spacing-4;
+
+  &:empty {
+    display: none;
+  }
+}
+
+// ─── 성별 선택 ───
+.genderGroup {
+  display: flex;
+  gap: $spacing-8;
+}
+
+.genderButton {
+  flex: 1;
+  height: 44px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+
+  &.selected {
+    border-color: $primary-start;
+    color: $white;
+  }
+}
+
+// ─── 태어난 연도 선택 ───
+.selectInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 $spacing-16;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-16;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8a8a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right $spacing-16 center;
+  cursor: pointer;
+
+  &:invalid,
+  option[value=''] {
+    color: $border-placeholder;
+  }
+
+  &:focus {
+    border-color: $text-tertiary;
+  }
+
+  option {
+    background: $bg-tertiary;
+    color: $white;
+  }
+}
+
+// ─── 선택 정보 안내 팝업 ───
+.promptDimmed {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-index-modal;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.promptCenterModal {
+  width: calc(100% - 40px);
+  max-width: 400px;
+  background: $bg-secondary;
+  border-radius: 16px;
+  animation: scaleIn 0.2s ease-out;
+}
+
+.promptBottomSheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 520px;
+  margin: 0 auto;
+  background: $bg-secondary;
+  border-radius: 24px 24px 0 0;
+  animation: slideUp 0.3s ease-out;
+}
+
+.promptContent {
+  padding: 32px $spacing-24;
+}
+
+.promptTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: $spacing-16;
+}
+
+.promptBenefits {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  padding: 0;
+  margin: 0 0 $spacing-24;
+  list-style: none;
+
+  li {
+    font-size: $font-size-14;
+    color: $attention;
+    padding-left: 16px;
+    position: relative;
+
+    &::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      font-size: $font-size-12;
+    }
+  }
+}
+
+.promptButtons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.promptFillButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  cursor: pointer;
+  background: $primary-gradient;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.promptSkipButton {
+  width: 100%;
+  height: 44px;
+  background: none;
+  border: none;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ─── 제출 버튼 ───
+.footer {
+  padding: $spacing-16 0;
+  padding-bottom: max($spacing-24, env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+
+.submitButton {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  cursor: pointer;
+  background: $primary-gradient;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.skipButton {
+  width: 100%;
+  margin-top: $spacing-8;
+  padding: $spacing-8 0;
+  background: none;
+  border: none;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}

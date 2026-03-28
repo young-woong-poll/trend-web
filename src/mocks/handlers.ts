@@ -91,16 +91,16 @@ export const handlers = [
    */
   http.post(`${baseURL}/api/auth/kakao`, async ({ request }) => {
     const body = (await request.json()) as { code: string; redirectUri: string };
-    const isNewUser = body.code.includes('new');
+    const isSignUp = body.code.includes('new');
     mockUser = {
       id: 1001,
-      nickname: isNewUser ? null : '테스트유저',
+      nickname: isSignUp ? null : '테스트유저',
       profileImageUrl: 'https://via.placeholder.com/100',
     };
     return HttpResponse.json(
       wrapResponse({
         user: mockUser,
-        isNewUser,
+        isSignUp,
       })
     );
   }),
@@ -187,19 +187,27 @@ export const handlers = [
   }),
 
   /**
-   * 닉네임 설정/변경
+   * 프로필 설정 (회원가입/닉네임 변경)
    * PATCH /api/auth/me
    */
   http.patch(`${baseURL}/api/auth/me`, async ({ request }) => {
+    // MSW 환경: 카카오 리다이렉트로 mockUser가 초기화된 경우 복원
     if (!mockUser) {
-      return HttpResponse.json(
-        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
-        { status: 401 }
-      );
+      mockUser = {
+        id: 1001,
+        nickname: null,
+        profileImageUrl: 'https://via.placeholder.com/100',
+      };
     }
-    const body = (await request.json()) as { nickname: string };
-    usedNicknames.add(body.nickname);
-    mockUser = { ...mockUser, nickname: body.nickname };
+    const body = (await request.json()) as {
+      nickname?: string;
+      gender?: string | null;
+      birthYear?: number | null;
+    };
+    if (body.nickname) {
+      usedNicknames.add(body.nickname);
+      mockUser = { ...mockUser, nickname: body.nickname };
+    }
     return HttpResponse.json(wrapResponse(mockUser));
   }),
 

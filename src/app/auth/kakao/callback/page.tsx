@@ -41,10 +41,16 @@ const KakaoCallbackContent = () => {
       try {
         const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? '';
         const result = await postKakaoLogin(code, redirectUri);
-        setUser(result.user);
-        if (result.isNewUser) {
+
+        if (result.isSignUp) {
           setIsNewUserFlag(true);
+          const signupParams = new URLSearchParams({ returnUrl });
+          router.replace(`/auth/signup?${signupParams.toString()}`);
+          return;
         }
+
+        setUser(result.user);
+        // TODO: result.needsMigration 처리 (BE 확정 후)
       } catch {
         showToast('로그인에 실패했습니다');
       }

@@ -10,7 +10,9 @@ export interface User {
 
 export interface LoginResponse {
   user: User;
-  isNewUser: boolean;
+  isSignUp: boolean;
+  /** TODO : BE 확정 후 마이그레이션 플로우 구현 예정 */
+  needsMigration?: boolean;
 }
 
 export type LoginTrigger = 'comment' | 'like' | 'default';

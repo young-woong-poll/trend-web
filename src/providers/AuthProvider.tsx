@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
 import LoginModal from '@/components/features/Auth/LoginModal';
-import NicknameModal from '@/components/features/Auth/NicknameModal';
 import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
 import { getMe, postLink, postLogout } from '@/hooks/api/useAuthApi';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
@@ -22,7 +21,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   });
 
   const isLoggedIn = user !== null;
-  const needsNickname = isLoggedIn && user.nickname === null;
 
   // 앱 마운트 시 로그인 상태 확인
   useEffect(() => {
@@ -102,8 +100,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         onClose={closeLoginModal}
         trigger={loginModal.trigger}
       />
-
-      <NicknameModal isOpen={needsNickname} />
     </AuthContext.Provider>
   );
 };
