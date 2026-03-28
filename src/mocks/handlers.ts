@@ -208,7 +208,14 @@ export const handlers = [
       usedNicknames.add(body.nickname);
       mockUser = { ...mockUser, nickname: body.nickname };
     }
-    return HttpResponse.json(wrapResponse(mockUser));
+    // 회원가입 시 needsLink 반환 (닉네임 설정 = 회원가입)
+    const isSignup = body.nickname && mockUser.nickname === body.nickname;
+    return HttpResponse.json(
+      wrapResponse({
+        user: mockUser,
+        ...(isSignup ? { needsLink: true } : {}),
+      })
+    );
   }),
 
   /**

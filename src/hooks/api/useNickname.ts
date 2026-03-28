@@ -17,11 +17,16 @@ export const updateNickname = async (nickname: string): Promise<void> => {
   await axiosInstance.patch('/api/auth/me', { nickname });
 };
 
+export interface SignupResponse {
+  user: User;
+  needsLink: boolean;
+}
+
 export const submitSignup = async (data: {
   nickname: string;
   gender: 'male' | 'female' | null;
   birthYear: number | null;
-}): Promise<User> => {
-  const response = await axiosInstance.patch<User>('/api/auth/me', data);
+}): Promise<SignupResponse> => {
+  const response = await axiosInstance.patch<SignupResponse>('/api/auth/me', data);
   return response.data;
 };

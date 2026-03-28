@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
+import { postLink } from '@/hooks/api/useAuthApi';
 import {
   checkNicknameAvailability,
   getSuggestedNickname,
@@ -17,6 +18,7 @@ import {
 } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
+import { getTKUID, hasTKUID } from '@/lib/tkuid';
 
 type Gender = 'male' | 'female' | null;
 
@@ -100,6 +102,64 @@ const OptionalInfoPrompt = ({
   );
 };
 
+interface MigrationPromptProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onSkip: () => void;
+  isLoading: boolean;
+}
+
+const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationPromptProps) => {
+  const isMobile = useIsMobile();
+  useBodyScrollLock(isOpen);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  const portal = document.getElementById('portal-root');
+  if (!portal) {
+    return null;
+  }
+
+  return createPortal(
+    <div className={styles.promptDimmed} role="presentation">
+      <div
+        className={isMobile ? styles.promptBottomSheet : styles.promptCenterModal}
+        onClick={(e) => e.stopPropagation()}
+        role="presentation"
+      >
+        <div className={styles.promptContent}>
+          <p className={styles.promptTitle}>이전 활동을 연결할까요?</p>
+          <p className={styles.promptDescription}>
+            ⋅ 로그인 전에 남긴 투표, 공감, 댓글을 내 계정에 연결할 수 있어요. <br />⋅ 이 기회는 한
+            번만 제공돼요.
+          </p>
+          <div className={styles.promptButtons}>
+            <button
+              type="button"
+              className={styles.promptFillButton}
+              onClick={onConfirm}
+              disabled={isLoading}
+            >
+              {isLoading ? '연결 중...' : '내 계정에 연결하기'}
+            </button>
+            <button
+              type="button"
+              className={styles.promptSkipButton}
+              onClick={onSkip}
+              disabled={isLoading}
+            >
+              건너뛰기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    portal
+  );
+};
+
 const SignupForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -113,6 +173,8 @@ const SignupForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
   const [pendingData, setPendingData] = useState<SignupFormValues | null>(null);
+  const [showMigration, setShowMigration] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
 
   const {
     register,
@@ -169,19 +231,47 @@ const SignupForm = () => {
         return;
       }
 
-      const updatedUser = await submitSignup({
+      const result = await submitSignup({
         nickname: trimmed,
         gender,
         birthYear: data.birthYear ? Number(data.birthYear) : null,
       });
 
-      setUser(updatedUser);
+      setUser(result.user);
+
+      if (result.needsLink && hasTKUID()) {
+        setShowMigration(true);
+        return;
+      }
+
+      showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
+
       router.replace(returnUrl);
     } catch {
       showToast('회원가입에 실패했습니다');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleMigrationConfirm = async () => {
+    setIsMigrating(true);
+    try {
+      await postLink(getTKUID());
+      showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
+    } catch {
+      showToast('연결에 실패했습니다');
+    } finally {
+      setIsMigrating(false);
+      setShowMigration(false);
+      router.replace(returnUrl);
+    }
+  };
+
+  const handleMigrationSkip = () => {
+    setShowMigration(false);
+    showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
+    router.replace(returnUrl);
   };
 
   const onSubmit = (data: SignupFormValues) => {
@@ -309,6 +399,13 @@ const SignupForm = () => {
           ...(!gender ? ['gender'] : []),
           ...(!watch('birthYear') ? ['birthYear'] : []),
         ]}
+      />
+
+      <MigrationPrompt
+        isOpen={showMigration}
+        onConfirm={() => void handleMigrationConfirm()}
+        onSkip={handleMigrationSkip}
+        isLoading={isMigrating}
       />
     </div>
   );

@@ -206,6 +206,13 @@
   padding: 32px $spacing-24;
 }
 
+.promptDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.5;
+  margin-bottom: $spacing-24;
+}
+
 .promptTitle {
   font-size: $font-size-18;
   font-weight: $font-weight-bold;
