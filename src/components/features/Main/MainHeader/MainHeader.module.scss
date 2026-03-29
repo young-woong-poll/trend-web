@@ -213,6 +213,24 @@
   }
 }
 
+// ─── Auth 슬롯 (CLS 방지: 고정 크기) ───
+.authSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  // Mobile: 아이콘 크기(28px)에 맞춤
+  width: 28px;
+  height: 28px;
+
+  // PC: 로그인 버튼 텍스트 너비에 맞춤
+  @media (min-width: $breakpoint-tablet) {
+    width: 80px;
+    height: 36px;
+  }
+}
+
 // ─── 로그인 버튼 (PC: 텍스트, Mobile: 아이콘) ───
 .loginButton {
   font-size: 14px;

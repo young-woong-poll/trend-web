@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
 
 import { usePathname, useSearchParams } from 'next/navigation';
 
@@ -14,6 +14,61 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+/**
+ * useSearchParams 의존 로직만 분리 — 이 컴포넌트만 Suspense로 감싸서
+ * 나머지 children 렌더에 영향을 주지 않도록 함
+ */
+const LoginQueryWatcher = ({
+  isLoading,
+  isLoggedIn,
+  onLoginRequest,
+  onCloseCleanup,
+  loginModalOpen,
+}: {
+  isLoading: boolean;
+  isLoggedIn: boolean;
+  onLoginRequest: () => void;
+  onCloseCleanup: () => void;
+  loginModalOpen: boolean;
+}) => {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // ?login=true 쿼리 감지 → 로그인 모달 자동 표시
+  useEffect(() => {
+    if (isLoading || isLoggedIn) {
+      return;
+    }
+    if (searchParams.get('login') === 'true') {
+      onLoginRequest();
+    }
+  }, [isLoading, isLoggedIn, searchParams, onLoginRequest]);
+
+  // 모달이 닫힐 때 URL에서 login 쿼리 제거
+  useEffect(() => {
+    if (loginModalOpen) {
+      return;
+    }
+    if (searchParams.get('login')) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('login');
+      params.delete('returnUrl');
+      const query = params.toString();
+      const url = query ? `${pathname}?${query}` : pathname;
+      window.history.replaceState(null, '', url);
+    }
+  }, [loginModalOpen, searchParams, pathname]);
+
+  // 모달 닫힐 때 부모에 알림
+  useEffect(() => {
+    if (!loginModalOpen) {
+      onCloseCleanup();
+    }
+  }, [loginModalOpen, onCloseCleanup]);
+
+  return null;
+};
+
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,8 +77,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     trigger: 'default',
   });
   const mswReady = useMSWReady();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
 
   const isLoggedIn = user !== null;
 
@@ -45,16 +98,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     void checkAuth();
   }, [mswReady]);
 
-  // ?login=true 쿼리 감지 → 로그인 모달 자동 표시
-  useEffect(() => {
-    if (isLoading || isLoggedIn) {
-      return;
-    }
-    if (searchParams.get('login') === 'true') {
-      setLoginModal({ isOpen: true, trigger: 'default' });
-    }
-  }, [isLoading, isLoggedIn, searchParams]);
-
   // 401 토큰 갱신 실패 시 강제 로그아웃 콜백 등록
   useEffect(() => {
     setForceLogoutHandler(() => setUser(null));
@@ -71,6 +114,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     [isLoggedIn]
   );
 
+  const handleLoginRequest = useCallback(() => {
+    setLoginModal({ isOpen: true, trigger: 'default' });
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await postLogout();
@@ -82,20 +129,21 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const closeLoginModal = useCallback(() => {
     setLoginModal({ isOpen: false, trigger: 'default' });
-    // login 쿼리가 있으면 URL에서 조용히 제거
-    if (searchParams.get('login')) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.delete('login');
-      params.delete('returnUrl');
-      const query = params.toString();
-      const url = query ? `${pathname}?${query}` : pathname;
-      window.history.replaceState(null, '', url);
-    }
-  }, [searchParams, pathname]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser }}>
       {children}
+
+      <Suspense fallback={null}>
+        <LoginQueryWatcher
+          isLoading={isLoading}
+          isLoggedIn={isLoggedIn}
+          onLoginRequest={handleLoginRequest}
+          onCloseCleanup={() => {}}
+          loginModalOpen={loginModal.isOpen}
+        />
+      </Suspense>
 
       <LoginModal
         isOpen={loginModal.isOpen}

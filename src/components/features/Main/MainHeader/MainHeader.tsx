@@ -24,7 +24,7 @@ interface MainHeaderProps {
 }
 
 export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
-  const { isLoggedIn, requireLogin } = useAuth();
+  const { isLoading, isLoggedIn, requireLogin } = useAuth();
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -168,19 +168,22 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
                 <SearchIcon width={20} height={20} />
               </Link>
 
-              {/* 로그인 / 프로필 버튼 */}
-              {isLoggedIn ? (
-                <ProfileDropdown />
-              ) : (
-                <button
-                  type="button"
-                  className={styles.loginButton}
-                  onClick={() => requireLogin('default')}
-                >
-                  <span className={styles.loginText}>로그인</span>
-                  <UserIcon className={styles.loginIcon} width={20} height={20} />
-                </button>
-              )}
+              {/* 로그인 / 프로필 버튼 (CLS 방지: 고정 크기 wrapper) */}
+              <div className={styles.authSlot}>
+                {!isLoading &&
+                  (isLoggedIn ? (
+                    <ProfileDropdown />
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.loginButton}
+                      onClick={() => requireLogin('default')}
+                    >
+                      <span className={styles.loginText}>로그인</span>
+                      <UserIcon className={styles.loginIcon} width={20} height={20} />
+                    </button>
+                  ))}
+              </div>
             </>
           ) : (
             <Link href="/" className={styles.homeLink}>
