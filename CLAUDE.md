@@ -21,10 +21,51 @@
 
 ## 디자인 시스템
 
-- 다크 테마 (#121212 배경)
+- **다크 테마 전용** (#121212 배경) — 라이트 모드 없음
 - Primary Gradient: #ff00ff → #ff4500
 - Attention: #DFFF00
 - 상세 토큰: `docs/design-system/tokens.md` 참조
+
+### 다크 모드 UI 규칙 (필수 준수)
+
+이 프로젝트는 **다크 모드 전용**입니다. 모든 UI 컴포넌트 생성/수정 시 아래 규칙을 반드시 따르세요.
+
+#### 팝업/모달 (Modal, Alert, Confirm)
+
+| 요소        | 값                                                                  |
+| ----------- | ------------------------------------------------------------------- |
+| 배경        | `$bg-secondary` (#1e1e1e)                                           |
+| 테두리      | 1px solid #333                                                      |
+| 그림자      | `0 20px 40px rgba(0, 0, 0, 0.5)`                                    |
+| 제목 텍스트 | `$white` (#ffffff)                                                  |
+| 본문 텍스트 | `$text-secondary` (#d1d1d1)                                         |
+| 보조 텍스트 | `$text-tertiary` (#8a8a8a)                                          |
+| 닫기 버튼   | `$text-tertiary`, hover 시 `$white` + `rgba(255,255,255,0.05)` 배경 |
+
+#### 입력 필드 (Input)
+
+| 요소          | 값                         |
+| ------------- | -------------------------- |
+| 배경          | `$bg-tertiary` (#2c2c2c)   |
+| 테두리        | 1px solid #3a3a3a          |
+| 텍스트        | `$white`                   |
+| 플레이스홀더  | `$text-tertiary` (#8a8a8a) |
+| 포커스 테두리 | `$text-tertiary` (#8a8a8a) |
+| 에러 테두리   | `$error` (#ff2e2e)         |
+
+#### 버튼
+
+| variant          | 배경                     | 텍스트            | 테두리                          |
+| ---------------- | ------------------------ | ----------------- | ------------------------------- |
+| primary (확인)   | `$bg-tertiary` (#2c2c2c) | `$white`          | 1px solid `$border-placeholder` |
+| secondary (취소) | transparent              | `$text-secondary` | 1px solid #333                  |
+| gradient (CTA)   | `$primary-gradient`      | `$white`          | none                            |
+
+#### 절대 사용 금지
+
+- `$white` (#ffffff)를 배경으로 사용
+- `$neutral-900`, `$neutral-600` 등 라이트 테마 텍스트 색상
+- `$neutral-200`, `$neutral-300` 등 라이트 테마 테두리/배경 색상
 
 ## 문서 위치
 

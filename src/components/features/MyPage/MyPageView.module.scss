@@ -1,0 +1,211 @@
+// src/components/features/MyPage/MyPageView.module.scss
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+// ─── 프로필 영역 ───
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px 24px;
+}
+
+.profileName {
+  margin-top: 12px;
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+.profileSuffix {
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+}
+
+// ─── 관리 버튼 ───
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: $border-rounded;
+  border: 1px solid $border-placeholder;
+  background: none;
+  font-size: $font-size-12;
+  color: $text-secondary;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    border-color: $text-secondary;
+    color: $white;
+  }
+
+  svg {
+    color: $text-tertiary;
+  }
+}
+
+// ─── 구분선 ───
+.divider {
+  height: 8px;
+  background: #1a1a1a;
+  margin: 0 -16px;
+}
+
+// ─── 탭 ───
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #333;
+}
+
+.tab {
+  flex: 1;
+  padding: 14px 0;
+  text-align: center;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &.active {
+    color: $white;
+    border-bottom-color: $primary-start;
+  }
+}
+
+// ─── 리스트 공통 ───
+.listContainer {
+  padding: 16px 0;
+  max-height: 594px; // 카드(66px) × 9개 ≒ 594px
+  overflow-y: auto;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $border-placeholder;
+    border-radius: 2px;
+  }
+}
+
+.card {
+  display: block;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  @include transition(background, 0.2s, ease);
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  margin-bottom: 6px;
+  @include line-clamp(2);
+}
+
+.cardSub {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-bottom: 6px;
+}
+
+.cardDate {
+  font-size: 11px;
+  color: $border-placeholder;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 0;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+}
+
+.loadMoreButton {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  text-align: center;
+  @include transition(background, 0.2s, ease);
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ─── 계정 관리 ───
+.accountSection {
+  padding: 20px 0;
+}
+
+.logoutButton {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(color, 0.2s, ease);
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.withdrawButton {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: $font-size-14;
+  color: $error;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(opacity, 0.2s, ease);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

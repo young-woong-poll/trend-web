@@ -27,6 +27,41 @@ import {
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
+ * Mock 인증 사용자 데이터
+ */
+let mockUser: {
+  id: number;
+  nickname: string | null;
+  profileColor: string;
+  lastNicknameChangedAt: string | null;
+} | null = {
+  id: 1001,
+  nickname: '테스트유저',
+  profileColor: 'purple',
+  lastNicknameChangedAt: null,
+};
+const usedNicknames = new Set<string>();
+
+const nicknameAdjectives = [
+  '용감한',
+  '빛나는',
+  '귀여운',
+  '멋진',
+  '즐거운',
+  '활발한',
+  '따뜻한',
+  '신나는',
+];
+const nicknameNouns = ['호랑이', '고양이', '강아지', '토끼', '판다', '여우', '사자', '돌고래'];
+
+function generateRandomNickname(): string {
+  const adj = nicknameAdjectives[Math.floor(Math.random() * nicknameAdjectives.length)];
+  const noun = nicknameNouns[Math.floor(Math.random() * nicknameNouns.length)];
+  const num = Math.floor(Math.random() * 1000);
+  return `${adj}${noun}${num}`;
+}
+
+/**
  * Mock 카테고리 데이터 (Admin CRUD + Public 탭 공유)
  */
 const mockCategories = [
@@ -56,6 +91,241 @@ const wrapResponse = <T>(data: T) => ({
  * MSW Handlers — 새 Hotpick API 기반
  */
 export const handlers = [
+  // ──────────────────────────────────────────────────────────
+  // Auth API (카카오 로그인 / 사용자 인증)
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 카카오 로그인
+   * POST /api/auth/kakao
+   */
+  http.post(`${baseURL}/api/auth/kakao`, async ({ request }) => {
+    const body = (await request.json()) as { code: string; redirectUri: string };
+    const isSignUp = body.code.includes('new');
+    mockUser = {
+      id: 1001,
+      nickname: isSignUp ? null : '테스트유저',
+      profileColor: 'purple',
+      lastNicknameChangedAt: null,
+    };
+    return HttpResponse.json(
+      wrapResponse({
+        user: mockUser,
+        isSignUp,
+      })
+    );
+  }),
+
+  /**
+   * 내 정보 조회
+   * GET /api/auth/me
+   */
+  http.get(`${baseURL}/api/auth/me`, () => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(mockUser));
+  }),
+
+  /**
+   * 토큰 갱신
+   * POST /api/auth/refresh
+   */
+  http.post(`${baseURL}/api/auth/refresh`, () => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 로그아웃
+   * POST /api/auth/logout
+   */
+  http.post(`${baseURL}/api/auth/logout`, () => {
+    mockUser = null;
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 익명 투표 연동
+   * POST /api/auth/link
+   */
+  http.post(`${baseURL}/api/auth/link`, async ({ request }) => {
+    const body = (await request.json()) as { tkuId: string };
+    return HttpResponse.json(
+      wrapResponse({
+        linked: true,
+        votesCount: Math.floor(Math.random() * 10) + 1,
+        tkuId: body.tkuId,
+      })
+    );
+  }),
+
+  /**
+   * 회원 탈퇴
+   * DELETE /api/auth/me
+   */
+  http.delete(`${baseURL}/api/auth/me`, () => {
+    mockUser = null;
+    return HttpResponse.json(wrapResponse(null));
+  }),
+
+  /**
+   * 닉네임 추천
+   * GET /api/auth/nickname/suggest
+   */
+  http.get(`${baseURL}/api/auth/nickname/suggest`, () => {
+    const nickname = generateRandomNickname();
+    return HttpResponse.json(wrapResponse({ nickname }));
+  }),
+
+  /**
+   * 닉네임 중복 체크
+   * GET /api/auth/nickname/check
+   */
+  http.get(`${baseURL}/api/auth/nickname/check`, ({ request }) => {
+    const url = new URL(request.url);
+    const nickname = url.searchParams.get('nickname') ?? '';
+    const isDuplicate = usedNicknames.has(nickname);
+    return HttpResponse.json(wrapResponse({ nickname, available: !isDuplicate }));
+  }),
+
+  /**
+   * 프로필 설정 (회원가입/닉네임 변경)
+   * PATCH /api/auth/me
+   */
+  http.patch(`${baseURL}/api/auth/me`, async ({ request }) => {
+    // MSW 환경: 카카오 리다이렉트로 mockUser가 초기화된 경우 복원
+    const currentUser = mockUser ?? {
+      id: 1001,
+      nickname: null,
+      profileColor: 'purple',
+      lastNicknameChangedAt: null,
+    };
+    const body = (await request.json()) as {
+      nickname?: string;
+      gender?: string | null;
+      birthYear?: number | null;
+      profileColor?: string;
+    };
+    if (body.nickname) {
+      usedNicknames.add(body.nickname);
+      currentUser.nickname = body.nickname;
+    }
+    if (body.profileColor) {
+      currentUser.profileColor = body.profileColor;
+    }
+    mockUser = currentUser;
+    // 회원가입 시 needsLink 반환 (닉네임 설정 = 회원가입)
+    const isSignup = body.nickname && currentUser.nickname === body.nickname;
+    return HttpResponse.json(
+      wrapResponse({
+        user: currentUser,
+        ...(isSignup ? { needsLink: true } : {}),
+      })
+    );
+  }),
+
+  /**
+   * 내 투표 목록 조회
+   * GET /api/users/me/votes
+   */
+  http.get(`${baseURL}/api/users/me/votes`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const cursor = url.searchParams.get('cursor');
+    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+
+    const mockVotes = Array.from({ length: size }, (_, i) => ({
+      hotpickId: 100 + i + (cursor ? parseInt(cursor, 10) : 0),
+      slug: `mock-vote-${100 + i}`,
+      title: `투표한 핫픽 ${100 + i}`,
+      myElectionItemId: i % 2 === 0 ? 1 : 2,
+      votedAt: new Date(Date.now() - i * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        votes: mockVotes,
+        hasMore: true,
+        nextCursor: String((cursor ? parseInt(cursor, 10) : 0) + size),
+      })
+    );
+  }),
+
+  /**
+   * 내 댓글 목록 조회
+   * GET /api/users/me/comments
+   */
+  http.get(`${baseURL}/api/users/me/comments`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const size = parseInt(url.searchParams.get('size') ?? '20', 10);
+
+    const mockComments = Array.from({ length: size }, (_, i) => ({
+      hotpickSlug: `mock-hotpick-${(page - 1) * size + i}`,
+      hotpickTitle: `짜장면 vs 짬뽕, 당신의 선택은? #${(page - 1) * size + i + 1}`,
+      content: `이건 확실히 짜장면이죠! 비 오는 날엔 특히 짜장면이 최고입니다 ${(page - 1) * size + i + 1}`,
+      createdAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        data: mockComments,
+        meta: { page, totalPages: 3 },
+      })
+    );
+  }),
+
+  /**
+   * 좋아요한 핫픽 목록 조회
+   * GET /api/users/me/likes
+   */
+  http.get(`${baseURL}/api/users/me/likes`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const size = parseInt(url.searchParams.get('size') ?? '20', 10);
+
+    const mockLikes = Array.from({ length: size }, (_, i) => ({
+      hotpickId: (page - 1) * size + i + 1,
+      hotpickAlias: `mock-liked-hotpick-${(page - 1) * size + i}`,
+      hotpickTitle: `재택근무 vs 출근, 어디가 좋아? #${(page - 1) * size + i + 1}`,
+      optionSummary: '재택근무 vs 출근',
+      likedAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        data: mockLikes,
+        meta: { page, totalPages: 2 },
+      })
+    );
+  }),
+
   // ──────────────────────────────────────────────────────────
   // Hotpick API (사용자 화면)
   // ──────────────────────────────────────────────────────────

@@ -67,8 +67,7 @@ export const useCommentLike = (
       }));
 
       try {
-        const tkuId = getTKUID();
-        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : undefined;
+        const apiOptions = { headers: { 'x-tku-id': getTKUID() } };
 
         const result = currentLiked
           ? await unlikeComment(commentId, apiOptions)

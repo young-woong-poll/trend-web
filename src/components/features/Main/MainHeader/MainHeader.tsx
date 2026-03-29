@@ -8,10 +8,13 @@ import { usePathname } from 'next/navigation';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
 import SearchIcon from '@/assets/icon/SearchIcon';
+import UserIcon from '@/assets/icon/UserIcon';
 import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss';
+import ProfileDropdown from '@/components/features/Main/MainHeader/ProfileDropdown';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
 import { SearchResultList } from '@/components/features/Search/SearchResultList';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MIN_SEARCH_LENGTH = 2;
 
@@ -21,6 +24,7 @@ interface MainHeaderProps {
 }
 
 export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
+  const { isLoading, isLoggedIn, requireLogin } = useAuth();
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -163,6 +167,23 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
               <Link href="/search" className={styles.searchIconButton} aria-label="검색">
                 <SearchIcon width={20} height={20} />
               </Link>
+
+              {/* 로그인 / 프로필 버튼 (CLS 방지: 고정 크기 wrapper) */}
+              <div className={styles.authSlot}>
+                {!isLoading &&
+                  (isLoggedIn ? (
+                    <ProfileDropdown />
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.loginButton}
+                      onClick={() => requireLogin('default')}
+                    >
+                      <span className={styles.loginText}>로그인</span>
+                      <UserIcon className={styles.loginIcon} width={20} height={20} />
+                    </button>
+                  ))}
+              </div>
             </>
           ) : (
             <Link href="/" className={styles.homeLink}>

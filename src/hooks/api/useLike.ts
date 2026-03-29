@@ -17,7 +17,6 @@ import { getTKUID } from '@/lib/tkuid';
 export const useLike = () => {
   const queryClient = useQueryClient();
   const pendingRef = useRef<Set<string>>(new Set());
-  const tkuIdRef = useRef<string>(getTKUID());
 
   /** infinite main 캐시에서 특정 핫픽의 liked / likeCount 업데이트 */
   const updateInfiniteCache = useCallback(
@@ -86,8 +85,7 @@ export const useLike = () => {
       pendingRef.current.add(slug);
 
       try {
-        const tkuId = tkuIdRef.current;
-        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : undefined;
+        const apiOptions = { headers: { 'x-tku-id': getTKUID() } };
 
         const result = currentLiked
           ? await unlikeHotpick(slug, apiOptions)

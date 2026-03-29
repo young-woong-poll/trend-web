@@ -195,7 +195,7 @@
 .searchIconButton {
   @include flex-center;
   margin-left: auto;
-  color: $text-secondary;
+  color: $white;
   padding: $spacing-4;
   text-decoration: none;
   flex-shrink: 0;
@@ -210,5 +210,67 @@
 
   @media (min-width: $breakpoint-tablet) {
     display: none;
+  }
+}
+
+// ─── Auth 슬롯 (CLS 방지: 고정 크기) ───
+.authSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  // Mobile: 아이콘 크기(28px)에 맞춤
+  width: 28px;
+  height: 28px;
+
+  // PC: 로그인 버튼 텍스트 너비에 맞춤
+  @media (min-width: $breakpoint-tablet) {
+    width: 80px;
+    height: 36px;
+  }
+}
+
+// ─── 로그인 버튼 (PC: 텍스트, Mobile: 아이콘) ───
+.loginButton {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ff00ff, #ff4500);
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  // Mobile: 아이콘만 표시
+  @media (max-width: $breakpoint-tablet - 1) {
+    padding: $spacing-4;
+    background: none;
+    border-radius: 50%;
+
+    .loginText {
+      display: none;
+    }
+
+    .loginIcon {
+      display: block;
+    }
+  }
+
+  // PC: 텍스트만 표시
+  @media (min-width: $breakpoint-tablet) {
+    .loginText {
+      display: inline;
+    }
+
+    .loginIcon {
+      display: none;
+    }
   }
 }
