@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { postKakaoLogin } from '@/hooks/api/useAuthApi';
+import { setSignupToken } from '@/lib/signupToken';
 
 const parseReturnUrl = (stateParam: string | null) => {
   if (!stateParam) {
@@ -42,14 +43,16 @@ const KakaoCallbackContent = () => {
         const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? '';
         const result = await postKakaoLogin(code, redirectUri);
 
-        if (result.isSignUp) {
+        if (result.isSignUp && result.signupToken) {
+          setSignupToken(result.signupToken);
           const signupParams = new URLSearchParams({ returnUrl });
           router.replace(`/auth/signup?${signupParams.toString()}`);
           return;
         }
 
-        setUser(result.user);
-        // TODO: result.needsMigration 처리 (BE 확정 후)
+        if (result.user) {
+          setUser(result.user);
+        }
       } catch {
         showToast('로그인에 실패했습니다');
       }

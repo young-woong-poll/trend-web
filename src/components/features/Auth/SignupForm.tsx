@@ -18,6 +18,7 @@ import {
 } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
+import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { getTKUID, hasTKUID } from '@/lib/tkuid';
 
 type Gender = 'male' | 'female' | null;
@@ -164,10 +165,19 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
 const SignupForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { setUser, logout } = useAuth();
+  const { setUser } = useAuth();
   const { showToast } = useModal();
 
   const returnUrl = searchParams.get('returnUrl') || '/';
+
+  // signupToken 없으면 접근 불가 → 메인으로 리다이렉트
+  const isAuthorized = hasSignupToken();
+
+  useEffect(() => {
+    if (!isAuthorized) {
+      router.replace('/');
+    }
+  }, [isAuthorized, router]);
 
   const [gender, setGender] = useState<Gender>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -238,6 +248,8 @@ const SignupForm = () => {
         birthYear: data.birthYear ? Number(data.birthYear) : null,
       });
 
+      // 가입 완료 → signupToken 정리 (이후 쿠키 기반 인증)
+      clearSignupToken();
       setUser(result.user);
 
       if (result.needsLink && hasTKUID()) {
@@ -298,10 +310,14 @@ const SignupForm = () => {
     void doSubmit(data);
   };
 
-  const handleSkip = async () => {
-    await logout();
+  const handleSkip = () => {
+    clearSignupToken();
     router.replace(returnUrl);
   };
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className={styles.container}>

@@ -14,10 +14,6 @@ export const getMe = async (): Promise<User> => {
   return response.data;
 };
 
-export const postRefresh = async (): Promise<void> => {
-  await axiosInstance.post('/api/auth/refresh');
-};
-
 export const postLogout = async (): Promise<void> => {
   await axiosInstance.post('/api/auth/logout');
 };

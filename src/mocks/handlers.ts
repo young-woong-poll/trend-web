@@ -32,13 +32,11 @@ const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.vot
 let mockUser: {
   id: number;
   nickname: string | null;
-  profileImageUrl: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;
 } | null = {
   id: 1001,
   nickname: '테스트유저',
-  profileImageUrl: 'https://via.placeholder.com/100',
   profileColor: 'purple',
   lastNicknameChangedAt: null,
 };
@@ -107,7 +105,6 @@ export const handlers = [
     mockUser = {
       id: 1001,
       nickname: isSignUp ? null : '테스트유저',
-      profileImageUrl: 'https://via.placeholder.com/100',
       profileColor: 'purple',
       lastNicknameChangedAt: null,
     };
@@ -206,29 +203,31 @@ export const handlers = [
    */
   http.patch(`${baseURL}/api/auth/me`, async ({ request }) => {
     // MSW 환경: 카카오 리다이렉트로 mockUser가 초기화된 경우 복원
-    if (!mockUser) {
-      mockUser = {
-        id: 1001,
-        nickname: null,
-        profileImageUrl: 'https://via.placeholder.com/100',
-        profileColor: 'purple',
-        lastNicknameChangedAt: null,
-      };
-    }
+    const currentUser = mockUser ?? {
+      id: 1001,
+      nickname: null,
+      profileColor: 'purple',
+      lastNicknameChangedAt: null,
+    };
     const body = (await request.json()) as {
       nickname?: string;
       gender?: string | null;
       birthYear?: number | null;
+      profileColor?: string;
     };
     if (body.nickname) {
       usedNicknames.add(body.nickname);
-      mockUser = { ...mockUser, nickname: body.nickname };
+      currentUser.nickname = body.nickname;
     }
+    if (body.profileColor) {
+      currentUser.profileColor = body.profileColor;
+    }
+    mockUser = currentUser;
     // 회원가입 시 needsLink 반환 (닉네임 설정 = 회원가입)
-    const isSignup = body.nickname && mockUser.nickname === body.nickname;
+    const isSignup = body.nickname && currentUser.nickname === body.nickname;
     return HttpResponse.json(
       wrapResponse({
-        user: mockUser,
+        user: currentUser,
         ...(isSignup ? { needsLink: true } : {}),
       })
     );

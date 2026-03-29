@@ -1,8 +1,16 @@
 import type { User } from '@/contexts/AuthContext';
 import axiosInstance from '@/lib/axios';
+import { getSignupToken } from '@/lib/signupToken';
+
+const signupAuthHeader = () => {
+  const token = getSignupToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export const getSuggestedNickname = async (): Promise<string> => {
-  const response = await axiosInstance.get<{ nickname: string }>('/api/auth/nickname/suggest');
+  const response = await axiosInstance.get<{ nickname: string }>('/api/auth/nickname/suggest', {
+    headers: signupAuthHeader(),
+  });
   return response.data.nickname;
 };
 
@@ -27,7 +35,9 @@ export const submitSignup = async (data: {
   gender: 'male' | 'female' | null;
   birthYear: number | null;
 }): Promise<SignupResponse> => {
-  const response = await axiosInstance.patch<SignupResponse>('/api/auth/me', data);
+  const response = await axiosInstance.patch<SignupResponse>('/api/auth/me', data, {
+    headers: signupAuthHeader(),
+  });
   return response.data;
 };
 

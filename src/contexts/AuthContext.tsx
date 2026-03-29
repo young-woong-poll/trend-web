@@ -5,16 +5,14 @@ import { createContext, useContext } from 'react';
 export interface User {
   id: number;
   nickname: string | null;
-  profileImageUrl: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;
 }
 
 export interface LoginResponse {
-  user: User;
+  user?: User;
   isSignUp: boolean;
-  /** TODO : BE 확정 후 마이그레이션 플로우 구현 예정 */
-  needsMigration?: boolean;
+  signupToken?: string;
 }
 
 export type LoginTrigger = 'comment' | 'like' | 'default';

@@ -27,6 +27,11 @@ const FAQ_ITEMS = [
       '네, 핫픽의 모든 기능은 무료로 이용하실 수 있습니다. 별도의 가입이나 결제 없이 바로 투표에 참여할 수 있어요.',
   },
   {
+    question: '로그인 없이도 이용할 수 있나요?',
+    answer:
+      '네, 로그인 없이도 투표 참여와 결과 확인이 가능합니다. 다만 카카오 로그인을 하면 성별·연령대별 투표 통계 확인, 마이페이지에서 내 투표·댓글 기록 관리, 좋아요한 핫픽 모아보기 등 더 많은 기능을 이용할 수 있어요.',
+  },
+  {
     question: '투표는 어떻게 하나요?',
     answer:
       '핫픽 메인 페이지에서 관심 있는 주제를 선택하고, 원하는 선택지를 탭하면 바로 투표가 완료됩니다. 투표 후에는 다른 사람들의 의견 비율을 즉시 확인할 수 있어요.',
@@ -39,6 +44,11 @@ const FAQ_ITEMS = [
   {
     question: '내 투표 기록은 어디서 볼 수 있나요?',
     answer: '투표한 핫픽을 다시 방문하면 내가 선택한 항목과 현재 투표 결과를 확인할 수 있습니다.',
+  },
+  {
+    question: '로그인 전 활동을 계정에 연동할 수 있나요?',
+    answer:
+      '네, 회원가입 시 최초 1회에 한해 현재 브라우저에 저장된 투표·좋아요·댓글 기록을 내 계정에 연동할 수 있습니다. 이 기회는 가입 시점에만 제공되며, 이후에는 연동할 수 없으니 가입 시 꼭 확인해주세요.',
   },
   {
     question: '핫픽 콘텐츠는 어떻게 만들어지나요?',
@@ -144,8 +154,33 @@ export const AboutPage = () => (
         </div>
       </section>
 
-      {/* 저작권 */}
+      {/* 약관 · 사업자 정보 */}
       <footer className={styles.footer}>
+        <div className={styles.policyLinks}>
+          <a
+            href="https://kimsuky.notion.site/HotPick-33210e0b649280bf9d4ffb6899538643"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.policyLink}
+          >
+            이용약관
+          </a>
+          <span className={styles.policyDivider}>|</span>
+          <a
+            href="https://kimsuky.notion.site/HotPick-33210e0b6492806f8992cef7ce933abf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.policyLink}
+          >
+            개인정보처리방침
+          </a>
+        </div>
+
+        <div className={styles.businessInfo}>
+          <p>아이티웅 | 사업자등록번호 712-47-00107</p>
+          <p>주소: 경기도 성남시 분당구 성남대로 295</p>
+        </div>
+
         <p className={styles.copyright}>&copy; 2025 HotPick. All rights reserved.</p>
         <p className={styles.legal}>
           본 사이트의 콘텐츠(투표 주제, 이미지, 텍스트 등)는 저작권법에 의해 보호됩니다.
