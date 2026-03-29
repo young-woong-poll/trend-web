@@ -46,6 +46,7 @@ next-env.d.ts
 /.vscode
 /.idea
 settings.json
+.superpowers/
 
 # local database
 data/hotpick.db

@@ -20,6 +20,12 @@ interface FailedQueueItem {
 
 let isRefreshing = false;
 let failedQueue: FailedQueueItem[] = [];
+let onForceLogout: (() => void) | null = null;
+
+/** AuthProvider에서 로그아웃 콜백을 등록 */
+export const setForceLogoutHandler = (handler: () => void) => {
+  onForceLogout = handler;
+};
 
 function processQueue(error: unknown | null) {
   failedQueue.forEach(({ resolve, reject }) => {
@@ -78,9 +84,7 @@ async function retryWithTokenRefresh(error: AxiosError) {
   } catch (refreshError) {
     processQueue(refreshError);
 
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('auth:logout'));
-    }
+    onForceLogout?.();
 
     return Promise.reject(refreshError);
   } finally {

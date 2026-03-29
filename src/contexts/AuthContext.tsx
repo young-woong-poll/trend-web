@@ -6,6 +6,8 @@ export interface User {
   id: number;
   nickname: string | null;
   profileImageUrl: string | null;
+  profileColor: string;
+  lastNicknameChangedAt: string | null;
 }
 
 export interface LoginResponse {

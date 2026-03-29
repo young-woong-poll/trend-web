@@ -15,13 +15,14 @@
 
 .modalContent {
   position: relative;
-  background: $white;
+  background: $bg-secondary;
+  border: 1px solid #333;
   border-radius: 16px;
   padding: 0;
   width: calc(100% - 40px);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   animation: slideUp 0.3s ease-out;
   z-index: $z-index-modal;
 }
@@ -34,7 +35,7 @@
   height: 32px;
   border: none;
   background: transparent;
-  color: $neutral-600;
+  color: $text-tertiary;
   font-size: 24px;
   cursor: pointer;
   @include flex-center;
@@ -42,8 +43,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: transparent;
-    color: $neutral-900;
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
   }
 }
 

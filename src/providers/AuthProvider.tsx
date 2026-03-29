@@ -2,9 +2,13 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
+import { usePathname, useSearchParams } from 'next/navigation';
+
 import LoginModal from '@/components/features/Auth/LoginModal';
 import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
 import { getMe, postLogout } from '@/hooks/api/useAuthApi';
+import { setForceLogoutHandler } from '@/lib/axios';
+import { useMSWReady } from '@/providers/MSWProvider';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -17,11 +21,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     isOpen: false,
     trigger: 'default',
   });
+  const mswReady = useMSWReady();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const isLoggedIn = user !== null;
 
-  // 앱 마운트 시 로그인 상태 확인
+  // MSW 준비 완료 후 로그인 상태 확인
   useEffect(() => {
+    if (!mswReady) {
+      return;
+    }
     const checkAuth = async () => {
       try {
         const me = await getMe();
@@ -33,15 +43,22 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     };
     void checkAuth();
-  }, []);
+  }, [mswReady]);
 
-  // 401 interceptor에서 보낸 로그아웃 이벤트 수신
+  // ?login=true 쿼리 감지 → 로그인 모달 자동 표시
   useEffect(() => {
-    const handleForceLogout = () => {
-      setUser(null);
-    };
-    window.addEventListener('auth:logout', handleForceLogout);
-    return () => window.removeEventListener('auth:logout', handleForceLogout);
+    if (isLoading || isLoggedIn) {
+      return;
+    }
+    if (searchParams.get('login') === 'true') {
+      setLoginModal({ isOpen: true, trigger: 'default' });
+    }
+  }, [isLoading, isLoggedIn, searchParams]);
+
+  // 401 토큰 갱신 실패 시 강제 로그아웃 콜백 등록
+  useEffect(() => {
+    setForceLogoutHandler(() => setUser(null));
+    return () => setForceLogoutHandler(() => {});
   }, []);
 
   const requireLogin = useCallback(
@@ -65,7 +82,16 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const closeLoginModal = useCallback(() => {
     setLoginModal({ isOpen: false, trigger: 'default' });
-  }, []);
+    // login 쿼리가 있으면 URL에서 조용히 제거
+    if (searchParams.get('login')) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('login');
+      params.delete('returnUrl');
+      const query = params.toString();
+      const url = query ? `${pathname}?${query}` : pathname;
+      window.history.replaceState(null, '', url);
+    }
+  }, [searchParams, pathname]);
 
   return (
     <AuthContext.Provider value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser }}>

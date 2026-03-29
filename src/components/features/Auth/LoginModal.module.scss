@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1040; // $z-index-modal-backdrop — 헤더(1021)보다 위
   animation: fadeIn 0.2s ease-out;
 }
 

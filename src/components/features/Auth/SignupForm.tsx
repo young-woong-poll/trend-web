@@ -25,6 +25,7 @@ type Gender = 'male' | 'female' | null;
 interface SignupFormValues {
   nickname: string;
   birthYear: string;
+  agreeTerms: boolean;
 }
 
 const useIsMobile = () => {
@@ -364,7 +365,7 @@ const SignupForm = () => {
             <option value="" disabled>
               선택하세요
             </option>
-            {Array.from({ length: 73 }, (_, i) => new Date().getFullYear() - 12 - i).map((year) => (
+            {Array.from({ length: 73 }, (_, i) => new Date().getFullYear() - 14 - i).map((year) => (
               <option key={year} value={year}>
                 {year}년
               </option>
@@ -372,11 +373,49 @@ const SignupForm = () => {
           </select>
         </div>
 
+        {/* 약관 동의 */}
+        <div className={styles.agreementGroup}>
+          <label
+            className={`${styles.agreementButton} ${watch('agreeTerms') ? styles.agreementChecked : ''}`}
+          >
+            <input
+              type="checkbox"
+              {...register('agreeTerms', { required: true })}
+              className={styles.agreementHiddenInput}
+            />
+            <span className={styles.agreementCheckIcon}>{watch('agreeTerms') ? '✓' : ''}</span>
+            <span className={styles.agreementText}>
+              {' '}
+              핫픽{' '}
+              <a
+                href="https://kimsuky.notion.site/HotPick-33210e0b649280bf9d4ffb6899538643"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.agreementLink}
+                onClick={(e) => e.stopPropagation()}
+              >
+                이용약관
+              </a>
+              {' 및 '}
+              <a
+                href="https://kimsuky.notion.site/HotPick-33210e0b6492806f8992cef7ce933abf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.agreementLink}
+                onClick={(e) => e.stopPropagation()}
+              >
+                개인정보처리방침
+              </a>
+              에 동의합니다.
+            </span>
+          </label>
+        </div>
+
         <div className={styles.footer}>
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || isChecking || !nicknameValue?.trim()}
+            disabled={isSubmitting || isChecking || !nicknameValue?.trim() || !watch('agreeTerms')}
           >
             {isSubmitting ? '가입 중...' : '핫픽 시작하기'}
           </button>

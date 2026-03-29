@@ -20,9 +20,10 @@ interface NicknameForm {
 interface NicknameModalProps {
   isOpen: boolean;
   onClose?: () => void;
+  mode?: 'signup' | 'edit';
 }
 
-const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
+const NicknameModal = ({ isOpen, onClose, mode = 'signup' }: NicknameModalProps) => {
   const { setUser, user } = useAuth();
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,12 +52,21 @@ const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
 
   useEffect(() => {
     if (isOpen) {
-      void loadSuggestion();
+      if (mode === 'edit' && user?.nickname) {
+        setValue('nickname', user.nickname);
+        clearErrors('nickname');
+      } else {
+        void loadSuggestion();
+      }
     }
-  }, [isOpen, loadSuggestion]);
+  }, [isOpen, mode, user?.nickname, setValue, clearErrors, loadSuggestion]);
 
   const handleBlur = async () => {
     if (!nicknameValue?.trim()) {
+      return;
+    }
+    if (mode === 'edit' && nicknameValue.trim() === user?.nickname) {
+      clearErrors('nickname');
       return;
     }
     setIsChecking(true);
@@ -77,6 +87,11 @@ const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
   const onSubmit = async (data: NicknameForm) => {
     const trimmed = data.nickname.trim();
     if (!trimmed) {
+      return;
+    }
+
+    if (mode === 'edit' && trimmed === user?.nickname) {
+      onClose?.();
       return;
     }
 
@@ -101,6 +116,10 @@ const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
     return null;
   }
 
+  const title = mode === 'edit' ? '닉네임 변경' : '닉네임을 설정해주세요';
+  const submitLabel = mode === 'edit' ? '변경하기' : '시작하기';
+  const submittingLabel = mode === 'edit' ? '변경 중...' : '설정 중...';
+
   return (
     <Modal
       isOpen={isOpen}
@@ -110,7 +129,10 @@ const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
       maxWidth={400}
     >
       <form className={styles.container} onSubmit={handleSubmit(onSubmit)}>
-        <h2 className={styles.title}>닉네임을 설정해주세요</h2>
+        <h2 className={styles.title}>{title}</h2>
+        {mode === 'edit' && (
+          <p className={styles.policyNotice}>닉네임은 월 1회만 변경할 수 있어요</p>
+        )}
 
         <div className={styles.inputWrapper}>
           <input
@@ -137,7 +159,7 @@ const NicknameModal = ({ isOpen, onClose }: NicknameModalProps) => {
           className={styles.submitButton}
           disabled={isSubmitting || isChecking || !nicknameValue?.trim()}
         >
-          {isSubmitting ? '설정 중...' : '시작하기'}
+          {isSubmitting ? submittingLabel : submitLabel}
         </button>
       </form>
     </Modal>

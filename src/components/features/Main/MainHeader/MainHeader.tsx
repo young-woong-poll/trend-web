@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState, type FC } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
 import SearchIcon from '@/assets/icon/SearchIcon';
 import UserIcon from '@/assets/icon/UserIcon';
 import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss';
+import ProfileDropdown from '@/components/features/Main/MainHeader/ProfileDropdown';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
 import { SearchResultList } from '@/components/features/Search/SearchResultList';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,8 +24,7 @@ interface MainHeaderProps {
 }
 
 export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
-  const { isLoggedIn, user, requireLogin } = useAuth();
-  const router = useRouter();
+  const { isLoggedIn, requireLogin } = useAuth();
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -170,17 +170,7 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
 
               {/* 로그인 / 프로필 버튼 */}
               {isLoggedIn ? (
-                <button
-                  type="button"
-                  className={styles.profileButton}
-                  onClick={() => router.push('/my')}
-                >
-                  {user?.profileImageUrl ? (
-                    <img src={user.profileImageUrl} alt="프로필" />
-                  ) : (
-                    <UserIcon />
-                  )}
-                </button>
+                <ProfileDropdown />
               ) : (
                 <button
                   type="button"

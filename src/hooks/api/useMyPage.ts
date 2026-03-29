@@ -2,18 +2,19 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 
 import axiosInstance from '@/lib/axios';
 
-interface MyVoteItem {
-  hotpickSlug: string;
-  hotpickTitle: string;
-  selectedOption: string;
-  votedAt: string;
-}
-
 interface MyCommentItem {
   hotpickSlug: string;
   hotpickTitle: string;
   content: string;
   createdAt: string;
+}
+
+interface LikedHotpickItem {
+  hotpickId: number;
+  hotpickAlias: string;
+  hotpickTitle: string;
+  optionSummary: string;
+  likedAt: string;
 }
 
 interface PaginatedResponse<T> {
@@ -22,32 +23,34 @@ interface PaginatedResponse<T> {
 }
 
 export const myPageKeys = {
-  votes: ['myPage', 'votes'] as const,
   comments: ['myPage', 'comments'] as const,
+  likes: ['myPage', 'likes'] as const,
 };
 
-export const useMyVotes = () =>
+export const useMyComments = () =>
   useInfiniteQuery({
-    queryKey: myPageKeys.votes,
+    queryKey: myPageKeys.comments,
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosInstance.get('/api/users/me/votes', {
-        params: { page: pageParam, size: 20 },
-      });
-      return res as unknown as PaginatedResponse<MyVoteItem>;
+      const res = await axiosInstance.get<PaginatedResponse<MyCommentItem>>(
+        '/api/users/me/comments',
+        { params: { page: pageParam, size: 20 } }
+      );
+      return res.data;
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.page < lastPage.meta.totalPages ? lastPage.meta.page + 1 : undefined,
   });
 
-export const useMyComments = () =>
+export const useLikedHotpicks = () =>
   useInfiniteQuery({
-    queryKey: myPageKeys.comments,
+    queryKey: myPageKeys.likes,
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosInstance.get('/api/users/me/comments', {
-        params: { page: pageParam, size: 20 },
-      });
-      return res as unknown as PaginatedResponse<MyCommentItem>;
+      const res = await axiosInstance.get<PaginatedResponse<LikedHotpickItem>>(
+        '/api/users/me/likes',
+        { params: { page: pageParam, size: 20 } }
+      );
+      return res.data;
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>

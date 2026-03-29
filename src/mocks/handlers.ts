@@ -29,7 +29,19 @@ const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.vot
 /**
  * Mock 인증 사용자 데이터
  */
-let mockUser: { id: number; nickname: string | null; profileImageUrl: string | null } | null = null;
+let mockUser: {
+  id: number;
+  nickname: string | null;
+  profileImageUrl: string | null;
+  profileColor: string;
+  lastNicknameChangedAt: string | null;
+} | null = {
+  id: 1001,
+  nickname: '테스트유저',
+  profileImageUrl: 'https://via.placeholder.com/100',
+  profileColor: 'purple',
+  lastNicknameChangedAt: null,
+};
 const usedNicknames = new Set<string>();
 
 const nicknameAdjectives = [
@@ -96,6 +108,8 @@ export const handlers = [
       id: 1001,
       nickname: isSignUp ? null : '테스트유저',
       profileImageUrl: 'https://via.placeholder.com/100',
+      profileColor: 'purple',
+      lastNicknameChangedAt: null,
     };
     return HttpResponse.json(
       wrapResponse({
@@ -197,6 +211,8 @@ export const handlers = [
         id: 1001,
         nickname: null,
         profileImageUrl: 'https://via.placeholder.com/100',
+        profileColor: 'purple',
+        lastNicknameChangedAt: null,
       };
     }
     const body = (await request.json()) as {
@@ -262,23 +278,51 @@ export const handlers = [
       );
     }
     const url = new URL(request.url);
-    const cursor = url.searchParams.get('cursor');
-    const size = parseInt(url.searchParams.get('size') ?? '10', 10);
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const size = parseInt(url.searchParams.get('size') ?? '20', 10);
 
     const mockComments = Array.from({ length: size }, (_, i) => ({
-      commentId: `comment-${200 + i}`,
-      hotpickSlug: `mock-hotpick-${i}`,
-      hotpickTitle: `핫픽 제목 ${i}`,
-      content: `내가 쓴 댓글 ${200 + i}`,
-      likeCount: Math.floor(Math.random() * 50),
-      createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+      hotpickSlug: `mock-hotpick-${(page - 1) * size + i}`,
+      hotpickTitle: `짜장면 vs 짬뽕, 당신의 선택은? #${(page - 1) * size + i + 1}`,
+      content: `이건 확실히 짜장면이죠! 비 오는 날엔 특히 짜장면이 최고입니다 ${(page - 1) * size + i + 1}`,
+      createdAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
     }));
 
     return HttpResponse.json(
       wrapResponse({
-        comments: mockComments,
-        hasMore: true,
-        nextCursor: String((cursor ? parseInt(cursor, 10) : 0) + size),
+        data: mockComments,
+        meta: { page, totalPages: 3 },
+      })
+    );
+  }),
+
+  /**
+   * 좋아요한 핫픽 목록 조회
+   * GET /api/users/me/likes
+   */
+  http.get(`${baseURL}/api/users/me/likes`, ({ request }) => {
+    if (!mockUser) {
+      return HttpResponse.json(
+        { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
+        { status: 401 }
+      );
+    }
+    const url = new URL(request.url);
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const size = parseInt(url.searchParams.get('size') ?? '20', 10);
+
+    const mockLikes = Array.from({ length: size }, (_, i) => ({
+      hotpickId: (page - 1) * size + i + 1,
+      hotpickAlias: `mock-liked-hotpick-${(page - 1) * size + i}`,
+      hotpickTitle: `재택근무 vs 출근, 어디가 좋아? #${(page - 1) * size + i + 1}`,
+      optionSummary: '재택근무 vs 출근',
+      likedAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
+    }));
+
+    return HttpResponse.json(
+      wrapResponse({
+        data: mockLikes,
+        meta: { page, totalPages: 2 },
       })
     );
   }),

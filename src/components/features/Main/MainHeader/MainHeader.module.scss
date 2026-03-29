@@ -256,29 +256,3 @@
     }
   }
 }
-
-// ─── 프로필 버튼 ───
-.profileButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: none;
-  background: #2c2c2c;
-  cursor: pointer;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
-    color: #8a8a8a;
-  }
-}

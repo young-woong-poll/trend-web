@@ -1,0 +1,73 @@
+// src/components/features/Main/MainHeader/ProfileDropdown.module.scss
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  @include transition(opacity, 0.2s, ease);
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 180px;
+  background: $bg-tertiary;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: $z-index-dropdown;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(background, 0.15s, ease);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  svg {
+    flex-shrink: 0;
+    color: $text-tertiary;
+  }
+}
+
+.danger {
+  color: $error;
+
+  svg {
+    color: $error;
+  }
+}
+
+.menuDivider {
+  height: 1px;
+  background: #3a3a3a;
+}

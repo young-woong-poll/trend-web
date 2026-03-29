@@ -1,0 +1,62 @@
+@use '@/styles/variables' as *;
+
+.container {
+  padding: 24px 20px;
+}
+
+.title {
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.colorButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.selected {
+  border-color: $white;
+}
+
+.saveButton {
+  width: 100%;
+  padding: 12px;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  background: $primary-gradient;
+  border: none;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

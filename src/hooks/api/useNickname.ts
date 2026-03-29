@@ -30,3 +30,7 @@ export const submitSignup = async (data: {
   const response = await axiosInstance.patch<SignupResponse>('/api/auth/me', data);
   return response.data;
 };
+
+export const updateProfileColor = async (profileColor: string): Promise<void> => {
+  await axiosInstance.patch('/api/auth/me', { profileColor });
+};

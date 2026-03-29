@@ -1,23 +1,51 @@
+// src/components/features/MyPage/MyPageView.tsx
 'use client';
 
 import { useState } from 'react';
 
-import UserIcon from '@/assets/icon/UserIcon';
+import EditIcon from '@/assets/icon/EditIcon';
+import PaletteIcon from '@/assets/icon/PaletteIcon';
+import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import NicknameModal from '@/components/features/Auth/NicknameModal';
+import LikedHotpickList from '@/components/features/MyPage/LikedHotpickList';
 import MyCommentList from '@/components/features/MyPage/MyCommentList';
+import { CardListSkeleton, ProfileSkeleton } from '@/components/features/MyPage/MyPageSkeleton';
 import styles from '@/components/features/MyPage/MyPageView.module.scss';
-import MyVoteList from '@/components/features/MyPage/MyVoteList';
+import ProfileColorModal from '@/components/features/MyPage/ProfileColorModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { deleteAccount } from '@/hooks/api/useAuthApi';
 
-type Tab = 'votes' | 'comments';
+type Tab = 'comments' | 'likes';
+
+const NICKNAME_CHANGE_INTERVAL_DAYS = 30;
+
+const canChangeNickname = (lastChangedAt: string | null): boolean => {
+  if (!lastChangedAt) {
+    return true;
+  }
+  const last = new Date(lastChangedAt);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays >= NICKNAME_CHANGE_INTERVAL_DAYS;
+};
+
+const daysUntilNicknameChange = (lastChangedAt: string | null): number => {
+  if (!lastChangedAt) {
+    return 0;
+  }
+  const last = new Date(lastChangedAt);
+  const now = new Date();
+  const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.max(0, NICKNAME_CHANGE_INTERVAL_DAYS - diffDays);
+};
 
 const MyPageView = () => {
   const { user, logout } = useAuth();
-  const { showConfirm } = useModal();
-  const [activeTab, setActiveTab] = useState<Tab>('votes');
+  const { showConfirm, showToast } = useModal();
+  const [activeTab, setActiveTab] = useState<Tab>('comments');
   const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [showColorModal, setShowColorModal] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -29,44 +57,72 @@ const MyPageView = () => {
       onConfirm: async () => {
         try {
           await deleteAccount();
+          await logout();
           window.location.href = '/';
         } catch {
-          // 실패 처리
+          showToast(
+            '탈퇴 처리에 실패했어요. 잠시 후 다시 시도해주세요.\n문제가 계속되면 voteboxxxxx@gmail.com 으로 연락해주세요.'
+          );
         }
       },
     });
   };
 
+  const handleNicknameEdit = () => {
+    if (!canChangeNickname(user?.lastNicknameChangedAt ?? null)) {
+      const days = daysUntilNicknameChange(user?.lastNicknameChangedAt ?? null);
+      showToast(`닉네임은 ${days}일 후에 변경할 수 있어요`);
+      return;
+    }
+    setShowNicknameModal(true);
+  };
+
   if (!user) {
-    return null;
+    return (
+      <div className={styles.container}>
+        <ProfileSkeleton />
+        <div className={styles.divider} />
+        <div className={styles.tabs}>
+          <div className={`${styles.tab} ${styles.active}`}>내 댓글</div>
+          <div className={styles.tab}>좋아요한 핫픽</div>
+        </div>
+        <CardListSkeleton />
+      </div>
+    );
   }
 
   return (
     <div className={styles.container}>
+      {/* 프로필 영역 */}
       <div className={styles.profileSection}>
-        <div className={styles.profileImage}>
-          {user.profileImageUrl ? <img src={user.profileImageUrl} alt="프로필" /> : <UserIcon />}
-        </div>
-        <div className={styles.profileInfo}>
-          <span className={styles.nickname}>{user.nickname ?? '닉네임 없음'}</span>
-          <button
-            type="button"
-            className={styles.editButton}
-            onClick={() => setShowNicknameModal(true)}
-          >
-            수정
-          </button>
+        <ProfileAvatar nickname={user.nickname} profileColor={user.profileColor} size={72} />
+        <div className={styles.profileName}>
+          {user.nickname ?? '닉네임 없음'}
+          <span className={styles.profileSuffix}>님</span>
         </div>
       </div>
 
-      <div className={styles.tabs}>
+      {/* 관리 버튼 */}
+      <div className={styles.actionButtons}>
+        <button type="button" className={styles.actionButton} onClick={handleNicknameEdit}>
+          <EditIcon width={14} height={14} />
+          닉네임 변경
+        </button>
         <button
           type="button"
-          className={`${styles.tab} ${activeTab === 'votes' ? styles.active : ''}`}
-          onClick={() => setActiveTab('votes')}
+          className={styles.actionButton}
+          onClick={() => setShowColorModal(true)}
         >
-          내 투표
+          <PaletteIcon width={14} height={14} />
+          프로필 색상
         </button>
+      </div>
+
+      {/* 구분선 */}
+      <div className={styles.divider} />
+
+      {/* 탭 */}
+      <div className={styles.tabs}>
         <button
           type="button"
           className={`${styles.tab} ${activeTab === 'comments' ? styles.active : ''}`}
@@ -74,11 +130,23 @@ const MyPageView = () => {
         >
           내 댓글
         </button>
+        <button
+          type="button"
+          className={`${styles.tab} ${activeTab === 'likes' ? styles.active : ''}`}
+          onClick={() => setActiveTab('likes')}
+        >
+          좋아요한 핫픽
+        </button>
       </div>
 
-      {activeTab === 'votes' ? <MyVoteList /> : <MyCommentList />}
+      {/* 탭 콘텐츠 */}
+      {activeTab === 'comments' ? <MyCommentList /> : <LikedHotpickList />}
 
-      <div className={styles.footer}>
+      {/* 구분선 */}
+      <div className={styles.divider} />
+
+      {/* 계정 관리 */}
+      <div className={styles.accountSection}>
         <button type="button" className={styles.logoutButton} onClick={handleLogout}>
           로그아웃
         </button>
@@ -87,7 +155,11 @@ const MyPageView = () => {
         </button>
       </div>
 
-      {showNicknameModal && <NicknameModal isOpen onClose={() => setShowNicknameModal(false)} />}
+      {/* 모달 */}
+      {showNicknameModal && (
+        <NicknameModal isOpen onClose={() => setShowNicknameModal(false)} mode="edit" />
+      )}
+      {showColorModal && <ProfileColorModal isOpen onClose={() => setShowColorModal(false)} />}
     </div>
   );
 };

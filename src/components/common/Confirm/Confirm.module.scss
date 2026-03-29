@@ -16,14 +16,15 @@
 .title {
   font-size: $font-size-20;
   font-weight: $font-weight-bold;
-  color: $neutral-900;
+  color: $white;
   line-height: 1.4;
   margin: 0;
+  white-space: pre-line;
 }
 
 .message {
   font-size: $font-size-14;
-  color: $neutral-600;
+  color: $text-secondary;
   line-height: 1.5;
   margin: 0;
 }

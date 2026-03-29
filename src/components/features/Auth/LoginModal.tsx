@@ -49,11 +49,10 @@ const LoginModalContent = ({
   const handleKakaoLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
     const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI;
-    const state = encodeURIComponent(
-      new URLSearchParams({
-        returnUrl: window.location.pathname + window.location.search,
-      }).toString()
-    );
+    // 쿼리의 returnUrl이 있으면 우선 사용 (예: /?login=true&returnUrl=/my)
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnUrl = urlParams.get('returnUrl') || window.location.pathname;
+    const state = encodeURIComponent(new URLSearchParams({ returnUrl }).toString());
     window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&state=${state}`;
   };
 
