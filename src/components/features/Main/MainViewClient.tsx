@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -9,16 +9,18 @@ import { LazyMotion, domAnimation } from 'framer-motion';
 import { CardList } from '@/components/features/Main/CardList/CardList';
 import { ContentTabs } from '@/components/features/Main/ContentTabs';
 import styles from '@/components/features/Main/MainContent.module.scss';
+import { TopRankingList } from '@/components/features/Main/TopRankingList/TopRankingList';
+import { TopSubFilter } from '@/components/features/Main/TopSubFilter/TopSubFilter';
 import type { CategoryFilterItem } from '@/constants/category';
 import {
-  DEFAULT_HOT_PERIOD,
+  DEFAULT_TOP_PERIOD,
   DEFAULT_TAB,
-  type HotPeriod,
+  type TopPeriod,
   type TabSelection,
   type FilterTabType,
 } from '@/constants/contentTab';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
-import type { HotpickCardResponse } from '@/generated/models';
+import type { CategoryTabResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { toCardModel } from '@/lib/mappers/cardMapper';
@@ -27,94 +29,86 @@ type TMainViewClientProps = {
   children?: ReactNode;
 };
 
+const FILTER_TAB_TYPES: FilterTabType[] = ['new', 'top', 'my'];
+
 /**
  * URL 쿼리에서 탭 정보 파싱
  */
-function parseTabFromQuery(searchParams: URLSearchParams): TabSelection {
+function parseTabFromQuery(
+  searchParams: URLSearchParams,
+  categories?: CategoryTabResponse[]
+): TabSelection {
   const filter = searchParams.get('filter');
   const category = searchParams.get('category');
 
   // 카테고리 탭이 지정되었으면 우선 적용
   if (category) {
-    const categoryLabel = searchParams.get('categoryLabel');
-    return {
-      kind: 'category',
-      slug: category,
-      label: categoryLabel || category,
-    };
+    const label = categories?.find((c) => c.slug === category)?.name ?? category;
+    return { kind: 'category', slug: category, label };
   }
 
-  // 필터 탭 (new, hot, my)
-  if (filter && ['new', 'hot', 'my'].includes(filter)) {
-    return {
-      kind: 'filter',
-      type: filter as FilterTabType,
-    };
+  // 필터 탭 (new, top, my)
+  if (filter && FILTER_TAB_TYPES.includes(filter as FilterTabType)) {
+    return { kind: 'filter', type: filter as FilterTabType };
   }
 
   return DEFAULT_TAB;
 }
 
 /**
- * URL 쿼리에서 HOT 기간 파싱
- */
-function parseHotPeriodFromQuery(searchParams: URLSearchParams): HotPeriod {
-  const period = searchParams.get('period');
-  if (period && ['1d', '1w', '1m', '1y'].includes(period)) {
-    return period as HotPeriod;
-  }
-  return DEFAULT_HOT_PERIOD;
-}
-
-/**
  * 탭 정보를 URL 쿼리로 업데이트
  */
-function updateUrlWithTab(
-  tab: TabSelection,
-  period: HotPeriod,
-  router: ReturnType<typeof useRouter>
-) {
+function buildUrlParams(tab: TabSelection): string {
   const params = new URLSearchParams();
 
   if (tab.kind === 'filter') {
     params.set('filter', tab.type);
   } else {
     params.set('category', tab.slug);
-    params.set('categoryLabel', tab.label);
   }
 
-  if (tab.kind === 'filter' && tab.type === 'hot') {
-    params.set('period', period);
-  }
-
-  router.push(`/?${params.toString()}`);
+  return `/?${params.toString()}`;
 }
 
 /**
  * TabSelection → API 파라미터 변환
  */
-function buildQueryParams(tab: TabSelection, hotPeriod: HotPeriod) {
-  const base = { size: 18 };
-
+function buildQueryParams(tab: TabSelection, topPeriod: TopPeriod, topCategory: string | null) {
   if (tab.kind === 'filter') {
     switch (tab.type) {
       case 'new':
-        return { ...base, sort: 'latest', filter: 'new' };
-      case 'hot':
-        return { ...base, sort: 'hot', filter: `hot_${hotPeriod}` };
+        return { size: 18, sort: 'latest', filter: 'new' };
+      case 'top': {
+        const params: Record<string, string | number> = {
+          size: 15,
+          sort: 'hot',
+        };
+        // 'all' → filter 없음 (전체 기간), 나머지 → hot_{period}
+        if (topPeriod !== 'all') {
+          params.filter = `hot_${topPeriod}`;
+        }
+        if (topCategory) {
+          params.category = topCategory;
+        }
+        return params;
+      }
       case 'my':
-        return { ...base, sort: 'latest', filter: 'voted' };
+        return { size: 18, sort: 'latest', filter: 'voted' };
     }
   }
 
   // 카테고리 탭
-  return { ...base, category: tab.slug, sort: 'latest' };
+  return { size: 18, category: tab.slug, sort: 'latest' };
 }
 
 /**
  * TabSelection → 빈 상태 메시지
  */
-function getEmptyState(tab: TabSelection): { title: string; description: string } {
+function getEmptyState(
+  tab: TabSelection,
+  topCategory: string | null,
+  categoryLabel?: string
+): { title: string; description: string } {
   if (tab.kind === 'filter') {
     switch (tab.type) {
       case 'new':
@@ -122,10 +116,16 @@ function getEmptyState(tab: TabSelection): { title: string; description: string 
           title: '새로운 핫픽이 없어요',
           description: '곧 새로운 주제로 찾아뵙겠습니다!',
         };
-      case 'hot':
+      case 'top':
+        if (topCategory && categoryLabel) {
+          return {
+            title: `'${categoryLabel}' TOP 핫픽이 없어요`,
+            description: '해당 카테고리의 인기 투표가 생기면 표시됩니다.',
+          };
+        }
         return {
-          title: '아직 HOT 핫픽이 없어요',
-          description: '투표가 활발해지면 여기에 표시됩니다.',
+          title: '아직 TOP 핫픽이 없어요',
+          description: '투표가 쌓이면 여기서 순위를 확인할 수 있어요.',
         };
       case 'my':
         return {
@@ -145,19 +145,19 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedTab, setSelectedTab] = useState<TabSelection>(DEFAULT_TAB);
-  const [hotPeriod, setHotPeriod] = useState<HotPeriod>(DEFAULT_HOT_PERIOD);
-
   const { data: apiCategories } = useCategories();
 
-  // 마운트 후 URL 쿼리에서 초기값 로드
-  useEffect(() => {
-    const initialTab = parseTabFromQuery(searchParams);
-    const initialPeriod = parseHotPeriodFromQuery(searchParams);
+  // URL searchParams를 single source of truth로 사용
+  const selectedTab = useMemo(
+    () => parseTabFromQuery(searchParams, Array.isArray(apiCategories) ? apiCategories : undefined),
+    [searchParams, apiCategories]
+  );
 
-    setSelectedTab(initialTab);
-    setHotPeriod(initialPeriod);
-  }, [searchParams]);
+  // TOP 서브필터 상태 (탭 전환해도 선택값 보존)
+  const [topPeriod, setTopPeriod] = useState<TopPeriod>(DEFAULT_TOP_PERIOD);
+  const [topCategory, setTopCategory] = useState<string | null>(null);
+
+  const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
     ? apiCategories
@@ -169,8 +169,8 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
     : undefined;
 
   const queryParams = useMemo(
-    () => buildQueryParams(selectedTab, hotPeriod),
-    [selectedTab, hotPeriod]
+    () => buildQueryParams(selectedTab, topPeriod, topCategory),
+    [selectedTab, topPeriod, topCategory]
   );
 
   const {
@@ -185,30 +185,18 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   } = useInfiniteMainDisplay(queryParams);
 
   const observerTarget = useInfiniteScroll({
-    hasNextPage,
+    hasNextPage: isTopTab ? false : hasNextPage, // TOP 탭은 무한스크롤 비활성
     isFetchingNextPage,
     fetchNextPage: () => void fetchNextPage(),
   });
 
-  // 탭 변경 시 URL 업데이트
+  // 탭 변경 시 URL 업데이트 (replace로 히스토리 오염 방지)
   const handleTabChange = useCallback(
     (tab: TabSelection) => {
-      setSelectedTab(tab);
-      updateUrlWithTab(tab, hotPeriod, router);
+      router.replace(buildUrlParams(tab));
       window.scrollTo({ top: 0 });
     },
-    [hotPeriod, router]
-  );
-
-  // HOT 기간 변경 시 URL 업데이트
-  const handleHotPeriodChange = useCallback(
-    (period: HotPeriod) => {
-      setHotPeriod(period);
-      if (selectedTab.kind === 'filter' && selectedTab.type === 'hot') {
-        updateUrlWithTab(selectedTab, period, router);
-      }
-    },
-    [selectedTab, router]
+    [router]
   );
 
   // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
@@ -220,7 +208,15 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   // BE → UI model 변환 (한 번만)
   const cards = useMemo(() => hotpicks.map(toCardModel), [hotpicks]);
 
-  const emptyState = useMemo(() => getEmptyState(selectedTab), [selectedTab]);
+  // TOP 카테고리 라벨 찾기 (빈 상태 메시지용)
+  const topCategoryLabel = topCategory
+    ? dynamicCategories?.find((c) => c.slug === topCategory)?.label
+    : undefined;
+
+  const emptyState = useMemo(
+    () => getEmptyState(selectedTab, topCategory, topCategoryLabel),
+    [selectedTab, topCategory, topCategoryLabel]
+  );
 
   return (
     <>
@@ -230,25 +226,44 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
         selectedTab={selectedTab}
         onChange={handleTabChange}
         categories={dynamicCategories}
-        hotPeriod={hotPeriod}
-        onHotPeriodChange={handleHotPeriodChange}
       />
 
-      <div className={styles.container}>
+      {/* TOP 서브필터 — TOP 탭 활성 시에만 표시 */}
+      {isTopTab && (
+        <TopSubFilter
+          selectedPeriod={topPeriod}
+          onPeriodChange={setTopPeriod}
+          selectedCategory={topCategory}
+          onCategoryChange={setTopCategory}
+          categories={dynamicCategories}
+        />
+      )}
+
+      <div className={`${styles.container} ${isTopTab ? styles.containerWithSubFilter : ''}`}>
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
-            <CardList
-              cards={cards}
-              isLoading={isLoading}
-              isError={isError}
-              isFetching={isFetching}
-              isFetchingNextPage={isFetchingNextPage}
-              hasNextPage={hasNextPage}
-              error={error}
-              observerTarget={observerTarget}
-              onRetry={() => fetchNextPage()}
-              emptyState={emptyState}
-            />
+            {isTopTab ? (
+              <TopRankingList
+                cards={cards}
+                isLoading={isLoading}
+                isError={isError}
+                isFetching={isFetching}
+                emptyState={emptyState}
+              />
+            ) : (
+              <CardList
+                cards={cards}
+                isLoading={isLoading}
+                isError={isError}
+                isFetching={isFetching}
+                isFetchingNextPage={isFetchingNextPage}
+                hasNextPage={hasNextPage}
+                error={error}
+                observerTarget={observerTarget}
+                onRetry={() => fetchNextPage()}
+                emptyState={emptyState}
+              />
+            )}
           </CardActionsProvider>
         </LazyMotion>
       </div>

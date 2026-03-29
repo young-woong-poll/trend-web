@@ -21,6 +21,11 @@
   }
 }
 
+// ── TOP 서브필터 있을 때 추가 상단 여백 ──
+.containerWithSubFilter {
+  margin-top: 40px;
+}
+
 // ── 카드 그리드: Masonry (벽돌형) 레이아웃 ──
 .cardGrid {
   display: flex;
