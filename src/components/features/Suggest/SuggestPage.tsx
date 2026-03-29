@@ -226,7 +226,7 @@ export const SuggestPage: FC = () => {
         {/* Hero */}
         <section className={styles.hero}>
           <h1 className={styles.heroTitle}>핫픽 제안</h1>
-          <p className={styles.heroSub}>여러분의 아이디어가 핫픽이 됩니다!</p>
+          <p className={styles.heroSub}>새로운 비교 주제를 제안해주세요!</p>
         </section>
 
         {/* 폼 */}
@@ -236,7 +236,7 @@ export const SuggestPage: FC = () => {
             <label htmlFor="suggest-title" className={styles.label}>
               투표 질문 <span className={styles.required}>*</span>
             </label>
-            <p className={styles.hint}>사람들에게 물어보고 싶은 질문을 적어주세요</p>
+            <p className={styles.hint}>사람들과 비교해보고 싶은 질문을 적어주세요</p>
             <input
               id="suggest-title"
               type="text"
