@@ -5,13 +5,11 @@ import { useState, useCallback, type FC } from 'react';
 import Link from 'next/link';
 
 import SparkleIcon from '@/assets/icon/SparkleIcon';
-import { ImageUpload } from '@/components/common/ImageUpload/ImageUpload';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import styles from '@/components/features/Suggest/SuggestPage.module.scss';
 
 const MAX_OPTIONS = 4;
 const MIN_OPTIONS = 2;
-const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
 
 const CATEGORIES = [
   { id: 1, label: '연애' },
@@ -326,15 +324,7 @@ export const SuggestPage: FC = () => {
           {/* 이미지 (선택) */}
           <div className={styles.field}>
             <label className={styles.label}>이미지</label>
-            <p className={styles.hint}>
-              투표에 어울리는 이미지를 올려주세요. 없으면 자동으로 매칭돼요!
-            </p>
-            <ImageUpload
-              value={formData.imageUrl}
-              onChange={(cdnUrl) => updateField('imageUrl', cdnUrl)}
-              uploadOptions={{ prefix: 'suggest' }}
-              maxSize={MAX_IMAGE_SIZE}
-            />
+            <p className={styles.hint}>투표에 어울리는 짤로 자동으로 매칭돼요!</p>
           </div>
 
           {/* 안내 배너 */}
