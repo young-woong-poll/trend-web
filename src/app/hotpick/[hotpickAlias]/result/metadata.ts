@@ -6,7 +6,7 @@ import type { Metadata } from 'next';
 export const defaultMetadata: Metadata = {
   ...COMMON_METADATA,
   title: '나의 핫픽 결과는?',
-  description: '투표 결과를 확인해보세요!',
+  description: '대중과 내 생각을 비교해보세요!',
 };
 
 /**
@@ -19,7 +19,7 @@ export async function createResultMetadata(hotpickAlias: string): Promise<Metada
     url: '/og-result.jpg',
     width: 1200,
     height: 630,
-    alt: '애매하면? 핫픽 — 내 결과 확인하기',
+    alt: '핫픽 - 대중의 답은? 결과 확인하기',
   } as const;
 
   try {
@@ -42,7 +42,7 @@ export async function createResultMetadata(hotpickAlias: string): Promise<Metada
 
     // 티저 전략: 핫픽 주제 + VS 대결구도
     const title = `${questionTitle} ${optionA} VS ${optionB}`;
-    const description = `나는 어떤 유형일까? ${optionA} vs ${optionB} 결과 확인하기 →`;
+    const description = `${optionA} vs ${optionB} - 대중의 답은? 결과 확인하기 →`;
     const canonicalUrl = `${SITE_URL}/hotpick/${hotpickAlias}/result`;
 
     return {
@@ -71,7 +71,7 @@ export async function createResultMetadata(hotpickAlias: string): Promise<Metada
     console.error('[Metadata] Failed to create result metadata:', error);
 
     const title = '나의 핫픽 결과는?';
-    const description = '투표 결과를 확인해보세요!';
+    const description = '대중과 내 생각을 비교해보세요!';
 
     return {
       title,

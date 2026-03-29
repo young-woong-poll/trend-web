@@ -10,13 +10,13 @@ import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 
 const FEATURES = [
   {
-    title: '1초 투표',
-    description: '3초 안에 이해하고 결정하는 직관적 UI. 복잡한 가입 없이 바로 투표하세요.',
+    title: '1초 비교',
+    description: '탭 한 번으로 대중과 내 생각을 비교. 복잡한 가입 없이 바로 참여하세요.',
   },
   {
-    title: '대중의 생각',
+    title: '숫자로 확인',
     description:
-      '수천 명의 정량적 의견을 즉시 확인. 나와 같은 생각을 가진 사람이 몇 %인지 알 수 있어요.',
+      '수천 명의 답을 숫자로, 연인의 답을 나란히. 나와 같은 생각을 가진 사람이 몇 %인지 알 수 있어요.',
   },
 ];
 
@@ -90,10 +90,10 @@ export const AboutPage = () => (
     <main className={styles.main}>
       {/* Hero */}
       <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>애매하면 핫픽</h1>
-        <p className={styles.heroSub}>투표하고, 대중의 생각을 확인하세요</p>
+        <h1 className={styles.heroTitle}>생각을 비교하다, 핫픽</h1>
+        <p className={styles.heroSub}>대중의 생각부터 연인의 가치관까지</p>
         <Link href="/" className={styles.ctaLink}>
-          <span className={styles.ctaButton}>지금 투표하러 가기 →</span>
+          <span className={styles.ctaButton}>지금 비교하러 가기 →</span>
         </Link>
       </section>
 
@@ -103,7 +103,7 @@ export const AboutPage = () => (
         <p className={styles.sectionDesc}>
           정답이 없는 일상의 고민, 혼자 끙끙대지 마세요.
           <br />
-          핫픽은 수천 명의 대중에게 직접 물어보고, 그 답을 숫자로 확인하는 곳입니다.
+          핫픽은 대중의 생각부터 연인의 가치관까지, 숫자로 비교하는 곳입니다.
           <br />
           &ldquo;나만 이렇게 생각하나?&rdquo;에 대한 가장 솔직한 답을 찾아보세요.
         </p>

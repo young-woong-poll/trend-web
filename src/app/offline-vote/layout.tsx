@@ -9,7 +9,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: '핫픽 - 오프라인 투표',
+  title: '핫픽 - 오프라인 비교',
 };
 
 export default function OfflineVoteLayout({ children }: { children: React.ReactNode }) {
