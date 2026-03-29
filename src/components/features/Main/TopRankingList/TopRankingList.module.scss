@@ -1,0 +1,341 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+// Skeleton pulse animation
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+}
+
+// ── Header ──
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+
+  .headerTitle {
+    font-size: $font-size-20;
+    font-weight: $font-weight-bold;
+    color: $white;
+  }
+}
+
+// ── Podium 1st ──
+.firstPlace {
+  display: block;
+  text-decoration: none;
+  background: $bg-secondary;
+  border: 1px solid rgba(#ffd700, 0.3);
+  border-radius: $border-radius-lg;
+  padding: 20px;
+  @include transition(border-color, 0.2s);
+
+  &:hover {
+    border-color: rgba(#ffd700, 0.5);
+  }
+}
+
+.firstPlaceBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.badgeText {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: #ffd700;
+}
+
+.firstPlaceBody {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.firstPlaceImage {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+}
+
+.firstPlaceContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.firstPlaceTitle {
+  font-size: $font-size-22;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: 12px;
+  line-height: 1.3;
+
+  @include se {
+    font-size: $font-size-20;
+  }
+}
+
+.firstPlaceMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.voteCount {
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  background: rgba($white, 0.06);
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+}
+
+// ── Podium 2~3rd ──
+.podiumGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.podiumCard {
+  display: block;
+  text-decoration: none;
+  background: $bg-secondary;
+  border: 1px solid rgba($white, 0.1);
+  border-radius: $border-radius-lg;
+  padding: 16px;
+  @include transition(border-color, 0.2s);
+
+  &:hover {
+    border-color: rgba($white, 0.2);
+  }
+}
+
+.podiumBadge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.podiumBadgeText {
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+}
+
+.podiumImage {
+  width: 56px;
+  height: 56px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.podiumTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  @include line-clamp(2);
+
+  @include se {
+    font-size: $font-size-14;
+  }
+}
+
+.podiumMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.podiumVoteCount {
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+.podiumTags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.podiumTag {
+  font-size: 11px;
+  color: $text-tertiary;
+  background: rgba($white, 0.06);
+  padding: 1px 6px;
+  border-radius: $border-rounded;
+}
+
+// ── List 4~15th ──
+.listContainer {
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+}
+
+.listRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  @include transition(background-color, 0.15s);
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba($white, 0.06);
+  }
+
+  &:hover {
+    background-color: rgba($white, 0.03);
+  }
+}
+
+.rankNumber {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: $text-tertiary;
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.listImage {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: $border-radius-sm;
+  object-fit: cover;
+}
+
+.listTitle {
+  flex: 1;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $white;
+  @include text-ellipsis;
+  min-width: 0;
+}
+
+.listTags {
+  display: none;
+
+  @include tablet {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.listTag {
+  font-size: 11px;
+  color: $text-tertiary;
+  background: rgba($white, 0.06);
+  padding: 1px 6px;
+  border-radius: $border-rounded;
+  white-space: nowrap;
+}
+
+.listVoteCount {
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+// ── States ──
+.skeleton {
+  @include flex-column;
+  gap: 12px;
+}
+
+.skeletonTall {
+  height: 140px;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeletonShort {
+  height: 52px;
+  background: $bg-secondary;
+  border-radius: $border-radius-md;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 8px;
+}
+
+.errorText {
+  font-size: $font-size-16;
+  color: $error;
+  font-weight: $font-weight-medium;
+}
+
+.errorHint {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.emptyTitle {
+  font-size: $font-size-20;
+  font-weight: $font-weight-bold;
+  color: $white;
+}
+
+.emptyDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.5;
+  white-space: pre-line;
+}
