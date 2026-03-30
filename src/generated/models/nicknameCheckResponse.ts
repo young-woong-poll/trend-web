@@ -5,6 +5,9 @@
  * OpenAPI spec version: v0
  */
 
-export interface DeleteCommentRequest {
-  verifyToken?: string;
+/**
+ * 응답 데이터
+ */
+export interface NicknameCheckResponse {
+  available?: boolean;
 }

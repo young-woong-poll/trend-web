@@ -9,6 +9,7 @@ import type {
   BaseResponseHotpickDetailResponse,
   BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
+  BaseResponseListHotpickCardResponse,
   BaseResponseMainHotpickResponse,
   BaseResponseVoteResultResponse,
   CreateVoteRequest,
@@ -102,6 +103,17 @@ export const getMain = (
   );
 };
 /**
+ * @summary Get fixed hotpicks (latest order)
+ */
+export const getFixedHotpicks = (
+  options?: SecondParameter<typeof customInstance<BaseResponseListHotpickCardResponse>>
+) => {
+  return customInstance<BaseResponseListHotpickCardResponse>(
+    { url: `/api/v1/hotpicks/fixed`, method: 'GET' },
+    options
+  );
+};
+/**
  * @summary Get category tabs
  */
 export const getCategories1 = (
@@ -119,4 +131,5 @@ export type UnlikeHotpickResult = NonNullable<Awaited<ReturnType<typeof unlikeHo
 export type GetDetailResult = NonNullable<Awaited<ReturnType<typeof getDetail>>>;
 export type GetElectionSeriesResult = NonNullable<Awaited<ReturnType<typeof getElectionSeries>>>;
 export type GetMainResult = NonNullable<Awaited<ReturnType<typeof getMain>>>;
+export type GetFixedHotpicksResult = NonNullable<Awaited<ReturnType<typeof getFixedHotpicks>>>;
 export type GetCategories1Result = NonNullable<Awaited<ReturnType<typeof getCategories1>>>;

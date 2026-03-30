@@ -5,11 +5,11 @@
  * OpenAPI spec version: v0
  */
 
-export interface UpdateCommentRequest {
-  verifyToken?: string;
+export interface UpdateProfileRequest {
   /**
    * @minLength 0
-   * @maxLength 200
+   * @maxLength 20
    */
-  content: string;
+  nickname?: string;
+  profileColor?: string;
 }

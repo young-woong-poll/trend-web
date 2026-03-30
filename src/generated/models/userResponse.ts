@@ -5,14 +5,9 @@
  * OpenAPI spec version: v0
  */
 
-export interface CommentItem {
+export interface UserResponse {
   id?: string;
   nickname?: string;
   profileColor?: string;
-  content?: string;
-  likeCount?: number;
-  liked?: boolean;
-  edited?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  lastNicknameChangedAt?: string;
 }

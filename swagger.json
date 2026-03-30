@@ -143,8 +143,7 @@
                 "$ref": "#/components/schemas/DeleteCommentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "500": {
@@ -700,14 +699,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "requestBody": {
@@ -777,14 +768,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -839,14 +822,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -943,14 +918,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1156,14 +1123,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -1218,14 +1177,6 @@
             "name": "commentId",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -2391,14 +2342,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2721,14 +2664,6 @@
               "type": "integer",
               "format": "int32"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -2780,16 +2715,6 @@
         "tags": ["Hotpick"],
         "summary": "Get fixed hotpicks (latest order)",
         "operationId": "getFixedHotpicks",
-        "parameters": [
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
@@ -2886,64 +2811,6 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseListCategoryTabResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/tku/check": {
-      "get": {
-        "tags": ["auth-controller"],
-        "operationId": "checkTkuLinked",
-        "parameters": [
-          {
-            "name": "tkuId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseObject"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseTkuLinkCheckResponse"
                 }
               }
             }
@@ -3172,7 +3039,7 @@
         "description": "공통 응답 포맷"
       },
       "UpdateCommentRequest": {
-        "required": ["content", "verifyToken"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "verifyToken": {
@@ -3658,7 +3525,7 @@
         "description": "응답 데이터"
       },
       "CreateCommentRequest": {
-        "required": ["content", "nickname", "password"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "nickname": {
@@ -4438,6 +4305,9 @@
           "nickname": {
             "type": "string"
           },
+          "profileColor": {
+            "type": "string"
+          },
           "content": {
             "type": "string"
           },
@@ -4709,34 +4579,6 @@
         },
         "description": "공통 응답 포맷"
       },
-      "BaseResponseTkuLinkCheckResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "description": "응답 코드",
-            "example": "S0000"
-          },
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "성공"
-          },
-          "data": {
-            "$ref": "#/components/schemas/TkuLinkCheckResponse"
-          }
-        },
-        "description": "공통 응답 포맷"
-      },
-      "TkuLinkCheckResponse": {
-        "type": "object",
-        "properties": {
-          "linked": {
-            "type": "boolean"
-          }
-        },
-        "description": "응답 데이터"
-      },
       "BaseResponseNicknameCheckResponse": {
         "type": "object",
         "properties": {
@@ -4929,7 +4771,6 @@
         "description": "공통 응답 포맷"
       },
       "DeleteCommentRequest": {
-        "required": ["verifyToken"],
         "type": "object",
         "properties": {
           "verifyToken": {

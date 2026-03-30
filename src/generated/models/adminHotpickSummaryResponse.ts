@@ -15,6 +15,7 @@ export interface AdminHotpickSummaryResponse {
   type?: string;
   slug?: string;
   visible?: boolean;
+  fixed?: boolean;
   imageUrl?: string;
   createdAt?: string;
   expiredAt?: string;

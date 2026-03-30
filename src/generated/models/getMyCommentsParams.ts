@@ -5,6 +5,7 @@
  * OpenAPI spec version: v0
  */
 
-export interface DeleteCommentRequest {
-  verifyToken?: string;
-}
+export type GetMyCommentsParams = {
+  cursor?: string;
+  size?: number;
+};

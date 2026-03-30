@@ -39,7 +39,7 @@ export interface BaseResponseObject {
 }
 
 export interface UpdateCommentRequest {
-  verifyToken: string;
+  verifyToken?: string;
   /**
    * @minLength 0
    * @maxLength 200
@@ -141,6 +141,7 @@ export interface UpdateHotpickRequest {
    */
   slug: string;
   visible: boolean;
+  fixed?: boolean;
   /**
    * @minLength 0
    * @maxLength 500
@@ -184,6 +185,7 @@ export interface AdminHotpickDetailResponse {
   type?: string;
   slug?: string;
   visible?: boolean;
+  fixed?: boolean;
   imageUrl?: string;
   createdAt?: string;
   expiredAt?: string;
@@ -290,12 +292,12 @@ export interface CreateCommentRequest {
    * @minLength 0
    * @maxLength 80
    */
-  nickname: string;
+  nickname?: string;
   /**
    * @minLength 1
    * @maxLength 64
    */
-  password: string;
+  password?: string;
   /**
    * @minLength 0
    * @maxLength 200
@@ -368,6 +370,81 @@ export interface BaseResponseCommentLikeResponse {
   data?: CommentLikeResponse;
 }
 
+export type SignupRequestGender = (typeof SignupRequestGender)[keyof typeof SignupRequestGender];
+
+export const SignupRequestGender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+} as const;
+
+export interface SignupRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20
+   */
+  nickname: string;
+  gender: SignupRequestGender;
+  birthYear: number;
+  tkuId?: string;
+}
+
+export interface UserResponse {
+  id?: string;
+  nickname?: string;
+  profileColor?: string;
+  lastNicknameChangedAt?: string;
+}
+
+export interface LinkedResult {
+  votes?: number;
+  comments?: number;
+  likes?: number;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface SignupResponse {
+  user?: UserResponse;
+  linked?: LinkedResult;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseSignupResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: SignupResponse;
+}
+
+export interface KakaoLoginRequest {
+  code: string;
+  redirectUri: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface KakaoLoginResponse {
+  shouldSignup?: boolean;
+  user?: UserResponse;
+  signupToken?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseKakaoLoginResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: KakaoLoginResponse;
+}
+
 export interface CreateServerMetaRequest {
   meta: JsonNode;
 }
@@ -422,6 +499,7 @@ export interface CreateHotpickRequest {
    */
   slug: string;
   visible: boolean;
+  fixed?: boolean;
   /**
    * @minLength 0
    * @maxLength 500
@@ -483,6 +561,81 @@ export interface CreateCategoryRequest {
    * @maxLength 120
    */
   slug: string;
+}
+
+export interface UpdateProfileRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20
+   */
+  nickname?: string;
+  profileColor?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseUserResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: UserResponse;
+}
+
+export interface MyLikeResponse {
+  hotpickId?: number;
+  hotpickAlias?: string;
+  hotpickTitle?: string;
+  optionSummary?: string;
+  likedAt?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CursorPageResponseMyLikeResponse {
+  data?: MyLikeResponse[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCursorPageResponseMyLikeResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CursorPageResponseMyLikeResponse;
+}
+
+export interface MyCommentResponse {
+  hotpickSlug?: string;
+  hotpickTitle?: string;
+  content?: string;
+  createdAt?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CursorPageResponseMyCommentResponse {
+  data?: MyCommentResponse[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCursorPageResponseMyCommentResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CursorPageResponseMyCommentResponse;
 }
 
 /**
@@ -562,6 +715,7 @@ export interface BaseResponseHotpickDetailResponse {
 export interface CommentItem {
   id?: string;
   nickname?: string;
+  profileColor?: string;
   content?: string;
   likeCount?: number;
   liked?: boolean;
@@ -677,6 +831,18 @@ export interface BaseResponseMainHotpickResponse {
 /**
  * 공통 응답 포맷
  */
+export interface BaseResponseListHotpickCardResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: HotpickCardResponse[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
 export interface BaseResponseListCategoryTabResponse {
   /** 응답 코드 */
   code?: string;
@@ -684,6 +850,24 @@ export interface BaseResponseListCategoryTabResponse {
   message?: string;
   /** 응답 데이터 */
   data?: CategoryTabResponse[];
+}
+
+/**
+ * 응답 데이터
+ */
+export interface NicknameCheckResponse {
+  available?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseNicknameCheckResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: NicknameCheckResponse;
 }
 
 /**
@@ -723,6 +907,7 @@ export interface AdminHotpickSummaryResponse {
   type?: string;
   slug?: string;
   visible?: boolean;
+  fixed?: boolean;
   imageUrl?: string;
   createdAt?: string;
   expiredAt?: string;
@@ -773,11 +958,21 @@ export interface BaseResponseListAdminCategoryResponse {
 }
 
 export interface DeleteCommentRequest {
-  verifyToken: string;
+  verifyToken?: string;
 }
 
 export type GetCommentsParams = {
   sort?: string;
+  cursor?: string;
+  size?: number;
+};
+
+export type GetMyLikesParams = {
+  cursor?: string;
+  size?: number;
+};
+
+export type GetMyCommentsParams = {
   cursor?: string;
   size?: number;
 };
@@ -823,7 +1018,7 @@ export type GetMainParams = {
    */
   sort?: GetMainSort;
   /**
-   * 필터 방식
+   * 필터 방식 (new: 상단고정 포함 전체, voted: 내가 투표한 것만, hot_1d/hot_1w/hot_1m/hot_1y: 기간별 핫)
    */
   filter?: GetMainFilter;
   cursor?: string;
@@ -842,11 +1037,20 @@ export const GetMainSort = {
 export type GetMainFilter = (typeof GetMainFilter)[keyof typeof GetMainFilter];
 
 export const GetMainFilter = {
+  new: 'new',
   voted: 'voted',
+  hot_1d: 'hot_1d',
+  hot_1w: 'hot_1w',
+  hot_1m: 'hot_1m',
+  hot_1y: 'hot_1y',
 } as const;
 
 export type GetCategories1Params = {
   selected?: string;
+};
+
+export type CheckNicknameParams = {
+  nickname: string;
 };
 
 export type GeneratePresignedUrlParams = {
