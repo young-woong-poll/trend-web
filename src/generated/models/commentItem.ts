@@ -8,6 +8,7 @@
 export interface CommentItem {
   id?: string;
   nickname?: string;
+  profileColor?: string;
   content?: string;
   likeCount?: number;
   liked?: boolean;

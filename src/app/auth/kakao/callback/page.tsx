@@ -43,7 +43,7 @@ const KakaoCallbackContent = () => {
         const redirectUri = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI ?? '';
         const result = await postKakaoLogin(code, redirectUri);
 
-        if (result.isSignUp && result.signupToken) {
+        if (result.shouldSignup && result.signupToken) {
           setSignupToken(result.signupToken);
           const signupParams = new URLSearchParams({ returnUrl });
           router.replace(`/auth/signup?${signupParams.toString()}`);
@@ -51,7 +51,10 @@ const KakaoCallbackContent = () => {
         }
 
         if (result.user) {
-          setUser(result.user);
+          // 풀 리로드로 이동 — AuthProvider가 쿠키와 함께 getMe()를 깨끗하게 호출하도록
+          // router.replace는 SPA 네비게이션이라 AuthProvider의 getMe() 재실행이 안 됨
+          window.location.href = returnUrl;
+          return;
         }
       } catch {
         showToast('로그인에 실패했습니다');

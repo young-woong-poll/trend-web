@@ -3,6 +3,9 @@
 
 import { useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
+import BackIcon from '@/assets/icon/BackIcon';
 import EditIcon from '@/assets/icon/EditIcon';
 import PaletteIcon from '@/assets/icon/PaletteIcon';
 import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
@@ -41,6 +44,7 @@ const daysUntilNicknameChange = (lastChangedAt: string | null): number => {
 };
 
 const MyPageView = () => {
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { showConfirm, showToast } = useModal();
   const [activeTab, setActiveTab] = useState<Tab>('comments');
@@ -93,6 +97,16 @@ const MyPageView = () => {
 
   return (
     <div className={styles.container}>
+      {/* 뒤로가기 */}
+      <button
+        type="button"
+        className={styles.backButton}
+        onClick={() => router.back()}
+        aria-label="뒤로가기"
+      >
+        <BackIcon width={24} height={24} />
+      </button>
+
       {/* 프로필 영역 */}
       <div className={styles.profileSection}>
         <ProfileAvatar nickname={user.nickname} profileColor={user.profileColor} size={72} />

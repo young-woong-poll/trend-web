@@ -14,7 +14,7 @@ export type GetMainParams = {
    */
   sort?: GetMainSort;
   /**
-   * 필터 방식
+   * 필터 방식 (new: 상단고정 포함 전체, voted: 내가 투표한 것만, hot_1d/hot_1w/hot_1m/hot_1y: 기간별 핫)
    */
   filter?: GetMainFilter;
   cursor?: string;

@@ -10,6 +10,11 @@
       "description": "Generated server url"
     }
   ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "tags": [
     {
       "name": "Admin Search",
@@ -138,8 +143,7 @@
                 "$ref": "#/components/schemas/DeleteCommentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "500": {
@@ -695,14 +699,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "requestBody": {
@@ -772,14 +768,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -834,14 +822,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -938,14 +918,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1151,14 +1123,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -1216,10 +1180,118 @@
             "schema": {
               "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
           },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentLikeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "signup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSignupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "refresh",
+        "parameters": [
           {
-            "name": "x-tku-id",
-            "in": "header",
+            "name": "refresh_token",
+            "in": "cookie",
             "required": false,
             "schema": {
               "type": "string"
@@ -1262,7 +1334,113 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseResponseCommentLikeResponse"
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "logout",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/kakao": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "kakaoLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KakaoLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseKakaoLoginResponse"
                 }
               }
             }
@@ -1806,6 +1984,292 @@
         }
       }
     },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["auth-controller"],
+        "operationId": "getMe",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseUserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["auth-controller"],
+        "operationId": "deleteMe",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["auth-controller"],
+        "operationId": "updateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/likes": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getMyLikes",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCursorPageResponseMyLikeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/comments": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getMyComments",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCursorPageResponseMyCommentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/server-metas/{id}": {
       "get": {
         "tags": ["ServerMeta"],
@@ -1875,14 +2339,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -2185,11 +2641,11 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "필터 방식",
+            "description": "필터 방식 (new: 상단고정 포함 전체, voted: 내가 투표한 것만, hot_1d/hot_1w/hot_1m/hot_1y: 기간별 핫)",
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["voted"]
+              "enum": ["new", "voted", "hot_1d", "hot_1w", "hot_1m", "hot_1y"]
             }
           },
           {
@@ -2207,14 +2663,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -2255,6 +2703,55 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseMainHotpickResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hotpicks/fixed": {
+      "get": {
+        "tags": ["Hotpick"],
+        "summary": "Get fixed hotpicks (latest order)",
+        "operationId": "getFixedHotpicks",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListHotpickCardResponse"
                 }
               }
             }
@@ -2314,6 +2811,64 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseListCategoryTabResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/nickname/check": {
+      "get": {
+        "tags": ["auth-controller"],
+        "operationId": "checkNickname",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseNicknameCheckResponse"
                 }
               }
             }
@@ -2484,7 +3039,7 @@
         "description": "공통 응답 포맷"
       },
       "UpdateCommentRequest": {
-        "required": ["content", "verifyToken"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "verifyToken": {
@@ -2643,6 +3198,9 @@
           "visible": {
             "type": "boolean"
           },
+          "fixed": {
+            "type": "boolean"
+          },
           "imageUrl": {
             "maxLength": 500,
             "minLength": 0,
@@ -2753,6 +3311,9 @@
             "type": "string"
           },
           "visible": {
+            "type": "boolean"
+          },
+          "fixed": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -2964,7 +3525,7 @@
         "description": "응답 데이터"
       },
       "CreateCommentRequest": {
-        "required": ["content", "nickname", "password"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "nickname": {
@@ -3090,6 +3651,140 @@
         },
         "description": "응답 데이터"
       },
+      "SignupRequest": {
+        "required": ["birthYear", "gender", "nickname"],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "birthYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tkuId": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseSignupResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SignupResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "LinkedResult": {
+        "type": "object",
+        "properties": {
+          "votes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "linked": {
+            "$ref": "#/components/schemas/LinkedResult"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string"
+          },
+          "lastNicknameChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "KakaoLoginRequest": {
+        "required": ["code", "redirectUri"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "redirectUri": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseKakaoLoginResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KakaoLoginResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "KakaoLoginResponse": {
+        "type": "object",
+        "properties": {
+          "shouldSignup": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "signupToken": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
       "CreateServerMetaRequest": {
         "required": ["meta"],
         "type": "object",
@@ -3165,6 +3860,9 @@
             "type": "string"
           },
           "visible": {
+            "type": "boolean"
+          },
+          "fixed": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -3274,6 +3972,152 @@
             "maxLength": 120,
             "minLength": 0,
             "type": "string"
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseCursorPageResponseMyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CursorPageResponseMyLikeResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CursorPageResponseMyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyLikeResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "MyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickAlias": {
+            "type": "string"
+          },
+          "hotpickTitle": {
+            "type": "string"
+          },
+          "optionSummary": {
+            "type": "string"
+          },
+          "likedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BaseResponseCursorPageResponseMyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CursorPageResponseMyCommentResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CursorPageResponseMyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyCommentResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "MyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "hotpickTitle": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3459,6 +4303,9 @@
             "type": "string"
           },
           "nickname": {
+            "type": "string"
+          },
+          "profileColor": {
             "type": "string"
           },
           "content": {
@@ -3686,6 +4533,29 @@
         },
         "description": "응답 데이터"
       },
+      "BaseResponseListHotpickCardResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/HotpickCardResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
       "BaseResponseListCategoryTabResponse": {
         "type": "object",
         "properties": {
@@ -3708,6 +4578,34 @@
           }
         },
         "description": "공통 응답 포맷"
+      },
+      "BaseResponseNicknameCheckResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NicknameCheckResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "NicknameCheckResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
       },
       "BaseResponseMapStringString": {
         "type": "object",
@@ -3770,6 +4668,9 @@
             "type": "string"
           },
           "visible": {
+            "type": "boolean"
+          },
+          "fixed": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -3870,13 +4771,20 @@
         "description": "공통 응답 포맷"
       },
       "DeleteCommentRequest": {
-        "required": ["verifyToken"],
         "type": "object",
         "properties": {
           "verifyToken": {
             "type": "string"
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "signup 시 signupToken 값을 입력하세요",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

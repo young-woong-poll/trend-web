@@ -6,5 +6,5 @@
  */
 
 export interface DeleteCommentRequest {
-  verifyToken: string;
+  verifyToken?: string;
 }

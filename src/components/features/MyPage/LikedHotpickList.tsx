@@ -8,7 +8,7 @@ import { useLikedHotpicks } from '@/hooks/api/useMyPage';
 
 const LikedHotpickList = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useLikedHotpicks();
-  const likes = data?.pages.flatMap((p) => p.data) ?? [];
+  const likes = data?.pages.flatMap((p) => p.data ?? []) ?? [];
 
   if (isLoading) {
     return <CardListSkeleton />;
@@ -21,10 +21,16 @@ const LikedHotpickList = () => {
   return (
     <div className={styles.listContainer}>
       {likes.map((item) => (
-        <Link key={item.hotpickId} href={`/hotpick/${item.hotpickAlias}`} className={styles.card}>
+        <Link
+          key={item.hotpickId ?? item.hotpickAlias}
+          href={`/hotpick/${item.hotpickAlias ?? ''}`}
+          className={styles.card}
+        >
           <p className={styles.cardTitle}>{item.hotpickTitle}</p>
           <p className={styles.cardSub}>{item.optionSummary}</p>
-          <p className={styles.cardDate}>{new Date(item.likedAt).toLocaleDateString('ko-KR')}</p>
+          <p className={styles.cardDate}>
+            {item.likedAt ? new Date(item.likedAt).toLocaleDateString('ko-KR') : ''}
+          </p>
         </Link>
       ))}
       {hasNextPage && (

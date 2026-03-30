@@ -46,13 +46,16 @@ export const commentKeys = {
  * Comment Query Options (서버 pre-fetch용)
  */
 export const commentQueries = {
-  count: (slug: string, electionId: string) =>
+  count: (slug: string, electionId: string, options?: { isLoggedIn?: boolean }) =>
     queryOptions<CommentCountResponse>({
       queryKey: commentKeys.count(slug, electionId),
-      queryFn: () =>
-        countComments(slug, Number(electionId), {
-          headers: { 'x-tku-id': typeof window !== 'undefined' ? getTKUID() : '' },
-        }) as Promise<CommentCountResponse>,
+      queryFn: () => {
+        const tkuId =
+          typeof window !== 'undefined' ? getTKUID({ isLoggedIn: options?.isLoggedIn }) : '';
+        return countComments(slug, Number(electionId), {
+          headers: { 'x-tku-id': tkuId },
+        }) as Promise<CommentCountResponse>;
+      },
       staleTime: 30 * 1000,
     }),
 };
@@ -105,22 +108,23 @@ export const useCreateComment = () => {
     mutationFn: async (data: {
       slug: string;
       electionId: string;
-      nickname: string;
-      password: string;
+      nickname?: string;
+      password?: string;
       content: string;
+      isLoggedIn?: boolean;
     }) => {
-      const result = await createComment(
-        data.slug,
-        Number(data.electionId),
-        {
-          nickname: data.nickname,
-          password: data.password,
-          content: data.content,
-        },
-        {
-          headers: { 'x-tku-id': typeof window !== 'undefined' ? getTKUID() : '' },
-        }
-      );
+      const tkuId = typeof window !== 'undefined' ? getTKUID({ isLoggedIn: data.isLoggedIn }) : '';
+      const body: Record<string, string> = { content: data.content };
+      if (data.nickname) {
+        body.nickname = data.nickname;
+      }
+      if (data.password) {
+        body.password = data.password;
+      }
+
+      const result = await createComment(data.slug, Number(data.electionId), body as any, {
+        headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
+      });
       return result;
     },
     onSuccess: (_data, variables) => {

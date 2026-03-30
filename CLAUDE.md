@@ -164,3 +164,41 @@ import IconName from '@/assets/icon/IconName';
 // 컴포넌트에서 사용
 <IconName className={styles.icon} />;
 ```
+
+## gstack
+
+웹 브라우징은 반드시 `/browse` skill을 사용합니다. `mcp__claude-in-chrome__*` 도구는 절대 사용하지 마세요.
+
+### 사용 가능한 skills
+
+- `/office-hours` — 오피스 아워
+- `/plan-ceo-review` — CEO 리뷰 플랜
+- `/plan-eng-review` — 엔지니어링 리뷰 플랜
+- `/plan-design-review` — 디자인 리뷰 플랜
+- `/design-consultation` — 디자인 컨설팅
+- `/design-shotgun` — 디자인 샷건
+- `/design-html` — 디자인 HTML
+- `/review` — 코드 리뷰
+- `/ship` — 배포
+- `/land-and-deploy` — 랜딩 & 디플로이
+- `/canary` — 카나리 배포
+- `/benchmark` — 벤치마크
+- `/browse` — 웹 브라우징 (모든 웹 브라우징에 사용)
+- `/connect-chrome` — 크롬 연결
+- `/qa` — QA
+- `/qa-only` — QA only
+- `/design-review` — 디자인 리뷰
+- `/setup-browser-cookies` — 브라우저 쿠키 설정
+- `/setup-deploy` — 배포 설정
+- `/retro` — 회고
+- `/investigate` — 조사
+- `/document-release` — 릴리스 문서화
+- `/codex` — 코덱스
+- `/cso` — CSO
+- `/autoplan` — 자동 플랜
+- `/careful` — 신중 모드
+- `/freeze` — 프리즈
+- `/guard` — 가드
+- `/unfreeze` — 언프리즈
+- `/gstack-upgrade` — gstack 업그레이드
+- `/learn` — 학습

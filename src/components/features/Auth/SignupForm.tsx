@@ -10,16 +10,11 @@ import { useForm } from 'react-hook-form';
 import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
-import { postLink } from '@/hooks/api/useAuthApi';
-import {
-  checkNicknameAvailability,
-  getSuggestedNickname,
-  submitSignup,
-} from '@/hooks/api/useNickname';
+import { submitSignup } from '@/hooks/api/useAuthApi';
+import { checkNicknameAvailability, getSuggestedNickname } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
-import { getTKUID, hasTKUID } from '@/lib/tkuid';
+import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
 
 type Gender = 'male' | 'female' | null;
 
@@ -38,70 +33,6 @@ const useIsMobile = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
   return isMobile;
-};
-
-interface OptionalInfoPromptProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  missingFields: string[];
-}
-
-const OptionalInfoPrompt = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  missingFields,
-}: OptionalInfoPromptProps) => {
-  const isMobile = useIsMobile();
-  useBodyScrollLock(isOpen);
-  useEscapeKey(isOpen, onClose);
-
-  if (!isOpen) {
-    return null;
-  }
-
-  const portal = document.getElementById('portal-root');
-  if (!portal) {
-    return null;
-  }
-
-  return createPortal(
-    <div className={styles.promptDimmed} onClick={onClose} role="presentation">
-      <div
-        className={isMobile ? styles.promptBottomSheet : styles.promptCenterModal}
-        onClick={(e) => e.stopPropagation()}
-        role="presentation"
-      >
-        <div className={styles.promptContent}>
-          <p className={styles.promptTitle}>
-            {[
-              missingFields.includes('gender') && '성별',
-              missingFields.includes('birthYear') && '태어난 연도',
-            ]
-              .filter(Boolean)
-              .join(', ')}
-            을 입력하면
-          </p>
-          <ul className={styles.promptBenefits}>
-            {missingFields.includes('gender') && <li>성별 투표 비율을 확인할 수 있어요</li>}
-            {missingFields.includes('birthYear') && (
-              <li>같은 나이대 친구들의 투표 결과를 볼 수 있어요</li>
-            )}
-          </ul>
-          <div className={styles.promptButtons}>
-            <button type="button" className={styles.promptFillButton} onClick={onClose}>
-              입력하기
-            </button>
-            <button type="button" className={styles.promptSkipButton} onClick={onConfirm}>
-              건너뛰고 시작하기
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>,
-    portal
-  );
 };
 
 interface MigrationPromptProps {
@@ -134,8 +65,17 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
         <div className={styles.promptContent}>
           <p className={styles.promptTitle}>이전 활동을 연결할까요?</p>
           <p className={styles.promptDescription}>
-            ⋅ 로그인 전에 남긴 투표, 공감, 댓글을 내 계정에 연결할 수 있어요. <br />⋅ 이 기회는 한
-            번만 제공돼요.
+            이 브라우저에서 남긴 활동을 내 계정으로 연동할 수 있어요.
+          </p>
+          <p className={styles.promptDescription}>
+            <strong>연결하면 이렇게 돼요</strong>
+            <br />⋅ 투표, 공감 기록이 내 계정에 연결돼요.
+            <br />⋅ 댓글은 내용만 유지되고, 닉네임이 계정 닉네임으로 변경돼요.
+            <br />⋅ 기존 비로그인 데이터는 이 브라우저에서 삭제돼요.
+          </p>
+          <p className={styles.promptDescription}>
+            ❗이 기회는 <strong>한 번만</strong> 제공되며, 건너뛰면{' '}
+            <strong>다시 연동할 수 없어요.</strong>
           </p>
           <div className={styles.promptButtons}>
             <button
@@ -144,7 +84,7 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
               onClick={onConfirm}
               disabled={isLoading}
             >
-              {isLoading ? '연결 중...' : '내 계정에 연결하기'}
+              {isLoading ? '연결 중...' : '이전 활동 연결하기'}
             </button>
             <button
               type="button"
@@ -182,10 +122,8 @@ const SignupForm = () => {
   const [gender, setGender] = useState<Gender>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [pendingData, setPendingData] = useState<SignupFormValues | null>(null);
   const [showMigration, setShowMigration] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
 
   const {
     register,
@@ -199,18 +137,14 @@ const SignupForm = () => {
 
   const nicknameValue = watch('nickname');
 
-  const loadSuggestion = useCallback(async () => {
-    try {
-      const suggested = await getSuggestedNickname();
-      setValue('nickname', suggested);
-      clearErrors('nickname');
-    } catch {
-      // 실패 시 유저가 직접 입력
-    }
+  const loadSuggestion = useCallback(() => {
+    const suggested = getSuggestedNickname();
+    setValue('nickname', suggested);
+    clearErrors('nickname');
   }, [setValue, clearErrors]);
 
   useEffect(() => {
-    void loadSuggestion();
+    loadSuggestion();
   }, [loadSuggestion]);
 
   const handleBlur = async () => {
@@ -232,7 +166,7 @@ const SignupForm = () => {
     }
   };
 
-  const doSubmit = async (data: SignupFormValues) => {
+  const doSignup = async (data: SignupFormValues, withMigration?: boolean) => {
     const trimmed = data.nickname.trim();
     setIsSubmitting(true);
     try {
@@ -242,77 +176,52 @@ const SignupForm = () => {
         return;
       }
 
+      const tkuId = withMigration ? getTKUID() : undefined;
       const result = await submitSignup({
         nickname: trimmed,
-        gender,
-        birthYear: data.birthYear ? Number(data.birthYear) : null,
+        gender: gender === 'male' ? 'MALE' : 'FEMALE',
+        birthYear: Number(data.birthYear),
+        ...(tkuId ? { tkuId } : {}),
       });
 
-      // 가입 완료 → signupToken 정리 (이후 쿠키 기반 인증)
+      // 가입 완료 → signupToken 정리 + TKUID 제거 (이후 쿠키 기반 인증)
       clearSignupToken();
+      clearTKUID();
       setUser(result.user);
 
-      if (result.needsLink && hasTKUID()) {
-        setShowMigration(true);
-        return;
-      }
-
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-
       router.replace(returnUrl);
     } catch {
-      showToast('회원가입에 실패했습니다');
+      showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');
     } finally {
       setIsSubmitting(false);
+      setPendingFormData(null);
     }
   };
 
-  const handleMigrationConfirm = async () => {
-    setIsMigrating(true);
-    try {
-      await postLink(getTKUID());
-      showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-    } catch {
-      showToast('연결에 실패했습니다');
-    } finally {
-      setIsMigrating(false);
-      setShowMigration(false);
-      router.replace(returnUrl);
+  const handleMigrationConfirm = () => {
+    if (!pendingFormData) {
+      return;
     }
+    setShowMigration(false);
+    void doSignup(pendingFormData, true);
   };
 
   const handleMigrationSkip = () => {
+    if (!pendingFormData) {
+      return;
+    }
     setShowMigration(false);
-    showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-    router.replace(returnUrl);
+    void doSignup(pendingFormData, false);
   };
 
   const onSubmit = (data: SignupFormValues) => {
-    const trimmed = data.nickname.trim();
-    if (!trimmed) {
+    if (hasTKUID()) {
+      setPendingFormData(data);
+      setShowMigration(true);
       return;
     }
-
-    const missing: string[] = [];
-    if (!gender) {
-      missing.push('gender');
-    }
-    if (!data.birthYear) {
-      missing.push('birthYear');
-    }
-
-    if (missing.length > 0) {
-      setPendingData(data);
-      setShowPrompt(true);
-      return;
-    }
-
-    void doSubmit(data);
-  };
-
-  const handleSkip = () => {
-    clearSignupToken();
-    router.replace(returnUrl);
+    void doSignup(data);
   };
 
   if (!isAuthorized) {
@@ -325,12 +234,9 @@ const SignupForm = () => {
         <h1 className={styles.title}>거의 다 왔어요!</h1>
         <p className={styles.subtitle}>가입 정보만 입력하면 바로 시작할 수 있어요</p>
 
-        {/* 닉네임 (필수) */}
+        {/* 닉네임 */}
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            닉네임
-            <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>닉네임</label>
           <div className={styles.inputWrapper}>
             <input
               {...register('nickname', { required: '닉네임을 입력해주세요' })}
@@ -353,7 +259,7 @@ const SignupForm = () => {
           )}
         </div>
 
-        {/* 성별 (선택) */}
+        {/* 성별 */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>성별</label>
           <div className={styles.genderGroup}>
@@ -374,10 +280,14 @@ const SignupForm = () => {
           </div>
         </div>
 
-        {/* 태어난 연도 (선택) */}
+        {/* 태어난 연도 */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>태어난 연도</label>
-          <select {...register('birthYear')} className={styles.selectInput} defaultValue="">
+          <select
+            {...register('birthYear', { required: true })}
+            className={styles.selectInput}
+            defaultValue=""
+          >
             <option value="" disabled>
               선택하세요
             </option>
@@ -431,36 +341,25 @@ const SignupForm = () => {
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || isChecking || !nicknameValue?.trim() || !watch('agreeTerms')}
+            disabled={
+              isSubmitting ||
+              isChecking ||
+              !nicknameValue?.trim() ||
+              !gender ||
+              !watch('birthYear') ||
+              !watch('agreeTerms')
+            }
           >
             {isSubmitting ? '가입 중...' : '핫픽 시작하기'}
-          </button>
-          <button type="button" className={styles.skipButton} onClick={handleSkip}>
-            회원가입 포기하고 둘러보기
           </button>
         </div>
       </form>
 
-      <OptionalInfoPrompt
-        isOpen={showPrompt}
-        onClose={() => setShowPrompt(false)}
-        onConfirm={() => {
-          setShowPrompt(false);
-          if (pendingData) {
-            void doSubmit(pendingData);
-          }
-        }}
-        missingFields={[
-          ...(!gender ? ['gender'] : []),
-          ...(!watch('birthYear') ? ['birthYear'] : []),
-        ]}
-      />
-
       <MigrationPrompt
         isOpen={showMigration}
-        onConfirm={() => void handleMigrationConfirm()}
+        onConfirm={handleMigrationConfirm}
         onSkip={handleMigrationSkip}
-        isLoading={isMigrating}
+        isLoading={isSubmitting}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import { useCallback, useRef } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { MainHotpickResponse, VoteResultResponse } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
@@ -25,6 +26,7 @@ interface UseSingleVoteOptions {
  * 3. 실패 시 롤백
  */
 export const useSingleVote = (options?: UseSingleVoteOptions) => {
+  const { isLoggedIn } = useAuth();
   const queryClient = useQueryClient();
   const pendingRef = useRef<Set<string>>(new Set());
 
@@ -103,7 +105,8 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
       pendingRef.current.add(slug);
 
       try {
-        const headers = { 'x-tku-id': getTKUID() };
+        const tkuId = getTKUID({ isLoggedIn });
+        const headers = tkuId ? { 'x-tku-id': tkuId } : {};
         await vote(slug, { electionItemId: Number(optionId) }, { headers });
       } catch (error) {
         // 409 중복 투표: 서버 응답 데이터로 결과 표시
@@ -127,7 +130,7 @@ export const useSingleVote = (options?: UseSingleVoteOptions) => {
         pendingRef.current.delete(slug);
       }
     },
-    [updateCacheOptimistically, options]
+    [updateCacheOptimistically, options, isLoggedIn]
   );
 
   return { handleVote };

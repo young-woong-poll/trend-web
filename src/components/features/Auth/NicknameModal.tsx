@@ -40,9 +40,9 @@ const NicknameModal = ({ isOpen, onClose, mode = 'signup' }: NicknameModalProps)
 
   const nicknameValue = watch('nickname');
 
-  const loadSuggestion = useCallback(async () => {
+  const loadSuggestion = useCallback(() => {
     try {
-      const suggested = await getSuggestedNickname();
+      const suggested = getSuggestedNickname();
       setValue('nickname', suggested);
       clearErrors('nickname');
     } catch {
