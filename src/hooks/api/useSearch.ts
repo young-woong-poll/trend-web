@@ -1,5 +1,6 @@
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import * as clientApi from '@/generated/api/client/hotpick-search/hotpick-search';
 import type { ElectionViewResponse, HotpickCategoryResponse, SearchSort } from '@/generated/models';
 import { getTKUID } from '@/lib/tkuid';
@@ -51,11 +52,17 @@ export const searchKeys = {
  * Search Query Options
  */
 export const searchQueries = {
-  search: (params: { q: string; sort?: SearchSort; limit?: number; offset?: number }) =>
+  search: (params: {
+    q: string;
+    sort?: SearchSort;
+    limit?: number;
+    offset?: number;
+    isLoggedIn?: boolean;
+  }) =>
     queryOptions<SearchResponse | null>({
       queryKey: searchKeys.search(params),
       queryFn: async () => {
-        const tkuId = getTKUID();
+        const tkuId = getTKUID({ isLoggedIn: params.isLoggedIn });
         const result = await clientApi.search(params, {
           headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
         });
@@ -77,8 +84,10 @@ export const useSearch = (params: {
   sort?: SearchSort;
   limit?: number;
   offset?: number;
-}) =>
-  useQuery({
-    ...searchQueries.search(params),
+}) => {
+  const { isLoggedIn } = useAuth();
+  return useQuery({
+    ...searchQueries.search({ ...params, isLoggedIn }),
     enabled: params.q.length >= 2,
   });
+};

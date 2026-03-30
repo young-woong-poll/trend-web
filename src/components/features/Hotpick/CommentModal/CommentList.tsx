@@ -5,6 +5,7 @@ import { useEffect, useRef, type FC } from 'react';
 import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Hotpick/CommentModal/CommentList.module.scss';
+import { useAuth } from '@/contexts/AuthContext';
 import { useInfiniteComments } from '@/hooks/api';
 import { getTKUID } from '@/lib/tkuid';
 import type { CommentItem as CommentItemType } from '@/types/comment';
@@ -26,7 +27,8 @@ export const CommentList: FC<CommentListProps> = ({
   onDeleteRequest,
   onLikeClick,
 }) => {
-  const tkuId = getTKUID();
+  const { isLoggedIn } = useAuth();
+  const tkuId = getTKUID({ isLoggedIn });
   const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ slug, electionId, sort, size: 20, tkuId });
 

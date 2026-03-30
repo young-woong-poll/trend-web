@@ -19,7 +19,12 @@ function generateUUID(): string {
   });
 }
 
-export function getTKUID(): string {
+/**
+ * TKUID를 반환합니다.
+ * - 비로그인 유저: 기존 TKUID 반환 또는 신규 생성
+ * - 로그인 유저: 기존 TKUID만 반환, 없으면 빈 문자열 (신규 생성 안 함)
+ */
+export function getTKUID(options?: { isLoggedIn?: boolean }): string {
   if (typeof window === 'undefined') {
     return '';
   }
@@ -32,17 +37,23 @@ export function getTKUID(): string {
       localStorage.removeItem(TKUID_OLD_KEY);
     }
 
-    let tkuid = localStorage.getItem(TKUID_KEY);
+    const tkuid = localStorage.getItem(TKUID_KEY);
 
-    if (!tkuid) {
-      tkuid = generateUUID();
-      localStorage.setItem(TKUID_KEY, tkuid);
+    if (tkuid) {
+      return tkuid;
     }
 
-    return tkuid;
+    // 로그인 유저는 신규 TKUID를 생성하지 않음
+    if (options?.isLoggedIn) {
+      return '';
+    }
+
+    const newTkuid = generateUUID();
+    localStorage.setItem(TKUID_KEY, newTkuid);
+    return newTkuid;
   } catch (error) {
     console.error('Failed to access localStorage:', error);
-    return generateUUID();
+    return options?.isLoggedIn ? '' : generateUUID();
   }
 }
 

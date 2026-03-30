@@ -10,15 +10,11 @@ import { useForm } from 'react-hook-form';
 import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
-import { postLink } from '@/hooks/api/useAuthApi';
-import {
-  checkNicknameAvailability,
-  getSuggestedNickname,
-  submitSignup,
-} from '@/hooks/api/useNickname';
+import { submitSignup, type SignupLinkRequest } from '@/hooks/api/useAuthApi';
+import { checkNicknameAvailability, getSuggestedNickname } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
-import { getTKUID, hasTKUID } from '@/lib/tkuid';
+import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
 
 type Gender = 'male' | 'female' | null;
 
@@ -118,7 +114,7 @@ const SignupForm = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMigration, setShowMigration] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
 
   const {
     register,
@@ -165,7 +161,7 @@ const SignupForm = () => {
     }
   };
 
-  const doSubmit = async (data: SignupFormValues) => {
+  const doSignup = async (data: SignupFormValues, link?: SignupLinkRequest | null) => {
     const trimmed = data.nickname.trim();
     setIsSubmitting(true);
     try {
@@ -177,51 +173,52 @@ const SignupForm = () => {
 
       const result = await submitSignup({
         nickname: trimmed,
-        gender,
-        birthYear: data.birthYear ? Number(data.birthYear) : null,
+        link: link ?? null,
       });
 
-      // 가입 완료 → signupToken 정리 (이후 쿠키 기반 인증)
+      // 가입 완료 → signupToken 정리 + TKUID 제거 (이후 쿠키 기반 인증)
       clearSignupToken();
+      clearTKUID();
       setUser(result.user);
 
-      if (result.needsLink && hasTKUID()) {
-        setShowMigration(true);
-        return;
-      }
-
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-
       router.replace(returnUrl);
     } catch {
       showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');
     } finally {
       setIsSubmitting(false);
+      setPendingFormData(null);
     }
   };
 
-  const handleMigrationConfirm = async () => {
-    setIsMigrating(true);
-    try {
-      await postLink(getTKUID());
-      showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-    } catch {
-      showToast('연결에 실패했습니다');
-    } finally {
-      setIsMigrating(false);
-      setShowMigration(false);
-      router.replace(returnUrl);
+  const handleMigrationConfirm = () => {
+    if (!pendingFormData) {
+      return;
     }
+    setShowMigration(false);
+    void doSignup(pendingFormData, {
+      tkuId: getTKUID(),
+      votes: true,
+      comments: true,
+      likes: true,
+    });
   };
 
   const handleMigrationSkip = () => {
+    if (!pendingFormData) {
+      return;
+    }
     setShowMigration(false);
-    showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-    router.replace(returnUrl);
+    void doSignup(pendingFormData, null);
   };
 
   const onSubmit = (data: SignupFormValues) => {
-    void doSubmit(data);
+    if (hasTKUID()) {
+      setPendingFormData(data);
+      setShowMigration(true);
+      return;
+    }
+    void doSignup(data);
   };
 
   if (!isAuthorized) {
@@ -357,9 +354,9 @@ const SignupForm = () => {
 
       <MigrationPrompt
         isOpen={showMigration}
-        onConfirm={() => void handleMigrationConfirm()}
+        onConfirm={handleMigrationConfirm}
         onSkip={handleMigrationSkip}
-        isLoading={isMigrating}
+        isLoading={isSubmitting}
       />
     </div>
   );

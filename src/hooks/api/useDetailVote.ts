@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { HotpickDetailResponse } from '@/generated/models';
@@ -18,6 +19,7 @@ export const useDetailVote = (
   isExpired: boolean,
   voted: boolean
 ): UseDetailVoteReturn => {
+  const { isLoggedIn } = useAuth();
   const queryClient = useQueryClient();
   const { showToast } = useModal();
   const pendingRef = useRef(false);
@@ -55,7 +57,8 @@ export const useDetailVote = (
       });
 
       try {
-        const headers = { 'x-tku-id': getTKUID() };
+        const tkuId = getTKUID({ isLoggedIn });
+        const headers = tkuId ? { 'x-tku-id': tkuId } : {};
         await vote(slug, { electionItemId: optionId }, { headers });
         // 투표 성공 후 그래프 데이터 갱신 — 내 투표가 반영된 최신 추이 표시
         void queryClient.invalidateQueries({ queryKey: electionSeriesKeys.all });
@@ -74,7 +77,7 @@ export const useDetailVote = (
         pendingRef.current = false;
       }
     },
-    [isExpired, voted, slug, queryClient, showToast]
+    [isExpired, voted, slug, queryClient, showToast, isLoggedIn]
   );
 
   return { handleVote: (optionId: number) => void handleVote(optionId) };
