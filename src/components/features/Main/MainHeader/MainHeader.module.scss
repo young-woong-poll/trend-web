@@ -19,7 +19,7 @@
   height: 100%;
   margin: 0 auto;
   padding: 0 $spacing-16;
-  gap: $spacing-16;
+  gap: 8px;
 }
 
 // ─── 왼쪽 그룹 (로고 + 핫픽이란?) ───
@@ -92,7 +92,7 @@
   @media (min-width: $breakpoint-tablet) {
     display: flex;
     flex: 1;
-    max-width: 400px;
+    max-width: 388px;
     margin-left: auto;
   }
 }
@@ -226,7 +226,6 @@
 
   // PC: 로그인 버튼 텍스트 너비에 맞춤
   @media (min-width: $breakpoint-tablet) {
-    width: 80px;
     height: 36px;
   }
 }
@@ -239,7 +238,7 @@
   background: linear-gradient(135deg, #ff00ff, #ff4500);
   border: none;
   border-radius: 8px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.2s;

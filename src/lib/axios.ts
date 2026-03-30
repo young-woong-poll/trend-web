@@ -56,7 +56,7 @@ async function retryWithTokenRefresh(error: AxiosError) {
   const originalRequest = error.config as RetryableRequestConfig | undefined;
 
   // refresh 요청 자체가 401 → 무한 루프 방지
-  if (originalRequest?.url?.includes('/api/auth/refresh')) {
+  if (originalRequest?.url?.includes('/api/v1/auth/refresh')) {
     return Promise.reject(error);
   }
 
@@ -78,7 +78,7 @@ async function retryWithTokenRefresh(error: AxiosError) {
   isRefreshing = true;
 
   try {
-    await axiosInstance.post('/api/auth/refresh');
+    await axiosInstance.post('/api/v1/auth/refresh');
     processQueue(null);
     return axiosInstance(originalRequest!);
   } catch (refreshError) {

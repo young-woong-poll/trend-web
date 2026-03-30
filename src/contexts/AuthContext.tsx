@@ -11,7 +11,7 @@ export interface User {
 
 export interface LoginResponse {
   user?: User;
-  isSignUp: boolean;
+  shouldSignup: boolean;
   signupToken?: string;
 }
 

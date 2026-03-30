@@ -8,6 +8,28 @@
   padding: 24px 16px 80px;
 }
 
+// ─── 뒤로가기 ───
+.backButton {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: $z-index-sticky;
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: $text-secondary;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
+  }
+}
+
 // ─── 프로필 영역 ───
 .profileSection {
   display: flex;

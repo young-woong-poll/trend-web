@@ -1,26 +1,10 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import axiosInstance from '@/lib/axios';
-
-interface MyCommentItem {
-  hotpickSlug: string;
-  hotpickTitle: string;
-  content: string;
-  createdAt: string;
-}
-
-interface LikedHotpickItem {
-  hotpickId: number;
-  hotpickAlias: string;
-  hotpickTitle: string;
-  optionSummary: string;
-  likedAt: string;
-}
-
-interface PaginatedResponse<T> {
-  data: T[];
-  meta: { page: number; totalPages: number };
-}
+import { getMyComments, getMyLikes } from '@/generated/api/client/user-controller/user-controller';
+import type {
+  CursorPageResponseMyCommentResponse,
+  CursorPageResponseMyLikeResponse,
+} from '@/generated/models';
 
 export const myPageKeys = {
   comments: ['myPage', 'comments'] as const,
@@ -30,29 +14,29 @@ export const myPageKeys = {
 export const useMyComments = () =>
   useInfiniteQuery({
     queryKey: myPageKeys.comments,
-    queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosInstance.get<PaginatedResponse<MyCommentItem>>(
-        '/api/users/me/comments',
-        { params: { page: pageParam, size: 20 } }
-      );
-      return res.data;
+    queryFn: async ({ pageParam }) => {
+      const res = (await getMyComments({
+        cursor: pageParam,
+        size: 20,
+      })) as CursorPageResponseMyCommentResponse;
+      return res;
     },
-    initialPageParam: 1,
+    initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.meta.page < lastPage.meta.totalPages ? lastPage.meta.page + 1 : undefined,
+      lastPage.hasMore ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 
 export const useLikedHotpicks = () =>
   useInfiniteQuery({
     queryKey: myPageKeys.likes,
-    queryFn: async ({ pageParam = 1 }) => {
-      const res = await axiosInstance.get<PaginatedResponse<LikedHotpickItem>>(
-        '/api/users/me/likes',
-        { params: { page: pageParam, size: 20 } }
-      );
-      return res.data;
+    queryFn: async ({ pageParam }) => {
+      const res = (await getMyLikes({
+        cursor: pageParam,
+        size: 20,
+      })) as CursorPageResponseMyLikeResponse;
+      return res;
     },
-    initialPageParam: 1,
+    initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>
-      lastPage.meta.page < lastPage.meta.totalPages ? lastPage.meta.page + 1 : undefined,
+      lastPage.hasMore ? (lastPage.nextCursor ?? undefined) : undefined,
   });

@@ -1,34 +1,54 @@
 import type { LoginResponse, User } from '@/contexts/AuthContext';
-import axiosInstance from '@/lib/axios';
+import {
+  kakaoLogin,
+  getMe as getMeApi,
+  logout as logoutApi,
+  signup as signupApi,
+  deleteMe,
+} from '@/generated/api/client/auth-controller/auth-controller';
+import type {
+  KakaoLoginResponse,
+  SignupRequest as GeneratedSignupRequest,
+  SignupResponse as GeneratedSignupResponse,
+  UserResponse,
+} from '@/generated/models';
 import { getSignupToken } from '@/lib/signupToken';
 
+/** BE UserResponse → FE User 변환 */
+const toUser = (res: UserResponse): User => ({
+  id: Number(res.id),
+  nickname: res.nickname ?? null,
+  profileColor: res.profileColor ?? 'purple',
+  lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
+});
+
+/** 카카오 로그인 */
 export const postKakaoLogin = async (code: string, redirectUri: string): Promise<LoginResponse> => {
-  const response = await axiosInstance.post<LoginResponse>('/api/auth/kakao', {
-    code,
-    redirectUri,
-  });
-  return response.data;
+  const res = (await kakaoLogin({ code, redirectUri })) as KakaoLoginResponse;
+  return {
+    user: res.user ? toUser(res.user) : undefined,
+    shouldSignup: res.shouldSignup ?? false,
+    signupToken: res.signupToken,
+  };
 };
 
+/** 내 정보 조회 */
 export const getMe = async (): Promise<User> => {
-  const response = await axiosInstance.get<User>('/api/auth/me');
-  return response.data;
+  const res = (await getMeApi()) as UserResponse;
+  return toUser(res);
 };
 
+/** 로그아웃 */
 export const postLogout = async (): Promise<void> => {
-  await axiosInstance.post('/api/auth/logout');
+  await logoutApi();
 };
 
-export interface SignupLinkRequest {
-  tkuId: string;
-  votes: boolean;
-  comments: boolean;
-  likes: boolean;
-}
-
+/** 회원가입 요청/응답 타입 */
 export interface SignupRequest {
   nickname: string;
-  link?: SignupLinkRequest | null;
+  gender: 'MALE' | 'FEMALE';
+  birthYear: number;
+  tkuId?: string;
 }
 
 export interface SignupLinkedResult {
@@ -42,14 +62,32 @@ export interface SignupResponse {
   linked: SignupLinkedResult | null;
 }
 
+/** 회원가입 완료 */
 export const submitSignup = async (data: SignupRequest): Promise<SignupResponse> => {
   const token = getSignupToken();
-  const response = await axiosInstance.post<SignupResponse>('/api/auth/signup', data, {
+  const body: GeneratedSignupRequest = {
+    nickname: data.nickname,
+    gender: data.gender,
+    birthYear: data.birthYear,
+    ...(data.tkuId ? { tkuId: data.tkuId } : {}),
+  };
+  const res = (await signupApi(body, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return response.data;
+  })) as GeneratedSignupResponse;
+
+  return {
+    user: res.user ? toUser(res.user) : toUser({ nickname: data.nickname, profileColor: 'purple' }),
+    linked: res.linked
+      ? {
+          votes: res.linked.votes ?? 0,
+          comments: res.linked.comments ?? 0,
+          likes: res.linked.likes ?? 0,
+        }
+      : null,
+  };
 };
 
+/** 회원 탈퇴 */
 export const deleteAccount = async (): Promise<void> => {
-  await axiosInstance.delete('/api/auth/me');
+  await deleteMe();
 };

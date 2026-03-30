@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
-import { submitSignup, type SignupLinkRequest } from '@/hooks/api/useAuthApi';
+import { submitSignup } from '@/hooks/api/useAuthApi';
 import { checkNicknameAvailability, getSuggestedNickname } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
@@ -65,8 +65,17 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
         <div className={styles.promptContent}>
           <p className={styles.promptTitle}>이전 활동을 연결할까요?</p>
           <p className={styles.promptDescription}>
-            ⋅ 로그인 전에 남긴 투표, 공감, 댓글을 내 계정에 연결할 수 있어요. <br />⋅ 이 기회는 한
-            번만 제공돼요.
+            이 브라우저에서 남긴 활동을 내 계정으로 연동할 수 있어요.
+          </p>
+          <p className={styles.promptDescription}>
+            <strong>연결하면 이렇게 돼요</strong>
+            <br />⋅ 투표, 공감 기록이 내 계정에 연결돼요.
+            <br />⋅ 댓글은 내용만 유지되고, 닉네임이 계정 닉네임으로 변경돼요.
+            <br />⋅ 기존 비로그인 데이터는 이 브라우저에서 삭제돼요.
+          </p>
+          <p className={styles.promptDescription}>
+            ❗이 기회는 <strong>한 번만</strong> 제공되며, 건너뛰면{' '}
+            <strong>다시 연동할 수 없어요.</strong>
           </p>
           <div className={styles.promptButtons}>
             <button
@@ -75,7 +84,7 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
               onClick={onConfirm}
               disabled={isLoading}
             >
-              {isLoading ? '연결 중...' : '내 계정에 연결하기'}
+              {isLoading ? '연결 중...' : '이전 활동 연결하기'}
             </button>
             <button
               type="button"
@@ -128,18 +137,14 @@ const SignupForm = () => {
 
   const nicknameValue = watch('nickname');
 
-  const loadSuggestion = useCallback(async () => {
-    try {
-      const suggested = await getSuggestedNickname();
-      setValue('nickname', suggested);
-      clearErrors('nickname');
-    } catch {
-      // 실패 시 유저가 직접 입력
-    }
+  const loadSuggestion = useCallback(() => {
+    const suggested = getSuggestedNickname();
+    setValue('nickname', suggested);
+    clearErrors('nickname');
   }, [setValue, clearErrors]);
 
   useEffect(() => {
-    void loadSuggestion();
+    loadSuggestion();
   }, [loadSuggestion]);
 
   const handleBlur = async () => {
@@ -161,7 +166,7 @@ const SignupForm = () => {
     }
   };
 
-  const doSignup = async (data: SignupFormValues, link?: SignupLinkRequest | null) => {
+  const doSignup = async (data: SignupFormValues, withMigration?: boolean) => {
     const trimmed = data.nickname.trim();
     setIsSubmitting(true);
     try {
@@ -171,9 +176,12 @@ const SignupForm = () => {
         return;
       }
 
+      const tkuId = withMigration ? getTKUID() : undefined;
       const result = await submitSignup({
         nickname: trimmed,
-        link: link ?? null,
+        gender: gender === 'male' ? 'MALE' : 'FEMALE',
+        birthYear: Number(data.birthYear),
+        ...(tkuId ? { tkuId } : {}),
       });
 
       // 가입 완료 → signupToken 정리 + TKUID 제거 (이후 쿠키 기반 인증)
@@ -196,12 +204,7 @@ const SignupForm = () => {
       return;
     }
     setShowMigration(false);
-    void doSignup(pendingFormData, {
-      tkuId: getTKUID(),
-      votes: true,
-      comments: true,
-      likes: true,
-    });
+    void doSignup(pendingFormData, true);
   };
 
   const handleMigrationSkip = () => {
@@ -209,7 +212,7 @@ const SignupForm = () => {
       return;
     }
     setShowMigration(false);
-    void doSignup(pendingFormData, null);
+    void doSignup(pendingFormData, false);
   };
 
   const onSubmit = (data: SignupFormValues) => {

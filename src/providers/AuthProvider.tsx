@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { usePathname, useSearchParams } from 'next/navigation';
 
@@ -69,6 +69,8 @@ const LoginQueryWatcher = ({
   return null;
 };
 
+const AUTH_PATHS = ['/auth/kakao/callback', '/auth/signup'];
+
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,12 +79,19 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     trigger: 'default',
   });
   const mswReady = useMSWReady();
+  const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
 
   const isLoggedIn = user !== null;
 
   // MSW 준비 완료 후 로그인 상태 확인
+  // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
   useEffect(() => {
     if (!mswReady) {
+      return;
+    }
+    const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
+    if (isAuthPath) {
+      setIsLoading(false);
       return;
     }
     const checkAuth = async () => {

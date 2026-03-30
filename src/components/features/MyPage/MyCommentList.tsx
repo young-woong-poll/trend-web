@@ -8,7 +8,7 @@ import { useMyComments } from '@/hooks/api/useMyPage';
 
 const MyCommentList = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useMyComments();
-  const comments = data?.pages.flatMap((p) => p.data) ?? [];
+  const comments = data?.pages.flatMap((p) => p.data ?? []) ?? [];
 
   if (isLoading) {
     return <CardListSkeleton />;
@@ -22,14 +22,14 @@ const MyCommentList = () => {
     <div className={styles.listContainer}>
       {comments.map((comment) => (
         <Link
-          key={`${comment.hotpickSlug}-${comment.createdAt}`}
-          href={`/hotpick/${comment.hotpickSlug}`}
+          key={`${comment.hotpickSlug ?? ''}-${comment.createdAt ?? ''}`}
+          href={`/hotpick/${comment.hotpickSlug ?? ''}`}
           className={styles.card}
         >
           <p className={styles.cardSub}>{comment.hotpickTitle}</p>
           <p className={styles.cardTitle}>{comment.content}</p>
           <p className={styles.cardDate}>
-            {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+            {comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('ko-KR') : ''}
           </p>
         </Link>
       ))}
