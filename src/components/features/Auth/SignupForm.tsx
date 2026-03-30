@@ -17,7 +17,6 @@ import {
   submitSignup,
 } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { getTKUID, hasTKUID } from '@/lib/tkuid';
 
@@ -38,70 +37,6 @@ const useIsMobile = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
   return isMobile;
-};
-
-interface OptionalInfoPromptProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  missingFields: string[];
-}
-
-const OptionalInfoPrompt = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  missingFields,
-}: OptionalInfoPromptProps) => {
-  const isMobile = useIsMobile();
-  useBodyScrollLock(isOpen);
-  useEscapeKey(isOpen, onClose);
-
-  if (!isOpen) {
-    return null;
-  }
-
-  const portal = document.getElementById('portal-root');
-  if (!portal) {
-    return null;
-  }
-
-  return createPortal(
-    <div className={styles.promptDimmed} onClick={onClose} role="presentation">
-      <div
-        className={isMobile ? styles.promptBottomSheet : styles.promptCenterModal}
-        onClick={(e) => e.stopPropagation()}
-        role="presentation"
-      >
-        <div className={styles.promptContent}>
-          <p className={styles.promptTitle}>
-            {[
-              missingFields.includes('gender') && '성별',
-              missingFields.includes('birthYear') && '태어난 연도',
-            ]
-              .filter(Boolean)
-              .join(', ')}
-            을 입력하면
-          </p>
-          <ul className={styles.promptBenefits}>
-            {missingFields.includes('gender') && <li>성별 투표 비율을 확인할 수 있어요</li>}
-            {missingFields.includes('birthYear') && (
-              <li>같은 나이대 친구들의 투표 결과를 볼 수 있어요</li>
-            )}
-          </ul>
-          <div className={styles.promptButtons}>
-            <button type="button" className={styles.promptFillButton} onClick={onClose}>
-              입력하기
-            </button>
-            <button type="button" className={styles.promptSkipButton} onClick={onConfirm}>
-              건너뛰고 시작하기
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>,
-    portal
-  );
 };
 
 interface MigrationPromptProps {
@@ -182,8 +117,6 @@ const SignupForm = () => {
   const [gender, setGender] = useState<Gender>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [pendingData, setPendingData] = useState<SignupFormValues | null>(null);
   const [showMigration, setShowMigration] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
 
@@ -261,7 +194,7 @@ const SignupForm = () => {
 
       router.replace(returnUrl);
     } catch {
-      showToast('회원가입에 실패했습니다');
+      showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');
     } finally {
       setIsSubmitting(false);
     }
@@ -288,31 +221,7 @@ const SignupForm = () => {
   };
 
   const onSubmit = (data: SignupFormValues) => {
-    const trimmed = data.nickname.trim();
-    if (!trimmed) {
-      return;
-    }
-
-    const missing: string[] = [];
-    if (!gender) {
-      missing.push('gender');
-    }
-    if (!data.birthYear) {
-      missing.push('birthYear');
-    }
-
-    if (missing.length > 0) {
-      setPendingData(data);
-      setShowPrompt(true);
-      return;
-    }
-
     void doSubmit(data);
-  };
-
-  const handleSkip = () => {
-    clearSignupToken();
-    router.replace(returnUrl);
   };
 
   if (!isAuthorized) {
@@ -325,12 +234,9 @@ const SignupForm = () => {
         <h1 className={styles.title}>거의 다 왔어요!</h1>
         <p className={styles.subtitle}>가입 정보만 입력하면 바로 시작할 수 있어요</p>
 
-        {/* 닉네임 (필수) */}
+        {/* 닉네임 */}
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>
-            닉네임
-            <span className={styles.required}>*</span>
-          </label>
+          <label className={styles.label}>닉네임</label>
           <div className={styles.inputWrapper}>
             <input
               {...register('nickname', { required: '닉네임을 입력해주세요' })}
@@ -353,7 +259,7 @@ const SignupForm = () => {
           )}
         </div>
 
-        {/* 성별 (선택) */}
+        {/* 성별 */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>성별</label>
           <div className={styles.genderGroup}>
@@ -374,10 +280,14 @@ const SignupForm = () => {
           </div>
         </div>
 
-        {/* 태어난 연도 (선택) */}
+        {/* 태어난 연도 */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>태어난 연도</label>
-          <select {...register('birthYear')} className={styles.selectInput} defaultValue="">
+          <select
+            {...register('birthYear', { required: true })}
+            className={styles.selectInput}
+            defaultValue=""
+          >
             <option value="" disabled>
               선택하세요
             </option>
@@ -431,30 +341,19 @@ const SignupForm = () => {
           <button
             type="submit"
             className={styles.submitButton}
-            disabled={isSubmitting || isChecking || !nicknameValue?.trim() || !watch('agreeTerms')}
+            disabled={
+              isSubmitting ||
+              isChecking ||
+              !nicknameValue?.trim() ||
+              !gender ||
+              !watch('birthYear') ||
+              !watch('agreeTerms')
+            }
           >
             {isSubmitting ? '가입 중...' : '핫픽 시작하기'}
           </button>
-          <button type="button" className={styles.skipButton} onClick={handleSkip}>
-            회원가입 포기하고 둘러보기
-          </button>
         </div>
       </form>
-
-      <OptionalInfoPrompt
-        isOpen={showPrompt}
-        onClose={() => setShowPrompt(false)}
-        onConfirm={() => {
-          setShowPrompt(false);
-          if (pendingData) {
-            void doSubmit(pendingData);
-          }
-        }}
-        missingFields={[
-          ...(!gender ? ['gender'] : []),
-          ...(!watch('birthYear') ? ['birthYear'] : []),
-        ]}
-      />
 
       <MigrationPrompt
         isOpen={showMigration}
