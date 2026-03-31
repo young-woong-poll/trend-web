@@ -1,0 +1,56 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  min-height: 100dvh;
+  padding-top: $spacing-16;
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-16;
+}
+
+.navButton {
+  padding: 8px 16px;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.submitButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: $border-radius-md;
+  background: $primary-gradient;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.loading {
+  @include flex-center;
+  min-height: 100dvh;
+  color: $text-tertiary;
+}

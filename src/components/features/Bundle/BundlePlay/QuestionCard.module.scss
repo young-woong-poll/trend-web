@@ -1,0 +1,50 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  gap: 24px;
+  padding: $spacing-24 $spacing-16;
+  text-align: center;
+}
+
+.question {
+  font-size: $font-size-20;
+  font-weight: 600;
+  color: $white;
+  line-height: 1.4;
+}
+
+.options {
+  @include flex-column;
+  gap: 12px;
+}
+
+.optionButton {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-lg;
+  background: $bg-secondary;
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $text-tertiary;
+    background: $bg-tertiary;
+  }
+
+  &.selected {
+    border-color: transparent;
+    background: $primary-gradient;
+  }
+}
+
+.optionLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-bottom: 4px;
+}

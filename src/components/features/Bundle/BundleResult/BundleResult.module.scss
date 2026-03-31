@@ -1,0 +1,147 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  padding: $spacing-24 $spacing-16;
+  gap: 32px;
+}
+
+.popularityCard {
+  @include flex-column;
+  align-items: center;
+  gap: 12px;
+  padding: $spacing-24;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  border: 1px solid #333;
+}
+
+.popularityScore {
+  font-size: $font-size-48;
+  font-weight: 700;
+  color: $white;
+}
+
+.popularityTitle {
+  font-size: $font-size-20;
+  font-weight: 600;
+  color: $white;
+}
+
+.popularityDescription {
+  font-size: $font-size-14;
+  color: $text-secondary;
+}
+
+.characterPlaceholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-48;
+  font-weight: 700;
+  color: $white;
+  margin-bottom: 8px;
+}
+
+.characterImage {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sectionTitle {
+  font-size: $font-size-18;
+  font-weight: 600;
+  color: $white;
+  margin-bottom: 12px;
+}
+
+.answerList {
+  @include flex-column;
+  gap: 12px;
+}
+
+.answerItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: $bg-secondary;
+  border-radius: $border-radius-md;
+  border: 1px solid #333;
+}
+
+.answerQuestion {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  flex: 1;
+}
+
+.answerChoice {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  margin-left: 12px;
+}
+
+.answerStat {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-left: 8px;
+}
+
+.majorityBadge {
+  color: #66bb6a;
+}
+
+.minorityBadge {
+  color: #ff6b35;
+}
+
+.ctaSection {
+  @include flex-column;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.ctaButton {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: $border-radius-lg;
+  background: $primary-gradient;
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.secondaryCta {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-16;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+}
+
+.loading {
+  @include flex-center;
+  min-height: 60dvh;
+  color: $text-tertiary;
+}

@@ -1,5 +1,11 @@
 import { http, HttpResponse } from 'msw';
 
+import {
+  mockBundleDetails,
+  mockBundleElections,
+  recordBundleAnswers,
+  getBundleResult,
+} from '@/mocks/data/bundles';
 import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
 import { getMockElectionSeries } from '@/mocks/data/electionSeries';
 import {
@@ -1059,5 +1065,62 @@ export const handlers = [
       { code: 'NOT_FOUND', message: '서버 메타를 찾을 수 없습니다.', data: null },
       { status: 404 }
     );
+  }),
+
+  // ─── 번들 API ───
+
+  /** GET /api/v1/bundles/{slug}/elections — 번들 질문 목록 */
+  http.get(`${baseURL}/api/v1/bundles/:slug/elections`, ({ params }) => {
+    const slug = params.slug as string;
+    const elections = mockBundleElections[slug];
+    if (!elections) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: elections });
+  }),
+
+  /** GET /api/v1/bundles/{slug} — 번들 상세 (인트로) */
+  http.get(`${baseURL}/api/v1/bundles/:slug`, ({ params }) => {
+    const slug = params.slug as string;
+    const bundle = mockBundleDetails[slug];
+    if (!bundle) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: bundle });
+  }),
+
+  /** POST /api/v1/bundles/{slug}/answers — 답변 제출 */
+  http.post(`${baseURL}/api/v1/bundles/:slug/answers`, async ({ params, request }) => {
+    const slug = params.slug as string;
+    const body = (await request.json()) as {
+      answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+    };
+    const userId = 'mock-user-1';
+    recordBundleAnswers(userId, slug, body.answers);
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '답변이 제출되었습니다',
+      data: { completed: true },
+    });
+  }),
+
+  /** GET /api/v1/bundles/{slug}/my-result — 내 결과 조회 */
+  http.get(`${baseURL}/api/v1/bundles/:slug/my-result`, ({ params }) => {
+    const slug = params.slug as string;
+    const userId = 'mock-user-1';
+    const result = getBundleResult(userId, slug);
+    if (!result) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '결과를 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
   }),
 ];

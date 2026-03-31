@@ -47,7 +47,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
       return;
     }
     setIsNavigating(true);
-    router.push(`/hotpick/${slug}`);
+    router.push(`/bundle/${slug}`);
   };
 
   return (
@@ -105,7 +105,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
               <h3 className={styles.title}>{title}</h3>
               <div className={styles.titleBadges}>
                 <span className={styles.bundleBadge}>
-                  {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+                  {electionCount ? `${electionCount}개 질문` : '번들'}
                 </span>
                 {isClosed && (
                   <span className={styles.closedBadge} data-testid="closed-badge">

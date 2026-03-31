@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import { StructuredData } from '@/components/common/StructuredData/StructuredData';
 import { SingleDetailContent } from '@/components/features/Hotpick/SingleDetailView/SingleDetailContent';
@@ -32,9 +32,9 @@ export default async function HotpickPage({ params }: HotpickPageProps) {
       notFound();
     }
 
-    // BUNDLE 타입: 리뉴얼 예정 — 404 반환
+    // BUNDLE 타입: 번들 페이지로 리다이렉트
     if (hotpickData.hotpick.type !== 'SINGLE') {
-      notFound();
+      redirect(`/bundle/${hotpickAlias}`);
     }
 
     const hotpick = hotpickData.hotpick;
