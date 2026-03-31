@@ -85,37 +85,66 @@ export interface PopularityInfo {
 }
 
 export const POPULARITY_GRADES: PopularityInfo[] = [
-  { grade: 'KING', title: '여론 장악자', description: '대중의 마음을 꿰뚫어 봄', imagePath: null },
-  { grade: 'LEADER', title: '트렌드 리더', description: '시대를 읽는 눈이 있음', imagePath: null },
+  {
+    grade: 'KING',
+    title: '여론의 사자왕',
+    description: '대중의 마음을 꿰뚫어 봄',
+    imagePath:
+      'https://trend-image.votebox.kr/uploads/2026/03/31/d43a750515e84b68a4d419d2ac59e26a.png',
+  },
+  {
+    grade: 'LEADER',
+    title: '트렌드 여우',
+    description: '시대를 읽는 눈이 있음',
+    imagePath:
+      'https://trend-image.votebox.kr/uploads/2026/03/31/3a05846c04944a98bcbc4551da6f6745.png',
+  },
   {
     grade: 'BALANCER',
-    title: '밸런서',
+    title: '밸런스 판다',
     description: '어느 쪽이든 이해하는 균형파',
-    imagePath: null,
+    imagePath:
+      'https://trend-image.votebox.kr/uploads/2026/03/31/ead56ea9d0d94b7b92cd13063190fb2f.png',
   },
-  { grade: 'REBEL', title: '소신파', description: '남들과 다른 길을 가는 타입', imagePath: null },
-  { grade: 'UNICORN', title: '유니콘', description: '세상에 없는 독보적 가치관', imagePath: null },
+  {
+    grade: 'REBEL',
+    title: '소신 고양이',
+    description: '남들과 다른 길을 가는 타입',
+    imagePath:
+      'https://trend-image.votebox.kr/uploads/2026/03/31/378c5b3b9e6a44d4964fe1c50431ad70.png',
+  },
+  {
+    grade: 'UNICORN',
+    title: '유니콘',
+    description: '세상에 없는 독보적 가치관',
+    imagePath:
+      'https://trend-image.votebox.kr/uploads/2026/03/31/92d62e36e5cb4e1abde95ea7540e0604.png',
+  },
 ];
 
 export function getPopularityByScore(score: number): PopularityInfo {
-  if (score >= 90) {
+  if (score >= 68) {
     return POPULARITY_GRADES[0];
-  } // KING
-  if (score >= 70) {
+  } // KING — 여론의 사자왕
+  if (score >= 58) {
     return POPULARITY_GRADES[1];
-  } // LEADER
-  if (score >= 50) {
+  } // LEADER — 트렌드 여우
+  if (score >= 48) {
     return POPULARITY_GRADES[2];
-  } // BALANCER
-  if (score >= 30) {
+  } // BALANCER — 밸런스 판다
+  if (score >= 38) {
     return POPULARITY_GRADES[3];
-  } // REBEL
-  return POPULARITY_GRADES[4]; // UNICORN
+  } // REBEL — 소신 고양이
+  return POPULARITY_GRADES[4]; // UNICORN — 유니콘
 }
 
 /**
- * 대중성 지수 계산
- * questionStats + myAnswers → 다수파 일치 비율
+ * 대중성 지수 계산 (가중 평균 방식)
+ *
+ * 각 질문에서 내가 고른 선택지의 투표 비율을 평균낸다.
+ * 압도적 다수(예: 90%)를 고르면 높고, 아슬아슬한 다수(55%)를 고르면 낮게 반영된다.
+ *
+ * 예: [70, 45, 80, 40, 65] → 평균 60%
  */
 export function calcPopularityScore(
   myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
@@ -125,18 +154,29 @@ export function calcPopularityScore(
     return 0;
   }
 
-  let majorityCount = 0;
+  let totalRate = 0;
+  let matched = 0;
+
   for (const answer of myAnswers) {
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
     if (!stat) {
       continue;
     }
 
-    const myRate = answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
-    if (myRate > 50) {
-      majorityCount++;
-    }
+    totalRate += answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    matched++;
   }
 
-  return Math.round((majorityCount / myAnswers.length) * 100);
+  if (matched === 0) {
+    return 0;
+  }
+
+  return Math.round(totalRate / matched);
 }
+
+/**
+ * 대중성 등급 경계 (가중 평균 기준)
+ *
+ * raw 점수가 40~70% 사이에 몰리므로 경계를 좁게 설정.
+ * 실제 데이터가 쌓이면 등급별 분포를 보고 미세 조정.
+ */

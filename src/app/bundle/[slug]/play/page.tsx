@@ -17,7 +17,7 @@ export default async function BundlePlayPage({ params }: PlayPageProps) {
 
   return (
     <>
-      <MainHeader />
+      <MainHeader minimal />
       <BundlePlay slug={slug} />
     </>
   );

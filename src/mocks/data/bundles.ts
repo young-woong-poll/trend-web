@@ -11,8 +11,10 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     category: '연애',
     questionCount: 5,
     status: 'ACTIVE',
-    imageUrl: undefined,
+    imageUrl:
+      'https://trend-image.votebox.kr/uploads/2026/03/12/8632bb8173cf44f5a9e5ac4f2017924e.jpg',
     participantCount: 247,
+    completed: false,
   },
   'marriage-values': {
     bundleId: 2,
@@ -26,8 +28,84 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     status: 'ACTIVE',
     imageUrl: undefined,
     participantCount: 183,
+    completed: false,
+  },
+  // ─── 등급 확인용 mock 번들 ───
+  'grade-king': {
+    bundleId: 10,
+    slug: 'grade-king',
+    title: '등급 테스트: 사자왕',
+    subtitle: '대중성 68%+ → 여론의 사자왕',
+    description: '등급 확인용',
+    category: '테스트',
+    questionCount: 5,
+    status: 'ACTIVE',
+    imageUrl: undefined,
+    participantCount: 100,
+    completed: true,
+  },
+  'grade-leader': {
+    bundleId: 11,
+    slug: 'grade-leader',
+    title: '등급 테스트: 트렌드 여우',
+    subtitle: '대중성 58~67% → 트렌드 여우',
+    description: '등급 확인용',
+    category: '테스트',
+    questionCount: 5,
+    status: 'ACTIVE',
+    imageUrl: undefined,
+    participantCount: 100,
+    completed: true,
+  },
+  'grade-balancer': {
+    bundleId: 12,
+    slug: 'grade-balancer',
+    title: '등급 테스트: 밸런스 판다',
+    subtitle: '대중성 48~57% → 밸런스 판다',
+    description: '등급 확인용',
+    category: '테스트',
+    questionCount: 5,
+    status: 'ACTIVE',
+    imageUrl: undefined,
+    participantCount: 100,
+    completed: true,
+  },
+  'grade-rebel': {
+    bundleId: 13,
+    slug: 'grade-rebel',
+    title: '등급 테스트: 소신 고양이',
+    subtitle: '대중성 38~47% → 소신 고양이',
+    description: '등급 확인용',
+    category: '테스트',
+    questionCount: 5,
+    status: 'ACTIVE',
+    imageUrl: undefined,
+    participantCount: 100,
+    completed: true,
+  },
+  'grade-unicorn': {
+    bundleId: 14,
+    slug: 'grade-unicorn',
+    title: '등급 테스트: 유니콘',
+    subtitle: '대중성 ~37% → 유니콘',
+    description: '등급 확인용',
+    category: '테스트',
+    questionCount: 5,
+    status: 'ACTIVE',
+    imageUrl: undefined,
+    participantCount: 100,
+    completed: true,
   },
 };
+
+// 등급 테스트용 공통 질문
+const gradeTestElections: BundleElection[] = [
+  { electionId: 'gt-1', title: '테스트 질문 1', optionA: '선택 A', optionB: '선택 B', order: 1 },
+  { electionId: 'gt-2', title: '테스트 질문 2', optionA: '선택 A', optionB: '선택 B', order: 2 },
+  { electionId: 'gt-3', title: '테스트 질문 3', optionA: '선택 A', optionB: '선택 B', order: 3 },
+  { electionId: 'gt-4', title: '테스트 질문 4', optionA: '선택 A', optionB: '선택 B', order: 4 },
+  { electionId: 'gt-5', title: '테스트 질문 5', optionA: '선택 A', optionB: '선택 B', order: 5 },
+];
 
 export const mockBundleElections: Record<string, BundleElection[]> = {
   'love-values': [
@@ -62,6 +140,11 @@ export const mockBundleElections: Record<string, BundleElection[]> = {
     { electionId: 'me-4', title: '시댁·처가 명절', optionA: '매년', optionB: '격년', order: 4 },
     { electionId: 'me-5', title: '아이 교육', optionA: '사교육', optionB: '자율', order: 5 },
   ],
+  'grade-king': gradeTestElections,
+  'grade-leader': gradeTestElections,
+  'grade-balancer': gradeTestElections,
+  'grade-rebel': gradeTestElections,
+  'grade-unicorn': gradeTestElections,
 };
 
 /** 번들 답변 인메모리 저장소 (MSW용) */

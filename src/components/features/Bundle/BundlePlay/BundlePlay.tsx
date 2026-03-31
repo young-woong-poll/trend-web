@@ -6,50 +6,27 @@ import { useRouter } from 'next/navigation';
 
 import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
 
-import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
+import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundlePlay/BundlePlay.module.scss';
 import { ProgressBar } from '@/components/features/Bundle/BundlePlay/ProgressBar';
 import { QuestionCard } from '@/components/features/Bundle/BundlePlay/QuestionCard';
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  useBundleElections,
-  useBundleMyResult,
-  useSubmitBundleAnswers,
-} from '@/hooks/api/useBundle';
-
-const STORAGE_KEY = (slug: string) => `bundle_answers_${slug}`;
-
-function loadAnswers(slug: string): Map<string, 'A' | 'B'> {
-  try {
-    const stored = sessionStorage.getItem(STORAGE_KEY(slug));
-    if (!stored) {
-      return new Map();
-    }
-    return new Map(JSON.parse(stored));
-  } catch {
-    return new Map();
-  }
-}
-
-function saveAnswers(slug: string, answers: Map<string, 'A' | 'B'>) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY(slug), JSON.stringify([...answers]));
-  } catch {
-    // storage full
-  }
-}
+import { useBundleDetail, useBundleElections, useSubmitBundleAnswers } from '@/hooks/api/useBundle';
 
 const slideVariants = {
   enter: (direction: number) => ({
-    x: direction > 0 ? 200 : -200,
+    x: direction > 0 ? 120 : -120,
+    y: 20,
     opacity: 0,
   }),
   center: {
     x: 0,
+    y: 0,
     opacity: 1,
   },
   exit: (direction: number) => ({
-    x: direction > 0 ? -200 : 200,
+    x: direction > 0 ? -120 : 120,
+    y: -10,
     opacity: 0,
   }),
 };
@@ -60,13 +37,13 @@ interface BundlePlayProps {
 
 export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const { isLoggedIn } = useAuth();
+  const { data: bundle } = useBundleDetail(slug);
   const { data: elections, isLoading } = useBundleElections(slug);
-  const { data: existingResult } = useBundleMyResult(slug);
   const submitMutation = useSubmitBundleAnswers(slug);
   const router = useRouter();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(() => loadAnswers(slug));
+  const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -77,11 +54,10 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   }, [isLoggedIn, slug, router]);
 
   useEffect(() => {
-    if (existingResult) {
-      sessionStorage.removeItem(STORAGE_KEY(slug));
+    if (bundle?.completed) {
       router.replace(`/bundle/${slug}/result`);
     }
-  }, [existingResult, slug, router]);
+  }, [bundle?.completed, slug, router]);
 
   const handleSelect = useCallback(
     (choice: 'A' | 'B') => {
@@ -89,15 +65,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
         return;
       }
       const election = elections[currentIndex];
-      setAnswers((prev) => {
-        const next = new Map(prev).set(election.electionId, choice);
-        saveAnswers(slug, next);
-        return next;
-      });
+      setAnswers((prev) => new Map(prev).set(election.electionId, choice));
 
       if (autoAdvanceTimer.current) {
         clearTimeout(autoAdvanceTimer.current);
       }
+      // 마지막 질문이 아니면 항상 자동 이동 (같은 선택 재클릭 포함)
       if (currentIndex < elections.length - 1) {
         autoAdvanceTimer.current = setTimeout(() => {
           setDirection(1);
@@ -105,7 +78,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
         }, 400);
       }
     },
-    [elections, currentIndex, slug]
+    [elections, currentIndex]
   );
 
   useEffect(
@@ -117,12 +90,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
     []
   );
 
-  const goTo = (nextIndex: number) => {
+  const goPrev = () => {
     if (autoAdvanceTimer.current) {
       clearTimeout(autoAdvanceTimer.current);
     }
-    setDirection(nextIndex > currentIndex ? 1 : -1);
-    setCurrentIndex(nextIndex);
+    setDirection(-1);
+    setCurrentIndex((i) => i - 1);
   };
 
   const handleSubmit = async () => {
@@ -143,7 +116,6 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     try {
       await submitMutation.mutateAsync({ answers: answerData });
-      sessionStorage.removeItem(STORAGE_KEY(slug));
       router.push(`/bundle/${slug}/result`);
     } catch {
       // eslint-disable-next-line no-alert
@@ -153,9 +125,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
   if (isLoading || !elections) {
     return (
-      <FlexibleLayout>
-        <div className={styles.loading}>질문을 불러오는 중...</div>
-      </FlexibleLayout>
+      <BundleBackground>
+        <div className={styles.loading}>
+          <div className={styles.loadingSpinner} />
+          질문을 불러오는 중...
+        </div>
+      </BundleBackground>
     );
   }
 
@@ -165,41 +140,37 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const isLast = currentIndex === elections.length - 1;
 
   return (
-    <FlexibleLayout>
+    <BundleBackground>
       <div className={styles.container}>
-        <ProgressBar current={currentIndex + 1} total={elections.length} />
+        <div className={styles.topBar}>
+          <ProgressBar current={currentIndex + 1} total={elections.length} />
+        </div>
 
-        <LazyMotion features={domAnimation}>
-          <AnimatePresence mode="wait" custom={direction}>
-            <m.div
-              key={currentElection.electionId}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.25, ease: 'easeInOut' }}
-            >
-              <QuestionCard
-                election={currentElection}
-                selected={currentAnswer}
-                onSelect={handleSelect}
-              />
-            </m.div>
-          </AnimatePresence>
-        </LazyMotion>
+        <div className={styles.questionWrapper}>
+          <LazyMotion features={domAnimation}>
+            <AnimatePresence mode="wait" custom={direction}>
+              <m.div
+                key={currentElection.electionId}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              >
+                <QuestionCard
+                  election={currentElection}
+                  selected={currentAnswer}
+                  onSelect={handleSelect}
+                  onBack={currentIndex > 0 ? goPrev : undefined}
+                />
+              </m.div>
+            </AnimatePresence>
+          </LazyMotion>
+        </div>
 
-        <div className={styles.navigation}>
-          <button
-            type="button"
-            className={styles.navButton}
-            onClick={() => goTo(currentIndex - 1)}
-            disabled={currentIndex === 0}
-          >
-            이전
-          </button>
-
-          {isLast ? (
+        {isLast && (
+          <div className={styles.submitArea}>
             <button
               type="button"
               className={styles.submitButton}
@@ -208,18 +179,9 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
             >
               {submitMutation.isPending ? '제출 중...' : '결과 보기'}
             </button>
-          ) : (
-            <button
-              type="button"
-              className={styles.navButton}
-              onClick={() => goTo(currentIndex + 1)}
-              disabled={!currentAnswer}
-            >
-              다음
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-    </FlexibleLayout>
+    </BundleBackground>
   );
 };

@@ -90,6 +90,13 @@
 - API 응답 타입: 기획서 섹션 13 참조
 - 서버 API 미구현 시: MSW 또는 하드코딩 mock 데이터로 대체
 
+### SCSS 변수 사용 규칙
+
+- `src/styles/_variables.scss`에 **정의된 변수만** 사용할 것
+- 존재하지 않는 변수를 추측하여 사용 금지 (예: `$font-size-13` 같은 미정의 변수)
+- 정의된 변수에 없는 값이 필요하면 직접 값(예: `13px`)을 사용
+- 자주 쓰는 font-size 변수: `$font-size-12`, `$font-size-14`, `$font-size-16`, `$font-size-18`, `$font-size-20`, `$font-size-22`, `$font-size-24`, `$font-size-26`, `$font-size-28`, `$font-size-30`, `$font-size-32`, `$font-size-36`, `$font-size-40`, `$font-size-42`, `$font-size-48`
+
 ## 팀 구성
 
 - 기획 + FE: 웅일

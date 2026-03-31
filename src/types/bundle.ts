@@ -15,6 +15,8 @@ export interface BundleDetail {
   status: 'ACTIVE' | 'CLOSED';
   imageUrl?: string;
   participantCount: number;
+  /** 로그인 유저의 번들 완료 여부 (비로그인 시 false) */
+  completed: boolean;
 }
 
 /**

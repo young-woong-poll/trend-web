@@ -1092,7 +1092,13 @@ export const handlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: bundle });
+    const userId = 'mock-user-1';
+    const completed = !!getBundleResult(userId, slug);
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '성공',
+      data: { ...bundle, completed },
+    });
   }),
 
   /** POST /api/v1/bundles/{slug}/answers — 답변 제출 */
@@ -1114,7 +1120,46 @@ export const handlers = [
   http.get(`${baseURL}/api/v1/bundles/:slug/my-result`, ({ params }) => {
     const slug = params.slug as string;
     const userId = 'mock-user-1';
-    const result = getBundleResult(userId, slug);
+    const isGradeTest = slug.startsWith('grade-');
+    let result = isGradeTest ? null : getBundleResult(userId, slug);
+    // DEV: 결과가 없거나 등급 테스트이면 하드코딩 목업 반환 (디자인 확인용)
+    if (!result) {
+      const elections = mockBundleElections[slug];
+      if (elections) {
+        const detail = mockBundleDetails[slug];
+
+        // 등급 테스트: 유저는 항상 A, A 득표율로 대중성 결정
+        // 가중 평균 = seedRatios 평균 → 등급 경계: 68/58/48/38
+        const gradeSeeds: Record<string, number[]> = {
+          'grade-king': [80, 72, 65, 75, 68], // 평균 72% → 사자왕
+          'grade-leader': [65, 58, 62, 55, 70], // 평균 62% → 여우
+          'grade-balancer': [55, 48, 52, 45, 60], // 평균 52% → 판다
+          'grade-rebel': [45, 38, 42, 40, 50], // 평균 43% → 고양이
+          'grade-unicorn': [30, 25, 35, 28, 32], // 평균 30% → 유니콘
+        };
+        const seedRatios = gradeSeeds[slug] ?? [62, 45, 71, 38, 55];
+        const isGradeTest = slug.startsWith('grade-');
+
+        result = {
+          bundleSlug: slug,
+          bundleTitle: detail?.title ?? slug,
+          totalQuestions: elections.length,
+          myAnswers: elections.map((e, i) => ({
+            electionId: e.electionId,
+            title: e.title,
+            optionA: e.optionA,
+            optionB: e.optionB,
+            selected: (isGradeTest ? 'A' : i % 2 === 0 ? 'A' : 'B') as 'A' | 'B',
+          })),
+          questionStats: elections.map((e, i) => ({
+            electionId: e.electionId,
+            optionARate: seedRatios[i] ?? 50,
+            optionBRate: 100 - (seedRatios[i] ?? 50),
+            totalVotes: 80 + i * 15,
+          })),
+        };
+      }
+    }
     if (!result) {
       return HttpResponse.json(
         { code: 'NOT_FOUND', message: '결과를 찾을 수 없습니다', data: null },
