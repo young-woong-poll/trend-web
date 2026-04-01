@@ -33,9 +33,16 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
           </div>
           <div className={`${styles.accordionContent} ${sameOpen ? styles.expanded : ''}`}>
             {data.same.map((item) => (
-              <div key={item.electionId} className={styles.answerItem}>
-                <span className={styles.itemTitle}>{item.title}</span>
-                <span className={styles.itemAnswer}>{item.selected}</span>
+              <div key={item.electionId} className={styles.sameItem}>
+                <span className={styles.sameQuestion}>{item.title}</span>
+                <div className={styles.sameAnswer}>
+                  <span className={styles.sameAnswerText}>{item.selected}</span>
+                  <span
+                    className={`${styles.sameRate} ${item.selectedRate >= 50 ? styles.majorityRate : styles.minorityRate}`}
+                  >
+                    선택률 {item.selectedRate}%
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -64,7 +71,10 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {myNickname}
                     </span>
-                    <span className={styles.diffPillLeft}>{item.myOptionText}</span>
+                    <span className={styles.diffPillLeft}>
+                      {item.myOptionText}
+                      <span className={styles.diffRate}>선택률 {item.myRate}%</span>
+                    </span>
                   </div>
                   <span className={styles.diffVsIcon}>VS</span>
                   <div className={styles.diffSide}>
@@ -74,7 +84,10 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {targetNickname}
                     </span>
-                    <span className={styles.diffPillRight}>{item.targetOptionText}</span>
+                    <span className={styles.diffPillRight}>
+                      {item.targetOptionText}
+                      <span className={styles.diffRate}>선택률 {item.targetRate}%</span>
+                    </span>
                   </div>
                 </div>
               </div>

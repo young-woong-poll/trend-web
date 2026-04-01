@@ -1,4 +1,5 @@
 // src/mocks/data/compare.ts
+import { getPopularityByScore } from '@/constants/bundle';
 import {
   bundleAnswerStore,
   bundleVoteStats,
@@ -131,12 +132,39 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
   const detail = mockBundleDetails[link.bundleSlug];
   const myCompleted = !!bundleAnswerStore.get(`${currentUserId}_${link.bundleSlug}`);
 
+  // 생성자의 대중성 캐릭터 이미지 계산
+  const creatorAnswers = bundleAnswerStore.get(`${link.creatorUserId}_${link.bundleSlug}`);
+  const elections = mockBundleElections[link.bundleSlug];
+  let creatorImageUrl: string | null = null;
+  if (creatorAnswers && elections) {
+    let totalRate = 0;
+    let matched = 0;
+    for (const answer of creatorAnswers) {
+      const stats = bundleVoteStats.get(answer.electionId);
+      if (stats) {
+        const total = stats.optionACount + stats.optionBCount;
+        if (total > 0) {
+          const rate =
+            answer.selected === 'A'
+              ? Math.round((stats.optionACount / total) * 100)
+              : Math.round((stats.optionBCount / total) * 100);
+          totalRate += rate;
+          matched++;
+        }
+      }
+    }
+    const score = matched > 0 ? Math.round(totalRate / matched) : 50;
+    const popularity = getPopularityByScore(score);
+    creatorImageUrl = popularity.imagePath;
+  }
+
   return {
     token: link.token,
     type: link.type,
     bundleSlug: link.bundleSlug,
     bundleTitle: detail?.title ?? link.bundleSlug,
     creatorNickname: link.creatorNickname,
+    creatorImageUrl,
     participantNickname: link.participantNickname,
     isCreator: link.creatorUserId === currentUserId,
     isParticipant: link.participantUserId === currentUserId,

@@ -156,7 +156,7 @@ export function getCoupleType(
   const type = COUPLE_TYPES[key];
   return {
     ...type,
-    subtitle: `일치율 ${matchRate}% · ${popularityLabel}`,
+    subtitle: popularityLabel,
   };
 }
 
@@ -232,6 +232,8 @@ export interface AnswerStoryData {
     electionId: string;
     title: string;
     selected: string;
+    /** 두 사람이 고른 선택지의 대중 득표율 */
+    selectedRate: number;
   }>;
   different: Array<{
     electionId: string;
@@ -240,6 +242,10 @@ export interface AnswerStoryData {
     targetSelected: string;
     myOptionText: string;
     targetOptionText: string;
+    /** 내 선택지의 대중 득표율 */
+    myRate: number;
+    /** 상대 선택지의 대중 득표율 */
+    targetRate: number;
   }>;
 }
 
@@ -254,11 +260,15 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
       continue;
     }
 
+    const myRate = myAnswer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    const targetRate = targetAnswer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+
     if (myAnswer.selected === targetAnswer.selected) {
       same.push({
         electionId: stat.electionId,
         title: stat.title,
         selected: myAnswer.selected === 'A' ? stat.optionA : stat.optionB,
+        selectedRate: myRate,
       });
     } else {
       different.push({
@@ -268,6 +278,8 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
         targetSelected: targetAnswer.selected,
         myOptionText: myAnswer.selected === 'A' ? stat.optionA : stat.optionB,
         targetOptionText: targetAnswer.selected === 'A' ? stat.optionA : stat.optionB,
+        myRate,
+        targetRate,
       });
     }
   }

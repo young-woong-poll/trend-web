@@ -12,7 +12,7 @@
   }
 }
 
-@keyframes scaleReveal {
+@keyframes countReveal {
   0% {
     opacity: 0;
     transform: scale(0.8);
@@ -42,64 +42,77 @@
   animation: fadeSlideUp 0.5s ease-out 0.1s both;
 }
 
-// ─── 캐릭터 나란히 ───
+// ─── 닉네임 ───
 
-.characterRow {
+.names {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin: 12px 0 8px;
-  animation: scaleReveal 0.7s ease-out 0.2s both;
+  gap: 8px;
+  margin-top: 8px;
+  animation: fadeSlideUp 0.5s ease-out 0.2s both;
 }
 
-.characterSide {
-  @include flex-column;
-  align-items: center;
-  gap: 6px;
-}
-
-.characterName {
-  font-size: $font-size-14;
+.myName {
+  font-size: $font-size-16;
   font-weight: 700;
 }
 
-.characterImage {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: contain;
-}
-
-.characterPlaceholder {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  @include flex-center;
-  background: rgba(#fff, 0.04);
-  font-size: $font-size-24;
+.targetName {
+  font-size: $font-size-16;
   font-weight: 700;
-  color: $text-secondary;
-}
-
-.characterTitle {
-  font-size: $font-size-12;
-  color: $text-tertiary;
 }
 
 .vs {
-  font-size: $font-size-20;
+  font-size: $font-size-14;
   color: $text-tertiary;
   font-weight: 300;
-  margin-top: 20px;
+}
+
+// ─── 일치율 히어로 ───
+
+.matchRateArea {
+  @include flex-column;
+  align-items: center;
+  gap: 0;
+  margin: 16px 0;
+  animation: countReveal 0.7s ease-out 0.3s both;
+}
+
+.matchRateRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.matchRate {
+  font-size: 72px;
+  font-weight: 700;
+  color: $white;
+  line-height: 1;
+  letter-spacing: -3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.matchUnit {
+  font-size: $font-size-28;
+  font-weight: 600;
+  color: $text-tertiary;
+}
+
+.matchLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: 4px;
+  letter-spacing: 1px;
 }
 
 // ─── 커플 타입 ───
 
 .coupleType {
-  font-size: $font-size-26;
+  font-size: $font-size-24;
   font-weight: 800;
   color: $white;
-  margin-top: 16px;
+  margin-top: 8px;
   animation: fadeSlideUp 0.5s ease-out 0.5s both;
 }
 

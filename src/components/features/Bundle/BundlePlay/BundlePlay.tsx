@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
 
@@ -41,6 +41,8 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const { data: elections, isLoading } = useBundleElections(slug);
   const submitMutation = useSubmitBundleAnswers(slug);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const compareToken = searchParams.get('compareToken');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
@@ -116,7 +118,11 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     try {
       await submitMutation.mutateAsync({ answers: answerData });
-      router.push(`/bundle/${slug}/result`);
+      if (compareToken) {
+        router.push(`/bundle/${slug}/result?compareToken=${compareToken}`);
+      } else {
+        router.push(`/bundle/${slug}/result`);
+      }
     } catch {
       // eslint-disable-next-line no-alert
       window.alert('제출에 실패했습니다. 다시 시도해주세요.');

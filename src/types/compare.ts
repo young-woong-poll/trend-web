@@ -13,6 +13,8 @@ export interface CompareLink {
   bundleTitle: string;
   /** 링크 생성자 닉네임 */
   creatorNickname: string;
+  /** 링크 생성자 대중성 캐릭터 이미지 URL */
+  creatorImageUrl: string | null;
   /** 참여자 닉네임 (1:1 전용, 아직 없으면 null) */
   participantNickname: string | null;
   /** 현재 로그인 유저가 생성자인지 */

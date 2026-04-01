@@ -75,7 +75,6 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         <div className={styles.header}>
           <span className={styles.category}>{bundle.category}</span>
           <h1 className={styles.title}>{bundle.title}</h1>
-          {bundle.subtitle && <p className={styles.subtitle}>{bundle.subtitle}</p>}
         </div>
 
         <div className={styles.meta}>
@@ -101,10 +100,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
               <CompareGroupIcon width={28} height={28} />
             </div>
             <div className={styles.promoContent}>
-              <span className={styles.promoLabel}>
-                그룹 비교
-                <span className={styles.comingSoon}>Coming Soon</span>
-              </span>
+              <span className={styles.promoLabel}>그룹 비교</span>
               <span className={styles.promoText}>{compareHook.group}</span>
             </div>
           </div>

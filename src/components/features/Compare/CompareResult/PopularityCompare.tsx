@@ -51,10 +51,6 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
               {myPopularity.grade[0]}
             </div>
           )}
-          <div>
-            <span className={styles.personScore}>{myScore}</span>
-            <span className={styles.personScoreUnit}>%</span>
-          </div>
           <span className={styles.personTitle}>{myPopularity.title}</span>
           <span className={styles.personDescription}>{myPopularity.description}</span>
         </div>
@@ -83,10 +79,6 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
               {targetPopularity.grade[0]}
             </div>
           )}
-          <div>
-            <span className={styles.personScore}>{targetScore}</span>
-            <span className={styles.personScoreUnit}>%</span>
-          </div>
           <span className={styles.personTitle}>{targetPopularity.title}</span>
           <span className={styles.personDescription}>{targetPopularity.description}</span>
         </div>

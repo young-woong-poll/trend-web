@@ -12,7 +12,7 @@ import { ChemistryCard } from '@/components/features/Compare/CompareResult/Chemi
 import styles from '@/components/features/Compare/CompareResult/CompareResult.module.scss';
 import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
-import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
+import { calcPopularityScore } from '@/constants/bundle';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompareResult } from '@/hooks/api/useCompare';
@@ -66,8 +66,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const storyData = classifyAnswers(result);
   const myPopularityScore = calcPopularityScore(result.me.answers, result.questionStats);
   const targetPopularityScore = calcPopularityScore(result.target.answers, result.questionStats);
-  const myPopularity = getPopularityByScore(myPopularityScore);
-  const targetPopularity = getPopularityByScore(targetPopularityScore);
 
   return (
     <BundleBackground>
@@ -75,15 +73,11 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         {/* 케미 카드 */}
         <ChemistryCard
           matchRate={result.matchRate}
-          matchCount={result.matchCount}
-          totalQuestions={result.totalQuestions}
           myNickname={result.me.nickname}
           targetNickname={result.target.nickname}
           bundleTitle={result.bundleTitle}
           myPopularityScore={myPopularityScore}
           targetPopularityScore={targetPopularityScore}
-          myPopularity={myPopularity}
-          targetPopularity={targetPopularity}
         />
 
         {/* 같은 편/갈린 순간 */}
@@ -123,9 +117,9 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           >
             내 결과 다시 보기
           </button>
-          <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
+          {/* <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
             메인으로 돌아가기
-          </button>
+          </button> */}
         </div>
       </div>
 

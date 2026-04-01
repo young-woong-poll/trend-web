@@ -103,6 +103,13 @@
   color: $white;
 }
 
+.scoreLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
 .scoreRow {
   display: flex;
   align-items: baseline;
@@ -196,15 +203,15 @@
 }
 
 .majorityBadge {
-  background: rgba(102, 187, 106, 0.1);
-  color: #66bb6a;
-  border: 1px solid rgba(102, 187, 106, 0.15);
+  background: rgba(#fff, 0.06);
+  color: $text-secondary;
+  border: 1px solid rgba(#fff, 0.08);
 }
 
 .minorityBadge {
-  background: rgba(255, 107, 53, 0.1);
-  color: #ff6b35;
-  border: 1px solid rgba(255, 107, 53, 0.15);
+  background: rgba(#fff, 0.03);
+  color: $text-tertiary;
+  border: 1px solid rgba(#fff, 0.06);
 }
 
 // ─── 투표 바 ───

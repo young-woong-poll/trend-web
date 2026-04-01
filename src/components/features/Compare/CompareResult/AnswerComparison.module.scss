@@ -54,11 +54,11 @@
 }
 
 .sameColor {
-  color: #66bb6a;
+  color: $text-secondary;
 }
 
 .diffColor {
-  color: #ff6b35;
+  color: $text-secondary;
 }
 
 .chevron {
@@ -83,24 +83,43 @@
   }
 }
 
-.answerItem {
+// ─── 같은 편 아이템 ───
+
+.sameItem {
+  @include flex-column;
+  gap: 8px;
+  padding: 14px 18px;
+  border-top: 1px solid rgba(#fff, 0.04);
+}
+
+.sameQuestion {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+}
+
+.sameAnswer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 18px;
-  border-top: 1px solid rgba(#fff, 0.04);
+}
+
+.sameAnswerText {
   font-size: 13px;
-}
-
-.itemTitle {
   color: $text-secondary;
-  flex: 1;
 }
 
-.itemAnswer {
+.sameRate {
+  font-size: $font-size-12;
   font-weight: 600;
-  color: $white;
-  margin-left: 12px;
+}
+
+.majorityRate {
+  color: $text-secondary;
+}
+
+.minorityRate {
+  color: $text-tertiary;
 }
 
 .diffItem {
@@ -156,6 +175,14 @@
   background: rgba(#ff6b35, 0.15);
   border: 1px solid rgba(#ff6b35, 0.3);
   color: #ff9a6c;
+}
+
+.diffRate {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-top: 4px;
 }
 
 .diffVsIcon {

@@ -47,7 +47,7 @@
   background: rgba(#1e1e1e, 0.6);
   backdrop-filter: blur(16px);
   border-radius: $border-radius-lg;
-  border: 1px solid rgba(#ff6b35, 0.15);
+  border: 1px solid rgba(#fff, 0.06);
 }
 
 .questionTitle {
@@ -90,11 +90,11 @@
 }
 
 .majorityRate {
-  color: #66bb6a;
+  color: $text-secondary;
 }
 
 .minorityRate {
-  color: #ff6b35;
+  color: $text-tertiary;
 }
 
 .comment {

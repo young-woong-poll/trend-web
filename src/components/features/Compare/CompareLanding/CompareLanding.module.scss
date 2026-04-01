@@ -82,12 +82,13 @@
   animation: bounce 1.5s ease-in-out infinite;
 }
 
-// ─── 블러 프리뷰 카드 ───
+// ─── 블러 결과 프리뷰 카드 ───
 .previewCard {
   @include flex-column;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
   width: 100%;
-  padding: 20px;
+  padding: 24px 20px;
   background: rgba(#1e1e1e, 0.6);
   backdrop-filter: blur(16px);
   border-radius: $border-radius-lg;
@@ -95,28 +96,118 @@
   animation: fadeSlideUp 0.5s ease-out 0.15s both;
 }
 
-.previewRow {
+.previewHeader {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  letter-spacing: 0.5px;
+}
+
+.previewCoupleType {
+  @include flex-column;
+  align-items: center;
+  gap: 10px;
+}
+
+.previewCharacters {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 0;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid rgba(#fff, 0.04);
-  }
+  gap: 16px;
 }
 
-.previewLabel {
-  font-size: $font-size-14;
-  color: $text-secondary;
+.previewChar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  @include flex-center;
+  background: rgba(#fff, 0.06);
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
 }
 
-.previewValue {
-  font-size: $font-size-14;
+.previewCharImage {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.previewCharBlur {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  @include flex-center;
+  background: rgba(#fff, 0.06);
+  font-size: $font-size-18;
   font-weight: 700;
   color: $text-tertiary;
-  filter: blur(6px);
+  filter: blur(4px);
   user-select: none;
+}
+
+.previewVs {
+  font-size: $font-size-16;
+  color: $text-tertiary;
+  font-weight: 300;
+}
+
+.previewBlurLine {
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(#fff, 0.06);
+}
+
+.previewDiff {
+  width: 100%;
+  padding: 12px 0;
+  border-top: 1px solid rgba(#fff, 0.04);
+}
+
+.previewDiffRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.previewPill {
+  padding: 8px 16px;
+  border-radius: $border-radius-md;
+  background: rgba(#6c63ff, 0.15);
+  border: 1px solid rgba(#6c63ff, 0.3);
+  color: #a89eff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.previewPillBlur {
+  padding: 8px 16px;
+  border-radius: $border-radius-md;
+  background: rgba(#ff6b35, 0.15);
+  border: 1px solid rgba(#ff6b35, 0.3);
+  color: #ff9a6c;
+  font-size: 13px;
+  font-weight: 600;
+  filter: blur(4px);
+  user-select: none;
+}
+
+.previewVsSmall {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+}
+
+.previewMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  padding-top: 4px;
+  border-top: 1px solid rgba(#fff, 0.04);
+  width: 100%;
+  justify-content: center;
 }
 
 // ─── 질문 미리보기 ───

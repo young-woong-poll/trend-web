@@ -201,6 +201,18 @@ export function seedSecondUser() {
       { electionId: 'le-5', selected: 'A' },
     ]);
   }
+
+  // mock-user-2 marriage-values 답변 시드 (invite2 링크 생성자용)
+  const marriageSlug = 'marriage-values';
+  if (!bundleAnswerStore.has(`mock-user-2_${marriageSlug}`)) {
+    recordBundleAnswers('mock-user-2', marriageSlug, [
+      { electionId: 'me-1', selected: 'A' },
+      { electionId: 'me-2', selected: 'B' },
+      { electionId: 'me-3', selected: 'A' },
+      { electionId: 'me-4', selected: 'B' },
+      { electionId: 'me-5', selected: 'A' },
+    ]);
+  }
 }
 
 export function getBundleResult(userId: string, slug: string): BundleMyResult | null {

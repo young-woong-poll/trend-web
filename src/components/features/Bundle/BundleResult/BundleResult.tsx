@@ -15,6 +15,7 @@ import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/Cre
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
+import { useJoinCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
 interface BundleResultProps {
@@ -38,7 +39,10 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { data: result, isLoading } = useBundleMyResult(slug);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const compareToken = searchParams.get('from') === 'compare' ? searchParams.get('token') : null;
+  const compareToken =
+    searchParams.get('compareToken') ??
+    (searchParams.get('from') === 'compare' ? searchParams.get('token') : null);
+  const joinMutation = useJoinCompareLink(compareToken ?? '');
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
 
@@ -47,6 +51,24 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
       router.replace(`/bundle/${slug}`);
     }
   }, [isAuthLoading, isLoggedIn, slug, router]);
+
+  // compare 토큰이 있고 결과가 로드되면 → 자동 join → compare result로 이동
+  useEffect(() => {
+    if (!compareToken || !result || joinMutation.isPending || joinMutation.isSuccess) {
+      return;
+    }
+
+    const autoJoin = async () => {
+      try {
+        await joinMutation.mutateAsync();
+      } catch {
+        // join 실패해도 (이미 참여 등) compare result로 이동 시도
+      }
+      router.replace(`/compare/${compareToken}/result`);
+    };
+    void autoJoin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareToken, result]);
 
   if (isLoading) {
     return (
@@ -233,11 +255,11 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         </div>
 
         {/* ═══ 하단 여백 (플로팅 CTA 공간 확보) ═══ */}
-        <div className={styles.ctaSection}>
+        {/* <div className={styles.ctaSection}>
           <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
             메인으로 돌아가기
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* ═══ 플로팅 CTA — 핵심 바이럴 버튼 ═══ */}

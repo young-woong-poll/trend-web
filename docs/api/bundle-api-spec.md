@@ -229,6 +229,7 @@ Array<{
   bundleSlug: string;
   bundleTitle: string;
   creatorNickname: string; // 링크 생성자 닉네임
+  creatorImageUrl: string | null; // 링크 생성자 대중성 캐릭터 이미지 URL
   participantNickname: string | null; // 참여자 닉네임 (아직 없으면 null)
   isCreator: boolean; // 현재 로그인 유저가 생성자인지
   isParticipant: boolean; // 현재 로그인 유저가 참여자인지

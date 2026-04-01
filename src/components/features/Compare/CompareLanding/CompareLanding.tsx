@@ -2,6 +2,7 @@
 
 import type { FC } from 'react';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
@@ -74,7 +75,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return;
     }
     if (needsBundle) {
-      router.push(`/bundle/${link.bundleSlug}/play`);
+      router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
       return;
     }
     if (canJoin) {
@@ -162,40 +163,59 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         {/* ─── 블러 결과 프리뷰 (미완료 유저) ─── */}
         {showPreview && (
           <div className={styles.previewCard}>
-            <div className={styles.previewRow}>
-              <span className={styles.previewLabel}>케미 등급</span>
-              <span className={styles.previewValue}>S등급 · 소울메이트</span>
+            <div className={styles.previewHeader}>완료하면 이런 결과를 볼 수 있어요</div>
+
+            {/* 커플 타입 블러 */}
+            <div className={styles.previewCoupleType}>
+              <div className={styles.previewCharacters}>
+                {link.creatorImageUrl ? (
+                  <Image
+                    src={link.creatorImageUrl}
+                    alt={link.creatorNickname}
+                    width={52}
+                    height={52}
+                    className={styles.previewCharImage}
+                  />
+                ) : (
+                  <span className={styles.previewChar}>{link.creatorNickname[0]}</span>
+                )}
+                <span className={styles.previewVs}>×</span>
+                <span className={styles.previewCharBlur}>?</span>
+              </div>
+              <div className={styles.previewBlurLine} style={{ width: 140 }} />
+              <div className={styles.previewBlurLine} style={{ width: 200 }} />
             </div>
-            <div className={styles.previewRow}>
-              <span className={styles.previewLabel}>일치율</span>
-              <span className={styles.previewValue}>??%</span>
+
+            {/* 갈린 순간 블러 */}
+            <div className={styles.previewDiff}>
+              <div className={styles.previewDiffRow}>
+                <div className={styles.previewPill}>{link.creatorNickname}</div>
+                <span className={styles.previewVsSmall}>VS</span>
+                <div className={styles.previewPillBlur}>???</div>
+              </div>
             </div>
-            <div className={styles.previewRow}>
-              <span className={styles.previewLabel}>충격 포인트</span>
-              <span className={styles.previewValue}>?개 발견</span>
+
+            {/* 메타 */}
+            <div className={styles.previewMeta}>
+              <span>일치율 ??%</span>
+              <span className={styles.metaDot} />
+              <span>충격 포인트 ?개</span>
             </div>
           </div>
         )}
 
-        {/* ─── 질문 1개 미리보기 (미완료 유저) ─── */}
+        {/* ─── 질문 미리보기 (미완료 유저) ─── */}
         {showPreview && firstQuestion && (
           <div className={styles.questionPreview}>
-            <span className={styles.questionLabel}>Q1 미리보기</span>
+            <span className={styles.questionLabel}>이런 질문에 답하게 돼요</span>
             <div className={styles.questionTitle}>{firstQuestion.title}</div>
             <div className={styles.questionOptions}>
               <div className={styles.questionOption}>{firstQuestion.optionA}</div>
               <div className={styles.questionOption}>{firstQuestion.optionB}</div>
             </div>
-            <span className={styles.questionMore}>외 {link.questionCount - 1}개 질문</span>
-          </div>
-        )}
-
-        {/* ─── 시간 + 참여자 (미완료 유저) ─── */}
-        {showPreview && (
-          <div className={styles.bundleMeta}>
-            <span>평균 2분 30초</span>
-            <span className={styles.metaDot} />
-            <span>{formatCount(link.participantCount)}명 참여</span>
+            <span className={styles.questionMore}>
+              외 {link.questionCount - 1}개 질문 · {formatCount(link.participantCount)}명 참여
+            </span>
           </div>
         )}
 
