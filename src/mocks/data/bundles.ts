@@ -173,6 +173,36 @@ export function recordBundleAnswers(
   }
 }
 
+/**
+ * 비교용 mock 유저 — mock-user-1, mock-user-2 love-values 번들 미리 답변
+ * compare 결과 페이지 테스트용
+ */
+export function seedSecondUser() {
+  const slug = 'love-values';
+
+  // mock-user-1 (생성자) 답변 시드
+  if (!bundleAnswerStore.has(`mock-user-1_${slug}`)) {
+    recordBundleAnswers('mock-user-1', slug, [
+      { electionId: 'le-1', selected: 'A' },
+      { electionId: 'le-2', selected: 'A' },
+      { electionId: 'le-3', selected: 'B' },
+      { electionId: 'le-4', selected: 'A' },
+      { electionId: 'le-5', selected: 'A' },
+    ]);
+  }
+
+  // mock-user-2 (참여자) 답변 시드
+  if (!bundleAnswerStore.has(`mock-user-2_${slug}`)) {
+    recordBundleAnswers('mock-user-2', slug, [
+      { electionId: 'le-1', selected: 'B' },
+      { electionId: 'le-2', selected: 'A' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'B' },
+      { electionId: 'le-5', selected: 'A' },
+    ]);
+  }
+}
+
 export function getBundleResult(userId: string, slug: string): BundleMyResult | null {
   const answers = bundleAnswerStore.get(`${userId}_${slug}`);
   if (!answers) {

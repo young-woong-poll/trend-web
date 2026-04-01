@@ -6,27 +6,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: $spacing-24 $spacing-16;
-}
-
-.heroImage {
-  position: relative;
-  width: 100%;
-  max-width: 672px;
-  aspect-ratio: 16 / 9;
-  border-radius: $border-radius-lg;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.heroImg {
-  object-fit: cover;
-}
-
-.heroPlaceholder {
-  width: 100%;
-  height: 100%;
-  background: $bg-tertiary;
+  padding: calc(56px + 32px) $spacing-16 calc($spacing-24 + env(safe-area-inset-bottom, 0px));
 }
 
 .header {
@@ -73,6 +53,70 @@
 
 .metaDot {
   color: $text-tertiary;
+}
+
+// ─── 비교 기능 홍보 카드 ───
+
+.comparePromo {
+  width: 100%;
+  max-width: 672px;
+  margin-top: 28px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+  overflow: hidden;
+}
+
+.promoRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 16px;
+}
+
+.promoIconWrap {
+  @include flex-center;
+  color: $text-secondary;
+  flex-shrink: 0;
+}
+
+.promoContent {
+  @include flex-column;
+  gap: 6px;
+}
+
+.promoLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.promoText {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+  word-break: keep-all;
+  line-height: 1.4;
+}
+
+.promoDivider {
+  height: 1px;
+  background: rgba(#fff, 0.06);
+}
+
+.comingSoon {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-tertiary;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(#fff, 0.06);
+  letter-spacing: 0;
 }
 
 .ctaArea {

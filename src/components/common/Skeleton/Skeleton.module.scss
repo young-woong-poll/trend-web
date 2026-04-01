@@ -9,7 +9,12 @@
 }
 
 .dark {
-  background: linear-gradient(90deg, #2a2a2a 25%, #333 50%, #2a2a2a 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(#fff, 0.03) 25%,
+    rgba(#fff, 0.06) 50%,
+    rgba(#fff, 0.03) 75%
+  );
   background-size: 400% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   position: relative;

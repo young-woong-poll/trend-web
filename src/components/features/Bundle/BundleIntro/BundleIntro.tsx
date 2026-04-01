@@ -2,13 +2,17 @@
 
 import type { FC } from 'react';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
+import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
+import CompareOneIcon from '@/assets/icon/CompareOneIcon';
+import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleIntro/BundleIntro.module.scss';
+import { getCompareHook } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail } from '@/hooks/api/useBundle';
+import { useCountUp } from '@/hooks/useCountUp';
 import { formatCount } from '@/lib/utils';
 
 interface BundleIntroProps {
@@ -19,11 +23,16 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   const { data: bundle, isLoading } = useBundleDetail(slug);
   const { isLoggedIn, requireLogin } = useAuth();
   const router = useRouter();
+  const animatedCount = useCountUp(bundle?.participantCount ?? 0);
 
   if (isLoading) {
     return (
       <BundleBackground>
-        <div className={styles.loading}>불러오는 중...</div>
+        <div className={styles.container} style={{ gap: 24 }}>
+          <Skeleton variant="dark" width={220} height={28} borderRadius={8} />
+          <Skeleton variant="dark" width="100%" height={140} borderRadius={12} />
+          <Skeleton variant="dark" width="100%" height={52} borderRadius={12} />
+        </div>
       </BundleBackground>
     );
   }
@@ -35,6 +44,8 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
       </BundleBackground>
     );
   }
+
+  const compareHook = getCompareHook(slug);
 
   const handleStart = () => {
     if (!isLoggedIn) {
@@ -61,20 +72,6 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   return (
     <BundleBackground fireworks>
       <div className={styles.container}>
-        <div className={styles.heroImage}>
-          {bundle.imageUrl ? (
-            <Image
-              src={bundle.imageUrl}
-              alt={bundle.title}
-              fill
-              className={styles.heroImg}
-              priority
-            />
-          ) : (
-            <div className={styles.heroPlaceholder} />
-          )}
-        </div>
-
         <div className={styles.header}>
           <span className={styles.category}>{bundle.category}</span>
           <h1 className={styles.title}>{bundle.title}</h1>
@@ -84,7 +81,33 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         <div className={styles.meta}>
           <span className={styles.metaItem}>질문 {bundle.questionCount}개</span>
           <span className={styles.metaDot}>·</span>
-          <span className={styles.metaItem}>{formatCount(bundle.participantCount)}명 참여</span>
+          <span className={styles.metaItem}>{formatCount(animatedCount)}명 참여</span>
+        </div>
+
+        {/* 비교 기능 홍보 */}
+        <div className={styles.comparePromo}>
+          <div className={styles.promoRow}>
+            <div className={styles.promoIconWrap}>
+              <CompareOneIcon width={28} height={28} />
+            </div>
+            <div className={styles.promoContent}>
+              <span className={styles.promoLabel}>1:1 비교</span>
+              <span className={styles.promoText}>{compareHook.oneToOne}</span>
+            </div>
+          </div>
+          <div className={styles.promoDivider} />
+          <div className={styles.promoRow}>
+            <div className={styles.promoIconWrap}>
+              <CompareGroupIcon width={28} height={28} />
+            </div>
+            <div className={styles.promoContent}>
+              <span className={styles.promoLabel}>
+                그룹 비교
+                <span className={styles.comingSoon}>Coming Soon</span>
+              </span>
+              <span className={styles.promoText}>{compareHook.group}</span>
+            </div>
+          </div>
         </div>
 
         <div className={styles.ctaArea}>

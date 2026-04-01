@@ -1,14 +1,17 @@
 'use client';
 
-import { useEffect, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
+import BackIcon from '@/assets/icon/BackIcon';
 import QuestionIcon from '@/assets/icon/QuestionIcon';
+import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleResult/BundleResult.module.scss';
+import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
@@ -34,7 +37,10 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const { data: result, isLoading } = useBundleMyResult(slug);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const compareToken = searchParams.get('from') === 'compare' ? searchParams.get('token') : null;
   const { toast, showToast } = useToast();
+  const [showCompareModal, setShowCompareModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
@@ -45,7 +51,10 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   if (isLoading) {
     return (
       <BundleBackground>
-        <div className={styles.loading}>결과를 불러오는 중...</div>
+        <div className={styles.container}>
+          <Skeleton variant="dark" width={160} height={160} borderRadius="50%" />
+          <Skeleton variant="dark" width="100%" height={100} borderRadius={12} />
+        </div>
       </BundleBackground>
     );
   }
@@ -75,6 +84,17 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   return (
     <BundleBackground>
       <div className={styles.container}>
+        {compareToken && (
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => router.push(`/compare/${compareToken}/result`)}
+            aria-label="비교 결과로 돌아가기"
+          >
+            <BackIcon width={22} height={22} />
+          </button>
+        )}
+
         {/* ═══ 대중성 히어로 ═══ */}
         <div className={styles.popularityCard}>
           <div
@@ -164,7 +184,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
                     <div className={styles.optionRow}>
                       <button
                         type="button"
-                        className={styles.optionLabel}
+                        className={`${styles.optionLabel} ${answer.selected === 'A' ? styles.optionLabelSelected : ''}`}
                         onClick={(e) => {
                           const el = e.currentTarget;
                           if (el.scrollWidth > el.clientWidth) {
@@ -186,7 +206,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
                     <div className={styles.optionRow}>
                       <button
                         type="button"
-                        className={styles.optionLabel}
+                        className={`${styles.optionLabel} ${answer.selected === 'B' ? styles.optionLabelSelected : ''}`}
                         onClick={(e) => {
                           const el = e.currentTarget;
                           if (el.scrollWidth > el.clientWidth) {
@@ -212,14 +232,29 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           </div>
         </div>
 
-        {/* ═══ CTA ═══ */}
+        {/* ═══ 하단 여백 (플로팅 CTA 공간 확보) ═══ */}
         <div className={styles.ctaSection}>
           <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
             메인으로 돌아가기
           </button>
         </div>
       </div>
+
+      {/* ═══ 플로팅 CTA — 핵심 바이럴 버튼 ═══ */}
+      <div className={styles.floatingCta}>
+        <button
+          type="button"
+          className={styles.floatingCtaButton}
+          onClick={() => setShowCompareModal(true)}
+        >
+          친구와 가치관 비교하기
+        </button>
+      </div>
+
       <Toast message={toast.message} isVisible={toast.isVisible} />
+      {showCompareModal && (
+        <CreateCompareLink slug={slug} onClose={() => setShowCompareModal(false)} />
+      )}
     </BundleBackground>
   );
 };

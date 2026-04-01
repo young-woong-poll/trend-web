@@ -1,0 +1,91 @@
+/**
+ * 비교 링크 타입
+ */
+export type CompareLinkType = 'ONE_TO_ONE' | 'GROUP';
+
+/**
+ * 비교 링크 정보 (랜딩 페이지용)
+ */
+export interface CompareLink {
+  token: string;
+  type: CompareLinkType;
+  bundleSlug: string;
+  bundleTitle: string;
+  /** 링크 생성자 닉네임 */
+  creatorNickname: string;
+  /** 참여자 닉네임 (1:1 전용, 아직 없으면 null) */
+  participantNickname: string | null;
+  /** 현재 로그인 유저가 생성자인지 */
+  isCreator: boolean;
+  /** 현재 로그인 유저가 참여자인지 */
+  isParticipant: boolean;
+  /** 현재 로그인 유저의 번들 완료 여부 */
+  myBundleCompleted: boolean;
+  /** 비교 가능 여부 (둘 다 완료) */
+  compareReady: boolean;
+  status: 'WAITING' | 'COMPLETED' | 'CLOSED';
+  /** 번들 질문 수 */
+  questionCount: number;
+  /** 번들 참여자 수 */
+  participantCount: number;
+}
+
+/**
+ * 비교 링크 생성 요청
+ */
+export interface CreateCompareLinkRequest {
+  type: CompareLinkType;
+  /** 그룹 비교 시 그룹 이름 (1:1은 불필요) */
+  groupName?: string;
+}
+
+/**
+ * 비교 링크 생성 응답
+ */
+export interface CreateCompareLinkResponse {
+  token: string;
+  shareUrl: string;
+}
+
+/**
+ * 1:1 비교 결과 (서버 응답)
+ * 서버는 숫자만 리턴. 등급/캐릭터/문구/스토리텔링은 FE에서 매핑.
+ */
+export interface CompareResult {
+  bundleSlug: string;
+  bundleTitle: string;
+  totalQuestions: number;
+
+  me: {
+    nickname: string;
+    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+  };
+
+  target: {
+    nickname: string;
+    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+  };
+
+  /** 각 질문별 현재 투표 비율 (실시간 변동) */
+  questionStats: Array<{
+    electionId: string;
+    title: string;
+    optionA: string;
+    optionB: string;
+    optionARate: number;
+    optionBRate: number;
+    totalVotes: number;
+  }>;
+
+  matchCount: number;
+  matchRate: number;
+
+  /** 이 번들의 전체 커플 등급 분포 (%) */
+  gradeDistribution: {
+    S: number;
+    A: number;
+    B: number;
+    C: number;
+    D: number;
+  };
+}

@@ -7,6 +7,12 @@ import {
   getBundleResult,
 } from '@/mocks/data/bundles';
 import { getMockCommentListResponse, addMockComment } from '@/mocks/data/comments';
+import {
+  createCompareLink,
+  getCompareLink,
+  joinCompareLink,
+  getCompareResult,
+} from '@/mocks/data/compare';
 import { getMockElectionSeries } from '@/mocks/data/electionSeries';
 import {
   mockMainHotpicks,
@@ -1163,6 +1169,60 @@ export const handlers = [
     if (!result) {
       return HttpResponse.json(
         { code: 'NOT_FOUND', message: '결과를 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  // ─── 비교 API ───
+
+  /** POST /api/v1/bundles/{slug}/compare-links — 비교 링크 생성 */
+  http.post(`${baseURL}/api/v1/bundles/:slug/compare-links`, async ({ params, request }) => {
+    const slug = params.slug as string;
+    const body = (await request.json()) as { type: 'ONE_TO_ONE' | 'GROUP'; groupName?: string };
+    const result = createCompareLink('mock-user-1', '웅이', slug, body.type);
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '비교 링크가 생성되었습니다',
+      data: result,
+    });
+  }),
+
+  /** GET /api/v1/compare-links/{token} — 비교 링크 정보 조회 */
+  http.get(`${baseURL}/api/v1/compare-links/:token`, ({ params }) => {
+    const token = params.token as string;
+    const link = getCompareLink(token, 'mock-user-1');
+    if (!link) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '비교 링크를 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: link });
+  }),
+
+  /** POST /api/v1/compare-links/{token}/join — 비교 링크 참여 */
+  http.post(`${baseURL}/api/v1/compare-links/:token/join`, ({ params }) => {
+    const token = params.token as string;
+    // MSW에서는 mock-user-2로 참여 시뮬레이션
+    const result = joinCompareLink(token, 'mock-user-2', '수진');
+    if (!result.success) {
+      return HttpResponse.json(
+        { code: 'BAD_REQUEST', message: result.message, data: null },
+        { status: 400 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: result.message, data: { joined: true } });
+  }),
+
+  /** GET /api/v1/compare-links/{token}/result — 1:1 비교 결과 */
+  http.get(`${baseURL}/api/v1/compare-links/:token/result`, ({ params }) => {
+    const token = params.token as string;
+    const result = getCompareResult(token, 'mock-user-1');
+    if (!result) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '비교 결과를 찾을 수 없습니다', data: null },
         { status: 404 }
       );
     }

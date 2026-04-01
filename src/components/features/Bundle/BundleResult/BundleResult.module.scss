@@ -71,9 +71,27 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 32px) $spacing-16 $spacing-48;
+  padding: calc(56px + 32px) $spacing-16 calc(80px + env(safe-area-inset-bottom, 0px));
   gap: 48px;
   width: 100%;
+}
+
+.backButton {
+  position: absolute;
+  top: calc(56px + 12px);
+  left: $spacing-16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+  }
 }
 
 // ═══════════════════════════════════════
@@ -364,6 +382,11 @@
     opacity: 0.6;
   }
 
+  &.optionLabelSelected {
+    color: $white;
+    font-weight: 600;
+  }
+
   @include se {
     width: 64px;
     font-size: 12px;
@@ -475,6 +498,70 @@
   &:hover {
     background: rgba(#fff, 0.04);
     border-color: rgba(#fff, 0.1);
+  }
+}
+
+// ═══════════════════════════════════════
+// 플로팅 CTA — 핵심 바이럴 버튼
+// ═══════════════════════════════════════
+.floatingCta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-fixed;
+  padding: $spacing-16;
+  padding-bottom: calc($spacing-16 + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba($bg-primary, 0.95) 60%, transparent 100%);
+  animation: fadeSlideUp 0.5s ease-out 1.4s both;
+}
+
+.floatingCtaButton {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 18px;
+  border: none;
+  border-radius: $border-radius-lg;
+  background: $primary-gradient;
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 4px 20px rgba($primary-start, 0.3),
+    0 0 40px rgba($primary-end, 0.15);
+  transition: transform 0.2s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.12) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 3s ease-in-out infinite 2s;
+  }
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  40%,
+  100% {
+    transform: translateX(100%);
   }
 }
 

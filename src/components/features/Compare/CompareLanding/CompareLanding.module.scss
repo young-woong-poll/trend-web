@@ -1,0 +1,281 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.container {
+  @include flex-column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: calc(56px + 48px) $spacing-16 $spacing-48;
+  gap: 24px;
+  text-align: center;
+}
+
+// ─── 초대 히어로 ───
+.heroSection {
+  @include flex-column;
+  align-items: center;
+  gap: 12px;
+  animation: fadeSlideUp 0.5s ease-out both;
+}
+
+.heroTitle {
+  font-size: $font-size-26;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.4;
+}
+
+.highlight {
+  background: $primary-gradient;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroSubtitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+// ─── 비교 완료 시 바운스 화살표 ───
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.arrowBounce {
+  margin-top: 8px;
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.arrowIcon {
+  display: inline-block;
+  font-size: $font-size-24;
+  color: $text-tertiary;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+
+// ─── 블러 프리뷰 카드 ───
+.previewCard {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  padding: 20px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+  animation: fadeSlideUp 0.5s ease-out 0.15s both;
+}
+
+.previewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(#fff, 0.04);
+  }
+}
+
+.previewLabel {
+  font-size: $font-size-14;
+  color: $text-secondary;
+}
+
+.previewValue {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $text-tertiary;
+  filter: blur(6px);
+  user-select: none;
+}
+
+// ─── 질문 미리보기 ───
+.questionPreview {
+  @include flex-column;
+  gap: 10px;
+  width: 100%;
+  padding: 18px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.questionLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.questionTitle {
+  font-size: $font-size-16;
+  font-weight: 600;
+  color: $white;
+  line-height: 1.4;
+}
+
+.questionOptions {
+  display: flex;
+  gap: 8px;
+}
+
+.questionOption {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid rgba(#fff, 0.08);
+  border-radius: $border-radius-md;
+  background: rgba(#fff, 0.02);
+  font-size: 13px;
+  color: $text-secondary;
+  text-align: center;
+}
+
+.questionMore {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+// ─── 번들 메타 (시간 + 참여자) ───
+.bundleMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  animation: fadeSlideUp 0.5s ease-out 0.4s both;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $text-tertiary;
+}
+
+// ─── 생성자 대기 상태 ───
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.waitingSection {
+  @include flex-column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  padding: 32px 0;
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.waitingSpinner {
+  @include flex-center;
+  width: 64px;
+  height: 64px;
+}
+
+.spinnerRing {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(#fff, 0.06);
+  border-top-color: rgba(#fff, 0.25);
+  animation: spin 1s linear infinite;
+  // 그라디언트 마스크로 페이드아웃 꼬리 효과
+  mask-image: conic-gradient(from 0deg, transparent 30%, #000 90%);
+  -webkit-mask-image: conic-gradient(from 0deg, transparent 30%, #000 90%);
+}
+
+.waitingText {
+  font-size: $font-size-16;
+  font-weight: 600;
+  color: $text-secondary;
+  line-height: 1.5;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// ─── CTA ───
+.ctaArea {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  animation: fadeSlideUp 0.5s ease-out 0.5s both;
+}
+
+.ctaButton {
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: $border-radius-lg;
+  background: $primary-gradient;
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  box-shadow:
+    0 4px 20px rgba($primary-start, 0.3),
+    0 0 40px rgba($primary-end, 0.15);
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+// ─── 로딩 / 에러 ───
+.loading {
+  @include flex-center;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100dvh;
+  color: $text-tertiary;
+}
