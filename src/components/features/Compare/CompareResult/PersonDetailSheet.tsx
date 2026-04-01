@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useCallback, type FC } from 'react';
+import { useEffect, type FC } from 'react';
 
 import Image from 'next/image';
 
 import { createPortal } from 'react-dom';
 
+import CloseIcon from '@/assets/icon/CloseIcon';
 import styles from '@/components/features/Compare/CompareResult/PersonDetailSheet.module.scss';
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
@@ -13,7 +14,6 @@ import type { CompareResult } from '@/types/compare';
 
 interface PersonDetailSheetProps {
   result: CompareResult;
-  /** 'me' 또는 'target' */
   person: 'me' | 'target';
   onClose: () => void;
 }
@@ -22,13 +22,9 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
   const personData = result[person];
   const score = calcPopularityScore(personData.answers, result.questionStats);
   const popularity = getPopularityByScore(score);
-  const sheetRef = useRef<HTMLDivElement>(null);
-  const dragStartY = useRef<number | null>(null);
 
-  // ESC 키로 닫기
   useEscapeKey(true, onClose);
 
-  // 스크롤 잠금
   useEffect(() => {
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
@@ -46,46 +42,15 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
     };
   }, []);
 
-  // 스와이프 다운으로 닫기
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const sheet = sheetRef.current;
-    if (!sheet) {
-      return;
-    }
-    // 시트가 맨 위로 스크롤된 상태에서만 스와이프 닫기 허용
-    if (sheet.scrollTop > 0) {
-      return;
-    }
-    dragStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (dragStartY.current === null) {
-        return;
-      }
-      const deltaY = e.changedTouches[0].clientY - dragStartY.current;
-      dragStartY.current = null;
-      // 80px 이상 아래로 스와이프하면 닫기
-      if (deltaY > 80) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
   return createPortal(
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div
-        className={styles.sheet}
-        ref={sheetRef}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className={styles.handle} />
+      <div className={styles.sheet}>
+        <button type="button" className={styles.closeButton} onClick={onClose} aria-label="닫기">
+          <CloseIcon width={16} height={16} />
+        </button>
 
-        {/* 히어로 (가로 배치: 이미지 왼쪽 + 정보 오른쪽) */}
+        {/* 히어로 */}
         <div className={styles.hero}>
           <div className={styles.heroImage}>
             {popularity.imagePath ? (

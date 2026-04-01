@@ -49,17 +49,30 @@
   overflow-y: auto;
   background: $bg-secondary;
   border-radius: $border-radius-lg $border-radius-lg 0 0;
-  padding: $spacing-24 $spacing-16;
-  padding-bottom: calc($spacing-24 + env(safe-area-inset-bottom, 0px));
+  padding: 40px $spacing-16 calc($spacing-24 + env(safe-area-inset-bottom, 0px));
   animation: slideUp 0.3s ease-out both;
 }
 
-.handle {
-  width: 36px;
-  height: 4px;
-  background: rgba(#fff, 0.12);
-  border-radius: 2px;
-  margin: 0 auto 16px;
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: $text-tertiary;
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
 }
 
 // ─── 히어로 (가로 배치, 중앙 정렬) ───

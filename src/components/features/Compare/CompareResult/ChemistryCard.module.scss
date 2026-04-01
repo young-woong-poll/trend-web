@@ -131,8 +131,62 @@
   animation: fadeSlideUp 0.5s ease-out 0.7s both;
 }
 
-.matchCountLabel {
+// ─── 분포 카드 ───
+
+.distributionCard {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+  animation: fadeSlideUp 0.5s ease-out 0.8s both;
+}
+
+.distributionHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.distributionLabel {
   font-size: $font-size-12;
   color: $text-tertiary;
-  animation: fadeSlideUp 0.5s ease-out 0.8s both;
+}
+
+.distributionHighlight {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+}
+
+.curveWrap {
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+}
+
+.curveSvg {
+  width: 100%;
+  height: 72px;
+
+  @include tablet {
+    height: 100px;
+  }
+
+  @include desktop {
+    height: 120px;
+  }
+}
+
+.curveAxis {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  color: $text-tertiary;
+  padding: 0 4px;
 }
