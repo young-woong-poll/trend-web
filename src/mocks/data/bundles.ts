@@ -212,6 +212,51 @@ export function seedSecondUser() {
   }
 }
 
+/**
+ * 그룹 비교용 다수 유저 답변 시드
+ * mock-user-3 ~ mock-user-6 으로 love-values 미리 답변
+ */
+export function seedGroupUsers() {
+  const slug = 'love-values';
+  const groupAnswers: Record<string, Array<{ electionId: string; selected: 'A' | 'B' }>> = {
+    'mock-user-3': [
+      { electionId: 'le-1', selected: 'A' },
+      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'A' },
+      { electionId: 'le-5', selected: 'B' },
+    ],
+    'mock-user-4': [
+      { electionId: 'le-1', selected: 'B' },
+      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-3', selected: 'B' },
+      { electionId: 'le-4', selected: 'A' },
+      { electionId: 'le-5', selected: 'A' },
+    ],
+    'mock-user-5': [
+      { electionId: 'le-1', selected: 'A' },
+      { electionId: 'le-2', selected: 'A' },
+      { electionId: 'le-3', selected: 'B' },
+      { electionId: 'le-4', selected: 'B' },
+      { electionId: 'le-5', selected: 'B' },
+    ],
+    'mock-user-6': [
+      { electionId: 'le-1', selected: 'B' },
+      { electionId: 'le-2', selected: 'A' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'A' },
+      { electionId: 'le-5', selected: 'A' },
+    ],
+  };
+
+  for (const [userId, answers] of Object.entries(groupAnswers)) {
+    if (bundleAnswerStore.has(`${userId}_${slug}`)) {
+      continue;
+    }
+    recordBundleAnswers(userId, slug, answers);
+  }
+}
+
 export function getBundleResult(userId: string, slug: string): BundleMyResult | null {
   const answers = bundleAnswerStore.get(`${userId}_${slug}`);
   if (!answers) {

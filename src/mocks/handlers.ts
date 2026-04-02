@@ -12,8 +12,10 @@ import {
   getCompareLink,
   joinCompareLink,
   getCompareResult,
+  compareLinkStore,
 } from '@/mocks/data/compare';
 import { getMockElectionSeries } from '@/mocks/data/electionSeries';
+import { getGroupCompareResult } from '@/mocks/data/group-compare';
 import {
   mockMainHotpicks,
   mockHotpickDetailMap,
@@ -1226,5 +1228,86 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  // ─── 그룹 비교 API ───
+
+  /** GET /api/v1/compare-links/{token}/group-result — 그룹 비교 결과 */
+  http.get(`${baseURL}/api/v1/compare-links/:token/group-result`, ({ params }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹 비교 결과를 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    if (link.groupMembers.length < 2) {
+      return HttpResponse.json(
+        { code: 'BAD_REQUEST', message: '참여 인원이 부족합니다', data: null },
+        { status: 400 }
+      );
+    }
+    const result = getGroupCompareResult(
+      link.bundleSlug,
+      link.groupName ?? '그룹',
+      link.groupMembers,
+      'mock-user-1'
+    );
+    if (!result) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹 비교 결과를 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  /** PATCH /api/v1/compare-links/{token}/close — 그룹 마감 */
+  http.patch(`${baseURL}/api/v1/compare-links/:token/close`, ({ params }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    if (link.creatorUserId !== 'mock-user-1') {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '그룹 생성자만 마감할 수 있습니다', data: null },
+        { status: 403 }
+      );
+    }
+    link.isClosed = true;
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '그룹이 마감되었습니다',
+      data: { closed: true },
+    });
+  }),
+
+  /** PATCH /api/v1/compare-links/{token}/reopen — 그룹 재오픈 */
+  http.patch(`${baseURL}/api/v1/compare-links/:token/reopen`, ({ params }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    if (link.creatorUserId !== 'mock-user-1') {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '그룹 생성자만 재오픈할 수 있습니다', data: null },
+        { status: 403 }
+      );
+    }
+    link.isClosed = false;
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '그룹이 재오픈되었습니다',
+      data: { closed: false },
+    });
   }),
 ];

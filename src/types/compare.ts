@@ -30,6 +30,12 @@ export interface CompareLink {
   questionCount: number;
   /** 번들 참여자 수 */
   participantCount: number;
+  /** 그룹 이름 (GROUP 타입 전용) */
+  groupName: string | null;
+  /** 현재 참여 멤버 수 (GROUP 타입 전용) */
+  memberCount: number;
+  /** 그룹 마감 여부 */
+  isClosed: boolean;
 }
 
 /**
@@ -79,13 +85,4 @@ export interface CompareResult {
 
   matchCount: number;
   matchRate: number;
-
-  /** 이 번들의 전체 커플 등급 분포 (%) */
-  gradeDistribution: {
-    S: number;
-    A: number;
-    B: number;
-    C: number;
-    D: number;
-  };
 }

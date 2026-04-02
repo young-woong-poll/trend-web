@@ -4,7 +4,7 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 32px) $spacing-16 $spacing-48;
+  padding: calc(56px + 32px) $spacing-16 calc($spacing-48 + 80px);
   gap: 32px;
   width: 100%;
 }

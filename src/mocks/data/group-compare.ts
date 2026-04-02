@@ -79,15 +79,17 @@ export function getGroupCompareResult(
     questionStats: elections.map((e, i) => {
       const stats = bundleVoteStats.get(e.electionId) ?? { optionACount: 0, optionBCount: 0 };
       const total = stats.optionACount + stats.optionBCount;
-      const seedA = seedRatios[i] ?? 50;
-      const seedB = 100 - seedA;
+      const baseA = total > 0 ? stats.optionACount : (seedRatios[i] ?? 50);
+      const baseB = total > 0 ? stats.optionBCount : 100 - baseA;
+      const sumAB = baseA + baseB;
       return {
         electionId: e.electionId,
         title: e.title,
         optionA: e.optionA,
         optionB: e.optionB,
-        optionACount: total > 0 ? stats.optionACount : seedA,
-        optionBCount: total > 0 ? stats.optionBCount : seedB,
+        optionARate: Math.round((baseA / sumAB) * 100),
+        optionBRate: Math.round((baseB / sumAB) * 100),
+        totalVotes: total > 0 ? total : 80 + i * 15,
         axis: axisMap[e.electionId] ?? null,
       };
     }),

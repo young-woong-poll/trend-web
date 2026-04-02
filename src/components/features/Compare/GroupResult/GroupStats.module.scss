@@ -1,0 +1,143 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.statCard {
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-28;
+  font-weight: 700;
+  color: $white;
+  line-height: 1;
+}
+
+.statUnit {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+}
+
+.statLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.questionList {
+  @include flex-column;
+  gap: 8px;
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(#fff, 0.04);
+}
+
+.questionTitle {
+  font-size: 13px;
+  color: $text-secondary;
+  flex: 1;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: $border-rounded;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.unanimousBadge {
+  background: rgba(102, 187, 106, 0.1);
+  color: #66bb6a;
+  border: 1px solid rgba(102, 187, 106, 0.2);
+}
+
+.controversyBadge {
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+.ratioBar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(#fff, 0.05);
+  margin-top: 4px;
+}
+
+.ratioA {
+  background: #a89eff;
+  transition: width 0.3s ease;
+}
+
+.ratioB {
+  background: #ff9a6c;
+  transition: width 0.3s ease;
+}
+
+.ratioLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: 2px;
+}

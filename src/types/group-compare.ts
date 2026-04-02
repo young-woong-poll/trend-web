@@ -16,14 +16,15 @@ export interface GroupCompareResult {
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 
-  /** 각 질문별 현재 투표 수 (번들 전체 참여자 기준) */
+  /** 각 질문별 현재 투표 비율 (번들 전체 참여자 기준) */
   questionStats: Array<{
     electionId: string;
     title: string;
     optionA: string;
     optionB: string;
-    optionACount: number;
-    optionBCount: number;
+    optionARate: number;
+    optionBRate: number;
+    totalVotes: number;
     /** 가치관 지도 축 배정 (null = 미배정) */
     axis: 'X' | 'Y' | null;
   }>;

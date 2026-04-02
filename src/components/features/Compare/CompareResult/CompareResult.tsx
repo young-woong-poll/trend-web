@@ -4,6 +4,7 @@ import { useEffect, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
@@ -124,6 +125,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           </button> */}
         </div>
       </div>
+
+      <FloatingCta onClick={() => setShowCompareModal(true)}>다른 친구와도 비교해볼래?</FloatingCta>
 
       {showCompareModal && (
         <CreateCompareLink slug={result.bundleSlug} onClose={() => setShowCompareModal(false)} />

@@ -19,6 +19,8 @@ import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
+import { CreateGroupLink } from './CreateGroupLink';
+
 interface BundleResultProps {
   slug: string;
 }
@@ -46,6 +48,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const joinMutation = useJoinCompareLink(compareToken ?? '');
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
@@ -277,12 +280,20 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         >
           친구와 가치관 비교하기
         </button>
+        <button
+          type="button"
+          className={styles.secondaryCta}
+          onClick={() => setShowGroupModal(true)}
+        >
+          그룹 비교하기
+        </button>
       </div>
 
       <Toast message={toast.message} isVisible={toast.isVisible} />
       {showCompareModal && (
         <CreateCompareLink slug={slug} onClose={() => setShowCompareModal(false)} />
       )}
+      {showGroupModal && <CreateGroupLink slug={slug} onClose={() => setShowGroupModal(false)} />}
     </BundleBackground>
   );
 };

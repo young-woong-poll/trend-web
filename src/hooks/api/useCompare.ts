@@ -8,6 +8,7 @@ import type {
   CreateCompareLinkRequest,
   CreateCompareLinkResponse,
 } from '@/types/compare';
+import type { GroupCompareResult } from '@/types/group-compare';
 
 /**
  * Compare Query Keys
@@ -16,6 +17,7 @@ export const compareKeys = {
   all: ['compare'] as const,
   link: (token: string) => [...compareKeys.all, 'link', token] as const,
   result: (token: string) => [...compareKeys.all, 'result', token] as const,
+  groupResult: (token: string) => [...compareKeys.all, 'group-result', token] as const,
 };
 
 /**
@@ -39,6 +41,17 @@ export const compareQueries = {
       queryFn: () =>
         customInstance<CompareResult>({
           url: `/api/v1/compare-links/${token}/result`,
+          method: 'GET',
+        }),
+      staleTime: 0,
+    }),
+
+  groupResult: (token: string) =>
+    queryOptions<GroupCompareResult | null>({
+      queryKey: compareKeys.groupResult(token),
+      queryFn: () =>
+        customInstance<GroupCompareResult>({
+          url: `/api/v1/compare-links/${token}/group-result`,
           method: 'GET',
         }),
       staleTime: 0,
@@ -77,5 +90,29 @@ export const useJoinCompareLink = (token: string) =>
       customInstance({
         url: `/api/v1/compare-links/${token}/join`,
         method: 'POST',
+      }),
+  });
+
+export const useGroupCompareResult = (token: string) =>
+  useQuery({
+    ...compareQueries.groupResult(token),
+    enabled: !!token,
+  });
+
+export const useCloseGroup = (token: string) =>
+  useMutation({
+    mutationFn: () =>
+      customInstance({
+        url: `/api/v1/compare-links/${token}/close`,
+        method: 'PATCH',
+      }),
+  });
+
+export const useReopenGroup = (token: string) =>
+  useMutation({
+    mutationFn: () =>
+      customInstance({
+        url: `/api/v1/compare-links/${token}/reopen`,
+        method: 'PATCH',
       }),
   });

@@ -1,0 +1,88 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  align-items: center;
+  padding: calc(56px + 32px) $spacing-16 calc($spacing-48 + 80px);
+  gap: 48px;
+  width: 100%;
+}
+
+.heroSection {
+  @include flex-column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.groupName {
+  font-size: $font-size-24;
+  font-weight: 700;
+  color: $white;
+}
+
+.bundleTitle {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  padding: 6px 14px;
+  background: $bg-tertiary;
+  border-radius: $border-rounded;
+}
+
+.syncRateDisplay {
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.syncLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.syncValue {
+  font-size: 48px;
+  font-weight: 700;
+  color: $white;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.syncUnit {
+  font-size: $font-size-18;
+  color: $text-tertiary;
+}
+
+.ctaSection {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.secondaryCta {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(#fff, 0.06);
+  border-radius: $border-radius-lg;
+  background: rgba(#fff, 0.02);
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(#fff, 0.04);
+  }
+}
+
+.loading {
+  @include flex-center;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 60dvh;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+}

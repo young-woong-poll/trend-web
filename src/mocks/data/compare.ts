@@ -6,6 +6,7 @@ import {
   mockBundleDetails,
   mockBundleElections,
   seedSecondUser,
+  seedGroupUsers,
 } from '@/mocks/data/bundles';
 import type { CompareLink, CompareResult, CreateCompareLinkResponse } from '@/types/compare';
 
@@ -19,12 +20,16 @@ interface StoredCompareLink {
   participantUserId: string | null;
   participantNickname: string | null;
   status: 'WAITING' | 'COMPLETED' | 'CLOSED';
+  groupName: string | null;
+  groupMembers: Array<{ userId: string; nickname: string }>;
+  isClosed: boolean;
 }
 
-const compareLinkStore = new Map<string, StoredCompareLink>();
+export const compareLinkStore = new Map<string, StoredCompareLink>();
 
 // 시드: mock-user-1이 love-values에 대한 1:1 비교 링크 생성
 seedSecondUser();
+seedGroupUsers();
 
 // abc123: 내가 보낸 링크 (생성자=mock-user-1, 참여완료)
 const seedLink: StoredCompareLink = {
@@ -36,6 +41,9 @@ const seedLink: StoredCompareLink = {
   participantUserId: 'mock-user-2',
   participantNickname: '수진',
   status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
 };
 compareLinkStore.set('abc123', seedLink);
 
@@ -49,6 +57,9 @@ const seedInviteCompleted: StoredCompareLink = {
   participantUserId: 'mock-user-1',
   participantNickname: '웅이',
   status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
 };
 compareLinkStore.set('invite1', seedInviteCompleted);
 
@@ -62,6 +73,9 @@ const seedInviteWaiting: StoredCompareLink = {
   participantUserId: null,
   participantNickname: null,
   status: 'WAITING',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
 };
 compareLinkStore.set('invite2', seedInviteWaiting);
 
@@ -75,8 +89,33 @@ const seedCreatorWaiting: StoredCompareLink = {
   participantUserId: null,
   participantNickname: null,
   status: 'WAITING',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
 };
 compareLinkStore.set('waiting1', seedCreatorWaiting);
+
+// group-abc: 그룹 비교 링크 (생성자=mock-user-1, 5명 참여)
+const groupSeedLink: StoredCompareLink = {
+  token: 'group-abc',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '마케팅팀',
+  groupMembers: [
+    { userId: 'mock-user-1', nickname: '웅이' },
+    { userId: 'mock-user-2', nickname: '수진' },
+    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우' },
+  ],
+  isClosed: false,
+};
+compareLinkStore.set('group-abc', groupSeedLink);
 
 /** 토큰 생성 */
 function generateToken(): string {
@@ -100,6 +139,9 @@ export function createCompareLink(
     participantUserId: null,
     participantNickname: null,
     status: 'WAITING',
+    groupName: null,
+    groupMembers: [],
+    isClosed: false,
   });
   return { token };
 }
@@ -155,6 +197,9 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     status: link.status,
     questionCount: detail?.questionCount ?? 5,
     participantCount: detail?.participantCount ?? 0,
+    groupName: link.groupName,
+    memberCount: link.groupMembers.length,
+    isClosed: link.isClosed,
   };
 }
 
@@ -171,6 +216,26 @@ export function joinCompareLink(
   if (link.creatorUserId === userId) {
     return { success: false, message: '자신의 링크에 참여할 수 없습니다' };
   }
+
+  // 그룹 링크인 경우 여러 명 참여 가능 (최대 50명)
+  if (link.type === 'GROUP') {
+    if (link.isClosed) {
+      return { success: false, message: '마감된 그룹입니다' };
+    }
+    if (link.groupMembers.length >= 50) {
+      return { success: false, message: '그룹 인원이 가득 찼습니다' };
+    }
+    if (link.groupMembers.some((m) => m.userId === userId)) {
+      return { success: true, message: '이미 참여한 그룹입니다' };
+    }
+    if (!bundleAnswerStore.has(`${userId}_${link.bundleSlug}`)) {
+      return { success: false, message: '번들을 먼저 완료해주세요' };
+    }
+    link.groupMembers.push({ userId, nickname });
+    link.status = 'COMPLETED';
+    return { success: true, message: '그룹 참여 완료' };
+  }
+
   if (link.participantUserId && link.participantUserId !== userId) {
     return { success: false, message: '이미 다른 사람이 참여한 링크입니다' };
   }
@@ -255,20 +320,5 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     }),
     matchCount,
     matchRate: Math.round((matchCount / elections.length) * 100),
-    gradeDistribution: mockGradeDistributions[link.bundleSlug] ?? defaultGradeDistribution,
   };
 }
-
-/** 번들별 커플 등급 분포 mock 데이터 */
-const mockGradeDistributions: Record<string, CompareResult['gradeDistribution']> = {
-  'love-values': { S: 8, A: 18, B: 35, C: 27, D: 12 },
-  'marriage-values': { S: 5, A: 15, B: 32, C: 30, D: 18 },
-};
-
-const defaultGradeDistribution: CompareResult['gradeDistribution'] = {
-  S: 7,
-  A: 20,
-  B: 33,
-  C: 28,
-  D: 12,
-};
