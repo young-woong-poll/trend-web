@@ -142,6 +142,18 @@
 5. **사용자에게 푸시 확인 요청**
 6. 승인 후 푸시
 
+## 문제 해결 참조
+
+- 버그 수정이나 기술적 문제 해결 시, 먼저 `docs/solutions/` 디렉토리를 검색하여 기존 해결책이 있는지 확인
+- 특히 UI 관련 이슈(모달, z-index, 스크롤 등)는 `docs/solutions/ui-bugs/` 참조
+- 해결한 비자명한 문제는 `/compound` 스킬로 문서화하여 지식 축적
+
+## 모달/오버레이 구현 규칙
+
+- **필수**: `createPortal(el, document.body)` 사용 — `BundleBackground` 등 `backdrop-filter`가 있는 부모 안에서 렌더링하면 stacking context에 갇혀 z-index가 동작하지 않음
+- **필수**: iOS 스크롤 잠금은 `position: fixed` 패턴 사용 (`overflow: hidden`만으로 부족)
+- 상세: `docs/solutions/ui-bugs/modal-scroll-lock-and-zindex-stacking-context-2026-04-02.md`
+
 ## 아이콘 사용 규칙
 
 ### SVG 아이콘 파일 위치

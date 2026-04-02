@@ -229,7 +229,7 @@ Array<{
   bundleSlug: string;
   bundleTitle: string;
   creatorNickname: string; // 링크 생성자 닉네임
-  creatorImageUrl: string | null; // 링크 생성자 대중성 캐릭터 이미지 URL
+  creatorImageUrl: string | null; // 링크 생성자의 대중성 캐릭터 이미지 URL (생성자의 번들 답변 기반 대중성 등급에 해당하는 캐릭터 이미지)
   participantNickname: string | null; // 참여자 닉네임 (아직 없으면 null)
   isCreator: boolean; // 현재 로그인 유저가 생성자인지
   isParticipant: boolean; // 현재 로그인 유저가 참여자인지
@@ -323,15 +323,6 @@ Array<{
 
   matchCount: number; // 같은 답 개수
   matchRate: number; // 일치율 0~100 (정수, matchCount/totalQuestions * 100)
-
-  // 이 번들의 전체 커플 등급 분포 (%)
-  gradeDistribution: {
-    S: number; // 90~100% 일치
-    A: number; // 70~89%
-    B: number; // 50~69%
-    C: number; // 30~49%
-    D: number; // 0~29%
-  }
 }
 ```
 
@@ -340,15 +331,14 @@ Array<{
 - `me`/`target`은 **현재 로그인 유저 기준**으로 자동 배정 (생성자든 참여자든 자기가 "me")
 - 링크 상태가 `COMPLETED`가 아니면 `404 NOT_FOUND`
 - `questionStats`의 비율은 **실시간 변동**
-- `gradeDistribution`은 이 번들에서 비교한 전체 커플들의 등급 분포
 
 **FE에서 계산하는 항목 (서버에서 보내지 않음):**
 
-- 케미 등급: matchRate 기준 → S(90+), A(70~89), B(50~69), C(30~49), D(~29)
-- 케미 타이틀/한줄평: FE 상수 매핑
+- **커플 타입 (2×2 매트릭스):** 일치율(matchRate 50% 기준)과 대중성 평균(55% 기준)으로 4가지 유형 분류
+  - 트렌드 쌍둥이 (일치↑ + 대중↑), 우리만의 세계 (일치↑ + 대중↓), 건강한 긴장감 (일치↓ + 대중↑), 평행우주 탐험가 (일치↓ + 대중↓)
+- 대중성 지수: 각 질문에서 내 선택지의 득표율 평균 → 개인 캐릭터(사자왕/여우/판다/고양이/유니콘) 매핑
 - 충격 포인트: 둘이 다른 답 중 대중 투표 비율 차이가 가장 큰 질문 선별
-- 대중성 비교: 각자의 대중성 지수 계산 (me.answers / target.answers × questionStats)
-- "같은 편/갈린 순간" 스토리텔링: 일치/불일치 답변 분류
+- "같은 편/갈린 순간" 스토리텔링: 일치/불일치 답변 분류 + 각 질문별 대중 투표율 표시
 
 ---
 
