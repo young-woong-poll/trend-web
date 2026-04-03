@@ -19,8 +19,6 @@ import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
-import { CreateGroupLink } from './CreateGroupLink';
-
 interface BundleResultProps {
   slug: string;
 }
