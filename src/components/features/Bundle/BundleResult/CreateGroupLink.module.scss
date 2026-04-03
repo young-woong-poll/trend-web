@@ -19,10 +19,33 @@
   width: 100%;
   max-width: 360px;
   padding: $spacing-24;
+  padding-top: 40px;
   background: $bg-secondary;
   border: 1px solid #333;
   border-radius: $border-radius-lg;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.modalClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: $text-tertiary;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
 }
 
 .title {
@@ -39,10 +62,21 @@
   line-height: 1.5;
 }
 
+.inputLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .inputLabel {
   font-size: $font-size-12;
   color: $text-tertiary;
-  margin-bottom: 4px;
+}
+
+.inputHint {
+  font-size: 11px;
+  color: $text-tertiary;
 }
 
 .groupNameInput {

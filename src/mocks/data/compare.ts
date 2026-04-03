@@ -95,6 +95,22 @@ const seedCreatorWaiting: StoredCompareLink = {
 };
 compareLinkStore.set('waiting1', seedCreatorWaiting);
 
+// taken1: 다른 사람이 이미 선점한 링크 (생성자=mock-user-3, 참여자=mock-user-2, 나=mock-user-1은 제3자)
+const seedTakenLink: StoredCompareLink = {
+  token: 'taken1',
+  type: 'ONE_TO_ONE',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-2',
+  creatorNickname: '수진',
+  participantUserId: 'mock-user-3',
+  participantNickname: '민수',
+  status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
+};
+compareLinkStore.set('taken1', seedTakenLink);
+
 // group-abc: 그룹 비교 링크 (생성자=mock-user-1, 5명 참여)
 const groupSeedLink: StoredCompareLink = {
   token: 'group-abc',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useMemo, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -15,29 +15,25 @@ import { MemberList } from '@/components/features/Compare/GroupResult/MemberList
 import { ValueMap } from '@/components/features/Compare/GroupResult/ValueMap';
 import { calcAllPairChemistry, calcGroupAwards } from '@/constants/group-compare';
 import { useAuth } from '@/contexts/AuthContext';
-import { useGroupCompareResult } from '@/hooks/api/useCompare';
+import { useCompareLink, useGroupCompareResult, useJoinCompareLink } from '@/hooks/api/useCompare';
 
 interface GroupResultProps {
   token: string;
 }
 
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
-  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
-  const { data: result, isLoading } = useGroupCompareResult(token);
+  const { isLoggedIn, requireLogin } = useAuth();
+  const { data: link } = useCompareLink(token);
+  const { data: result, isLoading, refetch } = useGroupCompareResult(token);
+  const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
   const [showGroupModal, setShowGroupModal] = useState(false);
 
-  useEffect(() => {
-    if (!isAuthLoading && !isLoggedIn) {
-      router.replace(
-        `/compare/${token}?login=true&returnUrl=${encodeURIComponent(`/compare/${token}/group`)}`
-      );
-    }
-  }, [isAuthLoading, isLoggedIn, token, router]);
-
   const pairs = useMemo(() => (result ? calcAllPairChemistry(result) : []), [result]);
-
   const awards = useMemo(() => (result ? calcGroupAwards(result, pairs) : []), [result, pairs]);
+
+  // 현재 유저가 이 그룹의 멤버인지
+  const isMember = link?.isCreator || link?.isParticipant;
 
   if (isLoading) {
     return (
@@ -67,6 +63,37 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
   const currentUserId = 'mock-user-1';
 
+  // ─── 비멤버 CTA 핸들러 ───
+  const handleJoin = async () => {
+    if (!isLoggedIn) {
+      requireLogin('default');
+      return;
+    }
+    if (!link?.myBundleCompleted) {
+      router.push(`/bundle/${result.bundleSlug}/play?compareToken=${token}`);
+      return;
+    }
+    try {
+      await joinMutation.mutateAsync();
+      await refetch();
+    } catch {
+      // 이미 참여한 경우 등
+    }
+  };
+
+  const getJoinCtaText = () => {
+    if (!isLoggedIn) {
+      return '로그인하고 참여하기';
+    }
+    if (!link?.myBundleCompleted) {
+      return '번들 풀고 나도 참여하기';
+    }
+    if (joinMutation.isPending) {
+      return '참여 중...';
+    }
+    return '나도 참여하기';
+  };
+
   return (
     <BundleBackground fireworks>
       <div className={styles.container}>
@@ -93,21 +120,26 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           token={token}
         />
 
-        <div className={styles.ctaSection}>
-          <button
-            type="button"
-            className={styles.secondaryCta}
-            onClick={() => router.push(`/bundle/${result.bundleSlug}/result`)}
-          >
-            내 결과 다시 보기
-          </button>
-          <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
-            메인으로 돌아가기
-          </button>
-        </div>
+        {isMember && (
+          <div className={styles.ctaSection}>
+            <button
+              type="button"
+              className={styles.secondaryCta}
+              onClick={() => router.push(`/bundle/${result.bundleSlug}/result`)}
+            >
+              내 결과 다시 보기
+            </button>
+          </div>
+        )}
       </div>
 
-      <FloatingCta onClick={() => setShowGroupModal(true)}>내 그룹 만들기</FloatingCta>
+      {isMember ? (
+        <FloatingCta onClick={() => setShowGroupModal(true)}>내 그룹 만들기</FloatingCta>
+      ) : (
+        <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
+          {getJoinCtaText()}
+        </FloatingCta>
+      )}
 
       {showGroupModal && (
         <CreateGroupLink slug={result.bundleSlug} onClose={() => setShowGroupModal(false)} />

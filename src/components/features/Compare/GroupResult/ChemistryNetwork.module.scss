@@ -19,6 +19,33 @@
   animation: fadeSlideUp 0.6s ease-out both;
 }
 
+// ─── 범례 ───
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+// ─── 네트워크 캔버스 ───
 .networkCanvas {
   position: relative;
   width: 100%;
@@ -34,13 +61,26 @@
   height: 100%;
 }
 
+// ─── 멤버 노드 (버튼) ───
 .memberNode {
+  all: unset;
   position: absolute;
   @include flex-column;
   align-items: center;
   gap: 4px;
   transform: translate(-50%, -50%);
   z-index: 1;
+  cursor: pointer;
+  transition: opacity 0.3s;
+
+  &.inactive {
+    opacity: 0.3;
+  }
+
+  &.selected .nodeCircle {
+    box-shadow: 0 0 12px rgba(#fff, 0.3);
+    border-color: rgba(#fff, 0.4);
+  }
 }
 
 .nodeCircle {
@@ -52,6 +92,10 @@
   font-weight: 700;
   color: $white;
   border: 2px solid rgba(#fff, 0.1);
+  transition:
+    background 0.3s,
+    box-shadow 0.3s,
+    border-color 0.3s;
 }
 
 .nodeName {
@@ -61,27 +105,9 @@
   white-space: nowrap;
 }
 
-.filterBar {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.filterChip {
-  padding: 6px 14px;
-  border-radius: $border-rounded;
-  font-size: $font-size-12;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid rgba(#fff, 0.08);
-  background: transparent;
+// ─── 안내 문구 ───
+.hint {
+  text-align: center;
+  font-size: 12px;
   color: $text-tertiary;
-
-  &.active {
-    border-color: var(--chip-color);
-    color: var(--chip-color);
-    background: rgba(var(--chip-color-rgb), 0.1);
-  }
 }

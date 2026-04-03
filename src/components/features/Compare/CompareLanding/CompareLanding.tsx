@@ -56,6 +56,12 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     );
   }
 
+  // ─── 그룹 링크 → 바로 결과 페이지로 ───
+  if (link.type === 'GROUP' && link.memberCount >= 2) {
+    router.replace(`/compare/${token}/group`);
+    return null;
+  }
+
   // ─── 상태별 분기 ───
   const isCreatorWaiting = link.isCreator && !link.compareReady;
   const isCreatorReady = link.isCreator && link.compareReady;

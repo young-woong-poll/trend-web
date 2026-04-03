@@ -15,6 +15,26 @@ interface CreateGroupLinkProps {
   onClose: () => void;
 }
 
+const DANGEROUS_CHARS = /[<>"'&]/;
+
+function sanitizeGroupName(value: string): string {
+  return value.replace(/\s{2,}/g, ' ');
+}
+
+function validateGroupName(name: string): string | null {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return '그룹 이름을 입력해주세요';
+  }
+  if (trimmed.length < 2) {
+    return '그룹 이름은 2자 이상이어야 해요';
+  }
+  if (DANGEROUS_CHARS.test(trimmed)) {
+    return '< > " \' & 문자는 사용할 수 없어요';
+  }
+  return null;
+}
+
 export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => {
   const createMutation = useCreateCompareLink(slug);
   const [groupName, setGroupName] = useState('');
@@ -40,9 +60,14 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
     };
   }, []);
 
+  const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGroupName(sanitizeGroupName(e.target.value));
+  };
+
   const handleCreate = async () => {
-    if (!groupName.trim()) {
-      showToast('그룹 이름을 입력해주세요');
+    const error = validateGroupName(groupName);
+    if (error) {
+      showToast(error);
       return;
     }
 
@@ -85,13 +110,16 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
               여러 명의 가치관을 한눈에 비교할 수 있어요!
             </p>
             <div>
-              <label className={styles.inputLabel}>그룹 이름</label>
+              <div className={styles.inputLabelRow}>
+                <label className={styles.inputLabel}>그룹 이름</label>
+                <span className={styles.inputHint}>2~20자</span>
+              </div>
               <input
                 type="text"
                 className={styles.groupNameInput}
                 placeholder="예: 마케팅팀, 대학 친구들"
                 value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+                onChange={handleGroupNameChange}
                 maxLength={20}
               />
             </div>
@@ -99,7 +127,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
               type="button"
               className={styles.createButton}
               onClick={handleCreate}
-              disabled={createMutation.isPending || !groupName.trim()}
+              disabled={createMutation.isPending || groupName.trim().length < 2}
             >
               {createMutation.isPending ? '생성 중...' : '그룹 링크 만들기'}
             </button>
@@ -114,10 +142,10 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
             </p>
             <div className={styles.linkBox}>
               <span className={styles.linkText}>{shareUrl}</span>
-              <button type="button" className={styles.copyButton} onClick={handleCopy}>
-                복사
-              </button>
             </div>
+            <button type="button" className={styles.createButton} onClick={handleCopy}>
+              링크 복사하기
+            </button>
           </>
         )}
       </div>

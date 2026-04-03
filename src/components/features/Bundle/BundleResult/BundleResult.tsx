@@ -269,22 +269,20 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         </div> */}
       </div>
 
-      {/* ═══ 플로팅 CTA — 핵심 바이럴 버튼 ═══ */}
+      {/* ═══ 플로팅 CTA — 비교 버튼 2개 나란히 ═══ */}
       <div className={styles.floatingCta}>
-        <button
-          type="button"
-          className={styles.floatingCtaButton}
-          onClick={() => setShowCompareModal(true)}
-        >
-          친구와 가치관 비교하기
-        </button>
-        <button
-          type="button"
-          className={styles.secondaryCta}
-          onClick={() => setShowGroupModal(true)}
-        >
-          그룹 비교하기
-        </button>
+        <div className={styles.floatingCtaRow}>
+          <button
+            type="button"
+            className={styles.ctaOneToOne}
+            onClick={() => setShowCompareModal(true)}
+          >
+            1:1 비교하기
+          </button>
+          <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
+            그룹 비교하기
+          </button>
+        </div>
       </div>
 
       <Toast message={toast.message} isVisible={toast.isVisible} />

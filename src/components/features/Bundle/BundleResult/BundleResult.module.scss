@@ -502,7 +502,7 @@
 }
 
 // ═══════════════════════════════════════
-// 플로팅 CTA — 핵심 바이럴 버튼
+// 플로팅 CTA — 비교 버튼 2개 나란히
 // ═══════════════════════════════════════
 .floatingCta {
   position: fixed;
@@ -510,32 +510,59 @@
   left: 0;
   right: 0;
   z-index: $z-index-fixed;
-  padding: $spacing-16;
-  padding-bottom: calc($spacing-16 + env(safe-area-inset-bottom, 0px));
+  padding: 12px $spacing-16;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, rgba($bg-primary, 0.95) 60%, transparent 100%);
   animation: fadeSlideUp 0.5s ease-out 1.4s both;
 }
 
-.floatingCtaButton {
-  display: block;
-  width: 100%;
+.floatingCtaRow {
+  display: flex;
+  gap: 10px;
   max-width: 400px;
   margin: 0 auto;
-  padding: 18px;
-  border: none;
+}
+
+// 공통 버튼 베이스
+%ctaBase {
+  flex: 1;
+  padding: 16px 12px;
   border-radius: $border-radius-lg;
-  background: $primary-gradient;
-  color: $white;
-  font-size: $font-size-16;
+  font-size: $font-size-14;
   font-weight: 700;
   letter-spacing: -0.3px;
   cursor: pointer;
+  transition: transform 0.2s ease;
+  text-align: center;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// 왼쪽: 1:1 비교 — 아웃라인 스타일
+.ctaOneToOne {
+  @extend %ctaBase;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.12);
+  color: $white;
+}
+
+// 오른쪽: 그룹 비교 — 그라디언트 (핵심 바이럴)
+.ctaGroup {
+  @extend %ctaBase;
+  border: none;
+  background: $primary-gradient;
+  color: $white;
   position: relative;
   overflow: hidden;
   box-shadow:
-    0 4px 20px rgba($primary-start, 0.3),
-    0 0 40px rgba($primary-end, 0.15);
-  transition: transform 0.2s ease;
+    0 4px 16px rgba($primary-start, 0.25),
+    0 0 32px rgba($primary-end, 0.12);
 
   &::after {
     content: '';
@@ -544,14 +571,6 @@
     background: linear-gradient(90deg, transparent 0%, rgba($white, 0.12) 50%, transparent 100%);
     transform: translateX(-100%);
     animation: shimmer 3s ease-in-out infinite 2s;
-  }
-
-  &:hover {
-    transform: scale(1.02);
-  }
-
-  &:active {
-    transform: scale(0.98);
   }
 }
 
