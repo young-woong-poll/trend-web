@@ -41,11 +41,9 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, onClose })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const shareUrl =
-    createMutation.data?.shareUrl ??
-    (createMutation.data?.token
-      ? `${window.location.origin}/compare/${createMutation.data.token}`
-      : null);
+  const shareUrl = createMutation.data?.token
+    ? `${window.location.origin}/compare/${createMutation.data.token}`
+    : null;
 
   const handleCopy = async () => {
     if (!shareUrl) {

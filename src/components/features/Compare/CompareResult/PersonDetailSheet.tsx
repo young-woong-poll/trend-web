@@ -94,8 +94,9 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
               return null;
             }
 
-            const aRate = stat.optionARate;
-            const bRate = stat.optionBRate;
+            const statTotal = stat.optionACount + stat.optionBCount;
+            const aRate = statTotal > 0 ? Math.round((stat.optionACount / statTotal) * 100) : 50;
+            const bRate = statTotal > 0 ? Math.round((stat.optionBCount / statTotal) * 100) : 50;
             const myRate = answer.selected === 'A' ? aRate : bRate;
             const isMajority = myRate >= 50;
 

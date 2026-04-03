@@ -51,7 +51,9 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      router.replace(`/bundle/${slug}`);
+      router.replace(
+        `/bundle/${slug}?login=true&returnUrl=${encodeURIComponent(`/bundle/${slug}/play`)}`
+      );
     }
   }, [isLoggedIn, slug, router]);
 
@@ -166,6 +168,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
               >
                 <QuestionCard
                   election={currentElection}
+                  index={currentIndex}
                   selected={currentAnswer}
                   onSelect={handleSelect}
                   onBack={currentIndex > 0 ? goPrev : undefined}

@@ -194,7 +194,10 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   let shockStat = differentAnswers[0];
 
   for (const stat of differentAnswers) {
-    const diff = Math.abs(stat.optionARate - stat.optionBRate);
+    const total = stat.optionACount + stat.optionBCount;
+    const optionARate = total > 0 ? Math.round((stat.optionACount / total) * 100) : 50;
+    const optionBRate = total > 0 ? Math.round((stat.optionBCount / total) * 100) : 50;
+    const diff = Math.abs(optionARate - optionBRate);
     if (diff > maxDiff) {
       maxDiff = diff;
       shockStat = stat;
@@ -203,8 +206,13 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
 
   const myAnswer = result.me.answers.find((a) => a.electionId === shockStat.electionId)!;
   const targetAnswer = result.target.answers.find((a) => a.electionId === shockStat.electionId)!;
-  const myRate = myAnswer.selected === 'A' ? shockStat.optionARate : shockStat.optionBRate;
-  const targetRate = targetAnswer.selected === 'A' ? shockStat.optionARate : shockStat.optionBRate;
+  const shockTotal = shockStat.optionACount + shockStat.optionBCount;
+  const shockOptARate =
+    shockTotal > 0 ? Math.round((shockStat.optionACount / shockTotal) * 100) : 50;
+  const shockOptBRate =
+    shockTotal > 0 ? Math.round((shockStat.optionBCount / shockTotal) * 100) : 50;
+  const myRate = myAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
+  const targetRate = targetAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
 
   // 코멘트 생성: 소수파인 쪽에 재미 코멘트
   const meMinority = myRate < targetRate;
@@ -260,8 +268,11 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
       continue;
     }
 
-    const myRate = myAnswer.selected === 'A' ? stat.optionARate : stat.optionBRate;
-    const targetRate = targetAnswer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    const statTotal = stat.optionACount + stat.optionBCount;
+    const optionARate = statTotal > 0 ? Math.round((stat.optionACount / statTotal) * 100) : 50;
+    const optionBRate = statTotal > 0 ? Math.round((stat.optionBCount / statTotal) * 100) : 50;
+    const myRate = myAnswer.selected === 'A' ? optionARate : optionBRate;
+    const targetRate = targetAnswer.selected === 'A' ? optionARate : optionBRate;
 
     if (myAnswer.selected === targetAnswer.selected) {
       same.push({

@@ -83,28 +83,13 @@ function generateToken(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
-/** 비교 링크 생성 (같은 번들에 WAITING 링크가 있으면 재사용) */
+/** 비교 링크 생성 (항상 새 토큰 발급) */
 export function createCompareLink(
   userId: string,
   nickname: string,
   bundleSlug: string,
   type: 'ONE_TO_ONE' | 'GROUP'
 ): CreateCompareLinkResponse {
-  // 같은 유저 + 같은 번들 + WAITING 상태 링크가 있으면 재사용
-  for (const link of compareLinkStore.values()) {
-    if (
-      link.creatorUserId === userId &&
-      link.bundleSlug === bundleSlug &&
-      link.type === type &&
-      link.status === 'WAITING'
-    ) {
-      return {
-        token: link.token,
-        shareUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/compare/${link.token}`,
-      };
-    }
-  }
-
   const token = generateToken();
   compareLinkStore.set(token, {
     token,
@@ -116,10 +101,7 @@ export function createCompareLink(
     participantNickname: null,
     status: 'WAITING',
   });
-  return {
-    token,
-    shareUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/compare/${token}`,
-  };
+  return { token };
 }
 
 /** 비교 링크 조회 */
@@ -260,17 +242,15 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     questionStats: elections.map((e, i) => {
       const stats = bundleVoteStats.get(e.electionId) ?? { optionACount: 0, optionBCount: 0 };
       const total = stats.optionACount + stats.optionBCount;
-      const baseA = total > 0 ? stats.optionACount : (seedRatios[i] ?? 50);
-      const baseB = total > 0 ? stats.optionBCount : 100 - baseA;
-      const sumAB = baseA + baseB;
+      const seedA = seedRatios[i] ?? 50;
+      const seedB = 100 - seedA;
       return {
         electionId: e.electionId,
         title: e.title,
         optionA: e.optionA,
         optionB: e.optionB,
-        optionARate: Math.round((baseA / sumAB) * 100),
-        optionBRate: Math.round((baseB / sumAB) * 100),
-        totalVotes: total > 0 ? total : 80 + i * 15,
+        optionACount: total > 0 ? stats.optionACount : seedA,
+        optionBCount: total > 0 ? stats.optionBCount : seedB,
       };
     }),
     matchCount,

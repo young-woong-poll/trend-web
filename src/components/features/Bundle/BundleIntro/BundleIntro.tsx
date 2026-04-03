@@ -49,6 +49,11 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
 
   const handleStart = () => {
     if (!isLoggedIn) {
+      // 로그인 후 바로 플레이로 넘어가도록 returnUrl 세팅
+      const dest = bundle.completed ? `/bundle/${slug}/result` : `/bundle/${slug}/play`;
+      const params = new URLSearchParams(window.location.search);
+      params.set('returnUrl', dest);
+      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
       requireLogin('default');
       return;
     }

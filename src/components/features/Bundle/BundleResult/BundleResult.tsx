@@ -12,6 +12,7 @@ import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleResult/BundleResult.module.scss';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
+import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
@@ -48,7 +49,9 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
-      router.replace(`/bundle/${slug}`);
+      router.replace(
+        `/bundle/${slug}?login=true&returnUrl=${encodeURIComponent(`/bundle/${slug}/result`)}`
+      );
     }
   }, [isAuthLoading, isLoggedIn, slug, router]);
 
@@ -178,8 +181,11 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <div className={styles.answerList}>
             {result.myAnswers.map((answer, idx) => {
               const stat = result.questionStats.find((s) => s.electionId === answer.electionId);
-              const aRate = stat?.optionARate ?? 50;
-              const bRate = stat?.optionBRate ?? 50;
+              const statTotal = (stat?.optionACount ?? 0) + (stat?.optionBCount ?? 0);
+              const aRate =
+                statTotal > 0 ? Math.round(((stat?.optionACount ?? 0) / statTotal) * 100) : 50;
+              const bRate =
+                statTotal > 0 ? Math.round(((stat?.optionBCount ?? 0) / statTotal) * 100) : 50;
               const myRate = answer.selected === 'A' ? aRate : bRate;
               const isMajority = myRate >= 50;
 

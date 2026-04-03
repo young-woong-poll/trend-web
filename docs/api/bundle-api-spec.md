@@ -72,13 +72,12 @@ Array<{
   title: string; // 질문 텍스트
   optionA: string; // 선택지 A 텍스트
   optionB: string; // 선택지 B 텍스트
-  order: number; // 순서 (1부터 시작)
 }>;
 ```
 
 **참고:**
 
-- order 순서대로 정렬하여 리턴
+- BE에서 정렬된 순서대로 리턴. FE는 배열 순서 그대로 사용
 - 이미 완료한 유저가 다시 호출해도 질문 목록은 동일하게 리턴 (FE에서 완료 여부 체크 후 결과 페이지로 리다이렉트)
 
 ---
@@ -147,24 +146,24 @@ Array<{
     selected: 'A' | 'B'; // 내가 고른 것
   }>;
 
-  // 각 질문별 실시간 투표 비율
+  // 각 질문별 실시간 투표 수
   questionStats: Array<{
     electionId: string;
-    optionARate: number; // 0~100 (정수, 반올림)
-    optionBRate: number; // 0~100 (정수, optionARate + optionBRate = 100)
-    totalVotes: number; // 해당 질문의 총 투표 수
+    optionACount: number; // A 선택 투표 수
+    optionBCount: number; // B 선택 투표 수
   }>;
 }
 ```
 
 **참고:**
 
-- `questionStats`의 비율은 **실시간 변동** — 다른 유저 투표가 진행될수록 비율 변경
-- 결과 페이지 재방문 시 최신 비율 기준으로 재계산됨
+- `questionStats`의 투표 수는 **실시간 변동** — 다른 유저 투표가 진행될수록 변경
+- 결과 페이지 재방문 시 최신 투표 수 기준으로 FE에서 비율 재계산
 - 미완료 유저가 호출하면 `404 NOT_FOUND`
 
 **FE에서 계산하는 항목 (서버에서 보내지 않음):**
 
+- 투표 비율 = optionACount / (optionACount + optionBCount) × 100 (부동소수점 없이 정수 처리)
 - 대중성 지수 = 각 질문에서 내 선택지의 득표율 평균 (가중 평균 방식)
 - 대중성 등급: 68%+ 사자왕, 58~67% 여우, 48~57% 판다, 38~47% 고양이, ~37% 유니콘
 - 캐릭터 이미지, 타이틀, 설명
@@ -197,16 +196,19 @@ Array<{
 ```typescript
 {
   token: string; // 비교 링크 토큰 (URL에 사용)
-  shareUrl: string; // 공유용 전체 URL (예: https://hotpick.kr/compare/abc123)
 }
 ```
+
+**FE에서 공유 URL 생성:** `${window.location.origin}/compare/${token}`
 
 **BE 처리 사항:**
 
 - 해당 번들을 완료한 유저만 생성 가능 (미완료 시 `BAD_REQUEST`)
 - 토큰은 유니크한 랜덤 문자열 (8자 이상)
-- **중복 생성 방지 (중요):** 같은 유저 + 같은 번들 + 같은 type에 `WAITING` 상태 링크가 이미 있으면 **새로 생성하지 않고 기존 링크를 리턴**. 누군가 참여하여 `COMPLETED`된 링크는 소비된 것으로 간주하고, 다음 요청 시 새 링크를 생성.
-  - 이유: FE에서 버튼 클릭 시 즉시 API 호출하므로, 중복 클릭이나 재방문 시 불필요한 링크 누적 방지
+- **항상 새 토큰 발급**: 요청 시마다 새 링크를 생성. 기존 WAITING 링크가 있어도 재사용하지 않음
+  - 이유: 사용자가 여러 사람에게 자유롭게 비교 링크를 보낼 수 있어야 바이럴이 원활함. 기존 링크 재사용 시 "A에게 보냈는데 A가 안 하면 B에게 못 보내는" 문제 발생
+  - 미사용 WAITING 링크 누적은 비용 미미. 필요 시 30일 경과 WAITING 링크 자동 정리 배치로 대응
+- **링크 관리 페이지 미구현**: MVP 단계에서 "내가 보낸 링크" 목록 관리 페이지는 불필요. 유저가 보고 싶은 것은 링크 목록이 아니라 비교 결과이며, 비교 결과는 비교 결과 페이지에서 이미 접근 가능. 추후 필요 시 "내 비교 기록" 형태로 COMPLETED 상태 결과만 모아서 제공 검토
 
 ---
 
@@ -310,15 +312,14 @@ Array<{
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }
 
-  // 각 질문별 실시간 투표 비율 (대중 전체 기준)
+  // 각 질문별 실시간 투표 수 (대중 전체 기준)
   questionStats: Array<{
     electionId: string;
     title: string; // 질문 텍스트
     optionA: string; // 선택지 A 텍스트
     optionB: string; // 선택지 B 텍스트
-    optionARate: number; // 0~100 (정수)
-    optionBRate: number; // 0~100
-    totalVotes: number;
+    optionACount: number; // A 선택 투표 수
+    optionBCount: number; // B 선택 투표 수
   }>;
 
   matchCount: number; // 같은 답 개수
@@ -330,7 +331,8 @@ Array<{
 
 - `me`/`target`은 **현재 로그인 유저 기준**으로 자동 배정 (생성자든 참여자든 자기가 "me")
 - 링크 상태가 `COMPLETED`가 아니면 `404 NOT_FOUND`
-- `questionStats`의 비율은 **실시간 변동**
+- `questionStats`의 투표 수는 **실시간 변동**
+- FE에서 비율 계산: optionACount / (optionACount + optionBCount) × 100
 
 **FE에서 계산하는 항목 (서버에서 보내지 않음):**
 

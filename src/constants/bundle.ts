@@ -148,7 +148,7 @@ export function getPopularityByScore(score: number): PopularityInfo {
  */
 export function calcPopularityScore(
   myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
-  questionStats: Array<{ electionId: string; optionARate: number; optionBRate: number }>
+  questionStats: Array<{ electionId: string; optionACount: number; optionBCount: number }>
 ): number {
   if (myAnswers.length === 0) {
     return 0;
@@ -163,7 +163,10 @@ export function calcPopularityScore(
       continue;
     }
 
-    totalRate += answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    const total = stat.optionACount + stat.optionBCount;
+    const optionARate = total > 0 ? Math.round((stat.optionACount / total) * 100) : 50;
+    const optionBRate = total > 0 ? Math.round((stat.optionBCount / total) * 100) : 50;
+    totalRate += answer.selected === 'A' ? optionARate : optionBRate;
     matched++;
   }
 

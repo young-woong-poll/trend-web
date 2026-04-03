@@ -8,12 +8,19 @@ import type { BundleElection } from '@/types/bundle';
 
 interface QuestionCardProps {
   election: BundleElection;
+  index: number;
   selected: 'A' | 'B' | null;
   onSelect: (choice: 'A' | 'B') => void;
   onBack?: () => void;
 }
 
-export const QuestionCard: FC<QuestionCardProps> = ({ election, selected, onSelect, onBack }) => (
+export const QuestionCard: FC<QuestionCardProps> = ({
+  election,
+  index,
+  selected,
+  onSelect,
+  onBack,
+}) => (
   <div className={styles.container}>
     <div className={styles.questionArea}>
       {onBack && (
@@ -21,7 +28,7 @@ export const QuestionCard: FC<QuestionCardProps> = ({ election, selected, onSele
           <BackIcon />
         </button>
       )}
-      <span className={styles.questionNumber}>Q{election.order}</span>
+      <span className={styles.questionNumber}>Q{index + 1}</span>
       <h2 className={styles.question}>{election.title}</h2>
     </div>
 

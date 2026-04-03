@@ -100,45 +100,42 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
 
 // 등급 테스트용 공통 질문
 const gradeTestElections: BundleElection[] = [
-  { electionId: 'gt-1', title: '테스트 질문 1', optionA: '선택 A', optionB: '선택 B', order: 1 },
-  { electionId: 'gt-2', title: '테스트 질문 2', optionA: '선택 A', optionB: '선택 B', order: 2 },
-  { electionId: 'gt-3', title: '테스트 질문 3', optionA: '선택 A', optionB: '선택 B', order: 3 },
-  { electionId: 'gt-4', title: '테스트 질문 4', optionA: '선택 A', optionB: '선택 B', order: 4 },
-  { electionId: 'gt-5', title: '테스트 질문 5', optionA: '선택 A', optionB: '선택 B', order: 5 },
+  { electionId: 'gt-1', title: '테스트 질문 1', optionA: '선택 A', optionB: '선택 B' },
+  { electionId: 'gt-2', title: '테스트 질문 2', optionA: '선택 A', optionB: '선택 B' },
+  { electionId: 'gt-3', title: '테스트 질문 3', optionA: '선택 A', optionB: '선택 B' },
+  { electionId: 'gt-4', title: '테스트 질문 4', optionA: '선택 A', optionB: '선택 B' },
+  { electionId: 'gt-5', title: '테스트 질문 5', optionA: '선택 A', optionB: '선택 B' },
 ];
 
 export const mockBundleElections: Record<string, BundleElection[]> = {
   'love-values': [
-    { electionId: 'le-1', title: '썸 탈 때', optionA: '먼저 연락', optionB: '기다리기', order: 1 },
+    { electionId: 'le-1', title: '썸 탈 때', optionA: '먼저 연락', optionB: '기다리기' },
     {
       electionId: 'le-2',
       title: '연인의 전 애인 사진',
       optionA: '지워야 함',
       optionB: '상관없음',
-      order: 2,
     },
-    { electionId: 'le-3', title: '기념일', optionA: '챙기는 편', optionB: '별로', order: 3 },
-    { electionId: 'le-4', title: '연인의 이성 친구 만남', optionA: 'OK', optionB: 'NO', order: 4 },
+    { electionId: 'le-3', title: '기념일', optionA: '챙기는 편', optionB: '별로' },
+    { electionId: 'le-4', title: '연인의 이성 친구 만남', optionA: 'OK', optionB: 'NO' },
     {
       electionId: 'le-5',
       title: '싸우면',
       optionA: '바로 풀기',
       optionB: '혼자 정리하고 대화',
-      order: 5,
     },
   ],
   'marriage-values': [
-    { electionId: 'me-1', title: '혼수 비용', optionA: '각자 알아서', optionB: '반반', order: 1 },
+    { electionId: 'me-1', title: '혼수 비용', optionA: '각자 알아서', optionB: '반반' },
     {
       electionId: 'me-2',
       title: '결혼 후 경제활동',
       optionA: '맞벌이',
       optionB: '한쪽이 집에',
-      order: 2,
     },
-    { electionId: 'me-3', title: '신혼집', optionA: '매매', optionB: '전세', order: 3 },
-    { electionId: 'me-4', title: '시댁·처가 명절', optionA: '매년', optionB: '격년', order: 4 },
-    { electionId: 'me-5', title: '아이 교육', optionA: '사교육', optionB: '자율', order: 5 },
+    { electionId: 'me-3', title: '신혼집', optionA: '매매', optionB: '전세' },
+    { electionId: 'me-4', title: '시댁·처가 명절', optionA: '매년', optionB: '격년' },
+    { electionId: 'me-5', title: '아이 교육', optionA: '사교육', optionB: '자율' },
   ],
   'grade-king': gradeTestElections,
   'grade-leader': gradeTestElections,
@@ -242,18 +239,16 @@ export function getBundleResult(userId: string, slug: string): BundleMyResult | 
         selected: a.selected,
       };
     }),
-    questionStats: elections.map((e) => {
+    questionStats: elections.map((e, i) => {
       const stats = bundleVoteStats.get(e.electionId) ?? { optionACount: 0, optionBCount: 0 };
       const total = stats.optionACount + stats.optionBCount;
       const seedRatios = [62, 45, 71, 38, 55, 48, 66, 33, 57, 42];
-      const baseA = total > 0 ? stats.optionACount : (seedRatios[e.order - 1] ?? 50);
-      const baseB = total > 0 ? stats.optionBCount : 100 - baseA;
-      const sumAB = baseA + baseB;
+      const seedA = seedRatios[i] ?? 50;
+      const seedB = 100 - seedA;
       return {
         electionId: e.electionId,
-        optionARate: Math.round((baseA / sumAB) * 100),
-        optionBRate: Math.round((baseB / sumAB) * 100),
-        totalVotes: total > 0 ? total : 80 + e.order * 15,
+        optionACount: total > 0 ? stats.optionACount : seedA,
+        optionBCount: total > 0 ? stats.optionBCount : seedB,
       };
     }),
   };

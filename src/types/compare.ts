@@ -46,7 +46,6 @@ export interface CreateCompareLinkRequest {
  */
 export interface CreateCompareLinkResponse {
   token: string;
-  shareUrl: string;
 }
 
 /**
@@ -68,15 +67,14 @@ export interface CompareResult {
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   };
 
-  /** 각 질문별 현재 투표 비율 (실시간 변동) */
+  /** 각 질문별 현재 투표 수 (실시간 변동) */
   questionStats: Array<{
     electionId: string;
     title: string;
     optionA: string;
     optionB: string;
-    optionARate: number;
-    optionBRate: number;
-    totalVotes: number;
+    optionACount: number;
+    optionBCount: number;
   }>;
 
   matchCount: number;

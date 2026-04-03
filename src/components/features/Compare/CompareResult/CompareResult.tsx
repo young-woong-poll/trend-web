@@ -29,7 +29,9 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
-      router.replace(`/compare/${token}`);
+      router.replace(
+        `/compare/${token}?login=true&returnUrl=${encodeURIComponent(`/compare/${token}/result`)}`
+      );
     }
   }, [isAuthLoading, isLoggedIn, token, router]);
 

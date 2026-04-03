@@ -1159,9 +1159,8 @@ export const handlers = [
           })),
           questionStats: elections.map((e, i) => ({
             electionId: e.electionId,
-            optionARate: seedRatios[i] ?? 50,
-            optionBRate: 100 - (seedRatios[i] ?? 50),
-            totalVotes: 80 + i * 15,
+            optionACount: seedRatios[i] ?? 50,
+            optionBCount: 100 - (seedRatios[i] ?? 50),
           })),
         };
       }
