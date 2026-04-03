@@ -131,7 +131,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
     }
   };
 
-  if (isLoading || !elections) {
+  if (isLoading || !elections || elections.length === 0) {
     return (
       <BundleBackground>
         <div className={styles.loading}>

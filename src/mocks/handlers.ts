@@ -113,7 +113,7 @@ export const handlers = [
    * 카카오 로그인
    * POST /api/auth/kakao
    */
-  http.post(`${baseURL}/api/auth/kakao`, async ({ request }) => {
+  http.post(`${baseURL}/api/v1/auth/kakao`, async ({ request }) => {
     const body = (await request.json()) as { code: string; redirectUri: string };
     const isSignUp = body.code.includes('new');
     mockUser = {
@@ -134,7 +134,7 @@ export const handlers = [
    * 내 정보 조회
    * GET /api/auth/me
    */
-  http.get(`${baseURL}/api/auth/me`, () => {
+  http.get(`${baseURL}/api/v1/auth/me`, () => {
     if (!mockUser) {
       return HttpResponse.json(
         { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
@@ -148,7 +148,7 @@ export const handlers = [
    * 토큰 갱신
    * POST /api/auth/refresh
    */
-  http.post(`${baseURL}/api/auth/refresh`, () => {
+  http.post(`${baseURL}/api/v1/auth/refresh`, () => {
     if (!mockUser) {
       return HttpResponse.json(
         { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
@@ -162,7 +162,7 @@ export const handlers = [
    * 로그아웃
    * POST /api/auth/logout
    */
-  http.post(`${baseURL}/api/auth/logout`, () => {
+  http.post(`${baseURL}/api/v1/auth/logout`, () => {
     mockUser = null;
     return HttpResponse.json(wrapResponse(null));
   }),
@@ -171,7 +171,7 @@ export const handlers = [
    * 익명 투표 연동
    * POST /api/auth/link
    */
-  http.post(`${baseURL}/api/auth/link`, async ({ request }) => {
+  http.post(`${baseURL}/api/v1/auth/link`, async ({ request }) => {
     const body = (await request.json()) as { tkuId: string };
     return HttpResponse.json(
       wrapResponse({
@@ -186,7 +186,7 @@ export const handlers = [
    * 회원 탈퇴
    * DELETE /api/auth/me
    */
-  http.delete(`${baseURL}/api/auth/me`, () => {
+  http.delete(`${baseURL}/api/v1/auth/me`, () => {
     mockUser = null;
     return HttpResponse.json(wrapResponse(null));
   }),
@@ -195,7 +195,7 @@ export const handlers = [
    * 닉네임 추천
    * GET /api/auth/nickname/suggest
    */
-  http.get(`${baseURL}/api/auth/nickname/suggest`, () => {
+  http.get(`${baseURL}/api/v1/auth/nickname/suggest`, () => {
     const nickname = generateRandomNickname();
     return HttpResponse.json(wrapResponse({ nickname }));
   }),
@@ -204,7 +204,7 @@ export const handlers = [
    * 닉네임 중복 체크
    * GET /api/auth/nickname/check
    */
-  http.get(`${baseURL}/api/auth/nickname/check`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/auth/nickname/check`, ({ request }) => {
     const url = new URL(request.url);
     const nickname = url.searchParams.get('nickname') ?? '';
     const isDuplicate = usedNicknames.has(nickname);
@@ -215,7 +215,7 @@ export const handlers = [
    * 프로필 설정 (회원가입/닉네임 변경)
    * PATCH /api/auth/me
    */
-  http.patch(`${baseURL}/api/auth/me`, async ({ request }) => {
+  http.patch(`${baseURL}/api/v1/auth/me`, async ({ request }) => {
     // MSW 환경: 카카오 리다이렉트로 mockUser가 초기화된 경우 복원
     const currentUser = mockUser ?? {
       id: 1001,
@@ -251,7 +251,7 @@ export const handlers = [
    * 내 투표 목록 조회
    * GET /api/users/me/votes
    */
-  http.get(`${baseURL}/api/users/me/votes`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/users/me/votes`, ({ request }) => {
     if (!mockUser) {
       return HttpResponse.json(
         { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
@@ -283,7 +283,7 @@ export const handlers = [
    * 내 댓글 목록 조회
    * GET /api/users/me/comments
    */
-  http.get(`${baseURL}/api/users/me/comments`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/users/me/comments`, ({ request }) => {
     if (!mockUser) {
       return HttpResponse.json(
         { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },
@@ -313,7 +313,7 @@ export const handlers = [
    * 좋아요한 핫픽 목록 조회
    * GET /api/users/me/likes
    */
-  http.get(`${baseURL}/api/users/me/likes`, ({ request }) => {
+  http.get(`${baseURL}/api/v1/users/me/likes`, ({ request }) => {
     if (!mockUser) {
       return HttpResponse.json(
         { code: 'UNAUTHORIZED', message: '로그인이 필요합니다.', data: null },

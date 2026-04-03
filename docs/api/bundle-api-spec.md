@@ -243,14 +243,23 @@ Array<{
 }
 ```
 
-**참고:**
+**인증 정책:**
 
-- 비로그인 시: `isCreator: false`, `isParticipant: false`, `myBundleCompleted: false`, `compareReady: false`
-- FE에서 이 필드들을 조합하여 랜딩 페이지 UI 분기:
-  - 생성자 + 대기 중 → 대기 화면
-  - 받는 사람 + 번들 미완료 → "대결 수락하기" (번들 풀기로 이동)
-  - 받는 사람 + 번들 완료 → "결과 확인하기" (자동 join 후 결과)
-  - 비교 완료 → "비교 결과 보기"
+- **비인증(비로그인) 요청도 200 응답 필수.** 공유 링크이므로 로그인하지 않아도 링크 기본 정보(생성자 닉네임, 번들 제목 등)를 조회할 수 있어야 함
+- 비로그인 시 유저 상태 필드: `isCreator: false`, `isParticipant: false`, `myBundleCompleted: false`
+- `compareReady`는 유저 상태와 무관하게 실제 링크 상태 기준으로 리턴 (두 명 모두 완료했으면 `true`)
+
+**FE 상태 분기표:**
+
+| 상태                    | isCreator | isParticipant | compareReady | FE 동작                                 |
+| ----------------------- | --------- | ------------- | ------------ | --------------------------------------- |
+| 비로그인                | false     | false         | any          | "로그인하고 대결 수락하기"              |
+| 생성자 대기 중          | true      | false         | false        | 대기 화면 (스피너)                      |
+| 생성자 결과 확인        | true      | false         | true         | "비교 결과 보기"                        |
+| 받는 사람 + 번들 미완료 | false     | false         | false        | "대결 수락하기" (번들 풀기로 이동)      |
+| 받는 사람 + 번들 완료   | false     | false         | false        | "결과 확인하기" (자동 join 후 결과)     |
+| 참여자 결과 확인        | false     | true          | true         | "비교 결과 보기"                        |
+| **선점당한 링크**       | **false** | **false**     | **true**     | **"이미 다른 사람이 참여한 링크" 안내** |
 
 ---
 

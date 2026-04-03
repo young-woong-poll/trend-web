@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 
+import { createPortal } from 'react-dom';
+
+import CloseIcon from '@/assets/icon/CloseIcon';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateGroupLink.module.scss';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
@@ -17,6 +20,25 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
   const [groupName, setGroupName] = useState('');
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const { toast, showToast } = useToast();
+
+  // 배경 스크롤 잠금
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
 
   const handleCreate = async () => {
     if (!groupName.trim()) {
@@ -47,9 +69,13 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
     }
   };
 
-  return (
+  return createPortal(
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
+          <CloseIcon width={16} height={16} />
+        </button>
+
         {!shareUrl ? (
           <>
             <h2 className={styles.title}>그룹 비교 만들기</h2>
@@ -69,19 +95,14 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
                 maxLength={20}
               />
             </div>
-            <div className={styles.actions}>
-              <button
-                type="button"
-                className={styles.createButton}
-                onClick={handleCreate}
-                disabled={createMutation.isPending || !groupName.trim()}
-              >
-                {createMutation.isPending ? '생성 중...' : '그룹 링크 만들기'}
-              </button>
-              <button type="button" className={styles.closeButton} onClick={onClose}>
-                닫기
-              </button>
-            </div>
+            <button
+              type="button"
+              className={styles.createButton}
+              onClick={handleCreate}
+              disabled={createMutation.isPending || !groupName.trim()}
+            >
+              {createMutation.isPending ? '생성 중...' : '그룹 링크 만들기'}
+            </button>
           </>
         ) : (
           <>
@@ -97,15 +118,11 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
                 복사
               </button>
             </div>
-            <div className={styles.actions}>
-              <button type="button" className={styles.closeButton} onClick={onClose}>
-                닫기
-              </button>
-            </div>
           </>
         )}
       </div>
       <Toast message={toast.message} isVisible={toast.isVisible} />
-    </div>
+    </div>,
+    document.body
   );
 };

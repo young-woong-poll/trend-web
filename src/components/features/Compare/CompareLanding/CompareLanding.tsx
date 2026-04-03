@@ -61,15 +61,37 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const isCreatorReady = link.isCreator && link.compareReady;
 
   const needsLogin = !isLoggedIn && !link.isCreator;
-  const needsBundle = isLoggedIn && !link.isCreator && !link.myBundleCompleted;
-  const canJoin = isLoggedIn && !link.isCreator && link.myBundleCompleted && !link.compareReady;
-  const canViewResult = !link.isCreator && link.compareReady;
+  // 1:1 링크에서 다른 사람이 이미 선점한 경우
+  const isAlreadyTaken =
+    isLoggedIn &&
+    !link.isCreator &&
+    !link.isParticipant &&
+    link.compareReady &&
+    link.type === 'ONE_TO_ONE';
+  const needsBundle =
+    isLoggedIn &&
+    !link.isCreator &&
+    !link.isParticipant &&
+    !link.myBundleCompleted &&
+    !link.compareReady;
+  const canJoin =
+    isLoggedIn &&
+    !link.isCreator &&
+    !link.isParticipant &&
+    link.myBundleCompleted &&
+    !link.compareReady;
+  const canViewResult = !link.isCreator && link.isParticipant && link.compareReady;
 
   const resultPath = link.type === 'GROUP' ? `/compare/${token}/group` : `/compare/${token}/result`;
 
   const handleAction = async () => {
     if (needsLogin) {
       requireLogin('default');
+      return;
+    }
+    if (isAlreadyTaken) {
+      // 내가 직접 비교 링크를 만들어서 보내도록 유도
+      router.push(`/bundle/${link.bundleSlug}/result`);
       return;
     }
     if (isCreatorReady || canViewResult) {
@@ -93,6 +115,9 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
   // ─── 상태별 문구 ───
   const getHeroMessage = () => {
+    if (isAlreadyTaken) {
+      return '이 링크는 이미 다른 사람이 참여했어요';
+    }
     if (isCreatorWaiting) {
       return '상대방이 참여하면 비교 결과를 확인할 수 있어요';
     }
@@ -115,6 +140,9 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     if (needsLogin) {
       return '로그인하고 대결 수락하기';
     }
+    if (isAlreadyTaken) {
+      return '내가 비교 링크 만들기';
+    }
     if (isCreatorWaiting) {
       return link.type === 'GROUP' ? '아직 참여 인원이 부족해요...' : '상대방 참여 대기 중...';
     }
@@ -130,18 +158,20 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     return '참여하기';
   };
 
-  // 번들 미완료 또는 비로그인 → 프리뷰 + 질문 미리보기 노출
-  const showPreview = needsBundle || needsLogin;
+  // 번들 미완료 또는 비로그인 → 프리뷰 + 질문 미리보기 노출 (선점당한 경우 제외)
+  const showPreview = (needsBundle || needsLogin) && !isAlreadyTaken;
   // 생성자 대기 → 재공유 CTA 노출
   const showWaiting = isCreatorWaiting;
 
   return (
-    <BundleBackground fireworks>
+    <BundleBackground fireworks={!isAlreadyTaken}>
       <div className={styles.container}>
         {/* ─── 히어로 ─── */}
         <div className={styles.heroSection}>
           <h1 className={styles.heroTitle}>
-            {!link.isCreator ? (
+            {isAlreadyTaken ? (
+              '아쉽지만 한 발 늦었어요'
+            ) : !link.isCreator ? (
               link.type === 'GROUP' ? (
                 `${link.creatorNickname}님의 '${link.groupName}' 그룹에 참여하세요!`
               ) : (
@@ -247,6 +277,22 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
               링크를 받은 상대방의
               <br />
               참여를 기다리는 중
+            </p>
+          </div>
+        )}
+
+        {/* ─── 선점당한 링크 안내 ─── */}
+        {isAlreadyTaken && (
+          <div className={styles.takenSection}>
+            <p className={styles.takenMessage}>
+              이 비교 링크는 이미 다른 사람이 참여했어요.
+              <br />
+              1:1 비교는 한 명만 참여할 수 있어요.
+            </p>
+            <p className={styles.takenGuide}>
+              {link.creatorNickname}님과 비교하고 싶다면
+              <br />
+              직접 비교 링크를 만들어 보내보세요!
             </p>
           </div>
         )}
