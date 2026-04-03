@@ -1,5 +1,4 @@
 // src/constants/group-compare.ts
-import { calcPopularityScore } from '@/constants/bundle';
 import type {
   GroupCompareResult,
   PairChemistry,
@@ -8,6 +7,30 @@ import type {
   ValueMapCoordinate,
   ValueMapConfig,
 } from '@/types/group-compare';
+
+/** Rate 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용) */
+function calcPopularityScoreFromRate(
+  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
+  questionStats: Array<{ electionId: string; optionARate: number; optionBRate: number }>
+): number {
+  if (myAnswers.length === 0) {
+    return 0;
+  }
+
+  let totalRate = 0;
+  let matched = 0;
+
+  for (const answer of myAnswers) {
+    const stat = questionStats.find((s) => s.electionId === answer.electionId);
+    if (!stat) {
+      continue;
+    }
+    totalRate += answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    matched++;
+  }
+
+  return matched === 0 ? 0 : Math.round(totalRate / matched);
+}
 
 /**
  * 모든 멤버 쌍의 케미(일치율) 계산
@@ -274,7 +297,7 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   let maxPopularity = -1;
   let champion = members[0];
   for (const m of members) {
-    const score = calcPopularityScore(m.answers, questionStats);
+    const score = calcPopularityScoreFromRate(m.answers, questionStats);
     if (score > maxPopularity) {
       maxPopularity = score;
       champion = m;
