@@ -71,97 +71,7 @@
   color: $text-tertiary;
 }
 
-// ─── 나의 이성 베스트 매치 ───
-.myBestSection {
-  @include flex-column;
-  gap: 8px;
-}
-
-.myBestLabel {
-  font-size: $font-size-12;
-  font-weight: 600;
-  color: #ff6b9d;
-  padding-left: 2px;
-}
-
-.myBestCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  background: rgba(#1e1e1e, 0.6);
-  border-radius: $border-radius-lg;
-  border: 1px solid rgba(#fff, 0.06);
-}
-
-.myBestAvatarWrap {
-  @include flex-column;
-  align-items: center;
-  gap: 4px;
-  min-width: 56px;
-}
-
-.myBestAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  @include flex-center;
-  font-size: 13px;
-  font-weight: 700;
-  color: $white;
-  border: 2px solid rgba(#fff, 0.15);
-  flex-shrink: 0;
-}
-
-.genderIconMale {
-  font-size: 11px;
-  color: #4fc3f7;
-  line-height: 1;
-}
-
-.genderIconFemale {
-  font-size: 11px;
-  color: #ff6b9d;
-  line-height: 1;
-}
-
-.myBestName {
-  font-size: 11px;
-  font-weight: 600;
-  color: $text-secondary;
-  max-width: 60px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.myBestCenter {
-  @include flex-column;
-  align-items: center;
-  gap: 2px;
-}
-
-.myBestRate {
-  font-size: $font-size-28;
-  font-weight: 700;
-  color: $white;
-  line-height: 1;
-}
-
-.myBestUnit {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-  margin-left: 1px;
-}
-
-.myBestGrade {
-  font-size: 11px;
-  color: $text-tertiary;
-  margin-top: 2px;
-}
-
-// ─── 그룹 이성 궁합 TOP 3 ───
+// ─── 그룹 이성 궁합 BEST / WORST ───
 .topSection {
   @include flex-column;
   gap: 8px;
@@ -170,7 +80,14 @@
 .topLabel {
   font-size: $font-size-12;
   font-weight: 600;
-  color: #4fc3f7;
+  color: #22c55e;
+  padding-left: 2px;
+}
+
+.worstLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #ef4444;
   padding-left: 2px;
 }
 
@@ -192,7 +109,16 @@
 .topRank {
   font-size: $font-size-16;
   font-weight: 700;
-  color: #ff6b9d;
+  color: #22c55e;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.worstRank {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: #ef4444;
   width: 18px;
   text-align: center;
   flex-shrink: 0;
@@ -210,18 +136,51 @@
   flex-shrink: 0;
 }
 
-.topGenderIconMale {
-  font-size: 10px;
-  color: #4fc3f7;
+// ─── Overlapping pair avatars ───
+.pairAvatars {
+  display: flex;
   flex-shrink: 0;
-  margin-left: -4px;
 }
 
-.topGenderIconFemale {
-  font-size: 10px;
-  color: #ff6b9d;
-  flex-shrink: 0;
-  margin-right: -4px;
+.pairAvatarLeft,
+.pairAvatarRight {
+  position: relative;
+  display: inline-flex;
+}
+
+.pairAvatarRight {
+  margin-left: -10px;
+}
+
+.pairAvatarLeft .topAvatar {
+  z-index: 2;
+}
+
+.pairAvatarRight .topAvatar {
+  z-index: 1;
+}
+
+.topGenderBadgeMale,
+.topGenderBadgeFemale {
+  position: absolute;
+  bottom: -2px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  @include flex-center;
+  border: 1.5px solid rgba(#1e1e1e, 0.6);
+  z-index: 3;
+}
+
+.topGenderBadgeMale {
+  background: #4fc3f7;
+  color: $white;
+}
+
+.topGenderBadgeFemale {
+  background: #ff6b9d;
+  color: $white;
 }
 
 .topInfo {
@@ -240,23 +199,32 @@
   white-space: nowrap;
 }
 
-.topGrade {
+.topGradeText {
   font-size: 11px;
   color: $text-tertiary;
 }
 
-.topRate {
-  flex-shrink: 0;
-  text-align: right;
-}
-
-.topRateValue {
-  font-size: $font-size-20;
+// ─── Grade badge (S/A/B/C/D) ───
+.topGradeBadge {
+  font-size: 13px;
   font-weight: 700;
-  color: $white;
+  color: #22c55e;
+  background: rgba(#22c55e, 0.12);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  @include flex-center;
+  flex-shrink: 0;
 }
 
-.topRateUnit {
-  font-size: $font-size-12;
-  color: $text-tertiary;
+.worstGradeBadge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(#ef4444, 0.12);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  @include flex-center;
+  flex-shrink: 0;
 }

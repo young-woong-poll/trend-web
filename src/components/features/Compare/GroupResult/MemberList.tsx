@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import styles from '@/components/features/Compare/GroupResult/MemberList.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface MemberListProps {
@@ -14,15 +15,6 @@ interface MemberListProps {
   pairs: PairChemistry[];
   token: string;
 }
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs, token }) => {
   const router = useRouter();
@@ -59,10 +51,7 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
               className={styles.memberCard}
               onClick={() => handleMemberClick(member.userId)}
             >
-              <div
-                className={styles.memberAvatar}
-                style={{ background: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length] }}
-              >
+              <div className={styles.memberAvatar} style={{ background: getGradientByIndex(i) }}>
                 {member.nickname[0]}
               </div>
               <div className={styles.memberInfo}>

@@ -3,6 +3,7 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/MyRelationCard.module.scss';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 interface MyRelationCardProps {
@@ -10,15 +11,6 @@ interface MyRelationCardProps {
   result: GroupCompareResult;
   pairs: PairChemistry[];
 }
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result, pairs }) => {
   const me = result.members.find((m) => m.userId === currentUserId);
@@ -108,8 +100,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
     return null;
   }, [me, myPairs, result.members]);
 
-  const getGradient = (memberIndex: number) =>
-    AVATAR_GRADIENTS[memberIndex % AVATAR_GRADIENTS.length];
+  const getGradient = (memberIndex: number) => getGradientByIndex(memberIndex);
 
   if (!me) {
     return null;

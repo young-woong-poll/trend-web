@@ -7,11 +7,20 @@ import Image from 'next/image';
 import { createPortal } from 'react-dom';
 
 import styles from '@/components/features/Compare/GroupResult/PopularitySpectrum.module.scss';
-import { getPopularityByScore } from '@/constants/bundle';
+import { getPopularityByScore, type PopularityGrade } from '@/constants/bundle';
 import type { GroupCompareResult } from '@/types/group-compare';
+
+const GRADE_TO_LETTER: Record<PopularityGrade, string> = {
+  KING: 'S',
+  LEADER: 'A',
+  BALANCER: 'B',
+  REBEL: 'C',
+  UNICORN: 'D',
+};
 
 interface PopularitySpectrumProps {
   result: GroupCompareResult;
+  currentUserId: string;
 }
 
 interface MemberScore {
@@ -71,14 +80,21 @@ function scoreToPercent(score: number, min: number = 25, max: number = 85): numb
   return 8 + ((clamped - min) / (max - min)) * 84;
 }
 
-export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
+export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result, currentUserId }) => {
   const [activeCluster, setActiveCluster] = useState<number | null>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{
+    x: number;
+    y: number;
+    arrowX: number;
+  } | null>(null);
   const nodeRefs = useRef<Map<number, HTMLElement>>(new Map());
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   const scores = useMemo(() => calcMemberPopularityScores(result), [result]);
   const clusters = useMemo(() => clusterMembers(scores), [scores]);
+
+  const TOOLTIP_WIDTH = 200;
+  const SCREEN_PAD = 12;
 
   const handleNodeClick = useCallback(
     (idx: number) => {
@@ -90,9 +106,20 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
       const el = nodeRefs.current.get(idx);
       if (el) {
         const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const half = TOOLTIP_WIDTH / 2;
+        const vw = window.innerWidth;
+        let left = centerX - half;
+        if (left < SCREEN_PAD) {
+          left = SCREEN_PAD;
+        }
+        if (left + TOOLTIP_WIDTH > vw - SCREEN_PAD) {
+          left = vw - SCREEN_PAD - TOOLTIP_WIDTH;
+        }
         setTooltipPos({
-          x: rect.left + window.scrollX + rect.width / 2,
-          y: rect.bottom + window.scrollY + 8,
+          x: left,
+          y: rect.bottom + 8,
+          arrowX: centerX - left,
         });
       }
       setActiveCluster(idx);
@@ -117,11 +144,20 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
       setActiveCluster(null);
       setTooltipPos(null);
     };
+    const handleScroll = (e: Event) => {
+      if (tooltipRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      setActiveCluster(null);
+      setTooltipPos(null);
+    };
     document.addEventListener('mousedown', handleOutside);
     document.addEventListener('touchstart', handleOutside);
+    window.addEventListener('scroll', handleScroll, true);
     return () => {
       document.removeEventListener('mousedown', handleOutside);
       document.removeEventListener('touchstart', handleOutside);
+      window.removeEventListener('scroll', handleScroll, true);
     };
   }, [activeCluster]);
 
@@ -144,8 +180,13 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
       }
       setShowInfo(false);
     };
+    const handleScroll = () => setShowInfo(false);
     document.addEventListener('mousedown', handleOutside);
-    return () => document.removeEventListener('mousedown', handleOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [showInfo]);
 
   return (
@@ -181,7 +222,9 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
         <div className={styles.sectionLine} />
       </div>
       <p className={styles.sectionDesc}>
-        전체 참여자의 결과를 기준으로 대중성을 산출합니다. 참여자가 늘어나면 변동될 수 있습니다.
+        핫픽 전체 투표수를 기준으로 대중성을 산출합니다.
+        <br />
+        참여자가 늘면 업데이트 됩니다.
       </p>
 
       <div className={styles.spectrumArea}>
@@ -194,7 +237,9 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
           <div className={styles.barFill} />
 
           {[38, 48, 58, 68].map((t) => (
-            <div key={t} className={styles.tickMark} style={{ left: `${scoreToPercent(t)}%` }} />
+            <div key={t} className={styles.tickMark} style={{ left: `${scoreToPercent(t)}%` }}>
+              <span className={styles.tickLabel}>{t}%</span>
+            </div>
           ))}
 
           {clusters.map((cluster, idx) => {
@@ -232,14 +277,6 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
             );
           })}
         </div>
-
-        <div className={styles.gradeLabels}>
-          <span className={styles.gradeLabel}>유니콘</span>
-          <span className={styles.gradeLabel}>소신 고양이</span>
-          <span className={styles.gradeLabel}>밸런스 판다</span>
-          <span className={styles.gradeLabel}>트렌드 여우</span>
-          <span className={styles.gradeLabel}>사자왕</span>
-        </div>
       </div>
 
       {/* 말풍선 툴팁 (포탈) */}
@@ -251,7 +288,7 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
             className={styles.tooltip}
             style={{ top: tooltipPos.y, left: tooltipPos.x }}
           >
-            <div className={styles.tooltipArrow} />
+            <div className={styles.tooltipArrow} style={{ marginLeft: tooltipPos.arrowX - 6 }} />
             <div className={styles.tooltipBody}>
               {activeData.members.map((member) => (
                 <div key={member.userId} className={styles.tooltipRow}>
@@ -266,8 +303,13 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result }) => {
                   ) : (
                     <div className={styles.tooltipFallback}>{member.nickname[0]}</div>
                   )}
-                  <span className={styles.tooltipName}>{member.nickname}</span>
-                  <span className={styles.tooltipScore}>{member.score}%</span>
+                  <span className={styles.tooltipName}>
+                    {member.nickname}
+                    {member.userId === currentUserId && (
+                      <span className={styles.nicknameBadgeMe}>나</span>
+                    )}
+                  </span>
+                  <span className={styles.tooltipGrade}>{GRADE_TO_LETTER[member.grade.grade]}</span>
                 </div>
               ))}
             </div>

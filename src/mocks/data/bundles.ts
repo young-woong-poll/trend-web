@@ -9,6 +9,7 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     description:
       '연애에서 중요한 5가지 질문으로 나와 상대방의 가치관을 비교해보세요. 썸부터 싸움 해결까지, 우리는 얼마나 맞을까요?',
     category: '연애',
+    categoryCode: 'LOVE',
     questionCount: 5,
     status: 'ACTIVE',
     imageUrl:
@@ -24,6 +25,7 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     description:
       '혼수, 맞벌이, 신혼집, 명절, 교육까지. 결혼 전에 꼭 맞춰봐야 할 5가지 가치관을 비교합니다.',
     category: '결혼',
+    categoryCode: 'MARRIAGE',
     questionCount: 5,
     status: 'ACTIVE',
     imageUrl: undefined,

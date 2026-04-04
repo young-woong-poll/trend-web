@@ -3,21 +3,13 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/GenerationCluster.module.scss';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface GenerationClusterProps {
   members: Array<{ userId: string; nickname: string; birthYear?: number }>;
   pairs: PairChemistry[];
 }
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 interface GenerationGroup {
   label: string;
@@ -161,7 +153,7 @@ export const GenerationCluster: FC<GenerationClusterProps> = ({ members, pairs }
   /** 원본 members 배열에서 인덱스 → gradient */
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return AVATAR_GRADIENTS[idx >= 0 ? idx % AVATAR_GRADIENTS.length : 0];
+    return getGradientByIndex(idx >= 0 ? idx : 0);
   };
 
   const getNickname = (userId: string) => members.find((m) => m.userId === userId)?.nickname ?? '?';

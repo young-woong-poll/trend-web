@@ -2,12 +2,18 @@
  * 그룹 비교 결과 (서버 응답)
  * 서버는 숫자만 리턴. 어워드/네트워크/가치관 지도는 FE에서 계산.
  */
+import type { CategoryCode } from '@/types/hotpick';
+
 export interface GroupCompareResult {
   bundleSlug: string;
   bundleTitle: string;
   totalQuestions: number;
   groupName: string;
   memberCount: number;
+  /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
+  myUserId: string;
+  /** 번들 카테고리 코드 */
+  categoryCode?: CategoryCode;
 
   /** 그룹 멤버 답변 */
   members: Array<{

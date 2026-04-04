@@ -20,6 +20,7 @@
 }
 
 .sectionHeader {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -42,18 +43,18 @@
 
 // ─── 대중성 설명 툴팁 ───
 .infoWrap {
-  position: relative;
+  position: static;
 }
 
 .infoBtn {
   all: unset;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   color: $text-tertiary;
   border: 1px solid rgba(#fff, 0.12);
@@ -67,11 +68,11 @@
 
 .infoTooltip {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   left: 0;
+  right: 0;
   z-index: 10;
-  width: 260px;
-  padding: 12px;
+  padding: 10px;
   background: rgba(24, 24, 24, 0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(#fff, 0.1);
@@ -95,15 +96,15 @@
 }
 
 .infoTitle {
-  font-size: $font-size-12;
+  font-size: 11px;
   font-weight: 700;
   color: $white;
 }
 
 .infoBody {
-  font-size: 12px;
+  font-size: 11px;
   color: $text-tertiary;
-  line-height: 1.5;
+  line-height: 1.4;
   margin: 0;
 }
 
@@ -140,7 +141,7 @@
   border-radius: 3px;
   background: rgba(#fff, 0.06);
   margin-top: 48px;
-  margin-bottom: 4px;
+  margin-bottom: 24px;
 }
 
 .barFill {
@@ -165,6 +166,17 @@
   height: 14px;
   background: rgba(#fff, 0.1);
   transform: translateX(-50%);
+}
+
+.tickLabel {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  color: rgba(#fff, 0.25);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 // ─── 바 위 노드 (아이콘만, 이름 없음) ───
@@ -257,26 +269,24 @@
 @keyframes tooltipIn {
   from {
     opacity: 0;
-    transform: translate(-50%, -4px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translateY(0);
   }
 }
 
 .tooltip {
-  position: absolute;
+  position: fixed;
   z-index: $z-index-modal;
-  transform: translateX(-50%);
   animation: tooltipIn 0.15s ease-out;
-  max-width: calc(100vw - 24px);
+  width: 200px;
 }
 
 .tooltipArrow {
   width: 12px;
   height: 6px;
-  margin: 0 auto;
   background: rgba(24, 24, 24, 0.9);
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
@@ -329,6 +339,8 @@
 }
 
 .tooltipName {
+  display: inline-flex;
+  align-items: center;
   flex: 1;
   min-width: 0;
   font-size: 13px;
@@ -339,10 +351,28 @@
   white-space: nowrap;
 }
 
-.tooltipScore {
-  font-size: 13px;
-  color: $text-tertiary;
-  font-weight: 700;
+.nicknameBadgeMe {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(#fff, 0.5);
+  background: rgba(#fff, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
   flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+}
+
+.tooltipGrade {
+  font-size: 11px;
+  font-weight: 700;
+  color: $white;
+  background: rgba(#fff, 0.1);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  @include flex-center;
+  flex-shrink: 0;
 }

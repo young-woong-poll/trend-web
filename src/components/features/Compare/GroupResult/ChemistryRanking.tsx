@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryRanking.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
@@ -19,15 +20,6 @@ interface ChemistryRankingProps {
   members: Array<{ userId: string; nickname: string }>;
   pairs: PairChemistry[];
 }
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 const TOP_COUNT = 3;
 
@@ -84,8 +76,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
   }, [selectedUserId, pairs, members]);
 
   /** 멤버 원본 인덱스로 gradient 가져오기 */
-  const getGradient = (memberIndex: number) =>
-    AVATAR_GRADIENTS[memberIndex % AVATAR_GRADIENTS.length];
+  const getGradient = (memberIndex: number) => getGradientByIndex(memberIndex);
 
   const selectedIndex = members.findIndex((m) => m.userId === selectedUserId);
 
@@ -161,7 +152,12 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
                   {item.targetNickname[0]}
                 </div>
                 <div className={styles.rankInfo}>
-                  <span className={styles.rankName}>{item.targetNickname}</span>
+                  <span className={styles.rankName}>
+                    {item.targetNickname}
+                    {item.targetId === currentUserId && (
+                      <span className={styles.nicknameBadgeMe}>나</span>
+                    )}
+                  </span>
                   <span className={styles.rankSub}>{grade.title}</span>
                 </div>
                 <span
@@ -194,7 +190,12 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
                   {item.targetNickname[0]}
                 </div>
                 <div className={styles.rankInfo}>
-                  <span className={styles.rankName}>{item.targetNickname}</span>
+                  <span className={styles.rankName}>
+                    {item.targetNickname}
+                    {item.targetId === currentUserId && (
+                      <span className={styles.nicknameBadgeMe}>나</span>
+                    )}
+                  </span>
                   <span className={styles.rankSub}>{grade.title}</span>
                 </div>
                 <span

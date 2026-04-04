@@ -103,6 +103,30 @@
 
 ---
 
+### 2-3. 프로필 색상 확장 — `PATCH /api/v1/auth/me`
+
+**현재 동작**: `profileColor` 필드에 8개 색상명 중 하나를 저장 (`purple`, `blue`, `green`, `amber`, `red`, `pink`, `cyan`, `indigo`)
+
+**변경 요청**: 허용 색상값을 24개로 확장
+
+**추가되는 색상명 (16개)**: `magenta`, `sky`, `gold`, `teal`, `grape`, `sunset`, `ocean`, `lime`, `coral`, `lavender`, `mint`, `peach`, `sapphire`, `rose`, `forest`, `flame`
+
+**변경 사유**:
+
+- 그룹 비교(최대 10명+)에서 멤버를 아바타 색으로 구분하는데 8개로는 부족
+- 프로필 색상 = 그룹 비교 아바타 색상으로 통합하여 일관성 확보
+
+**영향 범위**:
+
+- `PATCH /api/v1/auth/me` — `profileColor` 필드 validation에 16개 색상명 추가
+- DB 변경 — `profileColor` 컬럼이 enum이라면 새 값 추가, varchar라면 변경 불필요
+
+> 그라데이션은 FE에서만 렌더링하므로 BE는 색상명(string)만 저장/반환하면 됩니다.
+
+**FE 대응 완료**: `profileColors.ts` 24개 확장, 그룹 비교 컴포넌트 9개 통합, ProfileColorModal 그리드 24개 대응
+
+---
+
 ## 3. 변경 타임라인
 
 | 우선순위 | 항목                         | 설명                                  |
@@ -110,4 +134,5 @@
 | P0       | 1-1 닉네임 중복 허용         | FE 이미 반영 완료, 서버만 풀어주면 됨 |
 | P0       | 2-1 join displayName         | 그룹 비교 핵심 기능                   |
 | P0       | 2-2 group-result displayName | 2-1과 세트                            |
+| P1       | 2-3 프로필 색상 확장         | FE 반영 완료, 서버 validation만 확장  |
 | P1       | 1-2 (변경 없음)              | 서버 변경 불필요, 참고용 기록         |

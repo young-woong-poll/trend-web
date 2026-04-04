@@ -2,8 +2,11 @@
 
 import { useMemo, type FC } from 'react';
 
+import FemaleIcon from '@/assets/icon/FemaleIcon';
+import MaleIcon from '@/assets/icon/MaleIcon';
 import styles from '@/components/features/Compare/GroupResult/CrossGenderChemistry.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface CrossGenderChemistryProps {
@@ -17,22 +20,9 @@ interface CrossGenderChemistryProps {
   pairs: PairChemistry[];
 }
 
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
-
 const TOP_COUNT = 3;
 
-export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
-  currentUserId,
-  members,
-  pairs,
-}) => {
+export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({ members, pairs }) => {
   const maleMembers = useMemo(() => members.filter((m) => m.gender === 'MALE'), [members]);
   const femaleMembers = useMemo(() => members.filter((m) => m.gender === 'FEMALE'), [members]);
 
@@ -51,34 +41,16 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
     return [...filtered].sort((a, b) => b.matchRate - a.matchRate);
   }, [pairs, maleIds, femaleIds]);
 
-  /** TOP 3 cross-gender pairs */
-  const top3 = useMemo(() => crossPairs.slice(0, TOP_COUNT), [crossPairs]);
+  /** BEST 3 cross-gender pairs */
+  const best3 = useMemo(() => crossPairs.slice(0, TOP_COUNT), [crossPairs]);
 
-  /** Current user's gender */
-  const currentMember = members.find((m) => m.userId === currentUserId);
-  const currentGender = currentMember?.gender;
-
-  /** "나와 가장 잘 맞는 이성" — best cross-gender pair involving currentUserId */
-  const myBestMatch = useMemo(() => {
-    if (!currentGender) {
-      return null;
+  /** WORST 3 cross-gender pairs (lowest matchRate) */
+  const worst3 = useMemo(() => {
+    if (crossPairs.length <= TOP_COUNT) {
+      return [];
     }
-    const myPairs = crossPairs.filter(
-      (p) => p.memberA === currentUserId || p.memberB === currentUserId
-    );
-    if (myPairs.length === 0) {
-      return null;
-    }
-    const best = myPairs[0]; // already sorted desc
-    const isA = best.memberA === currentUserId;
-    return {
-      myNickname: isA ? best.nicknameA : best.nicknameB,
-      myId: currentUserId,
-      targetId: isA ? best.memberB : best.memberA,
-      targetNickname: isA ? best.nicknameB : best.nicknameA,
-      matchRate: best.matchRate,
-    };
-  }, [crossPairs, currentUserId, currentGender]);
+    return crossPairs.slice(-TOP_COUNT).reverse();
+  }, [crossPairs]);
 
   // If either gender group is empty, don't render
   if (maleMembers.length === 0 || femaleMembers.length === 0) {
@@ -87,7 +59,7 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
 
   const getGradient = (userId: string) => {
     const index = members.findIndex((m) => m.userId === userId);
-    return AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length];
+    return getGradientByIndex(index);
   };
 
   const getGenderOfUser = (userId: string): 'MALE' | 'FEMALE' | undefined => {
@@ -110,6 +82,7 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
         femaleId: pair.memberB,
         femaleNickname: pair.nicknameB,
         matchRate: pair.matchRate,
+        matchCount: pair.matchCount,
       };
     }
     return {
@@ -118,7 +91,53 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
       femaleId: pair.memberA,
       femaleNickname: pair.nicknameA,
       matchRate: pair.matchRate,
+      matchCount: pair.matchCount,
     };
+  };
+
+  const renderCard = (pair: PairChemistry, i: number, variant: 'best' | 'worst') => {
+    const normalized = normalizePair(pair);
+    const grade = getChemistryByRate(pair.matchRate);
+    return (
+      <div key={`${normalized.maleId}-${normalized.femaleId}`} className={styles.topCard}>
+        <span className={variant === 'best' ? styles.topRank : styles.worstRank}>{i + 1}</span>
+        <div className={styles.pairAvatars}>
+          <div className={styles.pairAvatarLeft}>
+            <div
+              className={styles.topAvatar}
+              style={{ background: getGradient(normalized.maleId) }}
+            >
+              {normalized.maleNickname[0]}
+            </div>
+            <span className={styles.topGenderBadgeMale}>
+              <MaleIcon size={8} />
+            </span>
+          </div>
+          <div className={styles.pairAvatarRight}>
+            <div
+              className={styles.topAvatar}
+              style={{ background: getGradient(normalized.femaleId) }}
+            >
+              {normalized.femaleNickname[0]}
+            </div>
+            <span className={styles.topGenderBadgeFemale}>
+              <FemaleIcon size={8} />
+            </span>
+          </div>
+        </div>
+        <div className={styles.topInfo}>
+          <span className={styles.topNames}>
+            {normalized.maleNickname} & {normalized.femaleNickname}
+          </span>
+          <span className={styles.topGradeText}>
+            {grade.grade} &middot; {grade.title}
+          </span>
+        </div>
+        <span className={variant === 'best' ? styles.topGradeBadge : styles.worstGradeBadge}>
+          {grade.grade}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -136,102 +155,21 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({
         <span className={styles.genderBadgeFemale}>여 {femaleMembers.length}명</span>
       </div>
 
-      {/* 나의 이성 베스트 매치 */}
-      {myBestMatch && (
-        <div className={styles.myBestSection}>
-          <span className={styles.myBestLabel}>나의 이성 베스트 매치</span>
-          <div className={styles.myBestCard}>
-            {/* My avatar (left) */}
-            <div className={styles.myBestAvatarWrap}>
-              <div
-                className={styles.myBestAvatar}
-                style={{ background: getGradient(myBestMatch.myId) }}
-              >
-                {myBestMatch.myNickname[0]}
-              </div>
-              <span
-                className={
-                  currentGender === 'MALE' ? styles.genderIconMale : styles.genderIconFemale
-                }
-              >
-                {currentGender === 'MALE' ? '\u2642' : '\u2640'}
-              </span>
-              <span className={styles.myBestName}>{myBestMatch.myNickname}</span>
-            </div>
+      {/* 그룹 이성 궁합 BEST 3 */}
+      <div className={styles.topSection}>
+        <span className={styles.topLabel}>그룹 이성 궁합 BEST 3</span>
+        <div className={styles.topList}>{best3.map((pair, i) => renderCard(pair, i, 'best'))}</div>
+      </div>
 
-            {/* Match rate center */}
-            <div className={styles.myBestCenter}>
-              <span className={styles.myBestRate}>{myBestMatch.matchRate}</span>
-              <span className={styles.myBestUnit}>%</span>
-              <span className={styles.myBestGrade}>
-                {getChemistryByRate(myBestMatch.matchRate).title}
-              </span>
-            </div>
-
-            {/* Target avatar (right) */}
-            <div className={styles.myBestAvatarWrap}>
-              <div
-                className={styles.myBestAvatar}
-                style={{ background: getGradient(myBestMatch.targetId) }}
-              >
-                {myBestMatch.targetNickname[0]}
-              </div>
-              <span
-                className={
-                  currentGender === 'MALE' ? styles.genderIconFemale : styles.genderIconMale
-                }
-              >
-                {currentGender === 'MALE' ? '\u2640' : '\u2642'}
-              </span>
-              <span className={styles.myBestName}>{myBestMatch.targetNickname}</span>
-            </div>
+      {/* 그룹 이성 궁합 WORST 3 */}
+      {worst3.length > 0 && (
+        <div className={styles.topSection}>
+          <span className={styles.worstLabel}>그룹 이성 궁합 WORST 3</span>
+          <div className={styles.topList}>
+            {worst3.map((pair, i) => renderCard(pair, i, 'worst'))}
           </div>
         </div>
       )}
-
-      {/* 그룹 이성 궁합 TOP 3 */}
-      <div className={styles.topSection}>
-        <span className={styles.topLabel}>그룹 이성 궁합 TOP 3</span>
-        <div className={styles.topList}>
-          {top3.map((pair, i) => {
-            const normalized = normalizePair(pair);
-            const grade = getChemistryByRate(pair.matchRate);
-            return (
-              <div key={`${normalized.maleId}-${normalized.femaleId}`} className={styles.topCard}>
-                <span className={styles.topRank}>{i + 1}</span>
-                {/* Male avatar (left) */}
-                <div
-                  className={styles.topAvatar}
-                  style={{ background: getGradient(normalized.maleId) }}
-                >
-                  {normalized.maleNickname[0]}
-                </div>
-                <span className={styles.topGenderIconMale}>{'\u2642'}</span>
-                <div className={styles.topInfo}>
-                  <span className={styles.topNames}>
-                    {normalized.maleNickname} & {normalized.femaleNickname}
-                  </span>
-                  <span className={styles.topGrade}>
-                    {grade.grade} &middot; {grade.title}
-                  </span>
-                </div>
-                <span className={styles.topGenderIconFemale}>{'\u2640'}</span>
-                {/* Female avatar (right) */}
-                <div
-                  className={styles.topAvatar}
-                  style={{ background: getGradient(normalized.femaleId) }}
-                >
-                  {normalized.femaleNickname[0]}
-                </div>
-                <div className={styles.topRate}>
-                  <span className={styles.topRateValue}>{pair.matchRate}</span>
-                  <span className={styles.topRateUnit}>%</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 };

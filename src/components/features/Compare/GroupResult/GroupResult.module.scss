@@ -4,8 +4,8 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 24px) $spacing-16 calc($spacing-48 + 80px);
-  gap: 36px;
+  padding: calc(56px + 16px) $spacing-16 64px;
+  gap: 28px;
   width: 100%;
 }
 
@@ -25,10 +25,10 @@
 }
 
 .groupName {
-  font-size: $font-size-24;
+  font-size: $font-size-22;
   font-weight: 700;
   color: $white;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .editButton {
@@ -67,7 +67,7 @@
   @include flex-column;
   align-items: center;
   gap: 2px;
-  margin-top: 12px;
+  margin-top: 6px;
 }
 
 .syncLabel {
@@ -76,11 +76,11 @@
 }
 
 .syncValue {
-  font-size: 48px;
+  font-size: $font-size-36;
   font-weight: 700;
   color: $white;
   line-height: 1;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
 }
 
 .syncUnit {
@@ -92,8 +92,8 @@
   display: flex;
   align-items: center;
   gap: 0;
-  margin-top: 16px;
-  padding: 10px 24px;
+  margin-top: 10px;
+  padding: 8px 20px;
   background: rgba(#fff, 0.04);
   border: 1px solid rgba(#fff, 0.06);
   border-radius: $border-rounded;
@@ -126,11 +126,62 @@
   flex-shrink: 0;
 }
 
+.syncTierHigh,
+.syncTierMid,
+.syncTierLow {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: $border-rounded;
+  margin-top: 4px;
+}
+
+.syncTierHigh {
+  color: #66bb6a;
+  background: rgba(#66bb6a, 0.1);
+}
+
+.syncTierMid {
+  color: $text-tertiary;
+  background: rgba(#fff, 0.06);
+}
+
+.syncTierLow {
+  color: #ff6b9d;
+  background: rgba(#ff6b9d, 0.1);
+}
+
+// ─── heroStats 내 싱크로율 태그 ───
+.syncTagHigh,
+.syncTagMid,
+.syncTagLow {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.syncTagHigh {
+  color: #66bb6a;
+}
+
+.syncTagMid {
+  color: $text-tertiary;
+}
+
+.syncTagLow {
+  color: #ff6b9d;
+}
+
+.syncTagAccent {
+  color: $white;
+  font-weight: 700;
+}
+
 .ctaSection {
   @include flex-column;
   gap: 12px;
   width: 100%;
-  padding-top: 8px;
 }
 
 .secondaryCta {
@@ -190,16 +241,12 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 14px;
-  height: 14px;
-  margin: -7px 0 0 -7px;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
   border-radius: 50%;
-  background: rgba(#fff, 0.25);
-  animation:
-    orbitSpin 3s linear infinite,
-    dotFade 3s ease-in-out infinite;
+  animation: orbitSpin 3s linear infinite;
   animation-delay: calc(var(--i) * -0.6s);
-  transform-origin: 0 0;
 
   &:nth-child(1) {
     background: #ff00ff;
@@ -225,20 +272,6 @@
   to {
     transform: rotate(calc(var(--i) * 72deg + 360deg)) translateX(44px)
       rotate(calc(var(--i) * -72deg - 360deg));
-  }
-}
-
-@keyframes dotFade {
-  0%,
-  100% {
-    opacity: 0.4;
-    transform: rotate(calc(var(--i) * 72deg)) translateX(44px) rotate(calc(var(--i) * -72deg))
-      scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: rotate(calc(var(--i) * 72deg + 180deg)) translateX(44px)
-      rotate(calc(var(--i) * -72deg - 180deg)) scale(1.2);
   }
 }
 

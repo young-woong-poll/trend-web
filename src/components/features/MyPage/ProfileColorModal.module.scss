@@ -13,21 +13,23 @@
 }
 
 .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  justify-items: center;
   margin-bottom: 24px;
 }
 
 .colorButton {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 3px solid transparent;
+  border: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
+    outline-color 0.2s ease,
     transform 0.2s ease;
 
   &:hover {
@@ -36,7 +38,7 @@
 }
 
 .selected {
-  border-color: $white;
+  outline-color: $white;
 }
 
 .saveButton {

@@ -5,16 +5,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FC } fr
 import { createPortal } from 'react-dom';
 
 import styles from '@/components/features/Compare/GroupResult/PickASide.module.scss';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { GroupCompareResult } from '@/types/group-compare';
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 interface StackMember {
   userId: string;
@@ -24,6 +16,7 @@ interface StackMember {
 
 interface PickASideProps {
   result: GroupCompareResult;
+  currentUserId: string;
 }
 
 /** 의견 쏠림 태그 판정 */
@@ -130,7 +123,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
             key={m.userId}
             className={styles.stackCircle}
             style={{
-              background: AVATAR_GRADIENTS[m.memberIndex % AVATAR_GRADIENTS.length],
+              background: getGradientByIndex(m.memberIndex),
               zIndex: MAX_SHOW - i,
             }}
           >
@@ -153,7 +146,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
                 <div
                   className={styles.stackTooltipCircle}
                   style={{
-                    background: AVATAR_GRADIENTS[m.memberIndex % AVATAR_GRADIENTS.length],
+                    background: getGradientByIndex(m.memberIndex),
                   }}
                 >
                   {m.nickname[0]}
@@ -168,7 +161,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
   );
 };
 
-export const PickASide: FC<PickASideProps> = ({ result }) => {
+export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -205,7 +198,8 @@ export const PickASide: FC<PickASideProps> = ({ result }) => {
               userId: m.userId,
               nickname: m.displayName ?? m.nickname,
               memberIndex: getMemberIndex(m.userId),
-            }));
+            }))
+            .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 
           const stackB: StackMember[] = result.members
             .filter((m) =>
@@ -215,7 +209,8 @@ export const PickASide: FC<PickASideProps> = ({ result }) => {
               userId: m.userId,
               nickname: m.displayName ?? m.nickname,
               memberIndex: getMemberIndex(m.userId),
-            }));
+            }))
+            .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 
           const tag = getOpinionTag(stackA.length, stackB.length);
 

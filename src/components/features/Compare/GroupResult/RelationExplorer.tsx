@@ -4,6 +4,7 @@ import { useState, useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/RelationExplorer.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
+import { getGradientByIndex } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
@@ -19,15 +20,6 @@ interface RelationExplorerProps {
   result: GroupCompareResult;
   pairs: PairChemistry[];
 }
-
-const AVATAR_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
-];
 
 export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, result, pairs }) => {
   const { members, questionStats } = result;
@@ -107,7 +99,7 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
 
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return idx >= 0 ? AVATAR_GRADIENTS[idx % AVATAR_GRADIENTS.length] : '#333';
+    return idx >= 0 ? getGradientByIndex(idx) : '#333';
   };
 
   const getNickname = (userId: string) => {
@@ -184,36 +176,25 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
         {questionComparison.map((q) => (
           <div key={q.electionId} className={styles.questionRow}>
             <div className={styles.questionTitle}>{q.title}</div>
-            <div className={styles.answerRow}>
-              {/* Person A 답변 */}
+            <div className={styles.answerVersus}>
               <div className={styles.answerSide}>
-                <div className={styles.answerAvatar} style={{ background: getGradient(personAId) }}>
-                  {getNickname(personAId)[0]}
-                </div>
                 <span
-                  className={`${styles.answerText} ${q.isMatch ? styles.answerMatch : styles.answerDiffer}`}
+                  className={`${styles.answerPill} ${q.isMatch ? styles.pillMatch : styles.pillLeft}`}
                 >
                   {q.selectedA ? getDisplayLabel(q.selectedA, q.optionA, q.optionB) : '-'}
                 </span>
               </div>
-
-              {/* 일치/불일치 배지 */}
-              <div
-                className={`${styles.badge} ${q.isMatch ? styles.badgeMatch : styles.badgeMismatch}`}
+              <span
+                className={`${styles.vsIcon} ${q.isMatch ? styles.vsMatch : styles.vsMismatch}`}
               >
-                {q.isMatch ? '일치' : '불일치'}
-              </div>
-
-              {/* Person B 답변 */}
-              <div className={`${styles.answerSide} ${styles.answerSideRight}`}>
+                {q.isMatch ? '=' : 'VS'}
+              </span>
+              <div className={styles.answerSide}>
                 <span
-                  className={`${styles.answerText} ${q.isMatch ? styles.answerMatch : styles.answerDiffer}`}
+                  className={`${styles.answerPill} ${q.isMatch ? styles.pillMatch : styles.pillRight}`}
                 >
                   {q.selectedB ? getDisplayLabel(q.selectedB, q.optionA, q.optionB) : '-'}
                 </span>
-                <div className={styles.answerAvatar} style={{ background: getGradient(personBId) }}>
-                  {getNickname(personBId)[0]}
-                </div>
               </div>
             </div>
           </div>

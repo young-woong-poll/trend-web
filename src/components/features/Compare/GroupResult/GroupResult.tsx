@@ -21,6 +21,7 @@ import styles from '@/components/features/Compare/GroupResult/GroupResult.module
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
 import { RelationExplorer } from '@/components/features/Compare/GroupResult/RelationExplorer';
+import { GENDER_CATEGORIES } from '@/constants/bundle';
 import { calcAllPairChemistry, calcGroupAwards } from '@/constants/group-compare';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -158,7 +159,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  const currentUserId = 'mock-user-1';
+  const currentUserId = result.myUserId;
 
   // ─── 비멤버 CTA 핸들러 ───
   const groupResultUrl = `/compare/group/${token}`;
@@ -237,11 +238,30 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
               <span className={styles.heroStatLabel}>질문</span>
               <span className={styles.heroStatValue}>{result.totalQuestions}</span>
             </div>
+            <div className={styles.heroStatDivider} />
+            <span
+              className={
+                result.groupSyncRate >= 60
+                  ? styles.syncTagHigh
+                  : result.groupSyncRate >= 40
+                    ? styles.syncTagMid
+                    : styles.syncTagLow
+              }
+            >
+              {'싱크로율 '}
+              <span className={styles.syncTagAccent}>
+                {result.groupSyncRate >= 60 ? '높음' : result.groupSyncRate >= 40 ? '보통' : '낮음'}
+              </span>
+            </span>
           </div>
         </div>
 
         {displayResult.members.length < NETWORK_THRESHOLD ? (
-          <ChemistryNetwork members={displayResult.members} pairs={pairs} />
+          <ChemistryNetwork
+            currentUserId={currentUserId}
+            members={displayResult.members}
+            pairs={pairs}
+          />
         ) : (
           <ChemistryRanking
             currentUserId={currentUserId}
@@ -249,18 +269,22 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             pairs={pairs}
           />
         )}
-        <PickASide result={displayResult} />
-        <PopularitySpectrum result={displayResult} />
-        <GroupAwards awards={awards} />
+        <PickASide result={displayResult} currentUserId={currentUserId} />
+        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
+        <GroupAwards awards={awards} currentUserId={currentUserId} />
         <RelationExplorer currentUserId={currentUserId} result={displayResult} pairs={pairs} />
 
-        {/* ─── 성별/연령 기반 프로토타입 ─── */}
-        <CrossGenderChemistry
-          currentUserId={currentUserId}
-          members={displayResult.members}
-          pairs={pairs}
-        />
-        <GenderBattle result={displayResult} />
+        {/* ─── 성별 기반 (연애/결혼 카테고리 전용) ─── */}
+        {displayResult.categoryCode && GENDER_CATEGORIES.includes(displayResult.categoryCode) && (
+          <>
+            <CrossGenderChemistry
+              currentUserId={currentUserId}
+              members={displayResult.members}
+              pairs={pairs}
+            />
+            <GenderBattle result={displayResult} />
+          </>
+        )}
 
         {isMember && (
           <div className={styles.ctaSection}>

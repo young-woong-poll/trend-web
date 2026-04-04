@@ -116,20 +116,14 @@
   justify-content: center;
 }
 
-.genderIcon {
-  font-size: $font-size-14;
-  font-weight: 700;
-  line-height: 1;
-}
-
-// Male icon color
-.genderRow:first-of-type .genderIcon {
+.genderIconMale {
   color: #4fc3f7;
+  flex-shrink: 0;
 }
 
-// Female icon color
-.genderRow:last-of-type .genderIcon {
+.genderIconFemale {
   color: #ff6b9d;
+  flex-shrink: 0;
 }
 
 .barArea {

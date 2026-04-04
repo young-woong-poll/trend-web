@@ -7,6 +7,7 @@ import { getChemistryByRate } from '@/constants/bundle';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface ChemistryNetworkProps {
+  currentUserId: string;
   members: Array<{ userId: string; nickname: string }>;
   pairs: PairChemistry[];
 }
@@ -81,7 +82,16 @@ const GRADE_DESCRIPTIONS = [
   { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
 ];
 
-export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) => {
+export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, members, pairs }) => {
+  // "나"를 12시 방향(index 0)에 고정
+  const sortedMembers = useMemo(() => {
+    const myIdx = members.findIndex((m) => m.userId === currentUserId);
+    if (myIdx <= 0) {
+      return members;
+    }
+    return [members[myIdx], ...members.slice(0, myIdx), ...members.slice(myIdx + 1)];
+  }, [members, currentUserId]);
+
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showGradeInfo, setShowGradeInfo] = useState(false);
   const gradeInfoRef = useRef<HTMLDivElement>(null);
@@ -105,8 +115,8 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
   }, [showGradeInfo]);
 
   const positions = useMemo(
-    () => members.map((_, i) => getCirclePosition(i, members.length)),
-    [members.length]
+    () => sortedMembers.map((_, i) => getCirclePosition(i, sortedMembers.length)),
+    [sortedMembers]
   );
 
   const pairsWithTier = useMemo(
@@ -193,8 +203,8 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
       <div className={styles.networkCanvas}>
         <svg className={styles.svgLayer} viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
           {pairsWithTier.map((pair) => {
-            const idxA = members.findIndex((m) => m.userId === pair.memberA);
-            const idxB = members.findIndex((m) => m.userId === pair.memberB);
+            const idxA = sortedMembers.findIndex((m) => m.userId === pair.memberA);
+            const idxB = sortedMembers.findIndex((m) => m.userId === pair.memberB);
             if (idxA === -1 || idxB === -1) {
               return null;
             }
@@ -245,7 +255,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
           })}
         </svg>
 
-        {members.map((member, i) => {
+        {sortedMembers.map((member, i) => {
           const pos = positions[i];
           const active = isNodeActive(member.userId);
           const isSelected = selectedUserId === member.userId;
@@ -272,7 +282,12 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
               >
                 {member.nickname[0]}
               </div>
-              <span className={styles.nodeName}>{truncateName(member.nickname)}</span>
+              <span className={styles.nodeName}>
+                {truncateName(member.nickname)}
+                {member.userId === currentUserId && (
+                  <span className={styles.nicknameBadgeMe}>나</span>
+                )}
+              </span>
             </button>
           );
         })}

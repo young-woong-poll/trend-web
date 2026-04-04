@@ -2,6 +2,8 @@
 
 import { useMemo, type FC } from 'react';
 
+import FemaleIcon from '@/assets/icon/FemaleIcon';
+import MaleIcon from '@/assets/icon/MaleIcon';
 import styles from '@/components/features/Compare/GroupResult/GenderBattle.module.scss';
 import type { GroupCompareResult } from '@/types/group-compare';
 
@@ -67,6 +69,21 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
     return stats.sort((a, b) => b.genderGap - a.genderGap);
   }, [result.members, result.questionStats]);
 
+  const genderComment = useMemo(() => {
+    if (!sortedQuestions || sortedQuestions.length === 0) {
+      return null;
+    }
+    const avgGap =
+      sortedQuestions.reduce((sum, q) => sum + q.genderGap, 0) / sortedQuestions.length;
+    if (avgGap >= 30) {
+      return '이 그룹은 남녀 의견이 꽤 갈리는 편';
+    }
+    if (avgGap >= 15) {
+      return '남녀 의견 차이가 적당히 있는 편';
+    }
+    return '남녀 생각이 비슷한 그룹';
+  }, [sortedQuestions]);
+
   if (!sortedQuestions) {
     return null;
   }
@@ -78,7 +95,7 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
         <div className={styles.sectionLine} />
       </div>
 
-      <p className={styles.subtitle}>남녀 의견이 가장 갈리는 질문 순서</p>
+      {genderComment && <p className={styles.subtitle}>{genderComment}</p>}
 
       <div className={styles.questionList}>
         {sortedQuestions.map((q) => (
@@ -94,7 +111,7 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
             {/* Male row */}
             <div className={styles.genderRow}>
               <div className={styles.genderLabel}>
-                <span className={styles.genderIcon}>♂</span>
+                <MaleIcon size={14} className={styles.genderIconMale} />
               </div>
               <div className={styles.barArea}>
                 <div className={styles.barLabels}>
@@ -115,7 +132,7 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
             {/* Female row */}
             <div className={styles.genderRow}>
               <div className={styles.genderLabel}>
-                <span className={styles.genderIcon}>♀</span>
+                <FemaleIcon size={14} className={styles.genderIconFemale} />
               </div>
               <div className={styles.barArea}>
                 <div className={styles.barLabels}>

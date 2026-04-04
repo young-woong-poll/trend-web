@@ -1,5 +1,7 @@
 // src/types/bundle.ts
 
+import type { CategoryCode } from '@/types/hotpick';
+
 /**
  * 번들 상세 (인트로 페이지용)
  * 서버 응답을 그대로 사용하는 타입
@@ -11,6 +13,8 @@ export interface BundleDetail {
   subtitle: string;
   description: string;
   category: string;
+  /** 카테고리 코드 (싱글 핫픽과 동일한 코드 체계) */
+  categoryCode?: CategoryCode;
   questionCount: number;
   status: 'ACTIVE' | 'CLOSED';
   imageUrl?: string;

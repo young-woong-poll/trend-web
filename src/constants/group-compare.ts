@@ -206,7 +206,7 @@ const AWARD_META: Record<GroupAwardType, { title: string; description: string; o
     },
     PEOPLES_CHAMPION: {
       title: '대중의 왕',
-      description: '전체 투표에서 다수 의견을 가장 많이 고른 사람',
+      description: '핫픽 전체 유저 대비 다수 의견을 가장 많이 고른 사람',
       oneLiner: '세상이 어떻게 돌아가는지 정확히 아는 사람',
     },
   };
@@ -278,9 +278,8 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
     value: worstPair.matchRate,
   });
 
-  // 5. CONTROVERSY_MAKER: 그룹 내에서 소수 의견을 가장 많이 고른 멤버
-  let maxMinorityCount = -1;
-  let controversyMaker = members[0];
+  // 5. CONTROVERSY_MAKER: 그룹 내에서 소수 의견을 가장 많이 고른 멤버 (동점자 포함)
+  const minorityScores: { member: (typeof members)[0]; count: number }[] = [];
   for (const m of members) {
     let minorityCount = 0;
     for (const stat of questionStats) {
@@ -301,34 +300,31 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
         minorityCount++;
       }
     }
-    if (minorityCount > maxMinorityCount) {
-      maxMinorityCount = minorityCount;
-      controversyMaker = m;
-    }
+    minorityScores.push({ member: m, count: minorityCount });
   }
+  const maxMinorityCount = Math.max(...minorityScores.map((s) => s.count));
+  const controversyWinners = minorityScores.filter((s) => s.count === maxMinorityCount);
   awards.push({
     ...AWARD_META.CONTROVERSY_MAKER,
     type: 'CONTROVERSY_MAKER',
-    winners: [controversyMaker.userId],
-    winnerNicknames: [controversyMaker.nickname],
+    winners: controversyWinners.map((w) => w.member.userId),
+    winnerNicknames: controversyWinners.map((w) => w.member.nickname),
     value: maxMinorityCount,
   });
 
-  // 6. PEOPLES_CHAMPION: 대중성 지수 최고
-  let maxPopularity = -1;
-  let champion = members[0];
+  // 6. PEOPLES_CHAMPION: 대중성 지수 최고 (동점자 포함)
+  const popularityScores: { member: (typeof members)[0]; score: number }[] = [];
   for (const m of members) {
     const score = calcPopularityScoreFromRate(m.answers, questionStats);
-    if (score > maxPopularity) {
-      maxPopularity = score;
-      champion = m;
-    }
+    popularityScores.push({ member: m, score });
   }
+  const maxPopularity = Math.max(...popularityScores.map((s) => s.score));
+  const championWinners = popularityScores.filter((s) => s.score === maxPopularity);
   awards.push({
     ...AWARD_META.PEOPLES_CHAMPION,
     type: 'PEOPLES_CHAMPION',
-    winners: [champion.userId],
-    winnerNicknames: [champion.nickname],
+    winners: championWinners.map((w) => w.member.userId),
+    winnerNicknames: championWinners.map((w) => w.member.nickname),
     value: maxPopularity,
   });
 
