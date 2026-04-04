@@ -19,52 +19,52 @@ export interface ChemistryInfo {
 export const CHEMISTRY_GRADES: ChemistryInfo[] = [
   {
     grade: 'S',
-    title: '소울메이트',
-    description: '전생에 한 몸이었나? 생각이 이렇게 같을 수가',
+    title: '말 안 해도 통하는',
+    description: '생각이 이렇게 같을 수가',
     gradient: 'linear-gradient(135deg, #FFD700, #FFA500)',
     imagePath: null,
   },
   {
     grade: 'A',
-    title: '찰떡궁합',
+    title: '꽤 잘 맞는',
     description: '대부분 통하는데, 가끔 깜짝 놀랄 포인트가!',
     gradient: 'linear-gradient(135deg, #FF00FF, #8B5CF6)',
     imagePath: null,
   },
   {
     grade: 'B',
-    title: '밀당 케미',
+    title: '같을 때도 다를 때도',
     description: '반은 같고 반은 다르고, 이게 진짜 케미 아닐까?',
     gradient: 'linear-gradient(135deg, #FF6B35, #FF00FF)',
     imagePath: null,
   },
   {
     grade: 'C',
-    title: '반전 매력',
+    title: '각자의 세계',
     description: '다른 점이 더 많아서 오히려 재밌는 사이',
     gradient: 'linear-gradient(135deg, #4FC3F7, #00BCD4)',
     imagePath: null,
   },
   {
     grade: 'D',
-    title: '평행우주',
-    description: '같은 세상 살고 있는 거 맞아? 그래도 그게 매력!',
+    title: '정반대의 가치관',
+    description: '같은 세상 살고 있는 거 맞아? 오히려 흥미로운!',
     gradient: 'linear-gradient(135deg, #66BB6A, #00BCD4)',
     imagePath: null,
   },
 ];
 
 export function getChemistryByRate(matchRate: number): ChemistryInfo {
-  if (matchRate >= 90) {
+  if (matchRate >= 80) {
     return CHEMISTRY_GRADES[0];
   } // S
-  if (matchRate >= 70) {
+  if (matchRate >= 60) {
     return CHEMISTRY_GRADES[1];
   } // A
-  if (matchRate >= 50) {
+  if (matchRate >= 40) {
     return CHEMISTRY_GRADES[2];
   } // B
-  if (matchRate >= 30) {
+  if (matchRate >= 20) {
     return CHEMISTRY_GRADES[3];
   } // C
   return CHEMISTRY_GRADES[4]; // D

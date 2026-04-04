@@ -59,7 +59,7 @@
 .input {
   width: 100%;
   height: 48px;
-  padding: 0 48px 0 $spacing-16;
+  padding: 0 $spacing-16;
   background: $bg-tertiary;
   border: 1px solid #3a3a3a;
   border-radius: $border-radius-md;
@@ -95,6 +95,12 @@
   &:hover {
     color: $text-secondary;
   }
+}
+
+.helperText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: $spacing-4;
 }
 
 .errorText {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -11,10 +11,10 @@ import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { submitSignup } from '@/hooks/api/useAuthApi';
-import { checkNicknameAvailability, getSuggestedNickname } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
+import { validateNickname } from '@/lib/utils';
 
 type Gender = 'male' | 'female' | null;
 
@@ -120,7 +120,6 @@ const SignupForm = () => {
   }, [isAuthorized, router]);
 
   const [gender, setGender] = useState<Gender>(null);
-  const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMigration, setShowMigration] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
@@ -128,7 +127,6 @@ const SignupForm = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     setError,
     clearErrors,
     watch,
@@ -137,45 +135,28 @@ const SignupForm = () => {
 
   const nicknameValue = watch('nickname');
 
-  const loadSuggestion = useCallback(() => {
-    const suggested = getSuggestedNickname();
-    setValue('nickname', suggested);
-    clearErrors('nickname');
-  }, [setValue, clearErrors]);
-
-  useEffect(() => {
-    loadSuggestion();
-  }, [loadSuggestion]);
-
-  const handleBlur = async () => {
+  const handleBlur = () => {
     if (!nicknameValue?.trim()) {
       return;
     }
-    setIsChecking(true);
-    try {
-      const available = await checkNicknameAvailability(nicknameValue.trim());
-      if (!available) {
-        setError('nickname', { message: '중복된 닉네임입니다' });
-      } else {
-        clearErrors('nickname');
-      }
-    } catch {
-      // 검사 실패 시 submit에서 재확인
-    } finally {
-      setIsChecking(false);
+    const result = validateNickname(nicknameValue);
+    if (!result.isValid) {
+      setError('nickname', { message: result.error });
+    } else {
+      clearErrors('nickname');
     }
   };
 
   const doSignup = async (data: SignupFormValues, withMigration?: boolean) => {
     const trimmed = data.nickname.trim();
+    const validation = validateNickname(trimmed);
+    if (!validation.isValid) {
+      setError('nickname', { message: validation.error });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const available = await checkNicknameAvailability(trimmed);
-      if (!available) {
-        setError('nickname', { message: '중복된 닉네임입니다' });
-        return;
-      }
-
       const tkuId = withMigration ? getTKUID() : undefined;
       const result = await submitSignup({
         nickname: trimmed,
@@ -241,19 +222,12 @@ const SignupForm = () => {
             <input
               {...register('nickname', { required: '닉네임을 입력해주세요' })}
               className={`${styles.input} ${errors.nickname ? styles.error : ''}`}
-              placeholder="닉네임 입력"
+              placeholder="나를 나타내는 이름을 입력해주세요"
               maxLength={20}
               onBlur={handleBlur}
             />
-            <button
-              type="button"
-              className={styles.refreshButton}
-              onClick={loadSuggestion}
-              aria-label="닉네임 재생성"
-            >
-              ↻
-            </button>
           </div>
+          <p className={styles.helperText}>친구들이 알아볼 수 있는 이름을 추천해요</p>
           {errors.nickname?.message && (
             <p className={styles.errorText}>{errors.nickname.message}</p>
           )}
@@ -343,7 +317,6 @@ const SignupForm = () => {
             className={styles.submitButton}
             disabled={
               isSubmitting ||
-              isChecking ||
               !nicknameValue?.trim() ||
               !gender ||
               !watch('birthYear') ||

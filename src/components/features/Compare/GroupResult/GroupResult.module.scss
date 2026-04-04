@@ -4,38 +4,70 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 32px) $spacing-16 calc($spacing-48 + 80px);
-  gap: 48px;
+  padding: calc(56px + 24px) $spacing-16 calc($spacing-48 + 80px);
+  gap: 36px;
   width: 100%;
 }
 
 .heroSection {
   @include flex-column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-align: center;
   width: 100%;
+}
+
+.groupNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .groupName {
   font-size: $font-size-24;
   font-weight: 700;
   color: $white;
+  margin-bottom: 2px;
+}
+
+.editButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: rgba(#fff, 0.05);
+    color: $white;
+  }
 }
 
 .bundleTitle {
-  font-size: $font-size-14;
-  color: $text-tertiary;
-  padding: 6px 14px;
-  background: $bg-tertiary;
+  font-size: $font-size-12;
+  color: $text-secondary;
+  padding: 4px 12px;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.08);
   border-radius: $border-rounded;
+  letter-spacing: 0.5px;
 }
 
 .syncRateDisplay {
   @include flex-column;
   align-items: center;
-  gap: 4px;
-  margin-top: 8px;
+  gap: 2px;
+  margin-top: 12px;
 }
 
 .syncLabel {
@@ -54,6 +86,44 @@
 .syncUnit {
   font-size: $font-size-18;
   color: $text-tertiary;
+}
+
+.heroStats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 16px;
+  padding: 10px 24px;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.06);
+  border-radius: $border-rounded;
+}
+
+.heroStat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 16px;
+}
+
+.heroStatValue {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: $white;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroStatLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  font-weight: 500;
+}
+
+.heroStatDivider {
+  width: 1px;
+  height: 16px;
+  background: rgba(#fff, 0.1);
+  flex-shrink: 0;
 }
 
 .ctaSection {
@@ -81,8 +151,185 @@
 .loading {
   @include flex-center;
   flex-direction: column;
-  gap: 16px;
+  gap: 32px;
   min-height: 60dvh;
-  color: $text-tertiary;
+}
+
+// ─── 로딩 애니메이션 ───
+.loadingOrbit {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.loadingCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: $primary-gradient;
+  animation: centerPulse 2s ease-in-out infinite;
+}
+
+@keyframes centerPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba($primary-start, 0.3);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 20px 4px rgba($primary-start, 0.15);
+  }
+}
+
+.loadingDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: rgba(#fff, 0.25);
+  animation:
+    orbitSpin 3s linear infinite,
+    dotFade 3s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.6s);
+  transform-origin: 0 0;
+
+  &:nth-child(1) {
+    background: #ff00ff;
+  }
+  &:nth-child(2) {
+    background: #4fc3f7;
+  }
+  &:nth-child(3) {
+    background: #ffd700;
+  }
+  &:nth-child(4) {
+    background: #66bb6a;
+  }
+  &:nth-child(5) {
+    background: #ff6b35;
+  }
+}
+
+@keyframes orbitSpin {
+  from {
+    transform: rotate(calc(var(--i) * 72deg)) translateX(44px) rotate(calc(var(--i) * -72deg));
+  }
+  to {
+    transform: rotate(calc(var(--i) * 72deg + 360deg)) translateX(44px)
+      rotate(calc(var(--i) * -72deg - 360deg));
+  }
+}
+
+@keyframes dotFade {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: rotate(calc(var(--i) * 72deg)) translateX(44px) rotate(calc(var(--i) * -72deg))
+      scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(calc(var(--i) * 72deg + 180deg)) translateX(44px)
+      rotate(calc(var(--i) * -72deg - 180deg)) scale(1.2);
+  }
+}
+
+.loadingTextGroup {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  animation: textFadeIn 0.6s ease-out 0.3s both;
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loadingTitle {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: $white;
+}
+
+.loadingSubtitle {
   font-size: $font-size-14;
+  color: $text-tertiary;
+  animation: subtitlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtitlePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+// ─── 대기 상태 (멤버 부족) ───
+.waitingContainer {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60dvh;
+  padding: 0 $spacing-24;
+  text-align: center;
+  gap: 12px;
+}
+
+.waitingSpinner {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+}
+
+.spinnerRing {
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(#fff, 0.08);
+  border-top-color: $text-tertiary;
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.waitingTitle {
+  font-size: $font-size-20;
+  font-weight: 700;
+  color: $white;
+}
+
+.waitingDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.6;
+}
+
+.waitingMemberCount {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  padding: 4px 12px;
+  background: rgba(#fff, 0.04);
+  border-radius: $border-rounded;
 }

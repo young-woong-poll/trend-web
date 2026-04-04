@@ -218,32 +218,38 @@ export function seedSecondUser() {
  */
 export function seedGroupUsers() {
   const slug = 'love-values';
+  // seedRatios=[85,25,78,30,72] 기준 대중성 점수 분포:
+  // user-3: 전부 대중 선택(A,B,A,B,A) → 85,75,78,70,72 → avg 76 (트렌드 여우)
+  // user-4: 전부 소신 선택(B,A,B,A,B) → 15,25,22,30,28 → avg 24 (유니콘)
+  // user-5: 대중 4개(A,B,A,B,B) → 85,75,78,70,28 → avg 67 (트렌드 여우)
+  // user-6: 소신 3개(B,A,B,A,A) → 15,25,22,30,72 → avg 33 (유니콘)
   const groupAnswers: Record<string, Array<{ electionId: string; selected: 'A' | 'B' }>> = {
+    // le-2: 전원 A → 만장일치, le-4: 4:1 → 압도적, le-1: 3:2 → 논쟁
     'mock-user-3': [
       { electionId: 'le-1', selected: 'A' },
-      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-2', selected: 'A' },
       { electionId: 'le-3', selected: 'A' },
       { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'B' },
+      { electionId: 'le-5', selected: 'A' },
     ],
     'mock-user-4': [
       { electionId: 'le-1', selected: 'B' },
-      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-2', selected: 'A' },
       { electionId: 'le-3', selected: 'B' },
       { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-5', selected: 'B' },
     ],
     'mock-user-5': [
       { electionId: 'le-1', selected: 'A' },
       { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'B' },
-      { electionId: 'le-4', selected: 'B' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'A' },
       { electionId: 'le-5', selected: 'B' },
     ],
     'mock-user-6': [
       { electionId: 'le-1', selected: 'B' },
       { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-3', selected: 'B' },
       { electionId: 'le-4', selected: 'A' },
       { electionId: 'le-5', selected: 'A' },
     ],
@@ -253,6 +259,39 @@ export function seedGroupUsers() {
     if (bundleAnswerStore.has(`${userId}_${slug}`)) {
       continue;
     }
+    recordBundleAnswers(userId, slug, answers);
+  }
+}
+
+/**
+ * 대인원 그룹 테스트용 유저 답변 시드
+ * mock-user-7 ~ mock-user-{6+count} 까지 love-values 랜덤 답변 생성
+ */
+export function seedLargeGroupUsers(count: number) {
+  const slug = 'love-values';
+  const electionIds = ['le-1', 'le-2', 'le-3', 'le-4', 'le-5'];
+
+  for (let i = 7; i < 7 + count; i++) {
+    const userId = `mock-user-${i}`;
+    if (bundleAnswerStore.has(`${userId}_${slug}`)) {
+      continue;
+    }
+    // 시드 기반 — 다양한 대중성 분포를 만들기 위해 유저마다 대중 선택 비율이 다름
+    // seedRatios=[85,25,78,30,72]에서 대중 선택: le-1→A, le-2→B, le-3→A, le-4→B, le-5→A
+    const popularChoices = ['A', 'B', 'A', 'B', 'A'];
+    const hash = i * 31;
+    const answers = electionIds.map((electionId, j) => {
+      // 유저별로 대중 선택 확률을 다르게 (0%~100%)
+      const threshold = (hash + j * 17) % 100;
+      const cutoff = (i % 5) * 25; // 0, 25, 50, 75, 100
+      const isPopular = threshold >= cutoff;
+      return {
+        electionId,
+        selected: (isPopular ? popularChoices[j] : popularChoices[j] === 'A' ? 'B' : 'A') as
+          | 'A'
+          | 'B',
+      };
+    });
     recordBundleAnswers(userId, slug, answers);
   }
 }

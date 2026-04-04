@@ -7,6 +7,7 @@ import {
   mockBundleElections,
   seedSecondUser,
   seedGroupUsers,
+  seedLargeGroupUsers,
 } from '@/mocks/data/bundles';
 import type { CompareLink, CompareResult, CreateCompareLinkResponse } from '@/types/compare';
 
@@ -124,14 +125,165 @@ const groupSeedLink: StoredCompareLink = {
   groupName: '마케팅팀',
   groupMembers: [
     { userId: 'mock-user-1', nickname: '웅이' },
-    { userId: 'mock-user-2', nickname: '수진' },
-    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-2', nickname: '날아다니는고양이수진' },
+    { userId: 'mock-user-3', nickname: '민수짱짱맨' },
     { userId: 'mock-user-4', nickname: '지은' },
-    { userId: 'mock-user-5', nickname: '현우' },
+    { userId: 'mock-user-5', nickname: '현우the베스트오브더월드' },
   ],
   isClosed: false,
 };
 compareLinkStore.set('group-abc', groupSeedLink);
+
+// group-empty: 그룹 비교 링크 — 생성자만 있고 아무도 참여하지 않은 상태
+const groupEmptyLink: StoredCompareLink = {
+  token: 'group-empty',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'WAITING',
+  groupName: '디자인팀',
+  groupMembers: [{ userId: 'mock-user-1', nickname: '웅이' }],
+  isClosed: false,
+};
+compareLinkStore.set('group-empty', groupEmptyLink);
+
+// group-new: 그룹 비교 링크 — 생성 직후, 생성자도 멤버에 없는 상태 (0명)
+const groupNewLink: StoredCompareLink = {
+  token: 'group-new',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'WAITING',
+  groupName: '신규 그룹',
+  groupMembers: [],
+  isClosed: false,
+};
+compareLinkStore.set('group-new', groupNewLink);
+
+// ─── 대인원 테스트 그룹 ───
+// 다양한 글자 수 닉네임 (2자 ~ 20자)
+const KOREAN_NAMES = [
+  '서연', // 2자
+  '용감한호랑이하준', // 8자
+  '지우', // 2자
+  '도윤이의일상기록', // 9자
+  '서윤', // 2자
+  '시우짱', // 3자
+  '하윤', // 2자
+  '예준thebest', // 10자
+  '지호', // 2자
+  '은우는야옹이를좋아합니다', // 13자
+  '유준', // 2자
+  '수아love', // 5자
+  '지유', // 2자
+  '행복한판다소율이', // 8자
+  '채원', // 2자
+  '예원이네', // 4자
+  '지민', // 2자
+  '하린하린하린', // 6자
+  '다은', // 2자
+  '날아다니는고양이시현123', // 13자
+  '준서', // 2자
+  '유진', // 2자
+  '하은', // 2자
+  '소윤소윤소윤소윤소윤소윤소윤이', // 16자
+  '채윤', // 2자
+  '예린스타', // 4자
+  '수빈', // 2자
+  '은서은서은서', // 6자
+  '유나', // 2자
+  '서현이는항상행복하게살고싶어요', // 16자
+  '지안', // 2자
+  '하영', // 2자
+  '민지', // 2자
+  '수현킹왕짱', // 5자
+  '다인', // 2자
+  '지원이의하루', // 6자
+  '은비', // 2자
+  '소정', // 2자
+  '하율', // 2자
+  '예지', // 2자
+  '재윤', // 2자
+  '시윤시윤', // 4자
+  '태현', // 2자
+  '도현', // 2자
+  '준혁이는공부중이에요지금', // 13자
+  '민서', // 2자
+  '하늘', // 2자
+  '유빈이의소소한일상', // 9자
+  '지훈', // 2자
+  '성민', // 2자
+];
+
+function buildLargeGroupMembers(count: number): Array<{ userId: string; nickname: string }> {
+  // 기존 5명 + 추가 멤버
+  const base = [
+    { userId: 'mock-user-1', nickname: '웅이' },
+    { userId: 'mock-user-2', nickname: '날아다니는고양이수진' },
+    { userId: 'mock-user-3', nickname: '민수짱짱맨' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우the베스트오브더월드' },
+  ];
+  const extra = Array.from({ length: count - 5 }, (_, i) => ({
+    userId: `mock-user-${7 + i}`,
+    nickname: KOREAN_NAMES[i % KOREAN_NAMES.length],
+  }));
+  return [...base, ...extra];
+}
+
+// 대인원 유저 답변 시드 (50명분)
+seedLargeGroupUsers(50);
+
+// group-10: 10명 그룹
+compareLinkStore.set('group-10', {
+  token: 'group-10',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '동아리',
+  groupMembers: buildLargeGroupMembers(10),
+  isClosed: false,
+});
+
+// group-20: 20명 그룹
+compareLinkStore.set('group-20', {
+  token: 'group-20',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '대학 동기',
+  groupMembers: buildLargeGroupMembers(20),
+  isClosed: false,
+});
+
+// group-50: 50명 그룹
+compareLinkStore.set('group-50', {
+  token: 'group-50',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '회사 전체',
+  groupMembers: buildLargeGroupMembers(50),
+  isClosed: false,
+});
 
 /** 토큰 생성 */
 function generateToken(): string {

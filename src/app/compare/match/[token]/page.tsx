@@ -9,11 +9,11 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-type ResultPageProps = {
+type MatchPageProps = {
   params: Promise<{ token: string }>;
 };
 
-export default async function CompareResultPage({ params }: ResultPageProps) {
+export default async function CompareMatchPage({ params }: MatchPageProps) {
   const { token } = await params;
 
   return (

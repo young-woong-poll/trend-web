@@ -43,6 +43,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const compareToken = searchParams.get('compareToken');
+  const returnUrl = searchParams.get('returnUrl');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
@@ -120,7 +121,9 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     try {
       await submitMutation.mutateAsync({ answers: answerData });
-      if (compareToken) {
+      if (returnUrl) {
+        router.push(returnUrl);
+      } else if (compareToken) {
         router.push(`/bundle/${slug}/result?compareToken=${compareToken}`);
       } else {
         router.push(`/bundle/${slug}/result`);

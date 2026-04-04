@@ -1,0 +1,280 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+// ─── 등급 설명 툴팁 ───
+.gradeInfoWrap {
+  position: relative;
+}
+
+.gradeInfoBtn {
+  all: unset;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-tertiary;
+  border: 1px solid rgba(#fff, 0.12);
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+    border-color: rgba(#fff, 0.3);
+  }
+}
+
+.gradeInfoTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: 220px;
+  padding: 12px;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: gradeInfoIn 0.15s ease-out;
+}
+
+@keyframes gradeInfoIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gradeInfoTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $white;
+}
+
+.gradeInfoSub {
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+.gradeInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradeInfoGrade {
+  font-size: $font-size-14;
+  font-weight: 700;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.gradeInfoRange {
+  font-size: 11px;
+  color: $text-secondary;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.gradeInfoLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  flex: 1;
+}
+
+// ─── 기준 멤버 셀렉터 ───
+.selectorRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(#1e1e1e, 0.6);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+}
+
+.selectorAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 12px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.15);
+  flex-shrink: 0;
+}
+
+.selector {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8a8a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0 center;
+  padding-right: 16px;
+
+  option {
+    background: #1e1e1e;
+    color: $white;
+  }
+}
+
+.selectorPrefix {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+// ─── 랭킹 섹션 ───
+.rankSection {
+  @include flex-column;
+  gap: 8px;
+}
+
+.rankLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #4fc3f7;
+  padding-left: 2px;
+}
+
+.rankLabelWorst {
+  color: #ff6b35;
+}
+
+.rankList {
+  @include flex-column;
+  gap: 6px;
+}
+
+.rankCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(#fff, 0.04);
+}
+
+.rankNumber {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: #4fc3f7;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rankNumberWorst {
+  color: #ff6b35;
+}
+
+.rankAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 13px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.15);
+  flex-shrink: 0;
+}
+
+.rankInfo {
+  @include flex-column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rankName {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankSub {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+.rankRate {
+  @include flex-column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.rankGradeLabel {
+  font-size: $font-size-20;
+  font-weight: 700;
+  color: $white;
+  line-height: 1;
+}
+
+.rankRateSub {
+  font-size: 11px;
+  color: $text-tertiary;
+}

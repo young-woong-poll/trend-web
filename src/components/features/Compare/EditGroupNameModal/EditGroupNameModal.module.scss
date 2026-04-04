@@ -1,0 +1,63 @@
+@use '@/styles/variables' as *;
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.title {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+}
+
+.description {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.4;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  color: $white;
+  font-size: $font-size-16;
+  outline: none;
+
+  &::placeholder {
+    color: $border-placeholder;
+  }
+
+  &:focus {
+    border-color: $text-tertiary;
+  }
+}
+
+.confirmButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: $font-size-16;
+  font-weight: 600;
+  color: $white;
+  cursor: pointer;
+  background: $primary-gradient;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

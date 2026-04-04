@@ -37,7 +37,7 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
     );
 
   const handleMemberClick = (targetUserId: string) => {
-    router.push(`/compare/${token}/result?targetUserId=${targetUserId}`);
+    router.push(`/compare/match/${token}?targetUserId=${targetUserId}`);
   };
 
   return (

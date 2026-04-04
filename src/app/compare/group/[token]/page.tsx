@@ -9,11 +9,11 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-type GroupResultPageProps = {
+type GroupPageProps = {
   params: Promise<{ token: string }>;
 };
 
-export default async function GroupResultPage({ params }: GroupResultPageProps) {
+export default async function GroupResultPage({ params }: GroupPageProps) {
   const { token } = await params;
 
   return (

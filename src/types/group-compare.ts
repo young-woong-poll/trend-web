@@ -13,6 +13,10 @@ export interface GroupCompareResult {
   members: Array<{
     userId: string;
     nickname: string;
+    /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname 사용 */
+    displayName?: string;
+    gender?: 'MALE' | 'FEMALE';
+    birthYear?: number;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 

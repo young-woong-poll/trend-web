@@ -86,10 +86,13 @@ export const useCreateCompareLink = (slug: string) =>
 
 export const useJoinCompareLink = (token: string) =>
   useMutation({
-    mutationFn: () =>
+    mutationFn: (displayName: string | undefined = undefined) =>
       customInstance({
         url: `/api/v1/compare-links/${token}/join`,
         method: 'POST',
+        ...(displayName
+          ? { data: { displayName }, headers: { 'Content-Type': 'application/json' } }
+          : {}),
       }),
   });
 
@@ -97,6 +100,17 @@ export const useGroupCompareResult = (token: string) =>
   useQuery({
     ...compareQueries.groupResult(token),
     enabled: !!token,
+  });
+
+export const useUpdateGroupName = (token: string) =>
+  useMutation({
+    mutationFn: (groupName: string) =>
+      customInstance({
+        url: `/api/v1/compare-links/${token}/group-name`,
+        method: 'PATCH',
+        data: { groupName },
+        headers: { 'Content-Type': 'application/json' },
+      }),
   });
 
 export const useCloseGroup = (token: string) =>

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo, type FC } from 'react';
+import { useState, useMemo, useRef, useEffect, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryNetwork.module.scss';
+import { getChemistryByRate } from '@/constants/bundle';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface ChemistryNetworkProps {
@@ -10,18 +11,18 @@ interface ChemistryNetworkProps {
   pairs: PairChemistry[];
 }
 
-/** 일치율 → 5단계 색상 (등급 라벨 없이 색만 사용) */
+/** 등급별 색상 (S~D, getChemistryByRate 기준과 동일) */
 type MatchTier = 0 | 1 | 2 | 3 | 4;
 
 const TIER_COLORS = [
-  '#FFD700', // 80%+ — gold
-  '#FF00FF', // 60~79% — magenta
-  '#FF6B35', // 40~59% — orange
-  '#4FC3F7', // 20~39% — sky blue
-  '#66BB6A', // 0~19% — green
+  '#3B82F6', // S (90%+)
+  '#22C55E', // A (70~89%)
+  '#FACC15', // B (50~69%)
+  '#F97316', // C (30~49%)
+  '#EF4444', // D (~29%)
 ];
 
-const TIER_LABELS = ['80%+', '60~79%', '40~59%', '20~39%', '~19%'];
+const TIER_GRADES = ['S', 'A', 'B', 'C', 'D'];
 
 function getMatchTier(matchRate: number): MatchTier {
   if (matchRate >= 80) {
@@ -39,9 +40,16 @@ function getMatchTier(matchRate: number): MatchTier {
   return 4;
 }
 
+/** 등급별 선 굵기 — 높은 등급일수록 굵게 */
 function getLineWidth(tier: MatchTier): number {
-  const widths: Record<MatchTier, number> = { 0: 4, 1: 3, 2: 2, 3: 1.5, 4: 1 };
+  const widths = [3, 2.5, 1.8, 1.2, 0.8];
   return widths[tier];
+}
+
+/** 등급별 기본 투명도 — 높은 등급일수록 진하게 */
+function getBaseOpacity(tier: MatchTier): number {
+  const opacities = [0.8, 0.6, 0.3, 0.12, 0.05];
+  return opacities[tier];
 }
 
 function getCirclePosition(index: number, total: number, radius: number = 38) {
@@ -52,19 +60,49 @@ function getCirclePosition(index: number, total: number, radius: number = 38) {
   };
 }
 
-const NODE_GRADIENTS = [
-  'linear-gradient(135deg, #ff00ff, #ff4500)',
-  'linear-gradient(135deg, #4FC3F7, #00BCD4)',
-  'linear-gradient(135deg, #FFD700, #FFA500)',
-  'linear-gradient(135deg, #66BB6A, #00BCD4)',
-  'linear-gradient(135deg, #8B5CF6, #EC4899)',
-  'linear-gradient(135deg, #FF6B35, #FF00FF)',
+const NODE_COLORS = [
+  { gradient: 'linear-gradient(135deg, #ff00ff, #ff4500)', primary: '#ff00ff' },
+  { gradient: 'linear-gradient(135deg, #4FC3F7, #00BCD4)', primary: '#4FC3F7' },
+  { gradient: 'linear-gradient(135deg, #FFD700, #FFA500)', primary: '#FFD700' },
+  { gradient: 'linear-gradient(135deg, #66BB6A, #00BCD4)', primary: '#66BB6A' },
+  { gradient: 'linear-gradient(135deg, #8B5CF6, #EC4899)', primary: '#8B5CF6' },
+  { gradient: 'linear-gradient(135deg, #FF6B35, #FF00FF)', primary: '#FF6B35' },
 ];
 
-const INACTIVE_COLOR = 'rgba(255, 255, 255, 0.08)';
+function truncateName(name: string, max: number = 5): string {
+  return name.length > max ? `${name.slice(0, max)}..` : name;
+}
+
+const GRADE_DESCRIPTIONS = [
+  { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는' },
+  { grade: 'A', range: '60~79%', title: '꽤 잘 맞는' },
+  { grade: 'B', range: '40~59%', title: '같을 때도 다를 때도' },
+  { grade: 'C', range: '20~39%', title: '각자의 세계' },
+  { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
+];
 
 export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showGradeInfo, setShowGradeInfo] = useState(false);
+  const gradeInfoRef = useRef<HTMLDivElement>(null);
+  const gradeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showGradeInfo) {
+      return;
+    }
+    const handleOutside = (e: MouseEvent) => {
+      if (gradeBtnRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      if (gradeInfoRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      setShowGradeInfo(false);
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [showGradeInfo]);
 
   const positions = useMemo(
     () => members.map((_, i) => getCirclePosition(i, members.length)),
@@ -85,9 +123,9 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
   };
 
   // 선택된 멤버와 연결된 쌍인지
-  const isPairActive = (pair: PairChemistry) => {
+  const isPairSelected = (pair: PairChemistry) => {
     if (!selectedUserId) {
-      return true;
+      return false;
     }
     return pair.memberA === selectedUserId || pair.memberB === selectedUserId;
   };
@@ -110,13 +148,46 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
   return (
     <div className={styles.container}>
       {/* 범례 */}
-      <div className={styles.legend}>
-        {TIER_COLORS.map((color, i) => (
-          <div key={i} className={styles.legendItem}>
-            <span className={styles.legendDot} style={{ background: color }} />
-            <span className={styles.legendLabel}>{TIER_LABELS[i]}</span>
-          </div>
-        ))}
+      <div className={styles.legendRow}>
+        <div className={styles.legend}>
+          {TIER_COLORS.map((color, i) => (
+            <div key={i} className={styles.legendItem}>
+              <span className={styles.legendDot} style={{ background: color }} />
+              <span className={styles.legendLabel} style={{ color }}>
+                {TIER_GRADES[i]}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className={styles.gradeInfoWrap}>
+          <button
+            ref={gradeBtnRef}
+            type="button"
+            className={styles.gradeInfoBtn}
+            onClick={() => setShowGradeInfo((v) => !v)}
+            aria-label="등급 기준 보기"
+          >
+            ?
+          </button>
+          {showGradeInfo && (
+            <div ref={gradeInfoRef} className={styles.gradeInfoTooltip}>
+              <span className={styles.gradeInfoTitle}>등급 기준</span>
+              <span className={styles.gradeInfoSub}>그룹 멤버 간 답변 일치율로 산출</span>
+              {GRADE_DESCRIPTIONS.map((g) => (
+                <div key={g.grade} className={styles.gradeInfoRow}>
+                  <span
+                    className={styles.gradeInfoGrade}
+                    style={{ color: TIER_COLORS[TIER_GRADES.indexOf(g.grade)] }}
+                  >
+                    {g.grade}
+                  </span>
+                  <span className={styles.gradeInfoRange}>{g.range}</span>
+                  <span className={styles.gradeInfoLabel}>{g.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.networkCanvas}>
@@ -130,7 +201,17 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
 
             const posA = positions[idxA];
             const posB = positions[idxB];
-            const active = isPairActive(pair);
+            const selected = isPairSelected(pair);
+
+            // 선택 모드: 선택된 멤버 연결은 진하게, 나머지는 거의 숨김
+            // 기본 모드: 등급별 투명도 차등
+            const opacity = selectedUserId ? (selected ? 0.8 : 0.03) : getBaseOpacity(pair.tier);
+
+            const width = selectedUserId
+              ? selected
+                ? getLineWidth(pair.tier) * 0.4
+                : 0.2
+              : getLineWidth(pair.tier) * 0.3;
 
             return (
               <g key={`${pair.memberA}-${pair.memberB}`}>
@@ -139,14 +220,14 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
                   y1={posA.y}
                   x2={posB.x}
                   y2={posB.y}
-                  stroke={active ? TIER_COLORS[pair.tier] : INACTIVE_COLOR}
-                  strokeWidth={getLineWidth(pair.tier) * 0.3}
-                  strokeOpacity={active ? 0.7 : 0.2}
+                  stroke={TIER_COLORS[pair.tier]}
+                  strokeWidth={width}
+                  strokeOpacity={opacity}
                   strokeLinecap="round"
-                  style={{ transition: 'stroke 0.3s, stroke-opacity 0.3s' }}
+                  style={{ transition: 'stroke-opacity 0.3s, stroke-width 0.3s' }}
                 />
-                {/* 연결선 중간에 일치율 표시 (활성 상태에서만) */}
-                {active && selectedUserId && (
+                {/* 연결선 중간에 일치율 표시 (선택 상태에서만) */}
+                {selected && selectedUserId && (
                   <text
                     x={(posA.x + posB.x) / 2}
                     y={(posA.y + posB.y) / 2 - 1.5}
@@ -156,7 +237,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
                     fontWeight="700"
                     style={{ pointerEvents: 'none' }}
                   >
-                    {pair.matchRate}%
+                    {getChemistryByRate(pair.matchRate).grade}
                   </text>
                 )}
               </g>
@@ -173,27 +254,35 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ members, pairs }) 
             <button
               key={member.userId}
               type="button"
-              className={`${styles.memberNode} ${isSelected ? styles.selected : ''} ${!active ? styles.inactive : ''}`}
-              style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+              className={`${styles.memberNode} ${isSelected ? styles.selected : ''} ${!active ? styles.inactive : ''} ${!selectedUserId ? styles.idle : ''}`}
+              style={
+                {
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  '--node-color': NODE_COLORS[i % NODE_COLORS.length].primary,
+                } as React.CSSProperties
+              }
               onClick={() => handleNodeClick(member.userId)}
             >
               <div
                 className={styles.nodeCircle}
                 style={{
-                  background: active ? NODE_GRADIENTS[i % NODE_GRADIENTS.length] : '#333',
+                  background: active ? NODE_COLORS[i % NODE_COLORS.length].gradient : '#333',
                 }}
               >
                 {member.nickname[0]}
               </div>
-              <span className={styles.nodeName}>{member.nickname}</span>
+              <span className={styles.nodeName}>{truncateName(member.nickname)}</span>
             </button>
           );
         })}
       </div>
 
-      {selectedUserId && (
-        <p className={styles.hint}>다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다</p>
-      )}
+      <p className={styles.hint}>
+        {selectedUserId
+          ? '다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다'
+          : '멤버를 탭하면 전체 케미를 확인할 수 있어요'}
+      </p>
     </div>
   );
 };

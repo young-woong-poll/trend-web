@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Compare/CompareLanding/CompareLanding.module.scss';
+import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleElections } from '@/hooks/api/useBundle';
 import { useCompareLink, useJoinCompareLink } from '@/hooks/api/useCompare';
@@ -22,6 +23,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const { data: link, isLoading, refetch } = useCompareLink(token);
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
+  const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
 
   // 번들 미완료 유저에게 첫 질문 미리보기 제공
   const { data: elections } = useBundleElections(link?.bundleSlug ?? '');
@@ -58,7 +60,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
   // ─── 그룹 링크 → 바로 결과 페이지로 ───
   if (link.type === 'GROUP' && link.memberCount >= 2) {
-    router.replace(`/compare/${token}/group`);
+    router.replace(`/compare/group/${token}`);
     return null;
   }
 
@@ -88,7 +90,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     !link.compareReady;
   const canViewResult = !link.isCreator && link.isParticipant && link.compareReady;
 
-  const resultPath = link.type === 'GROUP' ? `/compare/${token}/group` : `/compare/${token}/result`;
+  const resultPath = link.type === 'GROUP' ? `/compare/group/${token}` : `/compare/match/${token}`;
 
   const handleAction = async () => {
     if (needsLogin) {
@@ -105,17 +107,38 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return;
     }
     if (needsBundle) {
-      router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
+      if (link.type === 'GROUP') {
+        // 그룹은 compareToken 자동 join을 쓰지 않음 (displayName 입력 필요)
+        const playUrl = `/bundle/${link.bundleSlug}/play?returnUrl=${encodeURIComponent(resultPath)}`;
+        router.push(playUrl);
+      } else {
+        router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
+      }
       return;
     }
     if (canJoin) {
+      if (link.type === 'GROUP') {
+        setShowDisplayNameModal(true);
+        return;
+      }
       try {
-        await joinMutation.mutateAsync();
+        await joinMutation.mutateAsync(undefined);
         await refetch();
         router.push(resultPath);
       } catch {
         alert('참여에 실패했습니다. 다시 시도해주세요.');
       }
+    }
+  };
+
+  const handleDisplayNameConfirm = async (displayName: string) => {
+    try {
+      await joinMutation.mutateAsync(displayName);
+      await refetch();
+      setShowDisplayNameModal(false);
+      router.push(resultPath);
+    } catch {
+      alert('참여에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -315,6 +338,13 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
           </button>
         </div>
       </div>
+
+      <DisplayNameModal
+        isOpen={showDisplayNameModal}
+        onClose={() => setShowDisplayNameModal(false)}
+        onConfirm={handleDisplayNameConfirm}
+        isLoading={joinMutation.isPending}
+      />
     </BundleBackground>
   );
 };

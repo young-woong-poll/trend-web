@@ -64,11 +64,11 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
     const autoJoin = async () => {
       try {
-        await joinMutation.mutateAsync();
+        await joinMutation.mutateAsync(undefined);
       } catch {
         // join 실패해도 (이미 참여 등) compare result로 이동 시도
       }
-      router.replace(`/compare/${compareToken}/result`);
+      router.replace(`/compare/match/${compareToken}`);
     };
     void autoJoin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -114,7 +114,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <button
             type="button"
             className={styles.backButton}
-            onClick={() => router.push(`/compare/${compareToken}/result`)}
+            onClick={() => router.push(`/compare/match/${compareToken}`)}
             aria-label="비교 결과로 돌아가기"
           >
             <BackIcon width={22} height={22} />

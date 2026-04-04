@@ -75,6 +75,7 @@
 
 .memberInfo {
   flex: 1;
+  min-width: 0;
   @include flex-column;
   gap: 2px;
 }
@@ -83,6 +84,9 @@
   font-size: $font-size-14;
   font-weight: 600;
   color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .memberGrade {

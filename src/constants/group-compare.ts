@@ -110,6 +110,13 @@ export function findUnanimousQuestions(
   return unanimous;
 }
 
+/** 논쟁 카드에 표시할 멤버 정보 */
+export interface ControversyMember {
+  nickname: string;
+  /** members 배열 내 원본 인덱스 (색상 매핑용) */
+  memberIndex: number;
+}
+
 /**
  * 논쟁 포인트 찾기 (의견이 가장 갈린 질문)
  * 기준: A/B 선택 비율이 50:50에 가장 가까운 질문
@@ -121,17 +128,29 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
   optionB: string;
   ratioA: number;
   ratioB: number;
+  /** A를 고른 멤버 목록 (닉네임 + 원본 인덱스) */
+  membersA: ControversyMember[];
+  /** B를 고른 멤버 목록 (닉네임 + 원본 인덱스) */
+  membersB: ControversyMember[];
 }> {
   const { members, questionStats } = result;
 
   const scored = questionStats.map((stat) => {
-    const answers = members
-      .map((m) => m.answers.find((a) => a.electionId === stat.electionId)?.selected)
-      .filter((a): a is 'A' | 'B' => a !== undefined);
+    const membersA: ControversyMember[] = [];
+    const membersB: ControversyMember[] = [];
 
-    const countA = answers.filter((a) => a === 'A').length;
-    const total = answers.length;
-    const ratioA = total > 0 ? Math.round((countA / total) * 100) : 50;
+    for (let i = 0; i < members.length; i++) {
+      const m = members[i];
+      const ans = m.answers.find((a) => a.electionId === stat.electionId)?.selected;
+      if (ans === 'A') {
+        membersA.push({ nickname: m.nickname, memberIndex: i });
+      } else if (ans === 'B') {
+        membersB.push({ nickname: m.nickname, memberIndex: i });
+      }
+    }
+
+    const total = membersA.length + membersB.length;
+    const ratioA = total > 0 ? Math.round((membersA.length / total) * 100) : 50;
     const ratioB = 100 - ratioA;
     const distanceFrom50 = Math.abs(ratioA - 50);
 
@@ -142,6 +161,8 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
       optionB: stat.optionB,
       ratioA,
       ratioB,
+      membersA,
+      membersB,
       distanceFrom50,
     };
   });
@@ -179,13 +200,13 @@ const AWARD_META: Record<GroupAwardType, { title: string; description: string; o
       oneLiner: '토론하면 밤새겠다',
     },
     CONTROVERSY_MAKER: {
-      title: '논쟁 메이커',
-      description: '소수 의견을 가장 많이 고른 사람',
+      title: '트러블 메이커',
+      description: '그룹 내 소수 의견을 가장 많이 선택한 사람',
       oneLiner: '매번 반대편에 서는 당신, 혹시 일부러?',
     },
     PEOPLES_CHAMPION: {
       title: '대중의 왕',
-      description: '대중성 지수가 가장 높은 사람',
+      description: '전체 투표에서 다수 의견을 가장 많이 고른 사람',
       oneLiner: '세상이 어떻게 돌아가는지 정확히 아는 사람',
     },
   };
