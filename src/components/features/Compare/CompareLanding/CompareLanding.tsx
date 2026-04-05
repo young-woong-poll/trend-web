@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import CopyIcon from '@/assets/icon/CopyIcon';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
+import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import styles from '@/components/features/Compare/CompareLanding/CompareLanding.module.scss';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
@@ -25,6 +26,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
+  const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // 번들 미완료 유저에게 첫 질문 미리보기 제공
@@ -90,8 +92,13 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return;
     }
     if (isAlreadyTaken) {
-      // 내가 직접 비교 링크를 만들어서 보내도록 유도
-      router.push(`/bundle/${link.bundleSlug}/result`);
+      if (!link.myBundleCompleted) {
+        // 번들 미완료 → 먼저 번들 풀기로 유도
+        router.push(`/bundle/${link.bundleSlug}/play`);
+      } else {
+        // 번들 완료 → 바로 비교 링크 생성 모달
+        setShowCreateLinkModal(true);
+      }
       return;
     }
     if (isCreatorReady || canViewResult) {
@@ -173,7 +180,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return '로그인하고 대결 수락하기';
     }
     if (isAlreadyTaken) {
-      return '내가 비교 링크 만들기';
+      return link.myBundleCompleted ? '내 비교 링크 만들기' : '먼저 투표 참여하기';
     }
     if (isCreatorWaiting) {
       return link.type === 'GROUP' ? '아직 참여 인원이 부족해요...' : '상대방 참여 대기 중...';
@@ -307,15 +314,15 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         {/* ─── 선점당한 링크 안내 ─── */}
         {isAlreadyTaken && (
           <div className={styles.takenSection}>
-            <p className={styles.takenMessage}>
-              이 비교 링크는 이미 다른 사람이 참여했어요.
-              <br />
-              1:1 비교는 한 명만 참여할 수 있어요.
-            </p>
-            <p className={styles.takenGuide}>
+            <p className={styles.takenGuideMain}>
               {link.creatorNickname}님과 비교하고 싶다면
               <br />
               직접 비교 링크를 만들어 보내보세요!
+            </p>
+            <p className={styles.takenNotice}>
+              이 링크는 이미 다른 사람이 참여했어요
+              <br />
+              1:1 비교는 한 명만 참여할 수 있어요
             </p>
           </div>
         )}
@@ -339,6 +346,10 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         onConfirm={handleDisplayNameConfirm}
         isLoading={joinMutation.isPending}
       />
+
+      {showCreateLinkModal && (
+        <CreateCompareLink slug={link.bundleSlug} onClose={() => setShowCreateLinkModal(false)} />
+      )}
     </BundleBackground>
   );
 };

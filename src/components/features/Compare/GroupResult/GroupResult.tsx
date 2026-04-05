@@ -6,14 +6,13 @@ import { useRouter } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import EditIcon from '@/assets/icon/EditIcon';
+import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
-import { EditGroupNameModal } from '@/components/features/Compare/EditGroupNameModal/EditGroupNameModal';
 import { ChemistryNetwork } from '@/components/features/Compare/GroupResult/ChemistryNetwork';
 import { ChemistryRanking } from '@/components/features/Compare/GroupResult/ChemistryRanking';
 import { CrossGenderChemistry } from '@/components/features/Compare/GroupResult/CrossGenderChemistry';
@@ -22,8 +21,10 @@ import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwar
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
-import { RelationExplorer } from '@/components/features/Compare/GroupResult/RelationExplorer';
-import { GENDER_CATEGORIES } from '@/constants/bundle';
+import {
+  GroupSettingsModal,
+  type GroupSettings,
+} from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
 import { calcAllPairChemistry, calcGroupAwards } from '@/constants/group-compare';
 import { GHOST_USER_PREFIX } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,7 +34,7 @@ import {
   useCreatePairCompare,
   useGroupCompareResult,
   useJoinCompareLink,
-  useUpdateGroupName,
+  useUpdateGroupSettings,
 } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
@@ -64,13 +65,13 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const { data: result, isLoading, refetch } = useGroupCompareResult(token);
   const joinMutation = useJoinCompareLink(token);
   const pairCompareMutation = useCreatePairCompare(token);
-  const updateGroupNameMutation = useUpdateGroupName(token);
+  const updateGroupSettingsMutation = useUpdateGroupSettings(token);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
-  const [showEditNameModal, setShowEditNameModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const { toast, showToast } = useToast();
 
@@ -118,15 +119,15 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   // 현재 유저가 이 그룹의 멤버인지
   const isMember = link?.isCreator || link?.isParticipant;
 
-  const handleEditGroupName = async (newName: string) => {
+  const handleSaveSettings = async (settings: GroupSettings) => {
+    setShowSettingsModal(false);
     try {
-      await updateGroupNameMutation.mutateAsync(newName);
+      await updateGroupSettingsMutation.mutateAsync(settings);
       await queryClient.invalidateQueries({ queryKey: compareKeys.groupResult(token) });
       await queryClient.invalidateQueries({ queryKey: compareKeys.link(token) });
     } catch {
-      // 실패 시 원래 이름 유지
+      // 실패 시 원래 설정 유지
     }
-    setShowEditNameModal(false);
   };
 
   if (isLoading) {
@@ -229,14 +230,14 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           )}
           <div className={styles.groupNameRow}>
             <h1 className={styles.groupName}>{result.groupName}</h1>
-            {link?.isCreator && (
+            {isMember && (
               <button
                 type="button"
                 className={styles.editButton}
-                onClick={() => setShowEditNameModal(true)}
-                aria-label="그룹 이름 편집"
+                onClick={() => setShowSettingsModal(true)}
+                aria-label="그룹 설정"
               >
-                <EditIcon width={16} height={16} />
+                <SettingsIcon width={16} height={16} />
               </button>
             )}
           </div>
@@ -316,10 +317,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <PickASide result={displayResult} currentUserId={currentUserId} />
         <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
         <GroupAwards awards={awards} currentUserId={currentUserId} />
-        <RelationExplorer currentUserId={currentUserId} result={displayResult} pairs={pairs} />
 
-        {/* ─── 성별 기반 (연애/결혼 카테고리 전용) ─── */}
-        {displayResult.categoryCode && GENDER_CATEGORIES.includes(displayResult.categoryCode) && (
+        {/* ─── 성별 기반 (이성 콘텐츠 토글 ON 시) ─── */}
+        {displayResult.showGenderContent && (
           <>
             <CrossGenderChemistry
               currentUserId={currentUserId}
@@ -392,12 +392,14 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         isLoading={joinMutation.isPending}
       />
 
-      <EditGroupNameModal
-        isOpen={showEditNameModal}
+      <GroupSettingsModal
+        isOpen={showSettingsModal}
         currentName={result.groupName}
-        onClose={() => setShowEditNameModal(false)}
-        onConfirm={handleEditGroupName}
-        isLoading={updateGroupNameMutation.isPending}
+        currentShowGenderContent={result.showGenderContent ?? false}
+        isCreator={link?.isCreator ?? false}
+        onClose={() => setShowSettingsModal(false)}
+        onConfirm={handleSaveSettings}
+        isLoading={updateGroupSettingsMutation.isPending}
       />
 
       {toast.isVisible && <Toast message={toast.message} />}

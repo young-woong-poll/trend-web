@@ -102,13 +102,13 @@ export const useGroupCompareResult = (token: string) =>
     enabled: !!token,
   });
 
-export const useUpdateGroupName = (token: string) =>
+export const useUpdateGroupSettings = (token: string) =>
   useMutation({
-    mutationFn: (groupName: string) =>
+    mutationFn: (data: { groupName: string; showGenderContent: boolean }) =>
       customInstance({
-        url: `/api/v1/compare-links/${token}/group-name`,
+        url: `/api/v1/compare-links/${token}/settings`,
         method: 'PATCH',
-        data: { groupName },
+        data,
         headers: { 'Content-Type': 'application/json' },
       }),
   });

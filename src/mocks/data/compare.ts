@@ -24,6 +24,7 @@ interface StoredCompareLink {
   groupName: string | null;
   groupMembers: Array<{ userId: string; nickname: string }>;
   isClosed: boolean;
+  showGenderContent: boolean;
 }
 
 export const compareLinkStore = new Map<string, StoredCompareLink>();
@@ -45,6 +46,7 @@ const seedLink: StoredCompareLink = {
   groupName: null,
   groupMembers: [],
   isClosed: false,
+  showGenderContent: false,
 };
 compareLinkStore.set('abc123', seedLink);
 
@@ -61,6 +63,7 @@ const seedInviteCompleted: StoredCompareLink = {
   groupName: null,
   groupMembers: [],
   isClosed: false,
+  showGenderContent: false,
 };
 compareLinkStore.set('invite1', seedInviteCompleted);
 
@@ -77,6 +80,7 @@ const seedInviteWaiting: StoredCompareLink = {
   groupName: null,
   groupMembers: [],
   isClosed: false,
+  showGenderContent: false,
 };
 compareLinkStore.set('invite2', seedInviteWaiting);
 
@@ -93,6 +97,7 @@ const seedCreatorWaiting: StoredCompareLink = {
   groupName: null,
   groupMembers: [],
   isClosed: false,
+  showGenderContent: false,
 };
 compareLinkStore.set('waiting1', seedCreatorWaiting);
 
@@ -109,6 +114,7 @@ const seedTakenLink: StoredCompareLink = {
   groupName: null,
   groupMembers: [],
   isClosed: false,
+  showGenderContent: false,
 };
 compareLinkStore.set('taken1', seedTakenLink);
 
@@ -131,6 +137,7 @@ const groupSeedLink: StoredCompareLink = {
     { userId: 'mock-user-5', nickname: '현우the베스트오브더월드' },
   ],
   isClosed: false,
+  showGenderContent: true,
 };
 compareLinkStore.set('group-abc', groupSeedLink);
 
@@ -147,6 +154,7 @@ const groupEmptyLink: StoredCompareLink = {
   groupName: '디자인팀',
   groupMembers: [{ userId: 'mock-user-1', nickname: '웅이' }],
   isClosed: false,
+  showGenderContent: true,
 };
 compareLinkStore.set('group-empty', groupEmptyLink);
 
@@ -163,6 +171,7 @@ const groupNewLink: StoredCompareLink = {
   groupName: '신규 그룹',
   groupMembers: [],
   isClosed: false,
+  showGenderContent: true,
 };
 compareLinkStore.set('group-new', groupNewLink);
 
@@ -253,6 +262,7 @@ compareLinkStore.set('group-10', {
   groupName: '동아리',
   groupMembers: buildLargeGroupMembers(10),
   isClosed: false,
+  showGenderContent: true,
 });
 
 // group-20: 20명 그룹
@@ -268,6 +278,7 @@ compareLinkStore.set('group-20', {
   groupName: '대학 동기',
   groupMembers: buildLargeGroupMembers(20),
   isClosed: false,
+  showGenderContent: true,
 });
 
 // group-50: 50명 그룹
@@ -283,6 +294,7 @@ compareLinkStore.set('group-50', {
   groupName: '회사 전체',
   groupMembers: buildLargeGroupMembers(50),
   isClosed: false,
+  showGenderContent: true,
 });
 
 /** 토큰 생성 */
@@ -295,7 +307,8 @@ export function createCompareLink(
   userId: string,
   nickname: string,
   bundleSlug: string,
-  type: 'ONE_TO_ONE' | 'GROUP'
+  type: 'ONE_TO_ONE' | 'GROUP',
+  showGenderContent = false
 ): CreateCompareLinkResponse {
   const token = generateToken();
   compareLinkStore.set(token, {
@@ -310,6 +323,7 @@ export function createCompareLink(
     groupName: null,
     groupMembers: [],
     isClosed: false,
+    showGenderContent,
   });
   return { token };
 }

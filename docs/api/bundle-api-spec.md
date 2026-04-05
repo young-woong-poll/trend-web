@@ -1,7 +1,7 @@
 # 번들 API 개발 요청서
 
-> **작성일**: 2026-03-31 (Phase 3 업데이트: 2026-04-05)
-> **상태**: Phase 1 완료 + Phase 2 완료 + Phase 3 (그룹 비교)
+> **작성일**: 2026-03-31 (Phase 3 업데이트: 2026-04-06)
+> **상태**: Phase 1 완료 + Phase 2 완료 + Phase 3 (그룹 비교) + Phase 3.1 (이성 콘텐츠 토글)
 > **FE 담당**: 웅일
 > **관련 기획서**: `docs/specs/bundle-compare.md`
 
@@ -187,6 +187,7 @@ Array<{
 {
   type: 'ONE_TO_ONE' | 'GROUP';
   groupName?: string;             // GROUP 타입 시 그룹 이름 (1~20자, <>"'& 금지)
+  showGenderContent?: boolean;    // GROUP 타입 시 이성 콘텐츠 표시 여부 (미전송 시 카테고리별 기본값: LOVE/MARRIAGE → true, 나머지 → false)
 }
 ```
 
@@ -255,15 +256,15 @@ Array<{
 
 FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 
-| 상태                    | isCreator | isParticipant | hasParticipant | FE 동작                                 |
-| ----------------------- | --------- | ------------- | -------------- | --------------------------------------- |
-| 비로그인                | false     | false         | any            | "로그인하고 대결 수락하기"              |
-| 생성자 대기 중          | true      | false         | false          | 대기 화면 (스피너)                      |
-| 생성자 결과 확인        | true      | false         | true           | "비교 결과 보기"                        |
-| 받는 사람 + 번들 미완료 | false     | false         | false          | "대결 수락하기" (번들 풀기로 이동)      |
-| 받는 사람 + 번들 완료   | false     | false         | false          | "결과 확인하기" (자동 join 후 결과)     |
-| 참여자 결과 확인        | false     | true          | true           | "비교 결과 보기"                        |
-| **선점당한 링크**       | **false** | **false**     | **true**       | **"이미 다른 사람이 참여한 링크" 안내** |
+| 상태                    | isCreator | isParticipant | hasParticipant | FE 동작                                                                                                                   |
+| ----------------------- | --------- | ------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 비로그인                | false     | false         | any            | "로그인하고 대결 수락하기"                                                                                                |
+| 생성자 대기 중          | true      | false         | false          | 초대장 카드 (bundleTitle, questionCount 표시) + "링크 다시 복사하기" + 선착순 안내                                        |
+| 생성자 결과 확인        | true      | false         | true           | 개봉 컨셉 ("결과 봉인이 해제됐어요!") + "결과 개봉하기" CTA                                                               |
+| 받는 사람 + 번들 미완료 | false     | false         | false          | "대결 수락하기" (번들 풀기로 이동)                                                                                        |
+| 받는 사람 + 번들 완료   | false     | false         | false          | "결과 확인하기" (자동 join 후 결과)                                                                                       |
+| 참여자 결과 확인        | false     | true          | true           | "비교 결과 보기"                                                                                                          |
+| **선점당한 링크**       | **false** | **false**     | **true**       | **메인 안내: "직접 비교 링크를 만들어 보내보세요!" + CTA 분기 (myBundleCompleted → 링크 생성 모달 / 미완료 → 번들 풀기)** |
 
 **FE 상태 분기표 (GROUP 링크 — 랜딩 페이지):**
 
@@ -412,8 +413,14 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
   /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
   myUserId: string;
 
-  /** 번들 카테고리 코드 (성별 기반 섹션 조건부 표시에 사용) */
+  /** 번들 카테고리 코드 */
   categoryCode?: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'DAILY' | ... (싱글 핫픽과 동일 코드 체계)
+
+  /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 — 그룹 생성자가 설정 */
+  showGenderContent: boolean;
+
+  /** 그룹 생성자 userId — FE에서 설정 권한 판별에 사용 */
+  creatorUserId: string;
 
   /** 그룹 멤버 답변 */
   members: Array<{
@@ -449,7 +456,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 **참고:**
 
 - `myUserId`는 현재 로그인 유저의 userId. FE에서 "나" 식별에 사용 (12시 방향 배치, "나" 뱃지 표시 등)
-- `categoryCode`가 `'LOVE'` 또는 `'MARRIAGE'`이면 이성궁합/성별대결 섹션 표시
+- `showGenderContent`가 `true`이면 이성궁합/성별대결 섹션 표시 (기존 `categoryCode` 기반 조건 대체)
+- `creatorUserId`: FE에서 그룹 설정 모달의 편집 권한 판별에 사용 (생성자만 수정 가능, 참여자는 읽기 전용)
 - `members.displayName`: 그룹 참여 시 입력한 표시 이름. FE에서 `displayName ?? nickname` 로직으로 우선 사용
 - `members.gender`/`members.birthYear`: Phase 3 성별 대결, 이성궁합 랭킹, 세대별 클러스터 분석에 사용
 - `questionStats`는 **비율(Rate) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 다름
@@ -463,7 +471,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 
 - **멤버 쌍 케미 (PairChemistry)**: 모든 C(n,2) 쌍에 대한 일치율, 등급(S/A/B/C/D)
 - **케미 등급 기준**: 80%+ → S, 60~79% → A, 40~59% → B, 20~39% → C, ~19% → D
-- **케미 네트워크 그래프**: 멤버 ≤15명이면 원형 네트워크 시각화, 16명 이상이면 케미 랭킹 리스트로 전환
+- **케미 네트워크 그래프**: 멤버 ≤15명이면 원형 네트워크 시각화, 16명 이상이면 케미 랭킹(등급별 아코디언 스택 UI)으로 전환
+- **케미 랭킹 (16명 이상)**: 기준 멤버별 평균 궁합 + 등급 분포 바 + S/A/B/C/D 등급별 겹침 아바타 스택 → 탭 시 가로 스크롤 칩 펼침. 기준이 "나"일 때 칩 탭으로 1:1 비교 이동 (Phase 4 API 13번 사용)
 - **그룹 어워드 6종**:
   - GROUP_LEADER: 평균 일치율이 가장 높은 멤버 (그룹의 중심)
   - GROUP_OUTSIDER: 평균 일치율이 가장 낮은 멤버 (그룹의 아웃사이더)
@@ -476,41 +485,42 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 - **Pick-a-Side**: 질문별 A/B 선택 멤버 진영 표시
 - **이성궁합 랭킹** (LOVE/MARRIAGE 카테고리만): 남녀 쌍 중 일치율 TOP 3 / WORST 3
 - **성별 대결** (LOVE/MARRIAGE 카테고리만): 질문별 남녀 선택 비율 차이 (성별 갭)
-- **관계 탐색기**: 멤버 2명 선택 시 1:1 케미 상세 (일치/불일치 질문 목록)
+- ~~**관계 탐색기**~~ → 삭제됨 (그룹 내 1:1 비교 바로가기(Phase 4 API 13번)로 대체)
 
 ---
 
-### 10. 그룹 이름 변경
+### 10. 그룹 설정 변경
 
-| 항목      | 내용                                          |
-| --------- | --------------------------------------------- |
-| Method    | `PATCH`                                       |
-| URL       | `/api/v1/compare-links/{token}/group-name`    |
-| 인증      | 로그인 필수                                   |
-| 호출 시점 | 그룹 결과 페이지에서 그룹 이름 편집 버튼 클릭 |
+| 항목      | 내용                                             |
+| --------- | ------------------------------------------------ |
+| Method    | `PATCH`                                          |
+| URL       | `/api/v1/compare-links/{token}/settings`         |
+| 인증      | 로그인 필수                                      |
+| 호출 시점 | 그룹 결과 페이지에서 설정 아이콘 → 저장하기 클릭 |
 
 **Request Body:**
 
 ```typescript
 {
-  groupName: string; // 새 그룹 이름 (1~20자, <>"'& 금지)
+  groupName?: string;            // 새 그룹 이름 (1~20자, <>"'& 금지)
+  showGenderContent?: boolean;   // 이성 콘텐츠 표시 여부
 }
 ```
 
-**Response `data`:**
-
-```typescript
-{
-  groupName: string; // 변경된 그룹 이름
-}
-```
+**Response `data`:** `null` (성공 시 별도 데이터 없음)
 
 **BE 처리 사항:**
 
 - 그룹 생성자만 변경 가능 (비생성자 → `403 FORBIDDEN`)
 - GROUP 타입 링크만 대상 (ONE_TO_ONE → `404 NOT_FOUND`)
-- 그룹 이름 유효성 검사: 1~20자, `<>"'&` 문자 금지
+- 각 필드가 전송된 경우에만 해당 값 업데이트 (partial update)
+- `groupName` 유효성 검사: 1~20자, `<>"'&` 문자 금지
 - 변경 후 즉시 반영 (캐시 무효화는 FE에서 처리)
+
+**참고 (기존 API 변경):**
+
+- 기존 `PATCH /api/v1/compare-links/{token}/group-name` → 이 API로 통합
+- `groupName`만 변경하던 것에서 `showGenderContent` 토글도 함께 변경 가능하도록 확장
 
 ---
 
@@ -599,8 +609,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 }
 ```
 
-- 그룹 비교 결과의 성별 기반 섹션 (이성궁합, 성별 대결) 조건부 표시에 사용
-- `categoryCode`가 `'LOVE'` 또는 `'MARRIAGE'`인 번들에서만 해당 섹션 노출
+- 그룹 생성 시 `showGenderContent` 기본값 결정에 사용: `LOVE`/`MARRIAGE` → `true`, 나머지 → `false`
+- 이성 콘텐츠 표시 여부는 `categoryCode`가 아닌 `showGenderContent` 플래그로 제어 (Phase 3.1에서 변경)
 
 ---
 

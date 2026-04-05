@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo, type FC } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryRanking.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
@@ -15,15 +15,15 @@ const GRADE_COLORS: Record<ChemistryGrade, string> = {
   D: '#EF4444',
 };
 
-interface ChemistryRankingProps {
-  currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
-  pairs: PairChemistry[];
-  /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 미노출) */
-  onCompareRequest?: (targetUserId: string) => void;
-}
+const GRADE_ORDER: ChemistryGrade[] = ['S', 'A', 'B', 'C', 'D'];
 
-const TOP_COUNT = 3;
+const GRADE_TITLES: Record<ChemistryGrade, string> = {
+  S: '말 안 해도 통하는',
+  A: '꽤 잘 맞는',
+  B: '같을 때도 다를 때도',
+  C: '각자의 세계',
+  D: '정반대의 가치관',
+};
 
 const GRADE_INFO = [
   { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는', color: '#3B82F6' },
@@ -33,6 +33,180 @@ const GRADE_INFO = [
   { grade: 'D', range: '19% 이하', title: '정반대의 가치관', color: '#EF4444' },
 ];
 
+const STACK_MAX = 5;
+
+interface ChemistryRankingProps {
+  currentUserId: string;
+  members: Array<{ userId: string; nickname: string }>;
+  pairs: PairChemistry[];
+  onCompareRequest?: (targetUserId: string) => void;
+}
+
+// ─── PC 드래그 스크롤 훅 ───
+function useDragScroll() {
+  const ref = useRef<HTMLDivElement>(null);
+  const drag = useRef({ active: false, startX: 0, scrollLeft: 0 });
+
+  const onMouseDown = useCallback((e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    drag.current = { active: true, startX: e.pageX, scrollLeft: el.scrollLeft };
+    el.style.cursor = 'grabbing';
+    el.style.userSelect = 'none';
+  }, []);
+
+  const onMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!drag.current.active) {
+      return;
+    }
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    e.preventDefault();
+    el.scrollLeft = drag.current.scrollLeft - (e.pageX - drag.current.startX);
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    drag.current.active = false;
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    el.style.cursor = 'grab';
+    el.style.userSelect = '';
+  }, []);
+
+  const onMouseLeave = useCallback(() => {
+    if (drag.current.active) {
+      drag.current.active = false;
+      const el = ref.current;
+      if (!el) {
+        return;
+      }
+      el.style.cursor = 'grab';
+      el.style.userSelect = '';
+    }
+  }, []);
+
+  return { ref, handlers: { onMouseDown, onMouseMove, onMouseUp, onMouseLeave } };
+}
+
+// ─── 등급별 아코디언 섹션 ───
+interface GradeSectionProps {
+  grade: ChemistryGrade;
+  items: Array<{
+    targetId: string;
+    targetNickname: string;
+    matchRate: number;
+    memberIndex: number;
+  }>;
+  isOpen: boolean;
+  onToggle: () => void;
+  isMyView: boolean;
+  onCompareRequest?: (targetUserId: string) => void;
+}
+
+const GradeSection: FC<GradeSectionProps> = ({
+  grade,
+  items,
+  isOpen,
+  onToggle,
+  isMyView,
+  onCompareRequest,
+}) => {
+  const { ref: scrollRef, handlers: dragHandlers } = useDragScroll();
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  const stackItems = items.slice(0, STACK_MAX);
+  const overflow = items.length - STACK_MAX;
+
+  return (
+    <div className={`${styles.gradeCard} ${isOpen ? styles.gradeCardOpen : ''}`}>
+      <button type="button" className={styles.gradeHeader} onClick={onToggle}>
+        <span className={styles.gradeBadge} style={{ color: GRADE_COLORS[grade] }}>
+          {grade}
+        </span>
+
+        {/* 겹침 아바타 스택 */}
+        <div className={`${styles.avatarStack} ${isOpen ? styles.avatarStackFaded : ''}`}>
+          {stackItems.map((item, i) => (
+            <div
+              key={item.targetId}
+              className={styles.stackAvatar}
+              style={{
+                background: getMemberGradient(item.memberIndex, item.targetId),
+                marginLeft: i === 0 ? 0 : -10,
+                zIndex: STACK_MAX - i,
+              }}
+            >
+              {item.targetNickname[0]}
+            </div>
+          ))}
+          {overflow > 0 && (
+            <div className={styles.stackOverflow} style={{ marginLeft: -10 }}>
+              +{overflow}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.gradeInfo}>
+          <span className={styles.gradeInfoText}>
+            {GRADE_TITLES[grade]} · {items.length}명
+          </span>
+        </div>
+
+        <span className={`${styles.gradeArrow} ${isOpen ? styles.gradeArrowOpen : ''}`}>›</span>
+      </button>
+
+      {/* 펼쳐지는 가로 스크롤 영역 */}
+      <div className={`${styles.gradeContent} ${isOpen ? styles.gradeContentOpen : ''}`}>
+        <div ref={scrollRef} {...dragHandlers} className={styles.chipScroller}>
+          {items.map((item) => {
+            const itemGrade = getChemistryByRate(item.matchRate);
+            const canCompare = isMyView && onCompareRequest && !isGhostUser(item.targetId);
+            return (
+              <div
+                key={item.targetId}
+                role={canCompare ? 'button' : undefined}
+                tabIndex={canCompare ? 0 : undefined}
+                onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
+                className={`${styles.chip} ${canCompare ? styles.chipTappable : ''}`}
+                style={{ borderColor: `${GRADE_COLORS[grade]}22` }}
+              >
+                <div
+                  className={styles.chipAvatar}
+                  style={{
+                    background: getMemberGradient(item.memberIndex, item.targetId),
+                  }}
+                >
+                  {item.targetNickname[0]}
+                </div>
+                <div className={styles.chipInfo}>
+                  <span className={styles.chipName}>{item.targetNickname}</span>
+                  <span
+                    className={styles.chipRate}
+                    style={{ color: GRADE_COLORS[itemGrade.grade] }}
+                  >
+                    {item.matchRate}%
+                  </span>
+                </div>
+                {canCompare && <span className={styles.chipArrow}>›</span>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── 메��� 컴포넌트 ───
 export const ChemistryRanking: FC<ChemistryRankingProps> = ({
   currentUserId,
   members,
@@ -40,9 +214,11 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
   onCompareRequest,
 }) => {
   const [selectedUserId, setSelectedUserId] = useState(currentUserId);
+  const [openGrade, setOpenGrade] = useState<ChemistryGrade | null>(null);
   const [showGradeInfo, setShowGradeInfo] = useState(false);
   const gradeInfoRef = useRef<HTMLDivElement>(null);
   const gradeBtnRef = useRef<HTMLButtonElement>(null);
+  const { ref: memberScrollRef, handlers: memberDragHandlers } = useDragScroll();
 
   useEffect(() => {
     if (!showGradeInfo) {
@@ -61,10 +237,12 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [showGradeInfo]);
 
-  const selectedMember = members.find((m) => m.userId === selectedUserId);
+  // 기준 멤버 변경 시 열린 아코디언 초기화
+  useEffect(() => {
+    setOpenGrade(null);
+  }, [selectedUserId]);
 
-  /** 선택된 멤버 기준으로 다른 멤버들과의 케미를 정렬 */
-  const ranked = useMemo(() => {
+  const grouped = useMemo(() => {
     const myPairs = pairs
       .filter((p) => p.memberA === selectedUserId || p.memberB === selectedUserId)
       .map((p) => {
@@ -72,24 +250,41 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
         const targetId = isA ? p.memberB : p.memberA;
         const targetNickname = isA ? p.nicknameB : p.nicknameA;
         const memberIndex = members.findIndex((m) => m.userId === targetId);
-        return { targetId, targetNickname, memberIndex, matchRate: p.matchRate };
+        return {
+          targetId,
+          targetNickname,
+          matchRate: p.matchRate,
+          memberIndex,
+          grade: getChemistryByRate(p.matchRate).grade,
+        };
       });
 
-    const sorted = [...myPairs].sort((a, b) => b.matchRate - a.matchRate);
-    return {
-      best: sorted.slice(0, TOP_COUNT),
-      worst: sorted.slice(-TOP_COUNT).reverse(),
+    const groups: Record<ChemistryGrade, typeof myPairs> = {
+      S: [],
+      A: [],
+      B: [],
+      C: [],
+      D: [],
     };
+    myPairs.forEach((p) => groups[p.grade].push(p));
+    GRADE_ORDER.forEach((g) => groups[g].sort((a, b) => b.matchRate - a.matchRate));
+    return groups;
   }, [selectedUserId, pairs, members]);
 
-  /** 멤버 원본 인덱스로 gradient 가져오기 */
-  const getGradient = (memberIndex: number, userId?: string) =>
-    getMemberGradient(memberIndex, userId);
+  const avgRate = useMemo(() => {
+    const rates = pairs
+      .filter((p) => p.memberA === selectedUserId || p.memberB === selectedUserId)
+      .map((p) => p.matchRate);
+    return rates.length ? Math.round(rates.reduce((s, r) => s + r, 0) / rates.length) : 0;
+  }, [selectedUserId, pairs]);
 
-  const selectedIndex = members.findIndex((m) => m.userId === selectedUserId);
+  const avgGrade = getChemistryByRate(avgRate);
+  const selectedMember = members.find((m) => m.userId === selectedUserId);
+  const isMyView = selectedUserId === currentUserId;
 
   return (
     <div className={styles.container}>
+      {/* 섹션 헤더 */}
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>케미 랭킹</span>
         <div className={styles.gradeInfoWrap}>
@@ -121,116 +316,86 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
         <div className={styles.sectionLine} />
       </div>
 
-      {/* 기준 멤버 선택 */}
-      <div className={styles.selectorRow}>
-        <span className={styles.selectorPrefix}>기준</span>
-        <div
-          className={styles.selectorAvatar}
-          style={{ background: selectedIndex >= 0 ? getGradient(selectedIndex) : '#333' }}
-        >
-          {selectedMember?.nickname[0] ?? '?'}
-        </div>
-        <select
-          className={styles.selector}
-          value={selectedUserId}
-          onChange={(e) => setSelectedUserId(e.target.value)}
-        >
-          {members.map((m) => (
-            <option key={m.userId} value={m.userId}>
-              {m.nickname}
-              {m.userId === currentUserId ? ' (나)' : ''}
-            </option>
-          ))}
-        </select>
+      {/* 기준 멤버 가로 스크롤 */}
+      <div ref={memberScrollRef} {...memberDragHandlers} className={styles.memberScroller}>
+        {members.map((m, i) => {
+          const isActive = m.userId === selectedUserId;
+          return (
+            <button
+              key={m.userId}
+              type="button"
+              className={`${styles.memberChip} ${isActive ? styles.memberChipActive : ''}`}
+              onClick={() => setSelectedUserId(m.userId)}
+            >
+              <div
+                className={`${styles.memberAvatar} ${isActive ? styles.memberAvatarActive : ''}`}
+                style={{ background: getMemberGradient(i, m.userId) }}
+              >
+                {m.nickname[0]}
+              </div>
+              <span className={styles.memberName}>
+                {m.userId === currentUserId ? '나' : m.nickname}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* 베스트 케미 */}
-      <div className={styles.rankSection}>
-        <span className={styles.rankLabel}>베스트 케미</span>
-        <div className={styles.rankList}>
-          {ranked.best.map((item, i) => {
-            const grade = getChemistryByRate(item.matchRate);
-            const canCompare =
-              onCompareRequest && selectedUserId === currentUserId && !isGhostUser(item.targetId);
+      {/* 요약: 등급 분포 바 */}
+      <div className={styles.summaryCard}>
+        <div className={styles.summaryTop}>
+          <span className={styles.summaryName}>{selectedMember?.nickname ?? '?'}의 그룹 궁합</span>
+          <span className={styles.summaryAvg} style={{ color: GRADE_COLORS[avgGrade.grade] }}>
+            평균 {avgRate}% ({avgGrade.grade})
+          </span>
+        </div>
+        <div className={styles.distBar}>
+          {GRADE_ORDER.map((g) => {
+            const count = grouped[g].length;
+            if (count === 0) {
+              return null;
+            }
+            const pct = (count / (members.length - 1)) * 100;
             return (
               <div
-                key={item.targetId}
-                className={`${styles.rankCard} ${canCompare ? styles.rankCardTappable : ''}`}
-                onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
-              >
-                <span className={styles.rankNumber}>{i + 1}</span>
-                <div
-                  className={styles.rankAvatar}
-                  style={{ background: getGradient(item.memberIndex) }}
-                >
-                  {item.targetNickname[0]}
-                </div>
-                <div className={styles.rankInfo}>
-                  <span className={styles.rankName}>
-                    {item.targetNickname}
-                    {item.targetId === currentUserId && (
-                      <span className={styles.nicknameBadgeMe}>나</span>
-                    )}
-                  </span>
-                  <span className={styles.rankSub}>{grade.title}</span>
-                </div>
-                <span
-                  className={styles.rankGradeLabel}
-                  style={{ color: GRADE_COLORS[grade.grade] }}
-                >
-                  {grade.grade}
-                </span>
-                {canCompare && <span className={styles.rankArrow}>›</span>}
-              </div>
+                key={g}
+                className={styles.distSegment}
+                style={{ width: `${pct}%`, background: GRADE_COLORS[g] }}
+              />
+            );
+          })}
+        </div>
+        <div className={styles.distLabels}>
+          {GRADE_ORDER.map((g) => {
+            const count = grouped[g].length;
+            if (count === 0) {
+              return null;
+            }
+            return (
+              <span key={g} className={styles.distLabel} style={{ color: GRADE_COLORS[g] }}>
+                {g} {count}명
+              </span>
             );
           })}
         </div>
       </div>
 
-      {/* 워스트 케미 */}
-      <div className={styles.rankSection}>
-        <span className={`${styles.rankLabel} ${styles.rankLabelWorst}`}>워스트 케미</span>
-        <div className={styles.rankList}>
-          {ranked.worst.map((item, i) => {
-            const grade = getChemistryByRate(item.matchRate);
-            const canCompare =
-              onCompareRequest && selectedUserId === currentUserId && !isGhostUser(item.targetId);
-            return (
-              <div
-                key={item.targetId}
-                className={`${styles.rankCard} ${canCompare ? styles.rankCardTappable : ''}`}
-                onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
-              >
-                <span className={`${styles.rankNumber} ${styles.rankNumberWorst}`}>
-                  {members.length - 1 - i}
-                </span>
-                <div
-                  className={styles.rankAvatar}
-                  style={{ background: getGradient(item.memberIndex) }}
-                >
-                  {item.targetNickname[0]}
-                </div>
-                <div className={styles.rankInfo}>
-                  <span className={styles.rankName}>
-                    {item.targetNickname}
-                    {item.targetId === currentUserId && (
-                      <span className={styles.nicknameBadgeMe}>나</span>
-                    )}
-                  </span>
-                  <span className={styles.rankSub}>{grade.title}</span>
-                </div>
-                <span
-                  className={styles.rankGradeLabel}
-                  style={{ color: GRADE_COLORS[grade.grade] }}
-                >
-                  {grade.grade}
-                </span>
-                {canCompare && <span className={styles.rankArrow}>›</span>}
-              </div>
-            );
-          })}
-        </div>
+      {/* 등급별 아코디언 */}
+      <div className={styles.gradeList}>
+        {GRADE_ORDER.map((grade) => (
+          <GradeSection
+            key={grade}
+            grade={grade}
+            items={grouped[grade]}
+            isOpen={openGrade === grade}
+            onToggle={() => setOpenGrade((prev) => (prev === grade ? null : grade))}
+            isMyView={isMyView}
+            onCompareRequest={onCompareRequest}
+          />
+        ))}
       </div>
+
+      <p className={styles.hint}>등급을 탭하면 멤버를 확인할 수 있어요</p>
     </div>
   );
 };

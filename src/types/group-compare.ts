@@ -14,6 +14,10 @@ export interface GroupCompareResult {
   myUserId: string;
   /** 번들 카테고리 코드 */
   categoryCode?: CategoryCode;
+  /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 */
+  showGenderContent?: boolean;
+  /** 그룹 생성자 userId — 설정 권한 판별용 */
+  creatorUserId?: string;
 
   /** 그룹 멤버 답변 */
   members: Array<{

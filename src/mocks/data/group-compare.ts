@@ -30,7 +30,9 @@ export function getGroupCompareResult(
   bundleSlug: string,
   groupName: string,
   memberInfos: Array<{ userId: string; nickname: string; displayName?: string }>,
-  currentUserId: string
+  currentUserId: string,
+  showGenderContent: boolean,
+  creatorUserId: string
 ): GroupCompareResult | null {
   const elections = mockBundleElections[bundleSlug];
   const detail = mockBundleDetails[bundleSlug];
@@ -98,6 +100,8 @@ export function getGroupCompareResult(
     memberCount: members.length,
     myUserId: currentUserId,
     categoryCode: detail.categoryCode,
+    showGenderContent,
+    creatorUserId,
     members,
     // seedRatios는 "전체 대중의 투표 비율"을 시뮬레이션 (그룹 멤버 투표와 무관)
     questionStats: elections.map((e, i) => {

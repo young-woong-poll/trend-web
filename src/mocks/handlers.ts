@@ -1181,8 +1181,18 @@ export const handlers = [
   /** POST /api/v1/bundles/{slug}/compare-links — 비교 링크 생성 */
   http.post(`${baseURL}/api/v1/bundles/:slug/compare-links`, async ({ params, request }) => {
     const slug = params.slug as string;
-    const body = (await request.json()) as { type: 'ONE_TO_ONE' | 'GROUP'; groupName?: string };
-    const result = createCompareLink('mock-user-1', '웅이', slug, body.type);
+    const body = (await request.json()) as {
+      type: 'ONE_TO_ONE' | 'GROUP';
+      groupName?: string;
+      showGenderContent?: boolean;
+    };
+    const result = createCompareLink(
+      'mock-user-1',
+      '웅이',
+      slug,
+      body.type,
+      body.showGenderContent ?? false
+    );
     return HttpResponse.json({
       code: 'SUCCESS',
       message: '비교 링크가 생성되었습니다',
@@ -1252,7 +1262,9 @@ export const handlers = [
       link.bundleSlug,
       link.groupName ?? '그룹',
       link.groupMembers,
-      'mock-user-1'
+      'mock-user-1',
+      link.showGenderContent,
+      link.creatorUserId
     );
     if (!result) {
       return HttpResponse.json(
@@ -1261,6 +1273,32 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  /** PATCH /api/v1/compare-links/{token}/settings — 그룹 설정 수정 */
+  http.patch(`${baseURL}/api/v1/compare-links/:token/settings`, async ({ params, request }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    if (link.creatorUserId !== 'mock-user-1') {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '그룹 생성자만 설정을 변경할 수 있습니다', data: null },
+        { status: 403 }
+      );
+    }
+    const body = (await request.json()) as { groupName?: string; showGenderContent?: boolean };
+    if (body.groupName !== undefined) {
+      link.groupName = body.groupName;
+    }
+    if (body.showGenderContent !== undefined) {
+      link.showGenderContent = body.showGenderContent;
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '설정이 변경되었습니다', data: null });
   }),
 
   /** PATCH /api/v1/compare-links/{token}/close — 그룹 마감 */
@@ -1338,6 +1376,7 @@ export const handlers = [
         groupName: null,
         groupMembers: [],
         isClosed: false,
+        showGenderContent: false,
       });
     }
     return HttpResponse.json({
