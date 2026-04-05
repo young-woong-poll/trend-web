@@ -213,6 +213,11 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
           </h1>
           <p className={styles.heroSubtitle}>{getHeroMessage()}</p>
 
+          {/* 번들 제목 (어떤 가치관 대결인지) */}
+          {!isAlreadyTaken && !link.isCreator && (
+            <div className={styles.bundleBadge}>{link.bundleTitle}</div>
+          )}
+
           {link.type === 'GROUP' && link.memberCount > 0 && (
             <p className={styles.errorMessage}>
               현재 {link.memberCount}명 참여 중{link.isClosed && ' (마감됨)'}
@@ -315,18 +320,18 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             </p>
           </div>
         )}
+      </div>
 
-        {/* ─── CTA ─── */}
-        <div className={styles.ctaArea}>
-          <button
-            type="button"
-            className={styles.ctaButton}
-            onClick={handleAction}
-            disabled={isCreatorWaiting || joinMutation.isPending}
-          >
-            {joinMutation.isPending ? '참여 중...' : getCtaText()}
-          </button>
-        </div>
+      {/* ─── Fixed Bottom CTA ─── */}
+      <div className={styles.ctaArea}>
+        <button
+          type="button"
+          className={styles.ctaButton}
+          onClick={handleAction}
+          disabled={isCreatorWaiting || joinMutation.isPending}
+        >
+          {joinMutation.isPending ? '참여 중...' : getCtaText()}
+        </button>
       </div>
 
       <DisplayNameModal
