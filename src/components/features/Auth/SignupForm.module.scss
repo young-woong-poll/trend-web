@@ -7,6 +7,9 @@
   min-height: 100dvh;
   background: $bg-primary;
   padding: 0 $spacing-24;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .content {
@@ -20,41 +23,13 @@
   font-size: $font-size-24;
   font-weight: $font-weight-bold;
   color: $white;
-  margin-bottom: $spacing-8;
+  margin-bottom: $spacing-32;
 }
 
 .subtitle {
   font-size: $font-size-14;
   color: $text-tertiary;
   margin-bottom: $spacing-32;
-}
-
-// ─── 그룹 핫픽 유입 안내 ───
-.groupTip {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-8;
-  padding: $spacing-16;
-  background: rgba(255, 0, 255, 0.06);
-  border: 1px solid rgba(255, 0, 255, 0.15);
-  border-radius: $border-radius-md;
-  margin-bottom: $spacing-24;
-}
-
-.groupTipIcon {
-  flex-shrink: 0;
-  font-size: $font-size-16;
-  line-height: 1.5;
-}
-
-.groupTipText {
-  font-size: 13px;
-  color: $text-secondary;
-  line-height: 1.6;
-
-  strong {
-    color: $white;
-  }
 }
 
 // ─── 필드 공통 ───
@@ -64,12 +39,20 @@
 
 .label {
   display: flex;
-  align-items: center;
-  gap: $spacing-4;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-8;
   font-size: $font-size-14;
   font-weight: $font-weight-semibold;
   color: $text-secondary;
   margin-bottom: $spacing-8;
+}
+
+.labelHint {
+  font-size: $font-size-12;
+  font-weight: $font-weight-regular;
+  color: $text-tertiary;
+  flex-shrink: 0;
 }
 
 .optional {

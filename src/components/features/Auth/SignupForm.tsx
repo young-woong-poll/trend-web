@@ -245,25 +245,17 @@ const SignupForm = () => {
     <div className={styles.container}>
       <form className={styles.content} onSubmit={handleSubmit(onSubmit)}>
         <h1 className={styles.title}>거의 다 왔어요!</h1>
-        <p className={styles.subtitle}>가입 정보만 입력하면 바로 시작할 수 있어요</p>
-
-        {/* 그룹 핫픽에서 유입된 경우 displayName 안내 */}
-        {isFromGroup && (
-          <div className={styles.groupTip}>
-            <span className={styles.groupTipIcon}>💡</span>
-            <p className={styles.groupTipText}>
-              그룹 비교에서는 닉네임과 별도로
-              <br />
-              <strong>표시 이름(displayName)</strong>을 설정할 수 있어요.
-              <br />
-              닉네임은 부담 없이 정해주세요!
-            </p>
-          </div>
-        )}
 
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>닉네임</label>
+          <label className={styles.label}>
+            닉네임
+            {isFromGroup && (
+              <span className={styles.labelHint}>
+                · 그룹 비교에서는 별도 표시 이름을 설정할 수 있어요
+              </span>
+            )}
+          </label>
           <div className={styles.inputWrapper}>
             <input
               {...register('nickname', { required: '닉네임을 입력해주세요' })}
@@ -273,11 +265,7 @@ const SignupForm = () => {
               onBlur={handleBlur}
             />
           </div>
-          {isCheckingNickname ? (
-            <p className={styles.helperText}>닉네임 확인 중...</p>
-          ) : (
-            <p className={styles.helperText}>친구들이 알아볼 수 있는 이름을 추천해요</p>
-          )}
+          {isCheckingNickname && <p className={styles.helperText}>닉네임 확인 중...</p>}
           {errors.nickname?.message && (
             <p className={styles.errorText}>{errors.nickname.message}</p>
           )}

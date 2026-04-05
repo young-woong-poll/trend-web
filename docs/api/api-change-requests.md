@@ -316,15 +316,39 @@
 
 ## 3. 변경 타임라인
 
-| 우선순위 | 항목                         | 설명                                  |
-| -------- | ---------------------------- | ------------------------------------- |
-| P0       | 1-1 닉네임 중복 허용         | FE 이미 반영 완료, 서버만 풀어주면 됨 |
-| P0       | 2-1 join displayName         | 그룹 비교 핵심 기능                   |
-| P0       | 2-2 group-result displayName | 2-1과 세트                            |
-| P0       | 2-5 compare-link GROUP 필드  | 그룹 랜딩 페이지 분기에 필수          |
-| P0       | 2-7 group-result myUserId    | "나" 식별에 필수                      |
-| P1       | 2-4 번들 상세 categoryCode   | 성별 기반 섹션 조건부 표시            |
-| P1       | 2-6 members gender/birthYear | 성별 대결, 이성궁합 섹션              |
-| P1       | 2-3 프로필 색상 확장         | FE 반영 완료, 서버 validation만 확장  |
-| P1       | 1-2 (변경 없음)              | 서버 변경 불필요, 참고용 기록         |
-| 참고     | 2-8 questionStats 비율 형식  | 새 API 스펙, 기존 변경 아님           |
+| 우선순위 | 항목                               | 설명                                  |
+| -------- | ---------------------------------- | ------------------------------------- |
+| P0       | 1-1 닉네임 중복 허용               | FE 이미 반영 완료, 서버만 풀어주면 됨 |
+| P0       | 2-1 join displayName               | 그룹 비교 핵심 기능                   |
+| P0       | 2-2 group-result displayName       | 2-1과 세트                            |
+| P0       | 2-5 compare-link GROUP 필드        | 그룹 랜딩 페이지 분기에 필수          |
+| P0       | 2-7 group-result myUserId          | "나" 식별에 필수                      |
+| P1       | 2-4 번들 상세 categoryCode         | 성별 기반 섹션 조건부 표시            |
+| P1       | 2-6 members gender/birthYear       | 성별 대결, 이성궁합 섹션              |
+| P1       | 2-3 프로필 색상 확장               | FE 반영 완료, 서버 validation만 확장  |
+| P1       | 1-2 (변경 없음)                    | 서버 변경 불필요, 참고용 기록         |
+| 참고     | 2-8 questionStats 비율 형식        | 새 API 스펙, 기존 변경 아님           |
+| P1       | 2-9 가입 시 profileColor 랜덤 배정 | 보라색 편중 방지                      |
+
+---
+
+### 2-9. 가입 시 profileColor 랜덤 배정 — `POST /api/v1/auth/signup`
+
+**현재 동작**: 가입 시 `profileColor`를 설정하지 않아 모든 신규 유저가 기본값(`purple`)으로 생성됨
+
+**변경 요청**: 가입 시 서버에서 24개 프로필 색상 중 하나를 랜덤으로 배정
+
+**사용 가능한 색상 (24개)**:
+
+`purple`, `blue`, `green`, `amber`, `red`, `pink`, `cyan`, `indigo`, `magenta`, `sky`, `gold`, `teal`, `grape`, `sunset`, `ocean`, `lime`, `coral`, `lavender`, `mint`, `peach`, `sapphire`, `rose`, `forest`, `flame`
+
+**변경 사유**:
+
+- 현재 가입 시 색상 선택 UI가 없어 모든 신규 유저가 보라색 프로필로 생성됨
+- 그룹 비교에서 멤버 아바타 색상이 프로필 색상 기반이므로, 동일 색상 유저가 많으면 구분이 어려움
+- 가입 퍼널에 색상 선택 단계를 추가하면 이탈률 증가 우려 → 서버 랜덤 배정이 최선
+
+**영향 범위**:
+
+- `POST /api/v1/auth/signup` — 가입 처리 시 `profileColor`를 24개 중 랜덤 선택하여 저장
+- FE 변경 불필요 (기존 폴백 로직 유지)
