@@ -3,7 +3,7 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/HiddenMatch.module.scss';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface HiddenMatchProps {
@@ -26,7 +26,7 @@ interface DiscoveryCard {
 export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pairs }) => {
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getGradientByIndex(idx >= 0 ? idx : 0);
+    return getMemberGradient(idx >= 0 ? idx : 0);
   };
 
   const discoveries = useMemo(() => {

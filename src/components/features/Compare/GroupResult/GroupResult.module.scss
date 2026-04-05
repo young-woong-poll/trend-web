@@ -17,6 +17,39 @@
   width: 100%;
 }
 
+// ─── 프리뷰 배너 ───
+.previewBanner {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px;
+  background: rgba(#fff, 0.04);
+  border: 1px dashed rgba(#fff, 0.12);
+  border-radius: $border-radius-lg;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.previewBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffb800;
+  background: rgba(#ffb800, 0.12);
+  padding: 2px 10px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.previewText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .groupNameRow {
   display: flex;
   align-items: center;

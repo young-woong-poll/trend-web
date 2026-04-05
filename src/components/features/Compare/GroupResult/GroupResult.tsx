@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import EditIcon from '@/assets/icon/EditIcon';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
+import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
@@ -23,6 +24,7 @@ import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/Po
 import { RelationExplorer } from '@/components/features/Compare/GroupResult/RelationExplorer';
 import { GENDER_CATEGORIES } from '@/constants/bundle';
 import { calcAllPairChemistry, calcGroupAwards } from '@/constants/group-compare';
+import { GHOST_USER_PREFIX } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
@@ -31,9 +33,24 @@ import {
   useJoinCompareLink,
   useUpdateGroupName,
 } from '@/hooks/api/useCompare';
+import { useToast } from '@/hooks/useToast';
 
 /** 네트워크 그래프 → 케미 랭킹 전환 임계값 */
 const NETWORK_THRESHOLD = 16;
+
+/** 프리뷰용 가상 멤버 이름 */
+const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C'];
+
+/** 가상 멤버 답변 생성 (시드 기반 고정 패턴) */
+function generateGhostAnswers(
+  electionIds: string[],
+  seed: number
+): Array<{ electionId: string; selected: 'A' | 'B' }> {
+  return electionIds.map((id, i) => ({
+    electionId: id,
+    selected: (seed + i) % 2 === 0 ? 'A' : ('B' as const),
+  }));
+}
 
 interface GroupResultProps {
   token: string;
@@ -51,18 +68,39 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [showEditNameModal, setShowEditNameModal] = useState(false);
 
+  const { toast, showToast } = useToast();
+
+  // 프리뷰 모드: 실제 멤버가 1명뿐일 때 가상 멤버 3명을 주입
+  const isPreview = result?.members.length === 1;
+
   // displayName이 있으면 nickname 대신 사용 (모든 하위 컴포넌트에 일괄 적용)
   const displayResult = useMemo(() => {
     if (!result) {
       return null;
     }
-    return {
-      ...result,
-      members: result.members.map((m) => ({
-        ...m,
-        nickname: m.displayName ?? m.nickname,
-      })),
-    };
+
+    const realMembers = result.members.map((m) => ({
+      ...m,
+      nickname: m.displayName ?? m.nickname,
+    }));
+
+    // 프리뷰: 가상 멤버 3명 추가
+    if (realMembers.length === 1) {
+      const electionIds = result.questionStats.map((q) => q.electionId);
+      const ghostMembers = GHOST_NAMES.map((name, i) => ({
+        userId: `${GHOST_USER_PREFIX}${i}`,
+        nickname: name,
+        displayName: name,
+        answers: generateGhostAnswers(electionIds, i),
+      }));
+      return {
+        ...result,
+        members: [...realMembers, ...ghostMembers],
+        memberCount: 1, // 실제 멤버 수는 1로 유지
+      };
+    }
+
+    return { ...result, members: realMembers };
   }, [result]);
 
   const pairs = useMemo(
@@ -111,37 +149,6 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   }
 
   if (!result || !displayResult) {
-    // 그룹은 존재하지만 멤버가 부족한 상태 (0~1명)
-    if (link && link.type === 'GROUP') {
-      return (
-        <BundleBackground>
-          <div className={styles.waitingContainer}>
-            <div className={styles.waitingSpinner}>
-              <div className={styles.spinnerRing} />
-            </div>
-            <h2 className={styles.waitingTitle}>{link.groupName ?? '그룹'}</h2>
-            <p className={styles.waitingDescription}>
-              아직 멤버들이 참여하지 않았어요.
-              <br />
-              2명 이상 참여하면 그룹 비교 결과를 볼 수 있어요.
-            </p>
-            <p className={styles.waitingMemberCount}>현재 {link.memberCount}명 참여</p>
-            <button
-              type="button"
-              className={styles.secondaryCta}
-              style={{ maxWidth: 240 }}
-              onClick={() => {
-                const url = `${window.location.origin}/compare/${token}`;
-                void navigator.clipboard.writeText(url);
-              }}
-            >
-              초대 링크 복사하기
-            </button>
-          </div>
-        </BundleBackground>
-      );
-    }
-
     return (
       <BundleBackground>
         <div className={styles.loading}>
@@ -207,6 +214,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     <BundleBackground>
       <div className={styles.container}>
         <div className={styles.heroSection}>
+          {isPreview && (
+            <div className={styles.previewBanner}>
+              <span className={styles.previewBadge}>미리보기</span>
+              <p className={styles.previewText}>
+                가상 멤버로 구성된 미리보기예요.
+                <br />
+                친구를 초대하면 진짜 결과를 볼 수 있어요!
+              </p>
+            </div>
+          )}
           <div className={styles.groupNameRow}>
             <h1 className={styles.groupName}>{result.groupName}</h1>
             {link?.isCreator && (
@@ -299,7 +316,17 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         )}
       </div>
 
-      {isMember ? (
+      {isPreview ? (
+        <FloatingCta
+          onClick={() => {
+            const url = `${window.location.origin}/compare/${token}`;
+            void navigator.clipboard.writeText(url);
+            showToast('초대 링크가 복사되었어요');
+          }}
+        >
+          초대 링크 복사하기
+        </FloatingCta>
+      ) : isMember ? (
         <FloatingCta onClick={() => setShowGroupModal(true)}>내 그룹 만들기</FloatingCta>
       ) : (
         <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
@@ -325,6 +352,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         onConfirm={handleEditGroupName}
         isLoading={updateGroupNameMutation.isPending}
       />
+
+      {toast && <Toast message={toast.message} />}
     </BundleBackground>
   );
 };

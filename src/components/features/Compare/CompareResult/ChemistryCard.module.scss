@@ -68,67 +68,150 @@
   font-weight: 300;
 }
 
-// ─── 일치율 히어로 ───
+// ─── 등급 히어로 ───
 
-.matchRateArea {
+.gradeArea {
   @include flex-column;
   align-items: center;
   gap: 0;
   margin: 16px 0;
+  position: relative;
+  z-index: 2;
   animation: countReveal 0.7s ease-out 0.3s both;
 }
 
-.matchRateRow {
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.matchRate {
-  font-size: 72px;
-  font-weight: 700;
-  color: $white;
+.gradeLetter {
+  font-size: 80px;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -3px;
-  font-variant-numeric: tabular-nums;
+  letter-spacing: -2px;
+  animation: gradeReveal 0.6s ease-out 0.3s both;
 }
 
-.matchUnit {
-  font-size: $font-size-28;
+@keyframes gradeReveal {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gradeTitle {
+  font-size: $font-size-16;
+  font-weight: 700;
+  margin-top: 4px;
+  animation: fadeSlideUp 0.4s ease-out 0.5s both;
+}
+
+.gradeDescription {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: 4px;
+  animation: fadeSlideUp 0.4s ease-out 0.6s both;
+}
+
+// ─── 등급 기준 tooltip ───
+
+.gradeInfoWrap {
+  position: relative;
+  z-index: 10;
+  margin-top: 10px;
+  animation: fadeSlideUp 0.4s ease-out 0.7s both;
+}
+
+.gradeInfoBtn {
+  all: unset;
+  font-size: 11px;
   font-weight: 600;
   color: $text-tertiary;
+  cursor: pointer;
+  padding: 3px 10px;
+  border-radius: $border-rounded;
+  border: 1px solid rgba(#fff, 0.1);
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    color: $white;
+    border-color: rgba(#fff, 0.25);
+  }
 }
 
-.matchLabel {
+.gradeInfoTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 220px;
+  padding: 12px;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: gradeInfoIn 0.15s ease-out;
+}
+
+@keyframes gradeInfoIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.gradeInfoTitle {
   font-size: $font-size-12;
-  color: $text-tertiary;
-  margin-top: 4px;
-  letter-spacing: 1px;
-}
-
-// ─── 커플 타입 ───
-
-.coupleType {
-  font-size: $font-size-24;
-  font-weight: 800;
+  font-weight: 700;
   color: $white;
-  margin-top: 8px;
-  animation: fadeSlideUp 0.5s ease-out 0.5s both;
 }
 
-.coupleDescription {
-  font-size: $font-size-14;
-  color: $text-secondary;
-  line-height: 1.5;
-  word-break: keep-all;
-  animation: fadeSlideUp 0.5s ease-out 0.6s both;
-}
-
-.coupleSubtitle {
-  font-size: $font-size-12;
+.gradeInfoSub {
+  font-size: 11px;
   color: $text-tertiary;
-  margin-top: 4px;
-  animation: fadeSlideUp 0.5s ease-out 0.7s both;
+  margin-top: -4px;
+}
+
+.gradeInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradeInfoGrade {
+  font-size: $font-size-14;
+  font-weight: 700;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.gradeInfoRange {
+  font-size: 11px;
+  color: $text-secondary;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.gradeInfoLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  flex: 1;
 }
 
 // ─── 분포 카드 ───

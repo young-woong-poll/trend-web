@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryNetwork.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
+import { isGhostUser } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface ChemistryNetworkProps {
@@ -269,7 +270,9 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, mem
                 {
                   left: `${pos.x}%`,
                   top: `${pos.y}%`,
-                  '--node-color': NODE_COLORS[i % NODE_COLORS.length].primary,
+                  '--node-color': isGhostUser(member.userId)
+                    ? '#555'
+                    : NODE_COLORS[i % NODE_COLORS.length].primary,
                 } as React.CSSProperties
               }
               onClick={() => handleNodeClick(member.userId)}
@@ -277,7 +280,11 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, mem
               <div
                 className={styles.nodeCircle}
                 style={{
-                  background: active ? NODE_COLORS[i % NODE_COLORS.length].gradient : '#333',
+                  background: isGhostUser(member.userId)
+                    ? '#444'
+                    : active
+                      ? NODE_COLORS[i % NODE_COLORS.length].gradient
+                      : '#333',
                 }}
               >
                 {member.nickname[0]}

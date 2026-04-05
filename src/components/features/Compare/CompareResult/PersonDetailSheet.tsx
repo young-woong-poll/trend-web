@@ -57,8 +57,8 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
               <Image
                 src={popularity.imagePath}
                 alt={popularity.title}
-                width={110}
-                height={110}
+                width={150}
+                height={150}
                 className={styles.personImage}
               />
             ) : (

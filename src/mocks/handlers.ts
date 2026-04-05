@@ -1242,7 +1242,7 @@ export const handlers = [
         { status: 404 }
       );
     }
-    if (link.groupMembers.length < 2) {
+    if (link.groupMembers.length < 1) {
       return HttpResponse.json(
         { code: 'BAD_REQUEST', message: '참여 인원이 부족합니다', data: null },
         { status: 400 }

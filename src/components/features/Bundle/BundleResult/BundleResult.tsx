@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -47,6 +47,31 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showPopularityInfo, setShowPopularityInfo] = useState(false);
+  const popularityInfoRef = useRef<HTMLDivElement>(null);
+  const popularityBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showPopularityInfo) {
+      return;
+    }
+    const handleOutside = (e: MouseEvent) => {
+      if (popularityBtnRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      if (popularityInfoRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      setShowPopularityInfo(false);
+    };
+    const handleScroll = () => setShowPopularityInfo(false);
+    document.addEventListener('mousedown', handleOutside);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showPopularityInfo]);
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
@@ -150,18 +175,26 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <div className={styles.scoreArea}>
             <div className={styles.scoreLabelRow}>
               <span className={styles.scoreLabel}>대중성 지수</span>
-              <button
-                type="button"
-                className={styles.scoreHelp}
-                onClick={() =>
-                  showToast(
-                    `${result.totalQuestions}개 질문에서 내가 고른 선택지의 득표율 평균이에요`
-                  )
-                }
-                aria-label="대중성 지수 설명"
-              >
-                <QuestionIcon width={14} height={14} />
-              </button>
+              <div className={styles.scoreHelpWrap}>
+                <button
+                  ref={popularityBtnRef}
+                  type="button"
+                  className={styles.scoreHelp}
+                  onClick={() => setShowPopularityInfo((v) => !v)}
+                  aria-label="대중성 지수 설명"
+                >
+                  <QuestionIcon width={14} height={14} />
+                </button>
+                {showPopularityInfo && (
+                  <div ref={popularityInfoRef} className={styles.popularityTooltip}>
+                    <span className={styles.tooltipTitle}>대중성 지수란?</span>
+                    <span className={styles.tooltipBody}>
+                      {result.totalQuestions}개 질문에서 내가 고른 선택지의 득표율 평균이에요.
+                      높을수록 다수의 선택과 비슷하고, 낮을수록 독자적인 가치관을 가진 타입이에요.
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className={styles.scoreRow}>
               <span className={styles.scoreValue}>{popularityScore}</span>

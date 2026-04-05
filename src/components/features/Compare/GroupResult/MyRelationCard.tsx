@@ -3,7 +3,7 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/MyRelationCard.module.scss';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 interface MyRelationCardProps {
@@ -100,7 +100,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
     return null;
   }, [me, myPairs, result.members]);
 
-  const getGradient = (memberIndex: number) => getGradientByIndex(memberIndex);
+  const getGradient = (memberIndex: number) => getMemberGradient(memberIndex);
 
   if (!me) {
     return null;

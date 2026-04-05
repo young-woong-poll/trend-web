@@ -17,15 +17,14 @@ export interface CompareLink {
   creatorImageUrl: string | null;
   /** 참여자 닉네임 (1:1 전용, 아직 없으면 null) */
   participantNickname: string | null;
+  /** 1:1 링크에 참여자가 존재하는지 (GROUP은 memberCount 사용) */
+  hasParticipant: boolean;
   /** 현재 로그인 유저가 생성자인지 */
   isCreator: boolean;
   /** 현재 로그인 유저가 참여자인지 */
   isParticipant: boolean;
   /** 현재 로그인 유저의 번들 완료 여부 */
   myBundleCompleted: boolean;
-  /** 비교 가능 여부 (둘 다 완료) */
-  compareReady: boolean;
-  status: 'WAITING' | 'COMPLETED' | 'CLOSED';
   /** 번들 질문 수 */
   questionCount: number;
   /** 번들 참여자 수 */

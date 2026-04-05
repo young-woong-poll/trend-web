@@ -26,9 +26,6 @@ function validateGroupName(name: string): string | null {
   if (!trimmed) {
     return '그룹 이름을 입력해주세요';
   }
-  if (trimmed.length < 2) {
-    return '그룹 이름은 2자 이상이어야 해요';
-  }
   if (DANGEROUS_CHARS.test(trimmed)) {
     return '< > " \' & 문자는 사용할 수 없어요';
   }
@@ -112,7 +109,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
             <div>
               <div className={styles.inputLabelRow}>
                 <label className={styles.inputLabel}>그룹 이름</label>
-                <span className={styles.inputHint}>2~20자</span>
+                <span className={styles.inputHint}>1~20자</span>
               </div>
               <input
                 type="text"
@@ -127,7 +124,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
               type="button"
               className={styles.createButton}
               onClick={handleCreate}
-              disabled={createMutation.isPending || groupName.trim().length < 2}
+              disabled={createMutation.isPending || !groupName.trim()}
             >
               {createMutation.isPending ? '생성 중...' : '그룹 링크 만들기'}
             </button>

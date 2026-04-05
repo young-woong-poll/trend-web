@@ -1,6 +1,6 @@
 # API 변경 요청서
 
-> FE 닉네임 시스템 개편 및 그룹 비교 displayName 도입에 따른 기존 API 변경사항 + 신규 API 요청
+> FE 닉네임 시스템 개편 및 그룹 비교(Phase 3) 도입에 따른 기존 API 변경사항 + 신규 필드 요청
 
 ---
 
@@ -25,16 +25,6 @@
 - `POST /api/v1/auth/signup` — 서버 측 닉네임 중복 검증 있다면 제거
 - `PATCH /api/v1/auth/me` (닉네임 변경) — 서버 측 중복 검증 있다면 제거
 - `GET /api/v1/auth/nickname/check` — 폐기하거나 항상 `available: true` 반환
-
----
-
-### 1-2. 회원가입 닉네임 필수 입력 — `POST /api/v1/auth/signup`
-
-**현재 동작**: FE에서 자동 생성 닉네임을 기본값으로 채워 전송
-
-**변경 요청**: 서버 측 변경 불필요 (닉네임은 이미 required 필드)
-
-**FE 변경 완료**: 자동 생성 로직 제거, 유저가 직접 입력한 닉네임만 전송
 
 ---
 
@@ -127,6 +117,203 @@
 
 ---
 
+### 2-4. 번들 상세에 categoryCode 추가 — `GET /api/v1/bundles/{slug}`
+
+**현재 응답**:
+
+```json
+{
+  "slug": "love-values",
+  "title": "연애 가치관 테스트",
+  "category": "연애",
+  ...
+}
+```
+
+**변경 요청 — `categoryCode` 필드 추가**:
+
+```json
+{
+  "slug": "love-values",
+  "title": "연애 가치관 테스트",
+  "category": "연애",
+  "categoryCode": "LOVE",
+  ...
+}
+```
+
+| 필드           | 타입           | 필수 | 설명                                                 |
+| -------------- | -------------- | ---- | ---------------------------------------------------- |
+| `categoryCode` | `CategoryCode` | N    | 싱글 핫픽과 동일한 카테고리 코드 (LOVE, MARRIAGE 등) |
+
+**변경 사유**:
+
+- 그룹 비교 결과에서 성별 기반 섹션 (이성궁합 랭킹, 성별 대결)을 카테고리에 따라 조건부 표시
+- `categoryCode`가 `'LOVE'` 또는 `'MARRIAGE'`인 번들에서만 해당 섹션을 노출
+- 기존 `category` 필드는 한글 문자열이라 코드 비교에 부적합
+
+**FE 대응 완료**: `BundleDetail` 타입에 `categoryCode` 추가, `GroupCompareResult`에 전달, `GENDER_CATEGORIES` 상수로 조건부 렌더링
+
+---
+
+### 2-5. 비교 링크 정보에 GROUP 전용 필드 — `GET /api/v1/compare-links/{token}`
+
+**현재 응답**: 1:1 비교 전용 필드만 존재
+
+**변경 요청 — GROUP 전용 필드 3개 추가**:
+
+```json
+{
+  "token": "group-abc",
+  "type": "GROUP",
+  "groupName": "마케팅팀",
+  "memberCount": 5,
+  "isClosed": false,
+  ...
+}
+```
+
+| 필드          | 타입      | 설명                                            |
+| ------------- | --------- | ----------------------------------------------- |
+| `groupName`   | `string?` | 그룹 이름 (GROUP 전용, ONE_TO_ONE은 null)       |
+| `memberCount` | `number`  | 현재 참여 멤버 수 (GROUP 전용, ONE_TO_ONE은 0)  |
+| `isClosed`    | `boolean` | 그룹 마감 여부 (GROUP 전용, ONE_TO_ONE은 false) |
+
+**변경 사유**:
+
+- 그룹 링크 랜딩 페이지에서 그룹 상태 표시 (이름, 참여 인원, 마감 여부)
+- `memberCount ≥ 2`이면 결과 페이지로 즉시 리다이렉트
+- `isClosed`이면 참여 불가 안내
+
+**FE 대응 완료**: `CompareLink` 타입에 3개 필드 추가, `CompareLanding` 컴포넌트에서 GROUP 분기 처리
+
+---
+
+### 2-6. 그룹 결과 멤버에 gender/birthYear — `GET /api/v1/compare-links/{token}/group-result`
+
+**현재 응답 (2-2에서 정의한 members)**:
+
+```json
+{
+  "members": [
+    { "userId": "user-1", "nickname": "웅이", "displayName": "웅일", "answers": [...] }
+  ]
+}
+```
+
+**변경 요청 — `gender`, `birthYear` 필드 추가**:
+
+```json
+{
+  "members": [
+    {
+      "userId": "user-1",
+      "nickname": "웅이",
+      "displayName": "웅일",
+      "gender": "MALE",
+      "birthYear": 1995,
+      "answers": [...]
+    }
+  ]
+}
+```
+
+| 필드        | 타입                 | 필수 | 설명                                            |
+| ----------- | -------------------- | ---- | ----------------------------------------------- |
+| `gender`    | `'MALE' \| 'FEMALE'` | N    | 성별 (없으면 성별 기반 섹션에서 해당 멤버 제외) |
+| `birthYear` | `number`             | N    | 출생연도 (없으면 세대 분석에서 해당 멤버 제외)  |
+
+**변경 사유**:
+
+- 이성궁합 랭킹: 남녀 쌍의 케미 TOP 3 / WORST 3 표시
+- 성별 대결: 질문별 남녀 선택 비율 차이 시각화
+- 세대별 클러스터: 연령대별 응답 패턴 분석 (예정)
+
+**개인정보 고려사항**:
+
+- `gender`/`birthYear`는 회원가입 시 수집하는 정보 활용
+- 그룹 비교에 참여한 유저만 대상 (공개 범위 = 같은 그룹 멤버)
+- 미입력/비공개 유저는 null로 처리 → FE에서 해당 섹션에서 자동 제외
+
+**FE 대응 완료**: `GroupCompareResult.members` 타입에 optional `gender`/`birthYear` 추가, 성별 대결/이성궁합 컴포넌트에서 사용
+
+---
+
+### 2-7. 그룹 결과에 myUserId 추가 — `GET /api/v1/compare-links/{token}/group-result`
+
+**현재 응답**: 그룹 결과에 "현재 유저가 누구인지" 정보 없음
+
+**변경 요청 — 최상위에 `myUserId` 필드 추가**:
+
+```json
+{
+  "bundleSlug": "love-values",
+  "myUserId": "user-1",
+  ...
+}
+```
+
+| 필드       | 타입     | 설명                                               |
+| ---------- | -------- | -------------------------------------------------- |
+| `myUserId` | `string` | 현재 로그인 유저의 userId (members 배열 내 매칭용) |
+
+**변경 사유**:
+
+- 그룹 내 "나"를 식별하기 위해 필요 (네트워크 그래프 12시 방향 배치, "나" 뱃지 표시, 아바타 스택 우선 배치 등)
+- 1:1 비교에서는 `me`/`target` 구조로 해결했지만, 그룹은 members 배열이므로 별도 식별자 필요
+
+**FE 대응 완료**: 모든 그룹 결과 하위 컴포넌트에 `currentUserId` prop 전달, "나" 뱃지 및 우선 배치 구현
+
+---
+
+### 2-8. 그룹 결과 questionStats 비율 형식
+
+**1:1 비교 결과 (Phase 2)의 questionStats**:
+
+```json
+{
+  "questionStats": [
+    { "electionId": "le-1", "optionACount": 320, "optionBCount": 180, ... }
+  ]
+}
+```
+
+**그룹 비교 결과 (Phase 3)의 questionStats**:
+
+```json
+{
+  "questionStats": [
+    {
+      "electionId": "le-1",
+      "optionARate": 64,
+      "optionBRate": 36,
+      "totalVotes": 500,
+      "axis": "X",
+      ...
+    }
+  ]
+}
+```
+
+| 필드          | 타입                 | 설명                                |
+| ------------- | -------------------- | ----------------------------------- |
+| `optionARate` | `number`             | A 선택 비율 (0~100 정수)            |
+| `optionBRate` | `number`             | B 선택 비율 (0~100 정수, = 100 - A) |
+| `totalVotes`  | `number`             | 전체 참여자 투표 수                 |
+| `axis`        | `'X' \| 'Y' \| null` | 가치관 지도 축 배정 (null = 미배정) |
+
+**설계 의도**:
+
+- 1:1 비교(Phase 2)는 `optionACount`/`optionBCount`로 FE에서 비율 계산
+- 그룹 비교(Phase 3)는 서버에서 비율을 미리 계산해서 `optionARate`/`optionBRate`로 전달
+- 그룹에서는 대중성 점수, 논쟁 포인트 등에서 비율을 직접 사용하므로 비율 형식이 효율적
+- `totalVotes`는 참고 수치로 제공 (FE에서 직접 계산에는 사용하지 않음)
+- `axis`는 가치관 지도 시각화에 사용 (X/Y 축에 어떤 질문을 배정할지)
+
+**참고**: 이는 새 API(`group-result`)의 스펙이므로 기존 API 변경은 아님. `bundle-api-spec.md` 섹션 9에 상세 기술됨.
+
+---
+
 ## 3. 변경 타임라인
 
 | 우선순위 | 항목                         | 설명                                  |
@@ -134,5 +321,10 @@
 | P0       | 1-1 닉네임 중복 허용         | FE 이미 반영 완료, 서버만 풀어주면 됨 |
 | P0       | 2-1 join displayName         | 그룹 비교 핵심 기능                   |
 | P0       | 2-2 group-result displayName | 2-1과 세트                            |
+| P0       | 2-5 compare-link GROUP 필드  | 그룹 랜딩 페이지 분기에 필수          |
+| P0       | 2-7 group-result myUserId    | "나" 식별에 필수                      |
+| P1       | 2-4 번들 상세 categoryCode   | 성별 기반 섹션 조건부 표시            |
+| P1       | 2-6 members gender/birthYear | 성별 대결, 이성궁합 섹션              |
 | P1       | 2-3 프로필 색상 확장         | FE 반영 완료, 서버 validation만 확장  |
 | P1       | 1-2 (변경 없음)              | 서버 변경 불필요, 참고용 기록         |
+| 참고     | 2-8 questionStats 비율 형식  | 새 API 스펙, 기존 변경 아님           |

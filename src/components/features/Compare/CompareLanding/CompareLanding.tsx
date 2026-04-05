@@ -58,37 +58,27 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     );
   }
 
-  // ─── 그룹 링크 → 바로 결과 페이지로 ───
-  if (link.type === 'GROUP' && link.memberCount >= 2) {
+  // ─── 그룹 링크 → 바로 결과 페이지로 (1명 이상이면 프리뷰 포함 진입) ───
+  if (link.type === 'GROUP' && link.memberCount >= 1) {
     router.replace(`/compare/group/${token}`);
     return null;
   }
 
   // ─── 상태별 분기 ───
-  const isCreatorWaiting = link.isCreator && !link.compareReady;
-  const isCreatorReady = link.isCreator && link.compareReady;
+  // GROUP 링크는 위에서 memberCount >= 2 분기로 리다이렉트되므로, 아래는 1:1 링크 위주
+  const hasResult = link.hasParticipant;
+  const isCreatorWaiting = link.isCreator && !hasResult;
+  const isCreatorReady = link.isCreator && hasResult;
 
   const needsLogin = !isLoggedIn && !link.isCreator;
   // 1:1 링크에서 다른 사람이 이미 선점한 경우
   const isAlreadyTaken =
-    isLoggedIn &&
-    !link.isCreator &&
-    !link.isParticipant &&
-    link.compareReady &&
-    link.type === 'ONE_TO_ONE';
+    isLoggedIn && !link.isCreator && !link.isParticipant && hasResult && link.type === 'ONE_TO_ONE';
   const needsBundle =
-    isLoggedIn &&
-    !link.isCreator &&
-    !link.isParticipant &&
-    !link.myBundleCompleted &&
-    !link.compareReady;
+    isLoggedIn && !link.isCreator && !link.isParticipant && !link.myBundleCompleted && !hasResult;
   const canJoin =
-    isLoggedIn &&
-    !link.isCreator &&
-    !link.isParticipant &&
-    link.myBundleCompleted &&
-    !link.compareReady;
-  const canViewResult = !link.isCreator && link.isParticipant && link.compareReady;
+    isLoggedIn && !link.isCreator && !link.isParticipant && link.myBundleCompleted && !hasResult;
+  const canViewResult = !link.isCreator && link.isParticipant && hasResult;
 
   const resultPath = link.type === 'GROUP' ? `/compare/group/${token}` : `/compare/match/${token}`;
 
@@ -212,7 +202,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
                 </>
               )
             ) : link.type === 'GROUP' ? (
-              link.compareReady ? (
+              link.memberCount >= 1 ? (
                 `${link.memberCount}명이 참여한 그룹 결과가 준비되었어요!`
               ) : (
                 '멤버들이 참여하면 그룹 비교 결과를 볼 수 있어요'

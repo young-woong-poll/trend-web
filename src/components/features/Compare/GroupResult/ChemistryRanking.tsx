@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryRanking.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
@@ -76,7 +76,8 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
   }, [selectedUserId, pairs, members]);
 
   /** 멤버 원본 인덱스로 gradient 가져오기 */
-  const getGradient = (memberIndex: number) => getGradientByIndex(memberIndex);
+  const getGradient = (memberIndex: number, userId?: string) =>
+    getMemberGradient(memberIndex, userId);
 
   const selectedIndex = members.findIndex((m) => m.userId === selectedUserId);
 

@@ -3,7 +3,7 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/FactionMap.module.scss';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface FactionMapProps {
@@ -133,7 +133,7 @@ export const FactionMap: FC<FactionMapProps> = ({ members, pairs }) => {
 
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getGradientByIndex(idx >= 0 ? idx : 0);
+    return getMemberGradient(idx >= 0 ? idx : 0);
   };
 
   const getNickname = (userId: string) => members.find((m) => m.userId === userId)?.nickname ?? '?';

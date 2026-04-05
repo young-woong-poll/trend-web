@@ -48,3 +48,20 @@ export const getGradientByIndex = (index: number): string => {
   const color = PROFILE_COLORS[index % PROFILE_COLORS.length];
   return `linear-gradient(135deg, ${color.start}, ${color.end})`;
 };
+
+/** 가상 멤버(고스트) 프로필 그라데이션 — 무채색 */
+export const GHOST_GRADIENT = 'linear-gradient(135deg, #555, #3a3a3a)';
+
+/** 가상 멤버 userId 프리픽스 */
+export const GHOST_USER_PREFIX = '__ghost__';
+
+/** userId가 가상 멤버인지 확인 */
+export const isGhostUser = (userId: string): boolean => userId.startsWith(GHOST_USER_PREFIX);
+
+/** 멤버 아바타 그라데이션 (가상 멤버면 회색) */
+export const getMemberGradient = (index: number, userId?: string): string => {
+  if (userId && isGhostUser(userId)) {
+    return GHOST_GRADIENT;
+  }
+  return getGradientByIndex(index);
+};

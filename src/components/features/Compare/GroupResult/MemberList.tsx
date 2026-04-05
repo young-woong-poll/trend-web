@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import styles from '@/components/features/Compare/GroupResult/MemberList.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface MemberListProps {
@@ -51,7 +51,10 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
               className={styles.memberCard}
               onClick={() => handleMemberClick(member.userId)}
             >
-              <div className={styles.memberAvatar} style={{ background: getGradientByIndex(i) }}>
+              <div
+                className={styles.memberAvatar}
+                style={{ background: getMemberGradient(i, member.userId) }}
+              >
                 {member.nickname[0]}
               </div>
               <div className={styles.memberInfo}>

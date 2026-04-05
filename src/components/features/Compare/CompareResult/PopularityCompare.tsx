@@ -25,6 +25,9 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
         <span className={styles.sectionTitle}>대중성 비교</span>
         <div className={styles.sectionLine} />
       </div>
+      <p className={styles.sectionSub}>
+        각 질문에서 고른 선택지의 득표율 평균으로, 높을수록 다수파 · 낮을수록 소수파
+      </p>
 
       <div className={styles.compareRow}>
         <div

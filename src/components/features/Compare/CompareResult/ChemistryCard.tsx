@@ -1,16 +1,30 @@
-import type { FC } from 'react';
+import { useState, useEffect, useRef, type FC } from 'react';
 
 import styles from '@/components/features/Compare/CompareResult/ChemistryCard.module.scss';
-import { getCoupleType, IDENTITY_COLORS } from '@/constants/compare';
-import { useCountUp } from '@/hooks/useCountUp';
+import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
+import { IDENTITY_COLORS } from '@/constants/compare';
+
+const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  S: '#3B82F6',
+  A: '#22C55E',
+  B: '#FACC15',
+  C: '#F97316',
+  D: '#EF4444',
+};
+
+const GRADE_INFO = [
+  { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는' },
+  { grade: 'A', range: '60~79%', title: '꽤 잘 맞는' },
+  { grade: 'B', range: '40~59%', title: '같을 때도 다를 때도' },
+  { grade: 'C', range: '20~39%', title: '각자의 세계' },
+  { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
+];
 
 interface ChemistryCardProps {
   matchRate: number;
   myNickname: string;
   targetNickname: string;
   bundleTitle: string;
-  myPopularityScore: number;
-  targetPopularityScore: number;
 }
 
 export const ChemistryCard: FC<ChemistryCardProps> = ({
@@ -18,12 +32,33 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
   myNickname,
   targetNickname,
   bundleTitle,
-  myPopularityScore,
-  targetPopularityScore,
 }) => {
-  const coupleType = getCoupleType(matchRate, myPopularityScore, targetPopularityScore);
-  // 마지막 몇 칸에서 느려지는 긴장감 연출 (easeOutQuint + 긴 duration)
-  const animatedRate = useCountUp(matchRate, 2000, 'easeOutQuint');
+  const chemistry = getChemistryByRate(matchRate);
+  const [showGradeInfo, setShowGradeInfo] = useState(false);
+  const gradeInfoRef = useRef<HTMLDivElement>(null);
+  const gradeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showGradeInfo) {
+      return;
+    }
+    const handleOutside = (e: MouseEvent) => {
+      if (gradeBtnRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      if (gradeInfoRef.current?.contains(e.target as Node)) {
+        return;
+      }
+      setShowGradeInfo(false);
+    };
+    const handleScroll = () => setShowGradeInfo(false);
+    document.addEventListener('mousedown', handleOutside);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [showGradeInfo]);
 
   return (
     <div className={styles.container}>
@@ -40,24 +75,50 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
         </span>
       </div>
 
-      {/* 일치율 히어로 */}
-      <div className={styles.matchRateArea}>
-        <div className={styles.matchRateRow}>
-          <span className={styles.matchRate}>{animatedRate}</span>
-          <span className={styles.matchUnit}>%</span>
+      {/* 등급 히어로 */}
+      <div className={styles.gradeArea}>
+        <span className={styles.gradeLetter} style={{ color: GRADE_COLORS[chemistry.grade] }}>
+          {chemistry.grade}
+        </span>
+        <span className={styles.gradeTitle} style={{ color: GRADE_COLORS[chemistry.grade] }}>
+          {chemistry.title}
+        </span>
+        <span className={styles.gradeDescription}>{chemistry.description}</span>
+        <div className={styles.gradeInfoWrap}>
+          <button
+            ref={gradeBtnRef}
+            type="button"
+            className={styles.gradeInfoBtn}
+            onClick={() => setShowGradeInfo((v) => !v)}
+            aria-label="등급 기준 보기"
+          >
+            등급 기준이란
+          </button>
+          {showGradeInfo && (
+            <div ref={gradeInfoRef} className={styles.gradeInfoTooltip}>
+              <span className={styles.gradeInfoTitle}>등급 기준</span>
+              <span className={styles.gradeInfoSub}>답변 일치율 기준으로 산출</span>
+              {GRADE_INFO.map((g) => (
+                <div key={g.grade} className={styles.gradeInfoRow}>
+                  <span
+                    className={styles.gradeInfoGrade}
+                    style={{ color: GRADE_COLORS[g.grade as ChemistryGrade] }}
+                  >
+                    {g.grade}
+                  </span>
+                  <span className={styles.gradeInfoRange}>{g.range}</span>
+                  <span className={styles.gradeInfoLabel}>{g.title}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <span className={styles.matchLabel}>일치율</span>
       </div>
-
-      {/* 커플 타입 */}
-      <div className={styles.coupleType}>{coupleType.title}</div>
-      <div className={styles.coupleDescription}>{coupleType.description}</div>
-      <div className={styles.coupleSubtitle}>{coupleType.subtitle}</div>
 
       {/* 분포 곡선 — 별도 카드 */}
       <div className={styles.distributionCard}>
         <div className={styles.distributionHeader}>
-          <span className={styles.distributionLabel}>우리는</span>
+          <span className={styles.distributionLabel}>우리의 케미는</span>
           <span className={styles.distributionHighlight}>
             {matchRate >= 70 ? '상위권' : matchRate >= 40 ? '중간쯤' : '독특한 편'}
           </span>
@@ -109,8 +170,8 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
             />
           </svg>
           <div className={styles.curveAxis}>
-            <span>불일치</span>
-            <span>일치</span>
+            <span>완전 다름</span>
+            <span>완전 똑같음</span>
           </div>
         </div>
       </div>

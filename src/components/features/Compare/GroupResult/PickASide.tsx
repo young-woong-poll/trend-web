@@ -5,7 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FC } fr
 import { createPortal } from 'react-dom';
 
 import styles from '@/components/features/Compare/GroupResult/PickASide.module.scss';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult } from '@/types/group-compare';
 
 interface StackMember {
@@ -123,7 +123,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
             key={m.userId}
             className={styles.stackCircle}
             style={{
-              background: getGradientByIndex(m.memberIndex),
+              background: getMemberGradient(m.memberIndex, m.userId),
               zIndex: MAX_SHOW - i,
             }}
           >
@@ -146,7 +146,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
                 <div
                   className={styles.stackTooltipCircle}
                   style={{
-                    background: getGradientByIndex(m.memberIndex),
+                    background: getMemberGradient(m.memberIndex, m.userId),
                   }}
                 >
                   {m.nickname[0]}

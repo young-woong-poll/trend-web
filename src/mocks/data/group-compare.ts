@@ -56,7 +56,7 @@ export function getGroupCompareResult(
     })
     .filter((m): m is NonNullable<typeof m> => m !== null);
 
-  if (members.length < 2) {
+  if (members.length < 1) {
     return null;
   }
 

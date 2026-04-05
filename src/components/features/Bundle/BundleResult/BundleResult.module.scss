@@ -189,6 +189,8 @@
   gap: 0;
   margin-top: 32px;
   animation: countUp 0.5s ease-out 0.6s both;
+  position: relative;
+  z-index: 2;
 }
 
 .scoreLabelRow {
@@ -204,6 +206,10 @@
   letter-spacing: 1px;
 }
 
+.scoreHelpWrap {
+  position: relative;
+}
+
 .scoreHelp {
   display: flex;
   align-items: center;
@@ -214,6 +220,50 @@
   cursor: pointer;
   padding: 0;
   transition: color 0.2s ease;
+}
+
+.popularityTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 240px;
+  padding: 12px;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: tooltipIn 0.15s ease-out;
+}
+
+@keyframes tooltipIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.tooltipTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $white;
+}
+
+.tooltipBody {
+  font-size: 11px;
+  color: $text-secondary;
+  line-height: 1.5;
+  word-break: keep-all;
 }
 
 .scoreRow {
@@ -489,7 +539,7 @@
   border-radius: $border-radius-lg;
   background: rgba(#fff, 0.02);
   color: $text-secondary;
-  font-size: $font-size-14;
+  font-size: $font-size-16;
   cursor: pointer;
   transition:
     background 0.2s,
@@ -519,7 +569,8 @@
 .floatingCtaRow {
   display: flex;
   gap: 10px;
-  max-width: 400px;
+  width: 100%;
+  max-width: 560px;
   margin: 0 auto;
 }
 
@@ -528,7 +579,7 @@
   flex: 1;
   padding: 16px 12px;
   border-radius: $border-radius-lg;
-  font-size: $font-size-14;
+  font-size: $font-size-16;
   font-weight: 700;
   letter-spacing: -0.3px;
   cursor: pointer;

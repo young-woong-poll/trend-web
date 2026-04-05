@@ -3,7 +3,7 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/GenerationCluster.module.scss';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface GenerationClusterProps {
@@ -153,7 +153,7 @@ export const GenerationCluster: FC<GenerationClusterProps> = ({ members, pairs }
   /** 원본 members 배열에서 인덱스 → gradient */
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getGradientByIndex(idx >= 0 ? idx : 0);
+    return getMemberGradient(idx >= 0 ? idx : 0);
   };
 
   const getNickname = (userId: string) => members.find((m) => m.userId === userId)?.nickname ?? '?';

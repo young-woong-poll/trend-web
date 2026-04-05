@@ -6,7 +6,7 @@ import FemaleIcon from '@/assets/icon/FemaleIcon';
 import MaleIcon from '@/assets/icon/MaleIcon';
 import styles from '@/components/features/Compare/GroupResult/CrossGenderChemistry.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface CrossGenderChemistryProps {
@@ -59,7 +59,7 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({ members, p
 
   const getGradient = (userId: string) => {
     const index = members.findIndex((m) => m.userId === userId);
-    return getGradientByIndex(index);
+    return getMemberGradient(index);
   };
 
   const getGenderOfUser = (userId: string): 'MALE' | 'FEMALE' | undefined => {

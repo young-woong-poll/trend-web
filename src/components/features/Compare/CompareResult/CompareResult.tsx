@@ -4,16 +4,14 @@ import { useEffect, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
-import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
+import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { AnswerComparison } from '@/components/features/Compare/CompareResult/AnswerComparison';
 import { ChemistryCard } from '@/components/features/Compare/CompareResult/ChemistryCard';
 import styles from '@/components/features/Compare/CompareResult/CompareResult.module.scss';
 import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
-import { calcPopularityScore } from '@/constants/bundle';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCompareResult } from '@/hooks/api/useCompare';
@@ -27,6 +25,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const { data: result, isLoading } = useCompareResult(token);
   const router = useRouter();
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
@@ -39,9 +38,21 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   if (isLoading) {
     return (
       <BundleBackground>
-        <div className={styles.container}>
-          <Skeleton variant="dark" width={148} height={148} borderRadius="50%" />
-          <Skeleton variant="dark" width="100%" height={200} borderRadius={12} />
+        <div className={styles.loading}>
+          <div className={styles.loadingOrbit}>
+            {[0, 1].map((i) => (
+              <div
+                key={i}
+                className={styles.loadingDot}
+                style={{ '--i': i } as React.CSSProperties}
+              />
+            ))}
+            <div className={styles.loadingCenter} />
+          </div>
+          <div className={styles.loadingTextGroup}>
+            <p className={styles.loadingTitle}>둘의 케미를 분석하고 있어요</p>
+            <p className={styles.loadingSubtitle}>답변을 비교 중...</p>
+          </div>
         </div>
       </BundleBackground>
     );
@@ -67,8 +78,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
   const shockPoint = findShockPoint(result);
   const storyData = classifyAnswers(result);
-  const myPopularityScore = calcPopularityScore(result.me.answers, result.questionStats);
-  const targetPopularityScore = calcPopularityScore(result.target.answers, result.questionStats);
 
   return (
     <BundleBackground>
@@ -79,8 +88,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           myNickname={result.me.nickname}
           targetNickname={result.target.nickname}
           bundleTitle={result.bundleTitle}
-          myPopularityScore={myPopularityScore}
-          targetPopularityScore={targetPopularityScore}
         />
 
         {/* 같은 편/갈린 순간 */}
@@ -101,35 +108,28 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
         {/* 대중성 비교 */}
         <PopularityCompare result={result} />
+      </div>
 
-        {/* CTA — 바이럴 루프 */}
-        <div className={styles.ctaSection}>
+      <div className={styles.floatingCta}>
+        <div className={styles.floatingCtaRow}>
           <button
             type="button"
-            className={styles.ctaButton}
+            className={styles.ctaOneToOne}
             onClick={() => setShowCompareModal(true)}
           >
-            다른 친구와도 비교해볼래?
+            1:1 비교하기
           </button>
-          <button
-            type="button"
-            className={styles.secondaryCta}
-            onClick={() =>
-              router.push(`/bundle/${result.bundleSlug}/result?from=compare&token=${token}`)
-            }
-          >
-            내 결과 다시 보기
+          <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
+            그룹 비교하기
           </button>
-          {/* <button type="button" className={styles.secondaryCta} onClick={() => router.push('/')}>
-            메인으로 돌아가기
-          </button> */}
         </div>
       </div>
 
-      <FloatingCta onClick={() => setShowCompareModal(true)}>다른 친구와도 비교해볼래?</FloatingCta>
-
       {showCompareModal && (
         <CreateCompareLink slug={result.bundleSlug} onClose={() => setShowCompareModal(false)} />
+      )}
+      {showGroupModal && (
+        <CreateGroupLink slug={result.bundleSlug} onClose={() => setShowGroupModal(false)} />
       )}
     </BundleBackground>
   );

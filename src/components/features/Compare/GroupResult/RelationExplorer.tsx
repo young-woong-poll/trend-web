@@ -4,7 +4,7 @@ import { useState, useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/RelationExplorer.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
-import { getGradientByIndex } from '@/constants/profileColors';
+import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
@@ -99,7 +99,7 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
 
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return idx >= 0 ? getGradientByIndex(idx) : '#333';
+    return idx >= 0 ? getMemberGradient(idx) : '#333';
   };
 
   const getNickname = (userId: string) => {

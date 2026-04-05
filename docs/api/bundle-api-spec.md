@@ -1,7 +1,7 @@
 # 번들 API 개발 요청서
 
-> **작성일**: 2026-03-31
-> **상태**: Phase 1 완료 + Phase 2 (1:1 비교)
+> **작성일**: 2026-03-31 (Phase 3 업데이트: 2026-04-05)
+> **상태**: Phase 1 완료 + Phase 2 완료 + Phase 3 (그룹 비교)
 > **FE 담당**: 웅일
 > **관련 기획서**: `docs/specs/bundle-compare.md`
 
@@ -36,13 +36,12 @@
   slug: string;
   title: string;
   subtitle: string;
-  description: string;
-  category: string;          // "연애", "결혼", "직장" 등
+  category: string;          // single-hotpick 처럼 카테고리 존재
   questionCount: number;
   status: 'ACTIVE' | 'CLOSED';
   imageUrl?: string;         // 썸네일 이미지 CDN URL (없으면 null/undefined)
   participantCount: number;  // 번들 완료한 유저 수
-  completed: boolean;        // 로그인 유저의 완료 여부 (비로그인 시 false)
+  completed: boolean;        // 로그인 유저의 투표완료 여부 (비로그인 시 false)
 }
 ```
 
@@ -110,7 +109,7 @@ Array<{
 }
 ```
 
-**BE 처리 사항:**
+**BE 처리 유의사항:**
 
 - 모든 질문에 대한 답변이 포함되어야 함 (누락 시 `BAD_REQUEST`)
 - 이미 완료한 유저가 다시 제출하면 `BAD_REQUEST` (중복 제출 방지)
@@ -186,8 +185,8 @@ Array<{
 
 ```typescript
 {
-  type: 'ONE_TO_ONE' | 'GROUP';  // Phase 2에서는 ONE_TO_ONE만 사용
-  groupName?: string;             // GROUP 타입 시 그룹 이름 (Phase 3)
+  type: 'ONE_TO_ONE' | 'GROUP';
+  groupName?: string;             // GROUP 타입 시 그룹 이름 (1~20자, <>"'& 금지)
 }
 ```
 
@@ -232,14 +231,18 @@ Array<{
   bundleTitle: string;
   creatorNickname: string; // 링크 생성자 닉네임
   creatorImageUrl: string | null; // 링크 생성자의 대중성 캐릭터 이미지 URL (생성자의 번들 답변 기반 대중성 등급에 해당하는 캐릭터 이미지)
-  participantNickname: string | null; // 참여자 닉네임 (아직 없으면 null)
+  participantNickname: string | null; // 참여자 닉네임 (1:1 전용, 아직 없으면 null)
+  hasParticipant: boolean; // 1:1 링크에 참여자가 존재하는지 (GROUP은 memberCount 사용)
   isCreator: boolean; // 현재 로그인 유저가 생성자인지
   isParticipant: boolean; // 현재 로그인 유저가 참여자인지
   myBundleCompleted: boolean; // 현재 로그인 유저의 해당 번들 완료 여부
-  compareReady: boolean; // 비교 가능 여부 (둘 다 완료)
-  status: 'WAITING' | 'COMPLETED' | 'CLOSED';
   questionCount: number; // 번들 질문 수
   participantCount: number; // 번들 참여자 수
+
+  // ─── GROUP 타입 전용 필드 ───
+  groupName: string | null; // 그룹 이름 (GROUP 전용, ONE_TO_ONE은 null)
+  memberCount: number; // 현재 참여 멤버 수 (GROUP 전용, ONE_TO_ONE은 0)
+  isClosed: boolean; // 그룹 마감 여부 (GROUP 전용, ONE_TO_ONE은 false)
 }
 ```
 
@@ -247,19 +250,37 @@ Array<{
 
 - **비인증(비로그인) 요청도 200 응답 필수.** 공유 링크이므로 로그인하지 않아도 링크 기본 정보(생성자 닉네임, 번들 제목 등)를 조회할 수 있어야 함
 - 비로그인 시 유저 상태 필드: `isCreator: false`, `isParticipant: false`, `myBundleCompleted: false`
-- `compareReady`는 유저 상태와 무관하게 실제 링크 상태 기준으로 리턴 (두 명 모두 완료했으면 `true`)
 
-**FE 상태 분기표:**
+**FE 상태 분기표 (1:1 링크):**
 
-| 상태                    | isCreator | isParticipant | compareReady | FE 동작                                 |
-| ----------------------- | --------- | ------------- | ------------ | --------------------------------------- |
-| 비로그인                | false     | false         | any          | "로그인하고 대결 수락하기"              |
-| 생성자 대기 중          | true      | false         | false        | 대기 화면 (스피너)                      |
-| 생성자 결과 확인        | true      | false         | true         | "비교 결과 보기"                        |
-| 받는 사람 + 번들 미완료 | false     | false         | false        | "대결 수락하기" (번들 풀기로 이동)      |
-| 받는 사람 + 번들 완료   | false     | false         | false        | "결과 확인하기" (자동 join 후 결과)     |
-| 참여자 결과 확인        | false     | true          | true         | "비교 결과 보기"                        |
-| **선점당한 링크**       | **false** | **false**     | **true**     | **"이미 다른 사람이 참여한 링크" 안내** |
+FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
+
+| 상태                    | isCreator | isParticipant | hasParticipant | FE 동작                                 |
+| ----------------------- | --------- | ------------- | -------------- | --------------------------------------- |
+| 비로그인                | false     | false         | any            | "로그인하고 대결 수락하기"              |
+| 생성자 대기 중          | true      | false         | false          | 대기 화면 (스피너)                      |
+| 생성자 결과 확인        | true      | false         | true           | "비교 결과 보기"                        |
+| 받는 사람 + 번들 미완료 | false     | false         | false          | "대결 수락하기" (번들 풀기로 이동)      |
+| 받는 사람 + 번들 완료   | false     | false         | false          | "결과 확인하기" (자동 join 후 결과)     |
+| 참여자 결과 확인        | false     | true          | true           | "비교 결과 보기"                        |
+| **선점당한 링크**       | **false** | **false**     | **true**       | **"이미 다른 사람이 참여한 링크" 안내** |
+
+**FE 상태 분기표 (GROUP 링크 — 랜딩 페이지):**
+
+| 상태           | isCreator | memberCount | FE 동작                                                       |
+| -------------- | --------- | ----------- | ------------------------------------------------------------- |
+| 1명 이상 참여  | any       | ≥ 1         | ��시 그룹 결과 페이지로 리다이렉트 (`/compare/group/{token}`) |
+| 비로그인 + 0명 | false     | 0           | "로그인하고 참여하기"                                         |
+
+**FE 상태 분기표 (GROUP ��크 — 그룹 결과 ���이지):**
+
+| ���태                | isMember | memberCount | FE 동작                                                                  |
+| -------------------- | -------- | ----------- | ------------------------------------------------------------------------ |
+| 1명 (프리뷰)         | true     | 1           | 가상 멤버 3명 주입, 미리보기 배너 표시, FloatingCta "초대 링크 복사하기" |
+| 2명 이상 (정상)      | true     | ≥ 2         | 정상 결과 표시, FloatingCta "내 그룹 만들기"                             |
+| 비멤버 + 비로그인    | false    | any         | 결과 보기 가능, FloatingCta "로그인하고 참여하기"                        |
+| 비멤버 + 번들 미완료 | false    | any         | 결과 보기 ���능, FloatingCta "번들 풀고 나도 참여하기"                   |
+| ��멤버 + 번들 완료   | false    | any         | 결과 보기 가능, FloatingCta "나도 참여하기" → displayName 모달 → join    |
 
 ---
 
@@ -272,7 +293,16 @@ Array<{
 | 인증      | 로그인 필수                              |
 | 호출 시점 | 번들 완료 유저가 비교 링크 랜딩에서 참여 |
 
-**Request Body:** 없음 (로그인 유저 자동 매핑)
+**Request Body:**
+
+```typescript
+{
+  displayName?: string; // (GROUP 전용) 그룹 내 표시 이름. 미입력 시 현재 닉네임 사용. 최대 20자.
+}
+```
+
+- `ONE_TO_ONE` 타입: body 없이 빈 POST (기존대로)
+- `GROUP` 타입: `displayName` 필드 포함 가능 (optional)
 
 **Response `data`:**
 
@@ -284,7 +314,11 @@ Array<{
 
 **BE 처리 사항:**
 
-- 1:1 링크는 최초 1명만 참여 가능 (이미 다른 사람이 참여했으면 `BAD_REQUEST`)
+- **1:1 링크**: 최초 1명만 참여 가능 (이미 다른 사람이 참여했으면 `BAD_REQUEST`)
+- **GROUP 링크**: 여러 명 참여 가능 (최대 50명), 마감된 그룹 참여 불가
+  - `displayName`이 있으면 → 그룹 멤버 목록에 이 값을 `displayName`으로 저장
+  - `displayName`이 없으면 → 해당 유저의 현재 닉네임을 `displayName`으로 저장
+  - 이미 참여한 유저가 다시 요청하면 `success: true` (중복 참여 허용, 멱등성)
 - 생성자 본인은 참여 불가 (`BAD_REQUEST`)
 - 해당 번들을 완료한 유저만 참여 가능 (미완료 시 `BAD_REQUEST`)
 - 참여 성공 시 링크 상태를 `COMPLETED`로 변경
@@ -293,13 +327,13 @@ Array<{
 
 ### 8. 1:1 비교 결과 조회
 
-| 항목      | 내용                                              |
-| --------- | ------------------------------------------------- |
-| Method    | `GET`                                             |
-| URL       | `/api/v1/compare-links/{token}/result`            |
-| 인증      | 로그인 필수                                       |
-| 호출 시점 | 비교 결과 페이지 (`/compare/{token}/result`) 진입 |
-| 캐싱      | FE에서 staleTime 0 (항상 최신 fetch)              |
+| 항목      | 내용                                             |
+| --------- | ------------------------------------------------ |
+| Method    | `GET`                                            |
+| URL       | `/api/v1/compare-links/{token}/result`           |
+| 인증      | 로그인 필수                                      |
+| 호출 시점 | 비교 결과 페이지 (`/compare/match/{token}`) 진입 |
+| 캐싱      | FE에서 staleTime 0 (항상 최신 fetch)             |
 
 **Response `data`:**
 
@@ -353,17 +387,225 @@ Array<{
 
 ---
 
-## Phase 3 추가 예정 API (참고용)
+## Phase 3 API (그룹 비교)
 
-> 상세 스펙은 Phase 3 착수 시 업데이트합니다.
+### 9. 그룹 비교 결과 조회
 
-| Method | Endpoint                                     | 설명                               |
-| ------ | -------------------------------------------- | ---------------------------------- |
-| PATCH  | `/api/v1/compare-links/{token}`              | 비교 링크 수정 (그룹명, 마감 여부) |
-| PATCH  | `/api/v1/compare-links/{token}/close`        | 그룹 마감                          |
-| PATCH  | `/api/v1/compare-links/{token}/reopen`       | 그룹 재오픈                        |
-| GET    | `/api/v1/bundles/{slug}/my-compare-links`    | 내 비교 링크 목록                  |
-| GET    | `/api/v1/compare-links/{token}/group-result` | 그룹 비교 결과                     |
+| 항목      | 내용                                             |
+| --------- | ------------------------------------------------ |
+| Method    | `GET`                                            |
+| URL       | `/api/v1/compare-links/{token}/group-result`     |
+| 인증      | 로그인 필수                                      |
+| 호출 시점 | 그룹 결과 페이지 (`/compare/group/{token}`) 진입 |
+| 캐싱      | FE에서 staleTime 0 (항상 최신 fetch)             |
 
-- `questionStats`에 성별/세대별 breakdown 추가 (`genderBreakdown`, `ageGroupBreakdown`)
-- 상세 스펙은 `docs/specs/bundle-compare.md` 섹션 7.3 참조
+**Response `data`:**
+
+```typescript
+{
+  bundleSlug: string;
+  bundleTitle: string;
+  totalQuestions: number;
+  groupName: string;
+  memberCount: number;
+
+  /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
+  myUserId: string;
+
+  /** 번들 카테고리 코드 (성별 기반 섹션 조건부 표시에 사용) */
+  categoryCode?: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'DAILY' | ... (싱글 핫픽과 동일 코드 체계)
+
+  /** 그룹 멤버 답변 */
+  members: Array<{
+    userId: string;
+    nickname: string;
+    /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname과 동일 */
+    displayName?: string;
+    /** 성별 (성별 기반 섹션용, 없으면 해당 섹션에서 제외) */
+    gender?: 'MALE' | 'FEMALE';
+    /** 출생연도 (세대 분석용, 없으면 해당 섹션에서 제외) */
+    birthYear?: number;
+    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+  }>;
+
+  /** 각 질문별 대중 투표 비율 (번들 전체 참여자 기준, 비율 단위) */
+  questionStats: Array<{
+    electionId: string;
+    title: string;
+    optionA: string;
+    optionB: string;
+    optionARate: number; // A 선택 비율 (0~100 정수)
+    optionBRate: number; // B 선택 비율 (0~100 정수, = 100 - optionARate)
+    totalVotes: number;  // 전체 참여자 투표 수
+    /** 가치관 지도 축 배정 (null = 미배정) */
+    axis: 'X' | 'Y' | null;
+  }>;
+
+  /** 그룹 싱크율 (모든 멤버 쌍 일치율 평균, 0~100 정수) */
+  groupSyncRate: number;
+}
+```
+
+**참고:**
+
+- `myUserId`는 현재 로그인 유저의 userId. FE에서 "나" 식별에 사용 (12시 방향 배치, "나" 뱃지 표시 등)
+- `categoryCode`가 `'LOVE'` 또는 `'MARRIAGE'`이면 이성궁합/성별대결 섹션 표시
+- `members.displayName`: 그룹 참여 시 입력한 표시 이름. FE에서 `displayName ?? nickname` 로직으로 우선 사용
+- `members.gender`/`members.birthYear`: Phase 3 성별 대결, 이성궁합 랭킹, 세대별 클러스터 분석에 사용
+- `questionStats`는 **비율(Rate) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 다름
+- `questionStats.axis`는 가치관 지도 축 배정 (어드민에서 설정). Phase 3에서는 하드코딩, 추후 어드민 UI 연동 예정
+- `groupSyncRate`는 서버에서 계산 (모든 멤버 쌍의 답변 일치율 평균)
+- 링크 타입이 `GROUP`이 아니면 `404 NOT_FOUND`
+- 참여 인원이 1명 미만(0명)이면 `400 BAD_REQUEST` (결과를 생성할 수 없음)
+- 1명일 때 서버는 정상 응답. FE에서 가상 멤버 3명을 주입하여 프리뷰 모드로 표시
+
+**FE에서 계산하는 항목 (서버에서 보내지 않음):**
+
+- **멤버 쌍 케미 (PairChemistry)**: 모든 C(n,2) 쌍에 대한 일치율, 등급(S/A/B/C/D)
+- **케미 등급 기준**: 80%+ → S, 60~79% → A, 40~59% → B, 20~39% → C, ~19% → D
+- **케미 네트워크 그래프**: 멤버 ≤15명이면 원형 네트워크 시각화, 16명 이상이면 케미 랭킹 리스트로 전환
+- **그룹 어워드 6종**:
+  - GROUP_LEADER: 평균 일치율이 가장 높은 멤버 (그룹의 중심)
+  - GROUP_OUTSIDER: 평균 일치율이 가장 낮은 멤버 (그룹의 아웃사이더)
+  - SOUL_CONNECTION: 일치율이 가장 높은 멤버 쌍
+  - POLAR_OPPOSITES: 일치율이 가장 낮은 멤버 쌍
+  - CONTROVERSY_MAKER: 그룹 내 소수 의견을 가장 많이 선택한 멤버 (동점자 복수 수상)
+  - PEOPLES_CHAMPION: 대중성 지수(핫픽 전체 유저 대비 다수 의견 비율)가 가장 높은 멤버 (동점자 복수 수상)
+- **대중성 스펙트럼**: 멤버별 대중성 점수 (답변 선택지의 대중 투표 비율 평균) → 등급(S/A/B/C/D) 매핑
+- **논쟁 포인트**: 그룹 내 A/B 선택이 50:50에 가장 가까운 질문들 + 각 편 멤버 목록
+- **Pick-a-Side**: 질문별 A/B 선택 멤버 진영 표시
+- **이성궁합 랭킹** (LOVE/MARRIAGE 카테고리만): 남녀 쌍 중 일치율 TOP 3 / WORST 3
+- **성별 대결** (LOVE/MARRIAGE 카테고리만): 질문별 남녀 선택 비율 차이 (성별 갭)
+- **관계 탐색기**: 멤버 2명 선택 시 1:1 케미 상세 (일치/불일치 질문 목록)
+
+---
+
+### 10. 그룹 이름 변경
+
+| 항목      | 내용                                          |
+| --------- | --------------------------------------------- |
+| Method    | `PATCH`                                       |
+| URL       | `/api/v1/compare-links/{token}/group-name`    |
+| 인증      | 로그인 필수                                   |
+| 호출 시점 | 그룹 결과 페이지에서 그룹 이름 편집 버튼 클릭 |
+
+**Request Body:**
+
+```typescript
+{
+  groupName: string; // 새 그룹 이름 (1~20자, <>"'& 금지)
+}
+```
+
+**Response `data`:**
+
+```typescript
+{
+  groupName: string; // 변경된 그룹 이름
+}
+```
+
+**BE 처리 사항:**
+
+- 그룹 생성자만 변경 가능 (비생성자 → `403 FORBIDDEN`)
+- GROUP 타입 링크만 대상 (ONE_TO_ONE → `404 NOT_FOUND`)
+- 그룹 이름 유효성 검사: 1~20자, `<>"'&` 문자 금지
+- 변경 후 즉시 반영 (캐시 무효화는 FE에서 처리)
+
+---
+
+### 11. 그룹 마감
+
+| 항목      | 내용                                  |
+| --------- | ------------------------------------- |
+| Method    | `PATCH`                               |
+| URL       | `/api/v1/compare-links/{token}/close` |
+| 인증      | 로그인 필수                           |
+| 호출 시점 | 그룹 생성자가 마감 버튼 클릭          |
+
+**Request Body:** 없음
+
+**Response `data`:**
+
+```typescript
+{
+  closed: boolean; // true (마감 성공)
+}
+```
+
+**BE 처리 사항:**
+
+- 그룹 생성자만 마감 가능 (비생성자 → `403 FORBIDDEN`)
+- GROUP 타입 링크만 대상 (ONE_TO_ONE → `404 NOT_FOUND`)
+- 마감 후 새 멤버 참여 불가 (join 시 `BAD_REQUEST`)
+- 기존 멤버의 결과 조회는 계속 가능
+
+---
+
+### 12. 그룹 재오픈
+
+| 항목      | 내용                                      |
+| --------- | ----------------------------------------- |
+| Method    | `PATCH`                                   |
+| URL       | `/api/v1/compare-links/{token}/reopen`    |
+| 인증      | 로그인 필수                               |
+| 호출 시점 | 마감된 그룹에서 생성자가 재오픈 버튼 클릭 |
+
+**Request Body:** 없음
+
+**Response `data`:**
+
+```typescript
+{
+  closed: boolean; // false (재오픈 성공)
+}
+```
+
+**BE 처리 사항:**
+
+- 그룹 생성자만 재오픈 가능 (비생성자 → `403 FORBIDDEN`)
+- GROUP 타입 링크만 대상 (ONE_TO_ONE → `404 NOT_FOUND`)
+- 재오픈 후 새 멤버 참여 다시 가능
+
+---
+
+## Phase 3 FE 변경 사항 (API 무관, 참고용)
+
+### URL 구조 변경
+
+| 변경 전                   | 변경 후                  | 비고           |
+| ------------------------- | ------------------------ | -------------- |
+| `/compare/{token}/result` | `/compare/match/{token}` | 1:1 비교 결과  |
+| `/compare/{token}/group`  | `/compare/group/{token}` | 그룹 비교 결과 |
+
+### 케미 등급 기준 변경
+
+| 등급 | 변경 전  | 변경 후  | 타이틀              |
+| ---- | -------- | -------- | ------------------- |
+| S    | 90% 이상 | 80% 이상 | 말 안 해도 통하는   |
+| A    | 70~89%   | 60~79%   | 꽤 잘 맞는          |
+| B    | 50~69%   | 40~59%   | 같을 때도 다를 때도 |
+| C    | 30~49%   | 20~39%   | 각자의 세계         |
+| D    | ~29%     | ~19%     | 정반대의 가치관     |
+
+### 번들 상세 응답 필드 추가
+
+`GET /api/v1/bundles/{slug}` 응답에 `categoryCode` 필드 추가 필요:
+
+```typescript
+{
+  // ... 기존 필드
+  categoryCode?: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'DAILY' | ...
+}
+```
+
+- 그룹 비교 결과의 성별 기반 섹션 (이성궁합, 성별 대결) 조건부 표시에 사용
+- `categoryCode`가 `'LOVE'` 또는 `'MARRIAGE'`인 번들에서만 해당 섹션 노출
+
+---
+
+## 미구현 예정 API (참고용)
+
+| Method | Endpoint                                  | 설명              | 상태   |
+| ------ | ----------------------------------------- | ----------------- | ------ |
+| GET    | `/api/v1/bundles/{slug}/my-compare-links` | 내 비교 링크 목록 | 미구현 |
