@@ -4,14 +4,12 @@ import type { FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import BoltIcon from '@/assets/icon/BoltIcon';
-import ChartIcon from '@/assets/icon/ChartIcon';
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import CompareOneIcon from '@/assets/icon/CompareOneIcon';
-import HeartLinkIcon from '@/assets/icon/HeartLinkIcon';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleIntro/BundleIntro.module.scss';
+import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { getCompareHook } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail } from '@/hooks/api/useBundle';
@@ -91,27 +89,18 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
           <span className={styles.metaItem}>{formatCount(animatedCount)}명 참여</span>
         </div>
 
-        {/* 비교하면 알 수 있는 것들 */}
+        {/* 1:1 비교 프리뷰 */}
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareOneIcon width={20} height={20} />
             <span className={styles.previewLabel}>1:1 비교</span>
           </div>
           <p className={styles.previewHook}>{compareHook.oneToOne}</p>
-          <div className={styles.featureList}>
-            <div className={styles.featureItem}>
-              <HeartLinkIcon width={20} height={20} className={styles.featureIcon} />
-              <span className={styles.featureText}>케미 등급</span>
-            </div>
-            <div className={styles.featureItem}>
-              <BoltIcon width={20} height={20} className={styles.featureIcon} />
-              <span className={styles.featureText}>충격 포인트</span>
-            </div>
-            <div className={styles.featureItem}>
-              <ChartIcon width={20} height={20} className={styles.featureIcon} />
-              <span className={styles.featureText}>대중성 비교</span>
-            </div>
-          </div>
+          <PreviewRotation
+            nickname="나"
+            headerText="친구와 비교하면 이런 결과를 볼 수 있어요"
+            embedded
+          />
         </div>
 
         {/* 그룹 비교 (준비 중) */}

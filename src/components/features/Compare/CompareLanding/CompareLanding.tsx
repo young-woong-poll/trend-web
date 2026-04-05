@@ -1,94 +1,18 @@
 'use client';
 
-import { useState, useEffect, type FC } from 'react';
+import { useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import BoltIcon from '@/assets/icon/BoltIcon';
-import HandshakeIcon from '@/assets/icon/HandshakeIcon';
-import SplitIcon from '@/assets/icon/SplitIcon';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Compare/CompareLanding/CompareLanding.module.scss';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
+import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleElections } from '@/hooks/api/useBundle';
 import { useCompareLink, useJoinCompareLink } from '@/hooks/api/useCompare';
 import { formatCount } from '@/lib/utils';
-
-const GRADE_COLORS: Record<string, string> = {
-  S: '#3B82F6',
-  A: '#22C55E',
-  B: '#FACC15',
-  C: '#F97316',
-  D: '#EF4444',
-};
-
-const ROTATION_DATA = [
-  { name: '지우', grade: 'A', title: '꽤 잘 맞는' },
-  { name: '태우', grade: 'S', title: '말 안 해도 통하는' },
-  { name: '하은', grade: 'C', title: '각자의 세계' },
-  { name: '민준', grade: 'B', title: '같을 때도 다를 때도' },
-  { name: '서연', grade: 'D', title: '정반대의 가치관' },
-];
-
-const PreviewRotation: FC<{ creatorNickname: string }> = ({ creatorNickname }) => {
-  const [index, setIndex] = useState(0);
-  const [fading, setFading] = useState(false);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setFading(true);
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % ROTATION_DATA.length);
-        setFading(false);
-      }, 300);
-    }, 2500);
-    return () => clearInterval(timer);
-  }, []);
-
-  const current = ROTATION_DATA[index];
-
-  return (
-    <div className={styles.previewCard}>
-      <div className={styles.previewHeader}>완료하면 이런 결과를 볼 수 있어요</div>
-
-      {/* 닉네임 + 등급 로테이션 */}
-      <div className={styles.previewNames}>
-        <span className={styles.previewMyName}>{creatorNickname}</span>
-        <span className={styles.previewVs}>×</span>
-        <span className={`${styles.previewTargetName} ${fading ? styles.fadeOut : styles.fadeIn}`}>
-          {current.name}
-        </span>
-      </div>
-
-      <div className={`${styles.previewGradeArea} ${fading ? styles.fadeOut : styles.fadeIn}`}>
-        <span className={styles.previewGradeLetter} style={{ color: GRADE_COLORS[current.grade] }}>
-          {current.grade}
-        </span>
-        <span className={styles.previewGradeTitle} style={{ color: GRADE_COLORS[current.grade] }}>
-          {current.title}
-        </span>
-      </div>
-
-      {/* 결과 미리보기 카드 */}
-      <div className={styles.previewFeatures}>
-        <div className={styles.featureChip}>
-          <BoltIcon className={styles.featureIcon} />
-          <span>충격적인 차이</span>
-        </div>
-        <div className={styles.featureChip}>
-          <SplitIcon className={styles.featureIcon} />
-          <span>갈린 순간</span>
-        </div>
-        <div className={styles.featureChip}>
-          <HandshakeIcon className={styles.featureIcon} />
-          <span>같은 편</span>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 interface CompareLandingProps {
   token: string;
@@ -306,7 +230,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         </div>
 
         {/* ─── 결과 프리뷰 (미완료 유저) — 로테이션 애니메이션 ─── */}
-        {showPreview && <PreviewRotation creatorNickname={link.creatorNickname} />}
+        {showPreview && <PreviewRotation nickname={link.creatorNickname} />}
 
         {/* ─── 질문 미리보기 (미완료 유저) ─── */}
         {showPreview && firstQuestion && (

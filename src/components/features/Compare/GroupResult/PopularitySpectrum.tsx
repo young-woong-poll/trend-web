@@ -7,16 +7,8 @@ import Image from 'next/image';
 import { createPortal } from 'react-dom';
 
 import styles from '@/components/features/Compare/GroupResult/PopularitySpectrum.module.scss';
-import { getPopularityByScore, type PopularityGrade } from '@/constants/bundle';
+import { getPopularityByScore } from '@/constants/bundle';
 import type { GroupCompareResult } from '@/types/group-compare';
-
-const GRADE_TO_LETTER: Record<PopularityGrade, string> = {
-  KING: 'S',
-  LEADER: 'A',
-  BALANCER: 'B',
-  REBEL: 'C',
-  UNICORN: 'D',
-};
 
 interface PopularitySpectrumProps {
   result: GroupCompareResult;
@@ -309,7 +301,7 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result, curren
                       <span className={styles.nicknameBadgeMe}>나</span>
                     )}
                   </span>
-                  <span className={styles.tooltipGrade}>{GRADE_TO_LETTER[member.grade.grade]}</span>
+                  <span className={styles.tooltipGrade}>{member.score}%</span>
                 </div>
               ))}
             </div>

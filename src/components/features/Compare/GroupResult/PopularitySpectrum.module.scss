@@ -339,8 +339,7 @@
 }
 
 .tooltipName {
-  display: inline-flex;
-  align-items: center;
+  display: block;
   flex: 1;
   min-width: 0;
   font-size: 13px;
@@ -368,11 +367,7 @@
 .tooltipGrade {
   font-size: 11px;
   font-weight: 700;
-  color: $white;
-  background: rgba(#fff, 0.1);
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  @include flex-center;
+  color: $text-tertiary;
   flex-shrink: 0;
+  white-space: nowrap;
 }

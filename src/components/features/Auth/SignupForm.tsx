@@ -11,6 +11,7 @@ import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { submitSignup } from '@/hooks/api/useAuthApi';
+import { checkNicknameAvailability } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
@@ -121,8 +122,12 @@ const SignupForm = () => {
 
   const [gender, setGender] = useState<Gender>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [showMigration, setShowMigration] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
+
+  // 그룹 핫픽에서 유입된 경우 판별
+  const isFromGroup = returnUrl.includes('/compare/group/');
 
   const {
     register,
@@ -135,15 +140,30 @@ const SignupForm = () => {
 
   const nicknameValue = watch('nickname');
 
-  const handleBlur = () => {
+  const handleBlur = async () => {
     if (!nicknameValue?.trim()) {
       return;
     }
     const result = validateNickname(nicknameValue);
     if (!result.isValid) {
       setError('nickname', { message: result.error });
-    } else {
+      return;
+    }
+
+    // 닉네임 중복 체크
+    setIsCheckingNickname(true);
+    try {
+      const available = await checkNicknameAvailability(result.trimmedValue);
+      if (!available) {
+        setError('nickname', { message: '이미 사용 중인 닉네임이에요' });
+      } else {
+        clearErrors('nickname');
+      }
+    } catch {
+      // 중복체크 API 실패 시 일단 통과 (가입 시 서버에서 재검증)
       clearErrors('nickname');
+    } finally {
+      setIsCheckingNickname(false);
     }
   };
 
@@ -156,6 +176,18 @@ const SignupForm = () => {
     }
 
     setIsSubmitting(true);
+
+    // 제출 전 닉네임 중복 재확인
+    try {
+      const available = await checkNicknameAvailability(trimmed);
+      if (!available) {
+        setError('nickname', { message: '이미 사용 중인 닉네임이에요' });
+        setIsSubmitting(false);
+        return;
+      }
+    } catch {
+      // 중복체크 실패 시 가입 시도 (서버에서 최종 검증)
+    }
     try {
       const tkuId = withMigration ? getTKUID() : undefined;
       const result = await submitSignup({
@@ -215,6 +247,20 @@ const SignupForm = () => {
         <h1 className={styles.title}>거의 다 왔어요!</h1>
         <p className={styles.subtitle}>가입 정보만 입력하면 바로 시작할 수 있어요</p>
 
+        {/* 그룹 핫픽에서 유입된 경우 displayName 안내 */}
+        {isFromGroup && (
+          <div className={styles.groupTip}>
+            <span className={styles.groupTipIcon}>💡</span>
+            <p className={styles.groupTipText}>
+              그룹 비교에서는 닉네임과 별도로
+              <br />
+              <strong>표시 이름(displayName)</strong>을 설정할 수 있어요.
+              <br />
+              닉네임은 부담 없이 정해주세요!
+            </p>
+          </div>
+        )}
+
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>
           <label className={styles.label}>닉네임</label>
@@ -227,7 +273,11 @@ const SignupForm = () => {
               onBlur={handleBlur}
             />
           </div>
-          <p className={styles.helperText}>친구들이 알아볼 수 있는 이름을 추천해요</p>
+          {isCheckingNickname ? (
+            <p className={styles.helperText}>닉네임 확인 중...</p>
+          ) : (
+            <p className={styles.helperText}>친구들이 알아볼 수 있는 이름을 추천해요</p>
+          )}
           {errors.nickname?.message && (
             <p className={styles.errorText}>{errors.nickname.message}</p>
           )}
@@ -317,6 +367,7 @@ const SignupForm = () => {
             className={styles.submitButton}
             disabled={
               isSubmitting ||
+              isCheckingNickname ||
               !nicknameValue?.trim() ||
               !gender ||
               !watch('birthYear') ||
