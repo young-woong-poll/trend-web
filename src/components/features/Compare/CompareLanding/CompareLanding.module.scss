@@ -61,29 +61,6 @@
   line-height: 1.6;
 }
 
-// ─── 비교 완료 시 바운스 화살표 ───
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-}
-
-.arrowBounce {
-  margin-top: 8px;
-  animation: fadeSlideUp 0.5s ease-out 0.3s both;
-}
-
-.arrowIcon {
-  display: inline-block;
-  font-size: $font-size-24;
-  color: $text-tertiary;
-  animation: bounce 1.5s ease-in-out infinite;
-}
-
 // ─── 질문 미리보기 ───
 .questionPreview {
   @include flex-column;
@@ -150,49 +127,224 @@
   background: $text-tertiary;
 }
 
-// ─── 생성자 대기 상태 ───
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.waitingSection {
+// ─── A-3: 초대장 컨셉 (생성자 대기) ───
+.envelopeSection {
   @include flex-column;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
-  padding: 32px 0;
   animation: fadeSlideUp 0.5s ease-out 0.3s both;
 }
 
-.waitingSpinner {
-  @include flex-center;
-  width: 64px;
-  height: 64px;
+.envelope {
+  position: relative;
+  width: 100%;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  background: rgba(#fff, 0.06);
+  border: 1px solid rgba(#fff, 0.1);
+  backdrop-filter: blur(20px);
 }
 
-.spinnerRing {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 3px solid rgba(#fff, 0.06);
-  border-top-color: rgba(#fff, 0.25);
-  animation: spin 1s linear infinite;
-  // 그라디언트 마스크로 페이드아웃 꼬리 효과
-  mask-image: conic-gradient(from 0deg, transparent 30%, #000 90%);
-  -webkit-mask-image: conic-gradient(from 0deg, transparent 30%, #000 90%);
+.envelopeFlap {
+  height: 4px;
+  background: $primary-gradient;
 }
 
-.waitingText {
-  font-size: $font-size-16;
+.envelopeBody {
+  @include flex-column;
+  gap: 16px;
+  padding: 24px 20px;
+}
+
+.envelopeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(#fff, 0.06);
+}
+
+.envelopeFromLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.envelopeFromName {
+  font-size: $font-size-14;
   font-weight: 600;
+  color: $white;
+}
+
+.envelopeContent {
+  @include flex-column;
+  gap: 8px;
+}
+
+.envelopeLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.envelopeTitle {
+  font-size: $font-size-20;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.4;
+}
+
+.envelopeMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: 4px;
+}
+
+.envelopeDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $text-tertiary;
+}
+
+.envelopeStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(#fff, 0.03);
+  border-radius: $border-radius-md;
+  font-size: 13px;
+  color: $text-tertiary;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $attention;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.envelopeHint {
+  font-size: 13px;
+  color: $text-tertiary;
+  line-height: 1.5;
+}
+
+.copyLinkButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.04);
+  color: $text-secondary;
+  font-size: $font-size-14;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(#fff, 0.08);
+    border-color: rgba(#fff, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+// ─── B-3: 개봉 컨셉 (양쪽 완료) ───
+@keyframes unsealGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba($primary-start, 0.2),
+      0 0 40px rgba($primary-end, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba($primary-start, 0.35),
+      0 0 60px rgba($primary-end, 0.2);
+  }
+}
+
+@keyframes shackleOpen {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-6px) rotate(-15deg);
+    opacity: 0.7;
+  }
+}
+
+.unsealSection {
+  @include flex-column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeSlideUp 0.5s ease-out 0.2s both;
+}
+
+.unsealIcon {
+  @include flex-center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(#1e1e1e, 0.6);
+  border: 1px solid rgba(#fff, 0.08);
+  animation: unsealGlow 2s ease-in-out infinite;
+}
+
+.lockBody {
+  position: relative;
+  width: 24px;
+  height: 20px;
+  background: $primary-gradient;
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: $white;
+  }
+}
+
+.lockShackle {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 12px;
+  border: 3px solid $white;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  transform-origin: right bottom;
+  animation: shackleOpen 1.5s ease-in-out infinite alternate;
+}
+
+.unsealText {
+  font-size: $font-size-16;
+  font-weight: 500;
   color: $text-secondary;
   line-height: 1.5;
-  animation: pulse 2s ease-in-out infinite;
+  text-align: center;
 }
 
 // ─── 선점당한 링크 안내 ───

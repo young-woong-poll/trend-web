@@ -121,8 +121,6 @@ export const GroupPreviewNetwork: FC<GroupPreviewNetworkProps> = ({ embedded = f
 
   return (
     <div className={embedded ? styles.embedded : styles.card}>
-      <div className={styles.headerText}>그룹 멤버 관계를 한눈에 볼 수 있어요</div>
-
       <div className={`${styles.networkWrap} ${fading ? styles.fadeOut : styles.fadeIn}`}>
         <svg className={styles.svgLayer} viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
           {scenario.pairs.map(([a, b, rate]) => {
@@ -171,17 +169,7 @@ export const GroupPreviewNetwork: FC<GroupPreviewNetworkProps> = ({ embedded = f
         })}
       </div>
 
-      <div className={styles.footer}>
-        <div className={styles.legendRow}>
-          {TIER_COLORS.map((color, i) => (
-            <div key={i} className={styles.legendItem}>
-              <span className={styles.legendDot} style={{ background: color }} />
-              <span className={styles.legendLabel}>{'SABCD'[i]}</span>
-            </div>
-          ))}
-        </div>
-        <span className={styles.maxNote}>최대 50명까지 참여 가능</span>
-      </div>
+      <span className={styles.maxNote}>최대 50명까지 참여 가능</span>
     </div>
   );
 };

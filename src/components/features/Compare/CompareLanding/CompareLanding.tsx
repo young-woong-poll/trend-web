@@ -4,6 +4,7 @@ import { useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import CopyIcon from '@/assets/icon/CopyIcon';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Compare/CompareLanding/CompareLanding.module.scss';
@@ -24,6 +25,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // 번들 미완료 유저에게 첫 질문 미리보기 제공
   const { data: elections } = useBundleElections(link?.bundleSlug ?? '');
@@ -132,16 +134,27 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     }
   };
 
+  const handleCopyLink = async () => {
+    const url = `${window.location.origin}/compare/${token}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
   // ─── 상태별 문구 ───
   const getHeroMessage = () => {
     if (isAlreadyTaken) {
       return '이 링크는 이미 다른 사람이 참여했어요';
     }
     if (isCreatorWaiting) {
-      return '상대방이 참여하면 비교 결과를 확인할 수 있어요';
+      return '링크를 받은 상대방이 투표를 완료하면\n비교 결과를 확인할 수 있어요';
     }
     if (isCreatorReady) {
-      return '비교 결과가 준비되었어요!';
+      return '상대방이 대결을 수락했어요';
     }
     if (needsBundle) {
       return '둘의 생각이 얼마나 통하는지 알 수 있어요';
@@ -166,7 +179,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return link.type === 'GROUP' ? '아직 참여 인원이 부족해요...' : '상대방 참여 대기 중...';
     }
     if (isCreatorReady || canViewResult) {
-      return link.type === 'GROUP' ? '그룹 비교 결과 보기' : '비교 결과 보기';
+      return link.type === 'GROUP' ? '그룹 비교 결과 보기' : '결과 개봉하기';
     }
     if (needsBundle) {
       return '대결 수락하기';
@@ -209,8 +222,10 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
               ) : (
                 '멤버들이 참여하면 그룹 비교 결과를 볼 수 있어요'
               )
+            ) : isCreatorReady ? (
+              '결과 봉인이 해제됐어요!'
             ) : (
-              '내가 보낸 비교 링크'
+              '대결 초대장을 보냈어요'
             )}
           </h1>
           <p className={styles.heroSubtitle}>{getHeroMessage()}</p>
@@ -221,10 +236,19 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             </p>
           )}
 
-          {/* 비교 완료 → CTA로 시선 유도 */}
+          {/* 비교 완료 → 개봉 컨셉 */}
           {(isCreatorReady || canViewResult) && (
-            <div className={styles.arrowBounce}>
-              <span className={styles.arrowIcon}>&#8595;</span>
+            <div className={styles.unsealSection}>
+              <div className={styles.unsealIcon}>
+                <div className={styles.lockBody}>
+                  <div className={styles.lockShackle} />
+                </div>
+              </div>
+              <p className={styles.unsealText}>
+                {link.participantNickname
+                  ? `${link.participantNickname}님과의 궁합이 궁금하다면?`
+                  : '둘의 궁합 결과가 봉인 해제를 기다리고 있어요'}
+              </p>
             </div>
           )}
         </div>
@@ -247,17 +271,36 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
           </div>
         )}
 
-        {/* ─── 생성자 대기 상태 ─── */}
+        {/* ─── 생성자 대기 상태: 초대장 컨셉 ─── */}
         {showWaiting && (
-          <div className={styles.waitingSection}>
-            <div className={styles.waitingSpinner}>
-              <div className={styles.spinnerRing} />
+          <div className={styles.envelopeSection}>
+            <div className={styles.envelope}>
+              <div className={styles.envelopeFlap} />
+              <div className={styles.envelopeBody}>
+                <div className={styles.envelopeHeader}>
+                  <span className={styles.envelopeFromLabel}>From</span>
+                  <span className={styles.envelopeFromName}>{link.creatorNickname}</span>
+                </div>
+                <div className={styles.envelopeContent}>
+                  <span className={styles.envelopeLabel}>대결 주제</span>
+                  <p className={styles.envelopeTitle}>{link.bundleTitle}</p>
+                  <div className={styles.envelopeMeta}>
+                    <span>{link.questionCount}개 질문</span>
+                    <span className={styles.envelopeDot} />
+                    <span>{formatCount(link.participantCount)}명 참여</span>
+                  </div>
+                </div>
+                <div className={styles.envelopeStatus}>
+                  <span className={styles.statusDot} />
+                  상대방의 응답을 기다리는 중
+                </div>
+              </div>
             </div>
-            <p className={styles.waitingText}>
-              링크를 받은 상대방의
-              <br />
-              참여를 기다리는 중
-            </p>
+            <p className={styles.envelopeHint}>먼저 투표를 완료한 사람이 대결 상대가 돼요</p>
+            <button type="button" className={styles.copyLinkButton} onClick={handleCopyLink}>
+              <CopyIcon width={16} height={16} />
+              {copied ? '복사 완료!' : '링크 다시 복사하기'}
+            </button>
           </div>
         )}
 

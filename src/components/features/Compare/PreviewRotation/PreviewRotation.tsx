@@ -2,9 +2,6 @@
 
 import { useState, useEffect, type FC } from 'react';
 
-import BoltIcon from '@/assets/icon/BoltIcon';
-import HandshakeIcon from '@/assets/icon/HandshakeIcon';
-import SplitIcon from '@/assets/icon/SplitIcon';
 import styles from '@/components/features/Compare/PreviewRotation/PreviewRotation.module.scss';
 
 const GRADE_COLORS: Record<string, string> = {
@@ -28,12 +25,15 @@ interface PreviewRotationProps {
   headerText?: string;
   /** true면 카드 배경 없이 내용만 렌더 (부모 카드 안에 중첩될 때) */
   embedded?: boolean;
+  /** true면 컴팩트 모드 (등급 작게, feature chips 숨김) */
+  compact?: boolean;
 }
 
 export const PreviewRotation: FC<PreviewRotationProps> = ({
   nickname,
   headerText = '완료하면 이런 결과를 볼 수 있어요',
   embedded = false,
+  compact = false,
 }) => {
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
@@ -53,7 +53,7 @@ export const PreviewRotation: FC<PreviewRotationProps> = ({
 
   return (
     <div className={embedded ? styles.previewEmbedded : styles.previewCard}>
-      <div className={styles.previewHeader}>{headerText}</div>
+      {!compact && <div className={styles.previewHeader}>{headerText}</div>}
 
       {/* 닉네임 + 등급 로테이션 */}
       <div className={styles.previewNames}>
@@ -64,29 +64,18 @@ export const PreviewRotation: FC<PreviewRotationProps> = ({
         </span>
       </div>
 
-      <div className={`${styles.previewGradeArea} ${fading ? styles.fadeOut : styles.fadeIn}`}>
-        <span className={styles.previewGradeLetter} style={{ color: GRADE_COLORS[current.grade] }}>
+      <div
+        className={`${compact ? styles.previewGradeAreaCompact : styles.previewGradeArea} ${fading ? styles.fadeOut : styles.fadeIn}`}
+      >
+        <span
+          className={compact ? styles.previewGradeLetterCompact : styles.previewGradeLetter}
+          style={{ color: GRADE_COLORS[current.grade] }}
+        >
           {current.grade}
         </span>
         <span className={styles.previewGradeTitle} style={{ color: GRADE_COLORS[current.grade] }}>
           {current.title}
         </span>
-      </div>
-
-      {/* 결과 미리보기 카드 */}
-      <div className={styles.previewFeatures}>
-        <div className={styles.featureChip}>
-          <BoltIcon className={styles.featureIcon} />
-          <span>충격적인 차이</span>
-        </div>
-        <div className={styles.featureChip}>
-          <SplitIcon className={styles.featureIcon} />
-          <span>갈린 순간</span>
-        </div>
-        <div className={styles.featureChip}>
-          <HandshakeIcon className={styles.featureIcon} />
-          <span>같은 편</span>
-        </div>
       </div>
     </div>
   );

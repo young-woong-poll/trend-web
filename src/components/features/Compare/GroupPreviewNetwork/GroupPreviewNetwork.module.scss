@@ -18,16 +18,10 @@
 .embedded {
   @include flex-column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(#fff, 0.04);
-}
-
-.headerText {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-  letter-spacing: 0.5px;
 }
 
 // ─── 페이드 트랜지션 ───
@@ -52,7 +46,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  max-width: 200px;
+  max-width: 140px;
 }
 
 .svgLayer {
@@ -73,11 +67,11 @@
 }
 
 .nodeCircle {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   @include flex-center;
-  font-size: $font-size-12;
+  font-size: 10px;
   font-weight: 700;
   color: $white;
   border: 1.5px solid rgba(#fff, 0.15);
@@ -86,60 +80,29 @@
 .nodeName {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: 9px;
   color: $text-secondary;
   font-weight: 500;
   white-space: nowrap;
-  padding: 1px 5px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
   background: rgba(#121212, 0.7);
 }
 
 .meBadge {
   display: inline-flex;
   align-items: center;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   color: rgba(#fff, 0.5);
   background: rgba(#fff, 0.08);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: 3px;
-  margin-left: 3px;
-}
-
-// ─── 하단 ───
-.footer {
-  @include flex-column;
-  align-items: center;
-  gap: 6px;
+  margin-left: 2px;
 }
 
 .maxNote {
   font-size: 11px;
   color: $text-tertiary;
   letter-spacing: 0.3px;
-}
-
-.legendRow {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.legendDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.legendLabel {
-  font-size: 10px;
-  color: $text-tertiary;
-  font-weight: 600;
 }

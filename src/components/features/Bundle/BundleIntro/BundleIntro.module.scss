@@ -59,18 +59,18 @@
 
 .comparePreview {
   @include flex-column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   max-width: 672px;
-  margin-top: 16px;
-  padding: 20px;
+  margin-top: 12px;
+  padding: 16px;
   background: rgba(#1e1e1e, 0.6);
   backdrop-filter: blur(16px);
   border-radius: $border-radius-lg;
   border: 1px solid rgba(#fff, 0.06);
 
   &:first-of-type {
-    margin-top: 28px;
+    margin-top: 20px;
   }
 }
 
@@ -89,7 +89,7 @@
 }
 
 .previewHook {
-  font-size: $font-size-16;
+  font-size: $font-size-14;
   font-weight: 700;
   color: $white;
   word-break: keep-all;

@@ -185,6 +185,7 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
     }
     dragState.current = { isDragging: true, startX: e.pageX, scrollLeft: el.scrollLeft };
     el.style.scrollSnapType = 'none';
+    el.style.scrollBehavior = 'auto';
     el.style.cursor = 'grabbing';
   }, []);
 
@@ -210,8 +211,21 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
     if (!el) {
       return;
     }
+    // smooth를 먼저 켜고 snap을 복원 → 부드럽게 가장 가까운 카드로 이동
+    el.style.scrollBehavior = 'smooth';
     el.style.scrollSnapType = 'x mandatory';
     el.style.cursor = '';
+    // 스냅 애니메이션 끝나면 scrollBehavior 초기화
+    const onEnd = () => {
+      el.style.scrollBehavior = '';
+      el.removeEventListener('scrollend', onEnd);
+    };
+    el.addEventListener('scrollend', onEnd);
+    // scrollend 미지원 브라우저 폴백
+    setTimeout(() => {
+      el.style.scrollBehavior = '';
+      el.removeEventListener('scrollend', onEnd);
+    }, 400);
   }, []);
 
   const getMemberIndex = useCallback(

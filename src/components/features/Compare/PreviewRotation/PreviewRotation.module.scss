@@ -30,9 +30,9 @@
 .previewEmbedded {
   @include flex-column;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(#fff, 0.04);
 }
 
@@ -90,11 +90,24 @@
   margin: 4px 0;
 }
 
+.previewGradeAreaCompact {
+  @include flex-column;
+  align-items: center;
+  gap: 2px;
+}
+
 .previewGradeLetter {
   font-size: 64px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -2px;
+}
+
+.previewGradeLetterCompact {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
 .previewGradeTitle {

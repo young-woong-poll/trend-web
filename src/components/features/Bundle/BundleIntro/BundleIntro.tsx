@@ -97,11 +97,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
             <span className={styles.previewLabel}>1:1 비교</span>
           </div>
           <p className={styles.previewHook}>{compareHook.oneToOne}</p>
-          <PreviewRotation
-            nickname="나"
-            headerText="친구와 비교하면 이런 결과를 볼 수 있어요"
-            embedded
-          />
+          <PreviewRotation nickname="나" embedded compact />
         </div>
 
         {/* 그룹 비교 */}
