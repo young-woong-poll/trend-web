@@ -164,6 +164,7 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
 export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const dragState = useRef({ isDragging: false, startX: 0, scrollLeft: 0 });
 
   const handleScroll = useCallback(() => {
     const el = scrollerRef.current;
@@ -175,6 +176,43 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
     const index = Math.round(scrollLeft / cardWidth);
     setActiveIndex(Math.min(index, result.questionStats.length - 1));
   }, [result.questionStats.length]);
+
+  // PC 마우스 드래그 스크롤
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const el = scrollerRef.current;
+    if (!el) {
+      return;
+    }
+    dragState.current = { isDragging: true, startX: e.pageX, scrollLeft: el.scrollLeft };
+    el.style.scrollSnapType = 'none';
+    el.style.cursor = 'grabbing';
+  }, []);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragState.current.isDragging) {
+      return;
+    }
+    const el = scrollerRef.current;
+    if (!el) {
+      return;
+    }
+    e.preventDefault();
+    const dx = e.pageX - dragState.current.startX;
+    el.scrollLeft = dragState.current.scrollLeft - dx;
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    if (!dragState.current.isDragging) {
+      return;
+    }
+    dragState.current.isDragging = false;
+    const el = scrollerRef.current;
+    if (!el) {
+      return;
+    }
+    el.style.scrollSnapType = 'x mandatory';
+    el.style.cursor = '';
+  }, []);
 
   const getMemberIndex = useCallback(
     (userId: string) => result.members.findIndex((m) => m.userId === userId),
@@ -188,7 +226,15 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
         <div className={styles.sectionLine} />
       </div>
 
-      <div ref={scrollerRef} className={styles.cardScroller} onScroll={handleScroll}>
+      <div
+        ref={scrollerRef}
+        className={styles.cardScroller}
+        onScroll={handleScroll}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {result.questionStats.map((question) => {
           const stackA: StackMember[] = result.members
             .filter((m) =>

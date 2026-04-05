@@ -25,6 +25,7 @@
 .container {
   @include flex-column;
   align-items: center;
+  justify-content: center;
   min-height: 100dvh;
   padding: calc(56px + 32px) $spacing-16 0;
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px) + 24px);

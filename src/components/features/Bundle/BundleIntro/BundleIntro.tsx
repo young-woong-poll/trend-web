@@ -9,6 +9,7 @@ import CompareOneIcon from '@/assets/icon/CompareOneIcon';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleIntro/BundleIntro.module.scss';
+import { GroupPreviewNetwork } from '@/components/features/Compare/GroupPreviewNetwork/GroupPreviewNetwork';
 import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { getCompareHook } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
@@ -103,27 +104,27 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
           />
         </div>
 
-        {/* 그룹 비교 (준비 중) */}
+        {/* 그룹 비교 */}
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareGroupIcon width={20} height={20} />
             <span className={styles.previewLabel}>그룹 비교</span>
-            <span className={styles.comingSoon}>COMING SOON</span>
           </div>
           <p className={styles.previewHook}>{compareHook.group}</p>
+          <GroupPreviewNetwork embedded />
         </div>
+      </div>
 
-        <div className={styles.ctaArea}>
-          <button
-            type="button"
-            className={styles.ctaButton}
-            onClick={handleStart}
-            disabled={bundle.status === 'CLOSED'}
-          >
-            {ctaText()}
-          </button>
-          {!isLoggedIn && <p className={styles.loginNotice}>참여하려면 로그인이 필요합니다</p>}
-        </div>
+      <div className={styles.floatingCta}>
+        <button
+          type="button"
+          className={styles.ctaButton}
+          onClick={handleStart}
+          disabled={bundle.status === 'CLOSED'}
+        >
+          {ctaText()}
+        </button>
+        {!isLoggedIn && <p className={styles.loginNotice}>참여하려면 로그인이 필요합니다</p>}
       </div>
     </BundleBackground>
   );

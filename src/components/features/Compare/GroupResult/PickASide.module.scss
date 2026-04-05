@@ -49,6 +49,8 @@
   gap: 12px;
   padding: 0 16px;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
 
   scrollbar-width: none;
   &::-webkit-scrollbar {
