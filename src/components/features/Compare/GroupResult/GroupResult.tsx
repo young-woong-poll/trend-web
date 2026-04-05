@@ -10,6 +10,7 @@ import EditIcon from '@/assets/icon/EditIcon';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
+import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import { EditGroupNameModal } from '@/components/features/Compare/EditGroupNameModal/EditGroupNameModal';
@@ -29,6 +30,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
   useCompareLink,
+  useCreatePairCompare,
   useGroupCompareResult,
   useJoinCompareLink,
   useUpdateGroupName,
@@ -39,7 +41,7 @@ import { useToast } from '@/hooks/useToast';
 const NETWORK_THRESHOLD = 16;
 
 /** 프리뷰용 가상 멤버 이름 */
-const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C'];
+const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C', '멤버 D'];
 
 /** 가상 멤버 답변 생성 (시드 기반 고정 패턴) */
 function generateGhostAnswers(
@@ -61,10 +63,12 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const { data: link } = useCompareLink(token);
   const { data: result, isLoading, refetch } = useGroupCompareResult(token);
   const joinMutation = useJoinCompareLink(token);
+  const pairCompareMutation = useCreatePairCompare(token);
   const updateGroupNameMutation = useUpdateGroupName(token);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showCompareModal, setShowCompareModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [showEditNameModal, setShowEditNameModal] = useState(false);
 
@@ -216,11 +220,10 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <div className={styles.heroSection}>
           {isPreview && (
             <div className={styles.previewBanner}>
-              <span className={styles.previewBadge}>미리보기</span>
               <p className={styles.previewText}>
                 가상 멤버로 구성된 미리보기예요.
                 <br />
-                친구를 초대하면 진짜 결과를 볼 수 있어요!
+                2명 이상부터 진짜 결과를 볼 수 있어요!
               </p>
             </div>
           )}
@@ -278,6 +281,18 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             currentUserId={currentUserId}
             members={displayResult.members}
             pairs={pairs}
+            onCompareRequest={
+              isMember
+                ? async (targetUserId: string) => {
+                    try {
+                      const res = await pairCompareMutation.mutateAsync(targetUserId);
+                      router.push(`/compare/match/${res.token}`);
+                    } catch {
+                      showToast('1:1 비교 생성에 실패했어요');
+                    }
+                  }
+                : undefined
+            }
           />
         ) : (
           <ChemistryRanking
@@ -327,13 +342,33 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           초대 링크 복사하기
         </FloatingCta>
       ) : isMember ? (
-        <FloatingCta onClick={() => setShowGroupModal(true)}>내 그룹 만들기</FloatingCta>
+        <div className={styles.floatingCta}>
+          <div className={styles.floatingCtaRow}>
+            <button
+              type="button"
+              className={styles.ctaOneToOne}
+              onClick={() => setShowCompareModal(true)}
+            >
+              친구랑 1:1 비교하기
+            </button>
+            <button
+              type="button"
+              className={styles.ctaGroup}
+              onClick={() => setShowGroupModal(true)}
+            >
+              새 그룹 만들기
+            </button>
+          </div>
+        </div>
       ) : (
         <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
           {getJoinCtaText()}
         </FloatingCta>
       )}
 
+      {showCompareModal && (
+        <CreateCompareLink slug={result.bundleSlug} onClose={() => setShowCompareModal(false)} />
+      )}
       {showGroupModal && (
         <CreateGroupLink slug={result.bundleSlug} onClose={() => setShowGroupModal(false)} />
       )}
@@ -353,7 +388,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         isLoading={updateGroupNameMutation.isPending}
       />
 
-      {toast && <Toast message={toast.message} />}
+      {toast.isVisible && <Toast message={toast.message} />}
     </BundleBackground>
   );
 };

@@ -130,3 +130,15 @@ export const useReopenGroup = (token: string) =>
         method: 'PATCH',
       }),
   });
+
+/** 그룹 내 1:1 비교 링크 즉시 생성 */
+export const useCreatePairCompare = (groupToken: string) =>
+  useMutation({
+    mutationFn: (targetUserId: string) =>
+      customInstance<{ token: string }>({
+        url: `/api/v1/compare-links/${groupToken}/pair`,
+        method: 'POST',
+        data: { targetUserId },
+        headers: { 'Content-Type': 'application/json' },
+      }),
+  });

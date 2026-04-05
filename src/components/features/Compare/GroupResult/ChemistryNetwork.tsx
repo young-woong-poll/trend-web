@@ -11,6 +11,8 @@ interface ChemistryNetworkProps {
   currentUserId: string;
   members: Array<{ userId: string; nickname: string }>;
   pairs: PairChemistry[];
+  /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 패널 미노출) */
+  onCompareRequest?: (targetUserId: string) => void;
 }
 
 /** 등급별 색상 (S~D, getChemistryByRate 기준과 동일) */
@@ -83,7 +85,12 @@ const GRADE_DESCRIPTIONS = [
   { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
 ];
 
-export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, members, pairs }) => {
+export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
+  currentUserId,
+  members,
+  pairs,
+  onCompareRequest,
+}) => {
   // "나"를 12시 방향(index 0)에 고정
   const sortedMembers = useMemo(() => {
     const myIdx = members.findIndex((m) => m.userId === currentUserId);
@@ -155,6 +162,28 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, mem
         (p.memberB === selectedUserId && p.memberA === userId)
     );
   };
+
+  // 선택된 멤버와 "나"의 케미 정보 (하단 패널용)
+  const selectedPairInfo = useMemo(() => {
+    if (!selectedUserId || selectedUserId === currentUserId) {
+      return null;
+    }
+    const pair = pairs.find(
+      (p) =>
+        (p.memberA === currentUserId && p.memberB === selectedUserId) ||
+        (p.memberB === currentUserId && p.memberA === selectedUserId)
+    );
+    if (!pair) {
+      return null;
+    }
+    const target = members.find((m) => m.userId === selectedUserId);
+    if (!target) {
+      return null;
+    }
+    const chemistry = getChemistryByRate(pair.matchRate);
+    const tier = getMatchTier(pair.matchRate);
+    return { nickname: target.nickname, chemistry, tier, isGhost: isGhostUser(target.userId) };
+  }, [selectedUserId, currentUserId, pairs, members]);
 
   return (
     <div className={styles.container}>
@@ -305,6 +334,33 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({ currentUserId, mem
           ? '다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다'
           : '멤버를 탭하면 전체 케미를 확인할 수 있어요'}
       </p>
+
+      {/* 선택된 멤버와의 케미 패널 */}
+      {selectedPairInfo && onCompareRequest && !selectedPairInfo.isGhost && (
+        <div className={styles.comparePanel}>
+          <div className={styles.comparePanelInfo}>
+            <span
+              className={styles.comparePanelGrade}
+              style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
+            >
+              {selectedPairInfo.chemistry.grade}
+            </span>
+            <div className={styles.comparePanelText}>
+              <span className={styles.comparePanelNames}>
+                나 × {truncateName(selectedPairInfo.nickname, 8)}
+              </span>
+              <span className={styles.comparePanelTitle}>{selectedPairInfo.chemistry.title}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.comparePanelBtn}
+            onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
+          >
+            1:1 비교하기
+          </button>
+        </div>
+      )}
     </div>
   );
 };

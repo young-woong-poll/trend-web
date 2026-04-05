@@ -117,7 +117,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
             className={styles.ctaOneToOne}
             onClick={() => setShowCompareModal(true)}
           >
-            1:1 비교하기
+            다른 친구랑 비교하기
           </button>
           <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
             그룹 비교하기

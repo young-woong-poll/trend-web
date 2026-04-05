@@ -26,7 +26,12 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
         <div className={styles.sectionLine} />
       </div>
       <p className={styles.sectionSub}>
-        각 질문에서 고른 선택지의 득표율 평균으로, 높을수록 다수파 · 낮을수록 소수파
+        각 질문 득표율 평균으로, 높을수록 다수파 · 낮을수록 소수파
+        <br />* 현재{' '}
+        {result.questionStats[0]
+          ? result.questionStats[0].optionACount + result.questionStats[0].optionBCount
+          : 0}
+        명 참여 기준 · 참여자가 늘면 업데이트 돼요
       </p>
 
       <div className={styles.compareRow}>

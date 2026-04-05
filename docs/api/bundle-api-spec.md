@@ -604,6 +604,52 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 
 ---
 
+## Phase 4 API (그룹 내 1:1 비교 바로가기)
+
+### 13. 그룹 내 1:1 비교 링크 즉시 생성
+
+| 항목      | 내용                                                |
+| --------- | --------------------------------------------------- |
+| Method    | `POST`                                              |
+| URL       | `/api/v1/compare-links/{groupToken}/pair`           |
+| 인증      | 로그인 필수                                         |
+| 호출 시점 | 그룹 결과에서 특정 멤버 탭 → "1:1 비교하기" 클릭 시 |
+
+**Request Body:**
+
+```typescript
+{
+  targetUserId: string; // 비교 대상 멤버의 userId
+}
+```
+
+**Response `data`:**
+
+```typescript
+{
+  token: string; // 1:1 비교 결과를 볼 수 있는 compare token
+}
+```
+
+**BE 처리 사항:**
+
+- 요청자와 targetUserId 모두 해당 그룹의 멤버여야 함 (미참여 시 `BAD_REQUEST`)
+- 요청자와 targetUserId가 동일하면 `BAD_REQUEST`
+- 둘 다 이미 번들을 완료한 상태이므로, 즉시 `COMPLETED` 상태의 1:1 비교 링크 생성
+- 기존 8번 API (`/result`)와 동일한 형식으로 결과 조회 가능
+- **동일 쌍에 대한 중복 요청 시**: 기존 토큰 재사용 (A→B, B→A 모두 같은 토큰)
+  - 이유: 그룹 결과에서 반복 탭할 때마다 토큰이 쌓이는 것 방지
+- 기존 1:1 비교 링크와 동일한 토큰 형식, 동일한 결과 조회 API 사용
+
+**FE 사용 흐름:**
+
+1. 그룹 결과 케미 네트워크에서 멤버 탭 → 하단 패널 "1:1 비교하기" 클릭
+2. `POST /api/v1/compare-links/{groupToken}/pair` 호출
+3. 응답 `token`으로 `/compare/match/{token}` 페이지로 이동
+4. 기존 1:1 비교 결과 페이지가 그대로 표시됨
+
+---
+
 ## 미구현 예정 API (참고용)
 
 | Method | Endpoint                                  | 설명              | 상태   |

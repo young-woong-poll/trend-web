@@ -1310,4 +1310,46 @@ export const handlers = [
       data: { closed: false },
     });
   }),
+
+  /** POST /api/v1/compare-links/{groupToken}/pair — 그룹 내 1:1 비교 즉시 생성 */
+  http.post(`${baseURL}/api/v1/compare-links/:token/pair`, async ({ params, request }) => {
+    const { token } = params;
+    const body = (await request.json()) as { targetUserId: string };
+    const link = compareLinkStore.get(token as string);
+    if (!link) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    // mock: 기존 1:1 compare link를 생성하고 토큰 반환
+    const pairToken = `pair-${token}-${body.targetUserId}`.slice(0, 24);
+    // 기존 compare mock 데이터 재활용을 위해 store에 등록
+    if (!compareLinkStore.has(pairToken)) {
+      compareLinkStore.set(pairToken, {
+        token: pairToken,
+        type: 'ONE_TO_ONE' as const,
+        bundleSlug: link.bundleSlug,
+        bundleTitle: link.bundleTitle,
+        creatorNickname: '나',
+        creatorImageUrl: null,
+        participantNickname: body.targetUserId,
+        hasParticipant: true,
+        isCreator: true,
+        isParticipant: false,
+        myBundleCompleted: true,
+        questionCount: link.questionCount ?? 5,
+        participantCount: link.participantCount ?? 100,
+        status: 'COMPLETED' as const,
+        memberCount: undefined,
+        groupName: undefined,
+        isClosed: undefined,
+      });
+    }
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '1:1 비교 링크가 생성되었습니다',
+      data: { token: pairToken },
+    });
+  }),
 ];

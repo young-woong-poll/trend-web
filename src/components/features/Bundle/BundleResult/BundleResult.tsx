@@ -203,6 +203,13 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           </div>
           <div className={styles.popularityTitle}>{popularity.title}</div>
           <div className={styles.popularityDescription}>{popularity.description}</div>
+          <span className={styles.participantHint}>
+            * 현재{' '}
+            {result.questionStats[0]
+              ? result.questionStats[0].optionACount + result.questionStats[0].optionBCount
+              : 0}
+            명 참여 기준 · 참여자가 늘면 업데이트 돼요
+          </span>
         </div>
 
         {/* ═══ 내 답변 ═══ */}
@@ -310,7 +317,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
             className={styles.ctaOneToOne}
             onClick={() => setShowCompareModal(true)}
           >
-            1:1 비교하기
+            다른친구랑 비교하기
           </button>
           <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
             그룹 비교하기
