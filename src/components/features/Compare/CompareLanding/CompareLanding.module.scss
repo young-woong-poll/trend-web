@@ -26,7 +26,7 @@
   @include flex-column;
   align-items: center;
   min-height: 100dvh;
-  padding: calc(56px + 48px) $spacing-16 0;
+  padding: calc(56px + 32px) $spacing-16 0;
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px) + 24px);
   gap: 24px;
   text-align: center;
@@ -60,19 +60,6 @@
   line-height: 1.6;
 }
 
-.bundleBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(#fff, 0.06);
-  border: 1px solid rgba(#fff, 0.1);
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-secondary;
-  letter-spacing: 0.3px;
-}
-
 // ─── 비교 완료 시 바운스 화살표 ───
 @keyframes bounce {
   0%,
@@ -96,7 +83,7 @@
   animation: bounce 1.5s ease-in-out infinite;
 }
 
-// ─── 블러 결과 프리뷰 카드 ───
+// ─── 결과 프리뷰 카드 (ChemistryCard 스타일) ───
 .previewCard {
   @include flex-column;
   align-items: center;
@@ -116,112 +103,76 @@
   letter-spacing: 0.5px;
 }
 
-.previewCoupleType {
-  @include flex-column;
-  align-items: center;
-  gap: 10px;
-}
-
-.previewCharacters {
+.previewNames {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
-.previewChar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  @include flex-center;
-  background: rgba(#fff, 0.06);
-  font-size: $font-size-18;
+.previewMyName {
+  font-size: $font-size-16;
   font-weight: 700;
-  color: $white;
-}
-
-.previewCharImage {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  object-fit: contain;
-}
-
-.previewCharBlur {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  @include flex-center;
-  background: rgba(#fff, 0.06);
-  font-size: $font-size-18;
-  font-weight: 700;
-  color: $text-tertiary;
-  filter: blur(4px);
-  user-select: none;
+  color: #a89eff;
 }
 
 .previewVs {
-  font-size: $font-size-16;
+  font-size: $font-size-14;
   color: $text-tertiary;
   font-weight: 300;
 }
 
-.previewBlurLine {
-  height: 14px;
-  border-radius: 7px;
-  background: rgba(#fff, 0.06);
-}
-
-.previewDiff {
-  width: 100%;
-  padding: 12px 0;
-  border-top: 1px solid rgba(#fff, 0.04);
-}
-
-.previewDiffRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.previewPill {
-  padding: 8px 16px;
-  border-radius: $border-radius-md;
-  background: rgba(#6c63ff, 0.15);
-  border: 1px solid rgba(#6c63ff, 0.3);
-  color: #a89eff;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.previewPillBlur {
-  padding: 8px 16px;
-  border-radius: $border-radius-md;
-  background: rgba(#ff6b35, 0.15);
-  border: 1px solid rgba(#ff6b35, 0.3);
+.previewTargetName {
+  font-size: $font-size-16;
+  font-weight: 700;
   color: #ff9a6c;
-  font-size: 13px;
-  font-weight: 600;
   filter: blur(4px);
   user-select: none;
 }
 
-.previewVsSmall {
-  font-size: $font-size-12;
-  font-weight: 700;
+.previewGradeArea {
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+  margin: 4px 0;
+}
+
+.previewGradeLetter {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: $text-tertiary;
+  filter: blur(8px);
+  user-select: none;
+}
+
+.previewGradeTitle {
+  font-size: $font-size-14;
+  font-weight: 600;
   color: $text-tertiary;
 }
 
-.previewMeta {
-  display: flex;
+.previewCurveWrap {
+  @include flex-column;
   align-items: center;
-  gap: 8px;
-  font-size: $font-size-12;
-  color: $text-tertiary;
-  padding-top: 4px;
-  border-top: 1px solid rgba(#fff, 0.04);
+  gap: 4px;
   width: 100%;
-  justify-content: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(#fff, 0.04);
+}
+
+.previewCurveSvg {
+  width: 100%;
+  height: 60px;
+}
+
+.previewCurveAxis {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  color: $text-tertiary;
+  padding: 0 4px;
 }
 
 // ─── 질문 미리보기 ───

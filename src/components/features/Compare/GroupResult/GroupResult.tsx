@@ -299,6 +299,18 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             currentUserId={currentUserId}
             members={displayResult.members}
             pairs={pairs}
+            onCompareRequest={
+              isMember
+                ? async (targetUserId: string) => {
+                    try {
+                      const res = await pairCompareMutation.mutateAsync(targetUserId);
+                      router.push(`/compare/match/${res.token}`);
+                    } catch {
+                      showToast('1:1 비교 생성에 실패했어요');
+                    }
+                  }
+                : undefined
+            }
           />
         )}
         <PickASide result={displayResult} currentUserId={currentUserId} />

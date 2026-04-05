@@ -92,7 +92,7 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
             onClick={() => setShowGradeInfo((v) => !v)}
             aria-label="등급 기준 보기"
           >
-            등급 기준이란
+            등급 기준이란?
           </button>
           {showGradeInfo && (
             <div ref={gradeInfoRef} className={styles.gradeInfoTooltip}>

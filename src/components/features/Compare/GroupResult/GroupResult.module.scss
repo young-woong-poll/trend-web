@@ -4,7 +4,7 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 16px) $spacing-16 80px;
+  padding: calc(56px + 16px) 0 80px;
   gap: 28px;
   width: 100%;
 }
@@ -237,7 +237,9 @@
   @include flex-center;
   flex-direction: column;
   gap: 32px;
+  width: 100%;
   min-height: 60dvh;
+  height: 100vh;
   color: #fff;
 }
 

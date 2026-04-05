@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryRanking.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
-import { getMemberGradient } from '@/constants/profileColors';
+import { getMemberGradient, isGhostUser } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
@@ -19,6 +19,8 @@ interface ChemistryRankingProps {
   currentUserId: string;
   members: Array<{ userId: string; nickname: string }>;
   pairs: PairChemistry[];
+  /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 미노출) */
+  onCompareRequest?: (targetUserId: string) => void;
 }
 
 const TOP_COUNT = 3;
@@ -31,7 +33,12 @@ const GRADE_INFO = [
   { grade: 'D', range: '19% 이하', title: '정반대의 가치관', color: '#EF4444' },
 ];
 
-export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, members, pairs }) => {
+export const ChemistryRanking: FC<ChemistryRankingProps> = ({
+  currentUserId,
+  members,
+  pairs,
+  onCompareRequest,
+}) => {
   const [selectedUserId, setSelectedUserId] = useState(currentUserId);
   const [showGradeInfo, setShowGradeInfo] = useState(false);
   const gradeInfoRef = useRef<HTMLDivElement>(null);
@@ -143,8 +150,14 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
         <div className={styles.rankList}>
           {ranked.best.map((item, i) => {
             const grade = getChemistryByRate(item.matchRate);
+            const canCompare =
+              onCompareRequest && selectedUserId === currentUserId && !isGhostUser(item.targetId);
             return (
-              <div key={item.targetId} className={styles.rankCard}>
+              <div
+                key={item.targetId}
+                className={`${styles.rankCard} ${canCompare ? styles.rankCardTappable : ''}`}
+                onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
+              >
                 <span className={styles.rankNumber}>{i + 1}</span>
                 <div
                   className={styles.rankAvatar}
@@ -167,6 +180,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
                 >
                   {grade.grade}
                 </span>
+                {canCompare && <span className={styles.rankArrow}>›</span>}
               </div>
             );
           })}
@@ -179,8 +193,14 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
         <div className={styles.rankList}>
           {ranked.worst.map((item, i) => {
             const grade = getChemistryByRate(item.matchRate);
+            const canCompare =
+              onCompareRequest && selectedUserId === currentUserId && !isGhostUser(item.targetId);
             return (
-              <div key={item.targetId} className={styles.rankCard}>
+              <div
+                key={item.targetId}
+                className={`${styles.rankCard} ${canCompare ? styles.rankCardTappable : ''}`}
+                onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
+              >
                 <span className={`${styles.rankNumber} ${styles.rankNumberWorst}`}>
                   {members.length - 1 - i}
                 </span>
@@ -205,6 +225,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({ currentUserId, mem
                 >
                   {grade.grade}
                 </span>
+                {canCompare && <span className={styles.rankArrow}>›</span>}
               </div>
             );
           })}

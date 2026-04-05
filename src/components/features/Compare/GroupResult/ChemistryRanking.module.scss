@@ -215,6 +215,25 @@
   border: 1px solid rgba(#fff, 0.04);
 }
 
+.rankCardTappable {
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:active {
+    background: rgba(#fff, 0.06);
+    border-color: rgba(#fff, 0.1);
+  }
+}
+
+.rankArrow {
+  font-size: $font-size-18;
+  color: $text-tertiary;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 .rankNumber {
   font-size: $font-size-16;
   font-weight: 700;

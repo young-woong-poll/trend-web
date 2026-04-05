@@ -2,7 +2,6 @@
 
 import { useState, type FC } from 'react';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
@@ -198,7 +197,9 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
                   <span className={styles.highlight}>{link.creatorNickname}</span>
                   님이
                   <br />
-                  가치관 대결을 신청했어요
+                  <span className={styles.highlight}>{link.bundleTitle}</span>
+                  <br />
+                  대결을 신청했어요
                 </>
               )
             ) : link.type === 'GROUP' ? (
@@ -212,11 +213,6 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             )}
           </h1>
           <p className={styles.heroSubtitle}>{getHeroMessage()}</p>
-
-          {/* 번들 제목 (어떤 가치관 대결인지) */}
-          {!isAlreadyTaken && !link.isCreator && (
-            <div className={styles.bundleBadge}>{link.bundleTitle}</div>
-          )}
 
           {link.type === 'GROUP' && link.memberCount > 0 && (
             <p className={styles.errorMessage}>
@@ -232,46 +228,49 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
           )}
         </div>
 
-        {/* ─── 블러 결과 프리뷰 (미완료 유저) ─── */}
+        {/* ─── 결과 프리뷰 (미완료 유저) — ChemistryCard 스타일 ─── */}
         {showPreview && (
           <div className={styles.previewCard}>
             <div className={styles.previewHeader}>완료하면 이런 결과를 볼 수 있어요</div>
 
-            {/* 커플 타입 블러 */}
-            <div className={styles.previewCoupleType}>
-              <div className={styles.previewCharacters}>
-                {link.creatorImageUrl ? (
-                  <Image
-                    src={link.creatorImageUrl}
-                    alt={link.creatorNickname}
-                    width={52}
-                    height={52}
-                    className={styles.previewCharImage}
-                  />
-                ) : (
-                  <span className={styles.previewChar}>{link.creatorNickname[0]}</span>
-                )}
-                <span className={styles.previewVs}>×</span>
-                <span className={styles.previewCharBlur}>?</span>
-              </div>
-              <div className={styles.previewBlurLine} style={{ width: 140 }} />
-              <div className={styles.previewBlurLine} style={{ width: 200 }} />
+            {/* 닉네임 */}
+            <div className={styles.previewNames}>
+              <span className={styles.previewMyName}>{link.creatorNickname}</span>
+              <span className={styles.previewVs}>×</span>
+              <span className={styles.previewTargetName}>?</span>
             </div>
 
-            {/* 갈린 순간 블러 */}
-            <div className={styles.previewDiff}>
-              <div className={styles.previewDiffRow}>
-                <div className={styles.previewPill}>{link.creatorNickname}</div>
-                <span className={styles.previewVsSmall}>VS</span>
-                <div className={styles.previewPillBlur}>???</div>
-              </div>
+            {/* 블러 등급 */}
+            <div className={styles.previewGradeArea}>
+              <span className={styles.previewGradeLetter}>?</span>
+              <span className={styles.previewGradeTitle}>어떤 케미일까?</span>
             </div>
 
-            {/* 메타 */}
-            <div className={styles.previewMeta}>
-              <span>일치율 ??%</span>
-              <span className={styles.metaDot} />
-              <span>충격 포인트 ?개</span>
+            {/* 블러 분포 곡선 */}
+            <div className={styles.previewCurveWrap}>
+              <svg viewBox="0 0 200 80" className={styles.previewCurveSvg}>
+                <defs>
+                  <linearGradient id="previewCurveFill" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#ff00ff" stopOpacity="0.06" />
+                    <stop offset="50%" stopColor="#ff4500" stopOpacity="0.12" />
+                    <stop offset="100%" stopColor="#ff00ff" stopOpacity="0.06" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,75 C30,72 50,48 75,22 C90,8 100,3 100,3 C100,3 110,8 125,22 C150,48 170,72 200,75 L200,80 L0,80 Z"
+                  fill="url(#previewCurveFill)"
+                />
+                <path
+                  d="M0,75 C30,72 50,48 75,22 C90,8 100,3 100,3 C100,3 110,8 125,22 C150,48 170,72 200,75"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth="1.5"
+                />
+              </svg>
+              <div className={styles.previewCurveAxis}>
+                <span>완전 다름</span>
+                <span>완전 똑같음</span>
+              </div>
             </div>
           </div>
         )}

@@ -4,7 +4,7 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 32px) $spacing-16 80px;
+  padding: calc(56px + 32px) 0 80px;
   gap: 32px;
   width: 100%;
 }
@@ -56,7 +56,10 @@
   @include flex-center;
   flex-direction: column;
   gap: 32px;
+  color: #fff;
+  width: 100%;
   min-height: 60dvh;
+  height: 100vh;
 }
 
 // ─── 로딩 애니메이션 (원 2개 궤도) ───
@@ -188,7 +191,7 @@
   display: flex;
   gap: 10px;
   width: 100%;
-  max-width: 560px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
