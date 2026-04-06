@@ -204,7 +204,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
   const handleJoin = () => {
     if (!isLoggedIn) {
-      requireLogin('default');
+      requireLogin('compare');
       return;
     }
     if (!link?.myBundleCompleted) {

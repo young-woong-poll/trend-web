@@ -13,6 +13,7 @@ import { useEscapeKey } from '@/hooks/useEscapeKey';
 const TRIGGER_MESSAGES: Record<LoginTrigger, string> = {
   comment: '댓글을 남기려면 로그인이 필요해요',
   like: '좋아요는 로그인 후 이용할 수 있어요',
+  compare: '', // compare는 별도 UI 사용
   default: '로그인하고 더 많은 기능을 이용해보세요',
 };
 
@@ -55,6 +56,34 @@ const LoginModalContent = ({
     const state = encodeURIComponent(new URLSearchParams({ returnUrl }).toString());
     window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&state=${state}`;
   };
+
+  if (trigger === 'compare') {
+    return (
+      <div className={styles.container}>
+        <button type="button" className={styles.closeButton} onClick={onClose} aria-label="닫기">
+          ✕
+        </button>
+
+        <div className={styles.bowingEmoji}>🙇‍♂️🙏</div>
+
+        <p className={styles.compareTitle}>귀한 시간 내주셔서 감사합니다</p>
+        <p className={styles.compareDesc}>
+          비교 기능은 서로의 답변을 매칭하기 위해
+          <br />
+          로그인이 꼭 필요합니다 🥺🥺
+        </p>
+        <p className={styles.compareDesc}>
+          번거로우시겠지만 로그인해주시면
+          <br />더 재밌는 기능 팍팍 개발하겠습니다!
+        </p>
+
+        <button type="button" className={styles.kakaoButton} onClick={handleKakaoLogin}>
+          <KakaoIcon />
+          카카오로 3초만에 시작하기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

@@ -35,7 +35,6 @@
   bundleId: number;
   slug: string;
   title: string;
-  subtitle: string;
   category: string;          // 카테고리 표시명 (예: "연애", "결혼")
   categoryCode: CategoryCode; // 카테고리 코드 ('LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND')
   questionCount: number;
@@ -234,7 +233,6 @@ Array<{
   bundleTitle: string;
   categoryCode: CategoryCode; // 번들 카테고리 코드 (FE 테마 색상 적용용)
   creatorNickname: string; // 링크 생성자 닉네임
-  creatorImageUrl: string | null; // 링크 생성자의 대중성 캐릭터 이미지 URL (생성자의 번들 답변 기반 대중성 등급에 해당하는 캐릭터 이미지)
   participantNickname: string | null; // 참여자 닉네임 (1:1 전용, 아직 없으면 null)
   hasParticipant: boolean; // 1:1 링크에 참여자가 존재하는지 (GROUP은 memberCount 사용)
   isCreator: boolean; // 현재 로그인 유저가 생성자인지
@@ -430,10 +428,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
     nickname: string;
     /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname과 동일 */
     displayName?: string;
-    /** 성별 (성별 기반 섹션용, 없으면 해당 섹션에서 제외) */
+    /** 성별 (이성궁합/성별대결용, 없으면 해당 섹션에서 제외) */
     gender?: 'MALE' | 'FEMALE';
-    /** 출생연도 (세대 분석용, 없으면 해당 섹션에서 제외) */
-    birthYear?: number;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 
@@ -446,8 +442,6 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
     optionARate: number; // A 선택 비율 (0~100 정수)
     optionBRate: number; // B 선택 비율 (0~100 정수, = 100 - optionARate)
     totalVotes: number; // 전체 참여자 투표 수
-    /** 가치관 지도 축 배정 (null = 미배정) */
-    axis: 'X' | 'Y' | null;
   }>;
 
   /** 그룹 싱크율 (모든 멤버 쌍 일치율 평균, 0~100 정수) */
@@ -461,9 +455,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 - `showGenderContent`가 `true`이면 이성궁합/성별대결 섹션 표시 (기존 `categoryCode` 기반 조건 대체)
 - `creatorUserId`: FE에서 그룹 설정 모달의 편집 권한 판별에 사용 (생성자만 수정 가능, 참여자는 읽기 전용)
 - `members.displayName`: 그룹 참여 시 입력한 표시 이름. FE에서 `displayName ?? nickname` 로직으로 우선 사용
-- `members.gender`/`members.birthYear`: Phase 3 성별 대결, 이성궁합 랭킹, 세대별 클러스터 분석에 사용
+- `members.gender`: 이성궁합 랭킹, 성별 대결에 사용
 - `questionStats`는 **비율(Rate) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 다름
-- `questionStats.axis`는 가치관 지도 축 배정 (어드민에서 설정). Phase 3에서는 하드코딩, 추후 어드민 UI 연동 예정
 - `groupSyncRate`는 서버에서 계산 (모든 멤버 쌍의 답변 일치율 평균)
 - 링크 타입이 `GROUP`이 아니면 `404 NOT_FOUND`
 - 참여 인원이 1명 미만(0명)이면 `400 BAD_REQUEST` (결과를 생성할 수 없음)
@@ -674,6 +667,31 @@ FE에서 카테고리별 액센트 컬러 테마를 적용합니다. 다음 API 
 
 ## 미구현 예정 API (참고용)
 
-| Method | Endpoint                                  | 설명              | 상태   |
-| ------ | ----------------------------------------- | ----------------- | ------ |
-| GET    | `/api/v1/bundles/{slug}/my-compare-links` | 내 비교 링크 목록 | 미구현 |
+| Method | Endpoint                                  | 설명                               | 상태   |
+| ------ | ----------------------------------------- | ---------------------------------- | ------ |
+| GET    | `/api/v1/bundles`                         | 번들 목록 (사이트맵 + 메인 피드용) | 미구현 |
+| GET    | `/api/v1/bundles/{slug}/my-compare-links` | 내 비교 링크 목록                  | 미구현 |
+
+### 번들 목록 API 참고 사항
+
+**용도:**
+
+- 사이트맵 동적 생성 (현재 slug 하드코딩 중: `sitemap.ts`)
+- 메인 피드에서 번들 카드 표시 시 `completed` 상태 반영 (현재 `participated: false` 하드코딩)
+
+**예상 Response `data`:**
+
+```typescript
+Array<{
+  bundleId: number;
+  slug: string;
+  title: string;
+  category: string;
+  categoryCode: CategoryCode;
+  questionCount: number;
+  status: 'ACTIVE' | 'CLOSED';
+  imageUrl?: string;
+  participantCount: number;
+  completed: boolean; // 로그인 유저의 완료 여부 (비로그인 시 false)
+}>;
+```

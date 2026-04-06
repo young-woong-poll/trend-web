@@ -48,12 +48,7 @@ let mockUser: {
   nickname: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;
-} | null = {
-  id: 1001,
-  nickname: '테스트유저',
-  profileColor: 'purple',
-  lastNicknameChangedAt: null,
-};
+} | null = null; // 비로그인 테스트: null, 로그인 테스트: { id: 1001, nickname: '테스트유저', profileColor: 'purple', lastNicknameChangedAt: null }
 const usedNicknames = new Set<string>();
 
 const nicknameAdjectives = [
@@ -1203,7 +1198,9 @@ export const handlers = [
   /** GET /api/v1/compare-links/{token} — 비교 링크 정보 조회 */
   http.get(`${baseURL}/api/v1/compare-links/:token`, ({ params }) => {
     const token = params.token as string;
-    const link = getCompareLink(token, 'mock-user-1');
+    // invite2: 비로그인 유저 시뮬레이션
+    const currentUserId = token === 'invite2' ? 'anonymous' : 'mock-user-1';
+    const link = getCompareLink(token, currentUserId);
     if (!link) {
       return HttpResponse.json(
         { code: 'NOT_FOUND', message: '비교 링크를 찾을 수 없습니다', data: null },

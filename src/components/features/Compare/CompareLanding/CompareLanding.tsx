@@ -79,7 +79,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
   const handleAction = async () => {
     if (needsLogin) {
-      requireLogin('default');
+      requireLogin('compare');
       return;
     }
     if (isAlreadyTaken) {
@@ -147,7 +147,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
   const getCtaText = () => {
     if (needsLogin) {
-      return '로그인하고 대결 수락하기';
+      return '대결 수락하기';
     }
     if (isAlreadyTaken) {
       return link.myBundleCompleted ? '내 비교 링크 만들기' : '먼저 투표 참여하기';
