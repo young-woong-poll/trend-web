@@ -1193,6 +1193,15 @@ export const handlers = [
       body.type,
       body.showGenderContent ?? false
     );
+    // 그룹 생성 시 생성자를 자동으로 멤버에 추가
+    if (body.type === 'GROUP') {
+      const link = compareLinkStore.get(result.token);
+      if (link) {
+        link.groupName = body.groupName ?? null;
+        link.groupMembers.push({ userId: 'mock-user-1', nickname: '웅이' });
+        link.status = 'COMPLETED';
+      }
+    }
     return HttpResponse.json({
       code: 'SUCCESS',
       message: '비교 링크가 생성되었습니다',

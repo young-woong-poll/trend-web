@@ -36,7 +36,7 @@ interface BundlePlayProps {
 }
 
 export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const { data: bundle } = useBundleDetail(slug);
   const { data: elections, isLoading } = useBundleElections(slug);
   const submitMutation = useSubmitBundleAnswers(slug);
@@ -50,19 +50,28 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // 접근제어: 비로그인 → 인트로 + 로그인 유도
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isAuthLoading && !isLoggedIn) {
       router.replace(
         `/bundle/${slug}?login=true&returnUrl=${encodeURIComponent(`/bundle/${slug}/play`)}`
       );
     }
-  }, [isLoggedIn, slug, router]);
+  }, [isAuthLoading, isLoggedIn, slug, router]);
 
+  // 접근제어: 이미 완료 → 결과 페이지
   useEffect(() => {
     if (bundle?.completed) {
       router.replace(`/bundle/${slug}/result`);
     }
   }, [bundle?.completed, slug, router]);
+
+  // 접근제어: 번들 마감 → 인트로
+  useEffect(() => {
+    if (bundle && bundle.status === 'CLOSED') {
+      router.replace(`/bundle/${slug}`);
+    }
+  }, [bundle, slug, router]);
 
   const handleSelect = useCallback(
     (choice: 'A' | 'B') => {
@@ -134,7 +143,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
     }
   };
 
-  if (isLoading || !elections || elections.length === 0) {
+  if (isAuthLoading || isLoading || !elections || elections.length === 0) {
     return (
       <BundleBackground categoryCode={bundle?.categoryCode}>
         <div className={styles.loading}>

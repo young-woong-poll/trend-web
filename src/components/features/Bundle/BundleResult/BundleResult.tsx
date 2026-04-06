@@ -63,6 +63,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     };
   }, [showPopularityInfo]);
 
+  // 접근제어: 비로그인 → 인트로 + 로그인 유도
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
       router.replace(
@@ -70,6 +71,13 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
       );
     }
   }, [isAuthLoading, isLoggedIn, slug, router]);
+
+  // 접근제어: 미완료 → 인트로
+  useEffect(() => {
+    if (!isLoading && !result && isLoggedIn && !compareToken) {
+      router.replace(`/bundle/${slug}`);
+    }
+  }, [isLoading, result, isLoggedIn, slug, router, compareToken]);
 
   // compare 토큰이 있고 결과가 로드되면 → 자동 join → compare result로 이동
   useEffect(() => {
@@ -89,7 +97,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compareToken, result]);
 
-  if (isLoading) {
+  if (isAuthLoading || isLoading) {
     return (
       <BundleBackground categoryCode={bundle?.categoryCode}>
         <div className={styles.container}>
@@ -101,18 +109,12 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   }
 
   if (!result) {
+    // 리다이렉트 대기 중 로딩 표시
     return (
       <BundleBackground categoryCode={bundle?.categoryCode}>
-        <div className={styles.loading}>
-          아직 번들을 풀지 않았어요.
-          <button
-            type="button"
-            className={styles.ctaButton}
-            style={{ maxWidth: 200 }}
-            onClick={() => router.push(`/bundle/${slug}/play`)}
-          >
-            풀러 가기
-          </button>
+        <div className={styles.container}>
+          <Skeleton variant="dark" width={160} height={160} borderRadius="50%" />
+          <Skeleton variant="dark" width="100%" height={100} borderRadius={12} />
         </div>
       </BundleBackground>
     );

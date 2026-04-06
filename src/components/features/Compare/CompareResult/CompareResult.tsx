@@ -28,6 +28,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
 
+  // 접근제어: 비로그인 → compare 랜딩 + 로그인 유도
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
       router.replace(
@@ -36,7 +37,14 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [isAuthLoading, isLoggedIn, token, router]);
 
-  if (isLoading) {
+  // 접근제어: 결과 없음 → compare 랜딩
+  useEffect(() => {
+    if (!isLoading && !result && isLoggedIn) {
+      router.replace(`/compare/${token}`);
+    }
+  }, [isLoading, result, isLoggedIn, token, router]);
+
+  if (isAuthLoading || isLoading) {
     return (
       <BundleBackground>
         <div className={styles.loading}>
@@ -60,18 +68,20 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   }
 
   if (!result) {
+    // 리다이렉트 대기 중 로딩 표시
     return (
       <BundleBackground>
         <div className={styles.loading}>
-          비교 결과를 찾을 수 없습니다.
-          <button
-            type="button"
-            className={styles.ctaButton}
-            style={{ maxWidth: 200 }}
-            onClick={() => router.push('/')}
-          >
-            메인으로
-          </button>
+          <div className={styles.loadingOrbit}>
+            {[0, 1].map((i) => (
+              <div
+                key={i}
+                className={styles.loadingDot}
+                style={{ '--i': i } as React.CSSProperties}
+              />
+            ))}
+            <div className={styles.loadingCenter} />
+          </div>
         </div>
       </BundleBackground>
     );
