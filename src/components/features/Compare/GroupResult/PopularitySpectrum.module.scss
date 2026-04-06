@@ -239,7 +239,7 @@
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
   font-size: 10px;
   font-weight: 700;

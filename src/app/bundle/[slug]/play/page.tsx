@@ -4,7 +4,7 @@ import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '번들 풀기 | HotPick',
+  title: '번들 풀기',
   robots: { index: false },
 };
 

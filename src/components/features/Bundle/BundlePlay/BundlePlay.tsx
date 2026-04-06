@@ -136,7 +136,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
   if (isLoading || !elections || elections.length === 0) {
     return (
-      <BundleBackground>
+      <BundleBackground categoryCode={bundle?.categoryCode}>
         <div className={styles.loading}>
           <div className={styles.loadingSpinner} />
           질문을 불러오는 중...
@@ -151,7 +151,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const isLast = currentIndex === elections.length - 1;
 
   return (
-    <BundleBackground>
+    <BundleBackground categoryCode={bundle?.categoryCode}>
       <div className={styles.container}>
         <div className={styles.topBar}>
           <ProgressBar current={currentIndex + 1} total={elections.length} />

@@ -42,8 +42,8 @@
     background 0.15s;
 
   &.selected {
-    border-color: $primary-start;
-    background: rgba($primary-start, 0.06);
+    border-color: var(--primary-start);
+    background: rgba(var(--primary-start-rgb), 0.06);
   }
 }
 
@@ -89,7 +89,7 @@
   font-weight: 600;
   color: $white;
   cursor: pointer;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   margin-top: 4px;
   transition: opacity 0.2s;
 

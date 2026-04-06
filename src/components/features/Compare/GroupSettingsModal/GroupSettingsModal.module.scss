@@ -152,7 +152,7 @@
 }
 
 .toggleOn {
-  background: $primary-end;
+  background: var(--primary-end);
 
   &::after {
     transform: translateX(20px);
@@ -169,7 +169,7 @@
   font-weight: 600;
   color: $white;
   cursor: pointer;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   margin-top: 4px;
   transition: opacity 0.2s;
 

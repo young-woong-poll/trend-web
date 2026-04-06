@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import QuestionIcon from '@/assets/icon/QuestionIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
@@ -15,7 +16,7 @@ import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/Cre
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
-import { useBundleMyResult } from '@/hooks/api/useBundle';
+import { useBundleDetail, useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
@@ -23,20 +24,9 @@ interface BundleResultProps {
   slug: string;
 }
 
-/** 등급 → 그라디언트 색상 쌍 */
-function getGradeColors(grade: string): [string, string] {
-  const map: Record<string, [string, string]> = {
-    KING: ['#FFD700', '#FFA500'],
-    LEADER: ['#FF00FF', '#8B5CF6'],
-    BALANCER: ['#FF6B35', '#FF00FF'],
-    REBEL: ['#4FC3F7', '#00BCD4'],
-    UNICORN: ['#66BB6A', '#00BCD4'],
-  };
-  return map[grade] ?? map.BALANCER;
-}
-
 export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { data: bundle } = useBundleDetail(slug);
   const { data: result, isLoading } = useBundleMyResult(slug);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -101,7 +91,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
   if (isLoading) {
     return (
-      <BundleBackground>
+      <BundleBackground categoryCode={bundle?.categoryCode}>
         <div className={styles.container}>
           <Skeleton variant="dark" width={160} height={160} borderRadius="50%" />
           <Skeleton variant="dark" width="100%" height={100} borderRadius={12} />
@@ -112,7 +102,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
   if (!result) {
     return (
-      <BundleBackground>
+      <BundleBackground categoryCode={bundle?.categoryCode}>
         <div className={styles.loading}>
           아직 번들을 풀지 않았어요.
           <button
@@ -130,10 +120,9 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
   const popularityScore = calcPopularityScore(result.myAnswers, result.questionStats);
   const popularity = getPopularityByScore(popularityScore);
-  const [color1, color2] = getGradeColors(popularity.grade);
 
   return (
-    <BundleBackground>
+    <BundleBackground categoryCode={bundle?.categoryCode}>
       <div className={styles.container}>
         {compareToken && (
           <button
@@ -146,17 +135,15 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           </button>
         )}
 
+        {/* ═══ 번들 카테고리 + 제목 ═══ */}
+        <div className={styles.resultHeader}>
+          <CategoryBadge categoryCode={bundle?.categoryCode} label={bundle?.category} />
+          <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
+        </div>
+
         {/* ═══ 대중성 히어로 ═══ */}
         <div className={styles.popularityCard}>
-          <div
-            className={styles.gradeRing}
-            style={
-              {
-                '--grade-color-1': color1,
-                '--grade-color-2': color2,
-              } as React.CSSProperties
-            }
-          >
+          <div className={styles.gradeRing}>
             <div className={styles.gradeInner}>
               {popularity.imagePath ? (
                 <Image
@@ -327,9 +314,19 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
       <Toast message={toast.message} isVisible={toast.isVisible} />
       {showCompareModal && (
-        <CreateCompareLink slug={slug} onClose={() => setShowCompareModal(false)} />
+        <CreateCompareLink
+          slug={slug}
+          categoryCode={bundle?.categoryCode}
+          onClose={() => setShowCompareModal(false)}
+        />
       )}
-      {showGroupModal && <CreateGroupLink slug={slug} onClose={() => setShowGroupModal(false)} />}
+      {showGroupModal && (
+        <CreateGroupLink
+          slug={slug}
+          categoryCode={bundle?.categoryCode}
+          onClose={() => setShowGroupModal(false)}
+        />
+      )}
     </BundleBackground>
   );
 };

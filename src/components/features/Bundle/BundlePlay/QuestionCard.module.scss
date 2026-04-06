@@ -101,10 +101,10 @@
   }
 
   &.optionSelected {
-    border-color: $primary-start;
+    border-color: var(--primary-start);
     color: $white;
-    background: rgba($primary-start, 0.08);
-    box-shadow: 0 0 24px rgba($primary-start, 0.1);
+    background: rgba(var(--primary-start-rgb), 0.08);
+    box-shadow: 0 0 24px rgba(var(--primary-start-rgb), 0.1);
   }
 }
 

@@ -88,13 +88,16 @@
 }
 
 .bundleTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: $font-size-12;
   color: $text-secondary;
-  padding: 4px 12px;
-  background: rgba(#fff, 0.04);
-  border: 1px solid rgba(#fff, 0.08);
-  border-radius: $border-rounded;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+}
+
+.bundleTitleDot {
+  color: $text-tertiary;
 }
 
 .syncRateDisplay {
@@ -196,7 +199,7 @@
 }
 
 .syncTagHigh {
-  color: #66bb6a;
+  color: $text-tertiary;
 }
 
 .syncTagMid {
@@ -204,7 +207,7 @@
 }
 
 .syncTagLow {
-  color: #ff6b9d;
+  color: $text-tertiary;
 }
 
 .syncTagAccent {
@@ -258,7 +261,7 @@
   height: 20px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   animation: centerPulse 2s ease-in-out infinite;
 }
 
@@ -266,11 +269,11 @@
   0%,
   100% {
     transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 0 0 rgba($primary-start, 0.3);
+    box-shadow: 0 0 0 0 rgba(var(--primary-start-rgb), 0.3);
   }
   50% {
     transform: translate(-50%, -50%) scale(1.15);
-    box-shadow: 0 0 20px 4px rgba($primary-start, 0.15);
+    box-shadow: 0 0 20px 4px rgba(var(--primary-start-rgb), 0.15);
   }
 }
 
@@ -455,6 +458,6 @@
 .ctaGroup {
   @extend %ctaBase;
   border: none;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
 }

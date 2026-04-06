@@ -355,7 +355,7 @@
   padding: 8px 14px;
   border: none;
   border-radius: $border-radius-md;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
   font-size: $font-size-12;
   font-weight: 700;

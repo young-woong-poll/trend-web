@@ -24,7 +24,7 @@
 .orb1 {
   width: 350px;
   height: 350px;
-  background: $primary-start;
+  background: var(--primary-start);
   top: -100px;
   right: -80px;
   animation: float1 14s ease-in-out infinite;
@@ -33,7 +33,7 @@
 .orb2 {
   width: 250px;
   height: 250px;
-  background: $primary-end;
+  background: var(--primary-end);
   bottom: 15%;
   left: -60px;
   animation: float2 18s ease-in-out infinite;

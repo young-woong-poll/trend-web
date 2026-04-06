@@ -4,6 +4,7 @@ import { useEffect, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
@@ -80,8 +81,14 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const storyData = classifyAnswers(result);
 
   return (
-    <BundleBackground>
+    <BundleBackground categoryCode={result.categoryCode}>
       <div className={styles.container}>
+        {/* 번들 카테고리 + 제목 */}
+        <div className={styles.resultHeader}>
+          <CategoryBadge categoryCode={result.categoryCode} />
+          <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
+        </div>
+
         {/* 케미 카드 */}
         <ChemistryCard
           matchRate={result.matchRate}
@@ -126,10 +133,18 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       </div>
 
       {showCompareModal && (
-        <CreateCompareLink slug={result.bundleSlug} onClose={() => setShowCompareModal(false)} />
+        <CreateCompareLink
+          slug={result.bundleSlug}
+          categoryCode={result.categoryCode}
+          onClose={() => setShowCompareModal(false)}
+        />
       )}
       {showGroupModal && (
-        <CreateGroupLink slug={result.bundleSlug} onClose={() => setShowGroupModal(false)} />
+        <CreateGroupLink
+          slug={result.bundleSlug}
+          categoryCode={result.categoryCode}
+          onClose={() => setShowGroupModal(false)}
+        />
       )}
     </BundleBackground>
   );

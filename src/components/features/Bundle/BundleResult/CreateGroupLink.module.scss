@@ -141,7 +141,7 @@
   padding: 14px;
   border: none;
   border-radius: $border-radius-lg;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
   font-size: $font-size-14;
   font-weight: 600;

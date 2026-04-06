@@ -1,3 +1,5 @@
+import { OG_IMAGE_BUNDLE, SITE_URL } from '@/lib/seo/constants';
+
 import type { Metadata } from 'next';
 
 type MetadataProps = {
@@ -17,13 +19,13 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
     if (bundle) {
       return {
-        title: `${bundle.title} | HotPick`,
-        description: bundle.subtitle ?? '우리 생각 얼마나 통할까? 가치관을 비교해보세요.',
+        title: bundle.title,
+        description: bundle.subtitle ?? '우리 생각 얼마나 통할까?',
         openGraph: {
-          title: `${bundle.title} - 우리 생각 얼마나 통할까?`,
-          description: bundle.subtitle ?? '가치관을 비교해보세요.',
-          url: `https://hotpick.kr/bundle/${slug}`,
-          images: bundle.imageUrl ? [{ url: bundle.imageUrl }] : undefined,
+          title: bundle.title,
+          description: bundle.subtitle ?? '우리 생각 얼마나 통할까?',
+          url: `${SITE_URL}/bundle/${slug}`,
+          images: [OG_IMAGE_BUNDLE],
         },
       };
     }
@@ -32,12 +34,8 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   }
 
   return {
-    title: '번들 | HotPick',
-    description: '우리 생각 얼마나 통할까? 가치관을 비교해보세요.',
-    openGraph: {
-      title: '번들 | HotPick',
-      description: '우리 생각 얼마나 통할까?',
-      url: `https://hotpick.kr/bundle/${slug}`,
-    },
+    title: '번들',
+    description: '우리 생각 얼마나 통할까?',
+    openGraph: { images: [OG_IMAGE_BUNDLE] },
   };
 }

@@ -21,6 +21,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
+    // TODO: 번들 목록 API 추가 시 하드코딩에서 동적 fetch로 전환
+    const bundleSlugs = ['love-values', 'marriage-values'];
+    const bundlePages = bundleSlugs.map((slug) => ({
+      url: `${baseUrl}/bundle/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
+
     return [
       {
         url: baseUrl,
@@ -35,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.5,
       },
       ...hotpickPages,
+      ...bundlePages,
     ];
   } catch (error) {
     console.error('[Sitemap] Failed to generate sitemap:', error);

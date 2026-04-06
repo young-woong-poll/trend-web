@@ -1,14 +1,21 @@
 import type { FC, ReactNode } from 'react';
 
 import styles from '@/components/features/Bundle/BundleBackground/BundleBackground.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
+import type { CategoryCode } from '@/types/hotpick';
 
 interface BundleBackgroundProps {
   children: ReactNode;
   fireworks?: boolean;
+  categoryCode?: CategoryCode;
 }
 
-export const BundleBackground: FC<BundleBackgroundProps> = ({ children, fireworks = false }) => (
-  <div className={styles.wrapper}>
+export const BundleBackground: FC<BundleBackgroundProps> = ({
+  children,
+  fireworks = false,
+  categoryCode,
+}) => (
+  <div className={styles.wrapper} style={getCategoryThemeVars(categoryCode)}>
     {/* 배경 그라디언트 orb */}
     <div className={styles.orbs}>
       <div className={`${styles.orb} ${styles.orb1}`} />

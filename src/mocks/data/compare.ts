@@ -297,6 +297,43 @@ compareLinkStore.set('group-50', {
   showGenderContent: true,
 });
 
+// marriage-1v1: 결혼 카테고리 1:1 비교 (참여완료)
+compareLinkStore.set('marriage-1v1', {
+  token: 'marriage-1v1',
+  type: 'ONE_TO_ONE',
+  bundleSlug: 'marriage-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: 'mock-user-2',
+  participantNickname: '수진',
+  status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
+  showGenderContent: false,
+});
+
+// group-marriage: 결혼 카테고리 그룹 비교
+compareLinkStore.set('group-marriage', {
+  token: 'group-marriage',
+  type: 'GROUP',
+  bundleSlug: 'marriage-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '결혼준비 모임',
+  groupMembers: [
+    { userId: 'mock-user-1', nickname: '웅이' },
+    { userId: 'mock-user-2', nickname: '수진' },
+    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-4', nickname: '지은' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+});
+
 /** 토큰 생성 */
 function generateToken(): string {
   return Math.random().toString(36).substring(2, 10);
@@ -369,6 +406,7 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     type: link.type,
     bundleSlug: link.bundleSlug,
     bundleTitle: detail?.title ?? link.bundleSlug,
+    categoryCode: detail?.categoryCode,
     creatorNickname: link.creatorNickname,
     creatorImageUrl,
     participantNickname: link.participantNickname,
@@ -476,6 +514,7 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
   return {
     bundleSlug: link.bundleSlug,
     bundleTitle: detail?.title ?? link.bundleSlug,
+    categoryCode: detail?.categoryCode,
     totalQuestions: elections.length,
     me: {
       nickname: meNickname,

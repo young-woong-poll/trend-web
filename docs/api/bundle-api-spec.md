@@ -36,7 +36,8 @@
   slug: string;
   title: string;
   subtitle: string;
-  category: string;          // single-hotpick 처럼 카테고리 존재
+  category: string;          // 카테고리 표시명 (예: "연애", "결혼")
+  categoryCode: CategoryCode; // 카테고리 코드 ('LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND')
   questionCount: number;
   status: 'ACTIVE' | 'CLOSED';
   imageUrl?: string;         // 썸네일 이미지 CDN URL (없으면 null/undefined)
@@ -134,6 +135,7 @@ Array<{
 {
   bundleSlug: string;
   bundleTitle: string;
+  categoryCode: CategoryCode; // 카테고리 코드 (FE 테마 색상 적용용)
   totalQuestions: number;
 
   // 내 답변
@@ -230,6 +232,7 @@ Array<{
   type: 'ONE_TO_ONE' | 'GROUP';
   bundleSlug: string;
   bundleTitle: string;
+  categoryCode: CategoryCode; // 번들 카테고리 코드 (FE 테마 색상 적용용)
   creatorNickname: string; // 링크 생성자 닉네임
   creatorImageUrl: string | null; // 링크 생성자의 대중성 캐릭터 이미지 URL (생성자의 번들 답변 기반 대중성 등급에 해당하는 캐릭터 이미지)
   participantNickname: string | null; // 참여자 닉네임 (1:1 전용, 아직 없으면 null)
@@ -340,6 +343,7 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 {
   bundleSlug: string;
   bundleTitle: string;
+  categoryCode: CategoryCode; // 카테고리 코드 (FE 테마 색상 적용용)
   totalQuestions: number;
 
   // 현재 로그인 유저 기준 "나"
@@ -411,8 +415,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
   /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
   myUserId: string;
 
-  /** 번들 카테고리 코드 */
-  categoryCode?: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'DAILY' | ... (싱글 핫픽과 동일 코드 체계)
+  /** 번들 카테고리 코드 (FE 테마 색상 적용용) */
+  categoryCode: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND'
 
   /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 — 그룹 생성자가 설정 */
   showGenderContent: boolean;
@@ -441,7 +445,7 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
     optionB: string;
     optionARate: number; // A 선택 비율 (0~100 정수)
     optionBRate: number; // B 선택 비율 (0~100 정수, = 100 - optionARate)
-    totalVotes: number;  // 전체 참여자 투표 수
+    totalVotes: number; // 전체 참여자 투표 수
     /** 가치관 지도 축 배정 (null = 미배정) */
     axis: 'X' | 'Y' | null;
   }>;
@@ -596,18 +600,28 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 | C    | 30~49%   | 20~39%   | 각자의 세계         |
 | D    | ~29%     | ~19%     | 정반대의 가치관     |
 
-### 번들 상세 응답 필드 추가
+### `categoryCode` 필드 공통 안내
 
-`GET /api/v1/bundles/{slug}` 응답에 `categoryCode` 필드 추가 필요:
+FE에서 카테고리별 액센트 컬러 테마를 적용합니다. 다음 API 응답에 `categoryCode` 필드가 필수로 포함되어야 합니다:
 
-```typescript
-{
-  // ... 기존 필드
-  categoryCode?: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'DAILY' | ...
-}
+| API               | 엔드포인트                                | `categoryCode` |
+| ----------------- | ----------------------------------------- | -------------- |
+| 1. 번들 상세      | `GET /bundles/{slug}`                     | **필수**       |
+| 4. 내 결과        | `GET /bundles/{slug}/my-result`           | **필수**       |
+| 6. 비교 링크 정보 | `GET /compare-links/{token}`              | **필수**       |
+| 8. 1:1 비교 결과  | `GET /compare-links/{token}/result`       | **필수**       |
+| 9. 그룹 비교 결과 | `GET /compare-links/{token}/group-result` | **필수**       |
+
+**`CategoryCode` 코드 목록:**
+
+```
+'LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND'
 ```
 
-- 그룹 생성 시 `showGenderContent` 기본값 결정에 사용: `LOVE`/`MARRIAGE` → `true`, 나머지 → `false`
+**용도:**
+
+- FE 카테고리별 액센트 컬러 테마 (배경 orb, CTA 버튼, 카드 테두리, 배지 색상 등)
+- 그룹 생성 시 `showGenderContent` 기본값 결정: `LOVE`/`MARRIAGE` → `true`, 나머지 → `false`
 - 이성 콘텐츠 표시 여부는 `categoryCode`가 아닌 `showGenderContent` 플래그로 제어 (Phase 3.1에서 변경)
 
 ---

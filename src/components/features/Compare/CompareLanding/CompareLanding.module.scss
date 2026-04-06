@@ -33,6 +33,21 @@
   text-align: center;
 }
 
+.resultHeader {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.resultTitle {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
 // ─── 초대 히어로 ───
 .heroSection {
   @include flex-column;
@@ -49,7 +64,7 @@
 }
 
 .highlight {
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -148,7 +163,7 @@
 
 .envelopeFlap {
   height: 4px;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
 }
 
 .envelopeBody {
@@ -267,13 +282,13 @@
   0%,
   100% {
     box-shadow:
-      0 0 20px rgba($primary-start, 0.2),
-      0 0 40px rgba($primary-end, 0.1);
+      0 0 20px rgba(var(--primary-start-rgb), 0.2),
+      0 0 40px rgba(var(--primary-end-rgb), 0.1);
   }
   50% {
     box-shadow:
-      0 0 30px rgba($primary-start, 0.35),
-      0 0 60px rgba($primary-end, 0.2);
+      0 0 30px rgba(var(--primary-start-rgb), 0.35),
+      0 0 60px rgba(var(--primary-end-rgb), 0.2);
   }
 }
 
@@ -309,7 +324,7 @@
   position: relative;
   width: 24px;
   height: 20px;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   border-radius: 4px;
 
   &::after {
@@ -394,15 +409,15 @@
   padding: 18px;
   border: none;
   border-radius: $border-radius-lg;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
   font-size: $font-size-16;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease;
   box-shadow:
-    0 4px 20px rgba($primary-start, 0.3),
-    0 0 40px rgba($primary-end, 0.15);
+    0 4px 20px rgba(var(--primary-start-rgb), 0.3),
+    0 0 40px rgba(var(--primary-end-rgb), 0.15);
 
   &:hover {
     transform: scale(1.02);

@@ -7,11 +7,14 @@ import { createPortal } from 'react-dom';
 import CloseIcon from '@/assets/icon/CloseIcon';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateGroupLink.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import type { CategoryCode } from '@/types/hotpick';
 
 interface CreateGroupLinkProps {
   slug: string;
+  categoryCode?: CategoryCode;
   onClose: () => void;
 }
 
@@ -32,7 +35,7 @@ function validateGroupName(name: string): string | null {
   return null;
 }
 
-export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => {
+export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, onClose }) => {
   const createMutation = useCreateCompareLink(slug);
   const [groupName, setGroupName] = useState('');
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -92,7 +95,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
   };
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
           <CloseIcon width={16} height={16} />

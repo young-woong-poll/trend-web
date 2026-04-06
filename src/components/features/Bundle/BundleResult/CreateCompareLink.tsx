@@ -7,15 +7,18 @@ import { createPortal } from 'react-dom';
 import CloseIcon from '@/assets/icon/CloseIcon';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateCompareLink.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import type { CategoryCode } from '@/types/hotpick';
 
 interface CreateCompareLinkProps {
   slug: string;
+  categoryCode?: CategoryCode;
   onClose: () => void;
 }
 
-export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, onClose }) => {
+export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, categoryCode, onClose }) => {
   const createMutation = useCreateCompareLink(slug);
   const { toast, showToast } = useToast();
 
@@ -58,7 +61,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, onClose })
   };
 
   return createPortal(
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
           <CloseIcon width={16} height={16} />

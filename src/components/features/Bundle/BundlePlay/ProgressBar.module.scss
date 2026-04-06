@@ -24,13 +24,13 @@
 }
 
 .stepCompleted {
-  background: $primary-start;
+  background: var(--primary-start);
 }
 
 .stepActive {
   width: 24px;
   border-radius: 4px;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
 }
 
 .stepConnector {
@@ -41,7 +41,7 @@
 }
 
 .stepConnectorActive {
-  background: $primary-start;
+  background: var(--primary-start);
 }
 
 .label {
@@ -67,7 +67,7 @@
 
 .fill {
   height: 100%;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   border-radius: 2px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;

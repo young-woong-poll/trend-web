@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import CompareOneIcon from '@/assets/icon/CompareOneIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleIntro/BundleIntro.module.scss';
@@ -77,10 +78,10 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   };
 
   return (
-    <BundleBackground fireworks>
+    <BundleBackground fireworks categoryCode={bundle.categoryCode}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <span className={styles.category}>{bundle.category}</span>
+          <CategoryBadge categoryCode={bundle.categoryCode} label={bundle.category} />
           <h1 className={styles.title}>{bundle.title}</h1>
         </div>
 

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 import SettingsIcon from '@/assets/icon/SettingsIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
@@ -241,7 +242,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   };
 
   return (
-    <BundleBackground>
+    <BundleBackground categoryCode={result?.categoryCode}>
       <div className={styles.container}>
         <div className={styles.heroSection}>
           {isPreview && (
@@ -266,7 +267,11 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
               </button>
             )}
           </div>
-          <span className={styles.bundleTitle}>{result.bundleTitle}</span>
+          <span className={styles.bundleTitle}>
+            <CategoryBadge categoryCode={result.categoryCode} />
+            <span className={styles.bundleTitleDot}>·</span>
+            {result.bundleTitle}
+          </span>
           <div className={styles.syncRateDisplay}>
             <span className={styles.syncLabel}>그룹 싱크율</span>
             <div>
@@ -404,10 +409,18 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       )}
 
       {showCompareModal && (
-        <CreateCompareLink slug={result.bundleSlug} onClose={() => setShowCompareModal(false)} />
+        <CreateCompareLink
+          slug={result.bundleSlug}
+          categoryCode={result.categoryCode}
+          onClose={() => setShowCompareModal(false)}
+        />
       )}
       {showGroupModal && (
-        <CreateGroupLink slug={result.bundleSlug} onClose={() => setShowGroupModal(false)} />
+        <CreateGroupLink
+          slug={result.bundleSlug}
+          categoryCode={result.categoryCode}
+          onClose={() => setShowGroupModal(false)}
+        />
       )}
 
       <DisplayNameModal

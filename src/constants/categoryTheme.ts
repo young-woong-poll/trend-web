@@ -129,4 +129,25 @@ export function getCategoryThemeVars(code?: CategoryCode): React.CSSProperties {
   } as React.CSSProperties;
 }
 
+/** 카테고리 이름(한글)에서 CategoryCode로 매핑 (BE에서 코드를 안 줄 때 사용) */
+const NAME_TO_CODE: Record<string, CategoryCode> = {
+  연애: 'LOVE',
+  결혼: 'MARRIAGE',
+  재테크: 'FINANCE',
+  직장: 'WORK',
+  스포츠: 'SPORTS',
+  음식: 'FOOD',
+  게임: 'GAME',
+  자동차: 'CAR',
+  건강: 'HEALTH',
+  트렌드: 'TREND',
+};
+
+export function categoryNameToCode(name?: string): CategoryCode | undefined {
+  if (!name) {
+    return undefined;
+  }
+  return NAME_TO_CODE[name];
+}
+
 export type { CategoryTheme };

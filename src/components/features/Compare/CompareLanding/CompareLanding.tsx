@@ -5,6 +5,7 @@ import { useState, type FC } from 'react';
 import { useRouter } from 'next/navigation';
 
 import CopyIcon from '@/assets/icon/CopyIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
@@ -130,7 +131,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return '링크를 받은 상대방이 투표를 완료하면\n비교 결과를 확인할 수 있어요';
     }
     if (isCreatorReady) {
-      return '상대방이 대결을 수락했어요';
+      return '';
     }
     if (needsBundle) {
       return '둘의 생각이 얼마나 통하는지 알 수 있어요';
@@ -172,8 +173,14 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const showWaiting = isCreatorWaiting;
 
   return (
-    <BundleBackground fireworks={!isAlreadyTaken}>
+    <BundleBackground categoryCode={link.categoryCode} fireworks={!isAlreadyTaken}>
       <div className={styles.container}>
+        {/* ─── 카테고리 + 번들 제목 ─── */}
+        <div className={styles.resultHeader}>
+          <CategoryBadge categoryCode={link.categoryCode} />
+          <h2 className={styles.resultTitle}>{link.bundleTitle}</h2>
+        </div>
+
         {/* ─── 히어로 ─── */}
         <div className={styles.heroSection}>
           <h1 className={styles.heroTitle}>
@@ -189,7 +196,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
                 대결을 신청했어요
               </>
             ) : isCreatorReady ? (
-              '결과 봉인이 해제됐어요!'
+              '상대방이 대결을 수락했어요!'
             ) : (
               '대결 초대장을 보냈어요'
             )}
@@ -294,7 +301,11 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       </div>
 
       {showCreateLinkModal && (
-        <CreateCompareLink slug={link.bundleSlug} onClose={() => setShowCreateLinkModal(false)} />
+        <CreateCompareLink
+          slug={link.bundleSlug}
+          categoryCode={link.categoryCode}
+          onClose={() => setShowCreateLinkModal(false)}
+        />
       )}
     </BundleBackground>
   );

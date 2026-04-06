@@ -1,3 +1,5 @@
+import type { CategoryCode } from '@/types/hotpick';
+
 /**
  * 비교 링크 타입
  */
@@ -11,6 +13,8 @@ export interface CompareLink {
   type: CompareLinkType;
   bundleSlug: string;
   bundleTitle: string;
+  /** 번들 카테고리 코드 (FE 테마 색상 적용용) */
+  categoryCode?: CategoryCode;
   /** 링크 생성자 닉네임 */
   creatorNickname: string;
   /** 링크 생성자 대중성 캐릭터 이미지 URL */
@@ -60,6 +64,8 @@ export interface CreateCompareLinkResponse {
 export interface CompareResult {
   bundleSlug: string;
   bundleTitle: string;
+  /** 번들 카테고리 코드 (FE 테마 색상 적용용) */
+  categoryCode?: CategoryCode;
   totalQuestions: number;
 
   me: {
