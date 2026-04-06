@@ -1,0 +1,407 @@
+@use '@/styles/variables' as *;
+
+.page {
+  min-height: 100dvh;
+  background: $bg-primary;
+  padding: 24px $spacing-16 80px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+// ─── Header ───
+.header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: $font-size-20;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-tertiary;
+    margin: 0;
+  }
+}
+
+// ─── Tab Bar ───
+.tabBar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $bg-primary;
+  padding: 8px 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 4px;
+  border-radius: $border-radius-md;
+  border: 1px solid rgba($white, 0.08);
+  background: $bg-secondary;
+  color: $text-tertiary;
+  font-size: 12px;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: center;
+
+  &:hover {
+    background: $bg-tertiary;
+    color: $text-secondary;
+  }
+}
+
+.tabActive {
+  border-color: $primary-start;
+  color: $white;
+  background: rgba($primary-start, 0.08);
+}
+
+// ─── Option Info ───
+.optionInfo {
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($white, 0.06);
+
+  h2 {
+    font-size: $font-size-16;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0 0 4px;
+  }
+
+  p {
+    font-size: 13px;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ─── Category Section ───
+.categorySection {
+  margin-bottom: 32px;
+}
+
+.categoryName {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0 0 12px;
+}
+
+.demoArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.demoBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demoLabel {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  letter-spacing: 0.5px;
+}
+
+// ─── Mock Card ───
+.mockCard {
+  position: relative;
+  width: 100%;
+  border-radius: $border-radius-lg;
+  background: $bg-secondary;
+  border: 1px solid $border-placeholder;
+  overflow: hidden;
+}
+
+.mockAccent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: $border-radius-lg 0 0 $border-radius-lg;
+}
+
+.mockContent {
+  padding: 14px 14px 14px 18px;
+}
+
+.mockTopRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.mockTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+}
+
+.mockTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: 2px;
+}
+
+.mockSub {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  margin-bottom: 10px;
+}
+
+.mockCta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+}
+
+// 카드 내부 꽃 워터마크 (Option C)
+.cardFlowerWatermark {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+// ─── Background Preview ───
+.bgPreview {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: $border-radius-lg;
+  background: $bg-primary;
+  overflow: hidden;
+  border: 1px solid rgba($white, 0.06);
+}
+
+.bgOrb1 {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.2;
+  top: -40px;
+  right: -30px;
+  animation: floatOrb1 14s ease-in-out infinite;
+}
+
+.bgOrb2 {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  filter: blur(50px);
+  opacity: 0.2;
+  bottom: 10%;
+  left: -20px;
+  animation: floatOrb2 18s ease-in-out infinite;
+}
+
+@keyframes floatOrb1 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-15px, 20px);
+  }
+  66% {
+    transform: translate(10px, -10px);
+  }
+}
+
+@keyframes floatOrb2 {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(20px, -15px);
+  }
+  66% {
+    transform: translate(-10px, 10px);
+  }
+}
+
+// ─── Pattern Overlay (Option B) ───
+.patternOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.patternSvg {
+  width: 100%;
+  height: 100%;
+}
+
+// 카드 내부 패턴 (Option B)
+.cardPatternOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+// ─── Flower Overlay (Option C) ───
+.flowerOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.flower {
+  position: absolute;
+}
+
+.flower1 {
+  width: 70px;
+  height: 70px;
+  top: 5%;
+  right: 5%;
+  opacity: 0.5;
+  transform: rotate(15deg);
+  animation: floatFlower 8s ease-in-out infinite;
+}
+
+.flower2 {
+  width: 45px;
+  height: 45px;
+  bottom: 10%;
+  left: 5%;
+  opacity: 0.35;
+  transform: rotate(-20deg);
+  animation: floatFlower 10s ease-in-out 1s infinite;
+}
+
+.flower3 {
+  width: 55px;
+  height: 55px;
+  top: 45%;
+  right: 12%;
+  opacity: 0.25;
+  transform: rotate(45deg);
+  animation: floatFlower 12s ease-in-out 2s infinite;
+}
+
+.flower4 {
+  width: 35px;
+  height: 35px;
+  top: 15%;
+  left: 12%;
+  opacity: 0.2;
+  transform: rotate(-30deg);
+  animation: floatFlower 9s ease-in-out 3s infinite;
+}
+
+.flower5 {
+  width: 50px;
+  height: 50px;
+  bottom: 30%;
+  left: 40%;
+  opacity: 0.15;
+  transform: rotate(60deg);
+  animation: floatFlower 11s ease-in-out 0.5s infinite;
+}
+
+@keyframes floatFlower {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+// ─── Mock Content in Background ───
+.bgContent {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.bgTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin-bottom: 12px;
+}
+
+.bgSync {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bgSyncLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.bgSyncValue {
+  font-size: $font-size-36;
+  font-weight: $font-weight-bold;
+  color: $white;
+}
+
+// ─── Summary ───
+.summaryBox {
+  margin-top: 16px;
+  padding: 16px;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($white, 0.06);
+  font-size: 13px;
+  color: $text-secondary;
+  line-height: 1.8;
+
+  h3 {
+    font-size: $font-size-14;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0 0 8px;
+  }
+
+  strong {
+    color: $white;
+  }
+}

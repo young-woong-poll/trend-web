@@ -266,22 +266,20 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 | 참여자 결과 확인        | false     | true          | true           | "비교 결과 보기"                                                                                                          |
 | **선점당한 링크**       | **false** | **false**     | **true**       | **메인 안내: "직접 비교 링크를 만들어 보내보세요!" + CTA 분기 (myBundleCompleted → 링크 생성 모달 / 미완료 → 번들 풀기)** |
 
-**FE 상태 분기표 (GROUP 링크 — 랜딩 페이지):**
+**GROUP 링크 — `/compare/[token]` 랜딩 페이지를 거치지 않음:**
 
-| 상태           | isCreator | memberCount | FE 동작                                                       |
-| -------------- | --------- | ----------- | ------------------------------------------------------------- |
-| 1명 이상 참여  | any       | ≥ 1         | ��시 그룹 결과 페이지로 리다이렉트 (`/compare/group/{token}`) |
-| 비로그인 + 0명 | false     | 0           | "로그인하고 참여하기"                                         |
+그룹 링크의 공유 URL은 `/compare/group/{token}`으로 직접 발급됩니다. 따라서 GROUP 링크는 `/compare/[token]` 랜딩 페이지를 경유하지 않으며, 모든 유저 상태(비로그인, 번들 미완료, 비멤버, 멤버)를 `/compare/group/{token}` 그룹 결과 페이지에서 직접 처리합니다.
 
-**FE 상태 분기표 (GROUP ��크 — 그룹 결과 ���이지):**
+**FE 상태 분기표 (GROUP 링크 — 그룹 결과 페이지 `/compare/group/{token}`):**
 
-| ���태                | isMember | memberCount | FE 동작                                                                  |
+| 상태                 | isMember | memberCount | FE 동작                                                                  |
 | -------------------- | -------- | ----------- | ------------------------------------------------------------------------ |
+| 0명 (엣지케이스)     | any      | 0           | "아직 참여한 멤버가 없어요" + 초대 링크 복사 버튼                        |
 | 1명 (프리뷰)         | true     | 1           | 가상 멤버 3명 주입, 미리보기 배너 표시, FloatingCta "초대 링크 복사하기" |
 | 2명 이상 (정상)      | true     | ≥ 2         | 정상 결과 표시, FloatingCta "내 그룹 만들기"                             |
 | 비멤버 + 비로그인    | false    | any         | 결과 보기 가능, FloatingCta "로그인하고 참여하기"                        |
-| 비멤버 + 번들 미완료 | false    | any         | 결과 보기 ���능, FloatingCta "번들 풀고 나도 참여하기"                   |
-| ��멤버 + 번들 완료   | false    | any         | 결과 보기 가능, FloatingCta "나도 참여하기" → displayName 모달 → join    |
+| 비멤버 + 번들 미완료 | false    | any         | 결과 보기 가능, FloatingCta "번들 풀고 나도 참여하기"                    |
+| 비멤버 + 번들 완료   | false    | any         | 결과 보기 가능, FloatingCta "나도 참여하기" → displayName 모달 → join    |
 
 ---
 

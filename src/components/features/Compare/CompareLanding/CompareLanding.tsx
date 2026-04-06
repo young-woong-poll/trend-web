@@ -9,7 +9,6 @@ import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import styles from '@/components/features/Compare/CompareLanding/CompareLanding.module.scss';
-import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleElections } from '@/hooks/api/useBundle';
@@ -25,7 +24,6 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const { data: link, isLoading, refetch } = useCompareLink(token);
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
-  const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -62,20 +60,12 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     );
   }
 
-  // ─── 그룹 링크 → 바로 결과 페이지로 (1명 이상이면 프리뷰 포함 진입) ───
-  if (link.type === 'GROUP' && link.memberCount >= 1) {
-    router.replace(`/compare/group/${token}`);
-    return null;
-  }
-
-  // ─── 상태별 분기 ───
-  // GROUP 링크는 위에서 memberCount >= 2 분기로 리다이렉트되므로, 아래는 1:1 링크 위주
+  // ─── 상태별 분기 (1:1 링크 전용 — GROUP은 /compare/group/{token}에서 직접 처리) ───
   const hasResult = link.hasParticipant;
   const isCreatorWaiting = link.isCreator && !hasResult;
   const isCreatorReady = link.isCreator && hasResult;
 
   const needsLogin = !isLoggedIn && !link.isCreator;
-  // 1:1 링크에서 다른 사람이 이미 선점한 경우
   const isAlreadyTaken =
     isLoggedIn && !link.isCreator && !link.isParticipant && hasResult && link.type === 'ONE_TO_ONE';
   const needsBundle =
@@ -84,7 +74,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     isLoggedIn && !link.isCreator && !link.isParticipant && link.myBundleCompleted && !hasResult;
   const canViewResult = !link.isCreator && link.isParticipant && hasResult;
 
-  const resultPath = link.type === 'GROUP' ? `/compare/group/${token}` : `/compare/match/${token}`;
+  const resultPath = `/compare/match/${token}`;
 
   const handleAction = async () => {
     if (needsLogin) {
@@ -106,20 +96,10 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return;
     }
     if (needsBundle) {
-      if (link.type === 'GROUP') {
-        // 그룹은 compareToken 자동 join을 쓰지 않음 (displayName 입력 필요)
-        const playUrl = `/bundle/${link.bundleSlug}/play?returnUrl=${encodeURIComponent(resultPath)}`;
-        router.push(playUrl);
-      } else {
-        router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
-      }
+      router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
       return;
     }
     if (canJoin) {
-      if (link.type === 'GROUP') {
-        setShowDisplayNameModal(true);
-        return;
-      }
       try {
         await joinMutation.mutateAsync(undefined);
         await refetch();
@@ -127,17 +107,6 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       } catch {
         alert('참여에 실패했습니다. 다시 시도해주세요.');
       }
-    }
-  };
-
-  const handleDisplayNameConfirm = async (displayName: string) => {
-    try {
-      await joinMutation.mutateAsync(displayName);
-      await refetch();
-      setShowDisplayNameModal(false);
-      router.push(resultPath);
-    } catch {
-      alert('참여에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -183,10 +152,10 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return link.myBundleCompleted ? '내 비교 링크 만들기' : '먼저 투표 참여하기';
     }
     if (isCreatorWaiting) {
-      return link.type === 'GROUP' ? '아직 참여 인원이 부족해요...' : '상대방 참여 대기 중...';
+      return '상대방 참여 대기 중...';
     }
     if (isCreatorReady || canViewResult) {
-      return link.type === 'GROUP' ? '그룹 비교 결과 보기' : '결과 개봉하기';
+      return '결과 개봉하기';
     }
     if (needsBundle) {
       return '대결 수락하기';
@@ -211,24 +180,14 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             {isAlreadyTaken ? (
               '아쉽지만 한 발 늦었어요'
             ) : !link.isCreator ? (
-              link.type === 'GROUP' ? (
-                `${link.creatorNickname}님의 '${link.groupName}' 그룹에 참여하세요!`
-              ) : (
-                <>
-                  <span className={styles.highlight}>{link.creatorNickname}</span>
-                  님이
-                  <br />
-                  <span className={styles.highlight}>{link.bundleTitle}</span>
-                  <br />
-                  대결을 신청했어요
-                </>
-              )
-            ) : link.type === 'GROUP' ? (
-              link.memberCount >= 1 ? (
-                `${link.memberCount}명이 참여한 그룹 결과가 준비되었어요!`
-              ) : (
-                '멤버들이 참여하면 그룹 비교 결과를 볼 수 있어요'
-              )
+              <>
+                <span className={styles.highlight}>{link.creatorNickname}</span>
+                님이
+                <br />
+                <span className={styles.highlight}>{link.bundleTitle}</span>
+                <br />
+                대결을 신청했어요
+              </>
             ) : isCreatorReady ? (
               '결과 봉인이 해제됐어요!'
             ) : (
@@ -236,12 +195,6 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             )}
           </h1>
           <p className={styles.heroSubtitle}>{getHeroMessage()}</p>
-
-          {link.type === 'GROUP' && link.memberCount > 0 && (
-            <p className={styles.errorMessage}>
-              현재 {link.memberCount}명 참여 중{link.isClosed && ' (마감됨)'}
-            </p>
-          )}
 
           {/* 비교 완료 → 개봉 컨셉 */}
           {(isCreatorReady || canViewResult) && (
@@ -339,13 +292,6 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
           {joinMutation.isPending ? '참여 중...' : getCtaText()}
         </button>
       </div>
-
-      <DisplayNameModal
-        isOpen={showDisplayNameModal}
-        onClose={() => setShowDisplayNameModal(false)}
-        onConfirm={handleDisplayNameConfirm}
-        isLoading={joinMutation.isPending}
-      />
 
       {showCreateLinkModal && (
         <CreateCompareLink slug={link.bundleSlug} onClose={() => setShowCreateLinkModal(false)} />

@@ -73,7 +73,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, onClose }) => 
         type: 'GROUP',
         groupName: groupName.trim(),
       });
-      setShareUrl(`${window.location.origin}/compare/${result.token}`);
+      setShareUrl(`${window.location.origin}/compare/group/${result.token}`);
     } catch {
       showToast('링크 생성에 실패했습니다');
     }

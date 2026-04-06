@@ -153,6 +153,31 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
+  // 멤버가 아직 없는 경우 (엣지케이스: 생성 직후 아무도 참여 안 함)
+  if (link && link.memberCount === 0) {
+    return (
+      <BundleBackground>
+        <div className={styles.loading}>
+          아직 참여한 멤버가 없어요.
+          <p style={{ fontSize: 13, color: '#8a8a8a', marginTop: 8 }}>
+            초대 링크를 공유하면 멤버들이 참여할 수 있어요.
+          </p>
+          <button
+            type="button"
+            className={styles.secondaryCta}
+            style={{ maxWidth: 240 }}
+            onClick={() => {
+              const url = `${window.location.origin}/compare/group/${token}`;
+              void navigator.clipboard.writeText(url);
+            }}
+          >
+            초대 링크 복사하기
+          </button>
+        </div>
+      </BundleBackground>
+    );
+  }
+
   if (!result || !displayResult) {
     return (
       <BundleBackground>
@@ -346,7 +371,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       {isPreview ? (
         <FloatingCta
           onClick={() => {
-            const url = `${window.location.origin}/compare/${token}`;
+            const url = `${window.location.origin}/compare/group/${token}`;
             void navigator.clipboard.writeText(url);
             showToast('초대 링크가 복사되었어요');
           }}
