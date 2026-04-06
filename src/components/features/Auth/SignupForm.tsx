@@ -244,7 +244,7 @@ const SignupForm = () => {
   return (
     <div className={styles.container}>
       <form className={styles.content} onSubmit={handleSubmit(onSubmit)}>
-        <h1 className={styles.title}>마지막 입니다!</h1>
+        <h1 className={styles.title}>마지막입니다 🙏</h1>
 
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>

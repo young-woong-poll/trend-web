@@ -30,7 +30,7 @@ export default function SignupPreviewPage() {
           alert('(mock) 가입 완료 → /compare/group/group-abc 로 이동');
         }}
       >
-        <h1 className={styles.title}>마지막 입니다!</h1>
+        <h1 className={styles.title}>마지막입니다 🙏</h1>
 
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>
