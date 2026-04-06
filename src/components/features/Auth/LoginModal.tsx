@@ -74,7 +74,7 @@ const LoginModalContent = ({
         </p>
         <p className={styles.compareDesc}>
           번거로우시겠지만 로그인해주시면
-          <br />더 재밌는 기능 팍팍 개발하겠습니다!
+          <br />더 재미있는 기능으로 보답하겠습니다!
         </p>
 
         <button type="button" className={styles.kakaoButton} onClick={handleKakaoLogin}>

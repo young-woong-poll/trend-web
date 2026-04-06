@@ -229,12 +229,6 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   };
 
   const getJoinCtaText = () => {
-    if (!isLoggedIn) {
-      return '로그인하고 참여하기';
-    }
-    if (!link?.myBundleCompleted) {
-      return '번들 풀고 나도 참여하기';
-    }
     if (joinMutation.isPending) {
       return '참여 중...';
     }

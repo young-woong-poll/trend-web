@@ -334,6 +334,69 @@ compareLinkStore.set('group-marriage', {
   showGenderContent: true,
 });
 
+// ─── 비멤버 시나리오 테스트용 그룹 ───
+// mock-user-1이 멤버에 포함되지 않은 그룹 (비멤버 체험용)
+
+// guest-loggedout: 비로그인 유저 시뮬레이션 (핸들러에서 currentUserId='anonymous'로 처리)
+compareLinkStore.set('guest-loggedout', {
+  token: 'guest-loggedout',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-3',
+  creatorNickname: '민수',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '대학 동기',
+  groupMembers: [
+    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+});
+
+// guest-no-bundle: 비멤버 + 번들 미완료 (mock-user-1이 marriage-values 번들을 안 푼 상태)
+compareLinkStore.set('guest-no-bundle', {
+  token: 'guest-no-bundle',
+  type: 'GROUP',
+  bundleSlug: 'marriage-values',
+  creatorUserId: 'mock-user-3',
+  creatorNickname: '민수',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '회사 동료들',
+  groupMembers: [
+    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+});
+
+// guest-completed: 비멤버 + 번들 완료 (mock-user-1이 love-values 번들은 이미 푼 상태)
+compareLinkStore.set('guest-completed', {
+  token: 'guest-completed',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-3',
+  creatorNickname: '민수',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '동아리',
+  groupMembers: [
+    { userId: 'mock-user-3', nickname: '민수' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+});
+
 /** 토큰 생성 */
 function generateToken(): string {
   return Math.random().toString(36).substring(2, 10);

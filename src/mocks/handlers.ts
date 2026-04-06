@@ -48,7 +48,12 @@ let mockUser: {
   nickname: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;
-} | null = null; // 비로그인 테스트: null, 로그인 테스트: { id: 1001, nickname: '테스트유저', profileColor: 'purple', lastNicknameChangedAt: null }
+} | null = {
+  id: 1001,
+  nickname: '테스트유저',
+  profileColor: 'purple',
+  lastNicknameChangedAt: null,
+};
 const usedNicknames = new Set<string>();
 
 const nicknameAdjectives = [
@@ -1198,8 +1203,9 @@ export const handlers = [
   /** GET /api/v1/compare-links/{token} — 비교 링크 정보 조회 */
   http.get(`${baseURL}/api/v1/compare-links/:token`, ({ params }) => {
     const token = params.token as string;
-    // invite2: 비로그인 유저 시뮬레이션
-    const currentUserId = token === 'invite2' ? 'anonymous' : 'mock-user-1';
+    // 비로그인 유저 시뮬레이션
+    const ANONYMOUS_TOKENS = ['invite2', 'guest-loggedout'];
+    const currentUserId = ANONYMOUS_TOKENS.includes(token) ? 'anonymous' : 'mock-user-1';
     const link = getCompareLink(token, currentUserId);
     if (!link) {
       return HttpResponse.json(
@@ -1255,11 +1261,13 @@ export const handlers = [
         { status: 400 }
       );
     }
+    const ANONYMOUS_GROUP_TOKENS = ['guest-loggedout'];
+    const myUserId = ANONYMOUS_GROUP_TOKENS.includes(token) ? 'anonymous' : 'mock-user-1';
     const result = getGroupCompareResult(
       link.bundleSlug,
       link.groupName ?? '그룹',
       link.groupMembers,
-      'mock-user-1',
+      myUserId,
       link.showGenderContent,
       link.creatorUserId
     );

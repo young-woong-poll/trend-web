@@ -263,6 +263,39 @@ export function seedGroupUsers() {
     }
     recordBundleAnswers(userId, slug, answers);
   }
+
+  // marriage-values 답변 시드 (비멤버 시나리오 테스트용)
+  const marriageSlug = 'marriage-values';
+  const marriageAnswers: Record<string, Array<{ electionId: string; selected: 'A' | 'B' }>> = {
+    'mock-user-3': [
+      { electionId: 'me-1', selected: 'A' },
+      { electionId: 'me-2', selected: 'B' },
+      { electionId: 'me-3', selected: 'A' },
+      { electionId: 'me-4', selected: 'B' },
+      { electionId: 'me-5', selected: 'A' },
+    ],
+    'mock-user-4': [
+      { electionId: 'me-1', selected: 'B' },
+      { electionId: 'me-2', selected: 'A' },
+      { electionId: 'me-3', selected: 'B' },
+      { electionId: 'me-4', selected: 'A' },
+      { electionId: 'me-5', selected: 'B' },
+    ],
+    'mock-user-5': [
+      { electionId: 'me-1', selected: 'A' },
+      { electionId: 'me-2', selected: 'A' },
+      { electionId: 'me-3', selected: 'B' },
+      { electionId: 'me-4', selected: 'B' },
+      { electionId: 'me-5', selected: 'A' },
+    ],
+  };
+
+  for (const [userId, answers] of Object.entries(marriageAnswers)) {
+    if (bundleAnswerStore.has(`${userId}_${marriageSlug}`)) {
+      continue;
+    }
+    recordBundleAnswers(userId, marriageSlug, answers);
+  }
 }
 
 /**
