@@ -189,11 +189,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             ) : !link.isCreator ? (
               <>
                 <span className={styles.highlight}>{link.creatorNickname}</span>
-                님이
-                <br />
-                <span className={styles.highlight}>{link.bundleTitle}</span>
-                <br />
-                대결을 신청했어요
+                님의 <span className={styles.highlight}>가치관 대결</span> 신청!
               </>
             ) : isCreatorReady ? (
               '상대방이 대결을 수락했어요!'
