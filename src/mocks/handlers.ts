@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
+import { getAdminBundleList, getAdminBundleStats } from '@/mocks/data/adminBundles';
 import {
   mockBundleDetails,
   mockBundleElections,
@@ -1022,6 +1023,42 @@ export const handlers = [
     }
     mockCategories.splice(idx, 1);
     return HttpResponse.json(wrapResponse(null));
+  }),
+
+  // ──────────────── Admin Bundle ────────────────
+
+  // GET /admin/api/v1/bundles
+  http.get(`${baseURL}/admin/api/v1/bundles`, () =>
+    HttpResponse.json(wrapResponse(getAdminBundleList()))
+  ),
+
+  // GET /admin/api/v1/bundles/:slug/stats
+  http.get(`${baseURL}/admin/api/v1/bundles/:slug/stats`, ({ params }) => {
+    const slug = params.slug as string;
+    const stats = getAdminBundleStats(slug);
+    if (!stats) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(stats));
+  }),
+
+  // PATCH /admin/api/v1/bundles/:slug/status
+  http.patch(`${baseURL}/admin/api/v1/bundles/:slug/status`, async ({ params, request }) => {
+    const slug = params.slug as string;
+    const body = (await request.json()) as { status: 'ACTIVE' | 'CLOSED' };
+    const bundle = mockBundleDetails[slug];
+    if (!bundle) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+    // mock 데이터 상태 변경
+    bundle.status = body.status;
+    return HttpResponse.json(wrapResponse({ slug, status: body.status }));
   }),
 
   // ──────────────────────────────────────────────────────────
