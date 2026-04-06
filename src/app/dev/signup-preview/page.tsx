@@ -74,9 +74,9 @@ export default function SignupPreviewPage() {
           </div>
         </div>
 
-        {/* 태어난 연도 */}
+        {/* 태어난 년도 */}
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>태어난 연도</label>
+          <label className={styles.label}>태어난 년도</label>
           <select
             className={styles.selectInput}
             value={birthYear}
