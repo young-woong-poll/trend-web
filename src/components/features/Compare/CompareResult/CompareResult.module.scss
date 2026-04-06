@@ -243,3 +243,25 @@
   background: var(--primary-gradient);
   color: $white;
 }
+
+// ─── 프리뷰 모드 ───
+
+.previewBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px;
+  background: rgba(#fff, 0.04);
+  border: 1px dashed rgba(#fff, 0.12);
+  border-radius: $border-radius-lg;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.previewText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.5;
+  text-align: center;
+}

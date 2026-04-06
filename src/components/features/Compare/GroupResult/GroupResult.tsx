@@ -69,8 +69,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const updateGroupSettingsMutation = useUpdateGroupSettings(token);
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [showGroupModal, setShowGroupModal] = useState(false);
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
