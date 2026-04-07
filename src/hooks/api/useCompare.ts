@@ -86,20 +86,33 @@ export const useCreateCompareLink = (slug: string) =>
 
 export const useJoinCompareLink = (token: string) =>
   useMutation({
-    mutationFn: (displayName: string | undefined = undefined) =>
-      customInstance({
+    mutationFn: (params?: { displayName?: string; profileColor?: string } | string) => {
+      // 하위 호환: 문자열이면 displayName으로 처리
+      const body = typeof params === 'string' ? { displayName: params } : (params ?? {});
+      const hasBody = Object.keys(body).length > 0;
+      return customInstance({
         url: `/api/v1/compare-links/${token}/join`,
         method: 'POST',
-        ...(displayName
-          ? { data: { displayName }, headers: { 'Content-Type': 'application/json' } }
-          : {}),
-      }),
+        ...(hasBody ? { data: body, headers: { 'Content-Type': 'application/json' } } : {}),
+      });
+    },
   });
 
 export const useGroupCompareResult = (token: string) =>
   useQuery({
     ...compareQueries.groupResult(token),
     enabled: !!token,
+  });
+
+export const useUpdateMyGroupProfile = (token: string) =>
+  useMutation({
+    mutationFn: (data: { displayName?: string; displayProfileColor?: string }) =>
+      customInstance({
+        url: `/api/v1/compare-links/${token}/my-profile`,
+        method: 'PATCH',
+        data,
+        headers: { 'Content-Type': 'application/json' },
+      }),
   });
 
 export const useUpdateGroupSettings = (token: string) =>

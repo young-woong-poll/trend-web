@@ -13,6 +13,8 @@ interface ChemistryNetworkProps {
   pairs: PairChemistry[];
   /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 패널 미노출) */
   onCompareRequest?: (targetUserId: string) => void;
+  /** 내 프로필 편집 콜백 (없으면 편집 버튼 미노출) */
+  onEditProfile?: () => void;
 }
 
 /** 등급별 색상 (S~D, getChemistryByRate 기준과 동일) */
@@ -90,6 +92,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
   members,
   pairs,
   onCompareRequest,
+  onEditProfile,
 }) => {
   // "나"를 12시 방향(index 0)에 고정
   const sortedMembers = useMemo(() => {
@@ -334,6 +337,19 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
           ? '다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다'
           : '멤버를 탭하면 전체 케미를 확인할 수 있어요'}
       </p>
+
+      {/* "나" 선택 시 프로필 편집 패널 */}
+      {selectedUserId === currentUserId && onEditProfile && (
+        <div className={styles.comparePanel}>
+          <div className={styles.comparePanelText}>
+            <span className={styles.comparePanelNames}>내 프로필</span>
+            <span className={styles.comparePanelTitle}>표시 이름 · 프로필 색상</span>
+          </div>
+          <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
+            수정하기
+          </button>
+        </div>
+      )}
 
       {/* 선택된 멤버와의 케미 패널 */}
       {selectedPairInfo && onCompareRequest && !selectedPairInfo.isGhost && (

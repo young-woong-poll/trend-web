@@ -36,7 +36,7 @@
   slug: string;
   title: string;
   category: string;          // 카테고리 표시명 (예: "연애", "결혼")
-  categoryCode: CategoryCode; // 카테고리 코드 ('LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND')
+  categoryCode: CategoryCode; // 싱글 핫픽과 동일한 카테고리 코드 (src/types/hotpick.ts 정의: 'LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND')
   questionCount: number;
   status: 'ACTIVE' | 'CLOSED';
   imageUrl?: string;         // 썸네일 이미지 CDN URL (없으면 null/undefined)
@@ -77,7 +77,8 @@ Array<{
 **참고:**
 
 - BE에서 정렬된 순서대로 리턴. FE는 배열 순서 그대로 사용
-- 이미 완료한 유저가 다시 호출해도 질문 목록은 동일하게 리턴 (FE에서 완료 여부 체크 후 결과 페이지로 리다이렉트)
+- 이미 완료한 유저가 다시 호출해도 질문 목록은 동일하게 리턴
+- **FE 접근제어**: play 페이지에서 번들 상세 API(`useBundleDetail`)도 함께 호출하여 `bundle.completed`로 완료 여부를 판별. 완료된 유저는 result 페이지로 리다이렉트
 
 ---
 
@@ -113,6 +114,7 @@ Array<{
 
 - 모든 질문에 대한 답변이 포함되어야 함 (누락 시 `BAD_REQUEST`)
 - 이미 완료한 유저가 다시 제출하면 `BAD_REQUEST` (중복 제출 방지)
+  - **FE 처리**: 중복 제출 에러(400) 수신 시 `/bundle/{slug}/result`로 리다이렉트 (이미 완료된 상태이므로)
 - 답변 저장 + 해당 유저의 번들 완료 상태 처리
 - `participantCount` 증가
 
@@ -159,7 +161,9 @@ Array<{
 
 - `questionStats`의 투표 수는 **실시간 변동** — 다른 유저 투표가 진행될수록 변경
 - 결과 페이지 재방문 시 최신 투표 수 기준으로 FE에서 비율 재계산
-- 미완료 유저가 호출하면 `404 NOT_FOUND`
+- 미완료 유저가 호출하면 에러 응답 반환
+  - **제안**: `404 NOT_FOUND` 대신 `400 BAD_REQUEST` + `code: 'BUNDLE_NOT_COMPLETED'` 같은 명시적 코드 사용 권장. 404는 "리소스가 없음"을 의미하므로 "유저가 번들을 완료하지 않음"과 혼동될 수 있음
+  - **FE 처리**: 에러 수신 시 `/bundle/{slug}`(인트로)로 리다이렉트
 
 **FE에서 계산하는 항목 (서버에서 보내지 않음):**
 
@@ -205,6 +209,7 @@ Array<{
 **BE 처리 사항:**
 
 - 해당 번들을 완료한 유저만 생성 가능 (미완료 시 `BAD_REQUEST`)
+  - **FE 처리**: 미완료 유저의 링크 생성 요청은 정상 흐름에서 발생하지 않음 (결과 페이지에서만 생성 가능). 예상치 못한 에러 발생 시 토스트로 안내
 - 토큰은 유니크한 랜덤 문자열 (8자 이상)
 - **항상 새 토큰 발급**: 요청 시마다 새 링크를 생성. 기존 WAITING 링크가 있어도 재사용하지 않음
   - 이유: 사용자가 여러 사람에게 자유롭게 비교 링크를 보낼 수 있어야 바이럴이 원활함. 기존 링크 재사용 시 "A에게 보냈는데 A가 안 하면 B에게 못 보내는" 문제 발생
@@ -234,17 +239,12 @@ Array<{
   categoryCode: CategoryCode; // 번들 카테고리 코드 (FE 테마 색상 적용용)
   creatorNickname: string; // 링크 생성자 닉네임
   participantNickname: string | null; // 참여자 닉네임 (1:1 전용, 아직 없으면 null)
-  hasParticipant: boolean; // 1:1 링크에 참여자가 존재하는지 (GROUP은 memberCount 사용)
+  hasParticipant: boolean; // 1:1 링크에 참여자가 존재하는지
   isCreator: boolean; // 현재 로그인 유저가 생성자인지
   isParticipant: boolean; // 현재 로그인 유저가 참여자인지
   myBundleCompleted: boolean; // 현재 로그인 유저의 해당 번들 완료 여부
   questionCount: number; // 번들 질문 수
   participantCount: number; // 번들 참여자 수
-
-  // ─── GROUP 타입 전용 필드 ───
-  groupName: string | null; // 그룹 이름 (GROUP 전용, ONE_TO_ONE은 null)
-  memberCount: number; // 현재 참여 멤버 수 (GROUP 전용, ONE_TO_ONE은 0)
-  isClosed: boolean; // 그룹 마감 여부 (GROUP 전용, ONE_TO_ONE은 false)
 }
 ```
 
@@ -269,7 +269,7 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 
 **GROUP 링크 — `/compare/[token]` 랜딩 페이지를 거치지 않음:**
 
-그룹 링크의 공유 URL은 `/compare/group/{token}`으로 직접 발급됩니다. 따라서 GROUP 링크는 `/compare/[token]` 랜딩 페이지를 경유하지 않으며, 모든 유저 상태(비로그인, 번들 미완료, 비멤버, 멤버)를 `/compare/group/{token}` 그룹 결과 페이지에서 직접 처리합니다.
+그룹 링크의 공유 URL은 `/compare/group/{token}`으로 직접 발급됩니다. 따라서 GROUP 링크는 `/compare/[token]` 랜딩 페이지를 경유하지 않으며, `compare-links/{token}` API도 호출하지 않습니다. 모든 유저 상태 판별은 `group-result` API 응답만으로 처리합니다 (`myUserId`, `myBundleCompleted`, `isClosed`, `creatorUserId`, `members` 배열).
 
 **FE 상태 분기표 (GROUP 링크 — 그룹 결과 페이지 `/compare/group/{token}`):**
 
@@ -298,11 +298,14 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 ```typescript
 {
   displayName?: string; // (GROUP 전용) 그룹 내 표시 이름. 미입력 시 현재 닉네임 사용. 최대 20자. 특수문자 제한 없음.
+  profileColor?: string; // (GROUP 전용) 그룹 내 프로필 색상. 미입력 시 현재 프로필 색상 사용. 24개 색상명 중 하나.
 }
 ```
 
 - `ONE_TO_ONE` 타입: body 없이 빈 POST (기존대로)
-- `GROUP` 타입: `displayName` 필드 포함 가능 (optional)
+- `GROUP` 타입: `displayName`, `profileColor` 필드 포함 가능 (optional)
+
+**참고**: 현재 FE는 프로필 색상 변경 시 `PATCH /api/v1/auth/me` (기존 프로필 색상 변경 API)를 별도 호출하고 있음. join body에 `profileColor`를 포함하면 한 번의 요청으로 처리 가능하므로 BE에서 지원 시 FE 전환 예정.
 
 **Response `data`:**
 
@@ -413,11 +416,17 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
   /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
   myUserId: string;
 
+  /** 현재 로그인 유저의 해당 번들 완료 여부 (비멤버 join 흐름 분기에 사용) */
+  myBundleCompleted: boolean;
+
   /** 번들 카테고리 코드 (FE 테마 색상 적용용) */
   categoryCode: CategoryCode; // 'LOVE' | 'MARRIAGE' | 'FINANCE' | 'WORK' | 'SPORTS' | 'FOOD' | 'GAME' | 'CAR' | 'HEALTH' | 'TREND'
 
   /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 — 그룹 생성자가 설정 */
   showGenderContent: boolean;
+
+  /** 그룹 마감 여부 */
+  isClosed: boolean;
 
   /** 그룹 생성자 userId — FE에서 설정 권한 판별에 사용 */
   creatorUserId: string;
@@ -428,42 +437,45 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
     nickname: string;
     /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname과 동일 */
     displayName?: string;
+    /** 그룹 참여 시 설정한 프로필 색상. 없으면 유저 프로필 색상 사용 */
+    displayProfileColor?: string;
     /** 성별 (이성궁합/성별대결용, 없으면 해당 섹션에서 제외) */
     gender?: 'MALE' | 'FEMALE';
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 
-  /** 각 질문별 대중 투표 비율 (번들 전체 참여자 기준, 비율 단위) */
+  /** 각 질문별 실시간 투표 수 (번들 전체 참여자 기준, 1:1 비교와 동일 형식) */
   questionStats: Array<{
     electionId: string;
     title: string;
     optionA: string;
     optionB: string;
-    optionARate: number; // A 선택 비율 (0~100 정수)
-    optionBRate: number; // B 선택 비율 (0~100 정수, = 100 - optionARate)
-    totalVotes: number; // 전체 참여자 투표 수
+    optionACount: number; // A 선택 투표 수
+    optionBCount: number; // B 선택 투표 수
   }>;
-
-  /** 그룹 싱크율 (모든 멤버 쌍 일치율 평균, 0~100 정수) */
-  groupSyncRate: number;
 }
 ```
 
 **참고:**
 
-- `myUserId`는 현재 로그인 유저의 userId. FE에서 "나" 식별에 사용 (12시 방향 배치, "나" 뱃지 표시 등)
+- `myUserId`는 현재 로그인 유저의 userId. FE에서 "나" 식별에 사용 (12시 방향 배치, "나" 뱃지 표시 등). `members` 배열에 포함되어 있으면 멤버, 없으면 비멤버
+- `myBundleCompleted`: 비멤버 join 흐름에서 "번들 풀기 → 참여" vs "바로 참여" 분기에 사용. 이 필드가 있으므로 **그룹 결과 페이지에서 `compare-links/{token}` API를 별도 호출할 필요 없음**
+- `isClosed`: 마감된 그룹에서 join CTA 비활성화에 사용
 - `showGenderContent`가 `true`이면 이성궁합/성별대결 섹션 표시 (기존 `categoryCode` 기반 조건 대체)
 - `creatorUserId`: FE에서 그룹 설정 모달의 편집 권한 판별에 사용 (생성자만 수정 가능, 참여자는 읽기 전용)
 - `members.displayName`: 그룹 참여 시 입력한 표시 이름. FE에서 `displayName ?? nickname` 로직으로 우선 사용
 - `members.gender`: 이성궁합 랭킹, 성별 대결에 사용
-- `questionStats`는 **비율(Rate) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 다름
-- `groupSyncRate`는 서버에서 계산 (모든 멤버 쌍의 답변 일치율 평균)
+- `members.displayProfileColor`: 그룹 참여 시 설정한 프로필 색상. FE에서 `displayProfileColor ?? user.profileColor` 로직으로 아바타 색상 결정
+- `questionStats`는 **투표 수(Count) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 동일한 형식. FE에서 비율 계산: `optionACount / (optionACount + optionBCount) × 100`
+- **API 분리 검토**: 이 API가 멤버 답변 + 질문 통계 + 그룹 메타 등 많은 데이터를 반환함. 필요 시 `members`와 `questionStats`를 별도 엔드포인트로 분리하여 병렬 요청 가능하도록 검토
 - 링크 타입이 `GROUP`이 아니면 `404 NOT_FOUND`
 - 참여 인원이 1명 미만(0명)이면 `400 BAD_REQUEST` (결과를 생성할 수 없음)
 - 1명일 때 서버는 정상 응답. FE에서 가상 멤버 3명을 주입하여 프리뷰 모드로 표시
 
 **FE에서 계산하는 항목 (서버에서 보내지 않음):**
 
+- **그룹 싱크율**: 모든 C(n,2) 멤버 쌍의 답변 일치율 평균 (0~100 정수). 멤버 답변 데이터로 FE에서 직접 계산
+- **투표 비율**: `optionACount / (optionACount + optionBCount) × 100` (부동소수점 없이 정수 처리)
 - **멤버 쌍 케미 (PairChemistry)**: 모든 C(n,2) 쌍에 대한 일치율, 등급(S/A/B/C/D)
 - **케미 등급 기준**: 80%+ → S, 60~79% → A, 40~59% → B, 20~39% → C, ~19% → D
 - **케미 네트워크 그래프**: 멤버 ≤15명이면 원형 네트워크 시각화, 16명 이상이면 케미 랭킹(등급별 아코디언 스택 UI)으로 전환
@@ -665,27 +677,75 @@ FE에서 카테고리별 액센트 컬러 테마를 적용합니다. 다음 API 
 
 ---
 
-## 미구현 예정 API (참고용)
+### 14. 그룹 내 내 프로필 수정
 
-| Method | Endpoint                                  | 설명                               | 상태   |
-| ------ | ----------------------------------------- | ---------------------------------- | ------ |
-| GET    | `/api/v1/bundles`                         | 번들 목록 (사이트맵 + 메인 피드용) | 미구현 |
-| GET    | `/api/v1/bundles/{slug}/my-compare-links` | 내 비교 링크 목록                  | 미구현 |
+| 항목      | 내용                                            |
+| --------- | ----------------------------------------------- |
+| Method    | `PATCH`                                         |
+| URL       | `/api/v1/compare-links/{token}/my-profile`      |
+| 인증      | 로그인 필수                                     |
+| 호출 시점 | 그룹 결과 페이지에서 내 프로필 편집 → 저장 클릭 |
 
-### 번들 목록 API 참고 사항
+**Request Body:**
 
-**용도:**
+```typescript
+{
+  displayName?: string;         // 새 표시 이름 (최대 20자, 특수문자 제한 없음)
+  displayProfileColor?: string; // 새 프로필 색상 (24개 색상명 중 하나)
+}
+```
 
-- 사이트맵 동적 생성 (현재 slug 하드코딩 중: `sitemap.ts`)
-- 메인 피드에서 번들 카드 표시 시 `completed` 상태 반영 (현재 `participated: false` 하드코딩)
+**Response `data`:** `null` (성공 시 별도 데이터 없음)
 
-**예상 Response `data`:**
+**BE 처리 사항:**
+
+- 해당 그룹의 멤버만 수정 가능 (비멤버 → `403 FORBIDDEN`)
+- GROUP 타입 링크만 대상 (ONE_TO_ONE → `404 NOT_FOUND`)
+- 각 필드가 전송된 경우에만 해당 값 업데이트 (partial update)
+- `displayName` 유효성 검사: 최대 20자
+- `displayProfileColor` 유효성 검사: 24개 허용 색상명 중 하나
+
+**FE 사용 흐름:**
+
+1. 그룹 결과 페이지 멤버 리스트에서 "나" 항목에 편집 버튼 표시
+2. 탭하면 DisplayNameModal 열림 (현재 displayName/displayProfileColor 프리필)
+3. 저장 시 `PATCH /my-profile` 호출
+4. 성공 후 group-result 캐시 무효화하여 변경 반영
+
+**참고:**
+
+- 10번 API(그룹 설정 변경)는 **방장 전용** — 그룹 이름, 이성 콘텐츠 토글 등 그룹 전체 설정
+- 15번 API(내 프로필 수정)는 **멤버 본인 전용** — 자신의 표시 이름, 프로필 색상만 수정
+- 참여 시 설정한 값을 나중에 수정할 수 있으므로, 처음에 대충 정해도 부담이 없어짐
+
+---
+
+## 별도 API
+
+### 15. 번들 목록 조회
+
+| 항목      | 내용                                                |
+| --------- | --------------------------------------------------- |
+| Method    | `GET`                                               |
+| URL       | `/api/v1/bundles`                                   |
+| 인증      | 비로그인 OK (단, 로그인 시 `completed` 필드 유의미) |
+| 호출 시점 | 메인 피드, My 탭(번들), 사이트맵 생성               |
+| 캐싱      | FE에서 staleTime 60초                               |
+
+**Query Parameters:**
+
+| 파라미터 | 타입     | 필수 | 설명                                                     |
+| -------- | -------- | ---- | -------------------------------------------------------- |
+| `filter` | `string` | N    | `completed` — 로그인 유저가 완료한 번들만 필터 (My 탭용) |
+
+**Response `data`:**
 
 ```typescript
 Array<{
   bundleId: number;
   slug: string;
   title: string;
+  subtitle: string;
   category: string;
   categoryCode: CategoryCode;
   questionCount: number;
@@ -695,3 +755,16 @@ Array<{
   completed: boolean; // 로그인 유저의 완료 여부 (비로그인 시 false)
 }>;
 ```
+
+**용도:**
+
+| 호출 위치    | 필터                | 설명                                                   |
+| ------------ | ------------------- | ------------------------------------------------------ |
+| 메인 피드    | 없음                | 전체 번들 목록. 싱글 핫픽 사이에 번들 카드를 섞어 표시 |
+| My 탭 (번들) | `?filter=completed` | 내가 완료한 번들만. 로그인 필수                        |
+| 사이트맵     | 없음                | 전체 번들 slug 동적 생성 (현재 하드코딩: `sitemap.ts`) |
+
+**FE 하드코딩 위치 (이 API로 대체 예정):**
+
+- `sitemap.ts` — 번들 slug 하드코딩 (`['love-values', 'marriage-values']`)
+- `cardMapper.ts` — `participated: false` 하드코딩

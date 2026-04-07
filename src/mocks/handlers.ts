@@ -1087,7 +1087,11 @@ export const handlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: elections });
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '성공',
+      data: elections,
+    });
   }),
 
   /** GET /api/v1/bundles/{slug} — 번들 상세 (인트로) */
@@ -1226,10 +1230,19 @@ export const handlers = [
   }),
 
   /** POST /api/v1/compare-links/{token}/join — 비교 링크 참여 */
-  http.post(`${baseURL}/api/v1/compare-links/:token/join`, ({ params }) => {
+  http.post(`${baseURL}/api/v1/compare-links/:token/join`, async ({ params, request }) => {
     const token = params.token as string;
+    const body = (await request.json().catch(() => ({}))) as {
+      displayName?: string;
+      profileColor?: string;
+    };
     // MSW에서는 mock-user-2로 참여 시뮬레이션
-    const result = joinCompareLink(token, 'mock-user-2', '수진');
+    const result = joinCompareLink(
+      token,
+      'mock-user-2',
+      body.displayName ?? '수진',
+      body.profileColor
+    );
     if (!result.success) {
       return HttpResponse.json(
         { code: 'BAD_REQUEST', message: result.message, data: null },
@@ -1278,7 +1291,8 @@ export const handlers = [
       link.groupMembers,
       myUserId,
       link.showGenderContent,
-      link.creatorUserId
+      link.creatorUserId,
+      link.isClosed
     );
     if (!result) {
       return HttpResponse.json(
@@ -1287,6 +1301,36 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  /** PATCH /api/v1/compare-links/{token}/my-profile — 그룹 내 내 프로필 수정 */
+  http.patch(`${baseURL}/api/v1/compare-links/:token/my-profile`, async ({ params, request }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    const body = (await request.json()) as {
+      displayName?: string;
+      displayProfileColor?: string;
+    };
+    const member = link.groupMembers.find((m) => m.userId === 'mock-user-1');
+    if (!member) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '그룹 멤버가 아닙니다', data: null },
+        { status: 403 }
+      );
+    }
+    if (body.displayName) {
+      member.nickname = body.displayName;
+    }
+    if (body.displayProfileColor) {
+      member.displayProfileColor = body.displayProfileColor;
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '프로필 수정 완료', data: null });
   }),
 
   /** PATCH /api/v1/compare-links/{token}/settings — 그룹 설정 수정 */

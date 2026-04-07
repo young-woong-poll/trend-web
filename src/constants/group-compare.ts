@@ -8,10 +8,10 @@ import type {
   ValueMapConfig,
 } from '@/types/group-compare';
 
-/** Rate 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용) */
-function calcPopularityScoreFromRate(
+/** Count 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용, 1:1과 동일 방식) */
+function calcPopularityScoreFromCount(
   myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
-  questionStats: Array<{ electionId: string; optionARate: number; optionBRate: number }>
+  questionStats: Array<{ electionId: string; optionACount: number; optionBCount: number }>
 ): number {
   if (myAnswers.length === 0) {
     return 0;
@@ -25,11 +25,50 @@ function calcPopularityScoreFromRate(
     if (!stat) {
       continue;
     }
-    totalRate += answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+    const total = stat.optionACount + stat.optionBCount;
+    if (total === 0) {
+      continue;
+    }
+    const rate =
+      answer.selected === 'A'
+        ? Math.round((stat.optionACount / total) * 100)
+        : Math.round((stat.optionBCount / total) * 100);
+    totalRate += rate;
     matched++;
   }
 
   return matched === 0 ? 0 : Math.round(totalRate / matched);
+}
+
+/**
+ * 그룹 싱크율 계산 (모든 C(n,2) 멤버 쌍의 답변 일치율 평균)
+ */
+export function calcGroupSyncRate(
+  members: GroupCompareResult['members'],
+  totalQuestions: number
+): number {
+  if (members.length < 2 || totalQuestions === 0) {
+    return 0;
+  }
+
+  let totalMatchRate = 0;
+  let pairCount = 0;
+
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      let matchCount = 0;
+      for (const ansA of members[i].answers) {
+        const ansB = members[j].answers.find((b) => b.electionId === ansA.electionId);
+        if (ansB && ansA.selected === ansB.selected) {
+          matchCount++;
+        }
+      }
+      totalMatchRate += (matchCount / totalQuestions) * 100;
+      pairCount++;
+    }
+  }
+
+  return pairCount > 0 ? Math.round(totalMatchRate / pairCount) : 0;
 }
 
 /**
@@ -315,7 +354,7 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   // 6. PEOPLES_CHAMPION: 대중성 지수 최고 (동점자 포함)
   const popularityScores: { member: (typeof members)[0]; score: number }[] = [];
   for (const m of members) {
-    const score = calcPopularityScoreFromRate(m.answers, questionStats);
+    const score = calcPopularityScoreFromCount(m.answers, questionStats);
     popularityScores.push({ member: m, score });
   }
   const maxPopularity = Math.max(...popularityScores.map((s) => s.score));

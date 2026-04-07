@@ -11,7 +11,7 @@ import type { PairChemistry } from '@/types/group-compare';
 
 interface MemberListProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{ userId: string; nickname: string; displayProfileColor?: string }>;
   pairs: PairChemistry[];
   token: string;
 }
@@ -53,7 +53,9 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
             >
               <div
                 className={styles.memberAvatar}
-                style={{ background: getMemberGradient(i, member.userId) }}
+                style={{
+                  background: getMemberGradient(i, member.userId, member.displayProfileColor),
+                }}
               >
                 {member.nickname[0]}
               </div>

@@ -37,9 +37,11 @@ const STACK_MAX = 5;
 
 interface ChemistryRankingProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{ userId: string; nickname: string; displayProfileColor?: string }>;
   pairs: PairChemistry[];
   onCompareRequest?: (targetUserId: string) => void;
+  /** 내 프로필 편집 콜백 */
+  onEditProfile?: () => void;
 }
 
 // ─── PC 드래그 스크롤 훅 ───
@@ -212,6 +214,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
   members,
   pairs,
   onCompareRequest,
+  onEditProfile,
 }) => {
   const [selectedUserId, setSelectedUserId] = useState(currentUserId);
   const [openGrade, setOpenGrade] = useState<ChemistryGrade | null>(null);
@@ -329,7 +332,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
             >
               <div
                 className={`${styles.memberAvatar} ${isActive ? styles.memberAvatarActive : ''}`}
-                style={{ background: getMemberGradient(i, m.userId) }}
+                style={{ background: getMemberGradient(i, m.userId, m.displayProfileColor) }}
               >
                 {m.nickname[0]}
               </div>
@@ -340,6 +343,13 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
           );
         })}
       </div>
+
+      {/* "나" 기준일 때 프로필 편집 버튼 */}
+      {isMyView && onEditProfile && (
+        <button type="button" className={styles.editProfileBtn} onClick={onEditProfile}>
+          내 프로필 수정
+        </button>
+      )}
 
       {/* 요약: 등급 분포 바 */}
       <div className={styles.summaryCard}>

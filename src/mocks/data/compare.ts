@@ -22,7 +22,7 @@ interface StoredCompareLink {
   participantNickname: string | null;
   status: 'WAITING' | 'COMPLETED' | 'CLOSED';
   groupName: string | null;
-  groupMembers: Array<{ userId: string; nickname: string }>;
+  groupMembers: Array<{ userId: string; nickname: string; displayProfileColor?: string }>;
   isClosed: boolean;
   showGenderContent: boolean;
 }
@@ -489,7 +489,8 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
 export function joinCompareLink(
   token: string,
   userId: string,
-  nickname: string
+  nickname: string,
+  profileColor?: string
 ): { success: boolean; message: string } {
   const link = compareLinkStore.get(token);
   if (!link) {
@@ -513,7 +514,7 @@ export function joinCompareLink(
     if (!bundleAnswerStore.has(`${userId}_${link.bundleSlug}`)) {
       return { success: false, message: '번들을 먼저 완료해주세요' };
     }
-    link.groupMembers.push({ userId, nickname });
+    link.groupMembers.push({ userId, nickname, displayProfileColor: profileColor });
     link.status = 'COMPLETED';
     return { success: true, message: '그룹 참여 완료' };
   }

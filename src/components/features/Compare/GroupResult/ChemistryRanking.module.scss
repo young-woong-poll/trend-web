@@ -428,6 +428,24 @@
   flex-shrink: 0;
 }
 
+// ─── 내 프로필 수정 버튼 ───
+.editProfileBtn {
+  align-self: flex-end;
+  padding: 6px 14px;
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.04);
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(#fff, 0.08);
+  }
+}
+
 // ─── 안내 텍스트 ───
 .hint {
   font-size: $font-size-12;

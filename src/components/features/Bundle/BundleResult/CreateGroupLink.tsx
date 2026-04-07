@@ -81,7 +81,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, 
       onClose();
       router.push(`/compare/group/${result.token}`);
     } catch {
-      showToast('링크 생성에 실패했습니다');
+      showToast('링크 생성에 실패했습니다. 번들을 먼저 완료해주세요.');
     }
   };
 

@@ -26,16 +26,20 @@ import {
   GroupSettingsModal,
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
-import { calcAllPairChemistry, calcGroupAwards } from '@/constants/group-compare';
+import {
+  calcAllPairChemistry,
+  calcGroupAwards,
+  calcGroupSyncRate,
+} from '@/constants/group-compare';
 import { GHOST_USER_PREFIX } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
-  useCompareLink,
   useCreatePairCompare,
   useGroupCompareResult,
   useJoinCompareLink,
   useUpdateGroupSettings,
+  useUpdateMyGroupProfile,
 } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 
@@ -62,16 +66,17 @@ interface GroupResultProps {
 
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const { isLoggedIn, requireLogin } = useAuth();
-  const { data: link } = useCompareLink(token);
   const { data: result, isLoading, refetch } = useGroupCompareResult(token);
   const joinMutation = useJoinCompareLink(token);
   const pairCompareMutation = useCreatePairCompare(token);
   const updateGroupSettingsMutation = useUpdateGroupSettings(token);
+  const updateMyProfileMutation = useUpdateMyGroupProfile(token);
   const queryClient = useQueryClient();
   const router = useRouter();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const { toast, showToast } = useToast();
@@ -109,6 +114,10 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     return { ...result, members: realMembers };
   }, [result]);
 
+  const groupSyncRate = useMemo(
+    () => (result ? calcGroupSyncRate(result.members, result.totalQuestions) : 0),
+    [result]
+  );
   const pairs = useMemo(
     () => (displayResult ? calcAllPairChemistry(displayResult) : []),
     [displayResult]
@@ -117,8 +126,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     () => (displayResult ? calcGroupAwards(displayResult, pairs) : []),
     [displayResult, pairs]
   );
-  // 현재 유저가 이 그룹의 멤버인지
-  const isMember = link?.isCreator || link?.isParticipant;
+  // 현재 유저가 이 그룹의 멤버인지 (group-result 응답에서 판별)
+  const isCreator = result ? result.creatorUserId === result.myUserId : false;
+  const isMember = result ? result.members.some((m) => m.userId === result.myUserId) : false;
 
   const handleSaveSettings = async (settings: GroupSettings) => {
     setShowSettingsModal(false);
@@ -155,7 +165,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   }
 
   // 멤버가 아직 없는 경우 (엣지케이스: 생성 직후 아무도 참여 안 함)
-  if (link && link.memberCount === 0) {
+  if (result && result.memberCount === 0) {
     return (
       <BundleBackground>
         <div className={styles.loading}>
@@ -207,7 +217,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       requireLogin('compare');
       return;
     }
-    if (!link?.myBundleCompleted) {
+    if (!result.myBundleCompleted) {
       // 그룹은 compareToken 자동 join을 쓰지 않음 (displayName 입력 필요)
       // 번들 완료 후 그룹 결과 페이지로 돌아오도록 returnUrl 사용
       router.push(
@@ -218,13 +228,26 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     setShowDisplayNameModal(true);
   };
 
-  const handleDisplayNameConfirm = async (displayName: string) => {
+  const handleDisplayNameConfirm = async (displayName: string, profileColor: string) => {
     try {
-      await joinMutation.mutateAsync(displayName);
+      await joinMutation.mutateAsync({ displayName, profileColor });
       setShowDisplayNameModal(false);
       await refetch();
     } catch {
       // 이미 참여한 경우 등
+    }
+  };
+
+  const handleEditProfileConfirm = async (displayName: string, profileColor: string) => {
+    try {
+      await updateMyProfileMutation.mutateAsync({
+        displayName,
+        displayProfileColor: profileColor,
+      });
+      setShowEditProfileModal(false);
+      await queryClient.invalidateQueries({ queryKey: compareKeys.groupResult(token) });
+    } catch {
+      // 실패 시 무시
     }
   };
 
@@ -269,7 +292,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           <div className={styles.syncRateDisplay}>
             <span className={styles.syncLabel}>그룹 싱크율</span>
             <div>
-              <span className={styles.syncValue}>{result.groupSyncRate}</span>
+              <span className={styles.syncValue}>{groupSyncRate}</span>
               <span className={styles.syncUnit}>%</span>
             </div>
           </div>
@@ -286,16 +309,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             <div className={styles.heroStatDivider} />
             <span
               className={
-                result.groupSyncRate >= 60
+                groupSyncRate >= 60
                   ? styles.syncTagHigh
-                  : result.groupSyncRate >= 40
+                  : groupSyncRate >= 40
                     ? styles.syncTagMid
                     : styles.syncTagLow
               }
             >
               {'싱크로율 '}
               <span className={styles.syncTagAccent}>
-                {result.groupSyncRate >= 60 ? '높음' : result.groupSyncRate >= 40 ? '보통' : '낮음'}
+                {groupSyncRate >= 60 ? '높음' : groupSyncRate >= 40 ? '보통' : '낮음'}
               </span>
             </span>
           </div>
@@ -318,6 +341,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                   }
                 : undefined
             }
+            onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
           />
         ) : (
           <ChemistryRanking
@@ -336,6 +360,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                   }
                 : undefined
             }
+            onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
           />
         )}
         <PickASide result={displayResult} currentUserId={currentUserId} />
@@ -424,11 +449,18 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         isLoading={joinMutation.isPending}
       />
 
+      <DisplayNameModal
+        isOpen={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
+        onConfirm={handleEditProfileConfirm}
+        isLoading={updateMyProfileMutation.isPending}
+      />
+
       <GroupSettingsModal
         isOpen={showSettingsModal}
         currentName={result.groupName}
         currentShowGenderContent={result.showGenderContent ?? false}
-        isCreator={link?.isCreator ?? false}
+        isCreator={isCreator}
         onClose={() => setShowSettingsModal(false)}
         onConfirm={handleSaveSettings}
         isLoading={updateGroupSettingsMutation.isPending}

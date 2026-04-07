@@ -57,8 +57,15 @@ export const GHOST_USER_PREFIX = '__ghost__';
 /** userId가 가상 멤버인지 확인 */
 export const isGhostUser = (userId: string): boolean => userId.startsWith(GHOST_USER_PREFIX);
 
-/** 멤버 아바타 그라데이션 (가상 멤버면 회색) */
-export const getMemberGradient = (index: number, userId?: string): string => {
+/** 멤버 아바타 그라데이션 (displayProfileColor 우선 → 가상 멤버면 회색 → 인덱스 기반) */
+export const getMemberGradient = (
+  index: number,
+  userId?: string,
+  profileColor?: string
+): string => {
+  if (profileColor) {
+    return getProfileGradient(profileColor);
+  }
   if (userId && isGhostUser(userId)) {
     return GHOST_GRADIENT;
   }

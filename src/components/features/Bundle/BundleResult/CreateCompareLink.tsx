@@ -31,7 +31,15 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, categoryCo
     document.body.style.right = '0';
     document.body.style.overflow = 'hidden';
 
-    createMutation.mutate({ type: 'ONE_TO_ONE' });
+    createMutation.mutate(
+      { type: 'ONE_TO_ONE' },
+      {
+        onError: () => {
+          showToast('링크 생성에 실패했습니다. 번들을 먼저 완료해주세요.');
+          onClose();
+        },
+      }
+    );
 
     return () => {
       document.body.style.position = '';

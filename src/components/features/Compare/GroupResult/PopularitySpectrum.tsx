@@ -37,7 +37,15 @@ function calcMemberPopularityScores(result: GroupCompareResult): MemberScore[] {
       if (!stat) {
         continue;
       }
-      totalRate += answer.selected === 'A' ? stat.optionARate : stat.optionBRate;
+      const total = stat.optionACount + stat.optionBCount;
+      if (total === 0) {
+        continue;
+      }
+      const rate =
+        answer.selected === 'A'
+          ? Math.round((stat.optionACount / total) * 100)
+          : Math.round((stat.optionBCount / total) * 100);
+      totalRate += rate;
       matched++;
     }
     const score = matched > 0 ? Math.round(totalRate / matched) : 50;
