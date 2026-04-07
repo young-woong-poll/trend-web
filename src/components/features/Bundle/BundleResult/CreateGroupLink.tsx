@@ -12,12 +12,14 @@ import styles from '@/components/features/Bundle/BundleResult/CreateGroupLink.mo
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import { trackCompareCreate } from '@/lib/analytics';
 import type { CategoryCode } from '@/types/hotpick';
 
 interface CreateGroupLinkProps {
   slug: string;
   categoryCode?: CategoryCode;
   onClose: () => void;
+  source?: string;
 }
 
 const DANGEROUS_CHARS = /[<>"'&]/;
@@ -37,7 +39,12 @@ function validateGroupName(name: string): string | null {
   return null;
 }
 
-export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, onClose }) => {
+export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
+  slug,
+  categoryCode,
+  onClose,
+  source = 'bundle_result',
+}) => {
   const router = useRouter();
   const createMutation = useCreateCompareLink(slug);
   const [groupName, setGroupName] = useState('');
@@ -78,6 +85,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, 
         type: 'GROUP',
         groupName: groupName.trim(),
       });
+      trackCompareCreate(slug, 'GROUP', source);
       onClose();
       router.push(`/compare/group/${result.token}`);
     } catch {

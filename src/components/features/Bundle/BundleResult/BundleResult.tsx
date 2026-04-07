@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail, useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import { trackBundleResultView } from '@/lib/analytics';
 
 interface BundleResultProps {
   slug: string;
@@ -62,6 +63,13 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [showPopularityInfo]);
+
+  // GA4: 번들 결과 조회
+  useEffect(() => {
+    if (result) {
+      trackBundleResultView(slug);
+    }
+  }, [result, slug]);
 
   // 접근제어: 비로그인 → 인트로 + 로그인 유도
   useEffect(() => {

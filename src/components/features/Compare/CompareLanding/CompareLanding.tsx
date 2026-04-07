@@ -13,6 +13,7 @@ import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/P
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleElections } from '@/hooks/api/useBundle';
 import { useCompareLink, useJoinCompareLink } from '@/hooks/api/useCompare';
+import { trackCompareLanding } from '@/lib/analytics';
 import { formatCount } from '@/lib/utils';
 
 interface CompareLandingProps {
@@ -29,6 +30,13 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   // 번들 미완료 유저에게 첫 질문 미리보기 제공
   const { data: elections } = useBundleElections(link?.bundleSlug ?? '');
   const firstQuestion = elections?.[0];
+
+  // GA4: 비교 랜딩 조회
+  useEffect(() => {
+    if (link && !link.isCreator) {
+      trackCompareLanding(link.bundleSlug, link.type);
+    }
+  }, [link]);
 
   // 생성자 대기 상태 → 프리뷰 결과 페이지로 즉시 리다이렉트
   const isCreatorWaitingForRedirect = !!link && link.isCreator && !link.hasParticipant;
