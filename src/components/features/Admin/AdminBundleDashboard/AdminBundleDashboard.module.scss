@@ -63,6 +63,27 @@
   flex-shrink: 0;
 }
 
+.deleteButton {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: $font-weight-medium;
+  color: #ef4444;
+  background: rgba(#ef4444, 0.1);
+  border: 1px solid rgba(#ef4444, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(#ef4444, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 .statusActive {
   color: #4ade80;
   font-weight: $font-weight-semibold;

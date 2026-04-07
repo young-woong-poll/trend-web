@@ -10,6 +10,7 @@ import BackIcon from '@/assets/icon/BackIcon';
 import { Button } from '@/components/common/Button';
 import styles from '@/components/features/Admin/AdminHotpickForm/AdminHotpickForm.module.scss';
 import { BasicInfoSection } from '@/components/features/Admin/AdminHotpickForm/BasicInfoSection';
+import { BundleQuestionsSection } from '@/components/features/Admin/AdminHotpickForm/BundleQuestionsSection';
 import { ElectionInlineSection } from '@/components/features/Admin/AdminHotpickForm/ElectionListSection';
 import { useModal } from '@/contexts/ModalContext';
 import type {
@@ -36,6 +37,13 @@ export type TElectionData = {
   items: TElectionItem[];
 };
 
+/** 번들 질문 아이템 (A/B 선택지) */
+export type TBundleQuestion = {
+  title: string;
+  optionA: string;
+  optionB: string;
+};
+
 export type TFormData = {
   slug: string;
   type: HotpickType;
@@ -44,6 +52,7 @@ export type TFormData = {
   expiredAt?: string;
   visible?: boolean;
   election: TElectionData;
+  bundleQuestions: TBundleQuestion[];
 };
 
 interface AdminHotpickFormProps {
@@ -51,6 +60,8 @@ interface AdminHotpickFormProps {
   hotpick?: AdminHotpickDetailResponse;
   onSubmit?: (data: UpdateHotpickRequest) => void;
   isSubmitting?: boolean;
+  backUrl?: string;
+  defaultType?: HotpickType;
 }
 
 const DEFAULT_ELECTION: TElectionData = {
@@ -59,11 +70,21 @@ const DEFAULT_ELECTION: TElectionData = {
   items: [{ title: '' }, { title: '' }],
 };
 
+const DEFAULT_BUNDLE_QUESTIONS: TBundleQuestion[] = [
+  { title: '', optionA: '', optionB: '' },
+  { title: '', optionA: '', optionB: '' },
+  { title: '', optionA: '', optionB: '' },
+  { title: '', optionA: '', optionB: '' },
+  { title: '', optionA: '', optionB: '' },
+];
+
 export const AdminHotpickForm = ({
   mode = 'create',
   hotpick,
   onSubmit: onSubmitProp,
   isSubmitting: isSubmittingProp,
+  backUrl = '/admin/hotpick',
+  defaultType = 'SINGLE',
 }: AdminHotpickFormProps = {}) => {
   const router = useRouter();
   const { showAlert } = useModal();
@@ -75,12 +96,13 @@ export const AdminHotpickForm = ({
   const { register, handleSubmit, setValue, watch, reset } = useForm<TFormData>({
     defaultValues: {
       slug: '',
-      type: 'SINGLE',
+      type: defaultType,
       imageUrl: '',
       categoryIds: [],
       expiredAt: undefined,
       visible: true,
       election: DEFAULT_ELECTION,
+      bundleQuestions: DEFAULT_BUNDLE_QUESTIONS,
     },
   });
 
@@ -118,6 +140,7 @@ export const AdminHotpickForm = ({
                   : DEFAULT_ELECTION.items,
             }
           : DEFAULT_ELECTION,
+        bundleQuestions: DEFAULT_BUNDLE_QUESTIONS,
       });
     }
   }, [mode, hotpick, reset]);
@@ -156,6 +179,17 @@ export const AdminHotpickForm = ({
     if (data.categoryIds.length === 0) {
       showAlert('카테고리를 1개 이상 선택해주세요.');
       return;
+    }
+
+    // BUNDLE 타입 검증
+    if (data.type === 'BUNDLE') {
+      const validQuestions = data.bundleQuestions.filter(
+        (q) => q.title.trim() && q.optionA.trim() && q.optionB.trim()
+      );
+      if (validQuestions.length < 2) {
+        showAlert('번들 질문을 최소 2개 이상 입력해주세요.');
+        return;
+      }
     }
 
     // SINGLE 타입일 때만 선거 검증
@@ -198,7 +232,7 @@ export const AdminHotpickForm = ({
     // Create 모드일 경우 기존 로직 실행
     try {
       await createHotpick(request);
-      window.location.href = '/admin/hotpick';
+      window.location.href = backUrl;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
       showAlert(`핫픽 생성 실패: ${errorMessage}`);
@@ -215,7 +249,7 @@ export const AdminHotpickForm = ({
               {mode === 'edit' ? '핫픽 정보를 수정합니다' : '새로운 핫픽을 생성합니다'}
             </p>
           </div>
-          <Button variant="outline" onClick={() => router.push('/admin/hotpick')}>
+          <Button variant="outline" onClick={() => router.push(backUrl)}>
             <BackIcon />
             뒤로
           </Button>
@@ -236,11 +270,7 @@ export const AdminHotpickForm = ({
 
         {/* 인라인 선거 편집 — SINGLE 전용 */}
         {hotpickType === 'SINGLE' && <ElectionInlineSection setValue={setValue} watch={watch} />}
-        {hotpickType === 'BUNDLE' && (
-          <section className={styles.bundleNotice}>
-            <p>BUNDLE 기능은 준비 중입니다.</p>
-          </section>
-        )}
+        {hotpickType === 'BUNDLE' && <BundleQuestionsSection setValue={setValue} watch={watch} />}
 
         {/* Submit */}
         <div className={styles.actions}>

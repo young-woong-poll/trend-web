@@ -68,13 +68,27 @@ export interface AdminBundleStats {
   questionStats: AdminQuestionStat[];
 }
 
-/** PATCH /admin/api/v1/bundles/{slug}/status — 요청 */
-export interface UpdateBundleStatusRequest {
-  status: 'ACTIVE' | 'CLOSED';
+/** PUT /admin/api/v1/bundles/{slug} — 요청 */
+export interface UpdateBundleRequest {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  categoryCode?: CategoryCode;
+  imageUrl?: string;
+  status?: 'ACTIVE' | 'CLOSED';
+  questions?: UpdateBundleQuestion[];
 }
 
-/** PATCH /admin/api/v1/bundles/{slug}/status — 응답 */
-export interface UpdateBundleStatusResponse {
+export interface UpdateBundleQuestion {
+  electionId?: string;
+  title: string;
+  optionA: string;
+  optionB: string;
+}
+
+/** PUT /admin/api/v1/bundles/{slug} — 응답 */
+export interface UpdateBundleResponse {
   slug: string;
+  title: string;
   status: 'ACTIVE' | 'CLOSED';
 }

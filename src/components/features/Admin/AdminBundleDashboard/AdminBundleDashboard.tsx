@@ -9,7 +9,7 @@ import styles from '@/components/features/Admin/AdminBundleDashboard/AdminBundle
 import CompareLinksTab from '@/components/features/Admin/AdminBundleDashboard/CompareLinksTab';
 import ParticipationTab from '@/components/features/Admin/AdminBundleDashboard/ParticipationTab';
 import QuestionStatsTab from '@/components/features/Admin/AdminBundleDashboard/QuestionStatsTab';
-import { useAdminBundleStats, useUpdateBundleStatus } from '@/hooks/api/useAdminBundle';
+import { useAdminBundleStats, useUpdateBundle, useDeleteBundle } from '@/hooks/api/useAdminBundle';
 
 type TabKey = 'participation' | 'compareLinks' | 'questionStats';
 
@@ -26,7 +26,8 @@ interface AdminBundleDashboardProps {
 export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps) {
   const router = useRouter();
   const { data: stats, isLoading } = useAdminBundleStats(slug);
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateBundleStatus();
+  const { mutate: updateBundle, isPending: isUpdating } = useUpdateBundle();
+  const { mutate: deleteBundle, isPending: isDeleting } = useDeleteBundle();
   const [activeTab, setActiveTab] = useState<TabKey>('participation');
 
   if (isLoading) {
@@ -47,7 +48,18 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
 
   const handleToggleStatus = () => {
     const newStatus = stats.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
-    updateStatus({ slug, data: { status: newStatus } });
+    updateBundle({ slug, data: { status: newStatus } });
+  };
+
+  const handleDelete = () => {
+    if (
+      !window.confirm(`"${stats.title}" 번들을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)
+    ) {
+      return;
+    }
+    deleteBundle(slug, {
+      onSuccess: () => router.push('/admin/bundle'),
+    });
   };
 
   return (
@@ -78,6 +90,14 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
           >
             수정
           </Button>
+          <button
+            type="button"
+            className={styles.deleteButton}
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? '삭제 중...' : '삭제'}
+          </button>
         </div>
       </header>
 

@@ -1045,10 +1045,10 @@ export const handlers = [
     return HttpResponse.json(wrapResponse(stats));
   }),
 
-  // PATCH /admin/api/v1/bundles/:slug/status
-  http.patch(`${baseURL}/admin/api/v1/bundles/:slug/status`, async ({ params, request }) => {
+  // PUT /admin/api/v1/bundles/:slug
+  http.put(`${baseURL}/admin/api/v1/bundles/:slug`, async ({ params, request }) => {
     const slug = params.slug as string;
-    const body = (await request.json()) as { status: 'ACTIVE' | 'CLOSED' };
+    const body = (await request.json()) as Record<string, unknown>;
     const bundle = mockBundleDetails[slug];
     if (!bundle) {
       return HttpResponse.json(
@@ -1056,9 +1056,26 @@ export const handlers = [
         { status: 404 }
       );
     }
-    // mock 데이터 상태 변경
-    bundle.status = body.status;
-    return HttpResponse.json(wrapResponse({ slug, status: body.status }));
+    if (body.status) {
+      bundle.status = body.status as 'ACTIVE' | 'CLOSED';
+    }
+    if (body.title) {
+      bundle.title = body.title as string;
+    }
+    return HttpResponse.json(wrapResponse({ slug, title: bundle.title, status: bundle.status }));
+  }),
+
+  // DELETE /admin/api/v1/bundles/:slug
+  http.delete(`${baseURL}/admin/api/v1/bundles/:slug`, ({ params }) => {
+    const slug = params.slug as string;
+    if (!mockBundleDetails[slug]) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
+        { status: 404 }
+      );
+    }
+    delete mockBundleDetails[slug];
+    return HttpResponse.json(wrapResponse(null));
   }),
 
   // ──────────────────────────────────────────────────────────

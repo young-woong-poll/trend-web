@@ -137,6 +137,14 @@
   }
 }
 
+.deleteButton {
+  color: #ef4444;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
 .empty {
   display: flex;
   flex-direction: column;

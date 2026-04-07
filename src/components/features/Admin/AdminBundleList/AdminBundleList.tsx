@@ -4,11 +4,19 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/common/Button/Button';
 import styles from '@/components/features/Admin/AdminBundleList/AdminBundleList.module.scss';
-import { useAdminBundleList } from '@/hooks/api/useAdminBundle';
+import { useAdminBundleList, useDeleteBundle } from '@/hooks/api/useAdminBundle';
 
 export default function AdminBundleList() {
   const router = useRouter();
   const { data: bundles, isLoading } = useAdminBundleList();
+  const { mutate: deleteBundle } = useDeleteBundle();
+
+  const handleDelete = (slug: string, title: string) => {
+    if (!window.confirm(`"${title}" 번들을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+    deleteBundle(slug);
+  };
 
   if (isLoading) {
     return (
@@ -84,6 +92,13 @@ export default function AdminBundleList() {
                         onClick={() => router.push(`/admin/hotpick/edit/${bundle.hotpickId}`)}
                       >
                         수정
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={() => handleDelete(bundle.slug, bundle.title)}
+                      >
+                        삭제
                       </button>
                     </div>
                   </td>

@@ -9,6 +9,16 @@ import type {
   DailyStat,
 } from '@/types/admin-bundle';
 
+/**
+ * 번들 slug → 핫픽 mock ID 매핑 (MSW용)
+ * 핫픽 mock에 번들 타입으로 등록된 ID: love-dilemma=1, finance-picks=2, sports-urgent=3, etc.
+ * TODO: BE 구현 시 실제 hotpickId로 교체
+ */
+const bundleSlugToHotpickId: Record<string, number> = {
+  'love-values': 1, // → love-dilemma (핫픽 mock id=1)
+  'marriage-values': 2, // → finance-picks (핫픽 mock id=2)
+};
+
 /** 번들 목록 생성 — mockBundleDetails에서 파생 */
 export function getAdminBundleList(): AdminBundleSummary[] {
   return Object.values(mockBundleDetails)
@@ -24,7 +34,7 @@ export function getAdminBundleList(): AdminBundleSummary[] {
 
       return {
         bundleId: b.bundleId,
-        hotpickId: b.bundleId + 100, // TODO: BE 구현 시 실제 hotpickId로 교체
+        hotpickId: bundleSlugToHotpickId[b.slug] ?? b.bundleId,
         slug: b.slug,
         title: b.title,
         category: b.category,
@@ -106,7 +116,7 @@ export function getAdminBundleStats(slug: string): AdminBundleStats | null {
     bundleId: bundle.bundleId,
     slug: bundle.slug,
     title: bundle.title,
-    hotpickId: bundle.bundleId + 100,
+    hotpickId: bundleSlugToHotpickId[bundle.slug] ?? bundle.bundleId,
     categoryCode: bundle.categoryCode!,
     status: bundle.status as 'ACTIVE' | 'CLOSED',
     participation: {

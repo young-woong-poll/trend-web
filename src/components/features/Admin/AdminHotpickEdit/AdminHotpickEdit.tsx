@@ -50,6 +50,7 @@ export default function AdminHotpickEdit({ hotpickId }: AdminHotpickEditProps) {
         hotpick={hotpick}
         onSubmit={(data) => updateHotpick({ hotpickId, data })}
         isSubmitting={isUpdating}
+        backUrl={hotpick.type === 'BUNDLE' ? '/admin/bundle' : '/admin/hotpick'}
       />
 
       {/* 위험 영역 (Danger Zone) */}
