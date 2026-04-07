@@ -269,6 +269,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <CreateCompareLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowCompareModal(false)}
         />
       )}
@@ -276,6 +277,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <CreateGroupLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowGroupModal(false)}
         />
       )}

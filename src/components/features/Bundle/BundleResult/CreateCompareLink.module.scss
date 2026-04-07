@@ -19,7 +19,6 @@
   width: 100%;
   max-width: 360px;
   padding: $spacing-24;
-  padding-top: 40px;
   background: $bg-secondary;
   border: 1px solid #333;
   border-radius: $border-radius-lg;
@@ -27,10 +26,13 @@
   position: relative;
 }
 
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .modalClose {
-  position: absolute;
-  top: 12px;
-  right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -41,11 +43,25 @@
   background: none;
   color: $text-tertiary;
   cursor: pointer;
+  flex-shrink: 0;
 
   &:hover {
     color: $white;
     background: rgba(#fff, 0.05);
   }
+}
+
+.bundleInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -12px;
+}
+
+.bundleTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
 }
 
 .ctaButton {
@@ -68,13 +84,11 @@
   font-size: $font-size-18;
   font-weight: 700;
   color: $white;
-  text-align: center;
 }
 
 .description {
   font-size: $font-size-14;
   color: $text-secondary;
-  text-align: center;
   line-height: 1.5;
 }
 

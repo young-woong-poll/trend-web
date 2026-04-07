@@ -65,18 +65,14 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
       >
         <div className={styles.promptContent}>
           <p className={styles.promptTitle}>이전 활동을 연결할까요?</p>
-          <p className={styles.promptDescription}>
-            이 브라우저에서 남긴 활동을 내 계정으로 연동할 수 있어요.
-          </p>
-          <p className={styles.promptDescription}>
-            <strong>연결하면 이렇게 돼요</strong>
-            <br />⋅ 투표, 공감 기록이 내 계정에 연결돼요.
-            <br />⋅ 댓글은 내용만 유지되고, 닉네임이 계정 닉네임으로 변경돼요.
-            <br />⋅ 기존 비로그인 데이터는 이 브라우저에서 삭제돼요.
-          </p>
-          <p className={styles.promptDescription}>
-            ❗이 기회는 <strong>한 번만</strong> 제공되며, 건너뛰면{' '}
-            <strong>다시 연동할 수 없어요.</strong>
+          <p className={styles.promptDescription}>이 브라우저의 데이터를 계정에 연동해요.</p>
+          <ul className={styles.promptList}>
+            <li>투표 데이터를 내 계정에 연결</li>
+            <li>좋아요 도 연결</li>
+            <li>댓글 닉네임이 계정 닉네임으로 변경</li>
+          </ul>
+          <p className={styles.promptWarning}>
+            이 기회는 <strong>한 번만</strong> 제공돼요.
           </p>
           <div className={styles.promptButtons}>
             <button
@@ -85,7 +81,7 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
               onClick={onConfirm}
               disabled={isLoading}
             >
-              {isLoading ? '연결 중...' : '이전 활동 연결하기'}
+              {isLoading ? '연결 중...' : '연결하기'}
             </button>
             <button
               type="button"
@@ -123,6 +119,9 @@ const SignupForm = () => {
   const [gender, setGender] = useState<Gender>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [nicknameChecked, setNicknameChecked] = useState<'idle' | 'available' | 'unavailable'>(
+    'idle'
+  );
   const [showMigration, setShowMigration] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
 
@@ -140,8 +139,14 @@ const SignupForm = () => {
 
   const nicknameValue = watch('nickname');
 
-  const handleBlur = async () => {
+  // 닉네임 값이 변경되면 중복확인 상태 초기화
+  useEffect(() => {
+    setNicknameChecked('idle');
+  }, [nicknameValue]);
+
+  const handleCheckNickname = async () => {
     if (!nicknameValue?.trim()) {
+      setError('nickname', { message: '닉네임을 입력해주세요' });
       return;
     }
     const result = validateNickname(nicknameValue);
@@ -150,18 +155,20 @@ const SignupForm = () => {
       return;
     }
 
-    // 닉네임 중복 체크
     setIsCheckingNickname(true);
     try {
       const available = await checkNicknameAvailability(result.trimmedValue);
       if (!available) {
         setError('nickname', { message: '이미 사용 중인 닉네임이에요' });
+        setNicknameChecked('unavailable');
       } else {
         clearErrors('nickname');
+        setNicknameChecked('available');
       }
     } catch {
       // 중복체크 API 실패 시 일단 통과 (가입 시 서버에서 재검증)
       clearErrors('nickname');
+      setNicknameChecked('available');
     } finally {
       setIsCheckingNickname(false);
     }
@@ -229,6 +236,12 @@ const SignupForm = () => {
   };
 
   const onSubmit = (data: SignupFormValues) => {
+    // 중복확인 안 된 상태면 에러 메시지로 안내
+    if (nicknameChecked !== 'available') {
+      setError('nickname', { message: '닉네임 중복확인을 해주세요' });
+      return;
+    }
+
     if (hasTKUID()) {
       setPendingFormData(data);
       setShowMigration(true);
@@ -244,7 +257,8 @@ const SignupForm = () => {
   return (
     <div className={styles.container}>
       <form className={styles.content} onSubmit={handleSubmit(onSubmit)}>
-        <h1 className={styles.title}>마지막입니다 🙏</h1>
+        <h1 className={styles.title}>프로필 설정 🙂</h1>
+        <p className={styles.subtitle}>프로필만 설정하면 핫픽 회원이에요!</p>
 
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>
@@ -256,16 +270,29 @@ const SignupForm = () => {
               </span>
             )}
           </label>
-          <div className={styles.inputWrapper}>
+          <div className={styles.nicknameRow}>
             <input
               {...register('nickname', { required: '닉네임을 입력해주세요' })}
-              className={`${styles.input} ${errors.nickname ? styles.error : ''}`}
-              placeholder="나를 나타내는 이름을 입력해주세요"
-              maxLength={20}
-              onBlur={handleBlur}
+              className={`${styles.input} ${errors.nickname ? styles.error : ''} ${nicknameChecked === 'available' ? styles.checked : ''}`}
+              placeholder="닉네임을 입력해주세요"
+              maxLength={10}
             />
+            <button
+              type="button"
+              className={`${styles.checkButton} ${nicknameChecked === 'available' ? styles.checkDone : ''}`}
+              onClick={handleCheckNickname}
+              disabled={isCheckingNickname || !nicknameValue?.trim()}
+            >
+              {isCheckingNickname
+                ? '확인 중'
+                : nicknameChecked === 'available'
+                  ? '사용 가능'
+                  : '중복확인'}
+            </button>
           </div>
-          {isCheckingNickname && <p className={styles.helperText}>닉네임 확인 중...</p>}
+          {nicknameChecked === 'available' && !errors.nickname && (
+            <p className={styles.successText}>사용 가능한 닉네임이에요</p>
+          )}
           {errors.nickname?.message && (
             <p className={styles.errorText}>{errors.nickname.message}</p>
           )}

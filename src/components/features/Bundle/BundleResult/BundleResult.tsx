@@ -319,6 +319,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         <CreateCompareLink
           slug={slug}
           categoryCode={bundle?.categoryCode}
+          bundleTitle={bundle?.title}
           onClose={() => setShowCompareModal(false)}
         />
       )}
@@ -326,6 +327,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         <CreateGroupLink
           slug={slug}
           categoryCode={bundle?.categoryCode}
+          bundleTitle={bundle?.title}
           onClose={() => setShowGroupModal(false)}
         />
       )}

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateGroupLink.module.scss';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
@@ -17,6 +18,7 @@ import type { CategoryCode } from '@/types/hotpick';
 interface CreateGroupLinkProps {
   slug: string;
   categoryCode?: CategoryCode;
+  bundleTitle?: string;
   onClose: () => void;
 }
 
@@ -37,7 +39,12 @@ function validateGroupName(name: string): string | null {
   return null;
 }
 
-export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, onClose }) => {
+export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
+  slug,
+  categoryCode,
+  bundleTitle,
+  onClose,
+}) => {
   const router = useRouter();
   const createMutation = useCreateCompareLink(slug);
   const [groupName, setGroupName] = useState('');
@@ -88,16 +95,18 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({ slug, categoryCode, 
   return createPortal(
     <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
-          <CloseIcon width={16} height={16} />
-        </button>
-
-        <h2 className={styles.title}>그룹 비교 만들기</h2>
-        <p className={styles.description}>
-          그룹 이름을 정하고 링크를 공유하면
-          <br />
-          여러 명의 가치관을 한눈에 비교할 수 있어요!
-        </p>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.title}>그룹 만들기</h2>
+          <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
+            <CloseIcon width={16} height={16} />
+          </button>
+        </div>
+        {bundleTitle && (
+          <div className={styles.bundleInfo}>
+            <CategoryBadge categoryCode={categoryCode} />
+            <span className={styles.bundleTitle}>{bundleTitle}</span>
+          </div>
+        )}
         <div>
           <div className={styles.inputLabelRow}>
             <label className={styles.inputLabel}>그룹 이름</label>

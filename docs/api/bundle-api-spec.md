@@ -356,6 +356,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
   // 상대방
   target: {
     nickname: string;
+    /** 서비스 탈퇴 유저 여부. true이면 nickname이 "알 수 없는 멤버"로 마스킹된 상태 */
+    isWithdrawn?: boolean;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }
 
@@ -377,6 +379,7 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 **참고:**
 
 - `me`/`target`은 **현재 로그인 유저 기준**으로 자동 배정 (생성자든 참여자든 자기가 "me")
+- `target.isWithdrawn`: 상대방이 서비스 탈퇴한 경우 `true`. BE에서 `nickname`을 `"알 수 없는 멤버"`로 마스킹하여 응답. 답변 데이터는 유지 (비교 결과 표시 가능). FE에서 탈퇴 유저 시각적 차별화 처리 (아바타 회색, 반투명 등)
 - 링크 상태가 `COMPLETED`가 아니면 `404 NOT_FOUND`
 - `questionStats`의 투표 수는 **실시간 변동**
 - FE에서 비율 계산: optionACount / (optionACount + optionBCount) × 100
@@ -441,6 +444,8 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
     displayProfileColor?: string;
     /** 성별 (이성궁합/성별대결용, 없으면 해당 섹션에서 제외) */
     gender?: 'MALE' | 'FEMALE';
+    /** 서비스 탈퇴 유저 여부. true이면 닉네임/색상이 마스킹된 상태 */
+    isWithdrawn?: boolean;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 
@@ -466,6 +471,19 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 - `members.displayName`: 그룹 참여 시 입력한 표시 이름. FE에서 `displayName ?? nickname` 로직으로 우선 사용
 - `members.gender`: 이성궁합 랭킹, 성별 대결에 사용
 - `members.displayProfileColor`: 그룹 참여 시 설정한 프로필 색상. FE에서 `displayProfileColor ?? user.profileColor` 로직으로 아바타 색상 결정
+- `members.isWithdrawn`: 서비스 탈퇴 유저 여부. `true`이면 BE에서 아래와 같이 마스킹하여 응답:
+
+  | 필드                  | 탈퇴 유저 응답값                   |
+  | --------------------- | ---------------------------------- |
+  | `nickname`            | `"알 수 없는 멤버"`                |
+  | `displayName`         | `"알 수 없는 멤버"`                |
+  | `displayProfileColor` | `"GRAY"`                           |
+  | `gender`              | `null` (이성 콘텐츠에서 제외)      |
+  | `answers`             | **그대로 유지** (케미 계산에 포함) |
+  | `isWithdrawn`         | `true`                             |
+
+  FE 처리: 아바타 반투명 처리, 1:1 비교 버튼 비활성, 탭 시 "탈퇴한 멤버입니다" 토스트
+
 - `questionStats`는 **투표 수(Count) 기반** 응답. 1:1 비교(Phase 2)의 `optionACount`/`optionBCount`와 동일한 형식. FE에서 비율 계산: `optionACount / (optionACount + optionBCount) × 100`
 - **API 분리 검토**: 이 API가 멤버 답변 + 질문 통계 + 그룹 메타 등 많은 데이터를 반환함. 필요 시 `members`와 `questionStats`를 별도 엔드포인트로 분리하여 병렬 요청 가능하도록 검토
 - 링크 타입이 `GROUP`이 아니면 `404 NOT_FOUND`
@@ -662,6 +680,7 @@ FE에서 카테고리별 액센트 컬러 테마를 적용합니다. 다음 API 
 
 - 요청자와 targetUserId 모두 해당 그룹의 멤버여야 함 (미참여 시 `BAD_REQUEST`)
 - 요청자와 targetUserId가 동일하면 `BAD_REQUEST`
+- targetUserId가 탈퇴 유저(`isWithdrawn: true`)이면 `BAD_REQUEST` (FE에서도 탈퇴 멤버는 1:1 비교 버튼 비활성)
 - 둘 다 이미 번들을 완료한 상태이므로, 즉시 `COMPLETED` 상태의 1:1 비교 링크 생성
 - 기존 8번 API (`/result`)와 동일한 형식으로 결과 조회 가능
 - **동일 쌍에 대한 중복 요청 시**: 기존 토큰 재사용 (A→B, B→A 모두 같은 토큰)

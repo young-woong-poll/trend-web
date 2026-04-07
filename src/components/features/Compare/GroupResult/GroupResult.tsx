@@ -410,14 +410,14 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
               className={styles.ctaOneToOne}
               onClick={() => setShowCompareModal(true)}
             >
-              친구랑 1:1 비교하기
+              1:1 따로 비교하기
             </button>
             <button
               type="button"
               className={styles.ctaGroup}
               onClick={() => setShowGroupModal(true)}
             >
-              새 그룹 만들기
+              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
             </button>
           </div>
         </div>
@@ -431,6 +431,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <CreateCompareLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowCompareModal(false)}
         />
       )}
@@ -438,6 +439,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <CreateGroupLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowGroupModal(false)}
         />
       )}

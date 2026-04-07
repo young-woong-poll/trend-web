@@ -5,6 +5,7 @@ import { useEffect, type FC } from 'react';
 import { createPortal } from 'react-dom';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
+import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateCompareLink.module.scss';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
@@ -15,10 +16,16 @@ import type { CategoryCode } from '@/types/hotpick';
 interface CreateCompareLinkProps {
   slug: string;
   categoryCode?: CategoryCode;
+  bundleTitle?: string;
   onClose: () => void;
 }
 
-export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, categoryCode, onClose }) => {
+export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
+  slug,
+  categoryCode,
+  bundleTitle,
+  onClose,
+}) => {
   const createMutation = useCreateCompareLink(slug);
   const { toast, showToast } = useToast();
 
@@ -71,26 +78,37 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({ slug, categoryCo
   return createPortal(
     <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
-          <CloseIcon width={16} height={16} />
-        </button>
-
-        {createMutation.isPending ? (
-          <p className={styles.description}>링크 생성 중...</p>
-        ) : createMutation.isError ? (
-          <p className={styles.description}>링크 생성에 실패했습니다</p>
-        ) : (
-          <>
-            <h2 className={styles.title}>비교 링크를 친구에게 공유해주세요</h2>
-            <p className={styles.description}>가장 먼저 들어오는 친구와 1:1 비교돼요</p>
-            <div className={styles.linkBox}>
-              <span className={styles.linkText}>{shareUrl}</span>
-            </div>
-            <button type="button" className={styles.ctaButton} onClick={handleCopy}>
-              링크 복사하기
-            </button>
-          </>
+        <div className={styles.modalHeader}>
+          <h2 className={styles.title}>1:1 비교 링크 공유</h2>
+          <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
+            <CloseIcon width={16} height={16} />
+          </button>
+        </div>
+        {bundleTitle && (
+          <div className={styles.bundleInfo}>
+            <CategoryBadge categoryCode={categoryCode} />
+            <span className={styles.bundleTitle}>{bundleTitle}</span>
+          </div>
         )}
+
+        <p className={styles.description}>가장 먼저 참여한 친구와 1:1 비교돼요</p>
+        <div className={styles.linkBox}>
+          <span className={styles.linkText}>
+            {createMutation.isPending
+              ? '링크 생성 중...'
+              : createMutation.isError
+                ? '링크 생성 실패'
+                : shareUrl}
+          </span>
+        </div>
+        <button
+          type="button"
+          className={styles.ctaButton}
+          onClick={handleCopy}
+          disabled={createMutation.isPending || createMutation.isError}
+        >
+          링크 복사하기
+        </button>
       </div>
       <Toast message={toast.message} isVisible={toast.isVisible} />
     </div>,
