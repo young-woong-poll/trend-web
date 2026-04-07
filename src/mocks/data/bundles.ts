@@ -255,6 +255,14 @@ export function seedGroupUsers() {
       { electionId: 'le-4', selected: 'A' },
       { electionId: 'le-5', selected: 'A' },
     ],
+    // 탈퇴 유저 (withdrawn) 답변 시드
+    'mock-user-withdrawn': [
+      { electionId: 'le-1', selected: 'A' },
+      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'B' },
+      { electionId: 'le-5', selected: 'A' },
+    ],
   };
 
   for (const [userId, answers] of Object.entries(groupAnswers)) {

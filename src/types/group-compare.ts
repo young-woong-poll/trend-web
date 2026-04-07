@@ -33,6 +33,8 @@ export interface GroupCompareResult {
     displayProfileColor?: string;
     gender?: 'MALE' | 'FEMALE';
     birthYear?: number;
+    /** 서비스 탈퇴 유저 여부 */
+    isWithdrawn?: boolean;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 

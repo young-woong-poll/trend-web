@@ -141,6 +141,29 @@ const groupSeedLink: StoredCompareLink = {
 };
 compareLinkStore.set('group-abc', groupSeedLink);
 
+// group-withdrawn: 탈퇴 유저가 포함된 그룹 비교 (5명 중 1명 탈퇴)
+const groupWithdrawnLink: StoredCompareLink = {
+  token: 'group-withdrawn',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '탈퇴 테스트 그룹',
+  groupMembers: [
+    { userId: 'mock-user-1', nickname: '웅이' },
+    { userId: 'mock-user-2', nickname: '날아다니는고양이수진' },
+    { userId: 'mock-user-withdrawn', nickname: '알 수 없는 멤버' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우the베스트오브더월드' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+};
+compareLinkStore.set('group-withdrawn', groupWithdrawnLink);
+
 // group-empty: 그룹 비교 링크 — 생성자만 있고 아무도 참여하지 않은 상태
 const groupEmptyLink: StoredCompareLink = {
   token: 'group-empty',
@@ -295,6 +318,22 @@ compareLinkStore.set('group-50', {
   groupMembers: buildLargeGroupMembers(50),
   isClosed: false,
   showGenderContent: true,
+});
+
+// withdrawn-1v1: 탈퇴 유저와의 1:1 비교 (참여완료, 상대방 탈퇴)
+compareLinkStore.set('withdrawn-1v1', {
+  token: 'withdrawn-1v1',
+  type: 'ONE_TO_ONE',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: 'mock-user-withdrawn',
+  participantNickname: '알 수 없는 멤버',
+  status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
+  showGenderContent: false,
 });
 
 // marriage-1v1: 결혼 카테고리 1:1 비교 (참여완료)
@@ -534,6 +573,9 @@ export function joinCompareLink(
   return { success: true, message: '참여 완료' };
 }
 
+/** 탈퇴 유저 목록 (MSW 시뮬레이션) */
+const WITHDRAWN_USER_IDS = new Set(['mock-user-withdrawn']);
+
 /** 1:1 비교 결과 생성 */
 export function getCompareResult(token: string, currentUserId: string): CompareResult | null {
   const link = compareLinkStore.get(token);
@@ -562,7 +604,13 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
   const meAnswers = isCreator ? creatorAnswers : participantAnswers;
   const targetAnswers = isCreator ? participantAnswers : creatorAnswers;
   const meNickname = isCreator ? link.creatorNickname : link.participantNickname!;
-  const targetNickname = isCreator ? link.participantNickname! : link.creatorNickname;
+  const targetUserId = isCreator ? link.participantUserId : link.creatorUserId;
+  const isTargetWithdrawn = WITHDRAWN_USER_IDS.has(targetUserId);
+  const targetNickname = isTargetWithdrawn
+    ? '알 수 없는 멤버'
+    : isCreator
+      ? link.participantNickname!
+      : link.creatorNickname;
 
   // 일치 수 계산
   let matchCount = 0;
@@ -586,6 +634,7 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     },
     target: {
       nickname: targetNickname,
+      isWithdrawn: isTargetWithdrawn || undefined,
       answers: targetAnswers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
     },
     questionStats: elections.map((e, i) => {

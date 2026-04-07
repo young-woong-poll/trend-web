@@ -31,7 +31,7 @@ import {
   calcGroupAwards,
   calcGroupSyncRate,
 } from '@/constants/group-compare';
-import { GHOST_USER_PREFIX } from '@/constants/profileColors';
+import { GHOST_USER_PREFIX, WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
@@ -92,7 +92,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
     const realMembers = result.members.map((m) => ({
       ...m,
-      nickname: m.displayName ?? m.nickname,
+      // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
+      nickname: m.isWithdrawn ? WITHDRAWN_NICKNAME : (m.displayName ?? m.nickname),
     }));
 
     // 프리뷰: 가상 멤버 3명 추가

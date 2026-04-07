@@ -51,18 +51,28 @@ export const getGradientByIndex = (index: number): string => {
 /** 가상 멤버(고스트) 프로필 그라데이션 — 무채색 */
 export const GHOST_GRADIENT = 'linear-gradient(135deg, #555, #3a3a3a)';
 
+/** 탈퇴 유저 프로필 그라데이션 — 무채색 */
+export const WITHDRAWN_GRADIENT = 'linear-gradient(135deg, #4a4a4a, #333)';
+
+/** 탈퇴 유저 FE 방어용 기본 닉네임 */
+export const WITHDRAWN_NICKNAME = '알 수 없는 멤버';
+
 /** 가상 멤버 userId 프리픽스 */
 export const GHOST_USER_PREFIX = '__ghost__';
 
 /** userId가 가상 멤버인지 확인 */
 export const isGhostUser = (userId: string): boolean => userId.startsWith(GHOST_USER_PREFIX);
 
-/** 멤버 아바타 그라데이션 (displayProfileColor 우선 → 가상 멤버면 회색 → 인덱스 기반) */
+/** 멤버 아바타 그라데이션 (탈퇴 유저 → displayProfileColor 우선 → 가상 멤버면 회색 → 인덱스 기반) */
 export const getMemberGradient = (
   index: number,
   userId?: string,
-  profileColor?: string
+  profileColor?: string,
+  isWithdrawn?: boolean
 ): string => {
+  if (isWithdrawn) {
+    return WITHDRAWN_GRADIENT;
+  }
   if (profileColor) {
     return getProfileGradient(profileColor);
   }

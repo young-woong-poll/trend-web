@@ -16,6 +16,7 @@ import styles from '@/components/features/Compare/CompareResult/CompareResult.mo
 import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
+import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useCompareLink, useCompareResult } from '@/hooks/api/useCompare';
@@ -217,6 +218,9 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // ─── 실제 결과 ───
   const shockPoint = findShockPoint(result);
   const storyData = classifyAnswers(result);
+  const isTargetWithdrawn = result.target.isWithdrawn === true;
+  // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
+  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : result.target.nickname;
 
   return (
     <BundleBackground categoryCode={result.categoryCode}>
@@ -229,21 +233,22 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <ChemistryCard
           matchRate={result.matchRate}
           myNickname={result.me.nickname}
-          targetNickname={result.target.nickname}
+          targetNickname={targetNickname}
           bundleTitle={result.bundleTitle}
+          isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
           myNickname={result.me.nickname}
-          targetNickname={result.target.nickname}
+          targetNickname={targetNickname}
         />
 
         {shockPoint && (
           <ShockPoint
             data={shockPoint}
             myNickname={result.me.nickname}
-            targetNickname={result.target.nickname}
+            targetNickname={targetNickname}
           />
         )}
 

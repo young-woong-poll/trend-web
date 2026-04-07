@@ -2,6 +2,9 @@
 import { bundleAnswerStore, mockBundleElections, mockBundleDetails } from '@/mocks/data/bundles';
 import type { GroupCompareResult } from '@/types/group-compare';
 
+/** 탈퇴 유저 목록 (MSW 시뮬레이션) */
+const WITHDRAWN_USER_IDS = new Set(['mock-user-withdrawn']);
+
 /** Mock 성별/생년 데이터 */
 const MOCK_PROFILES: Record<string, { gender: 'MALE' | 'FEMALE'; birthYear: number }> = {
   'mock-user-1': { gender: 'MALE', birthYear: 1995 },
@@ -53,13 +56,15 @@ export function getGroupCompareResult(
         return null;
       }
       const profile = getMockProfile(info.userId);
+      const isWithdrawn = WITHDRAWN_USER_IDS.has(info.userId);
       return {
         userId: info.userId,
-        nickname: info.nickname,
-        displayName: info.displayName ?? info.nickname,
-        displayProfileColor: info.displayProfileColor,
-        gender: profile.gender,
+        nickname: isWithdrawn ? '알 수 없는 멤버' : info.nickname,
+        displayName: isWithdrawn ? '알 수 없는 멤버' : (info.displayName ?? info.nickname),
+        displayProfileColor: isWithdrawn ? 'GRAY' : info.displayProfileColor,
+        gender: isWithdrawn ? undefined : profile.gender,
         birthYear: profile.birthYear,
+        isWithdrawn: isWithdrawn || undefined,
         answers: answers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
       };
     })
