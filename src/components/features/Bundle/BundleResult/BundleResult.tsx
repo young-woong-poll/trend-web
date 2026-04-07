@@ -33,6 +33,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const compareToken =
     searchParams.get('compareToken') ??
     (searchParams.get('from') === 'compare' ? searchParams.get('token') : null);
+  const fromGroup = searchParams.get('from') === 'group';
   const joinMutation = useJoinCompareLink(compareToken ?? '');
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -126,12 +127,12 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   return (
     <BundleBackground categoryCode={bundle?.categoryCode}>
       <div className={styles.container}>
-        {compareToken && (
+        {(compareToken || fromGroup) && (
           <button
             type="button"
             className={styles.backButton}
-            onClick={() => router.push(`/compare/match/${compareToken}`)}
-            aria-label="비교 결과로 돌아가기"
+            onClick={() => router.back()}
+            aria-label="뒤로 가기"
           >
             <BackIcon width={22} height={22} />
           </button>

@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
+import BackIcon from '@/assets/icon/BackIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
@@ -42,6 +43,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const { data: result, isLoading } = useCompareResult(token);
   const { data: link } = useCompareLink(token);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromGroup = searchParams.get('from') === 'group';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -225,6 +228,17 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   return (
     <BundleBackground categoryCode={result.categoryCode}>
       <div className={styles.container}>
+        {fromGroup && (
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => router.back()}
+            aria-label="그룹 결과로 돌아가기"
+          >
+            <BackIcon width={22} height={22} />
+          </button>
+        )}
+
         <div className={styles.resultHeader}>
           <CategoryBadge categoryCode={result.categoryCode} />
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>

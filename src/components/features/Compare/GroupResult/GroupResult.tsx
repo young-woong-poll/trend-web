@@ -335,7 +335,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                 ? async (targetUserId: string) => {
                     try {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
-                      router.push(`/compare/match/${res.token}`);
+                      router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
                       showToast('1:1 비교 생성에 실패했어요');
                     }
@@ -354,7 +354,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                 ? async (targetUserId: string) => {
                     try {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
-                      router.push(`/compare/match/${res.token}`);
+                      router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
                       showToast('1:1 비교 생성에 실패했어요');
                     }
@@ -385,7 +385,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             <button
               type="button"
               className={styles.secondaryCta}
-              onClick={() => router.push(`/bundle/${result.bundleSlug}/result`)}
+              onClick={() => router.push(`/bundle/${result.bundleSlug}/result?from=group`)}
             >
               내 결과 다시 보기
             </button>
