@@ -48,6 +48,13 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
 
   const handleToggleStatus = () => {
     const newStatus = stats.status === 'ACTIVE' ? 'CLOSED' : 'ACTIVE';
+    const message =
+      newStatus === 'CLOSED'
+        ? `"${stats.title}" 번들을 CLOSED로 변경하시겠습니까?\n유저가 더 이상 참여할 수 없게 됩니다.`
+        : `"${stats.title}" 번들을 다시 ACTIVE로 변경하시겠습니까?`;
+    if (!window.confirm(message)) {
+      return;
+    }
     updateBundle({ slug, data: { status: newStatus } });
   };
 
@@ -80,9 +87,6 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
           <span className={stats.status === 'ACTIVE' ? styles.statusActive : styles.statusClosed}>
             {stats.status}
           </span>
-          <Button variant="outline" size="small" onClick={handleToggleStatus} disabled={isUpdating}>
-            {stats.status === 'ACTIVE' ? 'CLOSED로 변경' : 'ACTIVE로 변경'}
-          </Button>
           <Button
             variant="outline"
             size="small"
@@ -90,14 +94,6 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
           >
             수정
           </Button>
-          <button
-            type="button"
-            className={styles.deleteButton}
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? '삭제 중...' : '삭제'}
-          </button>
         </div>
       </header>
 
@@ -123,6 +119,46 @@ export default function AdminBundleDashboard({ slug }: AdminBundleDashboardProps
         )}
         {activeTab === 'compareLinks' && <CompareLinksTab compareLinks={stats.compareLinks} />}
         {activeTab === 'questionStats' && <QuestionStatsTab questionStats={stats.questionStats} />}
+      </div>
+
+      <div className={styles.dangerZone}>
+        <h3 className={styles.dangerTitle}>위험 영역</h3>
+        <div className={styles.dangerActions}>
+          <div className={styles.dangerItem}>
+            <div>
+              <p className={styles.dangerLabel}>상태 변경</p>
+              <p className={styles.dangerDesc}>
+                {stats.status === 'ACTIVE'
+                  ? 'CLOSED로 변경하면 유저가 더 이상 참여할 수 없습니다.'
+                  : '다시 ACTIVE로 변경하면 유저가 참여할 수 있습니다.'}
+              </p>
+            </div>
+            <button
+              type="button"
+              className={styles.dangerButton}
+              onClick={handleToggleStatus}
+              disabled={isUpdating}
+            >
+              {stats.status === 'ACTIVE' ? 'CLOSED로 변경' : 'ACTIVE로 변경'}
+            </button>
+          </div>
+          <div className={styles.dangerItem}>
+            <div>
+              <p className={styles.dangerLabel}>번들 삭제</p>
+              <p className={styles.dangerDesc}>
+                이 번들을 영구적으로 삭제합니다. 되돌릴 수 없습니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              className={`${styles.dangerButton} ${styles.dangerButtonRed}`}
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? '삭제 중...' : '삭제'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

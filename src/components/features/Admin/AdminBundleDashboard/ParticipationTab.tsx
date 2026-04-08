@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+
 import styles from '@/components/features/Admin/AdminBundleDashboard/AdminBundleDashboard.module.scss';
 import type { DailyStat } from '@/types/admin-bundle';
 
@@ -15,6 +19,7 @@ export default function ParticipationTab({
   compareLinkCount,
 }: ParticipationTabProps) {
   const maxCount = Math.max(...participation.dailyStats.map((d) => d.count), 1);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <div>
@@ -36,12 +41,22 @@ export default function ParticipationTab({
       <div className={styles.chartSection}>
         <div className={styles.chartTitle}>일별 참여자 추이 (최근 14일)</div>
         <div className={styles.barChart}>
-          {participation.dailyStats.map((stat) => (
-            <div key={stat.date} className={styles.barWrapper}>
+          {participation.dailyStats.map((stat, index) => (
+            <div
+              key={stat.date}
+              className={styles.barWrapper}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {hoveredIndex === index && (
+                <div className={styles.barTooltip}>
+                  <strong>{stat.count}명</strong>
+                  <span>{stat.date.slice(5)}</span>
+                </div>
+              )}
               <div
-                className={styles.bar}
+                className={`${styles.bar} ${hoveredIndex === index ? styles.barHovered : ''}`}
                 style={{ height: `${(stat.count / maxCount) * 100}%` }}
-                title={`${stat.date}: ${stat.count}명`}
               />
             </div>
           ))}
