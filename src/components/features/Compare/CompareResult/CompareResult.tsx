@@ -44,7 +44,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const { data: link } = useCompareLink(token);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fromGroup = searchParams.get('from') === 'group';
+  const fromParam = searchParams.get('from');
+  const showBack = fromParam === 'group' || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -228,7 +229,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   return (
     <BundleBackground categoryCode={result.categoryCode}>
       <div className={styles.container}>
-        {fromGroup && (
+        {showBack && (
           <button
             type="button"
             className={styles.backButton}

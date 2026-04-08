@@ -1,0 +1,32 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px $spacing-16;
+}
+
+.message {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  text-align: center;
+}
+
+.loginButton {
+  padding: 10px 24px;
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.04);
+  color: $text-secondary;
+  font-size: $font-size-14;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(#fff, 0.08);
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -9,19 +9,29 @@ import { LazyMotion, domAnimation } from 'framer-motion';
 import { CardList } from '@/components/features/Main/CardList/CardList';
 import { ContentTabs } from '@/components/features/Main/ContentTabs';
 import styles from '@/components/features/Main/MainContent.module.scss';
+import { MyBundleList } from '@/components/features/Main/MyBundleList/MyBundleList';
+import { MyLoginPrompt } from '@/components/features/Main/MyLoginPrompt/MyLoginPrompt';
+import { MySubTabs } from '@/components/features/Main/MySubTabs/MySubTabs';
 import { TopRankingList } from '@/components/features/Main/TopRankingList/TopRankingList';
 import { TopSubFilter } from '@/components/features/Main/TopSubFilter/TopSubFilter';
+import LikedHotpickList from '@/components/features/MyPage/LikedHotpickList';
+import MyCommentList from '@/components/features/MyPage/MyCommentList';
 import type { CategoryFilterItem } from '@/constants/category';
 import {
   DEFAULT_TOP_PERIOD,
   DEFAULT_TAB,
+  DEFAULT_MY_SUB_TAB_GUEST,
+  DEFAULT_MY_SUB_TAB_LOGGED_IN,
   type TopPeriod,
   type TabSelection,
   type FilterTabType,
+  type MySubTabType,
 } from '@/constants/contentTab';
+import { useAuth } from '@/contexts/AuthContext';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
 import type { CategoryTabResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
+import { useMyBundles } from '@/hooks/api/useMyBundles';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import { toCardModel } from '@/lib/mappers/cardMapper';
 
@@ -157,7 +167,22 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   const [topPeriod, setTopPeriod] = useState<TopPeriod>(DEFAULT_TOP_PERIOD);
   const [topCategory, setTopCategory] = useState<string | null>(null);
 
+  // My 하위 탭 상태
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const [mySubTab, setMySubTab] = useState<MySubTabType>(DEFAULT_MY_SUB_TAB_GUEST);
+  const mySubTabSynced = useRef(false);
+
+  // auth 로딩 완료 후 로그인 상태에 맞게 기본 탭 동기화
+  useEffect(() => {
+    if (!isAuthLoading && !mySubTabSynced.current) {
+      mySubTabSynced.current = true;
+      setMySubTab(isLoggedIn ? DEFAULT_MY_SUB_TAB_LOGGED_IN : DEFAULT_MY_SUB_TAB_GUEST);
+    }
+  }, [isAuthLoading, isLoggedIn]);
+
   const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
+  const isMyTab = selectedTab.kind === 'filter' && selectedTab.type === 'my';
+  const { data: myBundles } = useMyBundles(isMyTab && isLoggedIn && mySubTab === 'compare');
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
     ? apiCategories
@@ -239,7 +264,12 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
         />
       )}
 
-      <div className={`${styles.container} ${isTopTab ? styles.containerWithSubFilter : ''}`}>
+      {/* My 하위 탭 — MY 탭 활성 시에만 표시 */}
+      {isMyTab && <MySubTabs activeTab={mySubTab} onChange={setMySubTab} />}
+
+      <div
+        className={`${styles.container} ${isTopTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}
+      >
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
             {isTopTab ? (
@@ -250,7 +280,29 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
                 isFetching={isFetching}
                 emptyState={emptyState}
               />
+            ) : isMyTab && mySubTab !== 'vote' ? (
+              // My 탭: 비교/댓글/좋아요 하위 탭
+              mySubTab === 'compare' ? (
+                isLoggedIn ? (
+                  <MyBundleList bundles={myBundles ?? []} />
+                ) : (
+                  <MyLoginPrompt tab="compare" />
+                )
+              ) : mySubTab === 'comments' ? (
+                isLoggedIn ? (
+                  <MyCommentList />
+                ) : (
+                  <MyLoginPrompt tab="comments" />
+                )
+              ) : mySubTab === 'likes' ? (
+                isLoggedIn ? (
+                  <LikedHotpickList />
+                ) : (
+                  <MyLoginPrompt tab="likes" />
+                )
+              ) : null
             ) : (
+              // NEW/카테고리/My+투표 탭: 기존 CardList
               <CardList
                 cards={cards}
                 isLoading={isLoading}

@@ -2,10 +2,11 @@
 
 import { useMemo, useState, type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
+import BackIcon from '@/assets/icon/BackIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
@@ -73,6 +74,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const updateMyProfileMutation = useUpdateMyGroupProfile(token);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const showBack = searchParams.get('from') === 'my';
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
@@ -262,6 +265,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   return (
     <BundleBackground categoryCode={result?.categoryCode}>
       <div className={styles.container}>
+        {showBack && (
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => router.back()}
+            aria-label="마이 탭으로 돌아가기"
+          >
+            <BackIcon width={22} height={22} />
+          </button>
+        )}
         <div className={styles.heroSection}>
           {isPreview && (
             <div className={styles.previewBanner}>

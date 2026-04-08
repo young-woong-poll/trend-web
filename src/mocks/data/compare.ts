@@ -576,6 +576,55 @@ export function joinCompareLink(
 /** 탈퇴 유저 목록 (MSW 시뮬레이션) */
 const WITHDRAWN_USER_IDS = new Set(['mock-user-withdrawn']);
 
+/** 내 비교 링크 목록 조회 (특정 번들) */
+export function getMyCompareLinks(
+  slug: string,
+  userId: string
+): Array<{
+  token: string;
+  type: 'ONE_TO_ONE' | 'GROUP';
+  status: 'WAITING' | 'COMPLETED';
+  createdAt: string;
+  participantNickname: string | null;
+  groupName: string | null;
+  memberCount: number;
+}> {
+  const links: Array<{
+    token: string;
+    type: 'ONE_TO_ONE' | 'GROUP';
+    status: 'WAITING' | 'COMPLETED';
+    createdAt: string;
+    participantNickname: string | null;
+    groupName: string | null;
+    memberCount: number;
+  }> = [];
+
+  for (const [, link] of compareLinkStore) {
+    if (link.bundleSlug !== slug) {
+      continue;
+    }
+    const isMyLink =
+      link.creatorUserId === userId ||
+      link.participantUserId === userId ||
+      link.groupMembers.some((m) => m.userId === userId);
+    if (!isMyLink) {
+      continue;
+    }
+
+    links.push({
+      token: link.token,
+      type: link.type,
+      status: link.status === 'CLOSED' ? 'COMPLETED' : link.status,
+      createdAt: new Date().toISOString(),
+      participantNickname: link.participantNickname,
+      groupName: link.groupName,
+      memberCount: link.groupMembers.length,
+    });
+  }
+
+  return links;
+}
+
 /** 1:1 비교 결과 생성 */
 export function getCompareResult(token: string, currentUserId: string): CompareResult | null {
   const link = compareLinkStore.get(token);
