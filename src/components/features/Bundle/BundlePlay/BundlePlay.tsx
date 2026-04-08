@@ -12,6 +12,7 @@ import { ProgressBar } from '@/components/features/Bundle/BundlePlay/ProgressBar
 import { QuestionCard } from '@/components/features/Bundle/BundlePlay/QuestionCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail, useBundleElections, useSubmitBundleAnswers } from '@/hooks/api/useBundle';
+import { trackBundleAnswer, trackBundleComplete } from '@/lib/analytics';
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -80,6 +81,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       }
       const election = elections[currentIndex];
       setAnswers((prev) => new Map(prev).set(election.electionId, choice));
+      trackBundleAnswer(slug, currentIndex, choice);
 
       if (autoAdvanceTimer.current) {
         clearTimeout(autoAdvanceTimer.current);
@@ -130,6 +132,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     try {
       await submitMutation.mutateAsync({ answers: answerData });
+      trackBundleComplete(slug, elections.length);
       if (returnUrl) {
         router.push(returnUrl);
       } else if (compareToken) {

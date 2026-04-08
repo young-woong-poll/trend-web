@@ -11,6 +11,7 @@ import styles from '@/components/features/Bundle/BundleResult/CreateCompareLink.
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import { trackCompareCreate, trackCompareShare } from '@/lib/analytics';
 import type { CategoryCode } from '@/types/hotpick';
 
 interface CreateCompareLinkProps {
@@ -18,6 +19,7 @@ interface CreateCompareLinkProps {
   categoryCode?: CategoryCode;
   bundleTitle?: string;
   onClose: () => void;
+  source?: string;
 }
 
 export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
@@ -25,6 +27,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
   categoryCode,
   bundleTitle,
   onClose,
+  source = 'bundle_result',
 }) => {
   const createMutation = useCreateCompareLink(slug);
   const { toast, showToast } = useToast();
@@ -41,6 +44,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     createMutation.mutate(
       { type: 'ONE_TO_ONE' },
       {
+        onSuccess: () => trackCompareCreate(slug, 'ONE_TO_ONE', source),
         onError: () => {
           showToast('링크 생성에 실패했습니다. 번들을 먼저 완료해주세요.');
           onClose();
@@ -69,6 +73,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     }
     try {
       await navigator.clipboard.writeText(shareUrl);
+      trackCompareShare(slug, 'copy', 'ONE_TO_ONE', source);
       showToast('링크가 복사되었습니다');
     } catch {
       showToast('복사에 실패했습니다');

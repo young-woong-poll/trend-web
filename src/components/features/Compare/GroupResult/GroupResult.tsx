@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -43,6 +43,7 @@ import {
   useUpdateMyGroupProfile,
 } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import { trackGroupResult } from '@/lib/analytics';
 
 /** 네트워크 그래프 → 케미 랭킹 전환 임계값 */
 const NETWORK_THRESHOLD = 16;
@@ -83,6 +84,13 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const { toast, showToast } = useToast();
+
+  // GA4: 그룹 비교 결과 조회
+  useEffect(() => {
+    if (result && result.members.length > 1) {
+      trackGroupResult(result.bundleSlug, result.memberCount);
+    }
+  }, [result]);
 
   // 프리뷰 모드: 실제 멤버가 1명뿐일 때 가상 멤버 3명을 주입
   const isPreview = result?.members.length === 1;

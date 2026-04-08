@@ -1,8 +1,8 @@
 'use client';
 
-import type { FC } from 'react';
+import { useEffect, type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import CompareOneIcon from '@/assets/icon/CompareOneIcon';
@@ -16,6 +16,7 @@ import { getCompareHook } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail } from '@/hooks/api/useBundle';
 import { useCountUp } from '@/hooks/useCountUp';
+import { trackBundleView, trackBundleStart } from '@/lib/analytics';
 import { formatCount } from '@/lib/utils';
 
 interface BundleIntroProps {
@@ -26,7 +27,17 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   const { data: bundle, isLoading } = useBundleDetail(slug);
   const { isLoggedIn, requireLogin } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const animatedCount = useCountUp(bundle?.participantCount ?? 0);
+  const compareHook = getCompareHook(slug);
+
+  // GA4: 번들 인트로 조회
+  useEffect(() => {
+    if (bundle) {
+      const entryPoint = searchParams.get('compareToken') ? 'compare_link' : 'direct';
+      trackBundleView(slug, entryPoint);
+    }
+  }, [bundle, slug, searchParams]);
 
   if (isLoading) {
     return (
@@ -48,9 +59,8 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
     );
   }
 
-  const compareHook = getCompareHook(slug);
-
   const handleStart = () => {
+    trackBundleStart(slug);
     if (!isLoggedIn) {
       // 로그인 후 바로 플레이로 넘어가도록 returnUrl 세팅
       const dest = bundle.completed ? `/bundle/${slug}/result` : `/bundle/${slug}/play`;

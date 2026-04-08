@@ -1,0 +1,520 @@
+@use '@/styles/variables' as *;
+
+.container {
+  padding: 2rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1rem;
+  color: $text-tertiary;
+}
+
+// ── 헤더 ──
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: $text-tertiary;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0;
+  text-align: left;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.slug {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: $text-tertiary;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.statusActive {
+  color: #4ade80;
+  font-weight: $font-weight-semibold;
+  font-size: 0.8rem;
+}
+
+.statusClosed {
+  color: $text-tertiary;
+  font-weight: $font-weight-semibold;
+  font-size: 0.8rem;
+}
+
+// ── 탭 ──
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 2rem;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.8rem;
+  color: $text-tertiary;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.tabActive {
+  color: #121212;
+  background: #dfff00;
+  border-radius: 6px 6px 0 0;
+  font-weight: $font-weight-semibold;
+  border-bottom-color: #dfff00;
+}
+
+.tabContent {
+  min-height: 300px;
+}
+
+// ── 공통 통계 카드 ──
+
+.statCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px 16px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: $font-weight-bold;
+  color: $white;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: $text-tertiary;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// ── 참여 현황 차트 ──
+
+.chartSection {
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px;
+  border-radius: 10px;
+}
+
+.chartTitle {
+  font-size: 0.75rem;
+  color: $text-tertiary;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.barChart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 140px;
+  padding-bottom: 4px;
+}
+
+.barWrapper {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  position: relative;
+  cursor: pointer;
+}
+
+.barTooltip {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 4px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
+
+  strong {
+    font-size: 0.75rem;
+    color: $white;
+    font-weight: $font-weight-semibold;
+    font-variant-numeric: tabular-nums;
+  }
+
+  span {
+    font-size: 0.6rem;
+    color: $text-tertiary;
+  }
+}
+
+.bar {
+  width: 100%;
+  background: #4ade80;
+  border-radius: 4px 4px 0 0;
+  min-height: 6px;
+  transition: all 0.15s ease;
+  opacity: 0.6;
+}
+
+.barHovered {
+  opacity: 1;
+}
+
+.chartXAxis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: $text-tertiary;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── 비교 링크 테이블 ──
+
+.linkTableWrapper {
+  overflow-x: auto;
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.linkTable {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: $font-weight-semibold;
+      color: $text-tertiary;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background-color 0.1s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 10px 16px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+    }
+  }
+}
+
+.typeGroup {
+  display: inline-block;
+  background: rgba(59, 130, 246, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: $font-weight-semibold;
+  color: #93c5fd;
+}
+
+.typeOneToOne {
+  display: inline-block;
+  background: rgba(168, 85, 247, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: $font-weight-semibold;
+  color: #c4b5fd;
+}
+
+.creator {
+  color: $text-tertiary;
+  font-size: 0.75rem;
+}
+
+.statusCompleted {
+  color: #4ade80;
+}
+
+.statusWaiting {
+  color: #fbbf24;
+}
+
+.dateCell {
+  color: $text-tertiary;
+  font-variant-numeric: tabular-nums;
+}
+
+.tokenCell {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: $text-tertiary;
+}
+
+.emptyTab {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: $text-tertiary;
+  font-size: 0.85rem;
+}
+
+// ── 질문별 통계 ──
+
+.questionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.questionCard {
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.questionTitle {
+  font-size: 0.85rem;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: 14px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.optionLabel {
+  font-size: 0.8rem;
+  color: $text-secondary;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.barTrack {
+  flex: 1;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  transition: width 0.3s ease;
+}
+
+.barWinning {
+  background: #4ade80;
+}
+
+.barPercent {
+  font-size: 0.75rem;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.optionCount {
+  font-size: 0.75rem;
+  color: $text-tertiary;
+  min-width: 45px;
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── 위험 영역 ──
+
+.dangerZone {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dangerTitle {
+  font-size: 0.75rem;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 1rem;
+}
+
+.dangerActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dangerItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.dangerLabel {
+  font-size: 0.8rem;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  margin: 0 0 2px;
+}
+
+.dangerDesc {
+  font-size: 0.7rem;
+  color: $text-tertiary;
+  margin: 0;
+}
+
+.dangerButton {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.dangerButtonRed {
+  color: #ef4444;
+  background: rgba(#ef4444, 0.06);
+  border-color: rgba(#ef4444, 0.15);
+
+  &:hover {
+    background: rgba(#ef4444, 0.12);
+    border-color: rgba(#ef4444, 0.3);
+  }
+}
+
+// ── 반응형 ──
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .headerLeft h1 {
+    font-size: 1.25rem;
+  }
+
+  .statCards {
+    grid-template-columns: 1fr;
+  }
+
+  .optionLabel {
+    min-width: 60px;
+    font-size: 0.75rem;
+  }
+}

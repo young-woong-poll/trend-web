@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useCompareLink, useCompareResult } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
+import { trackCompareResult } from '@/lib/analytics';
 
 interface CompareResultProps {
   token: string;
@@ -53,6 +54,13 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // 프리뷰 모드: 결과 없음 + 생성자
   const isPreview = !result && !isLoading && !!link?.isCreator;
   const { data: myBundleResult } = useBundleMyResult(isPreview ? (link?.bundleSlug ?? '') : '');
+
+  // GA4: 1:1 비교 결과 조회
+  useEffect(() => {
+    if (result) {
+      trackCompareResult(result.bundleSlug);
+    }
+  }, [result]);
 
   // 접근제어: 비로그인 → compare 랜딩 + 로그인 유도
   useEffect(() => {
