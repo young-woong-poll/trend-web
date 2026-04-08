@@ -25,6 +25,7 @@ interface ChemistryCardProps {
   myNickname: string;
   targetNickname: string;
   bundleTitle: string;
+  isTargetWithdrawn?: boolean;
 }
 
 export const ChemistryCard: FC<ChemistryCardProps> = ({
@@ -32,6 +33,7 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
   myNickname,
   targetNickname,
   bundleTitle,
+  isTargetWithdrawn,
 }) => {
   const chemistry = getChemistryByRate(matchRate);
   const [showGradeInfo, setShowGradeInfo] = useState(false);
@@ -70,7 +72,13 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
           {myNickname}
         </span>
         <span className={styles.vs}>×</span>
-        <span className={styles.targetName} style={{ color: IDENTITY_COLORS.target.main }}>
+        <span
+          className={styles.targetName}
+          style={{
+            color: isTargetWithdrawn ? '#666' : IDENTITY_COLORS.target.main,
+            opacity: isTargetWithdrawn ? 0.6 : 1,
+          }}
+        >
           {targetNickname}
         </span>
       </div>

@@ -22,7 +22,7 @@ interface StoredCompareLink {
   participantNickname: string | null;
   status: 'WAITING' | 'COMPLETED' | 'CLOSED';
   groupName: string | null;
-  groupMembers: Array<{ userId: string; nickname: string }>;
+  groupMembers: Array<{ userId: string; nickname: string; displayProfileColor?: string }>;
   isClosed: boolean;
   showGenderContent: boolean;
 }
@@ -140,6 +140,29 @@ const groupSeedLink: StoredCompareLink = {
   showGenderContent: true,
 };
 compareLinkStore.set('group-abc', groupSeedLink);
+
+// group-withdrawn: 탈퇴 유저가 포함된 그룹 비교 (5명 중 1명 탈퇴)
+const groupWithdrawnLink: StoredCompareLink = {
+  token: 'group-withdrawn',
+  type: 'GROUP',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: null,
+  participantNickname: null,
+  status: 'COMPLETED',
+  groupName: '탈퇴 테스트 그룹',
+  groupMembers: [
+    { userId: 'mock-user-1', nickname: '웅이' },
+    { userId: 'mock-user-2', nickname: '날아다니는고양이수진' },
+    { userId: 'mock-user-withdrawn', nickname: '알 수 없는 멤버' },
+    { userId: 'mock-user-4', nickname: '지은' },
+    { userId: 'mock-user-5', nickname: '현우the베스트오브더월드' },
+  ],
+  isClosed: false,
+  showGenderContent: true,
+};
+compareLinkStore.set('group-withdrawn', groupWithdrawnLink);
 
 // group-empty: 그룹 비교 링크 — 생성자만 있고 아무도 참여하지 않은 상태
 const groupEmptyLink: StoredCompareLink = {
@@ -295,6 +318,22 @@ compareLinkStore.set('group-50', {
   groupMembers: buildLargeGroupMembers(50),
   isClosed: false,
   showGenderContent: true,
+});
+
+// withdrawn-1v1: 탈퇴 유저와의 1:1 비교 (참여완료, 상대방 탈퇴)
+compareLinkStore.set('withdrawn-1v1', {
+  token: 'withdrawn-1v1',
+  type: 'ONE_TO_ONE',
+  bundleSlug: 'love-values',
+  creatorUserId: 'mock-user-1',
+  creatorNickname: '웅이',
+  participantUserId: 'mock-user-withdrawn',
+  participantNickname: '알 수 없는 멤버',
+  status: 'COMPLETED',
+  groupName: null,
+  groupMembers: [],
+  isClosed: false,
+  showGenderContent: false,
 });
 
 // marriage-1v1: 결혼 카테고리 1:1 비교 (참여완료)
@@ -489,7 +528,8 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
 export function joinCompareLink(
   token: string,
   userId: string,
-  nickname: string
+  nickname: string,
+  profileColor?: string
 ): { success: boolean; message: string } {
   const link = compareLinkStore.get(token);
   if (!link) {
@@ -513,7 +553,7 @@ export function joinCompareLink(
     if (!bundleAnswerStore.has(`${userId}_${link.bundleSlug}`)) {
       return { success: false, message: '번들을 먼저 완료해주세요' };
     }
-    link.groupMembers.push({ userId, nickname });
+    link.groupMembers.push({ userId, nickname, displayProfileColor: profileColor });
     link.status = 'COMPLETED';
     return { success: true, message: '그룹 참여 완료' };
   }
@@ -531,6 +571,58 @@ export function joinCompareLink(
   link.participantNickname = nickname;
   link.status = 'COMPLETED';
   return { success: true, message: '참여 완료' };
+}
+
+/** 탈퇴 유저 목록 (MSW 시뮬레이션) */
+const WITHDRAWN_USER_IDS = new Set(['mock-user-withdrawn']);
+
+/** 내 비교 링크 목록 조회 (특정 번들) */
+export function getMyCompareLinks(
+  slug: string,
+  userId: string
+): Array<{
+  token: string;
+  type: 'ONE_TO_ONE' | 'GROUP';
+  status: 'WAITING' | 'COMPLETED';
+  createdAt: string;
+  participantNickname: string | null;
+  groupName: string | null;
+  memberCount: number;
+}> {
+  const links: Array<{
+    token: string;
+    type: 'ONE_TO_ONE' | 'GROUP';
+    status: 'WAITING' | 'COMPLETED';
+    createdAt: string;
+    participantNickname: string | null;
+    groupName: string | null;
+    memberCount: number;
+  }> = [];
+
+  for (const [, link] of compareLinkStore) {
+    if (link.bundleSlug !== slug) {
+      continue;
+    }
+    const isMyLink =
+      link.creatorUserId === userId ||
+      link.participantUserId === userId ||
+      link.groupMembers.some((m) => m.userId === userId);
+    if (!isMyLink) {
+      continue;
+    }
+
+    links.push({
+      token: link.token,
+      type: link.type,
+      status: link.status === 'CLOSED' ? 'COMPLETED' : link.status,
+      createdAt: new Date().toISOString(),
+      participantNickname: link.participantNickname,
+      groupName: link.groupName,
+      memberCount: link.groupMembers.length,
+    });
+  }
+
+  return links;
 }
 
 /** 1:1 비교 결과 생성 */
@@ -561,7 +653,13 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
   const meAnswers = isCreator ? creatorAnswers : participantAnswers;
   const targetAnswers = isCreator ? participantAnswers : creatorAnswers;
   const meNickname = isCreator ? link.creatorNickname : link.participantNickname!;
-  const targetNickname = isCreator ? link.participantNickname! : link.creatorNickname;
+  const targetUserId = isCreator ? link.participantUserId : link.creatorUserId;
+  const isTargetWithdrawn = WITHDRAWN_USER_IDS.has(targetUserId);
+  const targetNickname = isTargetWithdrawn
+    ? '알 수 없는 멤버'
+    : isCreator
+      ? link.participantNickname!
+      : link.creatorNickname;
 
   // 일치 수 계산
   let matchCount = 0;
@@ -585,6 +683,7 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     },
     target: {
       nickname: targetNickname,
+      isWithdrawn: isTargetWithdrawn || undefined,
       answers: targetAnswers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
     },
     questionStats: elections.map((e, i) => {

@@ -9,10 +9,12 @@ import type { PairChemistry } from '@/types/group-compare';
 
 interface ChemistryNetworkProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{ userId: string; nickname: string; isWithdrawn?: boolean }>;
   pairs: PairChemistry[];
   /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 패널 미노출) */
   onCompareRequest?: (targetUserId: string) => void;
+  /** 내 프로필 편집 콜백 (없으면 편집 버튼 미노출) */
+  onEditProfile?: () => void;
 }
 
 /** 등급별 색상 (S~D, getChemistryByRate 기준과 동일) */
@@ -90,6 +92,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
   members,
   pairs,
   onCompareRequest,
+  onEditProfile,
 }) => {
   // "나"를 12시 방향(index 0)에 고정
   const sortedMembers = useMemo(() => {
@@ -182,7 +185,13 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
     }
     const chemistry = getChemistryByRate(pair.matchRate);
     const tier = getMatchTier(pair.matchRate);
-    return { nickname: target.nickname, chemistry, tier, isGhost: isGhostUser(target.userId) };
+    return {
+      nickname: target.nickname,
+      chemistry,
+      tier,
+      isGhost: isGhostUser(target.userId),
+      isWithdrawn: target.isWithdrawn === true,
+    };
   }, [selectedUserId, currentUserId, pairs, members]);
 
   return (
@@ -289,6 +298,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
           const pos = positions[i];
           const active = isNodeActive(member.userId);
           const isSelected = selectedUserId === member.userId;
+          const isDimmed = isGhostUser(member.userId) || member.isWithdrawn === true;
 
           return (
             <button
@@ -299,9 +309,8 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
                 {
                   left: `${pos.x}%`,
                   top: `${pos.y}%`,
-                  '--node-color': isGhostUser(member.userId)
-                    ? '#555'
-                    : NODE_COLORS[i % NODE_COLORS.length].primary,
+                  '--node-color': isDimmed ? '#555' : NODE_COLORS[i % NODE_COLORS.length].primary,
+                  opacity: member.isWithdrawn ? 0.5 : undefined,
                 } as React.CSSProperties
               }
               onClick={() => handleNodeClick(member.userId)}
@@ -309,7 +318,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
               <div
                 className={styles.nodeCircle}
                 style={{
-                  background: isGhostUser(member.userId)
+                  background: isDimmed
                     ? '#444'
                     : active
                       ? NODE_COLORS[i % NODE_COLORS.length].gradient
@@ -335,32 +344,48 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
           : '멤버를 탭하면 전체 케미를 확인할 수 있어요'}
       </p>
 
-      {/* 선택된 멤버와의 케미 패널 */}
-      {selectedPairInfo && onCompareRequest && !selectedPairInfo.isGhost && (
+      {/* "나" 선택 시 프로필 편집 패널 */}
+      {selectedUserId === currentUserId && onEditProfile && (
         <div className={styles.comparePanel}>
-          <div className={styles.comparePanelInfo}>
-            <span
-              className={styles.comparePanelGrade}
-              style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
-            >
-              {selectedPairInfo.chemistry.grade}
-            </span>
-            <div className={styles.comparePanelText}>
-              <span className={styles.comparePanelNames}>
-                나 × {truncateName(selectedPairInfo.nickname, 8)}
-              </span>
-              <span className={styles.comparePanelTitle}>{selectedPairInfo.chemistry.title}</span>
-            </div>
+          <div className={styles.comparePanelText}>
+            <span className={styles.comparePanelNames}>내 프로필</span>
+            <span className={styles.comparePanelTitle}>표시 이름 · 프로필 색상</span>
           </div>
-          <button
-            type="button"
-            className={styles.comparePanelBtn}
-            onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
-          >
-            1:1 비교하기
+          <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
+            수정하기
           </button>
         </div>
       )}
+
+      {/* 선택된 멤버와의 케미 패널 (탈퇴 유저 제외) */}
+      {selectedPairInfo &&
+        onCompareRequest &&
+        !selectedPairInfo.isGhost &&
+        !selectedPairInfo.isWithdrawn && (
+          <div className={styles.comparePanel}>
+            <div className={styles.comparePanelInfo}>
+              <span
+                className={styles.comparePanelGrade}
+                style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
+              >
+                {selectedPairInfo.chemistry.grade}
+              </span>
+              <div className={styles.comparePanelText}>
+                <span className={styles.comparePanelNames}>
+                  나 × {truncateName(selectedPairInfo.nickname, 8)}
+                </span>
+                <span className={styles.comparePanelTitle}>{selectedPairInfo.chemistry.title}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className={styles.comparePanelBtn}
+              onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
+            >
+              1:1 비교하기
+            </button>
+          </div>
+        )}
     </div>
   );
 };

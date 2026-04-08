@@ -6,12 +6,11 @@ import { Modal } from '@/components/common/Modal/Modal';
 import styles from '@/components/features/Compare/DisplayNameModal/DisplayNameModal.module.scss';
 import { PROFILE_COLORS, getProfileGradient } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
-import { updateProfileColor } from '@/hooks/api/useNickname';
 
 interface DisplayNameModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (displayName: string) => void;
+  onConfirm: (displayName: string, profileColor: string) => void;
   isLoading?: boolean;
 }
 
@@ -21,7 +20,7 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
   onConfirm,
   isLoading,
 }) => {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const [name, setName] = useState(user?.nickname ?? '');
   const [useCurrentNickname, setUseCurrentNickname] = useState(true);
   const [selectedColor, setSelectedColor] = useState(user?.profileColor ?? 'purple');
@@ -40,16 +39,8 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
     }
   };
 
-  const handleConfirm = async () => {
-    if (selectedColor !== currentColor) {
-      try {
-        await updateProfileColor(selectedColor);
-        setUser(user ? { ...user, profileColor: selectedColor } : null);
-      } catch {
-        // 실패해도 참여는 진행
-      }
-    }
-    onConfirm(finalName);
+  const handleConfirm = () => {
+    onConfirm(finalName, selectedColor);
   };
 
   return (

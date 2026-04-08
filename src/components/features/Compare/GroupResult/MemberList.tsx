@@ -6,12 +6,17 @@ import { useRouter } from 'next/navigation';
 
 import styles from '@/components/features/Compare/GroupResult/MemberList.module.scss';
 import { getChemistryByRate } from '@/constants/bundle';
-import { getMemberGradient } from '@/constants/profileColors';
+import { getMemberGradient, WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface MemberListProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    displayProfileColor?: string;
+    isWithdrawn?: boolean;
+  }>;
   pairs: PairChemistry[];
   token: string;
 }
@@ -44,30 +49,44 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
           const chemistry = getMemberChemistry(member.userId);
           const matchRate = chemistry?.matchRate ?? 0;
           const grade = getChemistryByRate(matchRate);
+          const isWithdrawn = member.isWithdrawn === true;
+          const displayName = isWithdrawn ? WITHDRAWN_NICKNAME : member.nickname;
 
           return (
             <div
               key={member.userId}
               className={styles.memberCard}
-              onClick={() => handleMemberClick(member.userId)}
+              onClick={isWithdrawn ? undefined : () => handleMemberClick(member.userId)}
+              style={isWithdrawn ? { opacity: 0.5, cursor: 'default' } : undefined}
             >
               <div
                 className={styles.memberAvatar}
-                style={{ background: getMemberGradient(i, member.userId) }}
+                style={{
+                  background: getMemberGradient(
+                    i,
+                    member.userId,
+                    member.displayProfileColor,
+                    isWithdrawn
+                  ),
+                }}
               >
-                {member.nickname[0]}
+                {displayName[0]}
               </div>
               <div className={styles.memberInfo}>
-                <span className={styles.memberName}>{member.nickname}</span>
+                <span className={styles.memberName}>{displayName}</span>
                 <span className={styles.memberGrade}>
-                  {grade.grade} · {grade.title}
+                  {isWithdrawn ? '탈퇴한 멤버' : `${grade.grade} · ${grade.title}`}
                 </span>
               </div>
-              <div>
-                <span className={styles.memberRate}>{matchRate}</span>
-                <span className={styles.memberRateUnit}>%</span>
-              </div>
-              <span className={styles.arrow}>›</span>
+              {!isWithdrawn && (
+                <>
+                  <div>
+                    <span className={styles.memberRate}>{matchRate}</span>
+                    <span className={styles.memberRateUnit}>%</span>
+                  </div>
+                  <span className={styles.arrow}>›</span>
+                </>
+              )}
             </div>
           );
         })}

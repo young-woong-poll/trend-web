@@ -88,111 +88,6 @@
   margin: 0 -16px;
 }
 
-// ─── 탭 ───
-.tabs {
-  display: flex;
-  border-bottom: 1px solid #333;
-}
-
-.tab {
-  flex: 1;
-  padding: 14px 0;
-  text-align: center;
-  font-size: $font-size-14;
-  font-weight: $font-weight-semibold;
-  color: $text-tertiary;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  @include transition(all, 0.2s, ease);
-
-  &.active {
-    color: $white;
-    border-bottom-color: $primary-start;
-  }
-}
-
-// ─── 리스트 공통 ───
-.listContainer {
-  padding: 16px 0;
-  max-height: 594px; // 카드(66px) × 9개 ≒ 594px
-  overflow-y: auto;
-  scrollbar-width: thin;
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: $border-placeholder;
-    border-radius: 2px;
-  }
-}
-
-.card {
-  display: block;
-  background: $bg-secondary;
-  border-radius: $border-radius-lg;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  text-decoration: none;
-  @include transition(background, 0.2s, ease);
-
-  &:hover {
-    background: $bg-tertiary;
-  }
-}
-
-.cardTitle {
-  font-size: $font-size-14;
-  color: $text-secondary;
-  margin-bottom: 6px;
-  @include line-clamp(2);
-}
-
-.cardSub {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-  margin-bottom: 6px;
-}
-
-.cardDate {
-  font-size: 11px;
-  color: $border-placeholder;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 48px 0;
-  color: $text-tertiary;
-  font-size: $font-size-14;
-}
-
-.loadMoreButton {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  font-size: $font-size-14;
-  color: $text-secondary;
-  background: $bg-secondary;
-  border: 1px solid #333;
-  border-radius: $border-radius-md;
-  cursor: pointer;
-  text-align: center;
-  @include transition(background, 0.2s, ease);
-
-  &:hover {
-    background: $bg-tertiary;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
 // ─── 계정 관리 ───
 .accountSection {
   padding: 20px 0;
@@ -229,5 +124,89 @@
 
   &:hover {
     opacity: 0.8;
+  }
+}
+
+// ─── 댓글/좋아요 목록 (My 탭) ───
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 16px;
+}
+
+.card {
+  display: block;
+  padding: 16px 0;
+  text-decoration: none;
+  border-bottom: 1px solid #2c2c2c;
+  @include transition(background, 0.2s, ease);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  line-height: 1.5;
+  margin: 0;
+
+  // 2줄 말줄임
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardSub {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.cardDate {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 6px 0 0;
+}
+
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+}
+
+.loadMoreButton {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  margin-top: 8px;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: none;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    border-color: $text-tertiary;
+    color: $white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }

@@ -37,9 +37,16 @@ const STACK_MAX = 5;
 
 interface ChemistryRankingProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    displayProfileColor?: string;
+    isWithdrawn?: boolean;
+  }>;
   pairs: PairChemistry[];
   onCompareRequest?: (targetUserId: string) => void;
+  /** 내 프로필 편집 콜백 */
+  onEditProfile?: () => void;
 }
 
 // ─── PC 드래그 스크롤 훅 ───
@@ -102,6 +109,7 @@ interface GradeSectionProps {
     targetNickname: string;
     matchRate: number;
     memberIndex: number;
+    isWithdrawn?: boolean;
   }>;
   isOpen: boolean;
   onToggle: () => void;
@@ -169,7 +177,8 @@ const GradeSection: FC<GradeSectionProps> = ({
         <div ref={scrollRef} {...dragHandlers} className={styles.chipScroller}>
           {items.map((item) => {
             const itemGrade = getChemistryByRate(item.matchRate);
-            const canCompare = isMyView && onCompareRequest && !isGhostUser(item.targetId);
+            const canCompare =
+              isMyView && onCompareRequest && !isGhostUser(item.targetId) && !item.isWithdrawn;
             return (
               <div
                 key={item.targetId}
@@ -177,12 +186,20 @@ const GradeSection: FC<GradeSectionProps> = ({
                 tabIndex={canCompare ? 0 : undefined}
                 onClick={canCompare ? () => onCompareRequest(item.targetId) : undefined}
                 className={`${styles.chip} ${canCompare ? styles.chipTappable : ''}`}
-                style={{ borderColor: `${GRADE_COLORS[grade]}22` }}
+                style={{
+                  borderColor: `${GRADE_COLORS[grade]}22`,
+                  opacity: item.isWithdrawn ? 0.5 : undefined,
+                }}
               >
                 <div
                   className={styles.chipAvatar}
                   style={{
-                    background: getMemberGradient(item.memberIndex, item.targetId),
+                    background: getMemberGradient(
+                      item.memberIndex,
+                      item.targetId,
+                      undefined,
+                      item.isWithdrawn
+                    ),
                   }}
                 >
                   {item.targetNickname[0]}
@@ -193,7 +210,7 @@ const GradeSection: FC<GradeSectionProps> = ({
                     className={styles.chipRate}
                     style={{ color: GRADE_COLORS[itemGrade.grade] }}
                   >
-                    {item.matchRate}%
+                    {item.isWithdrawn ? '탈퇴' : `${item.matchRate}%`}
                   </span>
                 </div>
                 {canCompare && <span className={styles.chipArrow}>›</span>}
@@ -212,6 +229,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
   members,
   pairs,
   onCompareRequest,
+  onEditProfile,
 }) => {
   const [selectedUserId, setSelectedUserId] = useState(currentUserId);
   const [openGrade, setOpenGrade] = useState<ChemistryGrade | null>(null);
@@ -249,6 +267,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
         const isA = p.memberA === selectedUserId;
         const targetId = isA ? p.memberB : p.memberA;
         const targetNickname = isA ? p.nicknameB : p.nicknameA;
+        const targetMember = members.find((m) => m.userId === targetId);
         const memberIndex = members.findIndex((m) => m.userId === targetId);
         return {
           targetId,
@@ -256,6 +275,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
           matchRate: p.matchRate,
           memberIndex,
           grade: getChemistryByRate(p.matchRate).grade,
+          isWithdrawn: targetMember?.isWithdrawn,
         };
       });
 
@@ -325,11 +345,14 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
               key={m.userId}
               type="button"
               className={`${styles.memberChip} ${isActive ? styles.memberChipActive : ''}`}
+              style={m.isWithdrawn ? { opacity: 0.5 } : undefined}
               onClick={() => setSelectedUserId(m.userId)}
             >
               <div
                 className={`${styles.memberAvatar} ${isActive ? styles.memberAvatarActive : ''}`}
-                style={{ background: getMemberGradient(i, m.userId) }}
+                style={{
+                  background: getMemberGradient(i, m.userId, m.displayProfileColor, m.isWithdrawn),
+                }}
               >
                 {m.nickname[0]}
               </div>
@@ -340,6 +363,13 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
           );
         })}
       </div>
+
+      {/* "나" 기준일 때 프로필 편집 버튼 */}
+      {isMyView && onEditProfile && (
+        <button type="button" className={styles.editProfileBtn} onClick={onEditProfile}>
+          내 프로필 수정
+        </button>
+      )}
 
       {/* 요약: 등급 분포 바 */}
       <div className={styles.summaryCard}>

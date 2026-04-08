@@ -269,6 +269,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         <CreateCompareLink
           slug={link.bundleSlug}
           categoryCode={link.categoryCode}
+          bundleTitle={link.bundleTitle}
           onClose={() => setShowCreateLinkModal(false)}
         />
       )}

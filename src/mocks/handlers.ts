@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { getAdminBundleList, getAdminBundleStats } from '@/mocks/data/adminBundles';
 import {
+  bundleAnswerStore,
   mockBundleDetails,
   mockBundleElections,
   recordBundleAnswers,
@@ -13,6 +14,7 @@ import {
   getCompareLink,
   joinCompareLink,
   getCompareResult,
+  getMyCompareLinks,
   compareLinkStore,
 } from '@/mocks/data/compare';
 import { getMockElectionSeries } from '@/mocks/data/electionSeries';
@@ -283,6 +285,7 @@ export const handlers = [
   /**
    * 내 댓글 목록 조회
    * GET /api/users/me/comments
+   * cursor 기반 페이지네이션 (CursorPageResponseMyCommentResponse)
    */
   http.get(`${baseURL}/api/v1/users/me/comments`, ({ request }) => {
     if (!mockUser) {
@@ -292,20 +295,95 @@ export const handlers = [
       );
     }
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const cursor = url.searchParams.get('cursor');
     const size = parseInt(url.searchParams.get('size') ?? '20', 10);
 
-    const mockComments = Array.from({ length: size }, (_, i) => ({
-      hotpickSlug: `mock-hotpick-${(page - 1) * size + i}`,
-      hotpickTitle: `짜장면 vs 짬뽕, 당신의 선택은? #${(page - 1) * size + i + 1}`,
-      content: `이건 확실히 짜장면이죠! 비 오는 날엔 특히 짜장면이 최고입니다 ${(page - 1) * size + i + 1}`,
-      createdAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
-    }));
+    // 실제 핫픽 slug/title을 참조하는 리얼리스틱 댓글 데이터
+    const allComments = [
+      {
+        hotpickSlug: 'single-love',
+        hotpickTitle: '첫 데이트 장소는?',
+        content: '카페가 좋죠! 조용하게 대화하면서 서로를 알아갈 수 있어서',
+        createdAt: new Date(Date.now() - 1 * 3600000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-text-finance',
+        hotpickTitle: '적금 vs 주식?',
+        content: '요즘 금리가 높아져서 적금도 나쁘지 않은데... 주식이 장기적으로는 낫지 않나요?',
+        createdAt: new Date(Date.now() - 5 * 3600000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-img-coffee',
+        hotpickTitle: '아메리카노 vs 라떼?',
+        content: '아아는 진리입니다. 여름이든 겨울이든 아이스 아메리카노!',
+        createdAt: new Date(Date.now() - 12 * 3600000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-chicken',
+        hotpickTitle: '치킨은 후라이드 vs 양념?',
+        content: '양념 치킨 없이 못 삽니다. 매콤달콤 양념이 최고예요',
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-work',
+        hotpickTitle: '재택 vs 출근?',
+        content: '재택이 좋은데 자기관리가 안 되면 출근이 나을 수도... 하지만 재택!',
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-trend',
+        hotpickTitle: 'AI가 인간을 대체할까?',
+        content: 'AI가 보조 도구로는 좋지만 완전 대체는 아직 먼 얘기인 것 같아요',
+        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-movie',
+        hotpickTitle: '영화는 극장 vs OTT?',
+        content: '극장의 큰 화면과 사운드를 OTT가 따라올 수 있나요? 극장파입니다',
+        createdAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-beer',
+        hotpickTitle: '퇴근 후 한 잔: 맥주 vs 소주?',
+        content: '치맥의 나라에서 맥주를 안 고를 수가 없죠 ㅋㅋ',
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-img-pet',
+        hotpickTitle: '강아지 vs 고양이, 당신의 반려동물은?',
+        content: '강아지! 퇴근하면 달려오는 강아지한테 힐링 받아요',
+        createdAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-img-travel',
+        hotpickTitle: '여행지는 산 vs 바다?',
+        content: '바다 앞에서 맥주 한 잔이면 그게 천국이죠',
+        createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-morning',
+        hotpickTitle: '당신은 아침형 vs 저녁형?',
+        content: '저녁형인데 아침형이 되고 싶은 사람 여기 있습니다...',
+        createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+      },
+      {
+        hotpickSlug: 'single-game',
+        hotpickTitle: 'PC 게임 vs 모바일 게임?',
+        content: 'PC 게임이 몰입감은 최고인데 출퇴근에는 모바일이 편하고...',
+        createdAt: new Date(Date.now() - 9 * 86400000).toISOString(),
+      },
+    ];
+
+    const cursorIdx = cursor ? parseInt(cursor, 10) : 0;
+    const pageData = allComments.slice(cursorIdx, cursorIdx + size);
+    const nextIdx = cursorIdx + size;
+    const hasMore = nextIdx < allComments.length;
 
     return HttpResponse.json(
       wrapResponse({
-        data: mockComments,
-        meta: { page, totalPages: 3 },
+        data: pageData,
+        nextCursor: hasMore ? String(nextIdx) : undefined,
+        hasMore,
       })
     );
   }),
@@ -313,6 +391,7 @@ export const handlers = [
   /**
    * 좋아요한 핫픽 목록 조회
    * GET /api/users/me/likes
+   * cursor 기반 페이지네이션 (CursorPageResponseMyLikeResponse)
    */
   http.get(`${baseURL}/api/v1/users/me/likes`, ({ request }) => {
     if (!mockUser) {
@@ -322,21 +401,93 @@ export const handlers = [
       );
     }
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') ?? '1', 10);
+    const cursor = url.searchParams.get('cursor');
     const size = parseInt(url.searchParams.get('size') ?? '20', 10);
 
-    const mockLikes = Array.from({ length: size }, (_, i) => ({
-      hotpickId: (page - 1) * size + i + 1,
-      hotpickAlias: `mock-liked-hotpick-${(page - 1) * size + i}`,
-      hotpickTitle: `재택근무 vs 출근, 어디가 좋아? #${(page - 1) * size + i + 1}`,
-      optionSummary: '재택근무 vs 출근',
-      likedAt: new Date(Date.now() - ((page - 1) * size + i) * 86400000).toISOString(),
-    }));
+    // 실제 핫픽을 참조하는 좋아요 목 데이터
+    const allLikes = [
+      {
+        hotpickId: 201,
+        hotpickAlias: 'single-love',
+        hotpickTitle: '첫 데이트 장소는?',
+        optionSummary: '분위기 좋은 카페 vs 놀이공원',
+        likedAt: new Date(Date.now() - 2 * 3600000).toISOString(),
+      },
+      {
+        hotpickId: 401,
+        hotpickAlias: 'single-img-coffee',
+        hotpickTitle: '아메리카노 vs 라떼?',
+        optionSummary: '아메리카노 vs 라떼',
+        likedAt: new Date(Date.now() - 8 * 3600000).toISOString(),
+      },
+      {
+        hotpickId: 302,
+        hotpickAlias: 'single-chicken',
+        hotpickTitle: '치킨은 후라이드 vs 양념?',
+        optionSummary: '후라이드 vs 양념 vs 반반',
+        likedAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 206,
+        hotpickAlias: 'single-trend',
+        hotpickTitle: 'AI가 인간을 대체할까?',
+        optionSummary: '대체한다 vs 공존한다 vs 불가능하다',
+        likedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 402,
+        hotpickAlias: 'single-img-pet',
+        hotpickTitle: '강아지 vs 고양이, 당신의 반려동물은?',
+        optionSummary: '강아지 vs 고양이 vs 햄스터',
+        likedAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 413,
+        hotpickAlias: 'single-beer',
+        hotpickTitle: '퇴근 후 한 잔: 맥주 vs 소주?',
+        optionSummary: '맥주 vs 소주 vs 와인 vs 위스키',
+        likedAt: new Date(Date.now() - 4 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 403,
+        hotpickAlias: 'single-img-travel',
+        hotpickTitle: '여행지는 산 vs 바다?',
+        optionSummary: '산 vs 바다 vs 도시 vs 시골',
+        likedAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 411,
+        hotpickAlias: 'single-game',
+        hotpickTitle: 'PC 게임 vs 모바일 게임?',
+        optionSummary: 'PC 게임 vs 모바일 게임',
+        likedAt: new Date(Date.now() - 6 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 205,
+        hotpickAlias: 'single-work',
+        hotpickTitle: '재택 vs 출근?',
+        optionSummary: '재택근무 vs 사무실 출근',
+        likedAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+      },
+      {
+        hotpickId: 406,
+        hotpickAlias: 'single-movie',
+        hotpickTitle: '영화는 극장 vs OTT?',
+        optionSummary: '극장 vs OTT',
+        likedAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+      },
+    ];
+
+    const cursorIdx = cursor ? parseInt(cursor, 10) : 0;
+    const pageData = allLikes.slice(cursorIdx, cursorIdx + size);
+    const nextIdx = cursorIdx + size;
+    const hasMore = nextIdx < allLikes.length;
 
     return HttpResponse.json(
       wrapResponse({
-        data: mockLikes,
-        meta: { page, totalPages: 2 },
+        data: pageData,
+        nextCursor: hasMore ? String(nextIdx) : undefined,
+        hasMore,
       })
     );
   }),
@@ -359,22 +510,9 @@ export const handlers = [
 
     let hotpicks = [...(mockMainHotpicks.hotpicks ?? [])];
 
-    // 콘텐츠 필터: voted (투표한 핫픽만), closed (마감된 핫픽만)
-    if (filter === 'voted') {
-      hotpicks = hotpicks.filter((hp) => hp.election?.voted === true);
-    } else if (filter === 'closed') {
+    // closed 필터는 상태 병합 전에 적용 가능
+    if (filter === 'closed') {
       hotpicks = hotpicks.filter((hp) => hp.isExpired === true);
-    }
-
-    // 정렬
-    if (sort === 'hot' || sort === 'popular') {
-      hotpicks = [...hotpicks].sort(
-        (a, b) => (b.election?.totalVoteCount ?? 0) - (a.election?.totalVoteCount ?? 0)
-      );
-    } else if (sort === 'latest') {
-      hotpicks = [...hotpicks].sort(
-        (a, b) => new Date(b.expiredAt ?? 0).getTime() - new Date(a.expiredAt ?? 0).getTime()
-      );
     }
 
     // 카테고리 필터링 ("all" 또는 빈값은 전체 조회)
@@ -433,6 +571,22 @@ export const handlers = [
 
       return updated;
     });
+
+    // voted 필터는 상태 병합 후에 적용 (voteStore 반영 필요)
+    if (filter === 'voted') {
+      hotpicks = hotpicks.filter((hp) => hp.election?.voted === true);
+    }
+
+    // 정렬
+    if (sort === 'hot' || sort === 'popular') {
+      hotpicks = [...hotpicks].sort(
+        (a, b) => (b.election?.totalVoteCount ?? 0) - (a.election?.totalVoteCount ?? 0)
+      );
+    } else if (sort === 'latest') {
+      hotpicks = [...hotpicks].sort(
+        (a, b) => new Date(b.expiredAt ?? 0).getTime() - new Date(a.expiredAt ?? 0).getTime()
+      );
+    }
 
     // 커서 기반 페이지네이션
     const cursor = url.searchParams.get('cursor');
@@ -1131,6 +1285,28 @@ export const handlers = [
 
   // ─── 번들 API ───
 
+  /** GET /api/v1/bundles — 번들 목록 */
+  http.get(`${baseURL}/api/v1/bundles`, ({ request }) => {
+    const url = new URL(request.url);
+    const filter = url.searchParams.get('filter');
+    const allBundles = Object.values(mockBundleDetails);
+
+    if (filter === 'completed') {
+      // mock-user-1이 완료한 번들만
+      const completed = allBundles.filter((b) => bundleAnswerStore.has(`mock-user-1_${b.slug}`));
+      return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: completed });
+    }
+
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: allBundles });
+  }),
+
+  /** GET /api/v1/bundles/{slug}/my-compare-links — 내 비교 링크 목록 */
+  http.get(`${baseURL}/api/v1/bundles/:slug/my-compare-links`, ({ params }) => {
+    const slug = params.slug as string;
+    const links = getMyCompareLinks(slug, 'mock-user-1');
+    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: links });
+  }),
+
   /** GET /api/v1/bundles/{slug}/elections — 번들 질문 목록 */
   http.get(`${baseURL}/api/v1/bundles/:slug/elections`, ({ params }) => {
     const slug = params.slug as string;
@@ -1141,7 +1317,11 @@ export const handlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: elections });
+    return HttpResponse.json({
+      code: 'SUCCESS',
+      message: '성공',
+      data: elections,
+    });
   }),
 
   /** GET /api/v1/bundles/{slug} — 번들 상세 (인트로) */
@@ -1280,10 +1460,19 @@ export const handlers = [
   }),
 
   /** POST /api/v1/compare-links/{token}/join — 비교 링크 참여 */
-  http.post(`${baseURL}/api/v1/compare-links/:token/join`, ({ params }) => {
+  http.post(`${baseURL}/api/v1/compare-links/:token/join`, async ({ params, request }) => {
     const token = params.token as string;
+    const body = (await request.json().catch(() => ({}))) as {
+      displayName?: string;
+      profileColor?: string;
+    };
     // MSW에서는 mock-user-2로 참여 시뮬레이션
-    const result = joinCompareLink(token, 'mock-user-2', '수진');
+    const result = joinCompareLink(
+      token,
+      'mock-user-2',
+      body.displayName ?? '수진',
+      body.profileColor
+    );
     if (!result.success) {
       return HttpResponse.json(
         { code: 'BAD_REQUEST', message: result.message, data: null },
@@ -1332,7 +1521,8 @@ export const handlers = [
       link.groupMembers,
       myUserId,
       link.showGenderContent,
-      link.creatorUserId
+      link.creatorUserId,
+      link.isClosed
     );
     if (!result) {
       return HttpResponse.json(
@@ -1341,6 +1531,36 @@ export const handlers = [
       );
     }
     return HttpResponse.json({ code: 'SUCCESS', message: '성공', data: result });
+  }),
+
+  /** PATCH /api/v1/compare-links/{token}/my-profile — 그룹 내 내 프로필 수정 */
+  http.patch(`${baseURL}/api/v1/compare-links/:token/my-profile`, async ({ params, request }) => {
+    const token = params.token as string;
+    const link = compareLinkStore.get(token);
+    if (!link || link.type !== 'GROUP') {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '그룹을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    const body = (await request.json()) as {
+      displayName?: string;
+      displayProfileColor?: string;
+    };
+    const member = link.groupMembers.find((m) => m.userId === 'mock-user-1');
+    if (!member) {
+      return HttpResponse.json(
+        { code: 'FORBIDDEN', message: '그룹 멤버가 아닙니다', data: null },
+        { status: 403 }
+      );
+    }
+    if (body.displayName) {
+      member.nickname = body.displayName;
+    }
+    if (body.displayProfileColor) {
+      member.displayProfileColor = body.displayProfileColor;
+    }
+    return HttpResponse.json({ code: 'SUCCESS', message: '프로필 수정 완료', data: null });
   }),
 
   /** PATCH /api/v1/compare-links/{token}/settings — 그룹 설정 수정 */

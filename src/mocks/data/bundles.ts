@@ -201,8 +201,19 @@ export function seedSecondUser() {
     ]);
   }
 
-  // mock-user-2 marriage-values 답변 시드 (invite2 링크 생성자용)
+  // mock-user-1 marriage-values 답변 시드 (비교 탭에서 결혼 가치관 테스트 표시용)
   const marriageSlug = 'marriage-values';
+  if (!bundleAnswerStore.has(`mock-user-1_${marriageSlug}`)) {
+    recordBundleAnswers('mock-user-1', marriageSlug, [
+      { electionId: 'me-1', selected: 'B' },
+      { electionId: 'me-2', selected: 'A' },
+      { electionId: 'me-3', selected: 'A' },
+      { electionId: 'me-4', selected: 'A' },
+      { electionId: 'me-5', selected: 'B' },
+    ]);
+  }
+
+  // mock-user-2 marriage-values 답변 시드 (invite2 링크 생성자용)
   if (!bundleAnswerStore.has(`mock-user-2_${marriageSlug}`)) {
     recordBundleAnswers('mock-user-2', marriageSlug, [
       { electionId: 'me-1', selected: 'A' },
@@ -253,6 +264,14 @@ export function seedGroupUsers() {
       { electionId: 'le-2', selected: 'A' },
       { electionId: 'le-3', selected: 'B' },
       { electionId: 'le-4', selected: 'A' },
+      { electionId: 'le-5', selected: 'A' },
+    ],
+    // 탈퇴 유저 (withdrawn) 답변 시드
+    'mock-user-withdrawn': [
+      { electionId: 'le-1', selected: 'A' },
+      { electionId: 'le-2', selected: 'B' },
+      { electionId: 'le-3', selected: 'A' },
+      { electionId: 'le-4', selected: 'B' },
       { electionId: 'le-5', selected: 'A' },
     ],
   };

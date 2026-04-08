@@ -2,6 +2,9 @@
 import { bundleAnswerStore, mockBundleElections, mockBundleDetails } from '@/mocks/data/bundles';
 import type { GroupCompareResult } from '@/types/group-compare';
 
+/** 탈퇴 유저 목록 (MSW 시뮬레이션) */
+const WITHDRAWN_USER_IDS = new Set(['mock-user-withdrawn']);
+
 /** Mock 성별/생년 데이터 */
 const MOCK_PROFILES: Record<string, { gender: 'MALE' | 'FEMALE'; birthYear: number }> = {
   'mock-user-1': { gender: 'MALE', birthYear: 1995 },
@@ -29,10 +32,16 @@ function getMockProfile(userId: string): { gender: 'MALE' | 'FEMALE'; birthYear:
 export function getGroupCompareResult(
   bundleSlug: string,
   groupName: string,
-  memberInfos: Array<{ userId: string; nickname: string; displayName?: string }>,
+  memberInfos: Array<{
+    userId: string;
+    nickname: string;
+    displayName?: string;
+    displayProfileColor?: string;
+  }>,
   currentUserId: string,
   showGenderContent: boolean,
-  creatorUserId: string
+  creatorUserId: string,
+  isClosed: boolean
 ): GroupCompareResult | null {
   const elections = mockBundleElections[bundleSlug];
   const detail = mockBundleDetails[bundleSlug];
@@ -47,12 +56,15 @@ export function getGroupCompareResult(
         return null;
       }
       const profile = getMockProfile(info.userId);
+      const isWithdrawn = WITHDRAWN_USER_IDS.has(info.userId);
       return {
         userId: info.userId,
-        nickname: info.nickname,
-        displayName: info.displayName ?? info.nickname,
-        gender: profile.gender,
+        nickname: isWithdrawn ? '알 수 없는 멤버' : info.nickname,
+        displayName: isWithdrawn ? '알 수 없는 멤버' : (info.displayName ?? info.nickname),
+        displayProfileColor: isWithdrawn ? 'GRAY' : info.displayProfileColor,
+        gender: isWithdrawn ? undefined : profile.gender,
         birthYear: profile.birthYear,
+        isWithdrawn: isWithdrawn || undefined,
         answers: answers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
       };
     })
@@ -62,25 +74,7 @@ export function getGroupCompareResult(
     return null;
   }
 
-  // 그룹 싱크율 계산
-  let totalMatchRate = 0;
-  let pairCount = 0;
-  for (let i = 0; i < members.length; i++) {
-    for (let j = i + 1; j < members.length; j++) {
-      let matchCount = 0;
-      for (const ansA of members[i].answers) {
-        const ansB = members[j].answers.find((b) => b.electionId === ansA.electionId);
-        if (ansB && ansA.selected === ansB.selected) {
-          matchCount++;
-        }
-      }
-      totalMatchRate += (matchCount / elections.length) * 100;
-      pairCount++;
-    }
-  }
-  const groupSyncRate = pairCount > 0 ? Math.round(totalMatchRate / pairCount) : 0;
-
-  // 질문별 대중 투표 비율 — 편차를 크게 줘서 대중성 점수 분포를 넓힘
+  // 질문별 대중 투표 수 — 편차를 크게 줘서 대중성 점수 분포를 넓힘
   const seedRatios = [85, 25, 78, 30, 72];
 
   // love-values 축 배정: le-1,le-3,le-5 → X축, le-2,le-4 → Y축
@@ -99,24 +93,25 @@ export function getGroupCompareResult(
     groupName,
     memberCount: members.length,
     myUserId: currentUserId,
+    myBundleCompleted: bundleAnswerStore.has(`${currentUserId}_${bundleSlug}`),
     categoryCode: detail.categoryCode,
     showGenderContent,
+    isClosed,
     creatorUserId,
     members,
     // seedRatios는 "전체 대중의 투표 비율"을 시뮬레이션 (그룹 멤버 투표와 무관)
     questionStats: elections.map((e, i) => {
       const aRate = seedRatios[i] ?? 50;
+      const totalVotes = 500 + i * 100;
       return {
         electionId: e.electionId,
         title: e.title,
         optionA: e.optionA,
         optionB: e.optionB,
-        optionARate: aRate,
-        optionBRate: 100 - aRate,
-        totalVotes: 500 + i * 100,
+        optionACount: Math.round((aRate / 100) * totalVotes),
+        optionBCount: Math.round(((100 - aRate) / 100) * totalVotes),
         axis: axisMap[e.electionId] ?? null,
       };
     }),
-    groupSyncRate,
   };
 }

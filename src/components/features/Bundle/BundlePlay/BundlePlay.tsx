@@ -140,7 +140,17 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       } else {
         router.push(`/bundle/${slug}/result`);
       }
-    } catch {
+    } catch (err) {
+      // 중복 제출 에러 (이미 완료된 유저) → 결과 페이지로 이동
+      const isBadRequest =
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as { response?: { status?: number } }).response?.status === 400;
+      if (isBadRequest) {
+        router.replace(`/bundle/${slug}/result`);
+        return;
+      }
       // eslint-disable-next-line no-alert
       window.alert('제출에 실패했습니다. 다시 시도해주세요.');
     }

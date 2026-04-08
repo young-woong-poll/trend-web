@@ -12,10 +12,14 @@ export interface GroupCompareResult {
   memberCount: number;
   /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
   myUserId: string;
+  /** 현재 로그인 유저의 번들 완료 여부 (비멤버 join 흐름 분기용) */
+  myBundleCompleted: boolean;
   /** 번들 카테고리 코드 */
   categoryCode?: CategoryCode;
   /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 */
   showGenderContent?: boolean;
+  /** 그룹 마감 여부 */
+  isClosed: boolean;
   /** 그룹 생성자 userId — 설정 권한 판별용 */
   creatorUserId?: string;
 
@@ -25,26 +29,26 @@ export interface GroupCompareResult {
     nickname: string;
     /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname 사용 */
     displayName?: string;
+    /** 그룹 참여 시 설정한 프로필 색상. 없으면 유저 기본 프로필 색상 사용 */
+    displayProfileColor?: string;
     gender?: 'MALE' | 'FEMALE';
     birthYear?: number;
+    /** 서비스 탈퇴 유저 여부 */
+    isWithdrawn?: boolean;
     answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
   }>;
 
-  /** 각 질문별 현재 투표 비율 (번들 전체 참여자 기준) */
+  /** 각 질문별 실시간 투표 수 (번들 전체 참여자 기준, 1:1과 동일) */
   questionStats: Array<{
     electionId: string;
     title: string;
     optionA: string;
     optionB: string;
-    optionARate: number;
-    optionBRate: number;
-    totalVotes: number;
+    optionACount: number;
+    optionBCount: number;
     /** 가치관 지도 축 배정 (null = 미배정) */
     axis: 'X' | 'Y' | null;
   }>;
-
-  /** 그룹 싱크율 (모든 멤버 쌍 일치율 평균) */
-  groupSyncRate: number;
 }
 
 /**

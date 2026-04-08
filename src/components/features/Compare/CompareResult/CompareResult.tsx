@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
+import BackIcon from '@/assets/icon/BackIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
@@ -16,6 +17,7 @@ import styles from '@/components/features/Compare/CompareResult/CompareResult.mo
 import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
+import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useCompareLink, useCompareResult } from '@/hooks/api/useCompare';
@@ -42,6 +44,9 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const { data: result, isLoading } = useCompareResult(token);
   const { data: link } = useCompareLink(token);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromParam = searchParams.get('from');
+  const showBack = fromParam === 'group' || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -225,10 +230,24 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // ─── 실제 결과 ───
   const shockPoint = findShockPoint(result);
   const storyData = classifyAnswers(result);
+  const isTargetWithdrawn = result.target.isWithdrawn === true;
+  // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
+  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : result.target.nickname;
 
   return (
     <BundleBackground categoryCode={result.categoryCode}>
       <div className={styles.container}>
+        {showBack && (
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => router.back()}
+            aria-label="그룹 결과로 돌아가기"
+          >
+            <BackIcon width={22} height={22} />
+          </button>
+        )}
+
         <div className={styles.resultHeader}>
           <CategoryBadge categoryCode={result.categoryCode} />
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
@@ -237,21 +256,22 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <ChemistryCard
           matchRate={result.matchRate}
           myNickname={result.me.nickname}
-          targetNickname={result.target.nickname}
+          targetNickname={targetNickname}
           bundleTitle={result.bundleTitle}
+          isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
           myNickname={result.me.nickname}
-          targetNickname={result.target.nickname}
+          targetNickname={targetNickname}
         />
 
         {shockPoint && (
           <ShockPoint
             data={shockPoint}
             myNickname={result.me.nickname}
-            targetNickname={result.target.nickname}
+            targetNickname={targetNickname}
           />
         )}
 
@@ -277,6 +297,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <CreateCompareLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowCompareModal(false)}
         />
       )}
@@ -284,6 +305,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <CreateGroupLink
           slug={result.bundleSlug}
           categoryCode={result.categoryCode}
+          bundleTitle={result.bundleTitle}
           onClose={() => setShowGroupModal(false)}
         />
       )}
