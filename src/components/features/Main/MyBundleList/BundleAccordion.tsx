@@ -117,7 +117,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
           {/* 1:1 비교 섹션 */}
           {oneToOneLinks.length > 0 && (
             <>
-              <span className={styles.linkSectionLabel}>1:1 비교</span>
+              <span className={styles.linkSectionLabel}>1:1 케미</span>
               <div
                 className={`${styles.linkSection} ${oneToOneLinks.length > 5 ? `${!oneToOneScroll.atTop ? styles.fadeTop : ''} ${!oneToOneScroll.atBottom ? styles.fadeBottom : ''}` : ''}`}
                 onScroll={(e) => handleSectionScroll(e, setOneToOneScroll)}
@@ -154,7 +154,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
               <span
                 className={`${styles.linkSectionLabel} ${oneToOneLinks.length > 0 ? styles.linkSectionLabelDivider : ''}`}
               >
-                그룹 비교
+                그룹 케미
               </span>
               <div
                 className={`${styles.linkSection} ${groupLinks.length > 5 ? `${!groupScroll.atTop ? styles.fadeTop : ''} ${!groupScroll.atBottom ? styles.fadeBottom : ''}` : ''}`}
@@ -180,10 +180,10 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
 
           <div className={styles.newCompareRow}>
             <button type="button" className={styles.newOneToOneButton} onClick={onNewOneToOne}>
-              + 1:1 비교
+              + 1:1 케미
             </button>
             <button type="button" className={styles.newGroupButton} onClick={onNewGroup}>
-              + 그룹 비교
+              + 그룹 케미
             </button>
           </div>
         </div>

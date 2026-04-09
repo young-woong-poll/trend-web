@@ -40,7 +40,7 @@ export const MemberList: FC<MemberListProps> = ({ currentUserId, members, pairs,
   return (
     <div className={styles.container}>
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>멤버별 1:1 비교</span>
+        <span className={styles.sectionTitle}>멤버별 1:1 케미</span>
         <div className={styles.sectionLine} />
       </div>
 

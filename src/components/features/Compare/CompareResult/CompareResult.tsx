@@ -257,7 +257,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         {isFromGroup && (
           <div className={styles.groupPairBanner}>
             <span className={styles.groupPairLabel}>케미 상세보기</span>
-            <p className={styles.groupPairNotice}>이 비교는 이력에 저장되지 않아요</p>
+            <p className={styles.groupPairNotice}>이 케미 결과는 이력에 저장되지 않아요</p>
           </div>
         )}
 
@@ -303,14 +303,14 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
                 className={styles.ctaOneToOne}
                 onClick={() => setShowCompareModal(true)}
               >
-                다른 친구랑 비교하기
+                다른 친구랑 케미 보기
               </button>
               <button
                 type="button"
                 className={styles.ctaGroup}
                 onClick={() => setShowGroupModal(true)}
               >
-                그룹 비교하기
+                그룹 케미 보기
               </button>
             </div>
           </div>

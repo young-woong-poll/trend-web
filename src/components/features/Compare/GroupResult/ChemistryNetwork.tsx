@@ -390,7 +390,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
             </div>
             <p className={styles.comparePanelNotice}>
               <span className={styles.noticeArrow}>‹‹</span>
-              비교 이력에 남지 않아요
+              케미 결과 이력에 남지 않아요
             </p>
           </>
         )}

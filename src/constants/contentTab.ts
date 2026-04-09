@@ -42,7 +42,7 @@ export type MySubTabType = 'vote' | 'compare' | 'comments' | 'likes';
 
 export const MY_SUB_TABS: Array<{ type: MySubTabType; label: string }> = [
   { type: 'vote', label: '투표' },
-  { type: 'compare', label: '비교' },
+  { type: 'compare', label: '케미' },
   { type: 'comments', label: '댓글' },
   { type: 'likes', label: '좋아요' },
 ];

@@ -105,7 +105,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareOneIcon width={20} height={20} />
-            <span className={styles.previewLabel}>1:1 비교</span>
+            <span className={styles.previewLabel}>1:1 케미</span>
           </div>
           <p className={styles.previewHook}>{compareHook.oneToOne}</p>
           <PreviewRotation nickname="나" embedded compact />
@@ -115,7 +115,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareGroupIcon width={20} height={20} />
-            <span className={styles.previewLabel}>그룹 비교</span>
+            <span className={styles.previewLabel}>그룹 케미</span>
           </div>
           <p className={styles.previewHook}>{compareHook.group}</p>
           <GroupPreviewNetwork embedded />
