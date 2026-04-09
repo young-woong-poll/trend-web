@@ -29,21 +29,6 @@ export {
   useResultDetail,
 } from '@/hooks/api/useDisplay';
 
-// Admin Hooks
-export {
-  adminKeys,
-  useHotpicks,
-  useCreateHotpick,
-  useUpdateHotpick,
-  useDeleteHotpick,
-  useGeneratePresignedUrl,
-  useCheckHotpickAlias,
-  useAdminCategories,
-  useCreateCategory,
-  useUpdateCategory,
-  useDeleteCategory,
-} from '@/hooks/api/useAdmin';
-
 // Hotpick Hooks
 export {
   hotpickKeys,

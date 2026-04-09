@@ -10,7 +10,6 @@
 | 상세          | `/hotpick/{slug}` | [detail.md](pages/detail.md)             | [checklist](../../qa/detail/checklist.md)       | ✅ 구현   | 2026-03-01 |
 | 오프라인 투표 | `/offline-vote`   | [offline-vote.md](pages/offline-vote.md) | [checklist](../../qa/offline-vote/checklist.md) | 🔧 개발중 | 2026-03-14 |
 | 검색          | `/search`         | [search.md](pages/search.md)             | [checklist](../../qa/search/checklist.md)       | ✅ 구현   | 2026-03-20 |
-| 관리자        | `/admin/*`        | [admin.md](pages/admin.md)               | [checklist](../../qa/admin/checklist.md)        | ✅ 구현   | 2026-03-01 |
 
 ## 서비스 문서
 

@@ -30,11 +30,16 @@ const transformContentType = (inputSchema: Record<string, unknown>) => {
 
 export default defineConfig({
   // Client API (Axios 기반) - React Query hooks 없이 함수만 생성
+  // Admin 태그는 hotpick-admin 레포에서 관리
   clientApi: {
     input: {
       target: './swagger.json',
       override: {
         transformer: transformContentType,
+      },
+      filters: {
+        mode: 'exclude',
+        tags: [/^Admin/],
       },
     },
     output: {
@@ -60,6 +65,10 @@ export default defineConfig({
       target: './swagger.json',
       override: {
         transformer: transformContentType,
+      },
+      filters: {
+        mode: 'exclude',
+        tags: [/^Admin/],
       },
     },
     output: {
