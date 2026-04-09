@@ -181,7 +181,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
             matchRate={previewResult.matchRate}
             myNickname={previewResult.me.nickname}
             targetNickname={previewResult.target.nickname}
-            bundleTitle={previewResult.bundleTitle}
           />
 
           <AnswerComparison
@@ -265,7 +264,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           matchRate={result.matchRate}
           myNickname={result.me.nickname}
           targetNickname={targetNickname}
-          bundleTitle={result.bundleTitle}
           isTargetWithdrawn={isTargetWithdrawn}
         />
 

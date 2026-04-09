@@ -24,7 +24,6 @@ interface ChemistryCardProps {
   matchRate: number;
   myNickname: string;
   targetNickname: string;
-  bundleTitle: string;
   isTargetWithdrawn?: boolean;
 }
 
@@ -32,7 +31,6 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
   matchRate,
   myNickname,
   targetNickname,
-  bundleTitle,
   isTargetWithdrawn,
 }) => {
   const chemistry = getChemistryByRate(matchRate);
@@ -64,8 +62,6 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
 
   return (
     <div className={styles.container}>
-      <div className={styles.bundleTitle}>{bundleTitle}</div>
-
       {/* 닉네임 */}
       <div className={styles.names}>
         <span className={styles.myName} style={{ color: IDENTITY_COLORS.me.main }}>
