@@ -848,11 +848,3 @@ export const GetMainFilter = {
 export type GetCategories1Params = {
   selected?: string;
 };
-
-export type GeneratePresignedUrlParams = {
-  filename: string;
-};
-
-export type CheckSlugParams = {
-  slug: string;
-};
