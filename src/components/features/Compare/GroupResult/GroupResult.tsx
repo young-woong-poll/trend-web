@@ -358,7 +358,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
                       router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
-                      showToast('1:1 비교 생성에 실패했어요');
+                      showToast('케미 상세보기 생성에 실패했어요');
                     }
                   }
                 : undefined
@@ -377,7 +377,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
                       router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
-                      showToast('1:1 비교 생성에 실패했어요');
+                      showToast('케미 상세보기 생성에 실패했어요');
                     }
                   }
                 : undefined

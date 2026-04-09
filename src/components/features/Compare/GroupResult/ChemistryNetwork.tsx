@@ -362,29 +362,37 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
         onCompareRequest &&
         !selectedPairInfo.isGhost &&
         !selectedPairInfo.isWithdrawn && (
-          <div className={styles.comparePanel}>
-            <div className={styles.comparePanelInfo}>
-              <span
-                className={styles.comparePanelGrade}
-                style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
-              >
-                {selectedPairInfo.chemistry.grade}
-              </span>
-              <div className={styles.comparePanelText}>
-                <span className={styles.comparePanelNames}>
-                  나 × {truncateName(selectedPairInfo.nickname, 8)}
+          <>
+            <div className={styles.comparePanel}>
+              <div className={styles.comparePanelInfo}>
+                <span
+                  className={styles.comparePanelGrade}
+                  style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
+                >
+                  {selectedPairInfo.chemistry.grade}
                 </span>
-                <span className={styles.comparePanelTitle}>{selectedPairInfo.chemistry.title}</span>
+                <div className={styles.comparePanelText}>
+                  <span className={styles.comparePanelNames}>
+                    나 × {truncateName(selectedPairInfo.nickname, 8)}
+                  </span>
+                  <span className={styles.comparePanelTitle}>
+                    {selectedPairInfo.chemistry.title}
+                  </span>
+                </div>
               </div>
+              <button
+                type="button"
+                className={styles.comparePanelBtn}
+                onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
+              >
+                케미 상세보기
+              </button>
             </div>
-            <button
-              type="button"
-              className={styles.comparePanelBtn}
-              onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
-            >
-              1:1 비교하기
-            </button>
-          </div>
+            <p className={styles.comparePanelNotice}>
+              <span className={styles.noticeArrow}>‹‹</span>
+              비교 이력에 남지 않아요
+            </p>
+          </>
         )}
     </div>
   );

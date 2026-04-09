@@ -46,7 +46,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromParam = searchParams.get('from');
-  const showBack = fromParam === 'group' || fromParam === 'my';
+  const isFromGroup = fromParam === 'group';
+  const showBack = isFromGroup || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
@@ -253,6 +254,13 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
         </div>
 
+        {isFromGroup && (
+          <div className={styles.groupPairBanner}>
+            <span className={styles.groupPairLabel}>케미 상세보기</span>
+            <p className={styles.groupPairNotice}>이 비교는 이력에 저장되지 않아요</p>
+          </div>
+        )}
+
         <ChemistryCard
           matchRate={result.matchRate}
           myNickname={result.me.nickname}
@@ -278,36 +286,52 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         <PopularityCompare result={result} />
       </div>
 
-      <div className={styles.floatingCta}>
-        <div className={styles.floatingCtaRow}>
-          <button
-            type="button"
-            className={styles.ctaOneToOne}
-            onClick={() => setShowCompareModal(true)}
-          >
-            다른 친구랑 비교하기
-          </button>
-          <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
-            그룹 비교하기
-          </button>
+      {isFromGroup ? (
+        <div className={styles.floatingCta}>
+          <div className={styles.floatingCtaRow}>
+            <button type="button" className={styles.ctaGroup} onClick={() => router.back()}>
+              그룹 결과로 돌아가기
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className={styles.floatingCta}>
+            <div className={styles.floatingCtaRow}>
+              <button
+                type="button"
+                className={styles.ctaOneToOne}
+                onClick={() => setShowCompareModal(true)}
+              >
+                다른 친구랑 비교하기
+              </button>
+              <button
+                type="button"
+                className={styles.ctaGroup}
+                onClick={() => setShowGroupModal(true)}
+              >
+                그룹 비교하기
+              </button>
+            </div>
+          </div>
 
-      {showCompareModal && (
-        <CreateCompareLink
-          slug={result.bundleSlug}
-          categoryCode={result.categoryCode}
-          bundleTitle={result.bundleTitle}
-          onClose={() => setShowCompareModal(false)}
-        />
-      )}
-      {showGroupModal && (
-        <CreateGroupLink
-          slug={result.bundleSlug}
-          categoryCode={result.categoryCode}
-          bundleTitle={result.bundleTitle}
-          onClose={() => setShowGroupModal(false)}
-        />
+          {showCompareModal && (
+            <CreateCompareLink
+              slug={result.bundleSlug}
+              categoryCode={result.categoryCode}
+              bundleTitle={result.bundleTitle}
+              onClose={() => setShowCompareModal(false)}
+            />
+          )}
+          {showGroupModal && (
+            <CreateGroupLink
+              slug={result.bundleSlug}
+              categoryCode={result.categoryCode}
+              bundleTitle={result.bundleTitle}
+              onClose={() => setShowGroupModal(false)}
+            />
+          )}
+        </>
       )}
 
       <Toast message={toast.message} isVisible={toast.isVisible} />
