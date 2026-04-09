@@ -32,6 +32,7 @@
   align-items: center;
   gap: 6px;
   text-align: center;
+  margin-bottom: -8px;
 }
 
 .resultTitle {
@@ -260,6 +261,36 @@
   border: none;
   background: var(--primary-gradient);
   color: $white;
+}
+
+// ─── 그룹 내 케미 상세보기 배너 ───
+
+.groupPairBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.08);
+  border-radius: $border-radius-lg;
+  width: 100%;
+}
+
+.groupPairLabel {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.08);
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $white;
+  letter-spacing: -0.2px;
+}
+
+.groupPairNotice {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
 }
 
 // ─── 프리뷰 모드 ───

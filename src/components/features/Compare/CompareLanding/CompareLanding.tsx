@@ -69,7 +69,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
     return (
       <BundleBackground>
         <div className={styles.loading}>
-          비교 링크를 찾을 수 없습니다.
+          케미 테스트를 찾을 수 없습니다.
           <button
             type="button"
             className={styles.ctaButton}
@@ -157,7 +157,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
       return '대결 수락하기';
     }
     if (isAlreadyTaken) {
-      return link.myBundleCompleted ? '내 비교 링크 만들기' : '먼저 투표 참여하기';
+      return link.myBundleCompleted ? '내 케미 테스트 만들기' : '먼저 투표 참여하기';
     }
     if (isCreatorReady || canViewResult) {
       return '결과 개봉하기';
@@ -242,12 +242,12 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             <p className={styles.takenGuideMain}>
               {link.creatorNickname}님과 비교하고 싶다면
               <br />
-              직접 비교 링크를 만들어 보내보세요!
+              직접 케미 테스트를 만들어 보내보세요!
             </p>
             <p className={styles.takenNotice}>
               이 링크는 이미 다른 사람이 참여했어요
               <br />
-              1:1 비교는 한 명만 참여할 수 있어요
+              1:1 케미는 한 명만 참여할 수 있어요
             </p>
           </div>
         )}

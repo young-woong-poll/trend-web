@@ -367,3 +367,32 @@
     transform: scale(0.96);
   }
 }
+
+.comparePanelNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+.noticeArrow {
+  display: inline-block;
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $text-tertiary;
+  transform: rotate(90deg);
+  animation: arrowFloat 1.4s ease-in-out infinite;
+}
+
+@keyframes arrowFloat {
+  0%,
+  100% {
+    transform: rotate(90deg) translateX(0.5px);
+  }
+  50% {
+    transform: rotate(90deg) translateX(-0.5px);
+  }
+}

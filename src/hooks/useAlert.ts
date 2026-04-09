@@ -5,6 +5,7 @@ interface AlertState {
   title: string;
   message?: string;
   confirmText?: string;
+  showCloseButton?: boolean;
   onConfirm?: () => void;
 }
 
@@ -21,6 +22,7 @@ export const useAlert = () => {
     options?: {
       message?: string;
       confirmText?: string;
+      showCloseButton?: boolean;
       onConfirm?: () => void;
     }
   ) => {
@@ -29,6 +31,7 @@ export const useAlert = () => {
       title,
       message: options?.message,
       confirmText: options?.confirmText || '확인',
+      showCloseButton: options?.showCloseButton,
       onConfirm: options?.onConfirm,
     });
   };

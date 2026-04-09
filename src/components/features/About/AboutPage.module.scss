@@ -94,6 +94,7 @@
   font-weight: $font-weight-bold;
   color: $white;
   margin: 0 0 $spacing-8;
+  text-align: center;
 
   @include tablet {
     font-size: $font-size-24;
@@ -105,6 +106,7 @@
   color: $text-tertiary;
   line-height: 1.6;
   margin: 0 0 $spacing-24;
+  text-align: center;
 }
 
 // ─── 서비스 소개 카드 ───

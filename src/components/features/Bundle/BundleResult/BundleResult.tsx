@@ -315,10 +315,10 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
             className={styles.ctaOneToOne}
             onClick={() => setShowCompareModal(true)}
           >
-            다른친구랑 비교하기
+            다른친구랑 케미 보기
           </button>
           <button type="button" className={styles.ctaGroup} onClick={() => setShowGroupModal(true)}>
-            그룹 비교하기
+            그룹 케미 보기
           </button>
         </div>
       </div>

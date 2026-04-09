@@ -205,7 +205,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     return (
       <BundleBackground>
         <div className={styles.loading}>
-          그룹 비교 결과를 찾을 수 없습니다.
+          그룹 케미 결과를 찾을 수 없습니다.
           <button
             type="button"
             className={styles.secondaryCta}
@@ -358,7 +358,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
                       router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
-                      showToast('1:1 비교 생성에 실패했어요');
+                      showToast('케미 상세보기 생성에 실패했어요');
                     }
                   }
                 : undefined
@@ -377,7 +377,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
                       const res = await pairCompareMutation.mutateAsync(targetUserId);
                       router.push(`/compare/match/${res.token}?from=group`);
                     } catch {
-                      showToast('1:1 비교 생성에 실패했어요');
+                      showToast('케미 상세보기 생성에 실패했어요');
                     }
                   }
                 : undefined
@@ -432,7 +432,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
               className={styles.ctaOneToOne}
               onClick={() => setShowCompareModal(true)}
             >
-              1:1 따로 비교하기
+              1:1 케미 따로 보기
             </button>
             <button
               type="button"

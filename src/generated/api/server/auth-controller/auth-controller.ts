@@ -13,6 +13,7 @@ import type {
   BaseResponseVoid,
   CheckNicknameParams,
   KakaoLoginRequest,
+  NicknameChangeCooldownErrorResponse,
   SignupRequest,
   UpdateProfileRequest,
 } from '../openAPIDefinition.schemas';
@@ -281,9 +282,9 @@ export const deleteMe = async (options?: RequestInit): Promise<deleteMeResponse>
   });
 };
 
-export type updateProfileResponse200 = {
-  data: BaseResponseUserResponse;
-  status: 200;
+export type updateProfileResponse400 = {
+  data: NicknameChangeCooldownErrorResponse;
+  status: 400;
 };
 
 export type updateProfileResponse409 = {
@@ -300,11 +301,8 @@ export type updateProfileResponse500 = {
   data: BaseResponseVoid;
   status: 500;
 };
-
-export type updateProfileResponseSuccess = updateProfileResponse200 & {
-  headers: Headers;
-};
 export type updateProfileResponseError = (
+  | updateProfileResponse400
   | updateProfileResponse409
   | updateProfileResponse429
   | updateProfileResponse500
@@ -312,7 +310,7 @@ export type updateProfileResponseError = (
   headers: Headers;
 };
 
-export type updateProfileResponse = updateProfileResponseSuccess | updateProfileResponseError;
+export type updateProfileResponse = updateProfileResponseError;
 
 export const getUpdateProfileUrl = () => {
   return `/api/v1/auth/me`;

@@ -84,7 +84,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.title}>1:1 비교 링크 공유</h2>
+          <h2 className={styles.title}>1:1 케미 테스트 공유</h2>
           <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
             <CloseIcon width={16} height={16} />
           </button>
