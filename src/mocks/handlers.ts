@@ -40,6 +40,7 @@ import {
   getLikeState,
   initLikeCount,
 } from '@/mocks/data/singleVotes';
+import { mockSuggestions } from '@/mocks/data/suggestions';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
@@ -1672,5 +1673,70 @@ export const handlers = [
       message: '1:1 비교 링크가 생성되었습니다',
       data: { token: pairToken },
     });
+  }),
+
+  // ──────────────────────────────────────────────────────────
+  // Suggestion API
+  // ──────────────────────────────────────────────────────────
+
+  /**
+   * 핫픽 제안 제출
+   * POST /api/v1/suggestions
+   */
+  http.post(`${baseURL}/api/v1/suggestions`, () => HttpResponse.json(wrapResponse(null))),
+
+  /**
+   * 어드민: 제안 목록 조회
+   * GET /admin/api/v1/suggestions
+   */
+  http.get(`${baseURL}/admin/api/v1/suggestions`, ({ request }) => {
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const filtered = status ? mockSuggestions.filter((s) => s.status === status) : mockSuggestions;
+    return HttpResponse.json(wrapResponse(filtered));
+  }),
+
+  /**
+   * 어드민: 제안 상세 조회
+   * GET /admin/api/v1/suggestions/:id
+   */
+  http.get(`${baseURL}/admin/api/v1/suggestions/:id`, ({ params }) => {
+    const id = Number(params.id);
+    const suggestion = mockSuggestions.find((s) => s.id === id);
+    if (!suggestion) {
+      return HttpResponse.json(
+        { code: 'NOT_FOUND', message: '제안을 찾을 수 없습니다', data: null },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json(wrapResponse(suggestion));
+  }),
+
+  /**
+   * 어드민: 제안 승인
+   * POST /admin/api/v1/suggestions/:id/approve
+   */
+  http.post(`${baseURL}/admin/api/v1/suggestions/:id/approve`, ({ params }) => {
+    const id = Number(params.id);
+    const suggestion = mockSuggestions.find((s) => s.id === id);
+    if (suggestion) {
+      suggestion.status = 'APPROVED';
+      suggestion.reviewedAt = new Date().toISOString();
+    }
+    return HttpResponse.json(wrapResponse(suggestion));
+  }),
+
+  /**
+   * 어드민: 제안 거절
+   * POST /admin/api/v1/suggestions/:id/reject
+   */
+  http.post(`${baseURL}/admin/api/v1/suggestions/:id/reject`, ({ params }) => {
+    const id = Number(params.id);
+    const suggestion = mockSuggestions.find((s) => s.id === id);
+    if (suggestion) {
+      suggestion.status = 'REJECTED';
+      suggestion.reviewedAt = new Date().toISOString();
+    }
+    return HttpResponse.json(wrapResponse(suggestion));
   }),
 ];

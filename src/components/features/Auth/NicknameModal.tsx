@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
+import { type AxiosError } from 'axios';
 import { useForm } from 'react-hook-form';
 
 import { Modal } from '@/components/common/Modal/Modal';
@@ -79,10 +80,25 @@ const NicknameModal = ({ isOpen, onClose, mode = 'signup' }: NicknameModalProps)
     setIsSubmitting(true);
     try {
       await updateNickname(trimmed);
-      setUser(user ? { ...user, nickname: trimmed } : null);
+      setUser(
+        user
+          ? { ...user, nickname: trimmed, lastNicknameChangedAt: new Date().toISOString() }
+          : null
+      );
       onClose?.();
-    } catch {
-      setError('nickname', { message: '닉네임 설정에 실패했습니다' });
+    } catch (err) {
+      const axiosError = err as AxiosError<{ data?: { nextAvailableAt?: string } }>;
+      const nextAvailableAt = axiosError.response?.data?.data?.nextAvailableAt;
+
+      if (axiosError.response?.status === 400 && nextAvailableAt) {
+        const date = new Date(nextAvailableAt).toLocaleDateString('ko-KR', {
+          month: 'long',
+          day: 'numeric',
+        });
+        setError('nickname', { message: `닉네임은 ${date}부터 변경할 수 있어요` });
+      } else {
+        setError('nickname', { message: '닉네임 설정에 실패했습니다' });
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -29,14 +29,13 @@ const canChangeNickname = (lastChangedAt: string | null): boolean => {
   return diffDays >= NICKNAME_CHANGE_INTERVAL_DAYS;
 };
 
-const daysUntilNicknameChange = (lastChangedAt: string | null): number => {
+const getNextNicknameChangeDate = (lastChangedAt: string | null): string => {
   if (!lastChangedAt) {
-    return 0;
+    return '';
   }
-  const last = new Date(lastChangedAt);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
-  return Math.max(0, NICKNAME_CHANGE_INTERVAL_DAYS - diffDays);
+  const next = new Date(lastChangedAt);
+  next.setDate(next.getDate() + NICKNAME_CHANGE_INTERVAL_DAYS);
+  return next.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 };
 
 const MyPageView = () => {
@@ -73,8 +72,8 @@ const MyPageView = () => {
 
   const handleNicknameEdit = () => {
     if (!canChangeNickname(user?.lastNicknameChangedAt ?? null)) {
-      const days = daysUntilNicknameChange(user?.lastNicknameChangedAt ?? null);
-      showToast(`닉네임은 ${days}일 후에 변경할 수 있어요`);
+      const date = getNextNicknameChangeDate(user?.lastNicknameChangedAt ?? null);
+      showToast(`닉네임은 ${date}부터 변경할 수 있어요`);
       return;
     }
     setShowNicknameModal(true);
