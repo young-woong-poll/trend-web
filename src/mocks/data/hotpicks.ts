@@ -51,8 +51,8 @@ export const singleVoteDataMap: Record<string, MockSingleVote> = {
       { id: 'st1-o2', text: '주식 투자', voteCount: 480 },
       { id: 'st1-o3', text: '코인 투자', voteCount: 140 },
     ],
-    voted: true,
-    myChoiceId: 'st1-o2',
+    voted: false,
+    myChoiceId: null,
     totalVotes: 1030,
   },
   'single-sports-urgent': {

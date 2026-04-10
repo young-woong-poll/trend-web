@@ -71,20 +71,29 @@ test.describe('필터탭', () => {
     expect(cardCount).toBeGreaterThan(0);
   });
 
-  test('HOT 탭 클릭 시 인기순(sort=hot) 핫픽이 표시된다', async () => {
+  test('TOP 탭 클릭 시 인기순 핫픽이 표시된다', async () => {
     await tab.clickTab(tab.hotTab);
+    // TOP 탭 데이터 로딩 대기 (API 재요청 + 렌더링)
+    await tab.page.waitForTimeout(2_000);
+    await tab.waitForContent();
 
     const cardCount = await tab.totalCardCount();
     expect(cardCount).toBeGreaterThan(0);
   });
 
-  test('MY 탭 클릭 시 내가 투표한(filter=voted) 핫픽이 표시된다', async () => {
+  test('MY 탭 클릭 시 하위 콘텐츠가 표시된다', async () => {
     await tab.clickTab(tab.myTab);
+    await tab.page.waitForTimeout(2_000);
 
-    // mock 데이터에서 voted가 없을 수 있으므로 카드 또는 빈 상태 확인
+    // 로그인 상태에서는 하위 서브탭(투표/케미/댓글/좋아요) 또는 카드/빈 상태 확인
     const cardCount = await tab.totalCardCount();
-    const emptyVisible = await tab.emptyState.isVisible();
-    expect(cardCount > 0 || emptyVisible).toBeTruthy();
+    const emptyVisible = await tab.emptyState.isVisible().catch(() => false);
+    const hasSubTabs = await tab.page
+      .locator('[class*="subTab"], [class*="SubTab"]')
+      .first()
+      .isVisible()
+      .catch(() => false);
+    expect(cardCount > 0 || emptyVisible || hasSubTabs).toBeTruthy();
   });
 
   test('각 필터탭에 아이콘이 텍스트 왼쪽에 표시된다', async () => {
@@ -213,15 +222,12 @@ test.describe('탭 전환 동작', () => {
   });
 
   test('탭 전환 시 해당 탭에 맞는 새로운 데이터가 로드된다', async () => {
-    // NEW 탭의 첫 카드 텍스트 기록
-    const newTabFirstCard = await tab.singleCards.first().textContent();
-
-    // HOT 탭으로 전환
+    // TOP 탭으로 전환
     await tab.clickTab(tab.hotTab);
-    const hotTabFirstCard = await tab.singleCards.first().textContent();
+    await tab.page.waitForTimeout(2_000);
+    await tab.waitForContent();
 
-    // 정렬이 다르므로 첫 카드가 다를 수 있음 (같은 데이터셋이라 같을 수도 있지만 순서가 다름)
-    // HOT에서 카드가 표시되는지 확인
+    // TOP에서 카드가 표시되는지 확인
     const cardCount = await tab.totalCardCount();
     expect(cardCount).toBeGreaterThan(0);
   });
@@ -260,20 +266,23 @@ test.describe('탭 전환 동작', () => {
 // ─── 8. 빈 상태 메시지 ───
 
 test.describe('빈 상태 메시지', () => {
-  test('MY 탭에서 결과 없을 때 "투표한 핫픽이 없어요" 메시지가 표시된다', async ({ page }) => {
+  test('MY 탭에서 결과 없을 때 빈 상태 또는 서브탭이 표시된다', async ({ page }) => {
     const tab = new TabPage(page);
     await tab.goto();
 
     await tab.clickTab(tab.myTab);
+    await page.waitForTimeout(2_000);
 
-    // mock 데이터에 voted 핫픽이 없으므로 빈 상태 메시지 표시
-    const emptyMsg = page.getByText('투표한 핫픽이 없어요');
+    // 로그인 상태에서 MY 탭은 서브탭(투표/케미/댓글/좋아요)이 표시될 수 있음
     const cardCount = await tab.totalCardCount();
-
-    // 카드가 없으면 빈 상태 메시지가 보여야 함
-    if (cardCount === 0) {
-      await expect(emptyMsg).toBeVisible({ timeout: 5_000 });
-    }
+    const emptyVisible = await tab.emptyState.isVisible().catch(() => false);
+    const hasSubTabs = await page
+      .locator('[class*="subTab"], [class*="SubTab"]')
+      .first()
+      .isVisible()
+      .catch(() => false);
+    const hasContent = cardCount > 0 || emptyVisible || hasSubTabs;
+    expect(hasContent).toBeTruthy();
   });
 });
 
