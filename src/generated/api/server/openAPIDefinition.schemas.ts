@@ -152,58 +152,6 @@ export interface UpdateHotpickRequest {
   election: HotpickElectionRequest;
 }
 
-export interface AdminCategoryResponse {
-  id?: number;
-  name?: string;
-  slug?: string;
-}
-
-export interface AdminElectionItemResponse {
-  id?: number;
-  displayOrder?: number;
-  title?: string;
-  imageUrl?: string;
-  voteCount?: number;
-}
-
-export interface AdminElectionResponse {
-  id?: number;
-  hotpickId?: number;
-  title?: string;
-  imageUrl?: string;
-  totalVoteCount?: number;
-  totalCommentCount?: number;
-  createdAt?: string;
-  items?: AdminElectionItemResponse[];
-}
-
-/**
- * 응답 데이터
- */
-export interface AdminHotpickDetailResponse {
-  id?: number;
-  type?: string;
-  slug?: string;
-  visible?: boolean;
-  fixed?: boolean;
-  imageUrl?: string;
-  createdAt?: string;
-  expiredAt?: string;
-  categories?: AdminCategoryResponse[];
-  election?: AdminElectionResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseAdminHotpickDetailResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: AdminHotpickDetailResponse;
-}
-
 export interface UpdateCategoryRequest {
   /**
    * @minLength 0
@@ -215,17 +163,6 @@ export interface UpdateCategoryRequest {
    * @maxLength 120
    */
   slug: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseAdminCategoryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: AdminCategoryResponse;
 }
 
 export interface CreateSuggestionRequest {
@@ -983,34 +920,6 @@ export interface BaseResponseListServerMetaResponse {
 /**
  * 응답 데이터
  */
-export interface AdminHotpickSummaryResponse {
-  id?: number;
-  type?: string;
-  slug?: string;
-  visible?: boolean;
-  fixed?: boolean;
-  imageUrl?: string;
-  createdAt?: string;
-  expiredAt?: string;
-  categories?: AdminCategoryResponse[];
-  election?: AdminElectionResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseListAdminHotpickSummaryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  /** 응답 데이터 */
-  data?: AdminHotpickSummaryResponse[];
-}
-
-/**
- * 응답 데이터
- */
 export interface HotpickSlugCheckResponse {
   exists?: boolean;
 }
@@ -1024,18 +933,6 @@ export interface BaseResponseHotpickSlugCheckResponse {
   /** 응답 메시지 */
   message?: string;
   data?: HotpickSlugCheckResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseListAdminCategoryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  /** 응답 데이터 */
-  data?: AdminCategoryResponse[];
 }
 
 export interface DeleteCommentRequest {

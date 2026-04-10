@@ -5,13 +5,6 @@
  * OpenAPI spec version: v0
  */
 
-export * from './adminCategoryResponse';
-export * from './adminElectionItemResponse';
-export * from './adminElectionResponse';
-export * from './adminHotpickDetailResponse';
-export * from './adminHotpickSummaryResponse';
-export * from './baseResponseAdminCategoryResponse';
-export * from './baseResponseAdminHotpickDetailResponse';
 export * from './baseResponseCommentCountResponse';
 export * from './baseResponseCommentCreateResponse';
 export * from './baseResponseCommentLikeResponse';
@@ -28,8 +21,6 @@ export * from './baseResponseHotpickDetailResponse';
 export * from './baseResponseHotpickLikeResponse';
 export * from './baseResponseHotpickSlugCheckResponse';
 export * from './baseResponseKakaoLoginResponse';
-export * from './baseResponseListAdminCategoryResponse';
-export * from './baseResponseListAdminHotpickSummaryResponse';
 export * from './baseResponseListCategoryTabResponse';
 export * from './baseResponseListHotpickCardResponse';
 export * from './baseResponseListServerMetaResponse';
