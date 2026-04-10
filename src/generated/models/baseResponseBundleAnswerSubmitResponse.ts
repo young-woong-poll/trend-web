@@ -4,15 +4,15 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { ServerMetaResponse } from './serverMetaResponse';
+import type { BundleAnswerSubmitResponse } from './bundleAnswerSubmitResponse';
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseServerMetaResponse {
+export interface BaseResponseBundleAnswerSubmitResponse {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
-  data?: ServerMetaResponse;
+  data?: BundleAnswerSubmitResponse;
 }

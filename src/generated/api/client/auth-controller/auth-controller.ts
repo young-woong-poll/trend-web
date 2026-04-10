@@ -10,6 +10,7 @@ import type {
   BaseResponseSignupResponse,
   BaseResponseUserResponse,
   BaseResponseVoid,
+  CheckNicknameParams,
   KakaoLoginRequest,
   SignupRequest,
   UpdateProfileRequest,
@@ -17,7 +18,6 @@ import type {
 
 import { customInstance } from '../../../../lib/axios-mutator';
 import type { BodyType } from '../../../../lib/axios-mutator';
-import { CheckNicknameParams } from '../../../models/checkNicknameParams';
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 

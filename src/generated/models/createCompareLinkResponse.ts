@@ -4,8 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { JsonNode } from './jsonNode';
 
-export interface CreateServerMetaRequest {
-  meta: JsonNode;
+/**
+ * 응답 데이터
+ */
+export interface CreateCompareLinkResponse {
+  token?: string;
 }

@@ -8,6 +8,5 @@ import type { JsonNode } from './jsonNode';
 
 export interface CreateVoteRequest {
   electionItemId: number;
-  serverMetaId?: string;
   clientMeta?: JsonNode;
 }

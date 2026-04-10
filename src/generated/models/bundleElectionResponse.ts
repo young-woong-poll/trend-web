@@ -8,8 +8,9 @@
 /**
  * 응답 데이터
  */
-export interface CommentLikeResponse {
-  liked?: boolean;
-  likeCount?: number;
-  likedAt?: string;
+export interface BundleElectionResponse {
+  electionId?: string;
+  title?: string;
+  optionA?: string;
+  optionB?: string;
 }

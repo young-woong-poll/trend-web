@@ -5,9 +5,6 @@
  * OpenAPI spec version: v0
  */
 
-/**
- * 응답 데이터
- */
-export interface CreateServerMetaResponse {
-  id?: string;
+export interface CreatePairRequest {
+  targetUserId: string;
 }

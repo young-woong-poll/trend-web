@@ -4,16 +4,15 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { ServerMetaResponse } from './serverMetaResponse';
+import type { JoinCompareLinkResponse } from './joinCompareLinkResponse';
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseListServerMetaResponse {
+export interface BaseResponseJoinCompareLinkResponse {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
-  /** 응답 데이터 */
-  data?: ServerMetaResponse[];
+  data?: JoinCompareLinkResponse;
 }

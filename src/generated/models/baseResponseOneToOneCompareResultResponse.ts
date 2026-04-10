@@ -4,15 +4,15 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
-import type { CreateServerMetaResponse } from './createServerMetaResponse';
+import type { OneToOneCompareResultResponse } from './oneToOneCompareResultResponse';
 
 /**
  * 공통 응답 포맷
  */
-export interface BaseResponseCreateServerMetaResponse {
+export interface BaseResponseOneToOneCompareResultResponse {
   /** 응답 코드 */
   code?: string;
   /** 응답 메시지 */
   message?: string;
-  data?: CreateServerMetaResponse;
+  data?: OneToOneCompareResultResponse;
 }
