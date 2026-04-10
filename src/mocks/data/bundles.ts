@@ -6,8 +6,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'love-values',
     title: '연애 가치관 테스트',
     subtitle: '우리 연애 스타일 얼마나 통할까?',
-    description:
-      '연애에서 중요한 5가지 질문으로 나와 상대방의 가치관을 비교해보세요. 썸부터 싸움 해결까지, 우리는 얼마나 맞을까요?',
     category: '연애',
     categoryCode: 'LOVE',
     questionCount: 5,
@@ -22,8 +20,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'marriage-values',
     title: '결혼 가치관 테스트',
     subtitle: '우리 결혼하면 잘 살 수 있을까?',
-    description:
-      '혼수, 맞벌이, 신혼집, 명절, 교육까지. 결혼 전에 꼭 맞춰봐야 할 5가지 가치관을 비교합니다.',
     category: '결혼',
     categoryCode: 'MARRIAGE',
     questionCount: 5,
@@ -38,7 +34,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'grade-king',
     title: '등급 테스트: 사자왕',
     subtitle: '대중성 68%+ → 여론의 사자왕',
-    description: '등급 확인용',
     category: '테스트',
     questionCount: 5,
     status: 'ACTIVE',
@@ -51,7 +46,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'grade-leader',
     title: '등급 테스트: 트렌드 여우',
     subtitle: '대중성 58~67% → 트렌드 여우',
-    description: '등급 확인용',
     category: '테스트',
     questionCount: 5,
     status: 'ACTIVE',
@@ -64,7 +58,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'grade-balancer',
     title: '등급 테스트: 밸런스 판다',
     subtitle: '대중성 48~57% → 밸런스 판다',
-    description: '등급 확인용',
     category: '테스트',
     questionCount: 5,
     status: 'ACTIVE',
@@ -77,7 +70,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'grade-rebel',
     title: '등급 테스트: 소신 고양이',
     subtitle: '대중성 38~47% → 소신 고양이',
-    description: '등급 확인용',
     category: '테스트',
     questionCount: 5,
     status: 'ACTIVE',
@@ -90,7 +82,6 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
     slug: 'grade-unicorn',
     title: '등급 테스트: 유니콘',
     subtitle: '대중성 ~37% → 유니콘',
-    description: '등급 확인용',
     category: '테스트',
     questionCount: 5,
     status: 'ACTIVE',
@@ -378,7 +369,7 @@ export function getBundleResult(userId: string, slug: string): BundleMyResult | 
       };
     }),
     questionStats: elections.map((e, i) => {
-      const stats = bundleVoteStats.get(e.electionId) ?? { optionACount: 0, optionBCount: 0 };
+      const stats = bundleVoteStats.get(e.electionId ?? '') ?? { optionACount: 0, optionBCount: 0 };
       const total = stats.optionACount + stats.optionBCount;
       const seedRatios = [62, 45, 71, 38, 55, 48, 66, 33, 57, 42];
       const seedA = seedRatios[i] ?? 50;

@@ -129,7 +129,9 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     );
   }
 
-  const popularityScore = calcPopularityScore(result.myAnswers, result.questionStats);
+  const myAnswers = result.myAnswers ?? [];
+  const questionStats = result.questionStats ?? [];
+  const popularityScore = calcPopularityScore(myAnswers, questionStats);
   const popularity = getPopularityByScore(popularityScore);
 
   return (
@@ -187,8 +189,9 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
                   <div ref={popularityInfoRef} className={styles.popularityTooltip}>
                     <span className={styles.tooltipTitle}>대중성 지수란?</span>
                     <span className={styles.tooltipBody}>
-                      {result.totalQuestions}개 질문에서 내가 고른 선택지의 득표율 평균이에요.
-                      높을수록 다수의 선택과 비슷하고, 낮을수록 독자적인 가치관을 가진 타입이에요.
+                      {result.totalQuestions ?? myAnswers.length}개 질문에서 내가 고른 선택지의
+                      득표율 평균이에요. 높을수록 다수의 선택과 비슷하고, 낮을수록 독자적인 가치관을
+                      가진 타입이에요.
                     </span>
                   </div>
                 )}
@@ -203,8 +206,8 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <div className={styles.popularityDescription}>{popularity.description}</div>
           <span className={styles.participantHint}>
             * 현재{' '}
-            {result.questionStats[0]
-              ? result.questionStats[0].optionACount + result.questionStats[0].optionBCount
+            {questionStats[0]
+              ? (questionStats[0].optionACount ?? 0) + (questionStats[0].optionBCount ?? 0)
               : 0}
             명 참여 기준 · 참여자가 늘면 업데이트 돼요
           </span>
@@ -213,13 +216,15 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         {/* ═══ 내 답변 ═══ */}
         <div className={styles.answerSection}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>내 답변 {result.totalQuestions}개</span>
+            <span className={styles.sectionTitle}>
+              내 답변 {result.totalQuestions ?? myAnswers.length}개
+            </span>
             <div className={styles.sectionLine} />
           </div>
 
           <div className={styles.answerList}>
-            {result.myAnswers.map((answer, idx) => {
-              const stat = result.questionStats.find((s) => s.electionId === answer.electionId);
+            {myAnswers.map((answer, idx) => {
+              const stat = questionStats.find((s) => s.electionId === answer.electionId);
               const statTotal = (stat?.optionACount ?? 0) + (stat?.optionBCount ?? 0);
               const aRate =
                 statTotal > 0 ? Math.round(((stat?.optionACount ?? 0) / statTotal) * 100) : 50;
@@ -255,7 +260,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
                         onClick={(e) => {
                           const el = e.currentTarget;
                           if (el.scrollWidth > el.clientWidth) {
-                            showToast(answer.optionA);
+                            showToast(answer.optionA ?? '');
                           }
                         }}
                       >
@@ -277,7 +282,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
                         onClick={(e) => {
                           const el = e.currentTarget;
                           if (el.scrollWidth > el.clientWidth) {
-                            showToast(answer.optionB);
+                            showToast(answer.optionB ?? '');
                           }
                         }}
                       >

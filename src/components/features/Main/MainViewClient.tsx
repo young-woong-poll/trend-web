@@ -53,7 +53,7 @@ function parseTabFromQuery(
 
   // 카테고리 탭이 지정되었으면 우선 적용
   if (category) {
-    const label = categories?.find((c) => c.slug === category)?.name ?? category;
+    const label = categories?.find((c) => c.categoryCode === category)?.category ?? category;
     return { kind: 'category', slug: category, label };
   }
 
@@ -186,10 +186,10 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
     ? apiCategories
-        .filter((c) => c.slug !== 'all') // "전체" 카테고리 제외 (NEW 탭이 대체)
+        .filter((c) => c.categoryCode !== 'all') // "전체" 카테고리 제외 (NEW 탭이 대체)
         .map((c) => ({
-          label: c.name ?? '',
-          slug: c.slug ?? '',
+          label: c.category ?? '',
+          slug: c.categoryCode ?? '',
         }))
     : undefined;
 

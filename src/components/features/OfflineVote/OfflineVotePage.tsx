@@ -11,7 +11,7 @@ import CheckIcon from '@/assets/icon/CheckIcon';
 import ShortLogo from '@/assets/icon/ShortLogo';
 import styles from '@/components/features/OfflineVote/OfflineVotePage.module.scss';
 import { getDetail, vote } from '@/generated/api/client/hotpick/hotpick';
-import { get1 } from '@/generated/api/client/server-meta/server-meta';
+// TODO: server-meta API removed - needs BE replacement
 import type { ElectionItemViewResponse, ElectionViewResponse } from '@/generated/models';
 import { useFullscreen } from '@/hooks/useFullscreen';
 import { getTKUID } from '@/lib/tkuid';
@@ -82,25 +82,12 @@ export const OfflineVotePage: FC = () => {
 
     const init = async () => {
       try {
-        // 1. ServerMeta 검증
-        const metaRes = await get1(serverMetaId);
-        if (!metaRes.id) {
-          setError('유효하지 않은 서버 메타 정보입니다.');
-          setPhase('error');
-          return;
-        }
+        // TODO: server-meta API removed - needs BE replacement
+        // Previously validated serverMetaId via get1() and extracted location/time metadata.
+        // For now, store the serverMetaId as-is without server validation.
+        setServerMeta({ id: serverMetaId });
 
-        const meta = metaRes.meta as Record<string, unknown> | undefined;
-        const location = meta?.location as LocationMeta | undefined;
-
-        setServerMeta({
-          id: metaRes.id,
-          location,
-          from: meta?.from as string | undefined,
-          to: meta?.to as string | undefined,
-        });
-
-        // 2. 핫픽 데이터 로드
+        // 핫픽 데이터 로드
         const res = await getDetail(slug);
         const hotpick = res.hotpick;
         const election = hotpick?.election;
@@ -115,7 +102,7 @@ export const OfflineVotePage: FC = () => {
           election,
           title: election.title ?? '',
           imageUrl: election.imageUrl ?? hotpick.imageUrl,
-          categories: (hotpick.categories ?? []).map((c) => c.name ?? ''),
+          categories: (hotpick.categories ?? []).map((c) => c.category ?? ''),
         });
         setTotalCount(election.totalVoteCount ?? 0);
         setPhase('ready');
@@ -144,11 +131,12 @@ export const OfflineVotePage: FC = () => {
       setVotedOptionId(optionId);
 
       try {
+        // TODO: server-meta API removed - serverMetaId was removed from CreateVoteRequest, passing via clientMeta for now
         const result = await vote(
           slugRef.current,
           {
             electionItemId: optionId,
-            serverMetaId: serverMetaIdRef.current,
+            clientMeta: { serverMetaId: serverMetaIdRef.current },
           },
           { headers: { 'x-tku-id': tkuIdRef.current } }
         );

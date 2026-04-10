@@ -1,17 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { customInstance } from '@/lib/axios-mutator';
+import { list } from '@/generated/api/client/bundle/bundle';
 import type { BundleDetail } from '@/types/bundle';
 
 export const useMyBundles = (enabled: boolean) =>
-  useQuery({
+  useQuery<BundleDetail[] | undefined>({
     queryKey: ['bundles', 'completed'],
-    queryFn: () =>
-      customInstance<BundleDetail[]>({
-        url: '/api/v1/bundles',
-        method: 'GET',
-        params: { filter: 'completed' },
-      }),
+    queryFn: () => list({ filter: 'completed' }) as Promise<BundleDetail[] | undefined>,
     enabled,
     staleTime: 60 * 1000,
   });

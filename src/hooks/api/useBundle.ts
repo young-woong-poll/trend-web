@@ -1,12 +1,17 @@
 // src/hooks/api/useBundle.ts
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { customInstance } from '@/lib/axios-mutator';
+import {
+  getDetail1,
+  getElections,
+  getMyResult,
+  submitAnswers,
+} from '@/generated/api/client/bundle/bundle';
 import type {
   BundleDetail,
   BundleElection,
-  BundleAnswerRequest,
   BundleMyResult,
+  BundleAnswerRequest,
 } from '@/types/bundle';
 
 /**
@@ -21,38 +26,29 @@ export const bundleKeys = {
 
 /**
  * Query Options
+ *
+ * generated API 함수의 반환 타입(BaseResponse unwrap)을 FE alias 타입으로 캐스팅.
+ * categoryCode: string → CategoryCode 좁히기를 위해 필요.
  */
 export const bundleQueries = {
   detail: (slug: string) =>
-    queryOptions<BundleDetail | null>({
+    queryOptions<BundleDetail | undefined>({
       queryKey: bundleKeys.detail(slug),
-      queryFn: () =>
-        customInstance<BundleDetail>({
-          url: `/api/v1/bundles/${slug}`,
-          method: 'GET',
-        }),
+      queryFn: () => getDetail1(slug) as Promise<BundleDetail | undefined>,
       staleTime: 60 * 1000,
     }),
 
   elections: (slug: string) =>
-    queryOptions<BundleElection[] | null>({
+    queryOptions<BundleElection[] | undefined>({
       queryKey: bundleKeys.elections(slug),
-      queryFn: () =>
-        customInstance<BundleElection[]>({
-          url: `/api/v1/bundles/${slug}/elections`,
-          method: 'GET',
-        }),
+      queryFn: () => getElections(slug) as Promise<BundleElection[] | undefined>,
       staleTime: 60 * 1000,
     }),
 
   myResult: (slug: string) =>
-    queryOptions<BundleMyResult | null>({
+    queryOptions<BundleMyResult | undefined>({
       queryKey: bundleKeys.myResult(slug),
-      queryFn: () =>
-        customInstance<BundleMyResult>({
-          url: `/api/v1/bundles/${slug}/my-result`,
-          method: 'GET',
-        }),
+      queryFn: () => getMyResult(slug) as Promise<BundleMyResult | undefined>,
       staleTime: 0,
     }),
 };
@@ -83,13 +79,7 @@ export const useSubmitBundleAnswers = (slug: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: BundleAnswerRequest) =>
-      customInstance({
-        url: `/api/v1/bundles/${slug}/answers`,
-        method: 'POST',
-        data,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    mutationFn: (data: BundleAnswerRequest) => submitAnswers(slug, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: bundleKeys.myResult(slug) });
     },

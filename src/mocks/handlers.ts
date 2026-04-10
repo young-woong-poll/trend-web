@@ -515,7 +515,7 @@ export const handlers = [
     if (category && category !== 'all') {
       hotpicks = hotpicks.filter((hp) => {
         const cats = hp.categories ?? [];
-        return cats.some((c) => c.slug === category || c.name === category);
+        return cats.some((c) => c.categoryCode === category || c.category === category);
       });
     }
 

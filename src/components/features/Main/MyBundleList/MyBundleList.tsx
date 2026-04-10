@@ -23,18 +23,21 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
 
   return (
     <div className={styles.container}>
-      {bundles.map((bundle) => (
-        <BundleAccordion
-          key={bundle.slug}
-          slug={bundle.slug}
-          title={bundle.title}
-          categoryCode={bundle.categoryCode}
-          isOpen={openSlug === bundle.slug}
-          onToggle={() => setOpenSlug((prev) => (prev === bundle.slug ? null : bundle.slug))}
-          onNewOneToOne={() => setCompareSlug(bundle.slug)}
-          onNewGroup={() => setGroupSlug(bundle.slug)}
-        />
-      ))}
+      {bundles.map((bundle) => {
+        const slug = bundle.slug ?? '';
+        return (
+          <BundleAccordion
+            key={slug}
+            slug={slug}
+            title={bundle.title ?? ''}
+            categoryCode={bundle.categoryCode}
+            isOpen={openSlug === slug}
+            onToggle={() => setOpenSlug((prev) => (prev === slug ? null : slug))}
+            onNewOneToOne={() => setCompareSlug(slug)}
+            onNewGroup={() => setGroupSlug(slug)}
+          />
+        );
+      })}
 
       {compareSlug && (
         <CreateCompareLink

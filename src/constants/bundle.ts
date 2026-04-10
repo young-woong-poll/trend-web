@@ -152,10 +152,10 @@ export function getPopularityByScore(score: number): PopularityInfo {
  * 예: [70, 45, 80, 40, 65] → 평균 60%
  */
 export function calcPopularityScore(
-  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
-  questionStats: Array<{ electionId: string; optionACount: number; optionBCount: number }>
+  myAnswers: Array<{ electionId?: string; selected?: string }>,
+  questionStats: Array<{ electionId?: string; optionACount?: number; optionBCount?: number }>
 ): number {
-  if (myAnswers.length === 0) {
+  if (!myAnswers || myAnswers.length === 0) {
     return 0;
   }
 
@@ -163,14 +163,19 @@ export function calcPopularityScore(
   let matched = 0;
 
   for (const answer of myAnswers) {
+    if (!answer.electionId || !answer.selected) {
+      continue;
+    }
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
     if (!stat) {
       continue;
     }
 
-    const total = stat.optionACount + stat.optionBCount;
-    const optionARate = total > 0 ? Math.round((stat.optionACount / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round((stat.optionBCount / total) * 100) : 50;
+    const aCount = stat.optionACount ?? 0;
+    const bCount = stat.optionBCount ?? 0;
+    const total = aCount + bCount;
+    const optionARate = total > 0 ? Math.round((aCount / total) * 100) : 50;
+    const optionBRate = total > 0 ? Math.round((bCount / total) * 100) : 50;
     totalRate += answer.selected === 'A' ? optionARate : optionBRate;
     matched++;
   }

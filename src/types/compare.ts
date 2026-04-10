@@ -70,14 +70,14 @@ export interface CompareResult {
 
   me: {
     nickname: string;
-    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+    answers: Array<{ electionId: string; selected: string }>;
   };
 
   target: {
     nickname: string;
     /** 서비스 탈퇴 유저 여부 */
     isWithdrawn?: boolean;
-    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+    answers: Array<{ electionId: string; selected: string }>;
   };
 
   /** 각 질문별 현재 투표 수 (실시간 변동) */

@@ -30,9 +30,9 @@ interface CompareResultProps {
 
 /** 가상 상대 답변 생성 (시드 기반, ~40-60% matchRate) */
 function generateGhostAnswers(
-  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
+  myAnswers: Array<{ electionId: string; selected: string }>,
   seed: number
-): Array<{ electionId: string; selected: 'A' | 'B' }> {
+): Array<{ electionId: string; selected: string }> {
   return myAnswers.map((a, i) => ({
     electionId: a.electionId,
     selected: (seed + i) % 3 === 0 ? a.selected : a.selected === 'A' ? 'B' : 'A',
@@ -95,9 +95,12 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       return null;
     }
 
-    const myAnswers = myBundleResult.myAnswers.map((a) => ({
-      electionId: a.electionId,
-      selected: a.selected,
+    const rawAnswers = myBundleResult.myAnswers ?? [];
+    const rawStats = myBundleResult.questionStats ?? [];
+
+    const myAnswers = rawAnswers.map((a) => ({
+      electionId: a.electionId ?? '',
+      selected: a.selected ?? 'A',
     }));
     const ghostAnswers = generateGhostAnswers(myAnswers, 42);
 
@@ -110,25 +113,25 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
 
     return {
-      bundleSlug: myBundleResult.bundleSlug,
-      bundleTitle: myBundleResult.bundleTitle,
-      totalQuestions: myBundleResult.totalQuestions,
+      bundleSlug: myBundleResult.bundleSlug ?? '',
+      bundleTitle: myBundleResult.bundleTitle ?? '',
+      totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
       categoryCode: link.categoryCode,
       me: { nickname: link.creatorNickname, answers: myAnswers },
       target: { nickname: '???', answers: ghostAnswers },
-      questionStats: myBundleResult.myAnswers.map((a) => {
-        const stats = myBundleResult.questionStats.find((s) => s.electionId === a.electionId);
+      questionStats: rawAnswers.map((a) => {
+        const stats = rawStats.find((s) => s.electionId === a.electionId);
         return {
-          electionId: a.electionId,
-          title: a.title,
-          optionA: a.optionA,
-          optionB: a.optionB,
+          electionId: a.electionId ?? '',
+          title: a.title ?? '',
+          optionA: a.optionA ?? '',
+          optionB: a.optionB ?? '',
           optionACount: stats?.optionACount ?? 50,
           optionBCount: stats?.optionBCount ?? 50,
         };
       }),
       matchCount,
-      matchRate: Math.round((matchCount / myAnswers.length) * 100),
+      matchRate: myAnswers.length > 0 ? Math.round((matchCount / myAnswers.length) * 100) : 0,
     };
   }, [isPreview, myBundleResult, link]);
 

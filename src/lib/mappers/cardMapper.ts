@@ -26,7 +26,7 @@ export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel
     totalVoteCount: election.totalVoteCount ?? 0,
     totalCommentCount: election.totalCommentCount ?? 0,
     // derived (FE-only computed fields)
-    categories: (hotpick.categories ?? []).map((c) => c.name ?? ''),
+    categories: (hotpick.categories ?? []).map((c) => c.category ?? ''),
     status: hotpick.isExpired ? 'CLOSED' : 'OPEN',
     voteType: hasOptionImages ? 'IMAGE' : 'TEXT',
     vote: electionToSingleVoteData(election),
@@ -36,7 +36,7 @@ export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel
 
 export function toBundleCardModel(hotpick: HotpickCardResponse): BundleCardModel {
   const { slug = '', expiredAt } = hotpick;
-  const categories = (hotpick.categories ?? []).map((c) => c.name ?? '');
+  const categories = (hotpick.categories ?? []).map((c) => c.category ?? '');
 
   return {
     // passthrough
@@ -86,7 +86,7 @@ export function toSingleDetailModel(data: HotpickDetailResponse, slug: string): 
     myElectionItemId: election.myElectionItemId,
     items,
     // derived
-    categories: (hotpick?.categories ?? []).map((c) => c.name ?? ''),
+    categories: (hotpick?.categories ?? []).map((c) => c.category ?? ''),
     isExpired: hotpick?.expiredAt ? new Date(hotpick.expiredAt) < new Date() : false,
     voteType: hasOptionImages ? 'IMAGE' : 'TEXT',
     logoUrl: !hasOptionImages ? (election.imageUrl ?? hotpick?.imageUrl) : undefined,

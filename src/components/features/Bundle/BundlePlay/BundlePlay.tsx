@@ -80,7 +80,8 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
         return;
       }
       const election = elections[currentIndex];
-      setAnswers((prev) => new Map(prev).set(election.electionId, choice));
+      const id = election.electionId ?? '';
+      setAnswers((prev) => new Map(prev).set(id, choice));
       trackBundleAnswer(slug, currentIndex, choice);
 
       if (autoAdvanceTimer.current) {
@@ -119,15 +120,16 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       return;
     }
 
-    const unanswered = elections.filter((e) => !answers.has(e.electionId));
+    const unanswered = elections.filter((e) => !answers.has(e.electionId ?? ''));
     if (unanswered.length > 0) {
       return;
     }
 
     const answerData = elections.map((e) => {
-      const selected = answers.get(e.electionId);
+      const id = e.electionId ?? '';
+      const selected = answers.get(id);
       // unanswered guard가 위에서 이미 검증했으므로 여기서는 fallback
-      return { electionId: e.electionId, selected: selected ?? ('A' as const) };
+      return { electionId: id, selected: selected ?? ('A' as const) };
     });
 
     try {
@@ -168,8 +170,8 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   }
 
   const currentElection = elections[currentIndex];
-  const currentAnswer = answers.get(currentElection.electionId) ?? null;
-  const allAnswered = elections.every((e) => answers.has(e.electionId));
+  const currentAnswer = answers.get(currentElection.electionId ?? '') ?? null;
+  const allAnswered = elections.every((e) => answers.has(e.electionId ?? ''));
   const isLast = currentIndex === elections.length - 1;
 
   return (

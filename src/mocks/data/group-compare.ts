@@ -88,7 +88,7 @@ export function getGroupCompareResult(
 
   return {
     bundleSlug,
-    bundleTitle: detail.title,
+    bundleTitle: detail.title ?? '',
     totalQuestions: elections.length,
     groupName,
     memberCount: members.length,
@@ -104,13 +104,13 @@ export function getGroupCompareResult(
       const aRate = seedRatios[i] ?? 50;
       const totalVotes = 500 + i * 100;
       return {
-        electionId: e.electionId,
-        title: e.title,
-        optionA: e.optionA,
-        optionB: e.optionB,
+        electionId: e.electionId ?? '',
+        title: e.title ?? '',
+        optionA: e.optionA ?? '',
+        optionB: e.optionB ?? '',
         optionACount: Math.round((aRate / 100) * totalVotes),
         optionBCount: Math.round(((100 - aRate) / 100) * totalVotes),
-        axis: axisMap[e.electionId] ?? null,
+        axis: axisMap[e.electionId ?? ''] ?? null,
       };
     }),
   };
