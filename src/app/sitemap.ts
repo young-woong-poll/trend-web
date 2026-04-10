@@ -21,6 +21,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
+    // 번들 목록 API에서 동적으로 slug 가져오기
+    const bundlePages = await (async () => {
+      try {
+        const bundleRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/bundles`, {
+          next: { revalidate: 60 },
+        });
+        if (!bundleRes.ok) {
+          return [];
+        }
+        const bundleData = await bundleRes.json();
+        const bundles: Array<{ slug: string }> = bundleData?.data ?? [];
+        return bundles.map(({ slug }) => ({
+          url: `${baseUrl}/bundle/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        }));
+      } catch {
+        return [];
+      }
+    })();
+
     return [
       {
         url: baseUrl,
@@ -35,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.5,
       },
       ...hotpickPages,
+      ...bundlePages,
     ];
   } catch (error) {
     console.error('[Sitemap] Failed to generate sitemap:', error);

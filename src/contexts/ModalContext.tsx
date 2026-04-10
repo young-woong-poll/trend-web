@@ -21,6 +21,7 @@ interface ModalContextType {
     options?: {
       message?: string;
       confirmText?: string;
+      showCloseButton?: boolean;
       onConfirm?: () => void;
     }
   ) => void;
@@ -88,6 +89,7 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
         title={alertState.title}
         message={alertState.message}
         confirmText={alertState.confirmText}
+        showCloseButton={alertState.showCloseButton}
         onConfirm={handleAlertConfirm}
       />
       {/* Confirm 컴포넌트들 */}

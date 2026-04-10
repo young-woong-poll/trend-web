@@ -1,0 +1,188 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.subtitle {
+  font-size: 13px;
+  color: $text-tertiary;
+  margin: -8px 0 0;
+  line-height: 1.4;
+}
+
+// ─── Question list ───
+
+.questionList {
+  @include flex-column;
+  gap: 12px;
+}
+
+.card {
+  @include flex-column;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.questionTitle {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.badgeExtreme {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #ff6b35;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  line-height: 1.4;
+}
+
+.badgeDiff {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-secondary;
+  background: rgba(#fff, 0.08);
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  line-height: 1.4;
+}
+
+// ─── Gender row ───
+
+.genderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.genderLabel {
+  flex-shrink: 0;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.genderIconMale {
+  color: #4fc3f7;
+  flex-shrink: 0;
+}
+
+.genderIconFemale {
+  color: #ff6b9d;
+  flex-shrink: 0;
+}
+
+.barArea {
+  flex: 1;
+  @include flex-column;
+  gap: 4px;
+}
+
+.barLabels {
+  @include flex-between;
+}
+
+.barLabelLeft,
+.barLabelRight {
+  font-size: 11px;
+  color: $text-tertiary;
+  line-height: 1;
+  @include text-ellipsis;
+  max-width: 48%;
+}
+
+.barLabelRight {
+  text-align: right;
+}
+
+// ─── Bar visualization ───
+
+.barTrack {
+  display: flex;
+  width: 100%;
+  height: 6px;
+  border-radius: $border-rounded;
+  overflow: hidden;
+}
+
+.barMaleA {
+  height: 100%;
+  background: #4fc3f7;
+  border-radius: $border-rounded 0 0 $border-rounded;
+  transition: width 0.4s ease;
+}
+
+.barMaleB {
+  height: 100%;
+  background: rgba(#4fc3f7, 0.3);
+  border-radius: 0 $border-rounded $border-rounded 0;
+  transition: width 0.4s ease;
+}
+
+.barFemaleA {
+  height: 100%;
+  background: #ff6b9d;
+  border-radius: $border-rounded 0 0 $border-rounded;
+  transition: width 0.4s ease;
+}
+
+.barFemaleB {
+  height: 100%;
+  background: rgba(#ff6b9d, 0.3);
+  border-radius: 0 $border-rounded $border-rounded 0;
+  transition: width 0.4s ease;
+}

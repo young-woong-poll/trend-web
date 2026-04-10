@@ -2,6 +2,35 @@ import type { HotpickCardResponse, MainHotpickResponse } from '@/generated/model
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/seo/constants';
 
 /**
+ * 번들 인트로 페이지의 JSON-LD 구조화 데이터를 생성합니다.
+ * - Quiz 구조 (schema.org)
+ */
+export function generateBundleStructuredData(bundle: {
+  title: string;
+  subtitle?: string;
+  questionCount: number;
+  participantCount: number;
+  slug: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Quiz',
+    name: bundle.title,
+    description: bundle.subtitle ?? `${bundle.questionCount}개 질문으로 구성된 가치관 테스트`,
+    url: `${SITE_URL}/bundle/${bundle.slug}`,
+    about: {
+      '@type': 'Thing',
+      name: bundle.title,
+    },
+    interactionStatistic: {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/ParticipateAction',
+      userInteractionCount: bundle.participantCount,
+    },
+  };
+}
+
+/**
  * 메인 페이지의 JSON-LD 구조화 데이터를 생성합니다.
  * - WebSite + ItemList 구조
  * - 각 핫픽은 slug, title, totalVoteCount만 사용

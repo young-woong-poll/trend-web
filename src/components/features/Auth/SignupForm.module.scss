@@ -7,6 +7,9 @@
   min-height: 100dvh;
   background: $bg-primary;
   padding: 0 $spacing-24;
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .content {
@@ -20,7 +23,7 @@
   font-size: $font-size-24;
   font-weight: $font-weight-bold;
   color: $white;
-  margin-bottom: $spacing-8;
+  margin-bottom: 12px;
 }
 
 .subtitle {
@@ -36,12 +39,20 @@
 
 .label {
   display: flex;
-  align-items: center;
-  gap: $spacing-4;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-8;
   font-size: $font-size-14;
   font-weight: $font-weight-semibold;
   color: $text-secondary;
   margin-bottom: $spacing-8;
+}
+
+.labelHint {
+  font-size: $font-size-12;
+  font-weight: $font-weight-regular;
+  color: $text-tertiary;
+  flex-shrink: 0;
 }
 
 .optional {
@@ -51,15 +62,17 @@
 }
 
 // ─── 닉네임 입력 ───
-.inputWrapper {
-  position: relative;
+.nicknameRow {
+  display: flex;
+  gap: $spacing-8;
   width: 100%;
 }
 
 .input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   height: 48px;
-  padding: 0 48px 0 $spacing-16;
+  padding: 0 $spacing-16;
   background: $bg-tertiary;
   border: 1px solid #3a3a3a;
   border-radius: $border-radius-md;
@@ -78,30 +91,63 @@
   &.error {
     border-color: $error;
   }
+
+  &.checked {
+    border-color: $success;
+  }
 }
 
-.refreshButton {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: $text-tertiary;
-  font-size: $font-size-18;
+.checkButton {
+  flex-shrink: 0;
+  height: 48px;
+  padding: 0 $spacing-16;
+  background: $bg-tertiary;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
   cursor: pointer;
-  padding: $spacing-8;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    opacity 0.15s;
 
-  &:hover {
-    color: $text-secondary;
+  &:hover:not(:disabled) {
+    border-color: $text-tertiary;
   }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.checkDone {
+    border-color: $success;
+    color: $success;
+  }
+}
+
+.successText {
+  font-size: $font-size-12;
+  color: $success;
+  margin-top: $spacing-8;
+  padding-left: $spacing-4;
+}
+
+.helperText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: $spacing-4;
 }
 
 .errorText {
   width: 100%;
   font-size: $font-size-12;
   color: $error;
-  margin-top: $spacing-4;
+  margin-top: $spacing-8;
+  padding-left: $spacing-4;
 
   &:empty {
     display: none;
@@ -134,7 +180,7 @@
   }
 }
 
-// ─── 태어난 연도 선택 ───
+// ─── 태어난 년도 선택 ───
 .selectInput {
   width: 100%;
   height: 48px;
@@ -199,21 +245,49 @@
 }
 
 .promptContent {
-  padding: 32px $spacing-24;
-}
-
-.promptDescription {
-  font-size: $font-size-14;
-  color: $text-tertiary;
-  line-height: 2.2;
-  margin-bottom: $spacing-24;
+  padding: $spacing-32 $spacing-24;
+  padding-bottom: max($spacing-24, env(safe-area-inset-bottom));
 }
 
 .promptTitle {
   font-size: $font-size-18;
   font-weight: $font-weight-bold;
   color: $white;
+  margin-bottom: $spacing-8;
+}
+
+.promptDescription {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.6;
   margin-bottom: $spacing-16;
+}
+
+.promptList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 $spacing-16 0;
+
+  li {
+    position: relative;
+    font-size: $font-size-14;
+    color: $text-tertiary;
+    line-height: 1.6;
+    padding-left: $spacing-16;
+
+    &::before {
+      content: '·';
+      position: absolute;
+      left: $spacing-4;
+      color: $text-tertiary;
+    }
+  }
+}
+
+.promptWarning {
+  font-size: 13px;
+  color: $text-tertiary;
+  margin-bottom: $spacing-24;
 }
 
 .promptButtons {

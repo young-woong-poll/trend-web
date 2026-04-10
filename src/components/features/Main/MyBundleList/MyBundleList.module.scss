@@ -1,0 +1,277 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  gap: 8px;
+}
+
+.emptyState {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px $spacing-16;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  text-align: center;
+}
+
+// ─── 아코디언 ───
+.accordion {
+  background: rgba(#fff, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(#fff, 0.06);
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.accordionOpen {
+  border-color: rgba(#fff, 0.12);
+}
+
+.accordionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.accordionTitle {
+  flex: 1;
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 건수 + 화살표를 하나의 그룹으로 묶어서 간격 확보
+.accordionMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.accordionCount {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.accordionArrow {
+  font-size: $font-size-16;
+  color: $text-tertiary;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.accordionArrowOpen {
+  transform: rotate(180deg);
+}
+
+// ─── 펼침 콘텐츠 ───
+.accordionContent {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.3s ease;
+}
+
+.accordionContentOpen {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.linkList {
+  @include flex-column;
+  gap: 6px;
+  padding: 0 16px 12px 28px;
+}
+
+// ─── 1:1 / 그룹 섹션 분리 ───
+.linkSection {
+  @include flex-column;
+  gap: 0;
+  position: relative;
+  max-height: 210px; // 약 5개 항목 높이
+  overflow-y: auto;
+  scrollbar-width: none; // 스크롤바 숨김 — 블러가 힌트 역할
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// 스크롤 위치별 페이드 힌트
+.fadeBottom {
+  mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent 100%);
+}
+
+.fadeTop {
+  mask-image: linear-gradient(to top, #000 75%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, #000 75%, transparent 100%);
+}
+
+.fadeTop.fadeBottom {
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 15%, #000 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 15%,
+    #000 85%,
+    transparent 100%
+  );
+}
+
+.linkSectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-tertiary;
+  letter-spacing: 0.5px;
+  padding-bottom: 6px;
+}
+
+.linkSectionLabelDivider {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(#fff, 0.08);
+}
+
+// ─── 링크 아이템 (행 전체 클릭 가능) ───
+.linkItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  margin: 0;
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(#fff, 0.03);
+  cursor: pointer;
+  text-align: left;
+  border-radius: $border-radius-sm;
+  transition: background 0.12s;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(#fff, 0.03);
+  }
+
+  &:active {
+    background: rgba(#fff, 0.05);
+  }
+}
+
+// ─── 1:1 상태 태그 (왼쪽 고정) ───
+.linkStatusTag {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-tertiary;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+.linkStatusWaiting {
+  color: $attention;
+}
+
+.linkStatusDone {
+  color: $text-tertiary;
+}
+
+.linkName {
+  flex: 1;
+  font-size: $font-size-14;
+  color: $white;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+// ─── 아이콘 (행 전체가 클릭 영역) ───
+.linkActionIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+// ─── 새 비교 만들기 ───
+.newCompareRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(#fff, 0.06);
+}
+
+.newOneToOneButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 12px 8px;
+  border: 1px solid rgba(#fff, 0.15);
+  border-radius: $border-radius-md;
+  background: $bg-tertiary;
+  color: $white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(#fff, 0.12);
+  }
+
+  &:active {
+    background: rgba(#fff, 0.15);
+  }
+}
+
+.newGroupButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  border-radius: $border-radius-md;
+  background: var(--primary-gradient, $primary-gradient);
+  color: $white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}

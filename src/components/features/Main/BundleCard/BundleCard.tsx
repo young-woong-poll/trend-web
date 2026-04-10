@@ -10,6 +10,7 @@ import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/BundleCard/BundleCard.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCardActions } from '@/contexts/CardActionsContext';
 import { formatCount } from '@/lib/utils';
 import type { BundleCardModel } from '@/types/card';
@@ -27,6 +28,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
     title,
     subtitle,
     categories = EMPTY_CATEGORIES,
+    categoryCode,
     totalVoteCount,
     electionCount,
     imageUrls,
@@ -41,19 +43,21 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
 
   const isClosed = status === 'CLOSED';
   const thumbnailUrl = imageUrls?.[0];
+  const themeVars = getCategoryThemeVars(categoryCode);
 
   const handleClick = () => {
     if (isClosed) {
       return;
     }
     setIsNavigating(true);
-    router.push(`/hotpick/${slug}`);
+    router.push(`/bundle/${slug}`);
   };
 
   return (
     <div
       className={`${styles.card} ${isClosed ? styles.closed : ''}`}
       data-testid="bundle-card"
+      style={themeVars}
       onClick={handleClick}
       role="button"
       tabIndex={0}
@@ -105,7 +109,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
               <h3 className={styles.title}>{title}</h3>
               <div className={styles.titleBadges}>
                 <span className={styles.bundleBadge}>
-                  {electionCount ? `${electionCount}개 투표` : '투표 모음'}
+                  {electionCount ? `${electionCount}개 질문` : '번들'}
                 </span>
                 {isClosed && (
                   <span className={styles.closedBadge} data-testid="closed-badge">

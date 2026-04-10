@@ -41,7 +41,7 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   border-radius: $border-radius-lg 0 0 $border-radius-lg;
 }
 
@@ -160,8 +160,8 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: $border-rounded;
-  background: rgba($primary-start, 0.15);
-  color: $primary-start;
+  background: rgba(var(--primary-start-rgb), 0.15);
+  color: var(--primary-start);
   font-size: $font-size-12;
   font-weight: $font-weight-bold;
 }
@@ -223,7 +223,7 @@
   padding: 10px 16px;
   border-radius: $border-radius-md;
   border: none;
-  background: $primary-gradient;
+  background: var(--primary-gradient);
   color: $white;
   font-size: $font-size-14;
   font-weight: $font-weight-bold;

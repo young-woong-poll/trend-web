@@ -21,7 +21,8 @@
     "orval.config.ts",
     "e2e",
     "docs",
-    "qa"
+    "qa",
+    "playwright-report"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

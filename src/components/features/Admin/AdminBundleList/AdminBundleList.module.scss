@@ -1,0 +1,190 @@
+@use '@/styles/variables' as *;
+
+.container {
+  padding: 2rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: $font-weight-bold;
+    color: $white;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+}
+
+.totalCount {
+  font-size: 0.8rem;
+  color: $text-tertiary;
+  margin-top: 4px;
+  display: block;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1rem;
+  color: $text-tertiary;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    tr th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: $font-weight-semibold;
+      color: $text-tertiary;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background-color 0.1s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      color: $text-secondary;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+.slug {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: $text-tertiary;
+}
+
+.categoryBadge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  letter-spacing: 0.02em;
+}
+
+.statusActive {
+  color: #4ade80;
+  font-weight: $font-weight-semibold;
+  font-size: 0.8rem;
+}
+
+.statusClosed {
+  color: $text-tertiary;
+  font-size: 0.8rem;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+}
+
+.detailButton,
+.editButton,
+.deleteButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.detailButton {
+  color: #dfff00;
+
+  &:hover {
+    background: rgba(223, 255, 0, 0.1);
+  }
+}
+
+.editButton {
+  color: $text-secondary;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.deleteButton {
+  color: #ef4444;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: $bg-secondary;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+
+  p {
+    font-size: 0.9rem;
+    color: $text-tertiary;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.25rem;
+    }
+  }
+
+  .table {
+    min-width: 800px;
+  }
+}

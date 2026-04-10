@@ -1,3 +1,4 @@
+import { categoryNameToCode } from '@/constants/categoryTheme';
 import type { HotpickCardResponse, HotpickDetailResponse } from '@/generated/models';
 import type {
   CardModel,
@@ -35,6 +36,7 @@ export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel
 
 export function toBundleCardModel(hotpick: HotpickCardResponse): BundleCardModel {
   const { slug = '', expiredAt } = hotpick;
+  const categories = (hotpick.categories ?? []).map((c) => c.name ?? '');
 
   return {
     // passthrough
@@ -43,7 +45,8 @@ export function toBundleCardModel(hotpick: HotpickCardResponse): BundleCardModel
     title: hotpick.election?.title ?? '',
     totalVoteCount: hotpick.election?.totalVoteCount ?? 0,
     // derived
-    categories: (hotpick.categories ?? []).map((c) => c.name ?? ''),
+    categories,
+    categoryCode: categoryNameToCode(categories[0]),
     status: hotpick.isExpired ? 'CLOSED' : 'OPEN',
     imageUrls: hotpick.imageUrl ? [hotpick.imageUrl] : undefined,
     participated: false, // placeholder: BE not implemented

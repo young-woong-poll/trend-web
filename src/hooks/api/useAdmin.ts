@@ -20,6 +20,12 @@ import {
   _delete as deleteServerMeta,
 } from '@/generated/api/client/admin-servermeta/admin-servermeta';
 import { generatePresignedUrl } from '@/generated/api/client/admin-storage/admin-storage';
+import {
+  getSuggestions,
+  getSuggestion,
+  approveSuggestion,
+  rejectSuggestion,
+} from '@/generated/api/client/admin-suggestion/admin-suggestion';
 import type {
   AdminCategoryResponse,
   AdminHotpickSummaryResponse,
@@ -31,6 +37,9 @@ import type {
   UpdateCategoryRequest,
   UpdateHotpickRequest,
   HotpickSlugCheckResponse,
+  SuggestionResponse,
+  GetSuggestionsStatus,
+  ReviewSuggestionRequest,
 } from '@/generated/models';
 import { useToast } from '@/hooks/useToast';
 
@@ -43,6 +52,9 @@ export const adminKeys = {
   hotpick: (id: number) => [...adminKeys.all, 'hotpick', id] as const,
   categories: () => [...adminKeys.all, 'categories'] as const,
   serverMetas: () => [...adminKeys.all, 'serverMetas'] as const,
+  suggestions: (status?: GetSuggestionsStatus) =>
+    [...adminKeys.all, 'suggestions', status] as const,
+  suggestion: (id: number) => [...adminKeys.all, 'suggestion', id] as const,
 };
 
 // ──────────────────────────────────────────────────────────
@@ -265,6 +277,71 @@ export const useDeleteServerMeta = () => {
     },
     onError: () => {
       showToast('서버 메타 삭제에 실패했습니다.');
+    },
+  });
+};
+
+// ──────────────────────────────────────────────────────────
+// Suggestion Hooks
+// ──────────────────────────────────────────────────────────
+
+/**
+ * Admin: 제안 목록 조회 Hook
+ */
+export const useSuggestions = (status?: GetSuggestionsStatus) =>
+  useQuery({
+    queryKey: adminKeys.suggestions(status),
+    queryFn: () => getSuggestions(status ? { status } : undefined) as Promise<SuggestionResponse[]>,
+  });
+
+/**
+ * Admin: 제안 상세 조회 Hook
+ */
+export const useAdminSuggestion = (id: number) =>
+  useQuery({
+    queryKey: adminKeys.suggestion(id),
+    queryFn: () => getSuggestion(id) as Promise<SuggestionResponse>,
+    enabled: !!id,
+  });
+
+/**
+ * Admin: 제안 승인 Hook
+ */
+export const useApproveSuggestion = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ReviewSuggestionRequest }) =>
+      approveSuggestion(id, data),
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.suggestions() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.suggestion(variables.id) });
+      showToast('제안이 승인되었습니다. 핫픽이 자동 생성됩니다.');
+    },
+    onError: () => {
+      showToast('제안 승인에 실패했습니다.');
+    },
+  });
+};
+
+/**
+ * Admin: 제안 거절 Hook
+ */
+export const useRejectSuggestion = () => {
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ReviewSuggestionRequest }) =>
+      rejectSuggestion(id, data),
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.suggestions() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.suggestion(variables.id) });
+      showToast('제안이 거절되었습니다.');
+    },
+    onError: () => {
+      showToast('제안 거절에 실패했습니다.');
     },
   });
 };

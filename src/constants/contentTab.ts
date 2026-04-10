@@ -10,7 +10,7 @@ export interface TopPeriodItem {
 }
 
 export const TOP_PERIODS: TopPeriodItem[] = [
-  { value: 'all', label: '전체' },
+  { value: 'all', label: '전체 기간' },
   { value: '1y', label: '일년' },
   { value: '1m', label: '한달' },
   { value: '1w', label: '한주' },
@@ -36,3 +36,16 @@ export const FILTER_TABS: FilterTabItem[] = [
 
 /** 기본 탭 선택 */
 export const DEFAULT_TAB: TabSelection = { kind: 'filter', type: 'new' };
+
+/** My 탭 하위 탭 */
+export type MySubTabType = 'vote' | 'compare' | 'comments' | 'likes';
+
+export const MY_SUB_TABS: Array<{ type: MySubTabType; label: string }> = [
+  { type: 'vote', label: '투표' },
+  { type: 'compare', label: '케미' },
+  { type: 'comments', label: '댓글' },
+  { type: 'likes', label: '좋아요' },
+];
+
+export const DEFAULT_MY_SUB_TAB_LOGGED_IN: MySubTabType = 'compare';
+export const DEFAULT_MY_SUB_TAB_GUEST: MySubTabType = 'vote';

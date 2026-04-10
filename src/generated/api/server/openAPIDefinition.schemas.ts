@@ -228,6 +228,20 @@ export interface BaseResponseAdminCategoryResponse {
   data?: AdminCategoryResponse;
 }
 
+export interface CreateSuggestionRequest {
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  title: string;
+  /**
+   * @minItems 2
+   * @maxItems 4
+   */
+  items: string[];
+  categoryIds: number[];
+}
+
 export interface CreateVoteRequest {
   electionItemId: number;
   serverMetaId?: string;
@@ -445,6 +459,48 @@ export interface BaseResponseKakaoLoginResponse {
   data?: KakaoLoginResponse;
 }
 
+export interface ReviewSuggestionRequest {
+  adminMemo?: string;
+}
+
+export interface SuggestionItemResponse {
+  id?: number;
+  displayOrder?: number;
+  title?: string;
+}
+
+export interface SuggestionCategoryResponse {
+  id?: number;
+  name?: string;
+  slug?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface SuggestionResponse {
+  id?: number;
+  userId?: string;
+  title?: string;
+  status?: string;
+  adminMemo?: string;
+  createdAt?: string;
+  reviewedAt?: string;
+  items?: SuggestionItemResponse[];
+  categories?: SuggestionCategoryResponse[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseSuggestionResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: SuggestionResponse;
+}
+
 export interface CreateServerMetaRequest {
   meta: JsonNode;
 }
@@ -572,15 +628,17 @@ export interface UpdateProfileRequest {
   profileColor?: string;
 }
 
+export interface NicknameChangeCooldownResponse {
+  nextAvailableAt?: string;
+}
+
 /**
- * 공통 응답 포맷
+ * 닉네임 변경 쿨다운 에러 응답
  */
-export interface BaseResponseUserResponse {
-  /** 응답 코드 */
+export interface NicknameChangeCooldownErrorResponse {
   code?: string;
-  /** 응답 메시지 */
   message?: string;
-  data?: UserResponse;
+  data?: NicknameChangeCooldownResponse;
 }
 
 export interface MyLikeResponse {
@@ -871,6 +929,29 @@ export interface BaseResponseNicknameCheckResponse {
 }
 
 /**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseUserResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: UserResponse;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListSuggestionResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: SuggestionResponse[];
+}
+
+/**
  * 응답 데이터
  */
 export type BaseResponseMapStringStringData = { [key: string]: string };
@@ -1052,6 +1133,18 @@ export type GetCategories1Params = {
 export type CheckNicknameParams = {
   nickname: string;
 };
+
+export type GetSuggestionsParams = {
+  status?: GetSuggestionsStatus;
+};
+
+export type GetSuggestionsStatus = (typeof GetSuggestionsStatus)[keyof typeof GetSuggestionsStatus];
+
+export const GetSuggestionsStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+} as const;
 
 export type GeneratePresignedUrlParams = {
   filename: string;

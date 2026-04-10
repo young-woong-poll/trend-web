@@ -29,7 +29,7 @@ export class TabPage {
     this.tabBar = page.getByTestId('content-tabs');
 
     this.newTab = page.getByTestId('content-tab-new');
-    this.hotTab = page.getByTestId('content-tab-hot');
+    this.hotTab = page.getByTestId('content-tab-top');
     this.myTab = page.getByTestId('content-tab-my');
 
     this.divider = this.tabBar.locator('[aria-hidden="true"]');

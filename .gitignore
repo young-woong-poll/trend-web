@@ -52,3 +52,4 @@ settings.json
 data/hotpick.db
 data/hotpick.db-wal
 data/hotpick.db-shm
+.gstack/

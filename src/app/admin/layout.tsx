@@ -2,6 +2,8 @@ import type { ReactNode } from 'react';
 
 import { notFound } from 'next/navigation';
 
+import AdminNav from '@/components/features/Admin/AdminNav/AdminNav';
+
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -22,5 +24,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     notFound();
   }
 
-  return children;
+  return (
+    <>
+      <AdminNav />
+      {children}
+    </>
+  );
 }

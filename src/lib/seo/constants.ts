@@ -50,6 +50,14 @@ export const OG_IMAGE = {
   alt: '핫픽 - 생각을 비교하다. 대중의 생각부터 연인의 가치관까지',
 } as const;
 
+// TODO: S3 업로드 후 CDN URL로 교체 (scripts/upload-og-image.js 사용)
+export const OG_IMAGE_BUNDLE = {
+  url: '/main-og2.png',
+  width: 1200,
+  height: 630,
+  alt: 'HotPick',
+} as const;
+
 /** 공통 Metadata 설정 */
 export const COMMON_METADATA: Omit<Metadata, 'metadataBase'> = {
   title: {

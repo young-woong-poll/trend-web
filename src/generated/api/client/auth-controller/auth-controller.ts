@@ -68,9 +68,9 @@ export const deleteMe = (options?: SecondParameter<typeof customInstance<BaseRes
 };
 export const updateProfile = (
   updateProfileRequest: BodyType<UpdateProfileRequest>,
-  options?: SecondParameter<typeof customInstance<BaseResponseUserResponse>>
+  options?: SecondParameter<typeof customInstance<unknown>>
 ) => {
-  return customInstance<BaseResponseUserResponse>(
+  return customInstance<unknown>(
     {
       url: `/api/v1/auth/me`,
       method: 'PATCH',

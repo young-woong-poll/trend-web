@@ -131,10 +131,18 @@ export const BasicInfoSection: FC<BasicInfoSectionProps> = ({
             <span className={styles.typeLabel}>SINGLE</span>
             <span className={styles.typeDesc}>단일 이지선다 투표</span>
           </label>
-          <label className={`${styles.typeOption} ${styles.typeOptionDisabled}`}>
-            <input type="radio" value="BUNDLE" disabled className={styles.toggleInput} />
+          <label
+            className={`${styles.typeOption} ${hotpickType === 'BUNDLE' ? styles.typeOptionActive : ''}`}
+          >
+            <input
+              type="radio"
+              value="BUNDLE"
+              checked={hotpickType === 'BUNDLE'}
+              onChange={() => setValue('type', 'BUNDLE')}
+              className={styles.toggleInput}
+            />
             <span className={styles.typeLabel}>BUNDLE</span>
-            <span className={styles.typeDesc}>준비 중</span>
+            <span className={styles.typeDesc}>A/B 질문 묶음</span>
           </label>
         </div>
       </div>

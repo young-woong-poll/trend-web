@@ -1,0 +1,165 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+// ─── 섹션 헤더 ───
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+// ─── 팩션 카드 리스트 ───
+.factionList {
+  @include flex-column;
+  gap: 10px;
+}
+
+.factionCard {
+  @include flex-column;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(#1e1e1e, 0.6);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+}
+
+.factionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.factionName {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+}
+
+.factionRate {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $text-tertiary;
+}
+
+// ─── 아바타 행 (팩션 + 외톨이 공용) ───
+.avatarRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.avatarItem {
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 12px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.15);
+  flex-shrink: 0;
+}
+
+.avatarName {
+  font-size: 10px;
+  color: $text-secondary;
+  white-space: nowrap;
+  max-width: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+// ─── 팩션 간 일치율 ───
+.crossSection {
+  @include flex-column;
+  gap: 8px;
+}
+
+.crossLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $text-tertiary;
+  padding-left: 2px;
+}
+
+.crossList {
+  @include flex-column;
+  gap: 4px;
+}
+
+.crossItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(#fff, 0.04);
+}
+
+.crossPair {
+  font-size: $font-size-12;
+  color: $text-secondary;
+}
+
+.crossRate {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+}
+
+// ─── 외톨이 ───
+.lonerSection {
+  @include flex-column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-lg;
+  border: 1px dashed rgba(#fff, 0.08);
+}
+
+.lonerLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $text-tertiary;
+}

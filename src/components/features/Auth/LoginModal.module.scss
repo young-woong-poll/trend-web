@@ -129,6 +129,44 @@
   text-align: center;
 }
 
+// ─── Compare 전용 (싹싹 비는 UI) ───
+.bowingEmoji {
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 16px;
+  animation: gentleBounce 2s ease-in-out infinite;
+}
+
+.compareTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.compareDesc {
+  font-size: 14px;
+  color: #8a8a8a;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 8px;
+
+  &:last-of-type {
+    margin-bottom: 24px;
+  }
+}
+
+@keyframes gentleBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
 // ─── Animations ───
 @keyframes fadeIn {
   from {

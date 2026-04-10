@@ -45,12 +45,20 @@
       "description": "관리자용 S3 Pre-signed URL API"
     },
     {
+      "name": "Suggestion",
+      "description": "핫픽 제안 API"
+    },
+    {
       "name": "Admin Hotpick",
       "description": "Hotpick admin API"
     },
     {
       "name": "Admin ServerMeta",
       "description": "Admin server meta API"
+    },
+    {
+      "name": "Admin Suggestion",
+      "description": "핫픽 제안 관리 API"
     }
   ],
   "paths": {
@@ -642,6 +650,65 @@
             }
           }
         ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/suggestions": {
+      "post": {
+        "tags": ["Suggestion"],
+        "summary": "핫픽 제안 제출",
+        "operationId": "createSuggestion",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSuggestionRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "500": {
             "description": "Internal Server Error",
@@ -1448,6 +1515,144 @@
         }
       }
     },
+    "/admin/api/v1/suggestions/{suggestionId}/reject": {
+      "post": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 거절",
+        "operationId": "rejectSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewSuggestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions/{suggestionId}/approve": {
+      "post": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 승인 (Hotpick 자동 생성)",
+        "operationId": "approveSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewSuggestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/v1/server-metas": {
       "get": {
         "tags": ["Admin ServerMeta"],
@@ -2121,12 +2326,12 @@
               }
             }
           },
-          "200": {
-            "description": "OK",
+          "400": {
+            "description": "닉네임 변경 쿨다운 (T2009)",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseResponseUserResponse"
+                  "$ref": "#/components/schemas/NicknameChangeCooldownErrorResponse"
                 }
               }
             }
@@ -2876,6 +3081,126 @@
         }
       }
     },
+    "/admin/api/v1/suggestions": {
+      "get": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 목록 조회",
+        "operationId": "getSuggestions",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["PENDING", "APPROVED", "REJECTED"]
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions/{suggestionId}": {
+      "get": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 상세 조회",
+        "operationId": "getSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/v1/storage/presigned": {
       "get": {
         "tags": ["Admin Storage"],
@@ -3393,6 +3718,34 @@
         },
         "description": "공통 응답 포맷"
       },
+      "CreateSuggestionRequest": {
+        "required": ["categoryIds", "items", "title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "items": {
+            "maxItems": 4,
+            "minItems": 2,
+            "type": "array",
+            "items": {
+              "maxLength": 200,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
       "CreateVoteRequest": {
         "required": ["electionItemId"],
         "type": "object",
@@ -3785,6 +4138,106 @@
         },
         "description": "응답 데이터"
       },
+      "ReviewSuggestionRequest": {
+        "type": "object",
+        "properties": {
+          "adminMemo": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SuggestionResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "SuggestionCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "adminMemo": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionItemResponse"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionCategoryResponse"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
       "CreateServerMetaRequest": {
         "required": ["meta"],
         "type": "object",
@@ -3988,24 +4441,30 @@
           }
         }
       },
-      "BaseResponseUserResponse": {
+      "NicknameChangeCooldownErrorResponse": {
         "type": "object",
         "properties": {
           "code": {
             "type": "string",
-            "description": "응답 코드",
-            "example": "S0000"
+            "example": "T2009"
           },
           "message": {
             "type": "string",
-            "description": "응답 메시지",
-            "example": "성공"
+            "example": "닉네임은 마지막 변경일로부터 1달 후에 변경할 수 있습니다."
           },
           "data": {
-            "$ref": "#/components/schemas/UserResponse"
+            "$ref": "#/components/schemas/NicknameChangeCooldownResponse"
           }
         },
-        "description": "공통 응답 포맷"
+        "description": "닉네임 변경 쿨다운 에러 응답"
+      },
+      "NicknameChangeCooldownResponse": {
+        "type": "object",
+        "properties": {
+          "nextAvailableAt": {
+            "type": "string"
+          }
+        }
       },
       "BaseResponseCursorPageResponseMyLikeResponse": {
         "type": "object",
@@ -4606,6 +5065,48 @@
           }
         },
         "description": "응답 데이터"
+      },
+      "BaseResponseUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseListSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
       },
       "BaseResponseMapStringString": {
         "type": "object",

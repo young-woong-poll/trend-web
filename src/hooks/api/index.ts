@@ -42,6 +42,10 @@ export {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
+  useSuggestions,
+  useAdminSuggestion,
+  useApproveSuggestion,
+  useRejectSuggestion,
 } from '@/hooks/api/useAdmin';
 
 // Hotpick Hooks
@@ -57,3 +61,6 @@ export { resultKeys, useCheckResultExists, useCreateResult } from '@/hooks/api/u
 // Search Hooks
 export { searchKeys, searchQueries, useSearch } from '@/hooks/api/useSearch';
 export type { SearchResponse, SearchHit } from '@/hooks/api/useSearch';
+
+// Suggestion Hooks
+export { useCreateSuggestion } from '@/hooks/api/useSuggestion';

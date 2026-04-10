@@ -1,0 +1,316 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  align-items: center;
+  padding: calc(56px + 24px) 0 80px;
+  gap: 24px;
+  width: 100%;
+}
+
+.backButton {
+  position: absolute;
+  top: calc(56px + 12px);
+  left: $spacing-16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.resultHeader {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  margin-bottom: -8px;
+}
+
+.resultTitle {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.ctaSection {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.ctaButton {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: $border-radius-lg;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.01);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.secondaryCta {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(#fff, 0.06);
+  border-radius: $border-radius-lg;
+  background: rgba(#fff, 0.02);
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(#fff, 0.04);
+  }
+}
+
+.loading {
+  @include flex-center;
+  flex-direction: column;
+  gap: 32px;
+  color: #fff;
+  width: 100%;
+  min-height: 60dvh;
+  height: 100vh;
+}
+
+// ─── 로딩 애니메이션 (원 2개 궤도) ───
+.loadingOrbit {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.loadingCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  animation: centerPulse 2s ease-in-out infinite;
+}
+
+@keyframes centerPulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--primary-start-rgb), 0.3);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    box-shadow: 0 0 20px 4px rgba(var(--primary-start-rgb), 0.15);
+  }
+}
+
+.loadingDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  animation: orbitSpin 2.4s linear infinite;
+  animation-delay: calc(var(--i) * -1.2s);
+
+  &:nth-child(1) {
+    background: #a89eff;
+  }
+  &:nth-child(2) {
+    background: #ff9a6c;
+  }
+}
+
+@keyframes orbitSpin {
+  from {
+    transform: rotate(calc(var(--i) * 180deg)) translateX(44px) rotate(calc(var(--i) * -180deg));
+  }
+  to {
+    transform: rotate(calc(var(--i) * 180deg + 360deg)) translateX(44px)
+      rotate(calc(var(--i) * -180deg - 360deg));
+  }
+}
+
+.loadingTextGroup {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  animation: textFadeIn 0.6s ease-out 0.3s both;
+}
+
+@keyframes textFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loadingTitle {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: $white;
+}
+
+.loadingSubtitle {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  animation: subtitlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtitlePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+// ─── 플로팅 CTA (1:1 + 그룹) ───
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floatingCta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-fixed;
+  padding: 12px $spacing-16;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba($bg-primary, 0.95) 60%, transparent 100%);
+  animation: fadeSlideUp 0.5s ease-out 1s both;
+}
+
+.floatingCtaRow {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+%ctaBase {
+  flex: 1;
+  padding: 16px 12px;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-16;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-align: center;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.ctaOneToOne {
+  @extend %ctaBase;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.12);
+  color: $white;
+}
+
+.ctaGroup {
+  @extend %ctaBase;
+  border: none;
+  background: var(--primary-gradient);
+  color: $white;
+}
+
+// ─── 그룹 내 케미 상세보기 배너 ───
+
+.groupPairBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.08);
+  border-radius: $border-radius-lg;
+  width: 100%;
+}
+
+.groupPairLabel {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.08);
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $white;
+  letter-spacing: -0.2px;
+}
+
+.groupPairNotice {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
+}
+
+// ─── 프리뷰 모드 ───
+
+.previewBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 20px;
+  background: rgba(#fff, 0.04);
+  border: 1px dashed rgba(#fff, 0.12);
+  border-radius: $border-radius-lg;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.previewText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.5;
+  text-align: center;
+}

@@ -1,0 +1,162 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.5s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.mapWrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 360px;
+  margin: 0 auto;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+  overflow: hidden;
+}
+
+.gridLine {
+  position: absolute;
+  background: rgba(#fff, 0.06);
+}
+
+.horizontalLine {
+  top: 50%;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+}
+
+.verticalLine {
+  left: 50%;
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+}
+
+.axisLabel {
+  position: absolute;
+  font-size: 11px;
+  color: $text-tertiary;
+  font-weight: 500;
+}
+
+.axisLeft {
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.axisRight {
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.axisTop {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.axisBottom {
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.quadrantLabel {
+  position: absolute;
+  font-size: 10px;
+  color: rgba(#fff, 0.15);
+  font-weight: 600;
+}
+
+.qTopLeft {
+  top: 12%;
+  left: 12%;
+}
+.qTopRight {
+  top: 12%;
+  right: 12%;
+  text-align: right;
+}
+.qBottomLeft {
+  bottom: 12%;
+  left: 12%;
+}
+.qBottomRight {
+  bottom: 12%;
+  right: 12%;
+  text-align: right;
+}
+
+.memberDot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  @include flex-column;
+  align-items: center;
+  gap: 2px;
+  z-index: 2;
+}
+
+.dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 11px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.2);
+}
+
+.dotName {
+  font-size: 10px;
+  color: $text-secondary;
+  white-space: nowrap;
+}
+
+.groupAverage {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px dashed rgba(#fff, 0.3);
+  z-index: 1;
+}

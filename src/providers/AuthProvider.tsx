@@ -7,6 +7,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import LoginModal from '@/components/features/Auth/LoginModal';
 import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
 import { getMe, postLogout } from '@/hooks/api/useAuthApi';
+import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
 import { useMSWReady } from '@/providers/MSWProvider';
 
@@ -98,8 +99,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const me = await getMe();
         setUser(me);
+        setAnalyticsUserId(String(me.id));
       } catch {
         setUser(null);
+        clearAnalyticsUserId();
       } finally {
         setIsLoading(false);
       }
@@ -134,6 +137,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       // 실패해도 클라이언트 상태는 초기화
     }
     setUser(null);
+    clearAnalyticsUserId();
   }, []);
 
   const closeLoginModal = useCallback(() => {

@@ -15,7 +15,7 @@ export interface LoginResponse {
   signupToken?: string;
 }
 
-export type LoginTrigger = 'comment' | 'like' | 'default';
+export type LoginTrigger = 'comment' | 'like' | 'compare' | 'default';
 
 export interface AuthContextValue {
   user: User | null;

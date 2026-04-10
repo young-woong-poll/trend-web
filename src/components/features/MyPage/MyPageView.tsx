@@ -10,16 +10,12 @@ import EditIcon from '@/assets/icon/EditIcon';
 import PaletteIcon from '@/assets/icon/PaletteIcon';
 import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import NicknameModal from '@/components/features/Auth/NicknameModal';
-import LikedHotpickList from '@/components/features/MyPage/LikedHotpickList';
-import MyCommentList from '@/components/features/MyPage/MyCommentList';
-import { CardListSkeleton, ProfileSkeleton } from '@/components/features/MyPage/MyPageSkeleton';
+import { ProfileSkeleton } from '@/components/features/MyPage/MyPageSkeleton';
 import styles from '@/components/features/MyPage/MyPageView.module.scss';
 import ProfileColorModal from '@/components/features/MyPage/ProfileColorModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { deleteAccount } from '@/hooks/api/useAuthApi';
-
-type Tab = 'comments' | 'likes';
 
 const NICKNAME_CHANGE_INTERVAL_DAYS = 30;
 
@@ -33,27 +29,29 @@ const canChangeNickname = (lastChangedAt: string | null): boolean => {
   return diffDays >= NICKNAME_CHANGE_INTERVAL_DAYS;
 };
 
-const daysUntilNicknameChange = (lastChangedAt: string | null): number => {
+const getNextNicknameChangeDate = (lastChangedAt: string | null): string => {
   if (!lastChangedAt) {
-    return 0;
+    return '';
   }
-  const last = new Date(lastChangedAt);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
-  return Math.max(0, NICKNAME_CHANGE_INTERVAL_DAYS - diffDays);
+  const next = new Date(lastChangedAt);
+  next.setDate(next.getDate() + NICKNAME_CHANGE_INTERVAL_DAYS);
+  return next.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 };
 
 const MyPageView = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { showConfirm, showToast } = useModal();
-  const [activeTab, setActiveTab] = useState<Tab>('comments');
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [showColorModal, setShowColorModal] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
-    window.location.href = '/';
+  const handleLogout = () => {
+    showConfirm('정말 로그아웃 하시겠습니까?', {
+      onConfirm: async () => {
+        await logout();
+        window.location.href = '/';
+      },
+    });
   };
 
   const handleWithdraw = () => {
@@ -74,8 +72,8 @@ const MyPageView = () => {
 
   const handleNicknameEdit = () => {
     if (!canChangeNickname(user?.lastNicknameChangedAt ?? null)) {
-      const days = daysUntilNicknameChange(user?.lastNicknameChangedAt ?? null);
-      showToast(`닉네임은 ${days}일 후에 변경할 수 있어요`);
+      const date = getNextNicknameChangeDate(user?.lastNicknameChangedAt ?? null);
+      showToast(`닉네임은 ${date}부터 변경할 수 있어요`);
       return;
     }
     setShowNicknameModal(true);
@@ -85,12 +83,6 @@ const MyPageView = () => {
     return (
       <div className={styles.container}>
         <ProfileSkeleton />
-        <div className={styles.divider} />
-        <div className={styles.tabs}>
-          <div className={`${styles.tab} ${styles.active}`}>내 댓글</div>
-          <div className={styles.tab}>좋아요한 핫픽</div>
-        </div>
-        <CardListSkeleton />
       </div>
     );
   }
@@ -131,30 +123,6 @@ const MyPageView = () => {
           프로필 색상
         </button>
       </div>
-
-      {/* 구분선 */}
-      <div className={styles.divider} />
-
-      {/* 탭 */}
-      <div className={styles.tabs}>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'comments' ? styles.active : ''}`}
-          onClick={() => setActiveTab('comments')}
-        >
-          내 댓글
-        </button>
-        <button
-          type="button"
-          className={`${styles.tab} ${activeTab === 'likes' ? styles.active : ''}`}
-          onClick={() => setActiveTab('likes')}
-        >
-          좋아요한 핫픽
-        </button>
-      </div>
-
-      {/* 탭 콘텐츠 */}
-      {activeTab === 'comments' ? <MyCommentList /> : <LikedHotpickList />}
 
       {/* 구분선 */}
       <div className={styles.divider} />
