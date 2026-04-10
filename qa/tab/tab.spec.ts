@@ -73,12 +73,14 @@ test.describe('필터탭', () => {
 
   test('TOP 탭 클릭 시 인기순 핫픽이 표시된다', async () => {
     await tab.clickTab(tab.hotTab);
-    // TOP 탭 데이터 로딩 대기 (API 재요청 + 렌더링)
-    await tab.page.waitForTimeout(2_000);
-    await tab.waitForContent();
+    // TOP 탭은 랭킹 카드(link) 형태 — single-card/bundle-card testId가 아님
+    await tab.page.waitForFunction(
+      () => document.querySelectorAll('a[href*="/hotpick/"]').length > 0,
+      { timeout: 15_000 }
+    );
 
-    const cardCount = await tab.totalCardCount();
-    expect(cardCount).toBeGreaterThan(0);
+    const rankCards = await tab.page.locator('a[href*="/hotpick/"]').count();
+    expect(rankCards).toBeGreaterThan(0);
   });
 
   test('MY 탭 클릭 시 하위 콘텐츠가 표시된다', async () => {
@@ -224,12 +226,14 @@ test.describe('탭 전환 동작', () => {
   test('탭 전환 시 해당 탭에 맞는 새로운 데이터가 로드된다', async () => {
     // TOP 탭으로 전환
     await tab.clickTab(tab.hotTab);
-    await tab.page.waitForTimeout(2_000);
-    await tab.waitForContent();
+    // TOP 탭은 랭킹 카드(link) 형태
+    await tab.page.waitForFunction(
+      () => document.querySelectorAll('a[href*="/hotpick/"]').length > 0,
+      { timeout: 15_000 }
+    );
 
-    // TOP에서 카드가 표시되는지 확인
-    const cardCount = await tab.totalCardCount();
-    expect(cardCount).toBeGreaterThan(0);
+    const rankCards = await tab.page.locator('a[href*="/hotpick/"]').count();
+    expect(rankCards).toBeGreaterThan(0);
   });
 
   test('탭 전환 시 스크롤이 최상단으로 초기화된다', async () => {
