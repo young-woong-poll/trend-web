@@ -87,13 +87,13 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
   // GA4: 그룹 비교 결과 조회
   useEffect(() => {
-    if (result && result.members.length > 1) {
-      trackGroupResult(result.bundleSlug, result.memberCount);
+    if (result && (result.members ?? []).length > 1) {
+      trackGroupResult(result.bundleSlug ?? '', result.memberCount ?? 0);
     }
   }, [result]);
 
   // 프리뷰 모드: 실제 멤버가 1명뿐일 때 가상 멤버 3명을 주입
-  const isPreview = result?.members.length === 1;
+  const isPreview = (result?.members ?? []).length === 1;
 
   // displayName이 있으면 nickname 대신 사용 (모든 하위 컴포넌트에 일괄 적용)
   const displayResult = useMemo(() => {
@@ -101,15 +101,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       return null;
     }
 
-    const realMembers = result.members.map((m) => ({
+    const realMembers = (result.members ?? []).map((m) => ({
       ...m,
+      userId: m.userId ?? '',
       // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-      nickname: m.isWithdrawn ? WITHDRAWN_NICKNAME : (m.displayName ?? m.nickname),
+      nickname: m.isWithdrawn ? WITHDRAWN_NICKNAME : (m.displayName ?? m.nickname ?? ''),
     }));
 
     // 프리뷰: 가상 멤버 3명 추가
     if (realMembers.length === 1) {
-      const electionIds = result.questionStats.map((q) => q.electionId);
+      const electionIds = (result.questionStats ?? []).map((q) => q.electionId ?? '');
       const ghostMembers = GHOST_NAMES.map((name, i) => ({
         userId: `${GHOST_USER_PREFIX}${i}`,
         nickname: name,
@@ -127,7 +128,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   }, [result]);
 
   const groupSyncRate = useMemo(
-    () => (result ? calcGroupSyncRate(result.members, result.totalQuestions) : 0),
+    () => (result ? calcGroupSyncRate(result.members ?? [], result.totalQuestions ?? 0) : 0),
     [result]
   );
   const pairs = useMemo(
@@ -140,7 +141,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   );
   // 현재 유저가 이 그룹의 멤버인지 (group-result 응답에서 판별)
   const isCreator = result ? result.creatorUserId === result.myUserId : false;
-  const isMember = result ? result.members.some((m) => m.userId === result.myUserId) : false;
+  const isMember = result
+    ? (result.members ?? []).some((m) => m.userId === result.myUserId)
+    : false;
 
   const handleSaveSettings = async (settings: GroupSettings) => {
     setShowSettingsModal(false);
@@ -219,7 +222,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  const currentUserId = result.myUserId;
+  const currentUserId = result.myUserId ?? '';
 
   // ─── 비멤버 CTA 핸들러 ───
   const groupResultUrl = `/compare/group/${token}`;
@@ -451,7 +454,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
       {showCompareModal && (
         <CreateCompareLink
-          slug={result.bundleSlug}
+          slug={result.bundleSlug ?? ''}
           categoryCode={result.categoryCode}
           bundleTitle={result.bundleTitle}
           onClose={() => setShowCompareModal(false)}
@@ -459,7 +462,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       )}
       {showGroupModal && (
         <CreateGroupLink
-          slug={result.bundleSlug}
+          slug={result.bundleSlug ?? ''}
           categoryCode={result.categoryCode}
           bundleTitle={result.bundleTitle}
           onClose={() => setShowGroupModal(false)}
@@ -482,7 +485,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
       <GroupSettingsModal
         isOpen={showSettingsModal}
-        currentName={result.groupName}
+        currentName={result.groupName ?? ''}
         currentShowGenderContent={result.showGenderContent ?? false}
         isCreator={isCreator}
         onClose={() => setShowSettingsModal(false)}

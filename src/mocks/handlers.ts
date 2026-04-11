@@ -80,16 +80,16 @@ function generateRandomNickname(): string {
  * Mock 카테고리 데이터
  */
 const mockCategories = [
-  { id: 1, name: '연애', slug: 'LOVE' },
-  { id: 2, name: '결혼', slug: 'MARRIAGE' },
-  { id: 3, name: '재테크', slug: 'FINANCE' },
-  { id: 4, name: '직장', slug: 'WORK' },
-  { id: 5, name: '스포츠', slug: 'SPORTS' },
-  { id: 6, name: '음식', slug: 'FOOD' },
-  { id: 7, name: '게임', slug: 'GAME' },
-  { id: 8, name: '자동차', slug: 'CAR' },
-  { id: 9, name: '건강', slug: 'HEALTH' },
-  { id: 10, name: '트렌드', slug: 'TREND' },
+  { id: 1, category: '연애', categoryCode: 'LOVE' },
+  { id: 2, category: '결혼', categoryCode: 'MARRIAGE' },
+  { id: 3, category: '재테크', categoryCode: 'FINANCE' },
+  { id: 4, category: '직장', categoryCode: 'WORK' },
+  { id: 5, category: '스포츠', categoryCode: 'SPORTS' },
+  { id: 6, category: '음식', categoryCode: 'FOOD' },
+  { id: 7, category: '게임', categoryCode: 'GAME' },
+  { id: 8, category: '자동차', categoryCode: 'CAR' },
+  { id: 9, category: '건강', categoryCode: 'HEALTH' },
+  { id: 10, category: '트렌드', categoryCode: 'TREND' },
 ];
 /**
  * BaseResponse 형식으로 응답 래핑
@@ -1203,7 +1203,7 @@ export const handlers = [
     );
     // 그룹 생성 시 생성자를 자동으로 멤버에 추가
     if (body.type === 'GROUP') {
-      const link = compareLinkStore.get(result.token);
+      const link = compareLinkStore.get(result.token ?? '');
       if (link) {
         link.groupName = body.groupName ?? null;
         link.groupMembers.push({ userId: 'mock-user-1', nickname: '웅이' });

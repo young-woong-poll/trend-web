@@ -30,7 +30,7 @@ function sortLinks(links: MyCompareLink[]): MyCompareLink[] {
     if (a.status !== b.status) {
       return a.status === 'WAITING' ? -1 : 1;
     }
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime();
   });
 }
 
@@ -51,7 +51,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
   const oneToOneLinks = sorted.filter((l) => l.type === 'ONE_TO_ONE');
   const groupLinks = sorted
     .filter((l) => l.type === 'GROUP')
-    .sort((a, b) => b.memberCount - a.memberCount);
+    .sort((a, b) => (b.memberCount ?? 0) - (a.memberCount ?? 0));
 
   // 스크롤 위치별 블러 제어: 상단/하단 도달 감지
   const [oneToOneScroll, setOneToOneScroll] = useState({ atTop: true, atBottom: false });

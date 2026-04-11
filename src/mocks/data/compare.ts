@@ -511,7 +511,7 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     categoryCode: detail?.categoryCode,
     creatorNickname: link.creatorNickname,
     creatorImageUrl,
-    participantNickname: link.participantNickname,
+    participantNickname: link.participantNickname ?? undefined,
     hasParticipant: link.participantUserId !== null,
     isCreator: link.creatorUserId === currentUserId,
     isParticipant: link.participantUserId === currentUserId,

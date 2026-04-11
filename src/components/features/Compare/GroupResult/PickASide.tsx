@@ -172,10 +172,11 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
       return;
     }
     const scrollLeft = el.scrollLeft;
-    const cardWidth = el.scrollWidth / result.questionStats.length;
+    const qStats = result.questionStats ?? [];
+    const cardWidth = el.scrollWidth / qStats.length;
     const index = Math.round(scrollLeft / cardWidth);
-    setActiveIndex(Math.min(index, result.questionStats.length - 1));
-  }, [result.questionStats.length]);
+    setActiveIndex(Math.min(index, qStats.length - 1));
+  }, [(result.questionStats ?? []).length]);
 
   // PC 마우스 드래그 스크롤
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -229,7 +230,7 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
   }, []);
 
   const getMemberIndex = useCallback(
-    (userId: string) => result.members.findIndex((m) => m.userId === userId),
+    (userId: string) => (result.members ?? []).findIndex((m) => m.userId === userId),
     [result.members]
   );
 
@@ -249,26 +250,30 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        {result.questionStats.map((question) => {
-          const stackA: StackMember[] = result.members
+        {(result.questionStats ?? []).map((question) => {
+          const stackA: StackMember[] = (result.members ?? [])
             .filter((m) =>
-              m.answers.some((a) => a.electionId === question.electionId && a.selected === 'A')
+              (m.answers ?? []).some(
+                (a) => a.electionId === question.electionId && a.selected === 'A'
+              )
             )
             .map((m) => ({
-              userId: m.userId,
-              nickname: m.displayName ?? m.nickname,
-              memberIndex: getMemberIndex(m.userId),
+              userId: m.userId ?? '',
+              nickname: m.displayName ?? m.nickname ?? '',
+              memberIndex: getMemberIndex(m.userId ?? ''),
             }))
             .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 
-          const stackB: StackMember[] = result.members
+          const stackB: StackMember[] = (result.members ?? [])
             .filter((m) =>
-              m.answers.some((a) => a.electionId === question.electionId && a.selected === 'B')
+              (m.answers ?? []).some(
+                (a) => a.electionId === question.electionId && a.selected === 'B'
+              )
             )
             .map((m) => ({
-              userId: m.userId,
-              nickname: m.displayName ?? m.nickname,
-              memberIndex: getMemberIndex(m.userId),
+              userId: m.userId ?? '',
+              nickname: m.displayName ?? m.nickname ?? '',
+              memberIndex: getMemberIndex(m.userId ?? ''),
             }))
             .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 
@@ -305,9 +310,9 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
         })}
       </div>
 
-      {result.questionStats.length > 1 && (
+      {(result.questionStats ?? []).length > 1 && (
         <div className={styles.dots}>
-          {result.questionStats.map((q, i) => (
+          {(result.questionStats ?? []).map((q, i) => (
             <div
               key={q.electionId}
               className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}

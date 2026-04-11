@@ -22,7 +22,8 @@ interface RelationExplorerProps {
 }
 
 export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, result, pairs }) => {
-  const { members, questionStats } = result;
+  const members = result.members ?? [];
+  const questionStats = result.questionStats ?? [];
 
   /** 특정 멤버와 가장 케미가 높은 상대 찾기 */
   const findBestMatch = (userId: string): string | undefined => {
@@ -76,17 +77,17 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
     }
 
     return questionStats.map((q) => {
-      const answerA = memberA.answers.find((a) => a.electionId === q.electionId);
-      const answerB = memberB.answers.find((a) => a.electionId === q.electionId);
+      const answerA = (memberA.answers ?? []).find((a) => a.electionId === q.electionId);
+      const answerB = (memberB.answers ?? []).find((a) => a.electionId === q.electionId);
       const selectedA = answerA?.selected ?? null;
       const selectedB = answerB?.selected ?? null;
       const isMatch = selectedA !== null && selectedB !== null && selectedA === selectedB;
 
       return {
-        electionId: q.electionId,
-        title: q.title,
-        optionA: q.optionA,
-        optionB: q.optionB,
+        electionId: q.electionId ?? '',
+        title: q.title ?? '',
+        optionA: q.optionA ?? '',
+        optionB: q.optionB ?? '',
         selectedA,
         selectedB,
         isMatch,

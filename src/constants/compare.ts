@@ -179,9 +179,15 @@ export interface ShockPointData {
 }
 
 export function findShockPoint(result: CompareResult): ShockPointData | null {
-  const differentAnswers = result.questionStats.filter((stat) => {
-    const myAnswer = result.me.answers.find((a) => a.electionId === stat.electionId);
-    const targetAnswer = result.target.answers.find((a) => a.electionId === stat.electionId);
+  const me = result.me;
+  const target = result.target;
+  const questionStats = result.questionStats ?? [];
+  const meAnswers = me?.answers ?? [];
+  const targetAnswers = target?.answers ?? [];
+
+  const differentAnswers = questionStats.filter((stat) => {
+    const myAnswer = meAnswers.find((a) => a.electionId === stat.electionId);
+    const targetAnswer = targetAnswers.find((a) => a.electionId === stat.electionId);
     return myAnswer && targetAnswer && myAnswer.selected !== targetAnswer.selected;
   });
 
@@ -194,9 +200,9 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   let shockStat = differentAnswers[0];
 
   for (const stat of differentAnswers) {
-    const total = stat.optionACount + stat.optionBCount;
-    const optionARate = total > 0 ? Math.round((stat.optionACount / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round((stat.optionBCount / total) * 100) : 50;
+    const total = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
+    const optionARate = total > 0 ? Math.round(((stat.optionACount ?? 0) / total) * 100) : 50;
+    const optionBRate = total > 0 ? Math.round(((stat.optionBCount ?? 0) / total) * 100) : 50;
     const diff = Math.abs(optionARate - optionBRate);
     if (diff > maxDiff) {
       maxDiff = diff;
@@ -204,26 +210,26 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
     }
   }
 
-  const myAnswer = result.me.answers.find((a) => a.electionId === shockStat.electionId)!;
-  const targetAnswer = result.target.answers.find((a) => a.electionId === shockStat.electionId)!;
-  const shockTotal = shockStat.optionACount + shockStat.optionBCount;
+  const myAnswer = meAnswers.find((a) => a.electionId === shockStat.electionId)!;
+  const targetAnswer = targetAnswers.find((a) => a.electionId === shockStat.electionId)!;
+  const shockTotal = (shockStat.optionACount ?? 0) + (shockStat.optionBCount ?? 0);
   const shockOptARate =
-    shockTotal > 0 ? Math.round((shockStat.optionACount / shockTotal) * 100) : 50;
+    shockTotal > 0 ? Math.round(((shockStat.optionACount ?? 0) / shockTotal) * 100) : 50;
   const shockOptBRate =
-    shockTotal > 0 ? Math.round((shockStat.optionBCount / shockTotal) * 100) : 50;
+    shockTotal > 0 ? Math.round(((shockStat.optionBCount ?? 0) / shockTotal) * 100) : 50;
   const myRate = myAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
   const targetRate = targetAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
 
   // 코멘트 생성: 소수파인 쪽에 재미 코멘트
   const meMinority = myRate < targetRate;
-  const minorityName = meMinority ? '나' : result.target.nickname;
+  const minorityName = meMinority ? '나' : (target?.nickname ?? '');
   const comment = `${minorityName}${meMinority ? '는' : '님은'} 좀 양보하셔야...`;
 
   return {
-    electionId: shockStat.electionId,
-    title: shockStat.title,
-    optionA: shockStat.optionA,
-    optionB: shockStat.optionB,
+    electionId: shockStat.electionId ?? '',
+    title: shockStat.title ?? '',
+    optionA: shockStat.optionA ?? '',
+    optionB: shockStat.optionB ?? '',
     mySelected: myAnswer.selected as 'A' | 'B',
     targetSelected: targetAnswer.selected as 'A' | 'B',
     myRate,
@@ -260,35 +266,40 @@ export interface AnswerStoryData {
 export function classifyAnswers(result: CompareResult): AnswerStoryData {
   const same: AnswerStoryData['same'] = [];
   const different: AnswerStoryData['different'] = [];
+  const meAnswers = result.me?.answers ?? [];
+  const targetAnswers = result.target?.answers ?? [];
 
-  for (const stat of result.questionStats) {
-    const myAnswer = result.me.answers.find((a) => a.electionId === stat.electionId);
-    const targetAnswer = result.target.answers.find((a) => a.electionId === stat.electionId);
+  for (const stat of result.questionStats ?? []) {
+    const myAnswer = meAnswers.find((a) => a.electionId === stat.electionId);
+    const targetAnswer = targetAnswers.find((a) => a.electionId === stat.electionId);
     if (!myAnswer || !targetAnswer) {
       continue;
     }
 
-    const statTotal = stat.optionACount + stat.optionBCount;
-    const optionARate = statTotal > 0 ? Math.round((stat.optionACount / statTotal) * 100) : 50;
-    const optionBRate = statTotal > 0 ? Math.round((stat.optionBCount / statTotal) * 100) : 50;
+    const statTotal = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
+    const optionARate =
+      statTotal > 0 ? Math.round(((stat.optionACount ?? 0) / statTotal) * 100) : 50;
+    const optionBRate =
+      statTotal > 0 ? Math.round(((stat.optionBCount ?? 0) / statTotal) * 100) : 50;
     const myRate = myAnswer.selected === 'A' ? optionARate : optionBRate;
     const targetRate = targetAnswer.selected === 'A' ? optionARate : optionBRate;
 
     if (myAnswer.selected === targetAnswer.selected) {
       same.push({
-        electionId: stat.electionId,
-        title: stat.title,
-        selected: myAnswer.selected === 'A' ? stat.optionA : stat.optionB,
+        electionId: stat.electionId ?? '',
+        title: stat.title ?? '',
+        selected: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
         selectedRate: myRate,
       });
     } else {
       different.push({
-        electionId: stat.electionId,
-        title: stat.title,
-        mySelected: myAnswer.selected,
-        targetSelected: targetAnswer.selected,
-        myOptionText: myAnswer.selected === 'A' ? stat.optionA : stat.optionB,
-        targetOptionText: targetAnswer.selected === 'A' ? stat.optionA : stat.optionB,
+        electionId: stat.electionId ?? '',
+        title: stat.title ?? '',
+        mySelected: myAnswer.selected ?? '',
+        targetSelected: targetAnswer.selected ?? '',
+        myOptionText: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        targetOptionText:
+          targetAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
         myRate,
         targetRate,
       });

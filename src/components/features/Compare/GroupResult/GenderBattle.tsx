@@ -25,19 +25,19 @@ interface GenderQuestionStat {
 
 export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
   const sortedQuestions = useMemo(() => {
-    const males = result.members.filter((m) => m.gender === 'MALE');
-    const females = result.members.filter((m) => m.gender === 'FEMALE');
+    const males = (result.members ?? []).filter((m) => m.gender === 'MALE');
+    const females = (result.members ?? []).filter((m) => m.gender === 'FEMALE');
 
     if (males.length === 0 || females.length === 0) {
       return null;
     }
 
-    const stats: GenderQuestionStat[] = result.questionStats.map((q) => {
+    const stats: GenderQuestionStat[] = (result.questionStats ?? []).map((q) => {
       const maleAnswers = males
-        .map((m) => m.answers.find((a) => a.electionId === q.electionId))
+        .map((m) => (m.answers ?? []).find((a) => a.electionId === q.electionId))
         .filter(Boolean);
       const femaleAnswers = females
-        .map((m) => m.answers.find((a) => a.electionId === q.electionId))
+        .map((m) => (m.answers ?? []).find((a) => a.electionId === q.electionId))
         .filter(Boolean);
 
       const maleACount = maleAnswers.filter((a) => a?.selected === 'A').length;
@@ -54,10 +54,10 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
       const genderGap = Math.abs(maleRatioA - femaleRatioA);
 
       return {
-        electionId: q.electionId,
-        title: q.title,
-        optionA: q.optionA,
-        optionB: q.optionB,
+        electionId: q.electionId ?? '',
+        title: q.title ?? '',
+        optionA: q.optionA ?? '',
+        optionB: q.optionB ?? '',
         maleRatioA,
         maleRatioB,
         femaleRatioA,

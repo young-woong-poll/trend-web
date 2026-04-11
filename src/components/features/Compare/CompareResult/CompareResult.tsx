@@ -59,7 +59,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // GA4: 1:1 비교 결과 조회
   useEffect(() => {
     if (result) {
-      trackCompareResult(result.bundleSlug);
+      trackCompareResult(result.bundleSlug ?? '');
     }
   }, [result]);
 
@@ -117,7 +117,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       bundleTitle: myBundleResult.bundleTitle ?? '',
       totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
       categoryCode: link.categoryCode,
-      me: { nickname: link.creatorNickname, answers: myAnswers },
+      me: { nickname: link.creatorNickname ?? '', answers: myAnswers },
       target: { nickname: '???', answers: ghostAnswers },
       questionStats: rawAnswers.map((a) => {
         const stats = rawStats.find((s) => s.electionId === a.electionId);
@@ -233,9 +233,11 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // ─── 실제 결과 ───
   const shockPoint = findShockPoint(result);
   const storyData = classifyAnswers(result);
-  const isTargetWithdrawn = result.target.isWithdrawn === true;
+  const me = result.me ?? {};
+  const target = result.target ?? {};
+  const isTargetWithdrawn = target.isWithdrawn === true;
   // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : result.target.nickname;
+  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : (target.nickname ?? '');
 
   return (
     <BundleBackground categoryCode={result.categoryCode}>
@@ -264,22 +266,22 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         )}
 
         <ChemistryCard
-          matchRate={result.matchRate}
-          myNickname={result.me.nickname}
+          matchRate={result.matchRate ?? 0}
+          myNickname={me.nickname ?? ''}
           targetNickname={targetNickname}
           isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
-          myNickname={result.me.nickname}
+          myNickname={me.nickname ?? ''}
           targetNickname={targetNickname}
         />
 
         {shockPoint && (
           <ShockPoint
             data={shockPoint}
-            myNickname={result.me.nickname}
+            myNickname={me.nickname ?? ''}
             targetNickname={targetNickname}
           />
         )}
@@ -318,7 +320,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
           {showCompareModal && (
             <CreateCompareLink
-              slug={result.bundleSlug}
+              slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowCompareModal(false)}
@@ -326,7 +328,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           )}
           {showGroupModal && (
             <CreateGroupLink
-              slug={result.bundleSlug}
+              slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowGroupModal(false)}

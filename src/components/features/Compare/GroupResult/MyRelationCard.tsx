@@ -13,8 +13,8 @@ interface MyRelationCardProps {
 }
 
 export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result, pairs }) => {
-  const me = result.members.find((m) => m.userId === currentUserId);
-  const myIndex = result.members.findIndex((m) => m.userId === currentUserId);
+  const me = (result.members ?? []).find((m) => m.userId === currentUserId);
+  const myIndex = (result.members ?? []).findIndex((m) => m.userId === currentUserId);
 
   /** 나의 모든 페어 (matchRate 높은 순 정렬) */
   const myPairs = useMemo(() => {
@@ -24,7 +24,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
         const isA = p.memberA === currentUserId;
         const targetId = isA ? p.memberB : p.memberA;
         const targetNickname = isA ? p.nicknameB : p.nicknameA;
-        const targetIndex = result.members.findIndex((m) => m.userId === targetId);
+        const targetIndex = (result.members ?? []).findIndex((m) => m.userId === targetId);
         return { targetId, targetNickname, targetIndex, matchRate: p.matchRate };
       });
     return [...filtered].sort((a, b) => b.matchRate - a.matchRate);
@@ -51,21 +51,21 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
       return null;
     }
 
-    const myAnswerMap = new Map(me.answers.map((a) => [a.electionId, a.selected]));
-    const otherMembers = result.members.filter((m) => m.userId !== currentUserId);
+    const myAnswerMap = new Map((me.answers ?? []).map((a) => [a.electionId, a.selected]));
+    const otherMembers = (result.members ?? []).filter((m) => m.userId !== currentUserId);
 
     let maxDisagree = 0;
     let maxQuestion: { electionId: string; title: string; disagreeCount: number } | null = null;
 
-    for (const stat of result.questionStats) {
-      const myAnswer = myAnswerMap.get(stat.electionId);
+    for (const stat of result.questionStats ?? []) {
+      const myAnswer = myAnswerMap.get(stat.electionId ?? '');
       if (!myAnswer) {
         continue;
       }
 
       let disagreeCount = 0;
       for (const other of otherMembers) {
-        const otherAnswer = other.answers.find((a) => a.electionId === stat.electionId);
+        const otherAnswer = (other.answers ?? []).find((a) => a.electionId === stat.electionId);
         if (otherAnswer && otherAnswer.selected !== myAnswer) {
           disagreeCount++;
         }
@@ -73,7 +73,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
 
       if (disagreeCount > maxDisagree) {
         maxDisagree = disagreeCount;
-        maxQuestion = { electionId: stat.electionId, title: stat.title, disagreeCount };
+        maxQuestion = { electionId: stat.electionId ?? '', title: stat.title ?? '', disagreeCount };
       }
     }
 
@@ -87,7 +87,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
     }
 
     for (const pair of myPairs) {
-      const target = result.members.find((m) => m.userId === pair.targetId);
+      const target = (result.members ?? []).find((m) => m.userId === pair.targetId);
       if (target?.gender && target.gender !== me.gender) {
         const currentYear = new Date().getFullYear();
         const age = target.birthYear ? currentYear - target.birthYear + 1 : null;
@@ -121,7 +121,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
               className={styles.profileAvatar}
               style={{ background: myIndex >= 0 ? getGradient(myIndex) : '#333' }}
             >
-              {me.nickname[0]}
+              {(me.nickname ?? '')[0]}
             </div>
             <span className={styles.profileNickname}>{me.nickname}</span>
             <span className={styles.syncText}>

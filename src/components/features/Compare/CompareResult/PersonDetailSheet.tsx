@@ -19,8 +19,10 @@ interface PersonDetailSheetProps {
 }
 
 export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, onClose }) => {
-  const personData = result[person];
-  const score = calcPopularityScore(personData.answers, result.questionStats);
+  const personData = result[person] ?? {};
+  const answers = personData.answers ?? [];
+  const questionStats = result.questionStats ?? [];
+  const score = calcPopularityScore(answers, questionStats);
   const popularity = getPopularityByScore(score);
 
   useEscapeKey(true, onClose);
@@ -71,7 +73,7 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
             )}
           </div>
           <div className={styles.heroInfo}>
-            <span className={styles.personName}>{personData.nickname}</span>
+            <span className={styles.personName}>{personData.nickname ?? ''}</span>
             <span className={styles.scoreLabel}>대중성 지수</span>
             <div className={styles.scoreRow}>
               <span className={styles.score}>{score}</span>
@@ -88,15 +90,17 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
         </div>
 
         <div className={styles.answerList}>
-          {result.questionStats.map((stat, idx) => {
-            const answer = personData.answers.find((a) => a.electionId === stat.electionId);
+          {questionStats.map((stat, idx) => {
+            const answer = answers.find((a) => a.electionId === stat.electionId);
             if (!answer) {
               return null;
             }
 
-            const statTotal = stat.optionACount + stat.optionBCount;
-            const aRate = statTotal > 0 ? Math.round((stat.optionACount / statTotal) * 100) : 50;
-            const bRate = statTotal > 0 ? Math.round((stat.optionBCount / statTotal) * 100) : 50;
+            const optionACount = stat.optionACount ?? 0;
+            const optionBCount = stat.optionBCount ?? 0;
+            const statTotal = optionACount + optionBCount;
+            const aRate = statTotal > 0 ? Math.round((optionACount / statTotal) * 100) : 50;
+            const bRate = statTotal > 0 ? Math.round((optionBCount / statTotal) * 100) : 50;
             const myRate = answer.selected === 'A' ? aRate : bRate;
             const isMajority = myRate >= 50;
 

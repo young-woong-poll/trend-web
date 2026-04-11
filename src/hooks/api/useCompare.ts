@@ -1,13 +1,19 @@
 // src/hooks/api/useCompare.ts
 import { queryOptions, useQuery, useMutation } from '@tanstack/react-query';
 
-import { customInstance } from '@/lib/axios-mutator';
-import type {
-  CompareLink,
-  CompareResult,
-  CreateCompareLinkRequest,
-  CreateCompareLinkResponse,
-} from '@/types/compare';
+import { createCompareLink } from '@/generated/api/client/bundle/bundle';
+import {
+  getInfo,
+  getOneToOneResult,
+  getGroupResult,
+  join,
+  updateMyCompareProfile,
+  updateGroupSettings,
+  close,
+  reopen,
+  createPair,
+} from '@/generated/api/client/compare-link/compare-link';
+import type { CompareLink, CompareResult, CreateCompareLinkRequest } from '@/types/compare';
 import type { GroupCompareResult } from '@/types/group-compare';
 
 /**
@@ -22,38 +28,29 @@ export const compareKeys = {
 
 /**
  * Query Options
+ *
+ * generated API 함수의 반환 타입(BaseResponse unwrap)을 FE alias 타입으로 캐스팅.
+ * categoryCode: string → CategoryCode 좁히기를 위해 필요.
  */
 export const compareQueries = {
   link: (token: string) =>
-    queryOptions<CompareLink | null>({
+    queryOptions<CompareLink | undefined>({
       queryKey: compareKeys.link(token),
-      queryFn: () =>
-        customInstance<CompareLink>({
-          url: `/api/v1/compare-links/${token}`,
-          method: 'GET',
-        }),
+      queryFn: () => getInfo(token) as Promise<CompareLink | undefined>,
       staleTime: 30 * 1000,
     }),
 
   result: (token: string) =>
-    queryOptions<CompareResult | null>({
+    queryOptions<CompareResult | undefined>({
       queryKey: compareKeys.result(token),
-      queryFn: () =>
-        customInstance<CompareResult>({
-          url: `/api/v1/compare-links/${token}/result`,
-          method: 'GET',
-        }),
+      queryFn: () => getOneToOneResult(token) as Promise<CompareResult | undefined>,
       staleTime: 0,
     }),
 
   groupResult: (token: string) =>
-    queryOptions<GroupCompareResult | null>({
+    queryOptions<GroupCompareResult | undefined>({
       queryKey: compareKeys.groupResult(token),
-      queryFn: () =>
-        customInstance<GroupCompareResult>({
-          url: `/api/v1/compare-links/${token}/group-result`,
-          method: 'GET',
-        }),
+      queryFn: () => getGroupResult(token) as Promise<GroupCompareResult | undefined>,
       staleTime: 0,
     }),
 };
@@ -75,27 +72,13 @@ export const useCompareResult = (token: string) =>
 
 export const useCreateCompareLink = (slug: string) =>
   useMutation({
-    mutationFn: (data: CreateCompareLinkRequest) =>
-      customInstance<CreateCompareLinkResponse>({
-        url: `/api/v1/bundles/${slug}/compare-links`,
-        method: 'POST',
-        data,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    mutationFn: (data: CreateCompareLinkRequest) => createCompareLink(slug, data),
   });
 
 export const useJoinCompareLink = (token: string) =>
   useMutation({
-    mutationFn: (params?: { displayName?: string; profileColor?: string } | string) => {
-      // 하위 호환: 문자열이면 displayName으로 처리
-      const body = typeof params === 'string' ? { displayName: params } : (params ?? {});
-      const hasBody = Object.keys(body).length > 0;
-      return customInstance({
-        url: `/api/v1/compare-links/${token}/join`,
-        method: 'POST',
-        ...(hasBody ? { data: body, headers: { 'Content-Type': 'application/json' } } : {}),
-      });
-    },
+    mutationFn: (params?: { displayName?: string; profileColor?: string }) =>
+      join(token, params ?? {}),
   });
 
 export const useGroupCompareResult = (token: string) =>
@@ -107,51 +90,27 @@ export const useGroupCompareResult = (token: string) =>
 export const useUpdateMyGroupProfile = (token: string) =>
   useMutation({
     mutationFn: (data: { displayName?: string; displayProfileColor?: string }) =>
-      customInstance({
-        url: `/api/v1/compare-links/${token}/my-profile`,
-        method: 'PATCH',
-        data,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+      updateMyCompareProfile(token, data),
   });
 
 export const useUpdateGroupSettings = (token: string) =>
   useMutation({
-    mutationFn: (data: { groupName: string; showGenderContent: boolean }) =>
-      customInstance({
-        url: `/api/v1/compare-links/${token}/settings`,
-        method: 'PATCH',
-        data,
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    mutationFn: (data: { groupName?: string; showGenderContent?: boolean }) =>
+      updateGroupSettings(token, data),
   });
 
 export const useCloseGroup = (token: string) =>
   useMutation({
-    mutationFn: () =>
-      customInstance({
-        url: `/api/v1/compare-links/${token}/close`,
-        method: 'PATCH',
-      }),
+    mutationFn: () => close(token),
   });
 
 export const useReopenGroup = (token: string) =>
   useMutation({
-    mutationFn: () =>
-      customInstance({
-        url: `/api/v1/compare-links/${token}/reopen`,
-        method: 'PATCH',
-      }),
+    mutationFn: () => reopen(token),
   });
 
 /** 그룹 내 1:1 비교 링크 즉시 생성 */
 export const useCreatePairCompare = (groupToken: string) =>
   useMutation({
-    mutationFn: (targetUserId: string) =>
-      customInstance<{ token: string }>({
-        url: `/api/v1/compare-links/${groupToken}/pair`,
-        method: 'POST',
-        data: { targetUserId },
-        headers: { 'Content-Type': 'application/json' },
-      }),
+    mutationFn: (targetUserId: string) => createPair(groupToken, { targetUserId }),
   });

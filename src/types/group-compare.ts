@@ -1,55 +1,47 @@
 /**
  * 그룹 비교 결과 (서버 응답)
  * 서버는 숫자만 리턴. 어워드/네트워크/가치관 지도는 FE에서 계산.
+ *
+ * BE GroupCompareResultResponse 기반.
+ * questionStats[].axis와 members[].birthYear는 FE 전용 필드.
  */
+import type { GroupCompareResultResponse } from '@/generated/models/groupCompareResultResponse';
 import type { CategoryCode } from '@/types/hotpick';
 
-export interface GroupCompareResult {
-  bundleSlug: string;
-  bundleTitle: string;
-  totalQuestions: number;
-  groupName: string;
-  memberCount: number;
-  /** 현재 로그인 유저의 userId (멤버 배열 내 매칭용) */
-  myUserId: string;
-  /** 현재 로그인 유저의 번들 완료 여부 (비멤버 join 흐름 분기용) */
-  myBundleCompleted: boolean;
-  /** 번들 카테고리 코드 */
+/**
+ * GroupCompareResult: BE 타입 기반 + FE 전용 필드
+ *
+ * BE에 없는 FE 전용 필드:
+ * - members[].birthYear: 연령대 표시 (확인 필요)
+ * - questionStats[].axis: 가치맵 축 매핑 (FE-only 로직)
+ */
+export type GroupCompareResult = Omit<
+  GroupCompareResultResponse,
+  'categoryCode' | 'members' | 'questionStats'
+> & {
   categoryCode?: CategoryCode;
-  /** 이성 콘텐츠(이성궁합 랭킹, 성별 대결) 표시 여부 */
-  showGenderContent?: boolean;
-  /** 그룹 마감 여부 */
-  isClosed: boolean;
-  /** 그룹 생성자 userId — 설정 권한 판별용 */
-  creatorUserId?: string;
-
-  /** 그룹 멤버 답변 */
-  members: Array<{
-    userId: string;
-    nickname: string;
-    /** 그룹 참여 시 설정한 표시 이름. 없으면 nickname 사용 */
+  members?: Array<{
+    userId?: string;
+    nickname?: string;
     displayName?: string;
-    /** 그룹 참여 시 설정한 프로필 색상. 없으면 유저 기본 프로필 색상 사용 */
     displayProfileColor?: string;
     gender?: 'MALE' | 'FEMALE';
+    // TODO: BE swagger에 누락된 필드 — BE에 추가 요청 필요
     birthYear?: number;
-    /** 서비스 탈퇴 유저 여부 */
     isWithdrawn?: boolean;
-    answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+    answers?: Array<{ electionId: string; selected: string }>;
   }>;
-
-  /** 각 질문별 실시간 투표 수 (번들 전체 참여자 기준, 1:1과 동일) */
-  questionStats: Array<{
-    electionId: string;
-    title: string;
-    optionA: string;
-    optionB: string;
-    optionACount: number;
-    optionBCount: number;
-    /** 가치관 지도 축 배정 (null = 미배정) */
-    axis: 'X' | 'Y' | null;
+  questionStats?: Array<{
+    electionId?: string;
+    title?: string;
+    optionA?: string;
+    optionB?: string;
+    optionACount?: number;
+    optionBCount?: number;
+    /** 가치관 지도 축 배정 (FE-only, null = 미배정) */
+    axis?: 'X' | 'Y' | null;
   }>;
-}
+};
 
 /**
  * 멤버 간 1:1 케미 정보 (FE 계산)
