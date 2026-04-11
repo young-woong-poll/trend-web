@@ -4,8 +4,10 @@
 .container {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 672px;
   z-index: $z-index-sticky;
   padding: 8px $spacing-16;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
