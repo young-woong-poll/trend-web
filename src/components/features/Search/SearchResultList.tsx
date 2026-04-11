@@ -135,9 +135,9 @@ const SearchPreviewCard: FC<{ item: SearchHit; query: string }> = ({ item, query
       <div className={styles.cardInfo}>
         <div className={styles.cardCategories}>
           {categories.map((cat, i) => (
-            <span key={cat.categoryCode ?? i}>
+            <span key={cat.slug ?? i}>
               {i > 0 && <span className={styles.categorySeparator}>·</span>}
-              <span className={styles.categoryTag}>{cat.category}</span>
+              <span className={styles.categoryTag}>{cat.name}</span>
             </span>
           ))}
           {isClosed && <span className={styles.closedBadge}>마감</span>}

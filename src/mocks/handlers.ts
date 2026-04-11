@@ -642,7 +642,11 @@ export const handlers = [
         slug: hp.slug,
         isExpired: hp.expiredAt ? new Date(hp.expiredAt) < new Date() : false,
         likeCount: hp.likeCount ?? 0,
-        categories: hp.categories ?? [],
+        categories: (hp.categories ?? []).map((c) => ({
+          categoryId: c.id,
+          name: c.category,
+          slug: c.categoryCode,
+        })),
         election: hp.election
           ? {
               electionId: hp.election.electionId,

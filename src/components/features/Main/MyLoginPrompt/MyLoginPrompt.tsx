@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { useEffect, useRef, type FC } from 'react';
 
 import styles from '@/components/features/Main/MyLoginPrompt/MyLoginPrompt.module.scss';
 import type { MySubTabType } from '@/constants/contentTab';
@@ -18,6 +18,15 @@ interface MyLoginPromptProps {
 
 export const MyLoginPrompt: FC<MyLoginPromptProps> = ({ tab }) => {
   const { requireLogin } = useAuth();
+  const autoTriggered = useRef(false);
+
+  // 첫 진입 시 자동으로 로그인 팝업 표시
+  useEffect(() => {
+    if (!autoTriggered.current) {
+      autoTriggered.current = true;
+      requireLogin('default');
+    }
+  }, [requireLogin]);
 
   return (
     <div className={styles.container}>

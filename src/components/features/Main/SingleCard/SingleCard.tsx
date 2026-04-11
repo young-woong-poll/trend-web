@@ -1,6 +1,6 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import CommentIcon from '@/assets/icon/CommentIcon';
 import LikeIcon from '@/assets/icon/LikeIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
+import { ImageViewer } from '@/components/common/ImageViewer/ImageViewer';
 import styles from '@/components/features/Main/SingleCard/SingleCard.module.scss';
 import {
   VOTE_EASING,
@@ -48,6 +49,7 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
   } = data;
 
   const actions = useCardActions();
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = vote;
@@ -99,7 +101,31 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
       {/* 질문: 로고 이미지 + 텍스트 */}
       <Link href={`/hotpick/${slug}`} className={styles.questionRow}>
         {logoUrl && (
-          <Image src={logoUrl} alt={title} width={62} height={62} className={styles.questionLogo} />
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setViewerImage(logoUrl);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                setViewerImage(logoUrl);
+              }
+            }}
+            className={styles.zoomable}
+          >
+            <Image
+              src={logoUrl}
+              alt={title}
+              width={62}
+              height={62}
+              className={styles.questionLogo}
+            />
+          </span>
         )}
         <h3 className={styles.question}>{title}</h3>
       </Link>
@@ -165,13 +191,33 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
                     />
                     <div className={styles.barContent}>
                       {isImageType && option.imageUrl && (
-                        <Image
-                          src={option.imageUrl}
-                          alt={option.text}
-                          width={44}
-                          height={44}
-                          className={styles.barImage}
-                        />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (option.imageUrl) {
+                              setViewerImage(option.imageUrl);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.stopPropagation();
+                              if (option.imageUrl) {
+                                setViewerImage(option.imageUrl);
+                              }
+                            }
+                          }}
+                          className={styles.zoomable}
+                        >
+                          <Image
+                            src={option.imageUrl}
+                            alt={option.text}
+                            width={44}
+                            height={44}
+                            className={styles.barImage}
+                          />
+                        </span>
                       )}
                       <m.span
                         className={styles.barText}
@@ -263,6 +309,8 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
           <span className={styles.topCommentText}>{topComment.content}</span>
         </button>
       )}
+
+      <ImageViewer src={viewerImage} alt={title} onClose={() => setViewerImage(null)} />
     </div>
   );
 });

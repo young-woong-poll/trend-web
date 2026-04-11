@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -65,14 +65,19 @@ function parseTabFromQuery(
   return DEFAULT_TAB;
 }
 
+const MY_SUB_TAB_TYPES: MySubTabType[] = ['vote', 'compare', 'comments', 'likes'];
+
 /**
  * 탭 정보를 URL 쿼리로 업데이트
  */
-function buildUrlParams(tab: TabSelection): string {
+function buildUrlParams(tab: TabSelection, mySubTab?: MySubTabType): string {
   const params = new URLSearchParams();
 
   if (tab.kind === 'filter') {
     params.set('filter', tab.type);
+    if (tab.type === 'my' && mySubTab) {
+      params.set('mysub', mySubTab);
+    }
   } else {
     params.set('category', tab.slug);
   }
@@ -167,18 +172,20 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   const [topPeriod, setTopPeriod] = useState<TopPeriod>(DEFAULT_TOP_PERIOD);
   const [topCategory, setTopCategory] = useState<string | null>(null);
 
-  // My 하위 탭 상태
+  // My 하위 탭 상태 (URL mysub 파라미터에서 복원)
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
-  const [mySubTab, setMySubTab] = useState<MySubTabType>(DEFAULT_MY_SUB_TAB_GUEST);
-  const mySubTabSynced = useRef(false);
 
-  // auth 로딩 완료 후 로그인 상태에 맞게 기본 탭 동기화
-  useEffect(() => {
-    if (!isAuthLoading && !mySubTabSynced.current) {
-      mySubTabSynced.current = true;
-      setMySubTab(isLoggedIn ? DEFAULT_MY_SUB_TAB_LOGGED_IN : DEFAULT_MY_SUB_TAB_GUEST);
+  const mySubTab = useMemo<MySubTabType>(() => {
+    const mysub = searchParams.get('mysub');
+    if (mysub && MY_SUB_TAB_TYPES.includes(mysub as MySubTabType)) {
+      return mysub as MySubTabType;
     }
-  }, [isAuthLoading, isLoggedIn]);
+    return isAuthLoading
+      ? DEFAULT_MY_SUB_TAB_GUEST
+      : isLoggedIn
+        ? DEFAULT_MY_SUB_TAB_LOGGED_IN
+        : DEFAULT_MY_SUB_TAB_GUEST;
+  }, [searchParams, isAuthLoading, isLoggedIn]);
 
   const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
   const isMyTab = selectedTab.kind === 'filter' && selectedTab.type === 'my';
@@ -214,6 +221,14 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
     isFetchingNextPage,
     fetchNextPage: () => void fetchNextPage(),
   });
+
+  // My 서브탭 변경 → URL 업데이트 (push로 뒤로가기 복원)
+  const handleMySubTabChange = useCallback(
+    (sub: MySubTabType) => {
+      router.push(buildUrlParams(selectedTab, sub));
+    },
+    [router, selectedTab]
+  );
 
   // 탭 변경 시 URL 업데이트 (replace로 히스토리 오염 방지)
   const handleTabChange = useCallback(
@@ -265,7 +280,7 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
       )}
 
       {/* My 하위 탭 — MY 탭 활성 시에만 표시 */}
-      {isMyTab && <MySubTabs activeTab={mySubTab} onChange={setMySubTab} />}
+      {isMyTab && <MySubTabs activeTab={mySubTab} onChange={handleMySubTabChange} />}
 
       <div
         className={`${styles.container} ${isTopTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}

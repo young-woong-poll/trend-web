@@ -38,7 +38,7 @@ export const Confirm: FC<ConfirmProps> = ({
         <Button variant="secondary" onClick={onCancel} fullWidth height={48}>
           {cancelText}
         </Button>
-        <Button variant="primary" onClick={onConfirm} fullWidth height={48}>
+        <Button variant="gradient" onClick={onConfirm} fullWidth height={48}>
           {confirmText}
         </Button>
       </div>
