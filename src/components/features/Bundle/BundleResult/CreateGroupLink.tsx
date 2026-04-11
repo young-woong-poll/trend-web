@@ -10,6 +10,7 @@ import CloseIcon from '@/assets/icon/CloseIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Bundle/BundleResult/CreateGroupLink.module.scss';
+import { isGenderCategory } from '@/constants/bundle';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
@@ -19,6 +20,8 @@ import type { CategoryCode } from '@/types/hotpick';
 interface CreateGroupLinkProps {
   slug: string;
   categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
+  category?: string;
   bundleTitle?: string;
   onClose: () => void;
   source?: string;
@@ -44,6 +47,8 @@ function validateGroupName(name: string): string | null {
 export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
   slug,
   categoryCode,
+  categoryMeta,
+  category,
   bundleTitle,
   onClose,
   source = 'bundle_result',
@@ -87,6 +92,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
       const result = await createMutation.mutateAsync({
         type: 'GROUP',
         groupName: groupName.trim(),
+        showGenderContent: isGenderCategory(categoryCode),
       });
       trackCompareCreate(slug, 'GROUP', source);
       onClose();
@@ -97,7 +103,11 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
   };
 
   return createPortal(
-    <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
+    <div
+      className={styles.overlay}
+      style={getCategoryThemeVars(categoryCode, categoryMeta)}
+      onClick={onClose}
+    >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2 className={styles.title}>그룹 만들기</h2>
@@ -107,14 +117,18 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
         </div>
         {bundleTitle && (
           <div className={styles.bundleInfo}>
-            <CategoryBadge categoryCode={categoryCode} />
+            <CategoryBadge
+              categoryCode={categoryCode}
+              categoryMeta={categoryMeta}
+              label={category}
+            />
             <span className={styles.bundleTitle}>{bundleTitle}</span>
           </div>
         )}
         <div>
           <div className={styles.inputLabelRow}>
             <label className={styles.inputLabel}>그룹 이름</label>
-            <span className={styles.inputHint}>1~20자</span>
+            <span className={styles.inputHint}>최대 12자</span>
           </div>
           <input
             type="text"
@@ -122,7 +136,7 @@ export const CreateGroupLink: FC<CreateGroupLinkProps> = ({
             placeholder="예: 마케팅팀, 대학 친구들"
             value={groupName}
             onChange={handleGroupNameChange}
-            maxLength={20}
+            maxLength={12}
           />
         </div>
         <button

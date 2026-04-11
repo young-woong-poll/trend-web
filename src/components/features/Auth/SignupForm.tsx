@@ -67,9 +67,9 @@ const MigrationPrompt = ({ isOpen, onConfirm, onSkip, isLoading }: MigrationProm
           <p className={styles.promptTitle}>이전 활동을 연결할까요?</p>
           <p className={styles.promptDescription}>이 브라우저의 데이터를 계정에 연동해요.</p>
           <ul className={styles.promptList}>
-            <li>투표 데이터를 내 계정에 연결</li>
-            <li>좋아요 도 연결</li>
-            <li>댓글 닉네임이 계정 닉네임으로 변경</li>
+            <li>투표 데이터 연결</li>
+            <li>좋아요 데이터 연결</li>
+            <li>댓글 연결, 닉네임은 계정 닉네임으로 변경</li>
           </ul>
           <p className={styles.promptWarning}>
             이 기회는 <strong>한 번만</strong> 제공돼요.
@@ -204,9 +204,11 @@ const SignupForm = () => {
         ...(tkuId ? { tkuId } : {}),
       });
 
-      // 가입 완료 → signupToken 정리 + TKUID 제거 (이후 쿠키 기반 인증)
+      // 가입 완료 → signupToken 정리 (연결 동의 시에만 TKUID 제거)
       clearSignupToken();
-      clearTKUID();
+      if (withMigration) {
+        clearTKUID();
+      }
       setUser(result.user);
 
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');

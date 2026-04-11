@@ -11,4 +11,5 @@
 export interface CommentLikeResponse {
   liked?: boolean;
   likeCount?: number;
+  likedAt?: string;
 }

@@ -1,0 +1,23 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.badgeMale,
+.badgeFemale {
+  position: absolute;
+  bottom: -2px;
+  right: -3px;
+  border-radius: 50%;
+  @include flex-center;
+  border: 1.5px solid rgba(#1e1e1e, 0.6);
+  z-index: 3;
+}
+
+.badgeMale {
+  background: #4fc3f7;
+  color: $white;
+}
+
+.badgeFemale {
+  background: #ff6b9d;
+  color: $white;
+}

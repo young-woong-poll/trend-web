@@ -5,6 +5,15 @@ import type { CategoryCode } from '@/types/hotpick';
 /** 이성궁합/성별대결 컴포넌트를 표시할 카테고리 */
 export const GENDER_CATEGORIES: CategoryCode[] = ['LOVE', 'MARRIAGE'];
 
+/** 카테고리 코드가 이성 콘텐츠 대상인지 (대소문자 무시) */
+export function isGenderCategory(categoryCode?: string | null): boolean {
+  if (!categoryCode) {
+    return false;
+  }
+  const upper = categoryCode.toUpperCase();
+  return upper.includes('LOVE') || upper.includes('MARRIAGE');
+}
+
 /**
  * 케미 등급 매핑
  * matchRate(일치율) → 등급/타이틀/한줄평
@@ -152,10 +161,10 @@ export function getPopularityByScore(score: number): PopularityInfo {
  * 예: [70, 45, 80, 40, 65] → 평균 60%
  */
 export function calcPopularityScore(
-  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
-  questionStats: Array<{ electionId: string; optionACount: number; optionBCount: number }>
+  myAnswers: Array<{ electionId?: string; selected?: string }>,
+  questionStats: Array<{ electionId?: string; optionACount?: number; optionBCount?: number }>
 ): number {
-  if (myAnswers.length === 0) {
+  if (!myAnswers || myAnswers.length === 0) {
     return 0;
   }
 
@@ -163,14 +172,19 @@ export function calcPopularityScore(
   let matched = 0;
 
   for (const answer of myAnswers) {
+    if (!answer.electionId || !answer.selected) {
+      continue;
+    }
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
     if (!stat) {
       continue;
     }
 
-    const total = stat.optionACount + stat.optionBCount;
-    const optionARate = total > 0 ? Math.round((stat.optionACount / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round((stat.optionBCount / total) * 100) : 50;
+    const aCount = stat.optionACount ?? 0;
+    const bCount = stat.optionBCount ?? 0;
+    const total = aCount + bCount;
+    const optionARate = total > 0 ? Math.round((aCount / total) * 100) : 50;
+    const optionBRate = total > 0 ? Math.round((bCount / total) * 100) : 50;
     totalRate += answer.selected === 'A' ? optionARate : optionBRate;
     matched++;
   }

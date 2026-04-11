@@ -2,13 +2,20 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/contexts/AuthContext';
 import * as clientApi from '@/generated/api/client/hotpick-search/hotpick-search';
-import type { ElectionViewResponse, HotpickCategoryResponse, SearchSort } from '@/generated/models';
+import type { ElectionViewResponse, SearchSort } from '@/generated/models';
 import { getTKUID } from '@/lib/tkuid';
 
 /**
  * 검색 hit 아이템 — Meilisearch가 인덱싱한 문서 구조
  * HotpickCardResponse와 유사하지만 `id` (not `hotpickId`) 등 차이가 있음
  */
+/** 검색 API 카테고리 — 메인 API(HotpickCategoryResponse)와 필드명이 다름 */
+export interface SearchCategoryHit {
+  categoryId?: number;
+  name?: string;
+  slug?: string;
+}
+
 export interface SearchHit {
   id?: number;
   hotpickId?: number;
@@ -21,7 +28,7 @@ export interface SearchHit {
   isExpired?: boolean;
   likeCount?: number;
   liked?: boolean;
-  categories?: (HotpickCategoryResponse & { categoryId?: number })[];
+  categories?: SearchCategoryHit[];
   election?: ElectionViewResponse;
 }
 

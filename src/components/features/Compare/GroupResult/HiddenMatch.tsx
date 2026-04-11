@@ -2,13 +2,19 @@
 
 import { useMemo, type FC } from 'react';
 
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import styles from '@/components/features/Compare/GroupResult/HiddenMatch.module.scss';
 import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface HiddenMatchProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    gender?: 'MALE' | 'FEMALE';
+    displayProfileColor?: string;
+  }>;
   pairs: PairChemistry[];
 }
 
@@ -18,16 +24,21 @@ interface DiscoveryCard {
   caption: string;
   userIdA: string;
   nicknameA: string;
+  genderA?: 'MALE' | 'FEMALE';
   userIdB: string;
   nicknameB: string;
+  genderB?: 'MALE' | 'FEMALE';
   matchRate: number;
 }
 
 export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pairs }) => {
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getMemberGradient(idx >= 0 ? idx : 0);
+    const member = members.find((m) => m.userId === userId);
+    return getMemberGradient(idx >= 0 ? idx : 0, userId, member?.displayProfileColor);
   };
+
+  const getGender = (userId: string) => members.find((m) => m.userId === userId)?.gender;
 
   const discoveries = useMemo(() => {
     const myPairs = pairs.filter((p) => p.memberA === currentUserId || p.memberB === currentUserId);
@@ -44,8 +55,10 @@ export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pair
         caption: '생각보다 잘 통하는 사이!',
         userIdA: currentUserId,
         nicknameA: bestIsA ? bestMyPair.nicknameA : bestMyPair.nicknameB,
+        genderA: getGender(currentUserId),
         userIdB: bestIsA ? bestMyPair.memberB : bestMyPair.memberA,
         nicknameB: bestIsA ? bestMyPair.nicknameB : bestMyPair.nicknameA,
+        genderB: getGender(bestIsA ? bestMyPair.memberB : bestMyPair.memberA),
         matchRate: bestMyPair.matchRate,
       });
 
@@ -58,8 +71,10 @@ export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pair
         caption: '거의 매번 반대편!',
         userIdA: currentUserId,
         nicknameA: worstIsA ? worstMyPair.nicknameA : worstMyPair.nicknameB,
+        genderA: getGender(currentUserId),
         userIdB: worstIsA ? worstMyPair.memberB : worstMyPair.memberA,
         nicknameB: worstIsA ? worstMyPair.nicknameB : worstMyPair.nicknameA,
+        genderB: getGender(worstIsA ? worstMyPair.memberB : worstMyPair.memberA),
         matchRate: worstMyPair.matchRate,
       });
     }
@@ -73,8 +88,10 @@ export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pair
         caption: '이 그룹에서 가장 잘 통하는 조합',
         userIdA: bestOverall.memberA,
         nicknameA: bestOverall.nicknameA,
+        genderA: getGender(bestOverall.memberA),
         userIdB: bestOverall.memberB,
         nicknameB: bestOverall.nicknameB,
+        genderB: getGender(bestOverall.memberB),
         matchRate: bestOverall.matchRate,
       });
     }
@@ -104,8 +121,11 @@ export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pair
             <div className={styles.matchRow}>
               {/* Member A */}
               <div className={styles.member}>
-                <div className={styles.avatar} style={{ background: getGradient(card.userIdA) }}>
-                  {card.nicknameA[0]}
+                <div className={styles.avatarWrap}>
+                  <div className={styles.avatar} style={{ background: getGradient(card.userIdA) }}>
+                    {card.nicknameA[0]}
+                  </div>
+                  <GenderBadge gender={card.genderA} />
                 </div>
                 <span className={styles.nickname}>{card.nicknameA}</span>
               </div>
@@ -118,8 +138,11 @@ export const HiddenMatch: FC<HiddenMatchProps> = ({ currentUserId, members, pair
 
               {/* Member B */}
               <div className={styles.member}>
-                <div className={styles.avatar} style={{ background: getGradient(card.userIdB) }}>
-                  {card.nicknameB[0]}
+                <div className={styles.avatarWrap}>
+                  <div className={styles.avatar} style={{ background: getGradient(card.userIdB) }}>
+                    {card.nicknameB[0]}
+                  </div>
+                  <GenderBadge gender={card.genderB} />
                 </div>
                 <span className={styles.nickname}>{card.nicknameB}</span>
               </div>

@@ -1,16 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { customInstance } from '@/lib/axios-mutator';
+import { getMyCompareLinks } from '@/generated/api/client/bundle/bundle';
 import type { MyCompareLink } from '@/types/my-compare';
 
 export const useMyCompareLinks = (slug: string) =>
-  useQuery({
+  useQuery<MyCompareLink[] | undefined>({
     queryKey: ['myCompareLinks', slug],
-    queryFn: () =>
-      customInstance<MyCompareLink[]>({
-        url: `/api/v1/bundles/${slug}/my-compare-links`,
-        method: 'GET',
-      }),
+    queryFn: () => getMyCompareLinks(slug) as Promise<MyCompareLink[] | undefined>,
     enabled: !!slug,
     staleTime: 30 * 1000,
   });

@@ -13,7 +13,7 @@
 
 .previewCard {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: $spacing-16;
   padding: $spacing-16;
   border-bottom: 1px solid rgba($border-placeholder, 0.3);
@@ -137,7 +137,7 @@
 // 스켈레톤 로딩
 .skeletonCard {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: $spacing-16;
   padding: $spacing-16;
   border-bottom: 1px solid rgba($border-placeholder, 0.3);

@@ -47,18 +47,19 @@ export function calcGroupSyncRate(
   members: GroupCompareResult['members'],
   totalQuestions: number
 ): number {
-  if (members.length < 2 || totalQuestions === 0) {
+  const m = members ?? [];
+  if (m.length < 2 || totalQuestions === 0) {
     return 0;
   }
 
   let totalMatchRate = 0;
   let pairCount = 0;
 
-  for (let i = 0; i < members.length; i++) {
-    for (let j = i + 1; j < members.length; j++) {
+  for (let i = 0; i < m.length; i++) {
+    for (let j = i + 1; j < m.length; j++) {
       let matchCount = 0;
-      for (const ansA of members[i].answers) {
-        const ansB = members[j].answers.find((b) => b.electionId === ansA.electionId);
+      for (const ansA of m[i].answers ?? []) {
+        const ansB = (m[j].answers ?? []).find((b) => b.electionId === ansA.electionId);
         if (ansB && ansA.selected === ansB.selected) {
           matchCount++;
         }
@@ -77,27 +78,29 @@ export function calcGroupSyncRate(
  */
 export function calcAllPairChemistry(result: GroupCompareResult): PairChemistry[] {
   const pairs: PairChemistry[] = [];
-  const { members } = result;
+  const members = result.members ?? [];
 
   for (let i = 0; i < members.length; i++) {
     for (let j = i + 1; j < members.length; j++) {
       const a = members[i];
       const b = members[j];
+      const aAnswers = a.answers ?? [];
+      const bAnswers = b.answers ?? [];
 
       let matchCount = 0;
-      for (const ansA of a.answers) {
-        const ansB = b.answers.find((ab) => ab.electionId === ansA.electionId);
+      for (const ansA of aAnswers) {
+        const ansB = bAnswers.find((ab) => ab.electionId === ansA.electionId);
         if (ansB && ansA.selected === ansB.selected) {
           matchCount++;
         }
       }
 
-      const totalQ = Math.max(a.answers.length, 1);
+      const totalQ = Math.max(aAnswers.length, 1);
       pairs.push({
-        memberA: a.userId,
-        memberB: b.userId,
-        nicknameA: a.nickname,
-        nicknameB: b.nickname,
+        memberA: a.userId ?? '',
+        memberB: b.userId ?? '',
+        nicknameA: a.nickname ?? '',
+        nicknameB: b.nickname ?? '',
         matchCount,
         matchRate: Math.round((matchCount / totalQ) * 100),
       });
@@ -125,12 +128,13 @@ function calcMemberAvgMatchRate(userId: string, pairs: PairChemistry[]): number 
 export function findUnanimousQuestions(
   result: GroupCompareResult
 ): Array<{ electionId: string; title: string; unanimousAnswer: string }> {
-  const { members, questionStats } = result;
+  const members = result.members ?? [];
+  const questionStats = result.questionStats ?? [];
   const unanimous: Array<{ electionId: string; title: string; unanimousAnswer: string }> = [];
 
   for (const stat of questionStats) {
     const answers = members.map(
-      (m) => m.answers.find((a) => a.electionId === stat.electionId)?.selected
+      (m) => (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected
     );
     if (answers.length === 0 || answers.some((a) => a === undefined)) {
       continue;
@@ -139,9 +143,9 @@ export function findUnanimousQuestions(
     const allSame = answers.every((a) => a === answers[0]);
     if (allSame) {
       unanimous.push({
-        electionId: stat.electionId,
-        title: stat.title,
-        unanimousAnswer: answers[0] === 'A' ? stat.optionA : stat.optionB,
+        electionId: stat.electionId ?? '',
+        title: stat.title ?? '',
+        unanimousAnswer: answers[0] === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
       });
     }
   }
@@ -172,7 +176,8 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
   /** B를 고른 멤버 목록 (닉네임 + 원본 인덱스) */
   membersB: ControversyMember[];
 }> {
-  const { members, questionStats } = result;
+  const members = result.members ?? [];
+  const questionStats = result.questionStats ?? [];
 
   const scored = questionStats.map((stat) => {
     const membersA: ControversyMember[] = [];
@@ -180,11 +185,11 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
 
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      const ans = m.answers.find((a) => a.electionId === stat.electionId)?.selected;
+      const ans = (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected;
       if (ans === 'A') {
-        membersA.push({ nickname: m.nickname, memberIndex: i });
+        membersA.push({ nickname: m.nickname ?? '', memberIndex: i });
       } else if (ans === 'B') {
-        membersB.push({ nickname: m.nickname, memberIndex: i });
+        membersB.push({ nickname: m.nickname ?? '', memberIndex: i });
       }
     }
 
@@ -194,10 +199,10 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
     const distanceFrom50 = Math.abs(ratioA - 50);
 
     return {
-      electionId: stat.electionId,
-      title: stat.title,
-      optionA: stat.optionA,
-      optionB: stat.optionB,
+      electionId: stat.electionId ?? '',
+      title: stat.title ?? '',
+      optionA: stat.optionA ?? '',
+      optionB: stat.optionB ?? '',
       ratioA,
       ratioB,
       membersA,
@@ -251,7 +256,8 @@ const AWARD_META: Record<GroupAwardType, { title: string; description: string; o
   };
 
 export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry[]): GroupAward[] {
-  const { members, questionStats } = result;
+  const members = result.members ?? [];
+  const questionStats = result.questionStats ?? [];
   const awards: GroupAward[] = [];
 
   if (members.length < 2) {
@@ -262,7 +268,7 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   let maxAvg = -1;
   let leader = members[0];
   for (const m of members) {
-    const avg = calcMemberAvgMatchRate(m.userId, pairs);
+    const avg = calcMemberAvgMatchRate(m.userId ?? '', pairs);
     if (avg > maxAvg) {
       maxAvg = avg;
       leader = m;
@@ -271,8 +277,8 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   awards.push({
     ...AWARD_META.GROUP_LEADER,
     type: 'GROUP_LEADER',
-    winners: [leader.userId],
-    winnerNicknames: [leader.nickname],
+    winners: [leader.userId ?? ''],
+    winnerNicknames: [leader.nickname ?? ''],
     value: maxAvg,
   });
 
@@ -280,7 +286,7 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   let minAvg = 101;
   let outsider = members[0];
   for (const m of members) {
-    const avg = calcMemberAvgMatchRate(m.userId, pairs);
+    const avg = calcMemberAvgMatchRate(m.userId ?? '', pairs);
     if (avg < minAvg) {
       minAvg = avg;
       outsider = m;
@@ -289,8 +295,8 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   awards.push({
     ...AWARD_META.GROUP_OUTSIDER,
     type: 'GROUP_OUTSIDER',
-    winners: [outsider.userId],
-    winnerNicknames: [outsider.nickname],
+    winners: [outsider.userId ?? ''],
+    winnerNicknames: [outsider.nickname ?? ''],
     value: minAvg,
   });
 
@@ -322,14 +328,14 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   for (const m of members) {
     let minorityCount = 0;
     for (const stat of questionStats) {
-      const myAnswer = m.answers.find((a) => a.electionId === stat.electionId)?.selected;
+      const myAnswer = (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected;
       if (!myAnswer) {
         continue;
       }
 
       // 그룹 내에서 소수파인지 판단
       const groupAnswers = members
-        .map((gm) => gm.answers.find((a) => a.electionId === stat.electionId)?.selected)
+        .map((gm) => (gm.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected)
         .filter((a): a is 'A' | 'B' => a !== undefined);
       const countA = groupAnswers.filter((a) => a === 'A').length;
       const isMinority =
@@ -346,15 +352,18 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   awards.push({
     ...AWARD_META.CONTROVERSY_MAKER,
     type: 'CONTROVERSY_MAKER',
-    winners: controversyWinners.map((w) => w.member.userId),
-    winnerNicknames: controversyWinners.map((w) => w.member.nickname),
+    winners: controversyWinners.map((w) => w.member.userId ?? ''),
+    winnerNicknames: controversyWinners.map((w) => w.member.nickname ?? ''),
     value: maxMinorityCount,
   });
 
   // 6. PEOPLES_CHAMPION: 대중성 지수 최고 (동점자 포함)
   const popularityScores: { member: (typeof members)[0]; score: number }[] = [];
   for (const m of members) {
-    const score = calcPopularityScoreFromCount(m.answers, questionStats);
+    const score = calcPopularityScoreFromCount(
+      (m.answers ?? []) as Array<{ electionId: string; selected: 'A' | 'B' }>,
+      questionStats as Array<{ electionId: string; optionACount: number; optionBCount: number }>
+    );
     popularityScores.push({ member: m, score });
   }
   const maxPopularity = Math.max(...popularityScores.map((s) => s.score));
@@ -362,8 +371,8 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   awards.push({
     ...AWARD_META.PEOPLES_CHAMPION,
     type: 'PEOPLES_CHAMPION',
-    winners: championWinners.map((w) => w.member.userId),
-    winnerNicknames: championWinners.map((w) => w.member.nickname),
+    winners: championWinners.map((w) => w.member.userId ?? ''),
+    winnerNicknames: championWinners.map((w) => w.member.nickname ?? ''),
     value: maxPopularity,
   });
 
@@ -382,13 +391,16 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
  *   Y축 질문: optionB → up(+1 방향), optionA → down(-1 방향)
  */
 export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoordinate[] {
-  const xQuestions = result.questionStats.filter((s) => s.axis === 'X');
-  const yQuestions = result.questionStats.filter((s) => s.axis === 'Y');
+  const questionStats = result.questionStats ?? [];
+  const members = result.members ?? [];
+  const xQuestions = questionStats.filter((s) => s.axis === 'X');
+  const yQuestions = questionStats.filter((s) => s.axis === 'Y');
 
-  return result.members.map((member) => {
+  return members.map((member) => {
+    const memberAnswers = member.answers ?? [];
     let xRight = 0;
     for (const q of xQuestions) {
-      const ans = member.answers.find((a) => a.electionId === q.electionId);
+      const ans = memberAnswers.find((a) => a.electionId === q.electionId);
       if (ans?.selected === 'B') {
         xRight++;
       }
@@ -396,7 +408,7 @@ export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoo
 
     let yUp = 0;
     for (const q of yQuestions) {
-      const ans = member.answers.find((a) => a.electionId === q.electionId);
+      const ans = memberAnswers.find((a) => a.electionId === q.electionId);
       if (ans?.selected === 'B') {
         yUp++;
       }
@@ -406,8 +418,8 @@ export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoo
     const y = yQuestions.length > 0 ? (yUp / yQuestions.length) * 2 - 1 : 0;
 
     return {
-      userId: member.userId,
-      nickname: member.nickname,
+      userId: member.userId ?? '',
+      nickname: member.nickname ?? '',
       x: Math.round(x * 100) / 100,
       y: Math.round(y * 100) / 100,
     };

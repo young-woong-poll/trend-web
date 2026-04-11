@@ -16,4 +16,5 @@ export interface CreateCategoryRequest {
    * @maxLength 120
    */
   slug: string;
+  meta?: string;
 }

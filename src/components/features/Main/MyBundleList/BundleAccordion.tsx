@@ -19,6 +19,8 @@ interface BundleAccordionProps {
   slug: string;
   title: string;
   categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
+  category?: string;
   isOpen: boolean;
   onToggle: () => void;
   onNewOneToOne: () => void;
@@ -30,7 +32,7 @@ function sortLinks(links: MyCompareLink[]): MyCompareLink[] {
     if (a.status !== b.status) {
       return a.status === 'WAITING' ? -1 : 1;
     }
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return new Date(b.createdAt ?? '').getTime() - new Date(a.createdAt ?? '').getTime();
   });
 }
 
@@ -38,6 +40,8 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
   slug,
   title,
   categoryCode,
+  categoryMeta,
+  category,
   isOpen,
   onToggle,
   onNewOneToOne,
@@ -51,7 +55,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
   const oneToOneLinks = sorted.filter((l) => l.type === 'ONE_TO_ONE');
   const groupLinks = sorted
     .filter((l) => l.type === 'GROUP')
-    .sort((a, b) => b.memberCount - a.memberCount);
+    .sort((a, b) => (b.memberCount ?? 0) - (a.memberCount ?? 0));
 
   // 스크롤 위치별 블러 제어: 상단/하단 도달 감지
   const [oneToOneScroll, setOneToOneScroll] = useState({ atTop: true, atBottom: false });
@@ -92,17 +96,17 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
     }
   };
 
-  const getOneToOneName = (link: MyCompareLink) => link.participantNickname ?? '???';
+  const getOneToOneName = (link: MyCompareLink) => link.participantNickname ?? '상대방 참여 대기중';
 
   const getGroupName = (link: MyCompareLink) => link.groupName ?? '그룹';
 
   return (
     <div
       className={`${styles.accordion} ${isOpen ? styles.accordionOpen : ''}`}
-      style={getCategoryThemeVars(categoryCode)}
+      style={getCategoryThemeVars(categoryCode, categoryMeta)}
     >
       <button type="button" className={styles.accordionHeader} onClick={onToggle}>
-        <CategoryBadge categoryCode={categoryCode} />
+        <CategoryBadge categoryCode={categoryCode} categoryMeta={categoryMeta} label={category} />
         <span className={styles.accordionTitle}>{title}</span>
         <span className={styles.accordionMeta}>
           <span className={styles.accordionCount}>{sorted.length}건</span>
@@ -134,7 +138,11 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
                     >
                       {link.status === 'WAITING' ? '대기' : '완료'}
                     </span>
-                    <span className={styles.linkName}>{getOneToOneName(link)}</span>
+                    <span
+                      className={`${styles.linkName} ${!link.participantNickname ? styles.linkNameWaiting : ''}`}
+                    >
+                      {getOneToOneName(link)}
+                    </span>
                     <span className={styles.linkActionIcon}>
                       {link.status === 'WAITING' ? (
                         <CopyDoubleIcon width={16} height={16} stroke="currentColor" />

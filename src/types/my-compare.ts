@@ -1,9 +1,5 @@
-export interface MyCompareLink {
-  token: string;
-  type: 'ONE_TO_ONE' | 'GROUP';
-  status: 'WAITING' | 'COMPLETED';
-  createdAt: string;
-  participantNickname: string | null;
-  groupName: string | null;
-  memberCount: number;
-}
+// src/types/my-compare.ts
+//
+// BE generated 타입 re-export
+
+export type { MyCompareLinkResponse as MyCompareLink } from '@/generated/models/myCompareLinkResponse';

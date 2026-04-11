@@ -35,7 +35,7 @@ export const PROFILE_COLORS: ProfileColor[] = [
 export const DEFAULT_PROFILE_COLOR = 'purple';
 
 export const getProfileColor = (name: string): ProfileColor =>
-  PROFILE_COLORS.find((c) => c.name === name) ?? PROFILE_COLORS[0];
+  PROFILE_COLORS.find((c) => c.name.toLowerCase() === name.toLowerCase()) ?? PROFILE_COLORS[0];
 
 export const getProfileGradient = (name: string): string => {
   const color = getProfileColor(name);

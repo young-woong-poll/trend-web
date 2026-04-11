@@ -35,6 +35,10 @@ function getImageUrl(card: CardModel): string | undefined {
   return card.data.imageUrls?.[0];
 }
 
+function getHref(card: CardModel): string {
+  return card.type === 'BUNDLE' ? `/bundle/${card.data.slug}` : `/hotpick/${card.data.slug}`;
+}
+
 // ── Types ──
 
 interface TopRankingListProps {
@@ -51,7 +55,7 @@ const FirstPlaceCard: FC<{ card: CardModel }> = ({ card }) => {
   const imageUrl = getImageUrl(card);
 
   return (
-    <Link href={`/hotpick/${getSlug(card)}`} className={styles.firstPlace}>
+    <Link href={getHref(card)} className={styles.firstPlace}>
       <div className={styles.firstPlaceBadge}>
         <CrownIcon width={20} height={20} color="#FFD700" />
         <span className={styles.badgeText}>1st</span>
@@ -149,11 +153,7 @@ export const TopRankingList = memo<TopRankingListProps>(
               const imageUrl = getImageUrl(card);
 
               return (
-                <Link
-                  key={getSlug(card)}
-                  href={`/hotpick/${getSlug(card)}`}
-                  className={styles.podiumCard}
-                >
+                <Link key={getSlug(card)} href={getHref(card)} className={styles.podiumCard}>
                   <div className={styles.podiumBadge}>
                     <span className={styles.podiumBadgeText} style={{ color }}>
                       {label}
@@ -196,11 +196,7 @@ export const TopRankingList = memo<TopRankingListProps>(
               const imageUrl = getImageUrl(card);
 
               return (
-                <Link
-                  key={getSlug(card)}
-                  href={`/hotpick/${getSlug(card)}`}
-                  className={styles.listRow}
-                >
+                <Link key={getSlug(card)} href={getHref(card)} className={styles.listRow}>
                   <span className={styles.rankNumber}>{rank}</span>
                   {imageUrl && (
                     <Image

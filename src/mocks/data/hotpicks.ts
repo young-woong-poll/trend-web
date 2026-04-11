@@ -1110,8 +1110,8 @@ function convertToHotpickCard(item: LegacyTrend): HotpickCardResponse {
   const type = ext?.type ?? 'SINGLE';
   const categories = (ext?.categoryCodes ?? []).map((code: string, i: number) => ({
     id: i + 1,
-    name: code,
-    slug: code,
+    category: code,
+    categoryCode: code,
   }));
 
   // SINGLE: election을 singleVoteData + extension에서 빌드
@@ -1174,8 +1174,8 @@ function convertToHotpickDetail(detail: any): HotpickDetailResponse {
   const ext = trendExtensions[slug];
   const categories = (ext?.categoryCodes ?? []).map((code: string, i: number) => ({
     id: i + 1,
-    name: code,
-    slug: code,
+    category: code,
+    categoryCode: code,
   }));
 
   if (detail.type === 'SINGLE' && detail.items?.[0]) {

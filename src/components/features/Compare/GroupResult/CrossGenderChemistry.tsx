@@ -16,6 +16,7 @@ interface CrossGenderChemistryProps {
     nickname: string;
     gender?: 'MALE' | 'FEMALE';
     birthYear?: number;
+    displayProfileColor?: string;
   }>;
   pairs: PairChemistry[];
 }
@@ -44,12 +45,13 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({ members, p
   /** BEST 3 cross-gender pairs */
   const best3 = useMemo(() => crossPairs.slice(0, TOP_COUNT), [crossPairs]);
 
-  /** WORST 3 cross-gender pairs (lowest matchRate) */
+  /** WORST 3 cross-gender pairs (lowest matchRate, B등급 이상 제외) */
   const worst3 = useMemo(() => {
-    if (crossPairs.length <= TOP_COUNT) {
+    const worstCandidates = crossPairs.filter((p) => p.matchRate < 40);
+    if (worstCandidates.length === 0) {
       return [];
     }
-    return crossPairs.slice(-TOP_COUNT).reverse();
+    return worstCandidates.slice(-TOP_COUNT).reverse();
   }, [crossPairs]);
 
   // If either gender group is empty, don't render
@@ -59,7 +61,8 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({ members, p
 
   const getGradient = (userId: string) => {
     const index = members.findIndex((m) => m.userId === userId);
-    return getMemberGradient(index);
+    const member = members.find((m) => m.userId === userId);
+    return getMemberGradient(index, userId, member?.displayProfileColor);
   };
 
   const getGenderOfUser = (userId: string): 'MALE' | 'FEMALE' | undefined => {

@@ -106,14 +106,11 @@ vote(
 
 ## API 요약
 
-| Method         | Endpoint                          | 설명                               |
-| -------------- | --------------------------------- | ---------------------------------- |
-| GET            | `/api/v1/server-metas/{id}`       | ServerMeta 조회 (공개)             |
-| GET            | `/api/v1/hotpicks/{slug}`         | 핫픽 상세                          |
-| POST           | `/api/v1/hotpicks/{slug}/votes`   | 투표 (serverMetaId 포함)           |
-| POST           | `/admin/api/v1/server-metas`      | ServerMeta 생성 (어드민)           |
-| GET            | `/admin/api/v1/server-metas`      | ServerMeta 목록 (어드민)           |
-| GET/PUT/DELETE | `/admin/api/v1/server-metas/{id}` | ServerMeta 상세/수정/삭제 (어드민) |
+| Method | Endpoint                        | 설명                     |
+| ------ | ------------------------------- | ------------------------ |
+| GET    | `/api/v1/server-metas/{id}`     | ServerMeta 조회 (공개)   |
+| GET    | `/api/v1/hotpicks/{slug}`       | 핫픽 상세                |
+| POST   | `/api/v1/hotpicks/{slug}/votes` | 투표 (serverMetaId 포함) |
 
 ## Changelog
 

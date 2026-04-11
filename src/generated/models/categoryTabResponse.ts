@@ -7,7 +7,8 @@
 
 export interface CategoryTabResponse {
   id?: number;
-  name?: string;
-  slug?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
   selected?: boolean;
 }

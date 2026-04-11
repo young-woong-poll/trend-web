@@ -66,35 +66,6 @@ export interface BaseResponseCommentUpdateResponse {
   data?: CommentUpdateResponse;
 }
 
-export interface JsonNode {
-  [key: string]: unknown;
-}
-
-export interface UpdateServerMetaRequest {
-  meta: JsonNode;
-}
-
-/**
- * 응답 데이터
- */
-export interface ServerMetaResponse {
-  id?: string;
-  meta?: JsonNode;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseServerMetaResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: ServerMetaResponse;
-}
-
 export interface HotpickElectionItemRequest {
   /** @minimum 0 */
   displayOrder?: number;
@@ -152,58 +123,6 @@ export interface UpdateHotpickRequest {
   election: HotpickElectionRequest;
 }
 
-export interface AdminCategoryResponse {
-  id?: number;
-  name?: string;
-  slug?: string;
-}
-
-export interface AdminElectionItemResponse {
-  id?: number;
-  displayOrder?: number;
-  title?: string;
-  imageUrl?: string;
-  voteCount?: number;
-}
-
-export interface AdminElectionResponse {
-  id?: number;
-  hotpickId?: number;
-  title?: string;
-  imageUrl?: string;
-  totalVoteCount?: number;
-  totalCommentCount?: number;
-  createdAt?: string;
-  items?: AdminElectionItemResponse[];
-}
-
-/**
- * 응답 데이터
- */
-export interface AdminHotpickDetailResponse {
-  id?: number;
-  type?: string;
-  slug?: string;
-  visible?: boolean;
-  fixed?: boolean;
-  imageUrl?: string;
-  createdAt?: string;
-  expiredAt?: string;
-  categories?: AdminCategoryResponse[];
-  election?: AdminElectionResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseAdminHotpickDetailResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: AdminHotpickDetailResponse;
-}
-
 export interface UpdateCategoryRequest {
   /**
    * @minLength 0
@@ -215,17 +134,7 @@ export interface UpdateCategoryRequest {
    * @maxLength 120
    */
   slug: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseAdminCategoryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: AdminCategoryResponse;
+  meta?: string;
 }
 
 export interface CreateSuggestionRequest {
@@ -242,9 +151,12 @@ export interface CreateSuggestionRequest {
   categoryIds: number[];
 }
 
+export interface JsonNode {
+  [key: string]: unknown;
+}
+
 export interface CreateVoteRequest {
   electionItemId: number;
-  serverMetaId?: string;
   clientMeta?: JsonNode;
 }
 
@@ -288,6 +200,7 @@ export interface BaseResponseVoteResultResponse {
 export interface HotpickLikeResponse {
   liked?: boolean;
   likeCount?: number;
+  likedAt?: string;
 }
 
 /**
@@ -337,6 +250,55 @@ export interface BaseResponseCommentCreateResponse {
   data?: CommentCreateResponse;
 }
 
+export interface JoinCompareLinkRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20
+   */
+  displayName?: string;
+  profileColor?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface JoinCompareLinkResponse {
+  joined?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseJoinCompareLinkResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: JoinCompareLinkResponse;
+}
+
+export interface CreatePairRequest {
+  targetUserId: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreatePairResponse {
+  token?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreatePairResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreatePairResponse;
+}
+
 export interface VerifyCommentRequest {
   /**
    * @minLength 1
@@ -371,6 +333,7 @@ export interface BaseResponseCommentVerifyResponse {
 export interface CommentLikeResponse {
   liked?: boolean;
   likeCount?: number;
+  likedAt?: string;
 }
 
 /**
@@ -382,6 +345,71 @@ export interface BaseResponseCommentLikeResponse {
   /** 응답 메시지 */
   message?: string;
   data?: CommentLikeResponse;
+}
+
+export type CreateCompareLinkRequestType =
+  (typeof CreateCompareLinkRequestType)[keyof typeof CreateCompareLinkRequestType];
+
+export const CreateCompareLinkRequestType = {
+  ONE_TO_ONE: 'ONE_TO_ONE',
+  GROUP: 'GROUP',
+} as const;
+
+export interface CreateCompareLinkRequest {
+  type: CreateCompareLinkRequestType;
+  /**
+   * @minLength 1
+   * @maxLength 20
+   * @pattern ^[^<>"'&]+$
+   */
+  groupName?: string;
+  showGenderContent?: boolean;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreateCompareLinkResponse {
+  token?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreateCompareLinkResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreateCompareLinkResponse;
+}
+
+export interface Answer {
+  electionId: string;
+  /** @pattern ^[AB]$ */
+  selected: string;
+}
+
+export interface SubmitBundleAnswersRequest {
+  answers: Answer[];
+}
+
+/**
+ * 응답 데이터
+ */
+export interface BundleAnswerSubmitResponse {
+  completed?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseBundleAnswerSubmitResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: BundleAnswerSubmitResponse;
 }
 
 export type SignupRequestGender = (typeof SignupRequestGender)[keyof typeof SignupRequestGender];
@@ -501,28 +529,6 @@ export interface BaseResponseSuggestionResponse {
   data?: SuggestionResponse;
 }
 
-export interface CreateServerMetaRequest {
-  meta: JsonNode;
-}
-
-/**
- * 응답 데이터
- */
-export interface CreateServerMetaResponse {
-  id?: string;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseCreateServerMetaResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  data?: CreateServerMetaResponse;
-}
-
 /**
  * 응답 데이터
  */
@@ -617,6 +623,83 @@ export interface CreateCategoryRequest {
    * @maxLength 120
    */
   slug: string;
+  meta?: string;
+}
+
+export type CreateTestUserRequestGender =
+  (typeof CreateTestUserRequestGender)[keyof typeof CreateTestUserRequestGender];
+
+export const CreateTestUserRequestGender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+} as const;
+
+export interface CreateTestUserRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20
+   */
+  nickname: string;
+  gender?: CreateTestUserRequestGender;
+  birthYear?: number;
+  profileColor?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreateTestUserResponse {
+  user?: UserResponse;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreateTestUserResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreateTestUserResponse;
+}
+
+export interface UpdateGroupSettingsRequest {
+  /**
+   * @minLength 1
+   * @maxLength 20
+   * @pattern ^[^<>"'&]+$
+   */
+  groupName?: string;
+  showGenderContent?: boolean;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface GroupCloseResponse {
+  closed?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseGroupCloseResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: GroupCloseResponse;
+}
+
+export interface UpdateMyCompareProfileRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20
+   */
+  displayName?: string;
+  displayProfileColor?: string;
 }
 
 export interface UpdateProfileRequest {
@@ -670,10 +753,15 @@ export interface BaseResponseCursorPageResponseMyLikeResponse {
 }
 
 export interface MyCommentResponse {
+  commentId?: string;
   hotpickSlug?: string;
   hotpickTitle?: string;
+  electionId?: number;
   content?: string;
+  likeCount?: number;
+  edited?: boolean;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -712,15 +800,19 @@ export const HotpickCardResponseTag = {
 
 export interface HotpickCategoryResponse {
   id?: number;
-  name?: string;
-  slug?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
 }
 
 export interface TopCommentResponse {
   commentId?: string;
   nickname?: string;
+  profileColor?: string;
   content?: string;
   likeCount?: number;
+  liked?: boolean;
+  edited?: boolean;
   createdAt?: string;
 }
 
@@ -860,8 +952,9 @@ export interface BaseResponseElectionSeriesResponse {
 
 export interface CategoryTabResponse {
   id?: number;
-  name?: string;
-  slug?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
   selected?: boolean;
 }
 
@@ -908,6 +1001,283 @@ export interface BaseResponseListCategoryTabResponse {
   message?: string;
   /** 응답 데이터 */
   data?: CategoryTabResponse[];
+}
+
+export type CompareLinkInfoResponseType =
+  (typeof CompareLinkInfoResponseType)[keyof typeof CompareLinkInfoResponseType];
+
+export const CompareLinkInfoResponseType = {
+  ONE_TO_ONE: 'ONE_TO_ONE',
+  GROUP: 'GROUP',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface CompareLinkInfoResponse {
+  token?: string;
+  type?: CompareLinkInfoResponseType;
+  bundleSlug?: string;
+  bundleTitle?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
+  creatorNickname?: string;
+  participantNickname?: string;
+  hasParticipant?: boolean;
+  isCreator?: boolean;
+  isParticipant?: boolean;
+  myBundleCompleted?: boolean;
+  questionCount?: number;
+  participantCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCompareLinkInfoResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CompareLinkInfoResponse;
+}
+
+export interface Participant {
+  nickname?: string;
+  isWithdrawn?: boolean;
+  answers?: Answer[];
+}
+
+export interface QuestionStat {
+  electionId?: string;
+  title?: string;
+  optionA?: string;
+  optionB?: string;
+  optionACount?: number;
+  optionBCount?: number;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface OneToOneCompareResultResponse {
+  bundleSlug?: string;
+  bundleTitle?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
+  totalQuestions?: number;
+  me?: Participant;
+  target?: Participant;
+  questionStats?: QuestionStat[];
+  matchCount?: number;
+  matchRate?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseOneToOneCompareResultResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: OneToOneCompareResultResponse;
+}
+
+export type MemberGender = (typeof MemberGender)[keyof typeof MemberGender];
+
+export const MemberGender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+} as const;
+
+export interface Member {
+  userId?: string;
+  nickname?: string;
+  displayName?: string;
+  displayProfileColor?: string;
+  gender?: MemberGender;
+  isWithdrawn?: boolean;
+  answers?: Answer[];
+}
+
+/**
+ * 응답 데이터
+ */
+export interface GroupCompareResultResponse {
+  bundleSlug?: string;
+  bundleTitle?: string;
+  totalQuestions?: number;
+  groupName?: string;
+  memberCount?: number;
+  myUserId?: string;
+  myBundleCompleted?: boolean;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
+  showGenderContent?: boolean;
+  isClosed?: boolean;
+  creatorUserId?: string;
+  members?: Member[];
+  questionStats?: QuestionStat[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseGroupCompareResultResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: GroupCompareResultResponse;
+}
+
+export type BundleSummaryResponseStatus =
+  (typeof BundleSummaryResponseStatus)[keyof typeof BundleSummaryResponseStatus];
+
+export const BundleSummaryResponseStatus = {
+  ACTIVE: 'ACTIVE',
+  CLOSED: 'CLOSED',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface BundleSummaryResponse {
+  bundleId?: number;
+  slug?: string;
+  title?: string;
+  subtitle?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
+  questionCount?: number;
+  status?: BundleSummaryResponseStatus;
+  imageUrl?: string;
+  participantCount?: number;
+  completed?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListBundleSummaryResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: BundleSummaryResponse[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseBundleSummaryResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: BundleSummaryResponse;
+}
+
+export interface MyAnswer {
+  electionId?: string;
+  title?: string;
+  optionA?: string;
+  optionB?: string;
+  selected?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface BundleMyResultResponse {
+  bundleSlug?: string;
+  bundleTitle?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
+  totalQuestions?: number;
+  myAnswers?: MyAnswer[];
+  questionStats?: QuestionStat[];
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseBundleMyResultResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: BundleMyResultResponse;
+}
+
+export type MyCompareLinkResponseType =
+  (typeof MyCompareLinkResponseType)[keyof typeof MyCompareLinkResponseType];
+
+export const MyCompareLinkResponseType = {
+  ONE_TO_ONE: 'ONE_TO_ONE',
+  GROUP: 'GROUP',
+} as const;
+
+export type MyCompareLinkResponseStatus =
+  (typeof MyCompareLinkResponseStatus)[keyof typeof MyCompareLinkResponseStatus];
+
+export const MyCompareLinkResponseStatus = {
+  WAITING: 'WAITING',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface MyCompareLinkResponse {
+  token?: string;
+  type?: MyCompareLinkResponseType;
+  status?: MyCompareLinkResponseStatus;
+  createdAt?: string;
+  participantNickname?: string;
+  groupName?: string;
+  memberCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListMyCompareLinkResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: MyCompareLinkResponse[];
+}
+
+/**
+ * 응답 데이터
+ */
+export interface BundleElectionResponse {
+  electionId?: string;
+  title?: string;
+  optionA?: string;
+  optionB?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseListBundleElectionResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: BundleElectionResponse[];
 }
 
 /**
@@ -969,46 +1339,6 @@ export interface BaseResponseMapStringString {
 }
 
 /**
- * 공통 응답 포맷
- */
-export interface BaseResponseListServerMetaResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  /** 응답 데이터 */
-  data?: ServerMetaResponse[];
-}
-
-/**
- * 응답 데이터
- */
-export interface AdminHotpickSummaryResponse {
-  id?: number;
-  type?: string;
-  slug?: string;
-  visible?: boolean;
-  fixed?: boolean;
-  imageUrl?: string;
-  createdAt?: string;
-  expiredAt?: string;
-  categories?: AdminCategoryResponse[];
-  election?: AdminElectionResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseListAdminHotpickSummaryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  /** 응답 데이터 */
-  data?: AdminHotpickSummaryResponse[];
-}
-
-/**
  * 응답 데이터
  */
 export interface HotpickSlugCheckResponse {
@@ -1024,18 +1354,6 @@ export interface BaseResponseHotpickSlugCheckResponse {
   /** 응답 메시지 */
   message?: string;
   data?: HotpickSlugCheckResponse;
-}
-
-/**
- * 공통 응답 포맷
- */
-export interface BaseResponseListAdminCategoryResponse {
-  /** 응답 코드 */
-  code?: string;
-  /** 응답 메시지 */
-  message?: string;
-  /** 응답 데이터 */
-  data?: AdminCategoryResponse[];
 }
 
 export interface DeleteCommentRequest {
@@ -1130,26 +1448,10 @@ export type GetCategories1Params = {
   selected?: string;
 };
 
+export type ListParams = {
+  filter?: string;
+};
+
 export type CheckNicknameParams = {
   nickname: string;
-};
-
-export type GetSuggestionsParams = {
-  status?: GetSuggestionsStatus;
-};
-
-export type GetSuggestionsStatus = (typeof GetSuggestionsStatus)[keyof typeof GetSuggestionsStatus];
-
-export const GetSuggestionsStatus = {
-  PENDING: 'PENDING',
-  APPROVED: 'APPROVED',
-  REJECTED: 'REJECTED',
-} as const;
-
-export type GeneratePresignedUrlParams = {
-  filename: string;
-};
-
-export type CheckSlugParams = {
-  slug: string;
 };

@@ -235,6 +235,11 @@
   }
 }
 
+.nodeCircleWrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .nodeCircle {
   position: relative;
   width: 44px;

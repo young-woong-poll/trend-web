@@ -109,8 +109,36 @@ const CATEGORY_THEMES: Record<CategoryCode, CategoryTheme> = {
   },
 };
 
-/** 카테고리 코드에 해당하는 테마를 반환. 없으면 기본 마젠타-오렌지 */
-export function getCategoryTheme(code?: CategoryCode): CategoryTheme {
+/** categoryMeta JSON 문자열에서 테마를 파싱. 실패 시 undefined */
+export function parseCategoryMeta(meta?: string | null): CategoryTheme | undefined {
+  if (!meta) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(meta);
+    const theme = parsed?.theme;
+    if (!theme?.start || !theme?.end) {
+      return undefined;
+    }
+    return {
+      start: theme.start,
+      end: theme.end,
+      startRgb: theme.startRgb ?? hexToRgb(theme.start),
+      endRgb: theme.endRgb ?? hexToRgb(theme.end),
+      emoji: theme.emoji ?? DEFAULT_THEME.emoji,
+      label: DEFAULT_THEME.label,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+/** 카테고리 코드에 해당하는 테마를 반환. categoryMeta가 있으면 우선 사용. 없으면 기본 마젠타-오렌지 */
+export function getCategoryTheme(code?: CategoryCode, categoryMeta?: string | null): CategoryTheme {
+  const metaTheme = parseCategoryMeta(categoryMeta);
+  if (metaTheme) {
+    return metaTheme;
+  }
   if (!code) {
     return DEFAULT_THEME;
   }
@@ -118,8 +146,11 @@ export function getCategoryTheme(code?: CategoryCode): CategoryTheme {
 }
 
 /** BundleBackground wrapper div에 주입할 CSS custom property 객체 */
-export function getCategoryThemeVars(code?: CategoryCode): React.CSSProperties {
-  const t = getCategoryTheme(code);
+export function getCategoryThemeVars(
+  code?: CategoryCode,
+  categoryMeta?: string | null
+): React.CSSProperties {
+  const t = getCategoryTheme(code, categoryMeta);
   return {
     '--primary-start': t.start,
     '--primary-end': t.end,

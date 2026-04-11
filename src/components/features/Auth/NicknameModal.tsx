@@ -123,7 +123,7 @@ const NicknameModal = ({ isOpen, onClose, mode = 'signup' }: NicknameModalProps)
       <form className={styles.container} onSubmit={handleSubmit(onSubmit)}>
         <h2 className={styles.title}>{title}</h2>
         {mode === 'edit' && (
-          <p className={styles.policyNotice}>닉네임은 월 1회만 변경할 수 있어요</p>
+          <p className={styles.policyNotice}>* 닉네임은 30일에 1회만 변경할 수 있어요</p>
         )}
 
         <div className={styles.inputWrapper}>

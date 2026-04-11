@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import Image from 'next/image';
 
@@ -11,6 +11,7 @@ import LikeIcon from '@/assets/icon/LikeIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import { Button } from '@/components/common/Button';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
+import { ImageViewer } from '@/components/common/ImageViewer/ImageViewer';
 import { InlineCommentSection } from '@/components/features/Hotpick/SingleDetailView/InlineCommentSection';
 import { SingleDetailSkeleton } from '@/components/features/Hotpick/SingleDetailView/SingleDetailSkeleton';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
@@ -46,6 +47,8 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
     () => (effectiveData ? toSingleDetailModel(effectiveData, hotpickAlias) : null),
     [effectiveData, hotpickAlias]
   );
+
+  const [viewerImage, setViewerImage] = useState<string | null>(null);
 
   const { handleVote } = useDetailVote(
     hotpickAlias,
@@ -117,13 +120,25 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
 
         <div className={styles.questionRow}>
           {logoUrl && (
-            <Image
-              src={logoUrl}
-              alt={title}
-              width={62}
-              height={62}
-              className={styles.questionLogo}
-            />
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={() => setViewerImage(logoUrl)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setViewerImage(logoUrl);
+                }
+              }}
+              className={styles.zoomable}
+            >
+              <Image
+                src={logoUrl}
+                alt={title}
+                width={62}
+                height={62}
+                className={styles.questionLogo}
+              />
+            </span>
           )}
           <h1 className={styles.question}>{title}</h1>
         </div>
@@ -188,13 +203,33 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
                       />
                       <div className={styles.barContent}>
                         {isImageType && item.imageUrl && (
-                          <Image
-                            src={item.imageUrl}
-                            alt={item.title}
-                            width={44}
-                            height={44}
-                            className={styles.barImage}
-                          />
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (item.imageUrl) {
+                                setViewerImage(item.imageUrl);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.stopPropagation();
+                                if (item.imageUrl) {
+                                  setViewerImage(item.imageUrl);
+                                }
+                              }
+                            }}
+                            className={styles.zoomable}
+                          >
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.title}
+                              width={44}
+                              height={44}
+                              className={styles.barImage}
+                            />
+                          </span>
                         )}
                         <m.span
                           className={styles.barText}
@@ -268,6 +303,8 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
         isClosed={isExpired}
         commentCount={totalCommentCount}
       />
+
+      <ImageViewer src={viewerImage} alt={title} onClose={() => setViewerImage(null)} />
     </div>
   );
 };

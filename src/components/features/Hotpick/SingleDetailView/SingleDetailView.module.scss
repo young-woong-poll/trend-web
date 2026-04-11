@@ -150,6 +150,12 @@
   box-shadow: 0 0 0 2px rgba($primary-start, 0.3);
 }
 
+.zoomable {
+  cursor: default;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 .question {
   font-size: 20px;
   font-weight: $font-weight-bold;

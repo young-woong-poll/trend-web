@@ -46,7 +46,7 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
         </span>
       </div>
 
-      {/* 닉네임 + 비밀번호 + 게시 */}
+      {/* 닉네임 + 비밀번호 + 게시 (비로그인) / 게시 버튼만 (로그인) */}
       <div className={styles.bottomRow}>
         {!isLoggedIn && (
           <>
@@ -88,7 +88,7 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
         )}
         <button
           type="button"
-          className={styles.submitButton}
+          className={`${styles.submitButton} ${isLoggedIn ? styles.submitButtonFull : ''}`}
           onClick={handleSubmit}
           disabled={isPending}
           aria-label="댓글 게시"

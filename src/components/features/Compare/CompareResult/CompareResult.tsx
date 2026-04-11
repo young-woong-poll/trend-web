@@ -30,9 +30,9 @@ interface CompareResultProps {
 
 /** 가상 상대 답변 생성 (시드 기반, ~40-60% matchRate) */
 function generateGhostAnswers(
-  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
+  myAnswers: Array<{ electionId: string; selected: string }>,
   seed: number
-): Array<{ electionId: string; selected: 'A' | 'B' }> {
+): Array<{ electionId: string; selected: string }> {
   return myAnswers.map((a, i) => ({
     electionId: a.electionId,
     selected: (seed + i) % 3 === 0 ? a.selected : a.selected === 'A' ? 'B' : 'A',
@@ -59,7 +59,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // GA4: 1:1 비교 결과 조회
   useEffect(() => {
     if (result) {
-      trackCompareResult(result.bundleSlug);
+      trackCompareResult(result.bundleSlug ?? '');
     }
   }, [result]);
 
@@ -95,9 +95,12 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       return null;
     }
 
-    const myAnswers = myBundleResult.myAnswers.map((a) => ({
-      electionId: a.electionId,
-      selected: a.selected,
+    const rawAnswers = myBundleResult.myAnswers ?? [];
+    const rawStats = myBundleResult.questionStats ?? [];
+
+    const myAnswers = rawAnswers.map((a) => ({
+      electionId: a.electionId ?? '',
+      selected: a.selected ?? 'A',
     }));
     const ghostAnswers = generateGhostAnswers(myAnswers, 42);
 
@@ -110,25 +113,25 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
 
     return {
-      bundleSlug: myBundleResult.bundleSlug,
-      bundleTitle: myBundleResult.bundleTitle,
-      totalQuestions: myBundleResult.totalQuestions,
+      bundleSlug: myBundleResult.bundleSlug ?? '',
+      bundleTitle: myBundleResult.bundleTitle ?? '',
+      totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
       categoryCode: link.categoryCode,
-      me: { nickname: link.creatorNickname, answers: myAnswers },
+      me: { nickname: link.creatorNickname ?? '', answers: myAnswers },
       target: { nickname: '???', answers: ghostAnswers },
-      questionStats: myBundleResult.myAnswers.map((a) => {
-        const stats = myBundleResult.questionStats.find((s) => s.electionId === a.electionId);
+      questionStats: rawAnswers.map((a) => {
+        const stats = rawStats.find((s) => s.electionId === a.electionId);
         return {
-          electionId: a.electionId,
-          title: a.title,
-          optionA: a.optionA,
-          optionB: a.optionB,
+          electionId: a.electionId ?? '',
+          title: a.title ?? '',
+          optionA: a.optionA ?? '',
+          optionB: a.optionB ?? '',
           optionACount: stats?.optionACount ?? 50,
           optionBCount: stats?.optionBCount ?? 50,
         };
       }),
       matchCount,
-      matchRate: Math.round((matchCount / myAnswers.length) * 100),
+      matchRate: myAnswers.length > 0 ? Math.round((matchCount / myAnswers.length) * 100) : 0,
     };
   }, [isPreview, myBundleResult, link]);
 
@@ -162,18 +165,23 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     const previewStoryData = classifyAnswers(previewResult);
 
     return (
-      <BundleBackground categoryCode={previewResult.categoryCode}>
+      <BundleBackground categoryCode={previewResult.categoryCode} categoryMeta={link?.categoryMeta}>
         <div className={styles.container}>
           <div className={styles.previewBanner}>
+            <p className={styles.previewTitle}>아직 참여한 사람이 없어요!</p>
             <p className={styles.previewText}>
-              가상 상대와의 미리보기예요.
+              지금 보고 있는 건 가상 데이터예요.
               <br />
-              상대방이 참여하면 진짜 결과를 볼 수 있어요!
+              아래 버튼으로 링크를 공유하면 진짜 결과를 볼 수 있어요!
             </p>
           </div>
 
           <div className={styles.resultHeader}>
-            <CategoryBadge categoryCode={previewResult.categoryCode} />
+            <CategoryBadge
+              categoryCode={previewResult.categoryCode}
+              categoryMeta={link?.categoryMeta}
+              label={link?.category}
+            />
             <h2 className={styles.resultTitle}>{previewResult.bundleTitle}</h2>
           </div>
 
@@ -230,12 +238,14 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   // ─── 실제 결과 ───
   const shockPoint = findShockPoint(result);
   const storyData = classifyAnswers(result);
-  const isTargetWithdrawn = result.target.isWithdrawn === true;
+  const me = result.me ?? {};
+  const target = result.target ?? {};
+  const isTargetWithdrawn = target.isWithdrawn === true;
   // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : result.target.nickname;
+  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : (target.nickname ?? '');
 
   return (
-    <BundleBackground categoryCode={result.categoryCode}>
+    <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
       <div className={styles.container}>
         {showBack && (
           <button
@@ -249,7 +259,11 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         )}
 
         <div className={styles.resultHeader}>
-          <CategoryBadge categoryCode={result.categoryCode} />
+          <CategoryBadge
+            categoryCode={result.categoryCode}
+            categoryMeta={result.categoryMeta}
+            label={result.category}
+          />
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
         </div>
 
@@ -261,22 +275,22 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         )}
 
         <ChemistryCard
-          matchRate={result.matchRate}
-          myNickname={result.me.nickname}
+          matchRate={result.matchRate ?? 0}
+          myNickname={me.nickname ?? ''}
           targetNickname={targetNickname}
           isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
-          myNickname={result.me.nickname}
+          myNickname={me.nickname ?? ''}
           targetNickname={targetNickname}
         />
 
         {shockPoint && (
           <ShockPoint
             data={shockPoint}
-            myNickname={result.me.nickname}
+            myNickname={me.nickname ?? ''}
             targetNickname={targetNickname}
           />
         )}
@@ -315,16 +329,20 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
           {showCompareModal && (
             <CreateCompareLink
-              slug={result.bundleSlug}
+              slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
+              categoryMeta={result.categoryMeta}
+              category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowCompareModal(false)}
             />
           )}
           {showGroupModal && (
             <CreateGroupLink
-              slug={result.bundleSlug}
+              slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
+              categoryMeta={result.categoryMeta}
+              category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowGroupModal(false)}
             />

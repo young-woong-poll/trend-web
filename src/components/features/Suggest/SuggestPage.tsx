@@ -175,7 +175,7 @@ export const SuggestPage: FC = () => {
                 <div className={styles.summaryOptions}>
                   {formData.categoryIds.map((id) => (
                     <span key={id} className={styles.summaryOptionChip}>
-                      {categories?.find((c) => c.id === id)?.name}
+                      {categories?.find((c) => c.id === id)?.category}
                     </span>
                   ))}
                 </div>
@@ -305,7 +305,7 @@ export const SuggestPage: FC = () => {
                       }}
                     >
                       {isSelected && <span className={styles.categoryCheck}>&#10003;</span>}
-                      {cat.name}
+                      {cat.category}
                     </button>
                   );
                 })

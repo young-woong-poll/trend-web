@@ -511,7 +511,7 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     categoryCode: detail?.categoryCode,
     creatorNickname: link.creatorNickname,
     creatorImageUrl,
-    participantNickname: link.participantNickname,
+    participantNickname: link.participantNickname ?? undefined,
     hasParticipant: link.participantUserId !== null,
     isCreator: link.creatorUserId === currentUserId,
     isParticipant: link.participantUserId === currentUserId,
@@ -687,15 +687,15 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
       answers: targetAnswers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
     },
     questionStats: elections.map((e, i) => {
-      const stats = bundleVoteStats.get(e.electionId) ?? { optionACount: 0, optionBCount: 0 };
+      const stats = bundleVoteStats.get(e.electionId ?? '') ?? { optionACount: 0, optionBCount: 0 };
       const total = stats.optionACount + stats.optionBCount;
       const seedA = seedRatios[i] ?? 50;
       const seedB = 100 - seedA;
       return {
-        electionId: e.electionId,
-        title: e.title,
-        optionA: e.optionA,
-        optionB: e.optionB,
+        electionId: e.electionId ?? '',
+        title: e.title ?? '',
+        optionA: e.optionA ?? '',
+        optionB: e.optionB ?? '',
         optionACount: total > 0 ? stats.optionACount : seedA,
         optionBCount: total > 0 ? stats.optionBCount : seedB,
       };

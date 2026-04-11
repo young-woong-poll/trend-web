@@ -13,8 +13,11 @@ interface PopularityCompareProps {
 }
 
 export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
-  const myScore = calcPopularityScore(result.me.answers, result.questionStats);
-  const targetScore = calcPopularityScore(result.target.answers, result.questionStats);
+  const me = result.me ?? {};
+  const target = result.target ?? {};
+  const questionStats = result.questionStats ?? [];
+  const myScore = calcPopularityScore(me.answers ?? [], questionStats);
+  const targetScore = calcPopularityScore(target.answers ?? [], questionStats);
   const myPopularity = getPopularityByScore(myScore);
   const targetPopularity = getPopularityByScore(targetScore);
   const [detailPerson, setDetailPerson] = useState<'me' | 'target' | null>(null);
@@ -28,8 +31,8 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
       <p className={styles.sectionSub}>
         각 질문 득표율 평균으로, 높을수록 다수파 · 낮을수록 소수파
         <br />* 현재{' '}
-        {result.questionStats[0]
-          ? result.questionStats[0].optionACount + result.questionStats[0].optionBCount
+        {questionStats[0]
+          ? (questionStats[0].optionACount ?? 0) + (questionStats[0].optionBCount ?? 0)
           : 0}
         명 참여 기준 · 참여자가 늘면 업데이트 돼요
       </p>
@@ -41,7 +44,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('me')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.me.main }}>
-            {result.me.nickname}
+            {me.nickname ?? ''}
           </span>
           {myPopularity.imagePath ? (
             <Image
@@ -69,7 +72,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('target')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.target.main }}>
-            {result.target.nickname}
+            {target.nickname ?? ''}
           </span>
           {targetPopularity.imagePath ? (
             <Image

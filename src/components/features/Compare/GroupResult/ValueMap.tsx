@@ -77,8 +77,8 @@ const DOT_GRADIENTS = [
 ];
 
 export const ValueMap: FC<ValueMapProps> = ({ result }) => {
-  const config = VALUE_MAP_CONFIGS[result.bundleSlug];
-  const hasAxisQuestions = result.questionStats.some((s) => s.axis !== null);
+  const config = VALUE_MAP_CONFIGS[result.bundleSlug ?? ''];
+  const hasAxisQuestions = (result.questionStats ?? []).some((s) => s.axis !== null);
 
   const coords = useMemo(() => calcValueMapCoordinates(result), [result]);
   const avgCoord = useMemo(() => calcGroupAverage(coords), [coords]);

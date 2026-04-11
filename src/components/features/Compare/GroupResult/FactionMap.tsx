@@ -3,11 +3,17 @@
 import { useMemo, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/FactionMap.module.scss';
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface FactionMapProps {
-  members: Array<{ userId: string; nickname: string }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    gender?: 'MALE' | 'FEMALE';
+    displayProfileColor?: string;
+  }>;
   pairs: PairChemistry[];
 }
 
@@ -26,7 +32,7 @@ interface Faction {
  * 4. 나머지는 외톨이
  */
 function buildFactions(
-  members: Array<{ userId: string; nickname: string }>,
+  members: Array<{ userId: string; nickname: string; displayProfileColor?: string }>,
   pairs: PairChemistry[]
 ): { factions: Faction[]; lonerIds: string[] } {
   const sorted = [...pairs].sort((a, b) => b.matchRate - a.matchRate);
@@ -133,10 +139,12 @@ export const FactionMap: FC<FactionMapProps> = ({ members, pairs }) => {
 
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getMemberGradient(idx >= 0 ? idx : 0);
+    const member = members.find((m) => m.userId === userId);
+    return getMemberGradient(idx >= 0 ? idx : 0, userId, member?.displayProfileColor);
   };
 
   const getNickname = (userId: string) => members.find((m) => m.userId === userId)?.nickname ?? '?';
+  const getGender = (userId: string) => members.find((m) => m.userId === userId)?.gender;
 
   if (factions.length === 0 && lonerIds.length === 0) {
     return null;
@@ -162,8 +170,11 @@ export const FactionMap: FC<FactionMapProps> = ({ members, pairs }) => {
               <div className={styles.avatarRow}>
                 {faction.memberIds.map((id) => (
                   <div key={id} className={styles.avatarItem}>
-                    <div className={styles.avatar} style={{ background: getGradient(id) }}>
-                      {getNickname(id)[0]}
+                    <div className={styles.avatarWrap}>
+                      <div className={styles.avatar} style={{ background: getGradient(id) }}>
+                        {getNickname(id)[0]}
+                      </div>
+                      <GenderBadge gender={getGender(id)} size={12} iconSize={6} />
                     </div>
                     <span className={styles.avatarName}>{getNickname(id)}</span>
                   </div>
@@ -198,8 +209,11 @@ export const FactionMap: FC<FactionMapProps> = ({ members, pairs }) => {
           <div className={styles.avatarRow}>
             {lonerIds.map((id) => (
               <div key={id} className={styles.avatarItem}>
-                <div className={styles.avatar} style={{ background: getGradient(id) }}>
-                  {getNickname(id)[0]}
+                <div className={styles.avatarWrap}>
+                  <div className={styles.avatar} style={{ background: getGradient(id) }}>
+                    {getNickname(id)[0]}
+                  </div>
+                  <GenderBadge gender={getGender(id)} size={12} iconSize={6} />
                 </div>
                 <span className={styles.avatarName}>{getNickname(id)}</span>
               </div>

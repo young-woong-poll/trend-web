@@ -27,6 +27,7 @@ export interface BundleCardModel {
   subtitle?: string;
   categories: string[];
   categoryCode?: CategoryCode;
+  categoryMeta?: string;
   status: HotpickStatus;
   totalVoteCount: number;
   electionCount?: number;

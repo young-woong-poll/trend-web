@@ -12,7 +12,7 @@
     transform 0.2s ease,
     box-shadow 0.2s ease;
   content-visibility: auto;
-  contain-intrinsic-size: 0 200px;
+  contain-intrinsic-size: 0 220px;
 
   &:hover {
     transform: translateY(-2px);
@@ -49,7 +49,7 @@
   padding: 16px 16px 16px 20px;
 }
 
-// ── 상단: 카테고리 + 공유 ──
+// -- 상단: 카테고리 + 공유 --
 .topRow {
   display: flex;
   align-items: flex-start;
@@ -79,111 +79,12 @@
   line-height: 1.4;
 }
 
-// ── 제목: 로고 + 텍스트 ──
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.titleLogo {
-  width: 40px;
-  height: 40px;
-  border-radius: $border-radius-md;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.titleGroup {
-  flex: 1;
-  min-width: 0;
-}
-
-.titleWithBadges {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.title {
-  font-size: $font-size-16;
-  font-weight: $font-weight-bold;
-  color: $white;
-  line-height: 1.4;
-  word-break: keep-all;
-}
-
-.card:hover .title {
-  text-decoration: underline;
-}
-
-.titleBadges {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-}
-
-.subtitle {
-  font-size: $font-size-14;
-  color: $text-secondary;
-  line-height: 1.4;
-  margin-top: 2px;
-}
-
-// ── 메타: 참여자 · 데드라인 · 배지 · NEW ──
-.metaRow {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.dot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: $border-placeholder;
-  flex-shrink: 0;
-}
-
-.participants {
+.chemiBadge {
   font-size: $font-size-12;
-  color: $text-tertiary;
-}
-
-.bundleBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: $border-rounded;
-  background: rgba(var(--primary-start-rgb), 0.15);
+  font-weight: $font-weight-bold;
   color: var(--primary-start);
-  font-size: $font-size-12;
-  font-weight: $font-weight-bold;
-}
-
-.closedBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: $border-rounded;
-  background: rgba($neutral-500, 0.2);
-  color: $text-tertiary;
-  font-size: $font-size-12;
-  font-weight: $font-weight-bold;
-}
-
-.newBadge {
-  padding: 1px 6px;
-  border-radius: $border-radius-sm;
-  background: $attention;
-  color: $bg-primary;
-  font-size: $font-size-12;
-  font-weight: $font-weight-bold;
+  white-space: nowrap;
+  line-height: 1.4;
 }
 
 .shareButton {
@@ -213,7 +114,73 @@
   }
 }
 
-// ── CTA 버튼 ──
+// -- 제목 --
+.titleGroup {
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.card:hover .title {
+  text-decoration: underline;
+}
+
+.subtitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+// -- 메타 --
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.metaText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: $border-placeholder;
+  flex-shrink: 0;
+}
+
+.durationText {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+// -- 비교 어필 --
+.compareText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.compareHighlight {
+  color: $text-secondary;
+  font-weight: $font-weight-semibold;
+}
+
+// -- CTA 버튼 --
 .ctaButton {
   display: flex;
   align-items: center;
@@ -271,6 +238,30 @@
 
 .loading {
   letter-spacing: 2px;
+}
+
+// -- 하단: 마감 + 참여완료 뱃지 --
+.bottomRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.closedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  background: rgba($neutral-500, 0.2);
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
 }
 
 .participatedBadge {

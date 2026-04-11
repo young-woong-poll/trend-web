@@ -29,29 +29,29 @@ interface Cluster {
 
 /** 멤버별 대중성 점수 계산 */
 function calcMemberPopularityScores(result: GroupCompareResult): MemberScore[] {
-  return result.members.map((member) => {
+  return (result.members ?? []).map((member) => {
     let totalRate = 0;
     let matched = 0;
-    for (const answer of member.answers) {
-      const stat = result.questionStats.find((s) => s.electionId === answer.electionId);
+    for (const answer of member.answers ?? []) {
+      const stat = (result.questionStats ?? []).find((s) => s.electionId === answer.electionId);
       if (!stat) {
         continue;
       }
-      const total = stat.optionACount + stat.optionBCount;
+      const total = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
       if (total === 0) {
         continue;
       }
       const rate =
         answer.selected === 'A'
-          ? Math.round((stat.optionACount / total) * 100)
-          : Math.round((stat.optionBCount / total) * 100);
+          ? Math.round(((stat.optionACount ?? 0) / total) * 100)
+          : Math.round(((stat.optionBCount ?? 0) / total) * 100);
       totalRate += rate;
       matched++;
     }
     const score = matched > 0 ? Math.round(totalRate / matched) : 50;
     return {
-      userId: member.userId,
-      nickname: member.nickname,
+      userId: member.userId ?? '',
+      nickname: member.nickname ?? '',
       score,
       grade: getPopularityByScore(score),
     };

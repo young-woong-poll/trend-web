@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw';
 
-import { getAdminBundleList, getAdminBundleStats } from '@/mocks/data/adminBundles';
 import {
   bundleAnswerStore,
   mockBundleDetails,
@@ -40,8 +39,6 @@ import {
   getLikeState,
   initLikeCount,
 } from '@/mocks/data/singleVotes';
-import { mockSuggestions } from '@/mocks/data/suggestions';
-
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
@@ -80,22 +77,20 @@ function generateRandomNickname(): string {
 }
 
 /**
- * Mock 카테고리 데이터 (Admin CRUD + Public 탭 공유)
+ * Mock 카테고리 데이터
  */
 const mockCategories = [
-  { id: 1, name: '연애', slug: 'LOVE' },
-  { id: 2, name: '결혼', slug: 'MARRIAGE' },
-  { id: 3, name: '재테크', slug: 'FINANCE' },
-  { id: 4, name: '직장', slug: 'WORK' },
-  { id: 5, name: '스포츠', slug: 'SPORTS' },
-  { id: 6, name: '음식', slug: 'FOOD' },
-  { id: 7, name: '게임', slug: 'GAME' },
-  { id: 8, name: '자동차', slug: 'CAR' },
-  { id: 9, name: '건강', slug: 'HEALTH' },
-  { id: 10, name: '트렌드', slug: 'TREND' },
+  { id: 1, category: '연애', categoryCode: 'LOVE' },
+  { id: 2, category: '결혼', categoryCode: 'MARRIAGE' },
+  { id: 3, category: '재테크', categoryCode: 'FINANCE' },
+  { id: 4, category: '직장', categoryCode: 'WORK' },
+  { id: 5, category: '스포츠', categoryCode: 'SPORTS' },
+  { id: 6, category: '음식', categoryCode: 'FOOD' },
+  { id: 7, category: '게임', categoryCode: 'GAME' },
+  { id: 8, category: '자동차', categoryCode: 'CAR' },
+  { id: 9, category: '건강', categoryCode: 'HEALTH' },
+  { id: 10, category: '트렌드', categoryCode: 'TREND' },
 ];
-let nextCategoryId = 11;
-
 /**
  * BaseResponse 형식으로 응답 래핑
  */
@@ -520,7 +515,7 @@ export const handlers = [
     if (category && category !== 'all') {
       hotpicks = hotpicks.filter((hp) => {
         const cats = hp.categories ?? [];
-        return cats.some((c) => c.slug === category || c.name === category);
+        return cats.some((c) => c.categoryCode === category || c.category === category);
       });
     }
 
@@ -647,7 +642,11 @@ export const handlers = [
         slug: hp.slug,
         isExpired: hp.expiredAt ? new Date(hp.expiredAt) < new Date() : false,
         likeCount: hp.likeCount ?? 0,
-        categories: hp.categories ?? [],
+        categories: (hp.categories ?? []).map((c) => ({
+          categoryId: c.id,
+          name: c.category,
+          slug: c.categoryCode,
+        })),
         election: hp.election
           ? {
               electionId: hp.election.electionId,
@@ -1012,228 +1011,6 @@ export const handlers = [
   ),
 
   // ──────────────────────────────────────────────────────────
-  // Admin Hotpick CRUD
-  // ──────────────────────────────────────────────────────────
-
-  /**
-   * 핫픽 목록 조회
-   * GET /admin/api/v1/hotpicks
-   */
-  http.get(`${baseURL}/admin/api/v1/hotpicks`, () => {
-    const summaries = (mockMainHotpicks.hotpicks ?? []).map((hp) => ({
-      id: hp.hotpickId,
-      type: hp.type,
-      slug: hp.slug,
-      visible: true,
-      imageUrl: hp.imageUrl,
-      createdAt: hp.expiredAt,
-      expiredAt: hp.expiredAt,
-      categories: hp.categories,
-      electionId: hp.election?.electionId,
-      electionTitle: hp.election?.title,
-    }));
-    return HttpResponse.json(wrapResponse(summaries));
-  }),
-
-  /**
-   * Slug 중복 체크
-   * GET /admin/api/v1/hotpicks/check-slug
-   */
-  http.get(`${baseURL}/admin/api/v1/hotpicks/check-slug`, ({ request }) => {
-    const url = new URL(request.url);
-    const slug = url.searchParams.get('slug') ?? '';
-    const exists = (mockMainHotpicks.hotpicks ?? []).some((hp) => hp.slug === slug);
-    return HttpResponse.json(wrapResponse({ exists }));
-  }),
-
-  /**
-   * 핫픽 상세 조회
-   * GET /admin/api/v1/hotpicks/:id
-   */
-  http.get(`${baseURL}/admin/api/v1/hotpicks/:id`, ({ params }) => {
-    const id = Number(params.id);
-    const hp = (mockMainHotpicks.hotpicks ?? []).find((h) => h.hotpickId === id);
-    if (!hp) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '핫픽을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    const detail = {
-      id: hp.hotpickId,
-      type: hp.type,
-      slug: hp.slug,
-      visible: true,
-      imageUrl: hp.imageUrl,
-      createdAt: hp.expiredAt,
-      expiredAt: hp.expiredAt,
-      categories: (hp.categories ?? []).map((c) => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-      })),
-      election: hp.election
-        ? {
-            id: hp.election.electionId,
-            hotpickId: hp.hotpickId,
-            title: hp.election.title,
-            imageUrl: hp.election.imageUrl,
-            totalVoteCount: hp.election.totalVoteCount,
-            totalCommentCount: hp.election.totalCommentCount,
-            items: (hp.election.items ?? []).map((item) => ({
-              id: item.electionItemId,
-              displayOrder: item.displayOrder,
-              title: item.title,
-              imageUrl: item.imageUrl,
-              voteCount: item.voteCount,
-            })),
-          }
-        : undefined,
-    };
-    return HttpResponse.json(wrapResponse(detail));
-  }),
-
-  /**
-   * 핫픽 생성
-   * POST /admin/api/v1/hotpicks
-   */
-  http.post(`${baseURL}/admin/api/v1/hotpicks`, async ({ request }) => {
-    const body = (await request.json()) as Record<string, unknown>;
-    return HttpResponse.json(wrapResponse({ id: Date.now(), ...body }), { status: 201 });
-  }),
-
-  /**
-   * 핫픽 수정
-   * PUT /admin/api/v1/hotpicks/:id
-   */
-  http.put(`${baseURL}/admin/api/v1/hotpicks/:id`, async ({ request, params }) => {
-    const body = (await request.json()) as Record<string, unknown>;
-    return HttpResponse.json(wrapResponse({ id: Number(params.id), ...body }));
-  }),
-
-  /**
-   * 핫픽 삭제
-   * DELETE /admin/api/v1/hotpicks/:id
-   */
-  http.delete(`${baseURL}/admin/api/v1/hotpicks/:id`, () => HttpResponse.json(wrapResponse(null))),
-
-  // ──────────────────────────────────────────────────────────
-  // Admin Category CRUD
-  // ──────────────────────────────────────────────────────────
-
-  /**
-   * 카테고리 목록 조회
-   * GET /admin/api/v1/categories
-   */
-  http.get(`${baseURL}/admin/api/v1/categories`, () =>
-    HttpResponse.json(wrapResponse(mockCategories))
-  ),
-
-  /**
-   * 카테고리 생성
-   * POST /admin/api/v1/categories
-   */
-  http.post(`${baseURL}/admin/api/v1/categories`, async ({ request }) => {
-    const body = (await request.json()) as { name: string; slug: string };
-    const newCategory = { id: nextCategoryId++, name: body.name, slug: body.slug };
-    mockCategories.push(newCategory);
-    return HttpResponse.json(wrapResponse(newCategory), { status: 201 });
-  }),
-
-  /**
-   * 카테고리 수정
-   * PUT /admin/api/v1/categories/:categoryId
-   */
-  http.put(`${baseURL}/admin/api/v1/categories/:categoryId`, async ({ request, params }) => {
-    const categoryId = Number(params.categoryId);
-    const body = (await request.json()) as { name?: string; slug?: string };
-    const idx = mockCategories.findIndex((c) => c.id === categoryId);
-    if (idx === -1) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '카테고리를 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    if (body.name !== undefined) {
-      mockCategories[idx].name = body.name;
-    }
-    if (body.slug !== undefined) {
-      mockCategories[idx].slug = body.slug;
-    }
-    return HttpResponse.json(wrapResponse(mockCategories[idx]));
-  }),
-
-  /**
-   * 카테고리 삭제
-   * DELETE /admin/api/v1/categories/:categoryId
-   */
-  http.delete(`${baseURL}/admin/api/v1/categories/:categoryId`, ({ params }) => {
-    const categoryId = Number(params.categoryId);
-    const idx = mockCategories.findIndex((c) => c.id === categoryId);
-    if (idx === -1) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '카테고리를 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    mockCategories.splice(idx, 1);
-    return HttpResponse.json(wrapResponse(null));
-  }),
-
-  // ──────────────── Admin Bundle ────────────────
-
-  // GET /admin/api/v1/bundles
-  http.get(`${baseURL}/admin/api/v1/bundles`, () =>
-    HttpResponse.json(wrapResponse(getAdminBundleList()))
-  ),
-
-  // GET /admin/api/v1/bundles/:slug/stats
-  http.get(`${baseURL}/admin/api/v1/bundles/:slug/stats`, ({ params }) => {
-    const slug = params.slug as string;
-    const stats = getAdminBundleStats(slug);
-    if (!stats) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    return HttpResponse.json(wrapResponse(stats));
-  }),
-
-  // PUT /admin/api/v1/bundles/:slug
-  http.put(`${baseURL}/admin/api/v1/bundles/:slug`, async ({ params, request }) => {
-    const slug = params.slug as string;
-    const body = (await request.json()) as Record<string, unknown>;
-    const bundle = mockBundleDetails[slug];
-    if (!bundle) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    if (body.status) {
-      bundle.status = body.status as 'ACTIVE' | 'CLOSED';
-    }
-    if (body.title) {
-      bundle.title = body.title as string;
-    }
-    return HttpResponse.json(wrapResponse({ slug, title: bundle.title, status: bundle.status }));
-  }),
-
-  // DELETE /admin/api/v1/bundles/:slug
-  http.delete(`${baseURL}/admin/api/v1/bundles/:slug`, ({ params }) => {
-    const slug = params.slug as string;
-    if (!mockBundleDetails[slug]) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '번들을 찾을 수 없습니다.', data: null },
-        { status: 404 }
-      );
-    }
-    delete mockBundleDetails[slug];
-    return HttpResponse.json(wrapResponse(null));
-  }),
-
-  // ──────────────────────────────────────────────────────────
   // Server Meta API (오프라인 투표)
   // ──────────────────────────────────────────────────────────
 
@@ -1430,7 +1207,7 @@ export const handlers = [
     );
     // 그룹 생성 시 생성자를 자동으로 멤버에 추가
     if (body.type === 'GROUP') {
-      const link = compareLinkStore.get(result.token);
+      const link = compareLinkStore.get(result.token ?? '');
       if (link) {
         link.groupName = body.groupName ?? null;
         link.groupMembers.push({ userId: 'mock-user-1', nickname: '웅이' });
@@ -1684,59 +1461,4 @@ export const handlers = [
    * POST /api/v1/suggestions
    */
   http.post(`${baseURL}/api/v1/suggestions`, () => HttpResponse.json(wrapResponse(null))),
-
-  /**
-   * 어드민: 제안 목록 조회
-   * GET /admin/api/v1/suggestions
-   */
-  http.get(`${baseURL}/admin/api/v1/suggestions`, ({ request }) => {
-    const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const filtered = status ? mockSuggestions.filter((s) => s.status === status) : mockSuggestions;
-    return HttpResponse.json(wrapResponse(filtered));
-  }),
-
-  /**
-   * 어드민: 제안 상세 조회
-   * GET /admin/api/v1/suggestions/:id
-   */
-  http.get(`${baseURL}/admin/api/v1/suggestions/:id`, ({ params }) => {
-    const id = Number(params.id);
-    const suggestion = mockSuggestions.find((s) => s.id === id);
-    if (!suggestion) {
-      return HttpResponse.json(
-        { code: 'NOT_FOUND', message: '제안을 찾을 수 없습니다', data: null },
-        { status: 404 }
-      );
-    }
-    return HttpResponse.json(wrapResponse(suggestion));
-  }),
-
-  /**
-   * 어드민: 제안 승인
-   * POST /admin/api/v1/suggestions/:id/approve
-   */
-  http.post(`${baseURL}/admin/api/v1/suggestions/:id/approve`, ({ params }) => {
-    const id = Number(params.id);
-    const suggestion = mockSuggestions.find((s) => s.id === id);
-    if (suggestion) {
-      suggestion.status = 'APPROVED';
-      suggestion.reviewedAt = new Date().toISOString();
-    }
-    return HttpResponse.json(wrapResponse(suggestion));
-  }),
-
-  /**
-   * 어드민: 제안 거절
-   * POST /admin/api/v1/suggestions/:id/reject
-   */
-  http.post(`${baseURL}/admin/api/v1/suggestions/:id/reject`, ({ params }) => {
-    const id = Number(params.id);
-    const suggestion = mockSuggestions.find((s) => s.id === id);
-    if (suggestion) {
-      suggestion.status = 'REJECTED';
-      suggestion.reviewedAt = new Date().toISOString();
-    }
-    return HttpResponse.json(wrapResponse(suggestion));
-  }),
 ];

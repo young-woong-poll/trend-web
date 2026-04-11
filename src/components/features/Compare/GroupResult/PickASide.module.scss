@@ -206,6 +206,7 @@
   font-weight: 600;
   color: $text-secondary;
   line-height: 1.3;
+  word-break: keep-all;
 }
 
 .optionCount {
@@ -247,6 +248,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.stackCircleWrap {
+  position: relative;
+  display: inline-flex;
+  margin-left: -14px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
 .stackCircle {
   width: 28px;
   height: 28px;
@@ -258,12 +269,6 @@
   font-weight: 700;
   color: $white;
   border: 2px solid $bg-primary;
-  margin-left: -14px;
-  position: relative;
-
-  &:first-child {
-    margin-left: 0;
-  }
 }
 
 .stackOverflow {
@@ -314,6 +319,12 @@
   &:hover {
     background: rgba(#fff, 0.04);
   }
+}
+
+.stackTooltipCircleWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 .stackTooltipCircle {

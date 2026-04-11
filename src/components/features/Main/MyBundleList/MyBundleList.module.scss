@@ -206,6 +206,12 @@
   min-width: 0;
 }
 
+.linkNameWaiting {
+  color: $text-tertiary;
+  font-weight: $font-weight-regular;
+  font-size: $font-size-12;
+}
+
 // ─── 아이콘 (행 전체가 클릭 영역) ───
 .linkActionIcon {
   display: flex;

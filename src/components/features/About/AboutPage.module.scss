@@ -18,7 +18,7 @@
 // ─── Hero 섹션 ───
 .hero {
   text-align: center;
-  padding: $spacing-48 0;
+  padding: $spacing-16 0 $spacing-16;
 }
 
 .heroTitle {
@@ -40,7 +40,7 @@
   font-size: $font-size-16;
   color: $text-secondary;
   line-height: 1.5;
-  margin: 0 0 $spacing-32;
+  margin: 0;
 
   @include tablet {
     font-size: $font-size-18;
@@ -48,8 +48,10 @@
 }
 
 .ctaLink {
-  display: inline-block;
+  display: block;
+  text-align: center;
   text-decoration: none;
+  margin: $spacing-16 0;
 }
 
 .ctaButton {
@@ -82,22 +84,10 @@
 
 // ─── 공통 섹션 ───
 .section {
-  padding: $spacing-32 0;
+  padding: $spacing-8 0 $spacing-16;
 
   & + & {
     border-top: 1px solid $bg-tertiary;
-  }
-}
-
-.sectionTitle {
-  font-size: $font-size-22;
-  font-weight: $font-weight-bold;
-  color: $white;
-  margin: 0 0 $spacing-8;
-  text-align: center;
-
-  @include tablet {
-    font-size: $font-size-24;
   }
 }
 

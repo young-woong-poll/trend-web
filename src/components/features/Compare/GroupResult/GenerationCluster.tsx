@@ -2,12 +2,19 @@
 
 import { useMemo, type FC } from 'react';
 
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import styles from '@/components/features/Compare/GroupResult/GenerationCluster.module.scss';
 import { getMemberGradient } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface GenerationClusterProps {
-  members: Array<{ userId: string; nickname: string; birthYear?: number }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    gender?: 'MALE' | 'FEMALE';
+    birthYear?: number;
+    displayProfileColor?: string;
+  }>;
   pairs: PairChemistry[];
 }
 
@@ -153,10 +160,12 @@ export const GenerationCluster: FC<GenerationClusterProps> = ({ members, pairs }
   /** 원본 members 배열에서 인덱스 → gradient */
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return getMemberGradient(idx >= 0 ? idx : 0);
+    const member = members.find((m) => m.userId === userId);
+    return getMemberGradient(idx >= 0 ? idx : 0, userId, member?.displayProfileColor);
   };
 
   const getNickname = (userId: string) => members.find((m) => m.userId === userId)?.nickname ?? '?';
+  const getGender = (userId: string) => members.find((m) => m.userId === userId)?.gender;
 
   // 2개 미만의 세대 그룹이면 렌더링하지 않음
   if (groups.length < 2) {
@@ -188,8 +197,11 @@ export const GenerationCluster: FC<GenerationClusterProps> = ({ members, pairs }
               </div>
               <div className={styles.avatarRow}>
                 {group.memberIds.slice(0, MAX_AVATARS).map((id) => (
-                  <div key={id} className={styles.avatar} style={{ background: getGradient(id) }}>
-                    {getNickname(id)[0]}
+                  <div key={id} className={styles.avatarWrap}>
+                    <div className={styles.avatar} style={{ background: getGradient(id) }}>
+                      {getNickname(id)[0]}
+                    </div>
+                    <GenderBadge gender={getGender(id)} size={12} iconSize={6} />
                   </div>
                 ))}
                 {overflow > 0 && <span className={styles.avatarOverflow}>+{overflow}명</span>}

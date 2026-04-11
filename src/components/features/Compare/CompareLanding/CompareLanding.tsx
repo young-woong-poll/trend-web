@@ -34,7 +34,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   // GA4: 비교 랜딩 조회
   useEffect(() => {
     if (link && !link.isCreator) {
-      trackCompareLanding(link.bundleSlug, link.type);
+      trackCompareLanding(link.bundleSlug ?? '', link.type ?? 'ONE_TO_ONE');
     }
   }, [link]);
 
@@ -175,11 +175,19 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const showPreview = (needsBundle || needsLogin) && !isAlreadyTaken;
 
   return (
-    <BundleBackground categoryCode={link.categoryCode} fireworks={!isAlreadyTaken}>
+    <BundleBackground
+      categoryCode={link.categoryCode}
+      categoryMeta={link.categoryMeta}
+      fireworks={!isAlreadyTaken}
+    >
       <div className={styles.container}>
         {/* ─── 카테고리 + 번들 제목 ─── */}
         <div className={styles.resultHeader}>
-          <CategoryBadge categoryCode={link.categoryCode} />
+          <CategoryBadge
+            categoryCode={link.categoryCode}
+            categoryMeta={link.categoryMeta}
+            label={link.category}
+          />
           <h2 className={styles.resultTitle}>{link.bundleTitle}</h2>
         </div>
 
@@ -219,7 +227,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         </div>
 
         {/* ─── 결과 프리뷰 (미완료 유저) — 로테이션 애니메이션 ─── */}
-        {showPreview && <PreviewRotation nickname={link.creatorNickname} />}
+        {showPreview && <PreviewRotation nickname={link.creatorNickname ?? ''} />}
 
         {/* ─── 질문 미리보기 (미완료 유저) ─── */}
         {showPreview && firstQuestion && (
@@ -231,7 +239,8 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
               <div className={styles.questionOption}>{firstQuestion.optionB}</div>
             </div>
             <span className={styles.questionMore}>
-              외 {link.questionCount - 1}개 질문 · {formatCount(link.participantCount)}명 참여
+              외 {(link.questionCount ?? 0) - 1}개 질문 · {formatCount(link.participantCount ?? 0)}
+              명 참여
             </span>
           </div>
         )}
@@ -267,8 +276,10 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
       {showCreateLinkModal && (
         <CreateCompareLink
-          slug={link.bundleSlug}
+          slug={link.bundleSlug ?? ''}
           categoryCode={link.categoryCode}
+          categoryMeta={link.categoryMeta}
+          category={link.category}
           bundleTitle={link.bundleTitle}
           onClose={() => setShowCreateLinkModal(false)}
         />
