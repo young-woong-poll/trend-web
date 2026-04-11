@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect, useCallback, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryRanking.module.scss';
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
 import { getMemberGradient, isGhostUser } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
@@ -40,6 +41,7 @@ interface ChemistryRankingProps {
   members: Array<{
     userId: string;
     nickname: string;
+    gender?: 'MALE' | 'FEMALE';
     displayProfileColor?: string;
     isWithdrawn?: boolean;
   }>;
@@ -109,6 +111,7 @@ interface GradeSectionProps {
     targetNickname: string;
     matchRate: number;
     memberIndex: number;
+    gender?: 'MALE' | 'FEMALE';
     isWithdrawn?: boolean;
   }>;
   isOpen: boolean;
@@ -191,18 +194,21 @@ const GradeSection: FC<GradeSectionProps> = ({
                   opacity: item.isWithdrawn ? 0.5 : undefined,
                 }}
               >
-                <div
-                  className={styles.chipAvatar}
-                  style={{
-                    background: getMemberGradient(
-                      item.memberIndex,
-                      item.targetId,
-                      undefined,
-                      item.isWithdrawn
-                    ),
-                  }}
-                >
-                  {item.targetNickname[0]}
+                <div className={styles.chipAvatarWrap}>
+                  <div
+                    className={styles.chipAvatar}
+                    style={{
+                      background: getMemberGradient(
+                        item.memberIndex,
+                        item.targetId,
+                        undefined,
+                        item.isWithdrawn
+                      ),
+                    }}
+                  >
+                    {item.targetNickname[0]}
+                  </div>
+                  <GenderBadge gender={item.gender} />
                 </div>
                 <div className={styles.chipInfo}>
                   <span className={styles.chipName}>{item.targetNickname}</span>
@@ -274,6 +280,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
           targetNickname,
           matchRate: p.matchRate,
           memberIndex,
+          gender: targetMember?.gender,
           grade: getChemistryByRate(p.matchRate).grade,
           isWithdrawn: targetMember?.isWithdrawn,
         };
@@ -348,13 +355,21 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
               style={m.isWithdrawn ? { opacity: 0.5 } : undefined}
               onClick={() => setSelectedUserId(m.userId)}
             >
-              <div
-                className={`${styles.memberAvatar} ${isActive ? styles.memberAvatarActive : ''}`}
-                style={{
-                  background: getMemberGradient(i, m.userId, m.displayProfileColor, m.isWithdrawn),
-                }}
-              >
-                {m.nickname[0]}
+              <div className={styles.memberAvatarWrap}>
+                <div
+                  className={`${styles.memberAvatar} ${isActive ? styles.memberAvatarActive : ''}`}
+                  style={{
+                    background: getMemberGradient(
+                      i,
+                      m.userId,
+                      m.displayProfileColor,
+                      m.isWithdrawn
+                    ),
+                  }}
+                >
+                  {m.nickname[0]}
+                </div>
+                <GenderBadge gender={m.gender} />
               </div>
               <span className={styles.memberName}>
                 {m.userId === currentUserId ? '나' : m.nickname}

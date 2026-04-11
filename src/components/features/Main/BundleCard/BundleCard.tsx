@@ -2,10 +2,9 @@
 
 import { memo, useState } from 'react';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import CheckIcon from '@/assets/icon/CheckIcon';
+import ClockIcon from '@/assets/icon/ClockIcon';
 import ShareIcon from '@/assets/icon/ShareIcon';
 import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { DeadlineBadge } from '@/components/common/DeadlineBadge';
@@ -29,9 +28,9 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
     subtitle,
     categories = EMPTY_CATEGORIES,
     categoryCode,
+    categoryMeta,
     totalVoteCount,
     electionCount,
-    imageUrls,
     expiredAt,
     status,
     participated,
@@ -42,8 +41,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
   const actions = useCardActions();
 
   const isClosed = status === 'CLOSED';
-  const thumbnailUrl = imageUrls?.[0];
-  const themeVars = getCategoryThemeVars(categoryCode);
+  const themeVars = getCategoryThemeVars(categoryCode, categoryMeta);
 
   const handleClick = () => {
     if (isClosed) {
@@ -70,15 +68,17 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
       <div className={styles.accentBorder} />
 
       <div className={styles.content}>
-        {/* 상단: 카테고리 + 공유 */}
+        {/* 상단: 카테고리 + 케미 뱃지 + 공유 */}
         <div className={styles.topRow}>
           <div className={styles.categoryRow}>
-            {categories.map((code, i) => (
-              <span key={code}>
+            {categories.map((cat, i) => (
+              <span key={cat}>
                 {i > 0 && <span className={styles.categorySeparator}>·</span>}
-                <span className={styles.categoryTag}>{code}</span>
+                <span className={styles.categoryTag}>{cat}</span>
               </span>
             ))}
+            {categories.length > 0 && <span className={styles.categorySeparator}>·</span>}
+            <span className={styles.chemiBadge}>케미 테스트</span>
           </div>
           <button
             type="button"
@@ -94,33 +94,36 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
         </div>
 
         {/* 제목 */}
-        <div className={styles.titleRow}>
-          {thumbnailUrl && (
-            <Image
-              src={thumbnailUrl}
-              alt={title}
-              width={40}
-              height={40}
-              className={styles.titleLogo}
-            />
-          )}
-          <div className={styles.titleGroup}>
-            <div className={styles.titleWithBadges}>
-              <h3 className={styles.title}>{title}</h3>
-              <div className={styles.titleBadges}>
-                <span className={styles.bundleBadge}>
-                  {electionCount ? `${electionCount}개 질문` : '번들'}
-                </span>
-                {isClosed && (
-                  <span className={styles.closedBadge} data-testid="closed-badge">
-                    마감
-                  </span>
-                )}
-              </div>
-            </div>
-            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
-          </div>
+        <div className={styles.titleGroup}>
+          <h3 className={styles.title}>{title}</h3>
+          {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
+
+        {/* 메타 */}
+        <div className={styles.metaRow}>
+          {electionCount && <span className={styles.metaText}>{electionCount}개 질문</span>}
+          {electionCount && <span className={styles.dot} />}
+          <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
+          {electionCount && (
+            <>
+              <span className={styles.dot} />
+              <span className={styles.durationText}>
+                <ClockIcon width={12} height={12} />
+                {electionCount * 5 <= 30
+                  ? '약 30초'
+                  : electionCount * 5 <= 59
+                    ? '약 1분'
+                    : `약 ${Math.round((electionCount * 5) / 60)}분`}
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* 비교 어필 */}
+        <p className={styles.compareText}>
+          친구랑 <span className={styles.compareHighlight}>1:1 비교</span>,{' '}
+          <span className={styles.compareHighlight}>그룹으로 비교</span> 가능
+        </p>
 
         {/* CTA 버튼 */}
         <button
@@ -145,23 +148,15 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
           )}
         </button>
 
-        {/* 메타 */}
-        <div className={styles.metaRow}>
-          <span className={styles.participants}>{formatCount(totalVoteCount)}명 참여</span>
-          {expiredAt && (
-            <>
-              <span className={styles.dot} />
-              <DeadlineBadge deadline={expiredAt} compact />
-            </>
+        {/* 마감 뱃지 */}
+        <div className={styles.bottomRow}>
+          {expiredAt && <DeadlineBadge deadline={expiredAt} compact />}
+          {isClosed && (
+            <span className={styles.closedBadge} data-testid="closed-badge">
+              마감
+            </span>
           )}
-          {participated && (
-            <>
-              <span className={styles.dot} />
-              <span className={styles.participatedBadge}>
-                <CheckIcon width={10} height={10} /> 참여 완료
-              </span>
-            </>
-          )}
+          {participated && <span className={styles.participatedBadge}>참여 완료</span>}
         </div>
       </div>
     </div>

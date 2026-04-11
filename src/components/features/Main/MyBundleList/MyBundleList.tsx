@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
@@ -13,7 +13,19 @@ interface MyBundleListProps {
 }
 
 export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
-  const [openSlug, setOpenSlug] = useState<string | null>(bundles[0]?.slug ?? null);
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
+
+  // 번들 데이터가 도착하면 첫 번째 아코디언을 애니메이션으로 열기
+  useEffect(() => {
+    if (!hasAutoOpened && bundles.length > 0) {
+      const timer = setTimeout(() => {
+        setOpenSlug(bundles[0]?.slug ?? null);
+        setHasAutoOpened(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [bundles, hasAutoOpened]);
   const [compareSlug, setCompareSlug] = useState<string | null>(null);
   const [groupSlug, setGroupSlug] = useState<string | null>(null);
 
@@ -31,6 +43,8 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
             slug={slug}
             title={bundle.title ?? ''}
             categoryCode={bundle.categoryCode}
+            categoryMeta={bundle.categoryMeta}
+            category={bundle.category}
             isOpen={openSlug === slug}
             onToggle={() => setOpenSlug((prev) => (prev === slug ? null : slug))}
             onNewOneToOne={() => setCompareSlug(slug)}
@@ -43,6 +57,8 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
         <CreateCompareLink
           slug={compareSlug}
           categoryCode={bundles.find((b) => b.slug === compareSlug)?.categoryCode}
+          categoryMeta={bundles.find((b) => b.slug === compareSlug)?.categoryMeta}
+          category={bundles.find((b) => b.slug === compareSlug)?.category}
           bundleTitle={bundles.find((b) => b.slug === compareSlug)?.title}
           onClose={() => setCompareSlug(null)}
         />
@@ -51,6 +67,8 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
         <CreateGroupLink
           slug={groupSlug}
           categoryCode={bundles.find((b) => b.slug === groupSlug)?.categoryCode}
+          categoryMeta={bundles.find((b) => b.slug === groupSlug)?.categoryMeta}
+          category={bundles.find((b) => b.slug === groupSlug)?.category}
           bundleTitle={bundles.find((b) => b.slug === groupSlug)?.title}
           onClose={() => setGroupSlug(null)}
         />

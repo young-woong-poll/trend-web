@@ -87,6 +87,11 @@
   gap: 4px;
 }
 
+.avatarWrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .avatar {
   width: 28px;
   height: 28px;

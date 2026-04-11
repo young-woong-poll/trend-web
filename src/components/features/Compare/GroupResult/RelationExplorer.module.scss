@@ -60,6 +60,12 @@
   min-width: 0;
 }
 
+.selectorAvatarWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 .selectorAvatar {
   width: 32px;
   height: 32px;

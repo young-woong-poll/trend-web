@@ -402,7 +402,7 @@ FE는 `hasParticipant`로 1:1 링크의 결과 존재 여부를 판단합니다.
 | --------- | ------------------------------------------------ |
 | Method    | `GET`                                            |
 | URL       | `/api/v1/compare-links/{token}/group-result`     |
-| 인증      | 로그인 필수                                      |
+| 인증      | 비로그인 OK                                      |
 | 호출 시점 | 그룹 결과 페이지 (`/compare/group/{token}`) 진입 |
 | 캐싱      | FE에서 staleTime 0 (항상 최신 fetch)             |
 

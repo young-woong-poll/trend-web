@@ -165,18 +165,23 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     const previewStoryData = classifyAnswers(previewResult);
 
     return (
-      <BundleBackground categoryCode={previewResult.categoryCode}>
+      <BundleBackground categoryCode={previewResult.categoryCode} categoryMeta={link?.categoryMeta}>
         <div className={styles.container}>
           <div className={styles.previewBanner}>
+            <p className={styles.previewTitle}>아직 참여한 사람이 없어요!</p>
             <p className={styles.previewText}>
-              가상 상대와의 미리보기예요.
+              지금 보고 있는 건 가상 데이터예요.
               <br />
-              상대방이 참여하면 진짜 결과를 볼 수 있어요!
+              아래 버튼으로 링크를 공유하면 진짜 결과를 볼 수 있어요!
             </p>
           </div>
 
           <div className={styles.resultHeader}>
-            <CategoryBadge categoryCode={previewResult.categoryCode} />
+            <CategoryBadge
+              categoryCode={previewResult.categoryCode}
+              categoryMeta={link?.categoryMeta}
+              label={link?.category}
+            />
             <h2 className={styles.resultTitle}>{previewResult.bundleTitle}</h2>
           </div>
 
@@ -240,7 +245,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : (target.nickname ?? '');
 
   return (
-    <BundleBackground categoryCode={result.categoryCode}>
+    <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
       <div className={styles.container}>
         {showBack && (
           <button
@@ -254,7 +259,11 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         )}
 
         <div className={styles.resultHeader}>
-          <CategoryBadge categoryCode={result.categoryCode} />
+          <CategoryBadge
+            categoryCode={result.categoryCode}
+            categoryMeta={result.categoryMeta}
+            label={result.category}
+          />
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
         </div>
 
@@ -322,6 +331,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
             <CreateCompareLink
               slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
+              categoryMeta={result.categoryMeta}
+              category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowCompareModal(false)}
             />
@@ -330,6 +341,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
             <CreateGroupLink
               slug={result.bundleSlug ?? ''}
               categoryCode={result.categoryCode}
+              categoryMeta={result.categoryMeta}
+              category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowGroupModal(false)}
             />

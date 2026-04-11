@@ -17,6 +17,8 @@ import type { CategoryCode } from '@/types/hotpick';
 interface CreateCompareLinkProps {
   slug: string;
   categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
+  category?: string;
   bundleTitle?: string;
   onClose: () => void;
   source?: string;
@@ -25,6 +27,8 @@ interface CreateCompareLinkProps {
 export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
   slug,
   categoryCode,
+  categoryMeta,
+  category,
   bundleTitle,
   onClose,
   source = 'bundle_result',
@@ -81,7 +85,11 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
   };
 
   return createPortal(
-    <div className={styles.overlay} style={getCategoryThemeVars(categoryCode)} onClick={onClose}>
+    <div
+      className={styles.overlay}
+      style={getCategoryThemeVars(categoryCode, categoryMeta)}
+      onClick={onClose}
+    >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
           <h2 className={styles.title}>1:1 케미 테스트 공유</h2>
@@ -91,7 +99,11 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
         </div>
         {bundleTitle && (
           <div className={styles.bundleInfo}>
-            <CategoryBadge categoryCode={categoryCode} />
+            <CategoryBadge
+              categoryCode={categoryCode}
+              categoryMeta={categoryMeta}
+              label={category}
+            />
             <span className={styles.bundleTitle}>{bundleTitle}</span>
           </div>
         )}

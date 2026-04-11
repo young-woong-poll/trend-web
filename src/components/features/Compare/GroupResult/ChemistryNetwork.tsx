@@ -3,13 +3,20 @@
 import { useState, useMemo, useRef, useEffect, type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/ChemistryNetwork.module.scss';
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import { getChemistryByRate } from '@/constants/bundle';
-import { isGhostUser } from '@/constants/profileColors';
+import { getMemberGradient, getProfileColor, isGhostUser } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 interface ChemistryNetworkProps {
   currentUserId: string;
-  members: Array<{ userId: string; nickname: string; isWithdrawn?: boolean }>;
+  members: Array<{
+    userId: string;
+    nickname: string;
+    gender?: 'MALE' | 'FEMALE';
+    displayProfileColor?: string;
+    isWithdrawn?: boolean;
+  }>;
   pairs: PairChemistry[];
   /** 1:1 비교 요청 콜백 — targetUserId 전달 (없으면 패널 미노출) */
   onCompareRequest?: (targetUserId: string) => void;
@@ -48,13 +55,13 @@ function getMatchTier(matchRate: number): MatchTier {
 
 /** 등급별 선 굵기 — 높은 등급일수록 굵게 */
 function getLineWidth(tier: MatchTier): number {
-  const widths = [3, 2.5, 1.8, 1.2, 0.8];
+  const widths = [3, 2.5, 2, 1.5, 1.2];
   return widths[tier];
 }
 
 /** 등급별 기본 투명도 — 높은 등급일수록 진하게 */
 function getBaseOpacity(tier: MatchTier): number {
-  const opacities = [0.8, 0.6, 0.3, 0.12, 0.05];
+  const opacities = [0.85, 0.65, 0.45, 0.3, 0.2];
   return opacities[tier];
 }
 
@@ -309,23 +316,35 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
                 {
                   left: `${pos.x}%`,
                   top: `${pos.y}%`,
-                  '--node-color': isDimmed ? '#555' : NODE_COLORS[i % NODE_COLORS.length].primary,
+                  '--node-color': isDimmed
+                    ? '#555'
+                    : member.displayProfileColor
+                      ? getProfileColor(member.displayProfileColor).start
+                      : NODE_COLORS[i % NODE_COLORS.length].primary,
                   opacity: member.isWithdrawn ? 0.5 : undefined,
                 } as React.CSSProperties
               }
               onClick={() => handleNodeClick(member.userId)}
             >
-              <div
-                className={styles.nodeCircle}
-                style={{
-                  background: isDimmed
-                    ? '#444'
-                    : active
-                      ? NODE_COLORS[i % NODE_COLORS.length].gradient
-                      : '#333',
-                }}
-              >
-                {member.nickname[0]}
+              <div className={styles.nodeCircleWrap}>
+                <div
+                  className={styles.nodeCircle}
+                  style={{
+                    background: isDimmed
+                      ? '#444'
+                      : active
+                        ? getMemberGradient(
+                            i,
+                            member.userId,
+                            member.displayProfileColor,
+                            member.isWithdrawn
+                          )
+                        : '#333',
+                  }}
+                >
+                  {member.nickname[0]}
+                </div>
+                <GenderBadge gender={member.gender} />
               </div>
               <span className={styles.nodeName}>
                 {truncateName(member.nickname)}

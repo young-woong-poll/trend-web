@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
 import BackIcon from '@/assets/icon/BackIcon';
+import LinkIcon from '@/assets/icon/LinkIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
@@ -77,6 +78,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showBack = searchParams.get('from') === 'my';
+  const joinAfter = searchParams.get('joinAfter') === 'true';
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
@@ -92,8 +94,24 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     }
   }, [result]);
 
-  // 프리뷰 모드: 실제 멤버가 1명뿐일 때 가상 멤버 3명을 주입
+  // 프리뷰 모드: 실제 멤버가 1명뿐일 때 (생성자·비멤버 모두)
+  const isCreator = result ? result.creatorUserId === result.myUserId : false;
   const isPreview = (result?.members ?? []).length === 1;
+
+  // bundle/play 완료 후 돌아왔으면 자동으로 displayName 팝업 열기
+  useEffect(() => {
+    if (!joinAfter || !result || isLoading) {
+      return;
+    }
+    const alreadyMember = (result.members ?? []).some((m) => m.userId === result.myUserId);
+    if (result.myBundleCompleted && !alreadyMember) {
+      setShowDisplayNameModal(true);
+      // URL에서 joinAfter 파라미터 제거 (뒤로가기 시 재트리거 방지)
+      const url = new URL(window.location.href);
+      url.searchParams.delete('joinAfter');
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [joinAfter, result, isLoading]);
 
   // displayName이 있으면 nickname 대신 사용 (모든 하위 컴포넌트에 일괄 적용)
   const displayResult = useMemo(() => {
@@ -140,7 +158,6 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     [displayResult, pairs]
   );
   // 현재 유저가 이 그룹의 멤버인지 (group-result 응답에서 판별)
-  const isCreator = result ? result.creatorUserId === result.myUserId : false;
   const isMember = result
     ? (result.members ?? []).some((m) => m.userId === result.myUserId)
     : false;
@@ -223,6 +240,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   }
 
   const currentUserId = result.myUserId ?? '';
+  const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
 
   // ─── 비멤버 CTA 핸들러 ───
   const groupResultUrl = `/compare/group/${token}`;
@@ -233,10 +251,10 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       return;
     }
     if (!result.myBundleCompleted) {
-      // 그룹은 compareToken 자동 join을 쓰지 않음 (displayName 입력 필요)
-      // 번들 완료 후 그룹 결과 페이지로 돌아오도록 returnUrl 사용
+      // 번들 완료 후 그룹 결과 페이지로 돌아와서 자동으로 displayName 팝업 열기
+      const returnWithJoin = `${groupResultUrl}?joinAfter=true`;
       router.push(
-        `/bundle/${result.bundleSlug}/play?returnUrl=${encodeURIComponent(groupResultUrl)}`
+        `/bundle/${result.bundleSlug}/play?returnUrl=${encodeURIComponent(returnWithJoin)}`
       );
       return;
     }
@@ -266,51 +284,89 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     }
   };
 
-  const getJoinCtaText = () => {
+  const getJoinCtaText = (isPreview: boolean = false) => {
     if (joinMutation.isPending) {
       return '참여 중...';
     }
+
+    if (isPreview) {
+      return '참여하기';
+    }
+
     return '나도 참여하기';
   };
 
   return (
-    <BundleBackground categoryCode={result?.categoryCode}>
+    <BundleBackground categoryCode={result?.categoryCode} categoryMeta={result?.categoryMeta}>
       <div className={styles.container}>
-        {showBack && (
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={() => router.back()}
-            aria-label="마이 탭으로 돌아가기"
-          >
-            <BackIcon width={22} height={22} />
-          </button>
-        )}
         <div className={styles.heroSection}>
           {isPreview && (
             <div className={styles.previewBanner}>
+              <p className={styles.previewTitle}>아직 참여한 멤버가 없어요</p>
               <p className={styles.previewText}>
-                가상 멤버로 구성된 미리보기예요.
+                지금 보고 있는 건 가상 데이터예요.
                 <br />
-                2명 이상부터 진짜 결과를 볼 수 있어요!
+                {isCreator
+                  ? '친구들에게 초대 링크를 공유해주세요'
+                  : '참여하면 진짜 결과를 볼 수 있어요'}
               </p>
             </div>
           )}
           <div className={styles.groupNameRow}>
-            <h1 className={styles.groupName}>{result.groupName}</h1>
-            {isMember && (
+            <div className={styles.groupNameLeft}>
+              {showBack && (
+                <button
+                  type="button"
+                  className={styles.backButton}
+                  onClick={() => router.back()}
+                  aria-label="마이 탭으로 돌아가기"
+                >
+                  <BackIcon width={20} height={20} />
+                </button>
+              )}
+            </div>
+            <h1
+              className={styles.groupName}
+              title={result.groupName}
+              onClick={() => {
+                const url = `${window.location.origin}/compare/group/${token}`;
+                void navigator.clipboard.writeText(url);
+                showToast('초대 링크가 복사되었어요');
+              }}
+            >
+              {result.groupName}
+            </h1>
+            <div className={styles.groupNameRight} style={{ display: 'flex', gap: '8px' }}>
+              {isMember && (
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => setShowSettingsModal(true)}
+                  aria-label="그룹 설정"
+                >
+                  <SettingsIcon width={14} height={14} />
+                </button>
+              )}
               <button
                 type="button"
-                className={styles.editButton}
-                onClick={() => setShowSettingsModal(true)}
-                aria-label="그룹 설정"
+                className={styles.iconButton}
+                onClick={() => {
+                  const url = `${window.location.origin}/compare/group/${token}`;
+                  void navigator.clipboard.writeText(url);
+                  showToast('초대 링크가 복사되었어요');
+                }}
+                aria-label="초대 링크 복사"
               >
-                <SettingsIcon width={16} height={16} />
+                <LinkIcon />
               </button>
-            )}
+            </div>
           </div>
           <span className={styles.bundleTitle}>
-            <CategoryBadge categoryCode={result.categoryCode} />
+            <CategoryBadge
+              categoryCode={result.categoryCode}
+              categoryMeta={result.categoryMeta}
+              label={result.category}
+            />
             <span className={styles.bundleTitleDot}>·</span>
             {result.bundleTitle}
           </span>
@@ -417,7 +473,11 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         )}
       </div>
 
-      {isPreview ? (
+      {isPreview && !isMember ? (
+        <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
+          {getJoinCtaText(true)}
+        </FloatingCta>
+      ) : isPreview && isMember ? (
         <FloatingCta
           onClick={() => {
             const url = `${window.location.origin}/compare/group/${token}`;
@@ -456,6 +516,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <CreateCompareLink
           slug={result.bundleSlug ?? ''}
           categoryCode={result.categoryCode}
+          categoryMeta={result.categoryMeta}
+          category={result.category}
           bundleTitle={result.bundleTitle}
           onClose={() => setShowCompareModal(false)}
         />
@@ -464,6 +526,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <CreateGroupLink
           slug={result.bundleSlug ?? ''}
           categoryCode={result.categoryCode}
+          categoryMeta={result.categoryMeta}
+          category={result.category}
           bundleTitle={result.bundleTitle}
           onClose={() => setShowGroupModal(false)}
         />
@@ -471,6 +535,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
       <DisplayNameModal
         isOpen={showDisplayNameModal}
+        categoryCode={result.categoryCode}
+        categoryMeta={result.categoryMeta}
         onClose={() => setShowDisplayNameModal(false)}
         onConfirm={handleDisplayNameConfirm}
         isLoading={joinMutation.isPending}
@@ -478,9 +544,14 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
       <DisplayNameModal
         isOpen={showEditProfileModal}
+        categoryCode={result.categoryCode}
+        categoryMeta={result.categoryMeta}
         onClose={() => setShowEditProfileModal(false)}
         onConfirm={handleEditProfileConfirm}
         isLoading={updateMyProfileMutation.isPending}
+        mode="edit"
+        currentDisplayName={myMember?.displayName ?? myMember?.nickname}
+        currentProfileColor={myMember?.displayProfileColor}
       />
 
       <GroupSettingsModal
@@ -488,6 +559,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         currentName={result.groupName ?? ''}
         currentShowGenderContent={result.showGenderContent ?? false}
         isCreator={isCreator}
+        categoryCode={result.categoryCode}
+        categoryMeta={result.categoryMeta}
         onClose={() => setShowSettingsModal(false)}
         onConfirm={handleSaveSettings}
         isLoading={updateGroupSettingsMutation.isPending}

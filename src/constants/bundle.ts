@@ -5,6 +5,15 @@ import type { CategoryCode } from '@/types/hotpick';
 /** 이성궁합/성별대결 컴포넌트를 표시할 카테고리 */
 export const GENDER_CATEGORIES: CategoryCode[] = ['LOVE', 'MARRIAGE'];
 
+/** 카테고리 코드가 이성 콘텐츠 대상인지 (대소문자 무시) */
+export function isGenderCategory(categoryCode?: string | null): boolean {
+  if (!categoryCode) {
+    return false;
+  }
+  const upper = categoryCode.toUpperCase();
+  return upper.includes('LOVE') || upper.includes('MARRIAGE');
+}
+
 /**
  * 케미 등급 매핑
  * matchRate(일치율) → 등급/타이틀/한줄평

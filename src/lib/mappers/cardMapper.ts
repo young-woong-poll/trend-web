@@ -1,5 +1,6 @@
 import { categoryNameToCode } from '@/constants/categoryTheme';
 import type { HotpickCardResponse, HotpickDetailResponse } from '@/generated/models';
+import type { BundleDetail } from '@/types/bundle';
 import type {
   CardModel,
   SingleCardModel,
@@ -7,6 +8,7 @@ import type {
   DetailVoteOption,
   SingleDetailModel,
 } from '@/types/card';
+import type { CategoryCode } from '@/types/hotpick';
 import { electionToSingleVoteData } from '@/types/singleVote';
 
 export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel {
@@ -34,30 +36,26 @@ export function toSingleCardModel(hotpick: HotpickCardResponse): SingleCardModel
   };
 }
 
-export function toBundleCardModel(hotpick: HotpickCardResponse): BundleCardModel {
-  const { slug = '', expiredAt } = hotpick;
-  const categories = (hotpick.categories ?? []).map((c) => c.category ?? '');
+export function toBundleCardModelFromSummary(bundle: BundleDetail): BundleCardModel {
+  const category = bundle.category ?? '';
 
   return {
-    // passthrough
-    slug,
-    expiredAt,
-    title: hotpick.election?.title ?? '',
-    totalVoteCount: hotpick.election?.totalVoteCount ?? 0,
-    // derived
-    categories,
-    categoryCode: categoryNameToCode(categories[0]),
-    status: hotpick.isExpired ? 'CLOSED' : 'OPEN',
-    imageUrls: hotpick.imageUrl ? [hotpick.imageUrl] : undefined,
-    participated: false, // placeholder: BE not implemented
+    slug: bundle.slug ?? '',
+    title: bundle.title ?? '',
+    subtitle: bundle.subtitle,
+    categories: category ? [category] : [],
+    categoryCode: (bundle.categoryCode as CategoryCode) ?? categoryNameToCode(category),
+    categoryMeta: bundle.categoryMeta,
+    totalVoteCount: bundle.participantCount ?? 0,
+    electionCount: bundle.questionCount,
+    imageUrls: bundle.imageUrl ? [bundle.imageUrl] : undefined,
+    status: bundle.status === 'CLOSED' ? 'CLOSED' : 'OPEN',
+    participated: bundle.completed ?? false,
   };
 }
 
 export function toCardModel(hotpick: HotpickCardResponse): CardModel {
-  if (hotpick.type === 'SINGLE' && hotpick.election) {
-    return { type: 'SINGLE', data: toSingleCardModel(hotpick) };
-  }
-  return { type: 'BUNDLE', data: toBundleCardModel(hotpick) };
+  return { type: 'SINGLE', data: toSingleCardModel(hotpick) };
 }
 
 export function toSingleDetailModel(data: HotpickDetailResponse, slug: string): SingleDetailModel {

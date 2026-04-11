@@ -9,23 +9,7 @@
   width: 100%;
 }
 
-.backButton {
-  position: absolute;
-  top: calc(56px + 12px);
-  left: $spacing-16;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: none;
-  color: $text-secondary;
-  cursor: pointer;
-
-  &:hover {
-    color: $white;
-  }
-}
+// backButton은 groupNameRow 안으로 이동 — absolute 제거
 
 .heroSection {
   @include flex-column;
@@ -40,57 +24,89 @@
 .previewBanner {
   @include flex-column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 20px;
-  background: rgba(#fff, 0.04);
-  border: 1px dashed rgba(#fff, 0.12);
+  gap: 8px;
+  padding: 20px 24px;
+  background: rgba(#fff, 0.06);
+  border: 1px dashed rgba(#fff, 0.18);
   border-radius: $border-radius-lg;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   width: 100%;
 }
 
-.previewBadge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #ffb800;
-  background: rgba(#ffb800, 0.12);
-  padding: 2px 10px;
-  border-radius: 20px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.previewTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0;
+  text-align: center;
 }
 
 .previewText {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-  line-height: 1.5;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.6;
   text-align: center;
+  margin: 0;
 }
 
 .groupNameRow {
   display: flex;
   align-items: center;
+  width: 100%;
+}
+
+// 좌우 영역: 동일 너비로 제목을 정확히 가운데 정렬
+.groupNameLeft,
+.groupNameRight {
+  display: flex;
+  align-items: center;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+
+.groupNameLeft {
+  justify-content: flex-start;
+}
+
+.groupNameRight {
   justify-content: center;
-  gap: 6px;
 }
 
 .groupName {
+  flex: 1;
   font-size: $font-size-22;
   font-weight: 700;
   color: $white;
   margin-bottom: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
 }
 
-.editButton {
+.backButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   border: none;
+  padding: 0;
   background: transparent;
   color: $text-tertiary;
   cursor: pointer;
@@ -98,6 +114,11 @@
     background 0.15s ease,
     color 0.15s ease;
   flex-shrink: 0;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
 
   &:hover {
     background: rgba(#fff, 0.05);

@@ -108,7 +108,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
   if (isAuthLoading || isLoading) {
     return (
-      <BundleBackground categoryCode={bundle?.categoryCode}>
+      <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
         <div className={styles.container}>
           <Skeleton variant="dark" width={160} height={160} borderRadius="50%" />
           <Skeleton variant="dark" width="100%" height={100} borderRadius={12} />
@@ -120,7 +120,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   if (!result) {
     // 리다이렉트 대기 중 로딩 표시
     return (
-      <BundleBackground categoryCode={bundle?.categoryCode}>
+      <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
         <div className={styles.container}>
           <Skeleton variant="dark" width={160} height={160} borderRadius="50%" />
           <Skeleton variant="dark" width="100%" height={100} borderRadius={12} />
@@ -135,7 +135,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const popularity = getPopularityByScore(popularityScore);
 
   return (
-    <BundleBackground categoryCode={bundle?.categoryCode}>
+    <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
       <div className={styles.container}>
         {(compareToken || fromGroup) && (
           <button
@@ -150,7 +150,11 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
         {/* ═══ 번들 카테고리 + 제목 ═══ */}
         <div className={styles.resultHeader}>
-          <CategoryBadge categoryCode={bundle?.categoryCode} label={bundle?.category} />
+          <CategoryBadge
+            categoryCode={bundle?.categoryCode}
+            categoryMeta={bundle?.categoryMeta}
+            label={bundle?.category}
+          />
           <h2 className={styles.resultTitle}>{result.bundleTitle}</h2>
         </div>
 
@@ -333,6 +337,8 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         <CreateCompareLink
           slug={slug}
           categoryCode={bundle?.categoryCode}
+          categoryMeta={bundle?.categoryMeta}
+          category={bundle?.category}
           bundleTitle={bundle?.title}
           onClose={() => setShowCompareModal(false)}
         />
@@ -341,6 +347,8 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         <CreateGroupLink
           slug={slug}
           categoryCode={bundle?.categoryCode}
+          categoryMeta={bundle?.categoryMeta}
+          category={bundle?.category}
           bundleTitle={bundle?.title}
           onClose={() => setShowGroupModal(false)}
         />

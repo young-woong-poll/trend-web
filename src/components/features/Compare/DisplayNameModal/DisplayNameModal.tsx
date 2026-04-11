@@ -4,29 +4,47 @@ import { useState, type FC } from 'react';
 
 import { Modal } from '@/components/common/Modal/Modal';
 import styles from '@/components/features/Compare/DisplayNameModal/DisplayNameModal.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { PROFILE_COLORS, getProfileGradient } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
+import type { CategoryCode } from '@/types/hotpick';
 
 interface DisplayNameModalProps {
   isOpen: boolean;
+  categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
   onClose: () => void;
   onConfirm: (displayName: string, profileColor: string) => void;
   isLoading?: boolean;
+  mode?: 'join' | 'edit';
+  /** 수정 모드에서 현재 사용 중인 displayName */
+  currentDisplayName?: string;
+  /** 수정 모드에서 현재 사용 중인 profileColor */
+  currentProfileColor?: string;
 }
 
 export const DisplayNameModal: FC<DisplayNameModalProps> = ({
   isOpen,
+  categoryCode,
+  categoryMeta,
   onClose,
   onConfirm,
   isLoading,
+  mode = 'join',
+  currentDisplayName,
+  currentProfileColor,
 }) => {
   const { user } = useAuth();
-  const [name, setName] = useState(user?.nickname ?? '');
-  const [useCurrentNickname, setUseCurrentNickname] = useState(true);
-  const [selectedColor, setSelectedColor] = useState(user?.profileColor ?? 'purple');
-
   const currentNickname = user?.nickname ?? '';
   const currentColor = user?.profileColor ?? 'purple';
+
+  // 수정 모드: 현재 displayName이 계정 닉네임과 다르면 "다른 이름 사용"이 기본
+  const isEditWithCustomName =
+    mode === 'edit' && currentDisplayName && currentDisplayName !== currentNickname;
+  const [name, setName] = useState(isEditWithCustomName ? currentDisplayName : currentNickname);
+  const [useCurrentNickname, setUseCurrentNickname] = useState(!isEditWithCustomName);
+  const [selectedColor, setSelectedColor] = useState(currentProfileColor ?? currentColor);
+
   const finalName = useCurrentNickname ? currentNickname : name.trim();
 
   const handleToggle = (useCurrent: boolean) => {
@@ -35,7 +53,8 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
       setName(currentNickname);
       setSelectedColor(currentColor);
     } else {
-      setName('');
+      setName(isEditWithCustomName ? (currentDisplayName ?? '') : '');
+      setSelectedColor(currentProfileColor ?? currentColor);
     }
   };
 
@@ -45,7 +64,7 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton maxWidth={400}>
-      <div className={styles.container}>
+      <div className={styles.container} style={getCategoryThemeVars(categoryCode, categoryMeta)}>
         <h2 className={styles.title}>이 그룹에서 사용할 이름</h2>
 
         <div className={styles.options}>
@@ -54,7 +73,7 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
             className={`${styles.optionButton} ${useCurrentNickname ? styles.selected : ''}`}
             onClick={() => handleToggle(true)}
           >
-            <span className={styles.optionLabel}>현재 닉네임 사용</span>
+            <span className={styles.optionLabel}>계정 닉네임 사용</span>
             <div className={styles.currentProfile}>
               <div
                 className={styles.profileDot}
@@ -107,7 +126,13 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
           onClick={handleConfirm}
           disabled={!finalName || isLoading}
         >
-          {isLoading ? '참여 중...' : '참여하기'}
+          {isLoading
+            ? mode === 'edit'
+              ? '수정 중...'
+              : '참여 중...'
+            : mode === 'edit'
+              ? '수정하기'
+              : '참여하기'}
         </button>
       </div>
     </Modal>

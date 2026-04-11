@@ -2,6 +2,7 @@
 
 import { useMemo, type FC } from 'react';
 
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import styles from '@/components/features/Compare/GroupResult/MyRelationCard.module.scss';
 import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
@@ -24,8 +25,16 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
         const isA = p.memberA === currentUserId;
         const targetId = isA ? p.memberB : p.memberA;
         const targetNickname = isA ? p.nicknameB : p.nicknameA;
+        const targetMember = (result.members ?? []).find((m) => m.userId === targetId);
         const targetIndex = (result.members ?? []).findIndex((m) => m.userId === targetId);
-        return { targetId, targetNickname, targetIndex, matchRate: p.matchRate };
+        return {
+          targetId,
+          targetNickname,
+          targetIndex,
+          targetGender: targetMember?.gender,
+          targetProfileColor: targetMember?.displayProfileColor,
+          matchRate: p.matchRate,
+        };
       });
     return [...filtered].sort((a, b) => b.matchRate - a.matchRate);
   }, [currentUserId, pairs, result.members]);
@@ -100,7 +109,8 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
     return null;
   }, [me, myPairs, result.members]);
 
-  const getGradient = (memberIndex: number) => getMemberGradient(memberIndex);
+  const getGradient = (memberIndex: number, userId?: string, profileColor?: string) =>
+    getMemberGradient(memberIndex, userId, profileColor);
 
   if (!me) {
     return null;
@@ -117,11 +127,17 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
         <div className={styles.card}>
           {/* 1. 프로필 */}
           <div className={styles.profileSection}>
-            <div
-              className={styles.profileAvatar}
-              style={{ background: myIndex >= 0 ? getGradient(myIndex) : '#333' }}
-            >
-              {(me.nickname ?? '')[0]}
+            <div className={styles.profileAvatarWrap}>
+              <div
+                className={styles.profileAvatar}
+                style={{
+                  background:
+                    myIndex >= 0 ? getGradient(myIndex, me.userId, me.displayProfileColor) : '#333',
+                }}
+              >
+                {(me.nickname ?? '')[0]}
+              </div>
+              <GenderBadge gender={me.gender} size={16} iconSize={9} />
             </div>
             <span className={styles.profileNickname}>{me.nickname}</span>
             <span className={styles.syncText}>
@@ -136,11 +152,20 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
             <div className={styles.matchSection}>
               <span className={`${styles.matchLabel} ${styles.matchLabelBest}`}>베스트 매치</span>
               <div className={styles.matchRow}>
-                <div
-                  className={styles.matchAvatar}
-                  style={{ background: getGradient(bestMatch.targetIndex) }}
-                >
-                  {bestMatch.targetNickname[0]}
+                <div className={styles.matchAvatarWrap}>
+                  <div
+                    className={styles.matchAvatar}
+                    style={{
+                      background: getGradient(
+                        bestMatch.targetIndex,
+                        bestMatch.targetId,
+                        bestMatch.targetProfileColor
+                      ),
+                    }}
+                  >
+                    {bestMatch.targetNickname[0]}
+                  </div>
+                  <GenderBadge gender={bestMatch.targetGender} />
                 </div>
                 <div className={styles.matchInfo}>
                   <span className={styles.matchName}>{bestMatch.targetNickname}</span>
@@ -158,11 +183,20 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
             <div className={styles.matchSection}>
               <span className={`${styles.matchLabel} ${styles.matchLabelWorst}`}>워스트 매치</span>
               <div className={styles.matchRow}>
-                <div
-                  className={styles.matchAvatar}
-                  style={{ background: getGradient(worstMatch.targetIndex) }}
-                >
-                  {worstMatch.targetNickname[0]}
+                <div className={styles.matchAvatarWrap}>
+                  <div
+                    className={styles.matchAvatar}
+                    style={{
+                      background: getGradient(
+                        worstMatch.targetIndex,
+                        worstMatch.targetId,
+                        worstMatch.targetProfileColor
+                      ),
+                    }}
+                  >
+                    {worstMatch.targetNickname[0]}
+                  </div>
+                  <GenderBadge gender={worstMatch.targetGender} />
                 </div>
                 <div className={styles.matchInfo}>
                   <span className={styles.matchName}>{worstMatch.targetNickname}</span>
@@ -199,11 +233,20 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
                   이성 베스트 매치
                 </span>
                 <div className={styles.matchRow}>
-                  <div
-                    className={styles.matchAvatar}
-                    style={{ background: getGradient(oppositeGenderBest.targetIndex) }}
-                  >
-                    {oppositeGenderBest.targetNickname[0]}
+                  <div className={styles.matchAvatarWrap}>
+                    <div
+                      className={styles.matchAvatar}
+                      style={{
+                        background: getGradient(
+                          oppositeGenderBest.targetIndex,
+                          oppositeGenderBest.targetId,
+                          oppositeGenderBest.targetProfileColor
+                        ),
+                      }}
+                    >
+                      {oppositeGenderBest.targetNickname[0]}
+                    </div>
+                    <GenderBadge gender={oppositeGenderBest.targetGender} />
                   </div>
                   <div className={styles.matchInfo}>
                     <span className={styles.matchName}>{oppositeGenderBest.targetNickname}</span>

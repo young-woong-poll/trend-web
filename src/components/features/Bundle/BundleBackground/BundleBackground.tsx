@@ -8,14 +8,16 @@ interface BundleBackgroundProps {
   children: ReactNode;
   fireworks?: boolean;
   categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
 }
 
 export const BundleBackground: FC<BundleBackgroundProps> = ({
   children,
   fireworks = false,
   categoryCode,
+  categoryMeta,
 }) => (
-  <div className={styles.wrapper} style={getCategoryThemeVars(categoryCode)}>
+  <div className={styles.wrapper} style={getCategoryThemeVars(categoryCode, categoryMeta)}>
     {/* 배경 그라디언트 orb */}
     <div className={styles.orbs}>
       <div className={`${styles.orb} ${styles.orb1}`} />

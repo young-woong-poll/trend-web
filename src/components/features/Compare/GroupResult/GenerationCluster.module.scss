@@ -93,6 +93,12 @@
   gap: 6px;
 }
 
+.avatarWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
 .avatar {
   width: 24px;
   height: 24px;

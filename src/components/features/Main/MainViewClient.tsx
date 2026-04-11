@@ -19,10 +19,12 @@ import MyCommentList from '@/components/features/MyPage/MyCommentList';
 import type { CategoryFilterItem } from '@/constants/category';
 import {
   DEFAULT_TOP_PERIOD,
+  DEFAULT_TOP_CONTENT_TYPE,
   DEFAULT_TAB,
   DEFAULT_MY_SUB_TAB_GUEST,
   DEFAULT_MY_SUB_TAB_LOGGED_IN,
   type TopPeriod,
+  type TopContentType,
   type TabSelection,
   type FilterTabType,
   type MySubTabType,
@@ -31,9 +33,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
 import type { CategoryTabResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
+import { useBundleList } from '@/hooks/api/useBundle';
 import { useMyBundles } from '@/hooks/api/useMyBundles';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { toCardModel } from '@/lib/mappers/cardMapper';
+import { toCardModel, toBundleCardModelFromSummary } from '@/lib/mappers/cardMapper';
+import { mergeBundlesIntoFeed } from '@/lib/mergeFeed';
+import type { CardModel } from '@/types/card';
 
 type TMainViewClientProps = {
   children?: ReactNode;
@@ -171,6 +176,7 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   // TOP 서브필터 상태 (탭 전환해도 선택값 보존)
   const [topPeriod, setTopPeriod] = useState<TopPeriod>(DEFAULT_TOP_PERIOD);
   const [topCategory, setTopCategory] = useState<string | null>(null);
+  const [topContentType, setTopContentType] = useState<TopContentType>(DEFAULT_TOP_CONTENT_TYPE);
 
   // My 하위 탭 상태 (URL mysub 파라미터에서 복원)
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
@@ -189,6 +195,9 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
 
   const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
   const isMyTab = selectedTab.kind === 'filter' && selectedTab.type === 'my';
+  const isNewTab = selectedTab.kind === 'filter' && selectedTab.type === 'new';
+  const isTopBundleMode = isTopTab && topContentType === 'bundle';
+  const { data: bundleListData } = useBundleList(isNewTab || isTopBundleMode);
   const { data: myBundles } = useMyBundles(isMyTab && isLoggedIn && mySubTab === 'compare');
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
@@ -248,6 +257,29 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   // BE → UI model 변환 (한 번만)
   const cards = useMemo(() => hotpicks.map(toCardModel), [hotpicks]);
 
+  // 번들 → BundleCardModel 변환
+  const bundleCards = useMemo(
+    () => (bundleListData ?? []).map(toBundleCardModelFromSummary),
+    [bundleListData]
+  );
+
+  // NEW 탭: 싱글 + 번들 머지
+  const mergedCards = useMemo(() => {
+    if (isNewTab) {
+      return mergeBundlesIntoFeed(cards, bundleCards);
+    }
+    return cards;
+  }, [cards, bundleCards, isNewTab]);
+
+  // TOP 케미 모드: participantCount 내림차순 정렬
+  const topBundleCards = useMemo(() => {
+    if (!isTopBundleMode) {
+      return [];
+    }
+    const sorted = [...bundleCards].sort((a, b) => b.totalVoteCount - a.totalVoteCount);
+    return sorted.map((data): CardModel => ({ type: 'BUNDLE', data }));
+  }, [bundleCards, isTopBundleMode]);
+
   // TOP 카테고리 라벨 찾기 (빈 상태 메시지용)
   const topCategoryLabel = topCategory
     ? dynamicCategories?.find((c) => c.slug === topCategory)?.label
@@ -276,6 +308,8 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
           selectedCategory={topCategory}
           onCategoryChange={setTopCategory}
           categories={dynamicCategories}
+          selectedContentType={topContentType}
+          onContentTypeChange={setTopContentType}
         />
       )}
 
@@ -288,16 +322,29 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
             {isTopTab ? (
-              <TopRankingList
-                cards={cards}
-                isLoading={isLoading}
-                isError={isError}
-                isFetching={isFetching}
-                emptyState={emptyState}
-              />
+              isTopBundleMode ? (
+                <TopRankingList
+                  cards={topBundleCards}
+                  isLoading={!bundleListData && isTopBundleMode}
+                  isError={false}
+                  isFetching={!bundleListData && isTopBundleMode}
+                  emptyState={{
+                    title: '케미 랭킹이 없어요',
+                    description: '케미에 참여해서 순위를 확인해 보세요.',
+                  }}
+                />
+              ) : (
+                <TopRankingList
+                  cards={cards}
+                  isLoading={isLoading}
+                  isError={isError}
+                  isFetching={isFetching}
+                  emptyState={emptyState}
+                />
+              )
             ) : isMyTab && mySubTab !== 'vote' ? (
-              // My 탭: 비교/댓글/좋아요 하위 탭
-              mySubTab === 'compare' ? (
+              // My 탭: 인증 로딩 중이면 빈 상태 (로그인 프롬프트 깜빡임 방지)
+              isAuthLoading ? null : mySubTab === 'compare' ? (
                 isLoggedIn ? (
                   <MyBundleList bundles={myBundles ?? []} />
                 ) : (
@@ -319,7 +366,7 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
             ) : (
               // NEW/카테고리/My+투표 탭: 기존 CardList
               <CardList
-                cards={cards}
+                cards={mergedCards}
                 isLoading={isLoading}
                 isError={isError}
                 isFetching={isFetching}

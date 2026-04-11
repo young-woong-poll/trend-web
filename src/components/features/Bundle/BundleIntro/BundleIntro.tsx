@@ -88,10 +88,18 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   };
 
   return (
-    <BundleBackground fireworks categoryCode={bundle.categoryCode}>
+    <BundleBackground
+      fireworks
+      categoryCode={bundle.categoryCode}
+      categoryMeta={bundle.categoryMeta}
+    >
       <div className={styles.container}>
         <div className={styles.header}>
-          <CategoryBadge categoryCode={bundle.categoryCode} label={bundle.category} />
+          <CategoryBadge
+            categoryCode={bundle.categoryCode}
+            categoryMeta={bundle.categoryMeta}
+            label={bundle.category}
+          />
           <h1 className={styles.title}>{bundle.title}</h1>
         </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, type FC } from 'react';
 
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import styles from '@/components/features/Compare/GroupResult/RelationExplorer.module.scss';
 import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
 import { getMemberGradient } from '@/constants/profileColors';
@@ -100,12 +101,18 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
 
   const getGradient = (userId: string) => {
     const idx = members.findIndex((m) => m.userId === userId);
-    return idx >= 0 ? getMemberGradient(idx) : '#333';
+    const member = members.find((m) => m.userId === userId);
+    return idx >= 0 ? getMemberGradient(idx, userId, member?.displayProfileColor) : '#333';
   };
 
   const getNickname = (userId: string) => {
     const member = members.find((m) => m.userId === userId);
     return member?.nickname ?? '?';
+  };
+
+  const getGender = (userId: string) => {
+    const member = members.find((m) => m.userId === userId);
+    return member?.gender;
   };
 
   const getDisplayLabel = (answer: string, optionA: string, optionB: string) =>
@@ -123,8 +130,11 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
       <div className={styles.selectorArea}>
         {/* Person A */}
         <div className={styles.selectorCard}>
-          <div className={styles.selectorAvatar} style={{ background: getGradient(personAId) }}>
-            {getNickname(personAId)[0]}
+          <div className={styles.selectorAvatarWrap}>
+            <div className={styles.selectorAvatar} style={{ background: getGradient(personAId) }}>
+              {getNickname(personAId)[0]}
+            </div>
+            <GenderBadge gender={getGender(personAId)} />
           </div>
           <select
             className={styles.selector}
@@ -152,8 +162,11 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
 
         {/* Person B */}
         <div className={styles.selectorCard}>
-          <div className={styles.selectorAvatar} style={{ background: getGradient(personBId) }}>
-            {getNickname(personBId)[0]}
+          <div className={styles.selectorAvatarWrap}>
+            <div className={styles.selectorAvatar} style={{ background: getGradient(personBId) }}>
+              {getNickname(personBId)[0]}
+            </div>
+            <GenderBadge gender={getGender(personBId)} />
           </div>
           <select
             className={styles.selector}

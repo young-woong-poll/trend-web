@@ -18,6 +18,16 @@ export const TOP_PERIODS: TopPeriodItem[] = [
 
 export const DEFAULT_TOP_PERIOD: TopPeriod = 'all';
 
+/** TOP 탭 콘텐츠 유형 필터 */
+export type TopContentType = 'single' | 'bundle';
+
+export const TOP_CONTENT_TYPES: Array<{ value: TopContentType; label: string }> = [
+  { value: 'single', label: '핫픽' },
+  { value: 'bundle', label: '케미' },
+];
+
+export const DEFAULT_TOP_CONTENT_TYPE: TopContentType = 'single';
+
 /** 탭 선택 상태 — 필터탭 또는 카테고리탭 */
 export type TabSelection =
   | { kind: 'filter'; type: FilterTabType }

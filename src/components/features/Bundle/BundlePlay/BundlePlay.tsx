@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, LazyMotion, domAnimation, m } from 'framer-motion';
 
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
@@ -11,7 +12,13 @@ import styles from '@/components/features/Bundle/BundlePlay/BundlePlay.module.sc
 import { ProgressBar } from '@/components/features/Bundle/BundlePlay/ProgressBar';
 import { QuestionCard } from '@/components/features/Bundle/BundlePlay/QuestionCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { useBundleDetail, useBundleElections, useSubmitBundleAnswers } from '@/hooks/api/useBundle';
+import {
+  useBundleDetail,
+  useBundleElections,
+  useSubmitBundleAnswers,
+  bundleKeys,
+} from '@/hooks/api/useBundle';
+import { compareKeys, useJoinCompareLink } from '@/hooks/api/useCompare';
 import { trackBundleAnswer, trackBundleComplete } from '@/lib/analytics';
 
 const slideVariants = {
@@ -41,10 +48,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const { data: bundle } = useBundleDetail(slug);
   const { data: elections, isLoading } = useBundleElections(slug);
   const submitMutation = useSubmitBundleAnswers(slug);
+  const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const compareToken = searchParams.get('compareToken');
   const returnUrl = searchParams.get('returnUrl');
+  const joinMutation = useJoinCompareLink(compareToken ?? '');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
@@ -60,12 +69,18 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
     }
   }, [isAuthLoading, isLoggedIn, slug, router]);
 
-  // 접근제어: 이미 완료 → 결과 페이지
+  // 접근제어: 이미 완료 → returnUrl / compareLanding / 결과 페이지
   useEffect(() => {
     if (bundle?.completed) {
-      router.replace(`/bundle/${slug}/result`);
+      if (returnUrl) {
+        router.replace(returnUrl);
+      } else if (compareToken) {
+        router.replace(`/compare/${compareToken}`);
+      } else {
+        router.replace(`/bundle/${slug}/result`);
+      }
     }
-  }, [bundle?.completed, slug, router]);
+  }, [bundle?.completed, slug, router, returnUrl, compareToken]);
 
   // 접근제어: 번들 마감 → 인트로
   useEffect(() => {
@@ -135,10 +150,18 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
     try {
       await submitMutation.mutateAsync({ answers: answerData });
       trackBundleComplete(slug, elections.length);
+      // 번들 완료 상태가 바뀌었으므로 관련 캐시 무효화 (그룹 결과 등에서 stale 방지)
+      void queryClient.invalidateQueries({ queryKey: bundleKeys.detail(slug) });
+      void queryClient.invalidateQueries({ queryKey: compareKeys.all });
       if (returnUrl) {
         router.push(returnUrl);
       } else if (compareToken) {
-        router.push(`/bundle/${slug}/result?compareToken=${compareToken}`);
+        try {
+          await joinMutation.mutateAsync(undefined);
+        } catch {
+          // join 실패해도 (이미 참여 등) 결과 페이지로 이동
+        }
+        router.push(`/compare/match/${compareToken}`);
       } else {
         router.push(`/bundle/${slug}/result`);
       }
@@ -150,7 +173,13 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
         'response' in err &&
         (err as { response?: { status?: number } }).response?.status === 400;
       if (isBadRequest) {
-        router.replace(`/bundle/${slug}/result`);
+        if (returnUrl) {
+          router.replace(returnUrl);
+        } else if (compareToken) {
+          router.replace(`/compare/${compareToken}`);
+        } else {
+          router.replace(`/bundle/${slug}/result`);
+        }
         return;
       }
       // eslint-disable-next-line no-alert
@@ -160,7 +189,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
   if (isAuthLoading || isLoading || !elections || elections.length === 0) {
     return (
-      <BundleBackground categoryCode={bundle?.categoryCode}>
+      <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
         <div className={styles.loading}>
           <div className={styles.loadingSpinner} />
           질문을 불러오는 중...
@@ -175,7 +204,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const isLast = currentIndex === elections.length - 1;
 
   return (
-    <BundleBackground categoryCode={bundle?.categoryCode}>
+    <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
       <div className={styles.container}>
         <div className={styles.topBar}>
           <ProgressBar current={currentIndex + 1} total={elections.length} />

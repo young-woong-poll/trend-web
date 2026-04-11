@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FC } fr
 
 import { createPortal } from 'react-dom';
 
+import { GenderBadge } from '@/components/features/Compare/GroupResult/GenderBadge';
 import styles from '@/components/features/Compare/GroupResult/PickASide.module.scss';
 import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult } from '@/types/group-compare';
@@ -12,6 +13,8 @@ interface StackMember {
   userId: string;
   nickname: string;
   memberIndex: number;
+  gender?: 'MALE' | 'FEMALE';
+  displayProfileColor?: string;
 }
 
 interface PickASideProps {
@@ -32,7 +35,7 @@ function getOpinionTag(
     return { label: '만장일치', type: 'unanimous' };
   }
   const ratio = Math.max(countA, countB) / total;
-  if (ratio >= 0.8) {
+  if (ratio >= 0.7) {
     return { label: '압도적', type: 'dominant' };
   }
   if (ratio <= 0.6) {
@@ -119,15 +122,16 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
         onClick={() => setOpen((v) => !v)}
       >
         {visible.map((m, i) => (
-          <div
-            key={m.userId}
-            className={styles.stackCircle}
-            style={{
-              background: getMemberGradient(m.memberIndex, m.userId),
-              zIndex: MAX_SHOW - i,
-            }}
-          >
-            {m.nickname[0]}
+          <div key={m.userId} className={styles.stackCircleWrap} style={{ zIndex: MAX_SHOW - i }}>
+            <div
+              className={styles.stackCircle}
+              style={{
+                background: getMemberGradient(m.memberIndex, m.userId, m.displayProfileColor),
+              }}
+            >
+              {m.nickname[0]}
+            </div>
+            <GenderBadge gender={m.gender} size={12} iconSize={6} />
           </div>
         ))}
       </button>
@@ -143,13 +147,16 @@ const AvatarStack: FC<{ members: StackMember[] }> = ({ members }) => {
           >
             {members.map((m) => (
               <div key={m.userId} className={styles.stackTooltipRow}>
-                <div
-                  className={styles.stackTooltipCircle}
-                  style={{
-                    background: getMemberGradient(m.memberIndex, m.userId),
-                  }}
-                >
-                  {m.nickname[0]}
+                <div className={styles.stackTooltipCircleWrap}>
+                  <div
+                    className={styles.stackTooltipCircle}
+                    style={{
+                      background: getMemberGradient(m.memberIndex, m.userId, m.displayProfileColor),
+                    }}
+                  >
+                    {m.nickname[0]}
+                  </div>
+                  <GenderBadge gender={m.gender} size={12} iconSize={6} />
                 </div>
                 <span className={styles.stackTooltipName}>{m.nickname}</span>
               </div>
@@ -261,6 +268,8 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
               userId: m.userId ?? '',
               nickname: m.displayName ?? m.nickname ?? '',
               memberIndex: getMemberIndex(m.userId ?? ''),
+              gender: m.gender,
+              displayProfileColor: m.displayProfileColor,
             }))
             .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 
@@ -274,6 +283,8 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
               userId: m.userId ?? '',
               nickname: m.displayName ?? m.nickname ?? '',
               memberIndex: getMemberIndex(m.userId ?? ''),
+              gender: m.gender,
+              displayProfileColor: m.displayProfileColor,
             }))
             .sort((a, b) => (a.userId === currentUserId ? -1 : b.userId === currentUserId ? 1 : 0));
 

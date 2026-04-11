@@ -85,6 +85,7 @@ export const useGroupCompareResult = (token: string) =>
   useQuery({
     ...compareQueries.groupResult(token),
     enabled: !!token,
+    refetchOnMount: 'always',
   });
 
 export const useUpdateMyGroupProfile = (token: string) =>

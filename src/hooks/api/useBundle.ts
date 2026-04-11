@@ -2,6 +2,7 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
+  list,
   getDetail1,
   getElections,
   getMyResult,
@@ -19,6 +20,7 @@ import type {
  */
 export const bundleKeys = {
   all: ['bundle'] as const,
+  list: () => [...bundleKeys.all, 'list'] as const,
   detail: (slug: string) => [...bundleKeys.all, 'detail', slug] as const,
   elections: (slug: string) => [...bundleKeys.all, 'elections', slug] as const,
   myResult: (slug: string) => [...bundleKeys.all, 'myResult', slug] as const,
@@ -31,6 +33,13 @@ export const bundleKeys = {
  * categoryCode: string → CategoryCode 좁히기를 위해 필요.
  */
 export const bundleQueries = {
+  list: () =>
+    queryOptions<BundleDetail[] | undefined>({
+      queryKey: bundleKeys.list(),
+      queryFn: () => list() as Promise<BundleDetail[] | undefined>,
+      staleTime: 60 * 1000,
+    }),
+
   detail: (slug: string) =>
     queryOptions<BundleDetail | undefined>({
       queryKey: bundleKeys.detail(slug),
@@ -56,6 +65,12 @@ export const bundleQueries = {
 /**
  * Hooks
  */
+export const useBundleList = (enabled: boolean) =>
+  useQuery({
+    ...bundleQueries.list(),
+    enabled,
+  });
+
 export const useBundleDetail = (slug: string) =>
   useQuery({
     ...bundleQueries.detail(slug),

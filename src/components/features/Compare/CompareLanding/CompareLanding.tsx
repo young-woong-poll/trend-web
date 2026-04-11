@@ -175,11 +175,19 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const showPreview = (needsBundle || needsLogin) && !isAlreadyTaken;
 
   return (
-    <BundleBackground categoryCode={link.categoryCode} fireworks={!isAlreadyTaken}>
+    <BundleBackground
+      categoryCode={link.categoryCode}
+      categoryMeta={link.categoryMeta}
+      fireworks={!isAlreadyTaken}
+    >
       <div className={styles.container}>
         {/* ─── 카테고리 + 번들 제목 ─── */}
         <div className={styles.resultHeader}>
-          <CategoryBadge categoryCode={link.categoryCode} />
+          <CategoryBadge
+            categoryCode={link.categoryCode}
+            categoryMeta={link.categoryMeta}
+            label={link.category}
+          />
           <h2 className={styles.resultTitle}>{link.bundleTitle}</h2>
         </div>
 
@@ -270,6 +278,8 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
         <CreateCompareLink
           slug={link.bundleSlug ?? ''}
           categoryCode={link.categoryCode}
+          categoryMeta={link.categoryMeta}
+          category={link.category}
           bundleTitle={link.bundleTitle}
           onClose={() => setShowCreateLinkModal(false)}
         />

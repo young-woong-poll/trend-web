@@ -4,6 +4,8 @@ import { useState, type FC } from 'react';
 
 import { Modal } from '@/components/common/Modal/Modal';
 import styles from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal.module.scss';
+import { getCategoryThemeVars } from '@/constants/categoryTheme';
+import type { CategoryCode } from '@/types/hotpick';
 
 export interface GroupSettings {
   groupName: string;
@@ -15,6 +17,8 @@ interface GroupSettingsModalProps {
   currentName: string;
   currentShowGenderContent: boolean;
   isCreator: boolean;
+  categoryCode?: CategoryCode;
+  categoryMeta?: string | null;
   onClose: () => void;
   onConfirm: (settings: GroupSettings) => void;
   isLoading?: boolean;
@@ -38,6 +42,8 @@ export const GroupSettingsModal: FC<GroupSettingsModalProps> = ({
   currentName,
   currentShowGenderContent,
   isCreator,
+  categoryCode,
+  categoryMeta,
   onClose,
   onConfirm,
   isLoading,
@@ -53,7 +59,7 @@ export const GroupSettingsModal: FC<GroupSettingsModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton maxWidth={400}>
-      <div className={styles.container}>
+      <div className={styles.container} style={getCategoryThemeVars(categoryCode, categoryMeta)}>
         <h2 className={styles.title}>그룹 설정</h2>
 
         <div className={styles.divider}>
@@ -67,11 +73,11 @@ export const GroupSettingsModal: FC<GroupSettingsModalProps> = ({
               placeholder="그룹 이름을 입력하세요"
               value={name}
               onChange={(e) => setName(e.target.value.replace(/\s{2,}/g, ' '))}
-              maxLength={20}
+              maxLength={12}
               disabled={!isCreator}
               autoFocus={isCreator}
             />
-            <span className={styles.charCount}>{name.length}/20</span>
+            <span className={styles.charCount}>{name.length}/12</span>
           </div>
           {nameError && <span className={styles.errorText}>{nameError}</span>}
         </div>
