@@ -154,16 +154,17 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       void queryClient.invalidateQueries({ queryKey: bundleKeys.detail(slug) });
       void queryClient.invalidateQueries({ queryKey: compareKeys.all });
       if (returnUrl) {
-        router.push(returnUrl);
+        router.replace(returnUrl);
       } else if (compareToken) {
         try {
           await joinMutation.mutateAsync(undefined);
+          router.replace(`/compare/match/${compareToken}`);
         } catch {
-          // join 실패해도 (이미 참여 등) 결과 페이지로 이동
+          // join 실패 (이미 다른 유저가 참여 등) → 랜딩 페이지로 이동 (isAlreadyTaken 안내)
+          router.replace(`/compare/${compareToken}`);
         }
-        router.push(`/compare/match/${compareToken}`);
       } else {
-        router.push(`/bundle/${slug}/result`);
+        router.replace(`/bundle/${slug}/result`);
       }
     } catch (err) {
       // 중복 제출 에러 (이미 완료된 유저) → 결과 페이지로 이동

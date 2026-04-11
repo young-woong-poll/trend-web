@@ -247,6 +247,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
 
   const handleJoin = () => {
     if (!isLoggedIn) {
+      // LoginModal이 returnUrl 쿼리를 읽어 카카오 OAuth state에 포함시킨다
+      // → 콜백 → 회원가입 → SignupForm이 bundleSlug를 파싱해 번들 플레이로 직행
+      const extraParams = new URLSearchParams({
+        bundleSlug: result.bundleSlug ?? '',
+      });
+      const returnUrl = `${window.location.pathname}?${extraParams.toString()}`;
+      const url = new URL(window.location.href);
+      url.searchParams.set('bundleSlug', result.bundleSlug ?? '');
+      url.searchParams.set('returnUrl', returnUrl);
+      window.history.replaceState(null, '', url.toString());
       requireLogin('compare');
       return;
     }

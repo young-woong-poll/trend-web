@@ -48,7 +48,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
       return;
     }
     setIsNavigating(true);
-    router.push(`/bundle/${slug}`);
+    router.push(participated ? `/bundle/${slug}/result` : `/bundle/${slug}`);
   };
 
   return (
@@ -85,7 +85,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
             className={styles.shareButton}
             onClick={(e) => {
               e.stopPropagation();
-              actions.share(slug);
+              actions.share(slug, 'BUNDLE');
             }}
             aria-label="공유"
           >
