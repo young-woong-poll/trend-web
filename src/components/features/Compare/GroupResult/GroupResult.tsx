@@ -56,10 +56,10 @@ const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C', '멤버 D'];
 function generateGhostAnswers(
   electionIds: string[],
   seed: number
-): Array<{ electionId: string; selected: 'A' | 'B' }> {
+): Array<{ electionId: string; electionItemId: string }> {
   return electionIds.map((id, i) => ({
     electionId: id,
-    selected: (seed + i) % 2 === 0 ? 'A' : ('B' as const),
+    electionItemId: `${id}-${(seed + i) % 2 === 0 ? 'A' : 'B'}`,
   }));
 }
 

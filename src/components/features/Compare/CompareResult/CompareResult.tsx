@@ -30,13 +30,23 @@ interface CompareResultProps {
 
 /** 가상 상대 답변 생성 (시드 기반, ~40-60% matchRate) */
 function generateGhostAnswers(
-  myAnswers: Array<{ electionId: string; selected: string }>,
+  myAnswers: Array<{
+    electionId: string;
+    electionItemId: string;
+    options: Array<{ electionItemId?: string }>;
+  }>,
   seed: number
-): Array<{ electionId: string; selected: string }> {
-  return myAnswers.map((a, i) => ({
-    electionId: a.electionId,
-    selected: (seed + i) % 3 === 0 ? a.selected : a.selected === 'A' ? 'B' : 'A',
-  }));
+): Array<{ electionId: string; electionItemId: string }> {
+  return myAnswers.map((a, i) => {
+    if ((seed + i) % 3 === 0) {
+      return { electionId: a.electionId, electionItemId: a.electionItemId };
+    }
+    const other = a.options.find((o) => o.electionItemId !== a.electionItemId);
+    return {
+      electionId: a.electionId,
+      electionItemId: other?.electionItemId ?? a.electionItemId,
+    };
+  });
 }
 
 export const CompareResult: FC<CompareResultProps> = ({ token }) => {
@@ -91,14 +101,15 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
     const myAnswers = rawAnswers.map((a) => ({
       electionId: a.electionId ?? '',
-      selected: a.selected ?? 'A',
+      electionItemId: a.selectedElectionItemId ?? '',
+      options: a.options ?? [],
     }));
     const ghostAnswers = generateGhostAnswers(myAnswers, 42);
 
     let matchCount = 0;
     for (const my of myAnswers) {
       const ghost = ghostAnswers.find((g) => g.electionId === my.electionId);
-      if (ghost && my.selected === ghost.selected) {
+      if (ghost && my.electionItemId === ghost.electionItemId) {
         matchCount++;
       }
     }
@@ -108,19 +119,15 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       bundleTitle: myBundleResult.bundleTitle ?? '',
       totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
       categoryCode: link.categoryCode,
-      me: { nickname: link.creatorNickname ?? '', answers: myAnswers },
+      me: {
+        nickname: link.creatorNickname ?? '',
+        answers: myAnswers.map((a) => ({
+          electionId: a.electionId,
+          electionItemId: a.electionItemId,
+        })),
+      },
       target: { nickname: '???', answers: ghostAnswers },
-      questionStats: rawAnswers.map((a) => {
-        const stats = rawStats.find((s) => s.electionId === a.electionId);
-        return {
-          electionId: a.electionId ?? '',
-          title: a.title ?? '',
-          optionA: a.optionA ?? '',
-          optionB: a.optionB ?? '',
-          optionACount: stats?.optionACount ?? 50,
-          optionBCount: stats?.optionBCount ?? 50,
-        };
-      }),
+      questionStats: rawStats,
       matchCount,
       matchRate: myAnswers.length > 0 ? Math.round((matchCount / myAnswers.length) * 100) : 0,
     };

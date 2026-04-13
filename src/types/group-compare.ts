@@ -29,15 +29,17 @@ export type GroupCompareResult = Omit<
     // TODO: BE swagger에 누락된 필드 — BE에 추가 요청 필요
     birthYear?: number;
     isWithdrawn?: boolean;
-    answers?: Array<{ electionId: string; selected: string }>;
+    answers?: Array<{ electionId: string; electionItemId: string }>;
   }>;
   questionStats?: Array<{
     electionId?: string;
     title?: string;
-    optionA?: string;
-    optionB?: string;
-    optionACount?: number;
-    optionBCount?: number;
+    optionStats?: Array<{
+      electionItemId?: string;
+      title?: string;
+      imageUrl?: string;
+      voteCount?: number;
+    }>;
     /** 가치관 지도 축 배정 (FE-only, null = 미배정) */
     axis?: 'X' | 'Y' | null;
   }>;

@@ -46,7 +46,7 @@ export function trackBundleStart(slug: string) {
 }
 
 /** 번들 질문 답변 */
-export function trackBundleAnswer(slug: string, questionIndex: number, selected: 'A' | 'B') {
+export function trackBundleAnswer(slug: string, questionIndex: number, selected: string) {
   trackEvent('bundle_answer', { slug, question_index: questionIndex, selected });
 }
 

@@ -161,8 +161,11 @@ export function getPopularityByScore(score: number): PopularityInfo {
  * 예: [70, 45, 80, 40, 65] → 평균 60%
  */
 export function calcPopularityScore(
-  myAnswers: Array<{ electionId?: string; selected?: string }>,
-  questionStats: Array<{ electionId?: string; optionACount?: number; optionBCount?: number }>
+  myAnswers: Array<{ electionId?: string; selectedElectionItemId?: string }>,
+  questionStats: Array<{
+    electionId?: string;
+    optionStats?: Array<{ electionItemId?: string; voteCount?: number }>;
+  }>
 ): number {
   if (!myAnswers || myAnswers.length === 0) {
     return 0;
@@ -172,20 +175,21 @@ export function calcPopularityScore(
   let matched = 0;
 
   for (const answer of myAnswers) {
-    if (!answer.electionId || !answer.selected) {
+    if (!answer.electionId || !answer.selectedElectionItemId) {
       continue;
     }
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
-    if (!stat) {
+    if (!stat?.optionStats || stat.optionStats.length === 0) {
       continue;
     }
 
-    const aCount = stat.optionACount ?? 0;
-    const bCount = stat.optionBCount ?? 0;
-    const total = aCount + bCount;
-    const optionARate = total > 0 ? Math.round((aCount / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round((bCount / total) * 100) : 50;
-    totalRate += answer.selected === 'A' ? optionARate : optionBRate;
+    const totalVotes = stat.optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+    const selectedOption = stat.optionStats.find(
+      (o) => o.electionItemId === answer.selectedElectionItemId
+    );
+    const selectedCount = selectedOption?.voteCount ?? 0;
+    const rate = totalVotes > 0 ? Math.round((selectedCount / totalVotes) * 100) : 50;
+    totalRate += rate;
     matched++;
   }
 

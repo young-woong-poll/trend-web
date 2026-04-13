@@ -96,13 +96,14 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
               return null;
             }
 
-            const optionACount = stat.optionACount ?? 0;
-            const optionBCount = stat.optionBCount ?? 0;
-            const statTotal = optionACount + optionBCount;
-            const aRate = statTotal > 0 ? Math.round((optionACount / statTotal) * 100) : 50;
-            const bRate = statTotal > 0 ? Math.round((optionBCount / statTotal) * 100) : 50;
-            const myRate = answer.selected === 'A' ? aRate : bRate;
-            const isMajority = myRate >= 50;
+            const options = stat.optionStats ?? [];
+            const totalVotes = options.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+            const selectedOption = options.find((o) => o.electionItemId === answer.electionItemId);
+            const selectedRate =
+              totalVotes > 0
+                ? Math.round(((selectedOption?.voteCount ?? 0) / totalVotes) * 100)
+                : 50;
+            const isMajority = selectedRate >= 50;
 
             return (
               <div key={stat.electionId} className={styles.answerCard}>
@@ -119,28 +120,24 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
                 </div>
 
                 <div className={styles.voteOptions}>
-                  <div className={styles.optionRow}>
-                    <span className={styles.optionLabel}>{stat.optionA}</span>
-                    <div className={styles.optionBarTrack}>
-                      <div
-                        className={`${styles.optionBarFill} ${answer.selected === 'A' ? styles.myFill : ''}`}
-                        style={{ width: `${aRate}%` }}
-                      >
-                        <span className={styles.optionPercent}>{aRate}%</span>
+                  {options.map((opt) => {
+                    const rate =
+                      totalVotes > 0 ? Math.round(((opt.voteCount ?? 0) / totalVotes) * 100) : 50;
+                    const isSelected = opt.electionItemId === answer.electionItemId;
+                    return (
+                      <div key={opt.electionItemId} className={styles.optionRow}>
+                        <span className={styles.optionLabel}>{opt.title}</span>
+                        <div className={styles.optionBarTrack}>
+                          <div
+                            className={`${styles.optionBarFill} ${isSelected ? styles.myFill : ''}`}
+                            style={{ width: `${rate}%` }}
+                          >
+                            <span className={styles.optionPercent}>{rate}%</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  <div className={styles.optionRow}>
-                    <span className={styles.optionLabel}>{stat.optionB}</span>
-                    <div className={styles.optionBarTrack}>
-                      <div
-                        className={`${styles.optionBarFill} ${answer.selected === 'B' ? styles.myFill : ''}`}
-                        style={{ width: `${bRate}%` }}
-                      >
-                        <span className={styles.optionPercent}>{bRate}%</span>
-                      </div>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             );

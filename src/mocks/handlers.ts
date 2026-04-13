@@ -1125,7 +1125,7 @@ export const handlers = [
   http.post(`${baseURL}/api/v1/bundles/:slug/answers`, async ({ params, request }) => {
     const slug = params.slug as string;
     const body = (await request.json()) as {
-      answers: Array<{ electionId: string; selected: 'A' | 'B' }>;
+      answers: Array<{ electionId: string; electionItemId: string }>;
     };
     const userId = 'mock-user-1';
     recordBundleAnswers(userId, slug, body.answers);
@@ -1167,14 +1167,18 @@ export const handlers = [
           myAnswers: elections.map((e, i) => ({
             electionId: e.electionId,
             title: e.title,
-            optionA: e.optionA,
-            optionB: e.optionB,
-            selected: (isGradeTest ? 'A' : i % 2 === 0 ? 'A' : 'B') as 'A' | 'B',
+            options: e.options ?? [],
+            selectedElectionItemId: isGradeTest
+              ? (e.options?.[0]?.electionItemId ?? '')
+              : (e.options?.[i % 2]?.electionItemId ?? ''),
           })),
           questionStats: elections.map((e, i) => ({
             electionId: e.electionId,
-            optionACount: seedRatios[i] ?? 50,
-            optionBCount: 100 - (seedRatios[i] ?? 50),
+            optionStats: (e.options ?? []).map((opt, optIdx) => ({
+              electionItemId: opt.electionItemId,
+              title: opt.title,
+              voteCount: optIdx === 0 ? (seedRatios[i] ?? 50) : 100 - (seedRatios[i] ?? 50),
+            })),
           })),
         };
       }

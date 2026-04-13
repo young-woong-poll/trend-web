@@ -56,7 +56,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const joinMutation = useJoinCompareLink(compareToken ?? '');
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
+  const [answers, setAnswers] = useState<Map<string, string>>(new Map());
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -81,14 +81,14 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   }, [bundle, slug, router]);
 
   const handleSelect = useCallback(
-    (choice: 'A' | 'B') => {
+    (electionItemId: string) => {
       if (!elections) {
         return;
       }
       const election = elections[currentIndex];
       const id = election.electionId ?? '';
-      setAnswers((prev) => new Map(prev).set(id, choice));
-      trackBundleAnswer(slug, currentIndex, choice);
+      setAnswers((prev) => new Map(prev).set(id, electionItemId));
+      trackBundleAnswer(slug, currentIndex, electionItemId);
 
       if (autoAdvanceTimer.current) {
         clearTimeout(autoAdvanceTimer.current);
@@ -133,9 +133,9 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     const answerData = elections.map((e) => {
       const id = e.electionId ?? '';
-      const selected = answers.get(id);
+      const electionItemId = answers.get(id);
       // unanswered guard가 위에서 이미 검증했으므로 여기서는 fallback
-      return { electionId: id, selected: selected ?? ('A' as const) };
+      return { electionId: id, electionItemId: electionItemId ?? '' };
     });
 
     try {

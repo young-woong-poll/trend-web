@@ -199,8 +199,8 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <div className={styles.popularityDescription}>{popularity.description}</div>
           <span className={styles.participantHint}>
             * 현재{' '}
-            {questionStats[0]
-              ? (questionStats[0].optionACount ?? 0) + (questionStats[0].optionBCount ?? 0)
+            {questionStats[0]?.optionStats
+              ? questionStats[0].optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0)
               : 0}
             명 참여 기준 · 참여자가 늘면 업데이트 돼요
           </span>
@@ -218,13 +218,16 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <div className={styles.answerList}>
             {myAnswers.map((answer, idx) => {
               const stat = questionStats.find((s) => s.electionId === answer.electionId);
-              const statTotal = (stat?.optionACount ?? 0) + (stat?.optionBCount ?? 0);
-              const aRate =
-                statTotal > 0 ? Math.round(((stat?.optionACount ?? 0) / statTotal) * 100) : 50;
-              const bRate =
-                statTotal > 0 ? Math.round(((stat?.optionBCount ?? 0) / statTotal) * 100) : 50;
-              const myRate = answer.selected === 'A' ? aRate : bRate;
-              const isMajority = myRate >= 50;
+              const options = stat?.optionStats ?? [];
+              const totalVotes = options.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+              const selectedOption = options.find(
+                (o) => o.electionItemId === answer.selectedElectionItemId
+              );
+              const selectedRate =
+                totalVotes > 0
+                  ? Math.round(((selectedOption?.voteCount ?? 0) / totalVotes) * 100)
+                  : 50;
+              const isMajority = selectedRate >= 50;
 
               return (
                 <div
@@ -246,50 +249,38 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
 
                   {/* 분리형 투표 바 */}
                   <div className={styles.voteOptions}>
-                    <div className={styles.optionRow}>
-                      <button
-                        type="button"
-                        className={`${styles.optionLabel} ${answer.selected === 'A' ? styles.optionLabelSelected : ''}`}
-                        onClick={(e) => {
-                          const el = e.currentTarget;
-                          if (el.scrollWidth > el.clientWidth) {
-                            showToast(answer.optionA ?? '');
-                          }
-                        }}
-                      >
-                        {answer.optionA}
-                      </button>
-                      <div className={styles.optionBarTrack}>
-                        <div
-                          className={`${styles.optionBarFill} ${answer.selected === 'A' ? styles.myFill : ''}`}
-                          style={{ width: `${aRate}%`, '--i': idx } as React.CSSProperties}
-                        >
-                          <span className={styles.optionPercent}>{aRate}%</span>
+                    {(answer.options ?? []).map((opt) => {
+                      const optStat = options.find((o) => o.electionItemId === opt.electionItemId);
+                      const rate =
+                        totalVotes > 0
+                          ? Math.round(((optStat?.voteCount ?? 0) / totalVotes) * 100)
+                          : 50;
+                      const isSelected = opt.electionItemId === answer.selectedElectionItemId;
+                      return (
+                        <div key={opt.electionItemId} className={styles.optionRow}>
+                          <button
+                            type="button"
+                            className={`${styles.optionLabel} ${isSelected ? styles.optionLabelSelected : ''}`}
+                            onClick={(e) => {
+                              const el = e.currentTarget;
+                              if (el.scrollWidth > el.clientWidth) {
+                                showToast(opt.title ?? '');
+                              }
+                            }}
+                          >
+                            {opt.title}
+                          </button>
+                          <div className={styles.optionBarTrack}>
+                            <div
+                              className={`${styles.optionBarFill} ${isSelected ? styles.myFill : ''}`}
+                              style={{ width: `${rate}%`, '--i': idx } as React.CSSProperties}
+                            >
+                              <span className={styles.optionPercent}>{rate}%</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className={styles.optionRow}>
-                      <button
-                        type="button"
-                        className={`${styles.optionLabel} ${answer.selected === 'B' ? styles.optionLabelSelected : ''}`}
-                        onClick={(e) => {
-                          const el = e.currentTarget;
-                          if (el.scrollWidth > el.clientWidth) {
-                            showToast(answer.optionB ?? '');
-                          }
-                        }}
-                      >
-                        {answer.optionB}
-                      </button>
-                      <div className={styles.optionBarTrack}>
-                        <div
-                          className={`${styles.optionBarFill} ${answer.selected === 'B' ? styles.myFill : ''}`}
-                          style={{ width: `${bRate}%`, '--i': idx } as React.CSSProperties}
-                        >
-                          <span className={styles.optionPercent}>{bRate}%</span>
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

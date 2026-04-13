@@ -258,10 +258,15 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
         onMouseLeave={handleMouseUp}
       >
         {(result.questionStats ?? []).map((question) => {
+          const options = question.optionStats ?? [];
+          const optA = options[0];
+          const optB = options[1];
+
           const stackA: StackMember[] = (result.members ?? [])
             .filter((m) =>
               (m.answers ?? []).some(
-                (a) => a.electionId === question.electionId && a.selected === 'A'
+                (a) =>
+                  a.electionId === question.electionId && a.electionItemId === optA?.electionItemId
               )
             )
             .map((m) => ({
@@ -276,7 +281,8 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
           const stackB: StackMember[] = (result.members ?? [])
             .filter((m) =>
               (m.answers ?? []).some(
-                (a) => a.electionId === question.electionId && a.selected === 'B'
+                (a) =>
+                  a.electionId === question.electionId && a.electionItemId === optB?.electionItemId
               )
             )
             .map((m) => ({
@@ -303,7 +309,7 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
               </div>
               <div className={styles.vsRow}>
                 <div className={`${styles.side} ${styles.sideLeft}`}>
-                  <span className={styles.optionName}>{question.optionA}</span>
+                  <span className={styles.optionName}>{optA?.title ?? ''}</span>
                   <span className={styles.optionCount}>{stackA.length}명</span>
                   <AvatarStack members={stackA} />
                 </div>
@@ -311,7 +317,7 @@ export const PickASide: FC<PickASideProps> = ({ result, currentUserId }) => {
                 <span className={styles.vsLabel}>VS</span>
 
                 <div className={`${styles.side} ${styles.sideRight}`}>
-                  <span className={styles.optionName}>{question.optionB}</span>
+                  <span className={styles.optionName}>{optB?.title ?? ''}</span>
                   <span className={styles.optionCount}>{stackB.length}명</span>
                   <AvatarStack members={stackB} />
                 </div>

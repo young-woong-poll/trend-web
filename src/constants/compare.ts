@@ -169,10 +169,8 @@ export function getCoupleType(
 export interface ShockPointData {
   electionId: string;
   title: string;
-  optionA: string;
-  optionB: string;
-  mySelected: 'A' | 'B';
-  targetSelected: 'A' | 'B';
+  myOptionText: string;
+  targetOptionText: string;
   myRate: number;
   targetRate: number;
   comment: string;
@@ -188,7 +186,7 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   const differentAnswers = questionStats.filter((stat) => {
     const myAnswer = meAnswers.find((a) => a.electionId === stat.electionId);
     const targetAnswer = targetAnswers.find((a) => a.electionId === stat.electionId);
-    return myAnswer && targetAnswer && myAnswer.selected !== targetAnswer.selected;
+    return myAnswer && targetAnswer && myAnswer.electionItemId !== targetAnswer.electionItemId;
   });
 
   if (differentAnswers.length === 0) {
@@ -200,10 +198,13 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   let shockStat = differentAnswers[0];
 
   for (const stat of differentAnswers) {
-    const total = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
-    const optionARate = total > 0 ? Math.round(((stat.optionACount ?? 0) / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round(((stat.optionBCount ?? 0) / total) * 100) : 50;
-    const diff = Math.abs(optionARate - optionBRate);
+    const optionStats = stat.optionStats ?? [];
+    const totalVotes = optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+    if (totalVotes === 0) {
+      continue;
+    }
+    const rates = optionStats.map((o) => Math.round(((o.voteCount ?? 0) / totalVotes) * 100));
+    const diff = rates.length >= 2 ? Math.abs(rates[0] - rates[1]) : 0;
     if (diff > maxDiff) {
       maxDiff = diff;
       shockStat = stat;
@@ -212,13 +213,16 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
 
   const myAnswer = meAnswers.find((a) => a.electionId === shockStat.electionId)!;
   const targetAnswer = targetAnswers.find((a) => a.electionId === shockStat.electionId)!;
-  const shockTotal = (shockStat.optionACount ?? 0) + (shockStat.optionBCount ?? 0);
-  const shockOptARate =
-    shockTotal > 0 ? Math.round(((shockStat.optionACount ?? 0) / shockTotal) * 100) : 50;
-  const shockOptBRate =
-    shockTotal > 0 ? Math.round(((shockStat.optionBCount ?? 0) / shockTotal) * 100) : 50;
-  const myRate = myAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
-  const targetRate = targetAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
+  const shockOptionStats = shockStat.optionStats ?? [];
+  const shockTotal = shockOptionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+
+  const myOption = shockOptionStats.find((o) => o.electionItemId === myAnswer.electionItemId);
+  const targetOption = shockOptionStats.find(
+    (o) => o.electionItemId === targetAnswer.electionItemId
+  );
+  const myRate = shockTotal > 0 ? Math.round(((myOption?.voteCount ?? 0) / shockTotal) * 100) : 50;
+  const targetRate =
+    shockTotal > 0 ? Math.round(((targetOption?.voteCount ?? 0) / shockTotal) * 100) : 50;
 
   // 코멘트 생성: 소수파인 쪽에 재미 코멘트
   const meMinority = myRate < targetRate;
@@ -228,10 +232,8 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   return {
     electionId: shockStat.electionId ?? '',
     title: shockStat.title ?? '',
-    optionA: shockStat.optionA ?? '',
-    optionB: shockStat.optionB ?? '',
-    mySelected: myAnswer.selected as 'A' | 'B',
-    targetSelected: targetAnswer.selected as 'A' | 'B',
+    myOptionText: myOption?.title ?? '',
+    targetOptionText: targetOption?.title ?? '',
     myRate,
     targetRate,
     comment,
@@ -245,15 +247,13 @@ export interface AnswerStoryData {
   same: Array<{
     electionId: string;
     title: string;
-    selected: string;
+    selected: string; // option text (not A/B code)
     /** 두 사람이 고른 선택지의 대중 득표율 */
     selectedRate: number;
   }>;
   different: Array<{
     electionId: string;
     title: string;
-    mySelected: string;
-    targetSelected: string;
     myOptionText: string;
     targetOptionText: string;
     /** 내 선택지의 대중 득표율 */
@@ -276,30 +276,29 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
       continue;
     }
 
-    const statTotal = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
-    const optionARate =
-      statTotal > 0 ? Math.round(((stat.optionACount ?? 0) / statTotal) * 100) : 50;
-    const optionBRate =
-      statTotal > 0 ? Math.round(((stat.optionBCount ?? 0) / statTotal) * 100) : 50;
-    const myRate = myAnswer.selected === 'A' ? optionARate : optionBRate;
-    const targetRate = targetAnswer.selected === 'A' ? optionARate : optionBRate;
+    const optionStats = stat.optionStats ?? [];
+    const totalVotes = optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
 
-    if (myAnswer.selected === targetAnswer.selected) {
+    const myOption = optionStats.find((o) => o.electionItemId === myAnswer.electionItemId);
+    const targetOption = optionStats.find((o) => o.electionItemId === targetAnswer.electionItemId);
+    const myRate =
+      totalVotes > 0 ? Math.round(((myOption?.voteCount ?? 0) / totalVotes) * 100) : 50;
+    const targetRate =
+      totalVotes > 0 ? Math.round(((targetOption?.voteCount ?? 0) / totalVotes) * 100) : 50;
+
+    if (myAnswer.electionItemId === targetAnswer.electionItemId) {
       same.push({
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
-        selected: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        selected: myOption?.title ?? '',
         selectedRate: myRate,
       });
     } else {
       different.push({
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
-        mySelected: myAnswer.selected ?? '',
-        targetSelected: targetAnswer.selected ?? '',
-        myOptionText: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
-        targetOptionText:
-          targetAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        myOptionText: myOption?.title ?? '',
+        targetOptionText: targetOption?.title ?? '',
         myRate,
         targetRate,
       });

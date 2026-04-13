@@ -247,8 +247,11 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             <span className={styles.questionLabel}>이런 질문에 답하게 돼요</span>
             <div className={styles.questionTitle}>{firstQuestion.title}</div>
             <div className={styles.questionOptions}>
-              <div className={styles.questionOption}>{firstQuestion.optionA}</div>
-              <div className={styles.questionOption}>{firstQuestion.optionB}</div>
+              {(firstQuestion.options ?? []).map((opt) => (
+                <div key={opt.electionItemId} className={styles.questionOption}>
+                  {opt.title}
+                </div>
+              ))}
             </div>
             <span className={styles.questionMore}>
               외 {(link.questionCount ?? 0) - 1}개 질문 · {formatCount(link.participantCount ?? 0)}

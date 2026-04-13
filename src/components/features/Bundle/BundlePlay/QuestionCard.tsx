@@ -1,6 +1,6 @@
 'use client';
 
-import type { FC } from 'react';
+import { Fragment, type FC } from 'react';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import styles from '@/components/features/Bundle/BundlePlay/QuestionCard.module.scss';
@@ -9,8 +9,8 @@ import type { BundleElection } from '@/types/bundle';
 interface QuestionCardProps {
   election: BundleElection;
   index: number;
-  selected: 'A' | 'B' | null;
-  onSelect: (choice: 'A' | 'B') => void;
+  selected: string | null;
+  onSelect: (electionItemId: string) => void;
   onBack?: () => void;
 }
 
@@ -33,23 +33,18 @@ export const QuestionCard: FC<QuestionCardProps> = ({
     </div>
 
     <div className={styles.options}>
-      <button
-        type="button"
-        className={`${styles.option} ${selected === 'A' ? styles.optionSelected : ''}`}
-        onClick={() => onSelect('A')}
-      >
-        <span className={styles.optionText}>{election.optionA}</span>
-      </button>
-
-      <span className={styles.or}>or</span>
-
-      <button
-        type="button"
-        className={`${styles.option} ${selected === 'B' ? styles.optionSelected : ''}`}
-        onClick={() => onSelect('B')}
-      >
-        <span className={styles.optionText}>{election.optionB}</span>
-      </button>
+      {(election.options ?? []).map((opt, i) => (
+        <Fragment key={opt.electionItemId}>
+          {i > 0 && <span className={styles.or}>or</span>}
+          <button
+            type="button"
+            className={`${styles.option} ${selected === opt.electionItemId ? styles.optionSelected : ''}`}
+            onClick={() => onSelect(opt.electionItemId ?? '')}
+          >
+            <span className={styles.optionText}>{opt.title}</span>
+          </button>
+        </Fragment>
+      ))}
     </div>
   </div>
 );

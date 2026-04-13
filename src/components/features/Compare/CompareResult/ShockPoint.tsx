@@ -10,8 +10,8 @@ interface ShockPointProps {
 }
 
 export const ShockPoint: FC<ShockPointProps> = ({ data, myNickname, targetNickname }) => {
-  const myOptionText = data.mySelected === 'A' ? data.optionA : data.optionB;
-  const targetOptionText = data.targetSelected === 'A' ? data.optionA : data.optionB;
+  const myOptionText = data.myOptionText;
+  const targetOptionText = data.targetOptionText;
 
   return (
     <div className={styles.container}>

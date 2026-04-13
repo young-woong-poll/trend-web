@@ -65,7 +65,10 @@ export function getGroupCompareResult(
         gender: isWithdrawn ? undefined : profile.gender,
         birthYear: profile.birthYear,
         isWithdrawn: isWithdrawn || undefined,
-        answers: answers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
+        answers: answers.map((a) => ({
+          electionId: a.electionId,
+          electionItemId: a.electionItemId,
+        })),
       };
     })
     .filter((m): m is NonNullable<typeof m> => m !== null);
@@ -103,13 +106,18 @@ export function getGroupCompareResult(
     questionStats: elections.map((e, i) => {
       const aRate = seedRatios[i] ?? 50;
       const totalVotes = 500 + i * 100;
+      const options = e.options ?? [];
       return {
         electionId: e.electionId ?? '',
         title: e.title ?? '',
-        optionA: e.optionA ?? '',
-        optionB: e.optionB ?? '',
-        optionACount: Math.round((aRate / 100) * totalVotes),
-        optionBCount: Math.round(((100 - aRate) / 100) * totalVotes),
+        optionStats: options.map((opt, optIdx) => ({
+          electionItemId: opt.electionItemId,
+          title: opt.title,
+          voteCount:
+            optIdx === 0
+              ? Math.round((aRate / 100) * totalVotes)
+              : Math.round(((100 - aRate) / 100) * totalVotes),
+        })),
         axis: axisMap[e.electionId ?? ''] ?? null,
       };
     }),

@@ -33,6 +33,10 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
     }
 
     const stats: GenderQuestionStat[] = (result.questionStats ?? []).map((q) => {
+      const options = q.optionStats ?? [];
+      const optA = options[0];
+      const optB = options[1];
+
       const maleAnswers = males
         .map((m) => (m.answers ?? []).find((a) => a.electionId === q.electionId))
         .filter(Boolean);
@@ -40,8 +44,12 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
         .map((m) => (m.answers ?? []).find((a) => a.electionId === q.electionId))
         .filter(Boolean);
 
-      const maleACount = maleAnswers.filter((a) => a?.selected === 'A').length;
-      const femaleACount = femaleAnswers.filter((a) => a?.selected === 'A').length;
+      const maleACount = maleAnswers.filter(
+        (a) => a?.electionItemId === optA?.electionItemId
+      ).length;
+      const femaleACount = femaleAnswers.filter(
+        (a) => a?.electionItemId === optA?.electionItemId
+      ).length;
 
       const maleTotal = maleAnswers.length;
       const femaleTotal = femaleAnswers.length;
@@ -56,8 +64,8 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
       return {
         electionId: q.electionId ?? '',
         title: q.title ?? '',
-        optionA: q.optionA ?? '',
-        optionB: q.optionB ?? '',
+        optionA: optA?.title ?? '',
+        optionB: optB?.title ?? '',
         maleRatioA,
         maleRatioB,
         femaleRatioA,

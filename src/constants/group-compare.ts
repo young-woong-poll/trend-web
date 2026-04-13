@@ -8,10 +8,13 @@ import type {
   ValueMapConfig,
 } from '@/types/group-compare';
 
-/** Count 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용, 1:1과 동일 방식) */
+/** optionStats 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용, 1:1과 동일 방식) */
 function calcPopularityScoreFromCount(
-  myAnswers: Array<{ electionId: string; selected: 'A' | 'B' }>,
-  questionStats: Array<{ electionId: string; optionACount: number; optionBCount: number }>
+  myAnswers: Array<{ electionId: string; electionItemId: string }>,
+  questionStats: Array<{
+    electionId: string;
+    optionStats?: Array<{ electionItemId?: string; voteCount?: number }>;
+  }>
 ): number {
   if (myAnswers.length === 0) {
     return 0;
@@ -22,17 +25,15 @@ function calcPopularityScoreFromCount(
 
   for (const answer of myAnswers) {
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
-    if (!stat) {
+    if (!stat?.optionStats || stat.optionStats.length === 0) {
       continue;
     }
-    const total = stat.optionACount + stat.optionBCount;
-    if (total === 0) {
+    const totalVotes = stat.optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+    if (totalVotes === 0) {
       continue;
     }
-    const rate =
-      answer.selected === 'A'
-        ? Math.round((stat.optionACount / total) * 100)
-        : Math.round((stat.optionBCount / total) * 100);
+    const selectedOption = stat.optionStats.find((o) => o.electionItemId === answer.electionItemId);
+    const rate = Math.round(((selectedOption?.voteCount ?? 0) / totalVotes) * 100);
     totalRate += rate;
     matched++;
   }
@@ -60,7 +61,7 @@ export function calcGroupSyncRate(
       let matchCount = 0;
       for (const ansA of m[i].answers ?? []) {
         const ansB = (m[j].answers ?? []).find((b) => b.electionId === ansA.electionId);
-        if (ansB && ansA.selected === ansB.selected) {
+        if (ansB && ansA.electionItemId === ansB.electionItemId) {
           matchCount++;
         }
       }
@@ -90,7 +91,7 @@ export function calcAllPairChemistry(result: GroupCompareResult): PairChemistry[
       let matchCount = 0;
       for (const ansA of aAnswers) {
         const ansB = bAnswers.find((ab) => ab.electionId === ansA.electionId);
-        if (ansB && ansA.selected === ansB.selected) {
+        if (ansB && ansA.electionItemId === ansB.electionItemId) {
           matchCount++;
         }
       }
@@ -133,19 +134,20 @@ export function findUnanimousQuestions(
   const unanimous: Array<{ electionId: string; title: string; unanimousAnswer: string }> = [];
 
   for (const stat of questionStats) {
-    const answers = members.map(
-      (m) => (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected
+    const itemIds = members.map(
+      (m) => (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.electionItemId
     );
-    if (answers.length === 0 || answers.some((a) => a === undefined)) {
+    if (itemIds.length === 0 || itemIds.some((a) => a === undefined)) {
       continue;
     }
 
-    const allSame = answers.every((a) => a === answers[0]);
+    const allSame = itemIds.every((a) => a === itemIds[0]);
     if (allSame) {
+      const optionStats = stat.optionStats ?? [];
       unanimous.push({
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
-        unanimousAnswer: answers[0] === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        unanimousAnswer: optionStats.find((o) => o.electionItemId === itemIds[0])?.title ?? '',
       });
     }
   }
@@ -171,24 +173,27 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
   optionB: string;
   ratioA: number;
   ratioB: number;
-  /** A를 고른 멤버 목록 (닉네임 + 원본 인덱스) */
+  /** 첫 번째 옵션을 고른 멤버 목록 (닉네임 + 원본 인덱스) */
   membersA: ControversyMember[];
-  /** B를 고른 멤버 목록 (닉네임 + 원본 인덱스) */
+  /** 두 번째 옵션을 고른 멤버 목록 (닉네임 + 원본 인덱스) */
   membersB: ControversyMember[];
 }> {
   const members = result.members ?? [];
   const questionStats = result.questionStats ?? [];
 
   const scored = questionStats.map((stat) => {
+    const optionStats = stat.optionStats ?? [];
+    const firstOptionId = optionStats[0]?.electionItemId;
+    const secondOptionId = optionStats[1]?.electionItemId;
     const membersA: ControversyMember[] = [];
     const membersB: ControversyMember[] = [];
 
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      const ans = (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected;
-      if (ans === 'A') {
+      const ans = (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.electionItemId;
+      if (ans === firstOptionId) {
         membersA.push({ nickname: m.nickname ?? '', memberIndex: i });
-      } else if (ans === 'B') {
+      } else if (ans === secondOptionId) {
         membersB.push({ nickname: m.nickname ?? '', memberIndex: i });
       }
     }
@@ -201,8 +206,8 @@ export function findControversyPoints(result: GroupCompareResult): Array<{
     return {
       electionId: stat.electionId ?? '',
       title: stat.title ?? '',
-      optionA: stat.optionA ?? '',
-      optionB: stat.optionB ?? '',
+      optionA: optionStats[0]?.title ?? '',
+      optionB: optionStats[1]?.title ?? '',
       ratioA,
       ratioB,
       membersA,
@@ -328,19 +333,24 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   for (const m of members) {
     let minorityCount = 0;
     for (const stat of questionStats) {
-      const myAnswer = (m.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected;
+      const myAnswer = (m.answers ?? []).find(
+        (a) => a.electionId === stat.electionId
+      )?.electionItemId;
       if (!myAnswer) {
         continue;
       }
 
-      // 그룹 내에서 소수파인지 판단
-      const groupAnswers = members
-        .map((gm) => (gm.answers ?? []).find((a) => a.electionId === stat.electionId)?.selected)
-        .filter((a): a is 'A' | 'B' => a !== undefined);
-      const countA = groupAnswers.filter((a) => a === 'A').length;
+      // 그룹 내에서 소수파인지 판단: 첫 번째 옵션을 기준으로 카운트
+      const firstOptionId = (stat.optionStats ?? [])[0]?.electionItemId;
+      const groupItemIds = members
+        .map(
+          (gm) => (gm.answers ?? []).find((a) => a.electionId === stat.electionId)?.electionItemId
+        )
+        .filter((a): a is string => a !== undefined);
+      const countFirst = groupItemIds.filter((a) => a === firstOptionId).length;
       const isMinority =
-        (myAnswer === 'A' && countA < groupAnswers.length / 2) ||
-        (myAnswer === 'B' && countA > groupAnswers.length / 2);
+        (myAnswer === firstOptionId && countFirst < groupItemIds.length / 2) ||
+        (myAnswer !== firstOptionId && countFirst > groupItemIds.length / 2);
       if (isMinority) {
         minorityCount++;
       }
@@ -361,8 +371,11 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
   const popularityScores: { member: (typeof members)[0]; score: number }[] = [];
   for (const m of members) {
     const score = calcPopularityScoreFromCount(
-      (m.answers ?? []) as Array<{ electionId: string; selected: 'A' | 'B' }>,
-      questionStats as Array<{ electionId: string; optionACount: number; optionBCount: number }>
+      (m.answers ?? []) as Array<{ electionId: string; electionItemId: string }>,
+      questionStats as Array<{
+        electionId: string;
+        optionStats?: Array<{ electionItemId?: string; voteCount?: number }>;
+      }>
     );
     popularityScores.push({ member: m, score });
   }
@@ -401,7 +414,9 @@ export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoo
     let xRight = 0;
     for (const q of xQuestions) {
       const ans = memberAnswers.find((a) => a.electionId === q.electionId);
-      if (ans?.selected === 'B') {
+      // 두 번째 옵션(index 1) = right(+1 방향)
+      const secondOptionId = (q.optionStats ?? [])[1]?.electionItemId;
+      if (ans && secondOptionId && ans.electionItemId === secondOptionId) {
         xRight++;
       }
     }
@@ -409,7 +424,9 @@ export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoo
     let yUp = 0;
     for (const q of yQuestions) {
       const ans = memberAnswers.find((a) => a.electionId === q.electionId);
-      if (ans?.selected === 'B') {
+      // 두 번째 옵션(index 1) = up(+1 방향)
+      const secondOptionId = (q.optionStats ?? [])[1]?.electionItemId;
+      if (ans && secondOptionId && ans.electionItemId === secondOptionId) {
         yUp++;
       }
     }

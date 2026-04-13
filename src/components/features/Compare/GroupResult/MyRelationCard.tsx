@@ -60,7 +60,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
       return null;
     }
 
-    const myAnswerMap = new Map((me.answers ?? []).map((a) => [a.electionId, a.selected]));
+    const myAnswerMap = new Map((me.answers ?? []).map((a) => [a.electionId, a.electionItemId]));
     const otherMembers = (result.members ?? []).filter((m) => m.userId !== currentUserId);
 
     let maxDisagree = 0;
@@ -75,7 +75,7 @@ export const MyRelationCard: FC<MyRelationCardProps> = ({ currentUserId, result,
       let disagreeCount = 0;
       for (const other of otherMembers) {
         const otherAnswer = (other.answers ?? []).find((a) => a.electionId === stat.electionId);
-        if (otherAnswer && otherAnswer.selected !== myAnswer) {
+        if (otherAnswer && otherAnswer.electionItemId !== myAnswer) {
           disagreeCount++;
         }
       }
