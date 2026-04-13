@@ -44,7 +44,7 @@ export const bundleQueries = {
     queryOptions<BundleDetail | undefined>({
       queryKey: bundleKeys.detail(slug),
       queryFn: () => getDetail1(slug) as Promise<BundleDetail | undefined>,
-      staleTime: 60 * 1000,
+      staleTime: 0,
     }),
 
   elections: (slug: string) =>
@@ -75,6 +75,7 @@ export const useBundleDetail = (slug: string) =>
   useQuery({
     ...bundleQueries.detail(slug),
     enabled: !!slug,
+    refetchOnMount: 'always',
   });
 
 export const useBundleElections = (slug: string) =>

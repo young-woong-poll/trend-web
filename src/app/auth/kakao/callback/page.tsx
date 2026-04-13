@@ -51,9 +51,8 @@ const KakaoCallbackContent = () => {
         }
 
         if (result.user) {
-          // 풀 리로드로 이동 — AuthProvider가 쿠키와 함께 getMe()를 깨끗하게 호출하도록
-          // router.replace는 SPA 네비게이션이라 AuthProvider의 getMe() 재실행이 안 됨
-          window.location.href = returnUrl;
+          setUser(result.user);
+          router.replace(returnUrl);
           return;
         }
       } catch {

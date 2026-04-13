@@ -63,15 +63,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [result]);
 
-  // 접근제어: 비로그인 → compare 랜딩 + 로그인 유도
-  useEffect(() => {
-    if (!isAuthLoading && !isLoggedIn) {
-      router.replace(
-        `/compare/${token}?login=true&returnUrl=${encodeURIComponent(`/compare/match/${token}`)}`
-      );
-    }
-  }, [isAuthLoading, isLoggedIn, token, router]);
-
   // 접근제어: 결과 없음 + 비생성자 → compare 랜딩
   useEffect(() => {
     if (!isLoading && !result && isLoggedIn && link && !link.isCreator) {

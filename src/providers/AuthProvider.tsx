@@ -2,14 +2,46 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import LoginModal from '@/components/features/Auth/LoginModal';
-import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
-import { getMe, postLogout } from '@/hooks/api/useAuthApi';
+import { AuthContext, type LoginTrigger } from '@/contexts/AuthContext';
+import { postLogout } from '@/hooks/api/useAuthApi';
+import { useAuthMe, useSetAuthData } from '@/hooks/api/useAuthMe';
 import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
-import { useMSWReady } from '@/providers/MSWProvider';
+
+// ── 보호 라우트 설정 ──
+// pattern: 동적 세그먼트는 :param 으로 표기
+// redirect: 비로그인 시 리다이렉트 대상 (동일한 :param 치환)
+const PROTECTED_ROUTES: { pattern: string; redirect: string }[] = [
+  { pattern: '/bundle/:slug/play', redirect: '/bundle/:slug' },
+  { pattern: '/bundle/:slug/result', redirect: '/bundle/:slug' },
+  { pattern: '/compare/match/:token', redirect: '/compare/:token' },
+];
+
+/**
+ * pathname이 보호 라우트에 해당하면 리다이렉트 대상 경로를 반환한다.
+ * 해당하지 않으면 null.
+ */
+function getProtectedRedirect(pathname: string): string | null {
+  for (const route of PROTECTED_ROUTES) {
+    const paramNames: string[] = [];
+    const regexStr = route.pattern.replace(/:(\w+)/g, (_match, name) => {
+      paramNames.push(name);
+      return '([^/]+)';
+    });
+    const match = pathname.match(new RegExp(`^${regexStr}$`));
+    if (match) {
+      let redirect = route.redirect;
+      paramNames.forEach((name, i) => {
+        redirect = redirect.replace(`:${name}`, match[i + 1]);
+      });
+      return redirect;
+    }
+  }
+  return null;
+}
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -70,51 +102,59 @@ const LoginQueryWatcher = ({
   return null;
 };
 
+/**
+ * 보호 라우트 접근 시 비로그인이면 리다이렉트.
+ * 리다이렉트 대상에 ?login=true&returnUrl=... 을 붙여 로그인 모달을 표시한다.
+ */
+const RouteGuard = ({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn: boolean }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading || isLoggedIn) {
+      return;
+    }
+    const redirect = getProtectedRedirect(pathname);
+    if (redirect) {
+      router.replace(`${redirect}?login=true`);
+    }
+  }, [isLoading, isLoggedIn, pathname, router]);
+
+  return null;
+};
+
 const AUTH_PATHS = ['/auth/kakao/callback', '/auth/signup'];
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
+
+  // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
+  const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
+
+  const { data: user = null, isLoading } = useAuthMe({ enabled: !isAuthPath });
+  const { setAuthData } = useSetAuthData();
+
+  const isLoggedIn = user !== null;
+
   const [loginModal, setLoginModal] = useState<{ isOpen: boolean; trigger: LoginTrigger }>({
     isOpen: false,
     trigger: 'default',
   });
-  const mswReady = useMSWReady();
-  const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
 
-  const isLoggedIn = user !== null;
-
-  // MSW 준비 완료 후 로그인 상태 확인
-  // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
+  // Analytics userId 동기화
   useEffect(() => {
-    if (!mswReady) {
-      return;
+    if (user) {
+      setAnalyticsUserId(String(user.id));
+    } else {
+      clearAnalyticsUserId();
     }
-    const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
-    if (isAuthPath) {
-      setIsLoading(false);
-      return;
-    }
-    const checkAuth = async () => {
-      try {
-        const me = await getMe();
-        setUser(me);
-        setAnalyticsUserId(String(me.id));
-      } catch {
-        setUser(null);
-        clearAnalyticsUserId();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    void checkAuth();
-  }, [mswReady]);
+  }, [user]);
 
   // 401 토큰 갱신 실패 시 강제 로그아웃 콜백 등록
   useEffect(() => {
-    setForceLogoutHandler(() => setUser(null));
+    setForceLogoutHandler(() => setAuthData(null));
     return () => setForceLogoutHandler(() => {});
-  }, []);
+  }, [setAuthData]);
 
   const requireLogin = useCallback(
     (trigger: LoginTrigger) => {
@@ -136,17 +176,20 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
       // 실패해도 클라이언트 상태는 초기화
     }
-    setUser(null);
-    clearAnalyticsUserId();
-  }, []);
+    setAuthData(null);
+  }, [setAuthData]);
 
   const closeLoginModal = useCallback(() => {
     setLoginModal({ isOpen: false, trigger: 'default' });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser: setAuthData }}
+    >
       {children}
+
+      <RouteGuard isLoading={isLoading} isLoggedIn={isLoggedIn} />
 
       <Suspense fallback={null}>
         <LoginQueryWatcher
