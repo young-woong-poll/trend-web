@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import LoginModal from '@/components/features/Auth/LoginModal';
 import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
@@ -10,6 +10,38 @@ import { getMe, postLogout } from '@/hooks/api/useAuthApi';
 import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
 import { useMSWReady } from '@/providers/MSWProvider';
+
+// ── 보호 라우트 설정 ──
+// pattern: 동적 세그먼트는 :param 으로 표기
+// redirect: 비로그인 시 리다이렉트 대상 (동일한 :param 치환)
+const PROTECTED_ROUTES: { pattern: string; redirect: string }[] = [
+  { pattern: '/bundle/:slug/play', redirect: '/bundle/:slug' },
+  { pattern: '/bundle/:slug/result', redirect: '/bundle/:slug' },
+  { pattern: '/compare/match/:token', redirect: '/compare/:token' },
+];
+
+/**
+ * pathname이 보호 라우트에 해당하면 리다이렉트 대상 경로를 반환한다.
+ * 해당하지 않으면 null.
+ */
+function getProtectedRedirect(pathname: string): string | null {
+  for (const route of PROTECTED_ROUTES) {
+    const paramNames: string[] = [];
+    const regexStr = route.pattern.replace(/:(\w+)/g, (_match, name) => {
+      paramNames.push(name);
+      return '([^/]+)';
+    });
+    const match = pathname.match(new RegExp(`^${regexStr}$`));
+    if (match) {
+      let redirect = route.redirect;
+      paramNames.forEach((name, i) => {
+        redirect = redirect.replace(`:${name}`, match[i + 1]);
+      });
+      return redirect;
+    }
+  }
+  return null;
+}
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -66,6 +98,27 @@ const LoginQueryWatcher = ({
       onCloseCleanup();
     }
   }, [loginModalOpen, onCloseCleanup]);
+
+  return null;
+};
+
+/**
+ * 보호 라우트 접근 시 비로그인이면 리다이렉트.
+ * 리다이렉트 대상에 ?login=true&returnUrl=... 을 붙여 로그인 모달을 표시한다.
+ */
+const RouteGuard = ({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn: boolean }) => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading || isLoggedIn) {
+      return;
+    }
+    const redirect = getProtectedRedirect(pathname);
+    if (redirect) {
+      router.replace(`${redirect}?login=true`);
+    }
+  }, [isLoading, isLoggedIn, pathname, router]);
 
   return null;
 };
@@ -147,6 +200,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   return (
     <AuthContext.Provider value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser }}>
       {children}
+
+      <RouteGuard isLoading={isLoading} isLoggedIn={isLoggedIn} />
 
       <Suspense fallback={null}>
         <LoginQueryWatcher

@@ -71,15 +71,6 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     }
   }, [result, slug]);
 
-  // 접근제어: 비로그인 → 인트로 + 로그인 유도
-  useEffect(() => {
-    if (!isAuthLoading && !isLoggedIn) {
-      router.replace(
-        `/bundle/${slug}?login=true&returnUrl=${encodeURIComponent(`/bundle/${slug}/result`)}`
-      );
-    }
-  }, [isAuthLoading, isLoggedIn, slug, router]);
-
   // 접근제어: 미완료 → 플레이 (로그인/회원가입 후 바로 플레이로 이동)
   useEffect(() => {
     if (!isLoading && !result && isLoggedIn && !compareToken) {
