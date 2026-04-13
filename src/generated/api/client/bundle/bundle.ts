@@ -59,7 +59,7 @@ export const submitAnswers = (
   );
 };
 /**
- * @summary 번들 목록 (API 15, 로그인 필수)
+ * @summary 번들 목록 (API 15, 비로그인 허용)
  */
 export const list = (
   params?: ListParams,
@@ -71,7 +71,7 @@ export const list = (
   );
 };
 /**
- * @summary 번들 상세 조회 (API 1, 로그인 필수)
+ * @summary 번들 상세 조회 (API 1, 비로그인 허용)
  */
 export const getDetail1 = (
   slug: string,

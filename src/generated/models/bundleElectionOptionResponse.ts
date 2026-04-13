@@ -5,7 +5,8 @@
  * OpenAPI spec version: v0
  */
 
-export interface Answer {
-  electionId: string;
-  electionItemId: string;
+export interface BundleElectionOptionResponse {
+  electionItemId?: string;
+  title?: string;
+  imageUrl?: string;
 }
