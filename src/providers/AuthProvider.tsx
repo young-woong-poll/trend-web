@@ -5,8 +5,9 @@ import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } fr
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import LoginModal from '@/components/features/Auth/LoginModal';
-import { AuthContext, type LoginTrigger, type User } from '@/contexts/AuthContext';
-import { getMe, postLogout } from '@/hooks/api/useAuthApi';
+import { AuthContext, type LoginTrigger } from '@/contexts/AuthContext';
+import { postLogout } from '@/hooks/api/useAuthApi';
+import { useAuthMe, useSetAuthData } from '@/hooks/api/useAuthMe';
 import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
 import { useMSWReady } from '@/providers/MSWProvider';
@@ -126,48 +127,39 @@ const RouteGuard = ({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
 const AUTH_PATHS = ['/auth/kakao/callback', '/auth/signup'];
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const mswReady = useMSWReady();
+  const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
+
+  // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
+  const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
+  const queryEnabled = mswReady && !isAuthPath;
+
+  const { data: user = null, isLoading: isQueryLoading } = useAuthMe({ enabled: queryEnabled });
+  const { setAuthData } = useSetAuthData();
+
+  // MSW 미준비 또는 auth 경로일 때는 로딩 완료 처리
+  const isLoading = queryEnabled ? isQueryLoading : !mswReady;
+  const isLoggedIn = user !== null;
+
   const [loginModal, setLoginModal] = useState<{ isOpen: boolean; trigger: LoginTrigger }>({
     isOpen: false,
     trigger: 'default',
   });
-  const mswReady = useMSWReady();
-  const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
 
-  const isLoggedIn = user !== null;
-
-  // MSW 준비 완료 후 로그인 상태 확인
-  // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
+  // Analytics userId 동기화
   useEffect(() => {
-    if (!mswReady) {
-      return;
+    if (user) {
+      setAnalyticsUserId(String(user.id));
+    } else {
+      clearAnalyticsUserId();
     }
-    const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
-    if (isAuthPath) {
-      setIsLoading(false);
-      return;
-    }
-    const checkAuth = async () => {
-      try {
-        const me = await getMe();
-        setUser(me);
-        setAnalyticsUserId(String(me.id));
-      } catch {
-        setUser(null);
-        clearAnalyticsUserId();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    void checkAuth();
-  }, [mswReady]);
+  }, [user]);
 
   // 401 토큰 갱신 실패 시 강제 로그아웃 콜백 등록
   useEffect(() => {
-    setForceLogoutHandler(() => setUser(null));
+    setForceLogoutHandler(() => setAuthData(null));
     return () => setForceLogoutHandler(() => {});
-  }, []);
+  }, [setAuthData]);
 
   const requireLogin = useCallback(
     (trigger: LoginTrigger) => {
@@ -189,16 +181,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
       // 실패해도 클라이언트 상태는 초기화
     }
-    setUser(null);
-    clearAnalyticsUserId();
-  }, []);
+    setAuthData(null);
+  }, [setAuthData]);
 
   const closeLoginModal = useCallback(() => {
     setLoginModal({ isOpen: false, trigger: 'default' });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser }}>
+    <AuthContext.Provider
+      value={{ user, isLoggedIn, isLoading, requireLogin, logout, setUser: setAuthData }}
+    >
       {children}
 
       <RouteGuard isLoading={isLoading} isLoggedIn={isLoggedIn} />

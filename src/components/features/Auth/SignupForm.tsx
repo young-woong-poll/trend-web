@@ -214,21 +214,21 @@ const SignupForm = () => {
 
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
 
-      // 풀 리로드로 이동 — router.replace는 SPA 네비게이션이라
-      // AuthProvider의 getMe() 재실행이 안 되어 비로그인으로 판단됨
       if (isFromGroup) {
         const returnUrlObj = new URL(returnUrl, window.location.origin);
         const bundleSlug = returnUrlObj.searchParams.get('bundleSlug');
         const groupPath = returnUrlObj.pathname; // /compare/group/{token}
         const groupReturnUrl = `${groupPath}?joinAfter=true`;
-        window.location.href = `/bundle/${bundleSlug}/play?returnUrl=${encodeURIComponent(groupReturnUrl)}`;
+        router.replace(
+          `/bundle/${bundleSlug}/play?returnUrl=${encodeURIComponent(groupReturnUrl)}`
+        );
       } else if (isFromCompare) {
         const returnUrlObj = new URL(returnUrl, window.location.origin);
         const bundleSlug = returnUrlObj.searchParams.get('bundleSlug');
         const compareToken = returnUrlObj.searchParams.get('compareToken');
-        window.location.href = `/bundle/${bundleSlug}/play?compareToken=${compareToken}`;
+        router.replace(`/bundle/${bundleSlug}/play?compareToken=${compareToken}`);
       } else {
-        window.location.href = returnUrl;
+        router.replace(returnUrl);
       }
     } catch {
       showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');
