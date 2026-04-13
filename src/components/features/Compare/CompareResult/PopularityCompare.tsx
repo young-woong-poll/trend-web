@@ -44,7 +44,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('me')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.me.main }}>
-            {me.nickname ?? ''}
+            {me.displayName ?? me.nickname ?? ''}
           </span>
           {myPopularity.imagePath ? (
             <Image
@@ -72,7 +72,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('target')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.target.main }}>
-            {target.nickname ?? ''}
+            {target.displayName ?? target.nickname ?? ''}
           </span>
           {targetPopularity.imagePath ? (
             <Image

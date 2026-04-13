@@ -73,7 +73,9 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
             )}
           </div>
           <div className={styles.heroInfo}>
-            <span className={styles.personName}>{personData.nickname ?? ''}</span>
+            <span className={styles.personName}>
+              {personData.displayName ?? personData.nickname ?? ''}
+            </span>
             <span className={styles.scoreLabel}>대중성 지수</span>
             <div className={styles.scoreRow}>
               <span className={styles.score}>{score}</span>

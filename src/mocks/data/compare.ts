@@ -680,6 +680,7 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     totalQuestions: elections.length,
     me: {
       nickname: meNickname,
+      displayName: meNickname,
       answers: meAnswers.map((a) => ({
         electionId: a.electionId,
         electionItemId: a.electionItemId,
@@ -687,6 +688,8 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     },
     target: {
       nickname: targetNickname,
+      displayName: targetNickname,
+      displayProfileColor: isTargetWithdrawn ? undefined : 'coral',
       isWithdrawn: isTargetWithdrawn || undefined,
       answers: targetAnswers.map((a) => ({
         electionId: a.electionId,

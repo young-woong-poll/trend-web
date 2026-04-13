@@ -240,7 +240,10 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const target = result.target ?? {};
   const isTargetWithdrawn = target.isWithdrawn === true;
   // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : (target.nickname ?? '');
+  const myNickname = me.displayName ?? me.nickname ?? '';
+  const targetNickname = isTargetWithdrawn
+    ? WITHDRAWN_NICKNAME
+    : (target.displayName ?? target.nickname ?? '');
 
   return (
     <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
@@ -274,23 +277,19 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
         <ChemistryCard
           matchRate={result.matchRate ?? 0}
-          myNickname={me.nickname ?? ''}
+          myNickname={myNickname}
           targetNickname={targetNickname}
           isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
-          myNickname={me.nickname ?? ''}
+          myNickname={myNickname}
           targetNickname={targetNickname}
         />
 
         {shockPoint && (
-          <ShockPoint
-            data={shockPoint}
-            myNickname={me.nickname ?? ''}
-            targetNickname={targetNickname}
-          />
+          <ShockPoint data={shockPoint} myNickname={myNickname} targetNickname={targetNickname} />
         )}
 
         <PopularityCompare result={result} />
