@@ -28,7 +28,7 @@ export const GenderBattle: FC<GenderBattleProps> = ({ result }) => {
     const males = (result.members ?? []).filter((m) => m.gender === 'MALE');
     const females = (result.members ?? []).filter((m) => m.gender === 'FEMALE');
 
-    if (males.length === 0 || females.length === 0) {
+    if (males.length < 2 || females.length < 2) {
       return null;
     }
 

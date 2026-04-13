@@ -292,7 +292,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
           <ShockPoint data={shockPoint} myNickname={myNickname} targetNickname={targetNickname} />
         )}
 
-        <PopularityCompare result={result} />
+        {!isFromGroup && <PopularityCompare result={result} />}
       </div>
 
       {isFromGroup ? (
