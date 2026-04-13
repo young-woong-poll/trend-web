@@ -10,7 +10,6 @@ import { postLogout } from '@/hooks/api/useAuthApi';
 import { useAuthMe, useSetAuthData } from '@/hooks/api/useAuthMe';
 import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
-import { useMSWReady } from '@/providers/MSWProvider';
 
 // ── 보호 라우트 설정 ──
 // pattern: 동적 세그먼트는 :param 으로 표기
@@ -127,18 +126,14 @@ const RouteGuard = ({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
 const AUTH_PATHS = ['/auth/kakao/callback', '/auth/signup'];
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const mswReady = useMSWReady();
   const pathnameRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '');
 
   // 로그인 과정 페이지(/auth/*)에서는 getMe 호출 스킵
   const isAuthPath = AUTH_PATHS.some((p) => pathnameRef.current.startsWith(p));
-  const queryEnabled = mswReady && !isAuthPath;
 
-  const { data: user = null, isLoading: isQueryLoading } = useAuthMe({ enabled: queryEnabled });
+  const { data: user = null, isLoading } = useAuthMe({ enabled: !isAuthPath });
   const { setAuthData } = useSetAuthData();
 
-  // MSW 미준비 또는 auth 경로일 때는 로딩 완료 처리
-  const isLoading = queryEnabled ? isQueryLoading : !mswReady;
   const isLoggedIn = user !== null;
 
   const [loginModal, setLoginModal] = useState<{ isOpen: boolean; trigger: LoginTrigger }>({

@@ -1,21 +1,22 @@
 'use client';
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 const isMSWEnabled = process.env.NEXT_PUBLIC_ENABLE_MSW === 'true';
-
-const MSWReadyContext = createContext<boolean>(!isMSWEnabled);
-
-export const useMSWReady = () => useContext(MSWReadyContext);
 
 interface MSWProviderProps {
   children: ReactNode;
 }
 
 /**
- * MSW Provider
- * 클라이언트 환경에서 MSW를 초기화합니다.
- * SSR 하이드레이션 데이터를 유지하기 위해 children은 즉시 렌더링합니다.
+ * MSW Provider (dev 전용)
+ *
+ * worker가 준비되기 전에는 children을 마운트하지 않는다.
+ * 덕분에 하위 컴포넌트/훅은 "마운트된 시점엔 MSW가 이미 준비되어 있다"는
+ * 전제만 믿고 동작할 수 있다 — 각자 mswReady를 확인할 필요가 없다.
+ *
+ * NEXT_PUBLIC_ENABLE_MSW !== 'true' 인 경우 즉시 children 렌더 (fallback 경로 무효화).
+ * 프로덕션 빌드에서는 이 파일 자체가 ClientProviders에서 pass-through로 교체됨.
  */
 export const MSWProvider = ({ children }: MSWProviderProps) => {
   const started = useRef(false);
@@ -47,5 +48,9 @@ export const MSWProvider = ({ children }: MSWProviderProps) => {
     void init();
   }, []);
 
-  return <MSWReadyContext.Provider value={isReady}>{children}</MSWReadyContext.Provider>;
+  if (!isReady) {
+    return null;
+  }
+
+  return <>{children}</>;
 };
