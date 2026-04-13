@@ -43,10 +43,10 @@ test.describe('그룹 생성 모달', () => {
     await expect(input).toHaveAttribute('placeholder', /마케팅팀|대학 친구들/);
   });
 
-  test('"1~20자" 힌트가 표시된다', async () => {
+  test('"최대 12자" 힌트가 표시된다', async () => {
     await result.ctaGroup.click({ force: true });
 
-    const hint = result.page.getByText('1~20자');
+    const hint = result.page.getByText('최대 12자');
     await expect(hint).toBeVisible({ timeout: 5_000 });
   });
 

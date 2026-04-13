@@ -8,13 +8,16 @@ import { OfflineVotePage } from '../helpers/offline-vote-page';
  * 커밋 범위: 28b1a22(1차 구축), ba0ea25(1차 개발)
  * 테스트 대상: OfflineVotePage 컴포넌트
  *
- * Playwright route로 모든 API(server-meta, hotpick detail, vote)를 직접 mock하여
+ * Playwright route로 hotpick detail, vote API를 직접 mock하여
  * MSW Service Worker 초기화 레이스 컨디션을 완전히 제거합니다.
+ *
+ * NOTE: server-meta API는 BE에서 제거되었으며(b13aa66), 현재 OfflineVotePage는
+ * serverMetaId를 그대로 저장할 뿐 서버 검증을 하지 않습니다. 따라서 위치/기간
+ * 배지 관련 테스트는 server-meta가 BE에 재도입될 때까지 제외되어 있습니다.
  */
 
 const VALID_SLUG = 'single-text-finance';
 const VALID_META_ID = 'test-server-meta-001';
-const META_NO_LOCATION = 'test-server-meta-no-location';
 
 // ─── 파라미터 검증 ───
 
@@ -68,34 +71,10 @@ test.describe('오프라인 투표 준비 화면', () => {
     expect(tagCount).toBeGreaterThanOrEqual(1);
   });
 
-  test('위치 배지가 표시된다 (서울특별시 강남구)', async () => {
-    await expect(offline.locationBadge).toBeVisible();
-    const text = await offline.locationBadge.textContent();
-    expect(text).toContain('서울특별시');
-    expect(text).toContain('강남구');
-  });
-
-  test('기간 배지가 표시된다', async () => {
-    await expect(offline.timeBadge).toBeVisible();
-    const text = await offline.timeBadge.textContent();
-    expect(text).toContain('2026');
-  });
-
   test('"투표 시작 (전체화면)" 버튼이 표시된다', async () => {
     await expect(offline.fullscreenButton).toBeVisible();
     const text = await offline.fullscreenButton.textContent();
     expect(text).toContain('투표 시작');
-  });
-});
-
-// ─── 위치 정보 없는 서버 메타 ───
-
-test.describe('오프라인 투표 위치 없는 메타', () => {
-  test('위치 정보 없는 메타 시 위치 배지가 미표시된다', async ({ page }) => {
-    const offline = new OfflineVotePage(page);
-    await offline.goto(VALID_SLUG, META_NO_LOCATION);
-    await expect(offline.previewCard).toBeVisible();
-    await expect(offline.locationBadge).not.toBeVisible();
   });
 });
 
@@ -117,13 +96,6 @@ test.describe('오프라인 투표 플로우', () => {
     await expect(offline.participantCount).toBeVisible();
     const text = await offline.participantCount.textContent();
     expect(text).toMatch(/\d+.*명 참여/);
-  });
-
-  test('투표 화면에 위치가 표시된다', async () => {
-    await offline.enterVoting();
-    await expect(offline.voteLocation).toBeVisible();
-    const text = await offline.voteLocation.textContent();
-    expect(text).toContain('강남구');
   });
 
   test('옵션 클릭 시 결과 화면이 표시된다', async () => {
