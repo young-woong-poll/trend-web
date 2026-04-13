@@ -62,30 +62,32 @@
   max-width: 480px;
 }
 
-// ─── 선택지 ───
+// ─── 선택지 (2열 그리드) ───
 .options {
-  @include flex-column;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
 .option {
-  width: 100%;
-  padding: 20px 24px;
+  padding: 24px 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: $border-radius-lg;
   background: $bg-secondary;
   color: $text-secondary;
-  font-size: $font-size-18;
+  font-size: $font-size-16;
   font-weight: 600;
   cursor: pointer;
   text-align: center;
-  min-height: 64px;
+  min-height: 80px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0;
+  overflow: hidden;
   transition:
-    transform 0.15s ease,
+    transform 0.2s ease,
     border-color 0.2s ease,
     background 0.2s ease,
     color 0.2s ease,
@@ -97,7 +99,7 @@
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.96);
   }
 
   &.optionSelected {
@@ -105,18 +107,31 @@
     color: $white;
     background: rgba(var(--primary-start-rgb), 0.08);
     box-shadow: 0 0 24px rgba(var(--primary-start-rgb), 0.1);
+    transform: scale(1.03);
   }
+}
+
+// ─── 이미지가 있는 옵션 ───
+.optionImage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.optionImg {
+  object-fit: cover;
+}
+
+// 이미지가 있을 때 padding 조정
+.option:has(.optionImage) {
+  padding: 10px;
+  gap: 0;
 }
 
 .optionText {
   line-height: 1.4;
   word-break: keep-all;
-}
-
-.or {
-  font-size: $font-size-12;
-  font-weight: 600;
-  color: $text-tertiary;
-  letter-spacing: 2px;
-  text-transform: uppercase;
 }
