@@ -34,7 +34,6 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const compareToken =
     searchParams.get('compareToken') ??
     (searchParams.get('from') === 'compare' ? searchParams.get('token') : null);
-  const fromGroup = searchParams.get('from') === 'group';
   const joinMutation = useJoinCompareLink(compareToken ?? '');
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -81,10 +80,10 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     }
   }, [isAuthLoading, isLoggedIn, slug, router]);
 
-  // 접근제어: 미완료 → 인트로
+  // 접근제어: 미완료 → 플레이 (로그인/회원가입 후 바로 플레이로 이동)
   useEffect(() => {
     if (!isLoading && !result && isLoggedIn && !compareToken) {
-      router.replace(`/bundle/${slug}`);
+      router.replace(`/bundle/${slug}/play`);
     }
   }, [isLoading, result, isLoggedIn, slug, router, compareToken]);
 
@@ -97,10 +96,11 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
     const autoJoin = async () => {
       try {
         await joinMutation.mutateAsync(undefined);
+        router.replace(`/compare/match/${compareToken}`);
       } catch {
-        // join 실패해도 (이미 참여 등) compare result로 이동 시도
+        // join 실패 (이미 다른 유저가 참여 등) → 랜딩 페이지로 이동 (isAlreadyTaken 안내)
+        router.replace(`/compare/${compareToken}`);
       }
-      router.replace(`/compare/match/${compareToken}`);
     };
     void autoJoin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -137,16 +137,14 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   return (
     <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
       <div className={styles.container}>
-        {(compareToken || fromGroup) && (
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={() => router.back()}
-            aria-label="뒤로 가기"
-          >
-            <BackIcon width={22} height={22} />
-          </button>
-        )}
+        <button
+          type="button"
+          className={styles.backButton}
+          onClick={() => router.back()}
+          aria-label="뒤로 가기"
+        >
+          <BackIcon width={22} height={22} />
+        </button>
 
         {/* ═══ 번들 카테고리 + 제목 ═══ */}
         <div className={styles.resultHeader}>

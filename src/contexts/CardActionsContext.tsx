@@ -18,7 +18,7 @@ import type { SingleVoteData } from '@/types/singleVote';
 interface CardActions {
   vote: (slug: string, optionId: string, singleVote: SingleVoteData) => void;
   like: (slug: string, liked: boolean, likeCount: number) => void;
-  share: (slug: string) => void;
+  share: (slug: string, type?: 'SINGLE' | 'BUNDLE') => void;
   openComment: (slug: string, electionId: string) => void;
   blockComment: () => void;
 }
@@ -62,8 +62,9 @@ export const CardActionsProvider: FC<CardActionsProviderProps> = ({ children }) 
   );
 
   const share = useCallback(
-    (slug: string) => {
-      const url = `${window.location.origin}/hotpick/${slug}`;
+    (slug: string, type?: 'SINGLE' | 'BUNDLE') => {
+      const prefix = type === 'BUNDLE' ? 'bundle' : 'hotpick';
+      const url = `${window.location.origin}/${prefix}/${slug}`;
       void navigator.clipboard.writeText(url).then(() => {
         showToast('링크가 복사되었습니다');
       });

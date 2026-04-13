@@ -125,8 +125,9 @@ const SignupForm = () => {
   const [showMigration, setShowMigration] = useState(false);
   const [pendingFormData, setPendingFormData] = useState<SignupFormValues | null>(null);
 
-  // 그룹 핫픽에서 유입된 경우 판별
+  // 비교 페이지에서 유입된 경우 판별
   const isFromGroup = returnUrl.includes('/compare/group/');
+  const isFromCompare = returnUrl.includes('/compare/') && !isFromGroup;
 
   const {
     register,
@@ -212,7 +213,23 @@ const SignupForm = () => {
       setUser(result.user);
 
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
-      router.replace(returnUrl);
+
+      // 풀 리로드로 이동 — router.replace는 SPA 네비게이션이라
+      // AuthProvider의 getMe() 재실행이 안 되어 비로그인으로 판단됨
+      if (isFromGroup) {
+        const returnUrlObj = new URL(returnUrl, window.location.origin);
+        const bundleSlug = returnUrlObj.searchParams.get('bundleSlug');
+        const groupPath = returnUrlObj.pathname; // /compare/group/{token}
+        const groupReturnUrl = `${groupPath}?joinAfter=true`;
+        window.location.href = `/bundle/${bundleSlug}/play?returnUrl=${encodeURIComponent(groupReturnUrl)}`;
+      } else if (isFromCompare) {
+        const returnUrlObj = new URL(returnUrl, window.location.origin);
+        const bundleSlug = returnUrlObj.searchParams.get('bundleSlug');
+        const compareToken = returnUrlObj.searchParams.get('compareToken');
+        window.location.href = `/bundle/${bundleSlug}/play?compareToken=${compareToken}`;
+      } else {
+        window.location.href = returnUrl;
+      }
     } catch {
       showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');
     } finally {
@@ -268,7 +285,7 @@ const SignupForm = () => {
             닉네임
             {isFromGroup && (
               <span className={styles.labelHint}>
-                · 그룹 비교에서는 별도 표시 이름을 설정할 수 있어요
+                · 그룹 내에서 별도 표시 이름을 설정할 수 있어요
               </span>
             )}
           </label>

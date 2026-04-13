@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -26,10 +26,44 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
   const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
+  const pendingActionRef = useRef(false);
 
   // 번들 미완료 유저에게 첫 질문 미리보기 제공
   const { data: elections } = useBundleElections(link?.bundleSlug ?? '');
   const firstQuestion = elections?.[0];
+
+  // CTA 클릭 후 로그인 완료 → link refetch 후 자동으로 다음 단계 진행
+  useEffect(() => {
+    if (!isLoggedIn || !pendingActionRef.current || !link || isLoading) {
+      return;
+    }
+    pendingActionRef.current = false;
+
+    const hasResult = link.hasParticipant;
+    const isAlreadyTaken =
+      !link.isCreator && !link.isParticipant && hasResult && link.type === 'ONE_TO_ONE';
+
+    if (isAlreadyTaken) {
+      return; // 선점된 링크 — 안내만 표시, 자동 이동 안 함
+    }
+    if (!link.isCreator && !link.isParticipant && !link.myBundleCompleted && !hasResult) {
+      router.push(`/bundle/${link.bundleSlug}/play?compareToken=${token}`);
+      return;
+    }
+    if (!link.isCreator && !link.isParticipant && link.myBundleCompleted && !hasResult) {
+      void (async () => {
+        try {
+          await joinMutation.mutateAsync(undefined);
+          await refetch();
+          router.push(`/compare/match/${token}`);
+        } catch {
+          // join 실패 (이미 선점됨) → refetch하면 isAlreadyTaken UI가 표시됨
+          await refetch();
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, link, isLoading]);
 
   // GA4: 비교 랜딩 조회
   useEffect(() => {
@@ -100,6 +134,19 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
 
   const handleAction = async () => {
     if (needsLogin) {
+      // LoginModal이 returnUrl 쿼리를 읽어 카카오 OAuth state에 포함시킨다
+      // → 콜백 → 회원가입 → SignupForm이 bundleSlug/compareToken을 파싱해 번들 플레이로 직행
+      const extraParams = new URLSearchParams({
+        bundleSlug: link.bundleSlug ?? '',
+        compareToken: token,
+      });
+      const returnUrl = `${window.location.pathname}?${extraParams.toString()}`;
+      const url = new URL(window.location.href);
+      url.searchParams.set('bundleSlug', link.bundleSlug ?? '');
+      url.searchParams.set('compareToken', token);
+      url.searchParams.set('returnUrl', returnUrl);
+      window.history.replaceState(null, '', url.toString());
+      pendingActionRef.current = true;
       requireLogin('compare');
       return;
     }
