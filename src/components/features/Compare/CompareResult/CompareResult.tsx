@@ -63,12 +63,12 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [result]);
 
-  // 접근제어: 결과 없음 + 비생성자 → compare 랜딩
+  // 접근제어: 비참가자(creator도 participant도 아닌 유저) → compare 랜딩
   useEffect(() => {
-    if (!isLoading && !result && isLoggedIn && link && !link.isCreator) {
+    if (!isLoading && isLoggedIn && link && !link.isCreator && !link.isParticipant) {
       router.replace(`/compare/${token}`);
     }
-  }, [isLoading, result, isLoggedIn, link, token, router]);
+  }, [isLoading, isLoggedIn, link, token, router]);
 
   const handleCopyInvite = async () => {
     const url = `${window.location.origin}/compare/${token}`;

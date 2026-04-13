@@ -303,7 +303,7 @@ export const CompareLanding: FC<CompareLandingProps> = ({ token }) => {
             <p className={styles.takenNotice}>
               이 링크는 이미 다른 사람이 참여했어요
               <br />
-              1:1 케미는 한 명만 참여할 수 있어요
+              1:1 케미 결과는 참가자만 확인할 수 있어요
             </p>
           </div>
         )}
