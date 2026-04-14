@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import BackIcon from '@/assets/icon/BackIcon';
+import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
@@ -59,6 +60,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const showBack = isFromGroup || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
+  const routeGuardDone = useRef(false);
 
   // 프리뷰 모드: 결과 없음 + 생성자
   const isPreview = !result && !isLoading && !!link?.isCreator;
@@ -71,9 +73,13 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [result]);
 
-  // 접근제어: 비참가자(creator도 participant도 아닌 유저) → compare 랜딩
+  // 접근제어: 초기 로딩 시 한 번만 체크 (캐시 갱신에 반응하지 않도록)
   useEffect(() => {
-    if (!isLoading && isLoggedIn && link && !link.isCreator && !link.isParticipant) {
+    if (routeGuardDone.current || isLoading || !link) {
+      return;
+    }
+    if (isLoggedIn && !link.isCreator && !link.isParticipant) {
+      routeGuardDone.current = true;
       router.replace(`/compare/${token}`);
     }
   }, [isLoading, isLoggedIn, link, token, router]);
@@ -302,6 +308,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
         )}
 
         {!isFromGroup && <PopularityCompare result={result} />}
+
+        {!isFromGroup && <BundleRecommendSection currentSlug={result.bundleSlug ?? ''} />}
       </div>
 
       {isFromGroup ? (

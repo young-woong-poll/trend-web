@@ -2,6 +2,8 @@
 
 import { useState, type FC } from 'react';
 
+import Image from 'next/image';
+
 import styles from '@/components/features/Compare/CompareResult/AnswerComparison.module.scss';
 import { IDENTITY_COLORS, type AnswerStoryData } from '@/constants/compare';
 
@@ -37,6 +39,15 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                 <span className={styles.sameQuestion}>{item.title}</span>
                 <div className={styles.sameAnswer}>
                   <span className={styles.sameAnswerText}>{item.selected}</span>
+                  {item.selectedImageUrl && (
+                    <Image
+                      src={item.selectedImageUrl}
+                      alt={item.selected}
+                      width={44}
+                      height={44}
+                      className={styles.sameImage}
+                    />
+                  )}
                 </div>
               </div>
             ))}
@@ -66,7 +77,18 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {myNickname}
                     </span>
-                    <span className={styles.diffPillLeft}>{item.myOptionText}</span>
+                    <span className={styles.diffPillLeft}>
+                      {item.myImageUrl && (
+                        <Image
+                          src={item.myImageUrl}
+                          alt={item.myOptionText}
+                          width={36}
+                          height={36}
+                          className={styles.diffImage}
+                        />
+                      )}
+                      {item.myOptionText}
+                    </span>
                   </div>
                   <span className={styles.diffVsIcon}>VS</span>
                   <div className={styles.diffSide}>
@@ -76,7 +98,18 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {targetNickname}
                     </span>
-                    <span className={styles.diffPillRight}>{item.targetOptionText}</span>
+                    <span className={styles.diffPillRight}>
+                      {item.targetImageUrl && (
+                        <Image
+                          src={item.targetImageUrl}
+                          alt={item.targetOptionText}
+                          width={36}
+                          height={36}
+                          className={styles.diffImage}
+                        />
+                      )}
+                      {item.targetOptionText}
+                    </span>
                   </div>
                 </div>
               </div>

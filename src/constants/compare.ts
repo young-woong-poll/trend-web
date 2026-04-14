@@ -258,6 +258,7 @@ export interface AnswerStoryData {
     electionId: string;
     title: string;
     selected: string; // option text (not A/B code)
+    selectedImageUrl?: string;
     /** 두 사람이 고른 선택지의 대중 득표율 */
     selectedRate: number;
   }>;
@@ -265,7 +266,9 @@ export interface AnswerStoryData {
     electionId: string;
     title: string;
     myOptionText: string;
+    myImageUrl?: string;
     targetOptionText: string;
+    targetImageUrl?: string;
     /** 내 선택지의 대중 득표율 */
     myRate: number;
     /** 상대 선택지의 대중 득표율 */
@@ -301,6 +304,7 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
         selected: myOption?.title ?? '',
+        selectedImageUrl: myOption?.imageUrl ?? undefined,
         selectedRate: myRate,
       });
     } else {
@@ -308,7 +312,9 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
         myOptionText: myOption?.title ?? '',
+        myImageUrl: myOption?.imageUrl ?? undefined,
         targetOptionText: targetOption?.title ?? '',
+        targetImageUrl: targetOption?.imageUrl ?? undefined,
         myRate,
         targetRate,
       });

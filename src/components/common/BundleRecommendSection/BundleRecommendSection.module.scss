@@ -1,0 +1,108 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  padding: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.list {
+  @include flex-column;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(#fff, 0.03);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(#fff, 0.06);
+  text-decoration: none;
+  transition: background 0.15s ease;
+  overflow: hidden;
+  position: relative;
+
+  &:active {
+    background: rgba(#fff, 0.06);
+  }
+}
+
+.cardColorBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.cardContent {
+  @include flex-column;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+  padding-left: 2px;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.categoryBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.questionCount {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.participantCount {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.chevron {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: $text-tertiary;
+}

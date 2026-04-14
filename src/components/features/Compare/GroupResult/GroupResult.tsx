@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import BackIcon from '@/assets/icon/BackIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
+import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
@@ -483,6 +484,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             </button>
           </div>
         )}
+
+        {!isPreview && <BundleRecommendSection currentSlug={result.bundleSlug ?? ''} />}
       </div>
 
       {isPreview && !isMember ? (
