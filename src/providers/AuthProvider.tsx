@@ -148,7 +148,14 @@ const CSRGuard = () => {
     }
     const redirect = getRouteRedirect(pathname, CSR_ONLY_ROUTES);
     if (redirect) {
-      router.replace(redirect);
+      // compareToken이 있으면 비교 랜딩으로 리다이렉트
+      const params = new URLSearchParams(window.location.search);
+      const compareToken = params.get('compareToken');
+      if (compareToken) {
+        router.replace(`/compare/${compareToken}`);
+      } else {
+        router.replace(redirect);
+      }
     }
   }, [pathname, router]);
 

@@ -18,7 +18,7 @@ import {
   useSubmitBundleAnswers,
   bundleKeys,
 } from '@/hooks/api/useBundle';
-import { compareKeys, useJoinCompareLink } from '@/hooks/api/useCompare';
+import { compareKeys, useCompareLink, useJoinCompareLink } from '@/hooks/api/useCompare';
 import { trackBundleAnswer, trackBundleComplete } from '@/lib/analytics';
 
 const slideVariants = {
@@ -54,6 +54,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const compareToken = searchParams.get('compareToken');
   const returnUrl = searchParams.get('returnUrl');
   const joinMutation = useJoinCompareLink(compareToken ?? '');
+  const { data: compareLink } = useCompareLink(compareToken ?? '');
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<string, string>>(new Map());
@@ -200,6 +201,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       <div className={styles.container}>
         <div className={styles.topBar}>
           <ProgressBar current={currentIndex + 1} total={elections.length} />
+          {compareLink?.creatorNickname && (
+            <div className={styles.compareBanner}>
+              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과
+              가치관 대결 중
+            </div>
+          )}
         </div>
 
         <div className={styles.questionWrapper}>

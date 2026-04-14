@@ -9,29 +9,35 @@ import { getMemberGradient, isGhostUser } from '@/constants/profileColors';
 import type { PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  SS: '#E040FB',
   S: '#3B82F6',
   A: '#22C55E',
   B: '#FACC15',
   C: '#F97316',
   D: '#EF4444',
+  X: '#00E5FF',
 };
 
-const GRADE_ORDER: ChemistryGrade[] = ['S', 'A', 'B', 'C', 'D'];
+const GRADE_ORDER: ChemistryGrade[] = ['SS', 'S', 'A', 'B', 'C', 'D', 'X'];
 
 const GRADE_TITLES: Record<ChemistryGrade, string> = {
+  SS: '도플갱어',
   S: '말 안 해도 통하는',
   A: '꽤 잘 맞는',
   B: '같을 때도 다를 때도',
   C: '각자의 세계',
   D: '정반대의 가치관',
+  X: '완벽한 반대',
 };
 
 const GRADE_INFO = [
-  { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는', color: '#3B82F6' },
+  { grade: 'SS', range: '100%', title: '도플갱어', color: '#E040FB' },
+  { grade: 'S', range: '80~99%', title: '말 안 해도 통하는', color: '#3B82F6' },
   { grade: 'A', range: '60~79%', title: '꽤 잘 맞는', color: '#22C55E' },
   { grade: 'B', range: '40~59%', title: '같을 때도 다를 때도', color: '#FACC15' },
   { grade: 'C', range: '20~39%', title: '각자의 세계', color: '#F97316' },
-  { grade: 'D', range: '19% 이하', title: '정반대의 가치관', color: '#EF4444' },
+  { grade: 'D', range: '1~19%', title: '정반대의 가치관', color: '#EF4444' },
+  { grade: 'X', range: '0%', title: '완벽한 반대', color: '#00E5FF' },
 ];
 
 const STACK_MAX = 5;
@@ -287,11 +293,13 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
       });
 
     const groups: Record<ChemistryGrade, typeof myPairs> = {
+      SS: [],
       S: [],
       A: [],
       B: [],
       C: [],
       D: [],
+      X: [],
     };
     myPairs.forEach((p) => groups[p.grade].push(p));
     GRADE_ORDER.forEach((g) => groups[g].sort((a, b) => b.matchRate - a.matchRate));

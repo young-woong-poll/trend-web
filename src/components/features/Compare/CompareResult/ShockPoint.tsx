@@ -12,6 +12,8 @@ interface ShockPointProps {
 export const ShockPoint: FC<ShockPointProps> = ({ data, myNickname, targetNickname }) => {
   const myOptionText = data.myOptionText;
   const targetOptionText = data.targetOptionText;
+  const rateDiff = Math.abs(data.myRate - data.targetRate);
+  const myIsMajority = data.myRate >= data.targetRate;
 
   return (
     <div className={styles.container}>
@@ -19,6 +21,7 @@ export const ShockPoint: FC<ShockPointProps> = ({ data, myNickname, targetNickna
         <span className={styles.sectionTitle}>가장 충격적인 차이</span>
         <div className={styles.sectionLine} />
       </div>
+      <p className={styles.sectionDesc}>둘의 선택 중 대중 지지율 차이가 가장 큰 질문이에요</p>
 
       <div className={styles.card}>
         <div className={styles.questionTitle}>{data.title}</div>
@@ -34,9 +37,9 @@ export const ShockPoint: FC<ShockPointProps> = ({ data, myNickname, targetNickna
             <span className={styles.answerText}>
               {myOptionText}
               <span
-                className={`${styles.answerRate} ${data.myRate >= 50 ? styles.majorityRate : styles.minorityRate}`}
+                className={`${styles.answerRate} ${myIsMajority ? styles.majorityRate : styles.minorityRate}`}
               >
-                ({data.myRate}%)
+                {data.myRate}%
               </span>
             </span>
           </div>
@@ -50,14 +53,15 @@ export const ShockPoint: FC<ShockPointProps> = ({ data, myNickname, targetNickna
             <span className={styles.answerText}>
               {targetOptionText}
               <span
-                className={`${styles.answerRate} ${data.targetRate >= 50 ? styles.majorityRate : styles.minorityRate}`}
+                className={`${styles.answerRate} ${!myIsMajority ? styles.majorityRate : styles.minorityRate}`}
               >
-                ({data.targetRate}%)
+                {data.targetRate}%
               </span>
             </span>
           </div>
         </div>
 
+        <div className={styles.rateDiff}>{rateDiff}%p 차이</div>
         <div className={styles.comment}>&ldquo;{data.comment}&rdquo;</div>
       </div>
     </div>

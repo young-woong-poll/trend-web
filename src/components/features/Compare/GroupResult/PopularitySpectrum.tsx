@@ -219,11 +219,7 @@ export const PopularitySpectrum: FC<PopularitySpectrumProps> = ({ result, curren
         </div>
         <div className={styles.sectionLine} />
       </div>
-      <p className={styles.sectionDesc}>
-        핫픽 전체 투표수를 기준으로 대중성을 산출합니다.
-        <br />
-        참여자가 늘면 업데이트 됩니다.
-      </p>
+      <p className={styles.sectionDesc}>위 질문별 대중성 지수를 합산한 평균 점수예요</p>
 
       <div className={styles.spectrumArea}>
         <div className={styles.axisLabels}>

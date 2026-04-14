@@ -9,11 +9,13 @@ import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  SS: '#E040FB',
   S: '#3B82F6',
   A: '#22C55E',
   B: '#FACC15',
   C: '#F97316',
   D: '#EF4444',
+  X: '#00E5FF',
 };
 
 interface RelationExplorerProps {

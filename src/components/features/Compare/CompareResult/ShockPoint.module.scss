@@ -34,6 +34,12 @@
   white-space: nowrap;
 }
 
+.sectionDesc {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: -8px;
+}
+
 .sectionLine {
   flex: 1;
   height: 1px;
@@ -101,6 +107,13 @@
 
 .minorityRate {
   color: $text-tertiary;
+}
+
+.rateDiff {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $attention;
+  text-align: center;
 }
 
 .comment {

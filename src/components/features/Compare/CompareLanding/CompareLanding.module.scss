@@ -403,10 +403,13 @@
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, rgba(#121212, 0.95) 60%, transparent);
   animation: fadeSlideUp 0.5s ease-out 0.5s both;
+  display: flex;
+  justify-content: center;
 }
 
 .ctaButton {
   width: 100%;
+  max-width: 640px;
   padding: 18px;
   border: none;
   border-radius: $border-radius-lg;

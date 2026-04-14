@@ -28,6 +28,7 @@ import {
   GroupSettingsModal,
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
+import { PopularityBarGraph } from '@/components/features/Compare/PopularityBarGraph/PopularityBarGraph';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
@@ -455,8 +456,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           />
         )}
         <PickASide result={displayResult} currentUserId={currentUserId} />
-        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
         <GroupAwards awards={awards} currentUserId={currentUserId} />
+        <PopularityBarGraph questionStats={displayResult.questionStats ?? []} />
+        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
 
         {/* ─── 성별 기반 (이성 콘텐츠 토글 ON 시) ─── */}
         {displayResult.showGenderContent && (
@@ -503,16 +505,20 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             <button
               type="button"
               className={styles.ctaOneToOne}
-              onClick={() => setShowCompareModal(true)}
+              onClick={() => setShowGroupModal(true)}
             >
-              1:1 케미 따로 보기
+              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
             </button>
             <button
               type="button"
               className={styles.ctaGroup}
-              onClick={() => setShowGroupModal(true)}
+              onClick={() => {
+                const url = `${window.location.origin}/compare/group/${token}`;
+                void navigator.clipboard.writeText(url);
+                showToast('초대 링크가 복사되었어요');
+              }}
             >
-              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
+              친구 초대하기
             </button>
           </div>
         </div>

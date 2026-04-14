@@ -50,13 +50,16 @@ interface CompareOneLiner {
 
 const BUNDLE_ONE_LINERS: Record<string, Record<string, CompareOneLiner>> = {
   'love-values': {
+    SS: { headline: '전생에 연인이었던 거 확정', body: '모든 연애 가치관이 완벽히 일치해요' },
     S: { headline: '이상형이 서로인 거 아닌가요?', body: '연애 가치관이 거의 완벽히 일치해요' },
     A: { headline: '같이 있으면 편한 사이', body: '대부분 통하는데 가끔 새로운 면이 보여요' },
     B: { headline: '밀당이 재밌는 관계', body: '반은 같고 반은 달라서 지루할 틈이 없어요' },
     C: { headline: '서로에게 배울 게 많은 사이', body: '다른 시각이 오히려 자극이 돼요' },
     D: { headline: '밀당의 신이 탄생했습니다', body: '완전 다른 연애관, 그래서 더 흥미로워요' },
+    X: { headline: '이건 로맨스 영화 각본인가요?', body: '모든 답이 정반대, 오히려 끌리는 운명' },
   },
   'marriage-values': {
+    SS: { headline: '혼인신고서 들고 뛰어가세요', body: '모든 결혼 가치관이 완벽히 일치해요' },
     S: { headline: '이 정도면 혼인신고 바로 가능', body: '결혼 가치관이 놀라울 정도로 같아요' },
     A: { headline: '큰 그림은 같은 부부', body: '핵심은 통하고 디테일에서 조율이 필요해요' },
     B: { headline: '대화가 필요한 커플', body: '맞는 부분도 있지만 꼭 얘기해야 할 것들이 있어요' },
@@ -65,28 +68,35 @@ const BUNDLE_ONE_LINERS: Record<string, Record<string, CompareOneLiner>> = {
       headline: '결혼 전 진지한 대화가 필요할지도...',
       body: '거의 모든 항목에서 의견이 달라요',
     },
+    X: { headline: '이혼 사유 미리 체험 완료', body: '모든 항목이 정반대, 그래서 더 드라마틱' },
   },
 };
 
 const DEFAULT_ONE_LINERS: Record<string, CompareOneLiner> = {
+  SS: { headline: '도플갱어 발견!', body: '모든 답이 똑같은 운명의 상대' },
   S: { headline: '소울메이트 확정!', body: '생각이 이렇게 같을 수가' },
   A: { headline: '꽤 잘 통하는 사이', body: '대부분의 가치관이 비슷해요' },
   B: { headline: '반반의 매력', body: '같은 점과 다른 점이 적절히 섞여 있어요' },
   C: { headline: '다름이 매력인 관계', body: '서로 다른 시각이 새로운 발견이 돼요' },
   D: { headline: '평행우주에서 온 두 사람', body: '완전히 다르지만 그게 매력이에요' },
+  X: { headline: '완벽한 반대의 존재', body: '한 문제도 안 맞다니, 이것도 확률적 기적' },
 };
 
 export function getCompareOneLiner(bundleSlug: string, matchRate: number): CompareOneLiner {
   const grade =
-    matchRate >= 90
-      ? 'S'
-      : matchRate >= 70
-        ? 'A'
-        : matchRate >= 50
-          ? 'B'
-          : matchRate >= 30
-            ? 'C'
-            : 'D';
+    matchRate === 100
+      ? 'SS'
+      : matchRate >= 90
+        ? 'S'
+        : matchRate >= 70
+          ? 'A'
+          : matchRate >= 50
+            ? 'B'
+            : matchRate >= 30
+              ? 'C'
+              : matchRate === 0
+                ? 'X'
+                : 'D';
   return BUNDLE_ONE_LINERS[bundleSlug]?.[grade] ?? DEFAULT_ONE_LINERS[grade];
 }
 

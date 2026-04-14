@@ -37,11 +37,6 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                 <span className={styles.sameQuestion}>{item.title}</span>
                 <div className={styles.sameAnswer}>
                   <span className={styles.sameAnswerText}>{item.selected}</span>
-                  <span
-                    className={`${styles.sameRate} ${item.selectedRate >= 50 ? styles.majorityRate : styles.minorityRate}`}
-                  >
-                    대중성 지수 {item.selectedRate}%
-                  </span>
                 </div>
               </div>
             ))}
@@ -71,10 +66,7 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {myNickname}
                     </span>
-                    <span className={styles.diffPillLeft}>
-                      {item.myOptionText}
-                      <span className={styles.diffRate}>대중성 지수 {item.myRate}%</span>
-                    </span>
+                    <span className={styles.diffPillLeft}>{item.myOptionText}</span>
                   </div>
                   <span className={styles.diffVsIcon}>VS</span>
                   <div className={styles.diffSide}>
@@ -84,10 +76,7 @@ export const AnswerComparison: FC<AnswerComparisonProps> = ({
                     >
                       {targetNickname}
                     </span>
-                    <span className={styles.diffPillRight}>
-                      {item.targetOptionText}
-                      <span className={styles.diffRate}>대중성 지수 {item.targetRate}%</span>
-                    </span>
+                    <span className={styles.diffPillRight}>{item.targetOptionText}</span>
                   </div>
                 </div>
               </div>

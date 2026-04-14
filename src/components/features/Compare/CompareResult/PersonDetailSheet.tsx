@@ -90,6 +90,12 @@ export const PersonDetailSheet: FC<PersonDetailSheetProps> = ({ result, person, 
           <span className={styles.sectionTitle}>답변 {result.totalQuestions}개</span>
           <div className={styles.sectionLine} />
         </div>
+        <div className={styles.guideRow}>
+          <span className={styles.guideDot} />
+          <span className={styles.guideText}>
+            {personData.displayName ?? personData.nickname}님의 선택
+          </span>
+        </div>
 
         <div className={styles.answerList}>
           {questionStats.map((stat, idx) => {

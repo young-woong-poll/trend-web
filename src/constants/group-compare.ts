@@ -493,9 +493,11 @@ export const VALUE_MAP_CONFIGS: Record<string, ValueMapConfig> = {
  * 케미 등급별 네트워크 선 색상
  */
 export const CHEMISTRY_NETWORK_COLORS: Record<string, string> = {
+  SS: '#E040FB',
   S: '#FFD700',
   A: '#FF00FF',
   B: '#FF6B35',
   C: '#4FC3F7',
   D: '#66BB6A',
+  X: '#00E5FF',
 };

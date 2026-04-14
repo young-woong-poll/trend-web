@@ -10,7 +10,6 @@ import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
-import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { AnswerComparison } from '@/components/features/Compare/CompareResult/AnswerComparison';
 import { ChemistryCard } from '@/components/features/Compare/CompareResult/ChemistryCard';
 import styles from '@/components/features/Compare/CompareResult/CompareResult.module.scss';
@@ -60,7 +59,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const showBack = isFromGroup || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
-  const [showGroupModal, setShowGroupModal] = useState(false);
 
   // 프리뷰 모드: 결과 없음 + 생성자
   const isPreview = !result && !isLoading && !!link?.isCreator;
@@ -85,6 +83,17 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     try {
       await navigator.clipboard.writeText(url);
       showToast('초대 링크가 복사되었어요');
+    } catch {
+      showToast('복사에 실패했습니다');
+    }
+  };
+
+  const handleShareBundle = async () => {
+    const slug = result?.bundleSlug ?? link?.bundleSlug ?? '';
+    const url = `${window.location.origin}/bundle/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('테스트 링크가 복사되었어요');
     } catch {
       showToast('복사에 실패했습니다');
     }
@@ -314,12 +323,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
               >
                 다른 친구랑 케미 보기
               </button>
-              <button
-                type="button"
-                className={styles.ctaGroup}
-                onClick={() => setShowGroupModal(true)}
-              >
-                그룹 케미 보기
+              <button type="button" className={styles.ctaGroup} onClick={handleShareBundle}>
+                이 테스트 공유하기
               </button>
             </div>
           </div>
@@ -332,16 +337,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
               category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowCompareModal(false)}
-            />
-          )}
-          {showGroupModal && (
-            <CreateGroupLink
-              slug={result.bundleSlug ?? ''}
-              categoryCode={result.categoryCode}
-              categoryMeta={result.categoryMeta}
-              category={result.category}
-              bundleTitle={result.bundleTitle}
-              onClose={() => setShowGroupModal(false)}
             />
           )}
         </>

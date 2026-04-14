@@ -5,11 +5,13 @@ import { useState, useEffect, type FC } from 'react';
 import styles from '@/components/features/Compare/PreviewRotation/PreviewRotation.module.scss';
 
 const GRADE_COLORS: Record<string, string> = {
+  SS: '#E040FB',
   S: '#3B82F6',
   A: '#22C55E',
   B: '#FACC15',
   C: '#F97316',
   D: '#EF4444',
+  X: '#00E5FF',
 };
 
 const ROTATION_DATA = [
