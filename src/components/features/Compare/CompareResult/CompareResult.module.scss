@@ -251,8 +251,8 @@
 
 .ctaOneToOne {
   @extend %ctaBase;
-  background: rgba(#fff, 0.04);
-  border: 1px solid rgba(#fff, 0.12);
+  background: $bg-tertiary;
+  border: 1px solid rgba(#fff, 0.18);
   color: $white;
 }
 

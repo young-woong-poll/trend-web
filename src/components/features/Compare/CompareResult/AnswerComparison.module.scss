@@ -102,11 +102,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .sameAnswerText {
   font-size: 13px;
   color: $text-secondary;
+}
+
+.sameImage {
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .sameRate {
@@ -163,6 +172,17 @@
   font-weight: 600;
   text-align: center;
   word-break: keep-all;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.diffImage {
+  width: 36px;
+  height: 36px;
+  border-radius: $border-radius-md;
+  object-fit: cover;
 }
 
 .diffPillLeft {

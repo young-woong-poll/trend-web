@@ -19,7 +19,7 @@ export function isGenderCategory(categoryCode?: string | null): boolean {
  * matchRate(일치율) → 등급/타이틀/한줄평
  * 서버는 matchRate(숫자)만 리턴, 여기서 매핑
  */
-export type ChemistryGrade = 'S' | 'A' | 'B' | 'C' | 'D';
+export type ChemistryGrade = 'SS' | 'S' | 'A' | 'B' | 'C' | 'D' | 'X';
 
 export interface ChemistryInfo {
   grade: ChemistryGrade;
@@ -31,6 +31,13 @@ export interface ChemistryInfo {
 }
 
 export const CHEMISTRY_GRADES: ChemistryInfo[] = [
+  {
+    grade: 'SS',
+    title: '도플갱어',
+    description: '전생에 같은 사람이었던 거 아닌가요?',
+    gradient: 'linear-gradient(135deg, #FFD700, #FF00FF, #00BFFF, #FFD700)',
+    imagePath: null,
+  },
   {
     grade: 'S',
     title: '말 안 해도 통하는',
@@ -66,22 +73,35 @@ export const CHEMISTRY_GRADES: ChemistryInfo[] = [
     gradient: 'linear-gradient(135deg, #66BB6A, #00BCD4)',
     imagePath: null,
   },
+  {
+    grade: 'X',
+    title: '완벽한 반대',
+    description: '한 문제도 안 맞다니... 오히려 운명 아닌가요?',
+    gradient: 'linear-gradient(135deg, #00E5FF, #7C4DFF)',
+    imagePath: null,
+  },
 ];
 
 export function getChemistryByRate(matchRate: number): ChemistryInfo {
-  if (matchRate >= 80) {
+  if (matchRate === 100) {
     return CHEMISTRY_GRADES[0];
+  } // SS
+  if (matchRate >= 80) {
+    return CHEMISTRY_GRADES[1];
   } // S
   if (matchRate >= 60) {
-    return CHEMISTRY_GRADES[1];
+    return CHEMISTRY_GRADES[2];
   } // A
   if (matchRate >= 40) {
-    return CHEMISTRY_GRADES[2];
+    return CHEMISTRY_GRADES[3];
   } // B
   if (matchRate >= 20) {
-    return CHEMISTRY_GRADES[3];
+    return CHEMISTRY_GRADES[4];
   } // C
-  return CHEMISTRY_GRADES[4]; // D
+  if (matchRate === 0) {
+    return CHEMISTRY_GRADES[6];
+  } // X
+  return CHEMISTRY_GRADES[5]; // D
 }
 
 /**
@@ -161,8 +181,15 @@ export function getPopularityByScore(score: number): PopularityInfo {
  * 예: [70, 45, 80, 40, 65] → 평균 60%
  */
 export function calcPopularityScore(
-  myAnswers: Array<{ electionId?: string; selected?: string }>,
-  questionStats: Array<{ electionId?: string; optionACount?: number; optionBCount?: number }>
+  myAnswers: Array<{
+    electionId?: string;
+    selectedElectionItemId?: string;
+    electionItemId?: string;
+  }>,
+  questionStats: Array<{
+    electionId?: string;
+    optionStats?: Array<{ electionItemId?: string; voteCount?: number }>;
+  }>
 ): number {
   if (!myAnswers || myAnswers.length === 0) {
     return 0;
@@ -172,20 +199,21 @@ export function calcPopularityScore(
   let matched = 0;
 
   for (const answer of myAnswers) {
-    if (!answer.electionId || !answer.selected) {
+    // Compare 결과는 electionItemId, Bundle 결과는 selectedElectionItemId 사용
+    const selectedItemId = answer.selectedElectionItemId ?? answer.electionItemId;
+    if (!answer.electionId || !selectedItemId) {
       continue;
     }
     const stat = questionStats.find((s) => s.electionId === answer.electionId);
-    if (!stat) {
+    if (!stat?.optionStats || stat.optionStats.length === 0) {
       continue;
     }
 
-    const aCount = stat.optionACount ?? 0;
-    const bCount = stat.optionBCount ?? 0;
-    const total = aCount + bCount;
-    const optionARate = total > 0 ? Math.round((aCount / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round((bCount / total) * 100) : 50;
-    totalRate += answer.selected === 'A' ? optionARate : optionBRate;
+    const totalVotes = stat.optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+    const selectedOption = stat.optionStats.find((o) => o.electionItemId === selectedItemId);
+    const selectedCount = selectedOption?.voteCount ?? 0;
+    const rate = totalVotes > 0 ? Math.round((selectedCount / totalVotes) * 100) : 50;
+    totalRate += rate;
     matched++;
   }
 

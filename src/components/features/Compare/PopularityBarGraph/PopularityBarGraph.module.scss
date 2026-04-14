@@ -1,0 +1,196 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Section ── */
+.container {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.5s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.sectionDesc {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+/* ── Swipe scroller ── */
+.cardScroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 12px;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Card ── */
+.card {
+  flex: 0 0 calc(100% - 32px);
+  scroll-snap-align: center;
+  @include flex-column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba($bg-secondary, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($white, 0.06);
+  border-radius: $border-radius-lg;
+}
+
+.qTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: $white;
+  text-align: center;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+/* ── 1행: 옵션명 양쪽 ── */
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.optName {
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @include se {
+    max-width: 110px;
+    font-size: 12px;
+  }
+}
+
+.optNameRight {
+  text-align: right;
+}
+
+/* ── 2행: 퍼센트 + 바 + 퍼센트 ── */
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.percent {
+  font-size: $font-size-18;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: $text-secondary;
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+.percentRight {
+  text-align: right;
+}
+
+.winPercent {
+  color: $white;
+}
+
+.losePercent {
+  color: $text-tertiary;
+}
+
+/* ── Bar ── */
+.barWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.barTrack {
+  height: 8px;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+  background: transparent;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  background: rgba(#4fc3f7, 0.2);
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.barRemain {
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+  background: rgba($white, 0.06);
+  flex: 1;
+}
+
+.winFill {
+  background: rgba(#4fc3f7, 0.45);
+}
+
+/* ── Dot indicator ── */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba($white, 0.15);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dotActive {
+  background: rgba($white, 0.6);
+  transform: scale(1.2);
+}

@@ -4,12 +4,10 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { BundleElectionOptionStatResponse } from './bundleElectionOptionStatResponse';
 
 export interface QuestionStat {
   electionId?: string;
   title?: string;
-  optionA?: string;
-  optionB?: string;
-  optionACount?: number;
-  optionBCount?: number;
+  optionStats?: BundleElectionOptionStatResponse[];
 }

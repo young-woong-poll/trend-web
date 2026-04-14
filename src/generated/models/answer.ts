@@ -7,6 +7,5 @@
 
 export interface Answer {
   electionId: string;
-  /** @pattern ^[AB]$ */
-  selected: string;
+  electionItemId: string;
 }

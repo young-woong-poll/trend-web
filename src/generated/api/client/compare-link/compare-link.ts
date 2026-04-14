@@ -120,7 +120,7 @@ export const close = (
   );
 };
 /**
- * @summary 비교 링크 정보 조회 (API 6, 로그인 필수)
+ * @summary 비교 링크 정보 조회 (API 6, 비로그인 허용)
  */
 export const getInfo = (
   token: string,
@@ -144,7 +144,7 @@ export const getOneToOneResult = (
   );
 };
 /**
- * @summary 그룹 비교 결과 (API 9, 로그인 필수)
+ * @summary 그룹 비교 결과 (API 9, 비로그인 허용)
  */
 export const getGroupResult = (
   token: string,

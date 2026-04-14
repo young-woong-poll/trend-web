@@ -5,7 +5,20 @@
   @include flex-column;
   align-items: center;
   min-height: 100dvh;
+  padding-top: 56px;
   padding-bottom: $spacing-16;
+}
+
+.compareBanner {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  margin-top: 12px;
+}
+
+.compareNickname {
+  color: $white;
+  font-weight: $font-weight-bold;
 }
 
 .topBar {

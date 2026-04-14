@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import BackIcon from '@/assets/icon/BackIcon';
+import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
-import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { AnswerComparison } from '@/components/features/Compare/CompareResult/AnswerComparison';
 import { ChemistryCard } from '@/components/features/Compare/CompareResult/ChemistryCard';
 import styles from '@/components/features/Compare/CompareResult/CompareResult.module.scss';
@@ -30,13 +30,23 @@ interface CompareResultProps {
 
 /** 가상 상대 답변 생성 (시드 기반, ~40-60% matchRate) */
 function generateGhostAnswers(
-  myAnswers: Array<{ electionId: string; selected: string }>,
+  myAnswers: Array<{
+    electionId: string;
+    electionItemId: string;
+    options: Array<{ electionItemId?: string }>;
+  }>,
   seed: number
-): Array<{ electionId: string; selected: string }> {
-  return myAnswers.map((a, i) => ({
-    electionId: a.electionId,
-    selected: (seed + i) % 3 === 0 ? a.selected : a.selected === 'A' ? 'B' : 'A',
-  }));
+): Array<{ electionId: string; electionItemId: string }> {
+  return myAnswers.map((a, i) => {
+    if ((seed + i) % 3 === 0) {
+      return { electionId: a.electionId, electionItemId: a.electionItemId };
+    }
+    const other = a.options.find((o) => o.electionItemId !== a.electionItemId);
+    return {
+      electionId: a.electionId,
+      electionItemId: other?.electionItemId ?? a.electionItemId,
+    };
+  });
 }
 
 export const CompareResult: FC<CompareResultProps> = ({ token }) => {
@@ -50,7 +60,7 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const showBack = isFromGroup || fromParam === 'my';
   const { toast, showToast } = useToast();
   const [showCompareModal, setShowCompareModal] = useState(false);
-  const [showGroupModal, setShowGroupModal] = useState(false);
+  const routeGuardDone = useRef(false);
 
   // 프리뷰 모드: 결과 없음 + 생성자
   const isPreview = !result && !isLoading && !!link?.isCreator;
@@ -63,18 +73,33 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [result]);
 
-  // 접근제어: 결과 없음 + 비생성자 → compare 랜딩
+  // 접근제어: 초기 로딩 시 한 번만 체크 (캐시 갱신에 반응하지 않도록)
   useEffect(() => {
-    if (!isLoading && !result && isLoggedIn && link && !link.isCreator) {
+    if (routeGuardDone.current || isLoading || !link) {
+      return;
+    }
+    if (isLoggedIn && !link.isCreator && !link.isParticipant) {
+      routeGuardDone.current = true;
       router.replace(`/compare/${token}`);
     }
-  }, [isLoading, result, isLoggedIn, link, token, router]);
+  }, [isLoading, isLoggedIn, link, token, router]);
 
   const handleCopyInvite = async () => {
     const url = `${window.location.origin}/compare/${token}`;
     try {
       await navigator.clipboard.writeText(url);
       showToast('초대 링크가 복사되었어요');
+    } catch {
+      showToast('복사에 실패했습니다');
+    }
+  };
+
+  const handleShareBundle = async () => {
+    const slug = result?.bundleSlug ?? link?.bundleSlug ?? '';
+    const url = `${window.location.origin}/bundle/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast('테스트 링크가 복사되었어요');
     } catch {
       showToast('복사에 실패했습니다');
     }
@@ -91,14 +116,15 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
     const myAnswers = rawAnswers.map((a) => ({
       electionId: a.electionId ?? '',
-      selected: a.selected ?? 'A',
+      electionItemId: a.selectedElectionItemId ?? '',
+      options: a.options ?? [],
     }));
     const ghostAnswers = generateGhostAnswers(myAnswers, 42);
 
     let matchCount = 0;
     for (const my of myAnswers) {
       const ghost = ghostAnswers.find((g) => g.electionId === my.electionId);
-      if (ghost && my.selected === ghost.selected) {
+      if (ghost && my.electionItemId === ghost.electionItemId) {
         matchCount++;
       }
     }
@@ -108,19 +134,15 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       bundleTitle: myBundleResult.bundleTitle ?? '',
       totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
       categoryCode: link.categoryCode,
-      me: { nickname: link.creatorNickname ?? '', answers: myAnswers },
+      me: {
+        nickname: link.creatorNickname ?? '',
+        answers: myAnswers.map((a) => ({
+          electionId: a.electionId,
+          electionItemId: a.electionItemId,
+        })),
+      },
       target: { nickname: '???', answers: ghostAnswers },
-      questionStats: rawAnswers.map((a) => {
-        const stats = rawStats.find((s) => s.electionId === a.electionId);
-        return {
-          electionId: a.electionId ?? '',
-          title: a.title ?? '',
-          optionA: a.optionA ?? '',
-          optionB: a.optionB ?? '',
-          optionACount: stats?.optionACount ?? 50,
-          optionBCount: stats?.optionBCount ?? 50,
-        };
-      }),
+      questionStats: rawStats,
       matchCount,
       matchRate: myAnswers.length > 0 ? Math.round((matchCount / myAnswers.length) * 100) : 0,
     };
@@ -233,7 +255,10 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const target = result.target ?? {};
   const isTargetWithdrawn = target.isWithdrawn === true;
   // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-  const targetNickname = isTargetWithdrawn ? WITHDRAWN_NICKNAME : (target.nickname ?? '');
+  const myNickname = me.displayName ?? me.nickname ?? '';
+  const targetNickname = isTargetWithdrawn
+    ? WITHDRAWN_NICKNAME
+    : (target.displayName ?? target.nickname ?? '');
 
   return (
     <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
@@ -267,26 +292,24 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
 
         <ChemistryCard
           matchRate={result.matchRate ?? 0}
-          myNickname={me.nickname ?? ''}
+          myNickname={myNickname}
           targetNickname={targetNickname}
           isTargetWithdrawn={isTargetWithdrawn}
         />
 
         <AnswerComparison
           data={storyData}
-          myNickname={me.nickname ?? ''}
+          myNickname={myNickname}
           targetNickname={targetNickname}
         />
 
         {shockPoint && (
-          <ShockPoint
-            data={shockPoint}
-            myNickname={me.nickname ?? ''}
-            targetNickname={targetNickname}
-          />
+          <ShockPoint data={shockPoint} myNickname={myNickname} targetNickname={targetNickname} />
         )}
 
-        <PopularityCompare result={result} />
+        {!isFromGroup && <PopularityCompare result={result} />}
+
+        {!isFromGroup && <BundleRecommendSection currentSlug={result.bundleSlug ?? ''} />}
       </div>
 
       {isFromGroup ? (
@@ -308,12 +331,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
               >
                 다른 친구랑 케미 보기
               </button>
-              <button
-                type="button"
-                className={styles.ctaGroup}
-                onClick={() => setShowGroupModal(true)}
-              >
-                그룹 케미 보기
+              <button type="button" className={styles.ctaGroup} onClick={handleShareBundle}>
+                이 테스트 공유하기
               </button>
             </div>
           </div>
@@ -326,16 +345,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
               category={result.category}
               bundleTitle={result.bundleTitle}
               onClose={() => setShowCompareModal(false)}
-            />
-          )}
-          {showGroupModal && (
-            <CreateGroupLink
-              slug={result.bundleSlug ?? ''}
-              categoryCode={result.categoryCode}
-              categoryMeta={result.categoryMeta}
-              category={result.category}
-              bundleTitle={result.bundleTitle}
-              onClose={() => setShowGroupModal(false)}
             />
           )}
         </>

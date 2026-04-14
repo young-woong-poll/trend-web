@@ -18,7 +18,7 @@ import {
   useSubmitBundleAnswers,
   bundleKeys,
 } from '@/hooks/api/useBundle';
-import { compareKeys, useJoinCompareLink } from '@/hooks/api/useCompare';
+import { compareKeys, useCompareLink, useJoinCompareLink } from '@/hooks/api/useCompare';
 import { trackBundleAnswer, trackBundleComplete } from '@/lib/analytics';
 
 const slideVariants = {
@@ -54,15 +54,21 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
   const compareToken = searchParams.get('compareToken');
   const returnUrl = searchParams.get('returnUrl');
   const joinMutation = useJoinCompareLink(compareToken ?? '');
+  const { data: compareLink } = useCompareLink(compareToken ?? '');
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Map<string, 'A' | 'B'>>(new Map());
+  const [answers, setAnswers] = useState<Map<string, string>>(new Map());
   const [direction, setDirection] = useState(1);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const routeGuardDone = useRef(false);
 
-  // 접근제어: 이미 완료 → returnUrl / compareLanding / 결과 페이지
+  // 접근제어: 초기 로딩 시 한 번만 체크 (제출 중 bundle 캐시 갱신에 반응하지 않도록)
   useEffect(() => {
-    if (bundle?.completed) {
+    if (routeGuardDone.current || !bundle) {
+      return;
+    }
+    if (bundle.completed) {
+      routeGuardDone.current = true;
       if (returnUrl) {
         router.replace(returnUrl);
       } else if (compareToken) {
@@ -70,25 +76,21 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       } else {
         router.replace(`/bundle/${slug}/result`);
       }
-    }
-  }, [bundle?.completed, slug, router, returnUrl, compareToken]);
-
-  // 접근제어: 번들 마감 → 인트로
-  useEffect(() => {
-    if (bundle && bundle.status === 'CLOSED') {
+    } else if (bundle.status === 'CLOSED') {
+      routeGuardDone.current = true;
       router.replace(`/bundle/${slug}`);
     }
-  }, [bundle, slug, router]);
+  }, [bundle, slug, router, returnUrl, compareToken]);
 
   const handleSelect = useCallback(
-    (choice: 'A' | 'B') => {
+    (electionItemId: string) => {
       if (!elections) {
         return;
       }
       const election = elections[currentIndex];
       const id = election.electionId ?? '';
-      setAnswers((prev) => new Map(prev).set(id, choice));
-      trackBundleAnswer(slug, currentIndex, choice);
+      setAnswers((prev) => new Map(prev).set(id, electionItemId));
+      trackBundleAnswer(slug, currentIndex, electionItemId);
 
       if (autoAdvanceTimer.current) {
         clearTimeout(autoAdvanceTimer.current);
@@ -133,9 +135,9 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
 
     const answerData = elections.map((e) => {
       const id = e.electionId ?? '';
-      const selected = answers.get(id);
+      const electionItemId = answers.get(id);
       // unanswered guard가 위에서 이미 검증했으므로 여기서는 fallback
-      return { electionId: id, selected: selected ?? ('A' as const) };
+      return { electionId: id, electionItemId: electionItemId ?? '' };
     });
 
     try {
@@ -200,6 +202,12 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       <div className={styles.container}>
         <div className={styles.topBar}>
           <ProgressBar current={currentIndex + 1} total={elections.length} />
+          {compareLink?.creatorNickname && (
+            <div className={styles.compareBanner}>
+              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과
+              가치관 대결 중
+            </div>
+          )}
         </div>
 
         <div className={styles.questionWrapper}>

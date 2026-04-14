@@ -31,8 +31,8 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
       <p className={styles.sectionSub}>
         각 질문 득표율 평균으로, 높을수록 다수파 · 낮을수록 소수파
         <br />* 현재{' '}
-        {questionStats[0]
-          ? (questionStats[0].optionACount ?? 0) + (questionStats[0].optionBCount ?? 0)
+        {questionStats[0]?.optionStats
+          ? questionStats[0].optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0)
           : 0}
         명 참여 기준 · 참여자가 늘면 업데이트 돼요
       </p>
@@ -44,7 +44,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('me')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.me.main }}>
-            {me.nickname ?? ''}
+            {me.displayName ?? me.nickname ?? ''}
           </span>
           {myPopularity.imagePath ? (
             <Image
@@ -72,7 +72,7 @@ export const PopularityCompare: FC<PopularityCompareProps> = ({ result }) => {
           onClick={() => setDetailPerson('target')}
         >
           <span className={styles.personName} style={{ color: IDENTITY_COLORS.target.main }}>
-            {target.nickname ?? ''}
+            {target.displayName ?? target.nickname ?? ''}
           </span>
           {targetPopularity.imagePath ? (
             <Image

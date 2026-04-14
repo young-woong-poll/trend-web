@@ -10,6 +10,7 @@ import { postLogout } from '@/hooks/api/useAuthApi';
 import { useAuthMe, useSetAuthData } from '@/hooks/api/useAuthMe';
 import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
+import { isCSRNavigation, markHydrated } from '@/lib/csr-guard';
 
 // ── 보호 라우트 설정 ──
 // pattern: 동적 세그먼트는 :param 으로 표기
@@ -20,12 +21,21 @@ const PROTECTED_ROUTES: { pattern: string; redirect: string }[] = [
   { pattern: '/compare/match/:token', redirect: '/compare/:token' },
 ];
 
+// ── CSR 전용 라우트 설정 ──
+// 직접 URL 접근 및 새로고침 차단, 앱 내 CSR 이동만 허용
+const CSR_ONLY_ROUTES: { pattern: string; redirect: string }[] = [
+  { pattern: '/bundle/:slug/play', redirect: '/bundle/:slug' },
+];
+
 /**
- * pathname이 보호 라우트에 해당하면 리다이렉트 대상 경로를 반환한다.
+ * pathname이 주어진 라우트 목록에 매칭되면 리다이렉트 대상 경로를 반환한다.
  * 해당하지 않으면 null.
  */
-function getProtectedRedirect(pathname: string): string | null {
-  for (const route of PROTECTED_ROUTES) {
+function getRouteRedirect(
+  pathname: string,
+  routes: { pattern: string; redirect: string }[]
+): string | null {
+  for (const route of routes) {
     const paramNames: string[] = [];
     const regexStr = route.pattern.replace(/:(\w+)/g, (_match, name) => {
       paramNames.push(name);
@@ -114,11 +124,40 @@ const RouteGuard = ({ isLoading, isLoggedIn }: { isLoading: boolean; isLoggedIn:
     if (isLoading || isLoggedIn) {
       return;
     }
-    const redirect = getProtectedRedirect(pathname);
+    const redirect = getRouteRedirect(pathname, PROTECTED_ROUTES);
     if (redirect) {
       router.replace(`${redirect}?login=true`);
     }
   }, [isLoading, isLoggedIn, pathname, router]);
+
+  return null;
+};
+
+/**
+ * CSR 전용 라우트 가드.
+ * 풀 로드(직접 URL 접근 / 새로고침) 시 리다이렉트.
+ * CSR 이동(router.push/replace) 시에는 hydrated=true이므로 통과.
+ */
+const CSRGuard = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isCSRNavigation()) {
+      return;
+    }
+    const redirect = getRouteRedirect(pathname, CSR_ONLY_ROUTES);
+    if (redirect) {
+      // compareToken이 있으면 비교 랜딩으로 리다이렉트
+      const params = new URLSearchParams(window.location.search);
+      const compareToken = params.get('compareToken');
+      if (compareToken) {
+        router.replace(`/compare/${compareToken}`);
+      } else {
+        router.replace(redirect);
+      }
+    }
+  }, [pathname, router]);
 
   return null;
 };
@@ -156,6 +195,11 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => setForceLogoutHandler(() => {});
   }, [setAuthData]);
 
+  // 앱 hydration 완료 마킹 — CSRGuard가 CSR 이동과 풀 로드를 구분하는 데 사용
+  useEffect(() => {
+    markHydrated();
+  }, []);
+
   const requireLogin = useCallback(
     (trigger: LoginTrigger) => {
       if (isLoggedIn) {
@@ -190,6 +234,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       {children}
 
       <RouteGuard isLoading={isLoading} isLoggedIn={isLoggedIn} />
+      <CSRGuard />
 
       <Suspense fallback={null}>
         <LoginQueryWatcher

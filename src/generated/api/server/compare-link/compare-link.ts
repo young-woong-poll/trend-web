@@ -320,7 +320,7 @@ export const close = async (token: string, options?: RequestInit): Promise<close
 };
 
 /**
- * @summary 비교 링크 정보 조회 (API 6, 로그인 필수)
+ * @summary 비교 링크 정보 조회 (API 6, 비로그인 허용)
  */
 export type getInfoResponse200 = {
   data: BaseResponseCompareLinkInfoResponse;
@@ -419,7 +419,7 @@ export const getOneToOneResult = async (
 };
 
 /**
- * @summary 그룹 비교 결과 (API 9, 로그인 필수)
+ * @summary 그룹 비교 결과 (API 9, 비로그인 허용)
  */
 export type getGroupResultResponse200 = {
   data: BaseResponseGroupCompareResultResponse;

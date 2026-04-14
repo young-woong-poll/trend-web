@@ -386,8 +386,7 @@ export interface BaseResponseCreateCompareLinkResponse {
 
 export interface Answer {
   electionId: string;
-  /** @pattern ^[AB]$ */
-  selected: string;
+  electionItemId: string;
 }
 
 export interface SubmitBundleAnswersRequest {
@@ -624,6 +623,25 @@ export interface CreateCategoryRequest {
    */
   slug: string;
   meta?: string;
+}
+
+export interface BundleElectionOptionResponse {
+  electionItemId?: string;
+  title?: string;
+  imageUrl?: string;
+}
+
+export interface BundleElectionOptionRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageUrl?: string;
 }
 
 export type CreateTestUserRequestGender =
@@ -1045,17 +1063,23 @@ export interface BaseResponseCompareLinkInfoResponse {
 
 export interface Participant {
   nickname?: string;
+  displayName?: string;
+  displayProfileColor?: string;
   isWithdrawn?: boolean;
   answers?: Answer[];
+}
+
+export interface BundleElectionOptionStatResponse {
+  electionItemId?: string;
+  title?: string;
+  imageUrl?: string;
+  voteCount?: number;
 }
 
 export interface QuestionStat {
   electionId?: string;
   title?: string;
-  optionA?: string;
-  optionB?: string;
-  optionACount?: number;
-  optionBCount?: number;
+  optionStats?: BundleElectionOptionStatResponse[];
 }
 
 /**
@@ -1187,9 +1211,8 @@ export interface BaseResponseBundleSummaryResponse {
 export interface MyAnswer {
   electionId?: string;
   title?: string;
-  optionA?: string;
-  optionB?: string;
-  selected?: string;
+  options?: BundleElectionOptionResponse[];
+  selectedElectionItemId?: string;
 }
 
 /**
@@ -1264,8 +1287,7 @@ export interface BaseResponseListMyCompareLinkResponse {
 export interface BundleElectionResponse {
   electionId?: string;
   title?: string;
-  optionA?: string;
-  optionB?: string;
+  options?: BundleElectionOptionResponse[];
 }
 
 /**

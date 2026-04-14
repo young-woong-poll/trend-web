@@ -24,44 +24,52 @@ interface ChemistryNetworkProps {
   onEditProfile?: () => void;
 }
 
-/** 등급별 색상 (S~D, getChemistryByRate 기준과 동일) */
-type MatchTier = 0 | 1 | 2 | 3 | 4;
+/** 등급별 색상 (SS~X, getChemistryByRate 기준과 동일) */
+type MatchTier = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const TIER_COLORS = [
-  '#3B82F6', // S (90%+)
-  '#22C55E', // A (70~89%)
-  '#FACC15', // B (50~69%)
-  '#F97316', // C (30~49%)
-  '#EF4444', // D (~29%)
+  '#E040FB', // SS (100%)
+  '#3B82F6', // S (80~99%)
+  '#22C55E', // A (60~79%)
+  '#FACC15', // B (40~59%)
+  '#F97316', // C (20~39%)
+  '#EF4444', // D (1~19%)
+  '#00E5FF', // X (0%)
 ];
 
-const TIER_GRADES = ['S', 'A', 'B', 'C', 'D'];
+const TIER_GRADES = ['SS', 'S', 'A', 'B', 'C', 'D', 'X'];
 
 function getMatchTier(matchRate: number): MatchTier {
-  if (matchRate >= 80) {
+  if (matchRate === 100) {
     return 0;
   }
-  if (matchRate >= 60) {
+  if (matchRate >= 80) {
     return 1;
   }
-  if (matchRate >= 40) {
+  if (matchRate >= 60) {
     return 2;
   }
-  if (matchRate >= 20) {
+  if (matchRate >= 40) {
     return 3;
   }
-  return 4;
+  if (matchRate >= 20) {
+    return 4;
+  }
+  if (matchRate === 0) {
+    return 6;
+  }
+  return 5;
 }
 
 /** 등급별 선 굵기 — 높은 등급일수록 굵게 */
 function getLineWidth(tier: MatchTier): number {
-  const widths = [3, 2.5, 2, 1.5, 1.2];
+  const widths = [3.5, 3, 2.5, 2, 1.5, 1.2, 3.5];
   return widths[tier];
 }
 
 /** 등급별 기본 투명도 — 높은 등급일수록 진하게 */
 function getBaseOpacity(tier: MatchTier): number {
-  const opacities = [0.85, 0.65, 0.45, 0.3, 0.2];
+  const opacities = [0.95, 0.85, 0.65, 0.45, 0.3, 0.2, 0.95];
   return opacities[tier];
 }
 
@@ -87,11 +95,13 @@ function truncateName(name: string, max: number = 5): string {
 }
 
 const GRADE_DESCRIPTIONS = [
-  { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는' },
+  { grade: 'SS', range: '100%', title: '도플갱어' },
+  { grade: 'S', range: '80~99%', title: '말 안 해도 통하는' },
   { grade: 'A', range: '60~79%', title: '꽤 잘 맞는' },
   { grade: 'B', range: '40~59%', title: '같을 때도 다를 때도' },
   { grade: 'C', range: '20~39%', title: '각자의 세계' },
-  { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
+  { grade: 'D', range: '1~19%', title: '정반대의 가치관' },
+  { grade: 'X', range: '0%', title: '완벽한 반대' },
 ];
 
 export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({

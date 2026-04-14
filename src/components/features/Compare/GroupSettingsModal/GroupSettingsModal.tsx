@@ -88,8 +88,8 @@ export const GroupSettingsModal: FC<GroupSettingsModalProps> = ({
 
         <div className={styles.toggleRow}>
           <div className={styles.toggleInfo}>
-            <span className={styles.toggleLabel}>이성 콘텐츠</span>
-            <span className={styles.toggleDescription}>이성궁합 랭킹, 성별 대결을 표시합니다</span>
+            <span className={styles.toggleLabel}>이성궁합 · 성별 대결 표시</span>
+            <span className={styles.toggleDescription}>각 성별 2명 이상일 때 표시돼요</span>
           </div>
           <button
             type="button"

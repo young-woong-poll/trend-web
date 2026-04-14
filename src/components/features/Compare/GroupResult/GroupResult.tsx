@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import BackIcon from '@/assets/icon/BackIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
+import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
@@ -28,6 +29,7 @@ import {
   GroupSettingsModal,
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
+import { PopularityBarGraph } from '@/components/features/Compare/PopularityBarGraph/PopularityBarGraph';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
@@ -56,10 +58,10 @@ const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C', '멤버 D'];
 function generateGhostAnswers(
   electionIds: string[],
   seed: number
-): Array<{ electionId: string; selected: 'A' | 'B' }> {
+): Array<{ electionId: string; electionItemId: string }> {
   return electionIds.map((id, i) => ({
     electionId: id,
-    selected: (seed + i) % 2 === 0 ? 'A' : ('B' as const),
+    electionItemId: `${id}-${(seed + i) % 2 === 0 ? 'A' : 'B'}`,
   }));
 }
 
@@ -455,8 +457,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           />
         )}
         <PickASide result={displayResult} currentUserId={currentUserId} />
-        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
         <GroupAwards awards={awards} currentUserId={currentUserId} />
+        <PopularityBarGraph questionStats={displayResult.questionStats ?? []} />
+        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
 
         {/* ─── 성별 기반 (이성 콘텐츠 토글 ON 시) ─── */}
         {displayResult.showGenderContent && (
@@ -481,6 +484,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             </button>
           </div>
         )}
+
+        {!isPreview && <BundleRecommendSection currentSlug={result.bundleSlug ?? ''} />}
       </div>
 
       {isPreview && !isMember ? (
@@ -503,16 +508,20 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             <button
               type="button"
               className={styles.ctaOneToOne}
-              onClick={() => setShowCompareModal(true)}
+              onClick={() => setShowGroupModal(true)}
             >
-              1:1 케미 따로 보기
+              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
             </button>
             <button
               type="button"
               className={styles.ctaGroup}
-              onClick={() => setShowGroupModal(true)}
+              onClick={() => {
+                const url = `${window.location.origin}/compare/group/${token}`;
+                void navigator.clipboard.writeText(url);
+                showToast('초대 링크가 복사되었어요');
+              }}
             >
-              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
+              친구 초대하기
             </button>
           </div>
         </div>

@@ -1457,7 +1457,7 @@
         "operationId": "refresh",
         "parameters": [
           {
-            "name": "refresh_token",
+            "name": "__HPRT",
             "in": "cookie",
             "required": false,
             "schema": {
@@ -3523,7 +3523,7 @@
     "/api/v1/compare-links/{token}": {
       "get": {
         "tags": ["CompareLink"],
-        "summary": "비교 링크 정보 조회 (API 6, 로그인 필수)",
+        "summary": "비교 링크 정보 조회 (API 6, 비로그인 허용)",
         "operationId": "getInfo",
         "parameters": [
           {
@@ -3641,7 +3641,7 @@
     "/api/v1/compare-links/{token}/group-result": {
       "get": {
         "tags": ["CompareLink"],
-        "summary": "그룹 비교 결과 (API 9, 로그인 필수)",
+        "summary": "그룹 비교 결과 (API 9, 비로그인 허용)",
         "operationId": "getGroupResult",
         "parameters": [
           {
@@ -3700,7 +3700,7 @@
     "/api/v1/bundles": {
       "get": {
         "tags": ["Bundle"],
-        "summary": "번들 목록 (API 15, 로그인 필수)",
+        "summary": "번들 목록 (API 15, 비로그인 허용)",
         "operationId": "list",
         "parameters": [
           {
@@ -3759,7 +3759,7 @@
     "/api/v1/bundles/{slug}": {
       "get": {
         "tags": ["Bundle"],
-        "summary": "번들 상세 조회 (API 1, 로그인 필수)",
+        "summary": "번들 상세 조회 (API 1, 비로그인 허용)",
         "operationId": "getDetail_1",
         "parameters": [
           {
@@ -4342,6 +4342,64 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 하드 삭제 (완료자/비교링크 없을 때만)",
+        "operationId": "deleteBundle",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
                 }
               }
             }
@@ -5122,14 +5180,13 @@
         "description": "응답 데이터"
       },
       "Answer": {
-        "required": ["electionId", "selected"],
+        "required": ["electionId", "electionItemId"],
         "type": "object",
         "properties": {
           "electionId": {
             "type": "string"
           },
-          "selected": {
-            "pattern": "^[AB]$",
+          "electionItemId": {
             "type": "string"
           }
         }
@@ -5661,11 +5718,11 @@
           "title": {
             "type": "string"
           },
-          "optionA": {
-            "type": "string"
-          },
-          "optionB": {
-            "type": "string"
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
           }
         }
       },
@@ -5688,8 +5745,22 @@
         },
         "description": "공통 응답 포맷"
       },
+      "BundleElectionOptionResponse": {
+        "type": "object",
+        "properties": {
+          "electionItemId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
       "AddBundleElectionAdminRequest": {
-        "required": ["optionA", "optionB", "title"],
+        "required": ["options", "title"],
         "type": "object",
         "properties": {
           "title": {
@@ -5697,13 +5768,27 @@
             "minLength": 0,
             "type": "string"
           },
-          "optionA": {
+          "options": {
+            "maxItems": 10,
+            "minItems": 2,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionRequest"
+            }
+          }
+        }
+      },
+      "BundleElectionOptionRequest": {
+        "required": ["title"],
+        "type": "object",
+        "properties": {
+          "title": {
             "maxLength": 200,
             "minLength": 0,
             "type": "string"
           },
-          "optionB": {
-            "maxLength": 200,
+          "imageUrl": {
+            "maxLength": 500,
             "minLength": 0,
             "type": "string"
           }
@@ -6565,6 +6650,24 @@
         },
         "description": "공통 응답 포맷"
       },
+      "BundleElectionOptionStatResponse": {
+        "type": "object",
+        "properties": {
+          "electionItemId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "OneToOneCompareResultResponse": {
         "type": "object",
         "properties": {
@@ -6616,6 +6719,12 @@
           "nickname": {
             "type": "string"
           },
+          "displayName": {
+            "type": "string"
+          },
+          "displayProfileColor": {
+            "type": "string"
+          },
           "isWithdrawn": {
             "type": "boolean"
           },
@@ -6636,19 +6745,11 @@
           "title": {
             "type": "string"
           },
-          "optionA": {
-            "type": "string"
-          },
-          "optionB": {
-            "type": "string"
-          },
-          "optionACount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "optionBCount": {
-            "type": "integer",
-            "format": "int64"
+          "optionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionStatResponse"
+            }
           }
         }
       },
@@ -6913,13 +7014,13 @@
           "title": {
             "type": "string"
           },
-          "optionA": {
-            "type": "string"
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
           },
-          "optionB": {
-            "type": "string"
-          },
-          "selected": {
+          "selectedElectionItemId": {
             "type": "string"
           }
         }
@@ -7010,11 +7111,11 @@
           "title": {
             "type": "string"
           },
-          "optionA": {
-            "type": "string"
-          },
-          "optionB": {
-            "type": "string"
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
           }
         },
         "description": "응답 데이터"

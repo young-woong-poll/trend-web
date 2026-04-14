@@ -37,7 +37,7 @@ export const compareQueries = {
     queryOptions<CompareLink | undefined>({
       queryKey: compareKeys.link(token),
       queryFn: () => getInfo(token) as Promise<CompareLink | undefined>,
-      staleTime: 30 * 1000,
+      staleTime: 0,
     }),
 
   result: (token: string) =>

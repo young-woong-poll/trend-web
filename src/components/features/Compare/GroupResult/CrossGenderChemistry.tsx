@@ -55,7 +55,7 @@ export const CrossGenderChemistry: FC<CrossGenderChemistryProps> = ({ members, p
   }, [crossPairs]);
 
   // If either gender group is empty, don't render
-  if (maleMembers.length === 0 || femaleMembers.length === 0) {
+  if (maleMembers.length < 2 || femaleMembers.length < 2) {
     return null;
   }
 

@@ -50,13 +50,16 @@ interface CompareOneLiner {
 
 const BUNDLE_ONE_LINERS: Record<string, Record<string, CompareOneLiner>> = {
   'love-values': {
+    SS: { headline: '전생에 연인이었던 거 확정', body: '모든 연애 가치관이 완벽히 일치해요' },
     S: { headline: '이상형이 서로인 거 아닌가요?', body: '연애 가치관이 거의 완벽히 일치해요' },
     A: { headline: '같이 있으면 편한 사이', body: '대부분 통하는데 가끔 새로운 면이 보여요' },
     B: { headline: '밀당이 재밌는 관계', body: '반은 같고 반은 달라서 지루할 틈이 없어요' },
     C: { headline: '서로에게 배울 게 많은 사이', body: '다른 시각이 오히려 자극이 돼요' },
     D: { headline: '밀당의 신이 탄생했습니다', body: '완전 다른 연애관, 그래서 더 흥미로워요' },
+    X: { headline: '이건 로맨스 영화 각본인가요?', body: '모든 답이 정반대, 오히려 끌리는 운명' },
   },
   'marriage-values': {
+    SS: { headline: '혼인신고서 들고 뛰어가세요', body: '모든 결혼 가치관이 완벽히 일치해요' },
     S: { headline: '이 정도면 혼인신고 바로 가능', body: '결혼 가치관이 놀라울 정도로 같아요' },
     A: { headline: '큰 그림은 같은 부부', body: '핵심은 통하고 디테일에서 조율이 필요해요' },
     B: { headline: '대화가 필요한 커플', body: '맞는 부분도 있지만 꼭 얘기해야 할 것들이 있어요' },
@@ -65,28 +68,35 @@ const BUNDLE_ONE_LINERS: Record<string, Record<string, CompareOneLiner>> = {
       headline: '결혼 전 진지한 대화가 필요할지도...',
       body: '거의 모든 항목에서 의견이 달라요',
     },
+    X: { headline: '이혼 사유 미리 체험 완료', body: '모든 항목이 정반대, 그래서 더 드라마틱' },
   },
 };
 
 const DEFAULT_ONE_LINERS: Record<string, CompareOneLiner> = {
+  SS: { headline: '도플갱어 발견!', body: '모든 답이 똑같은 운명의 상대' },
   S: { headline: '소울메이트 확정!', body: '생각이 이렇게 같을 수가' },
   A: { headline: '꽤 잘 통하는 사이', body: '대부분의 가치관이 비슷해요' },
   B: { headline: '반반의 매력', body: '같은 점과 다른 점이 적절히 섞여 있어요' },
   C: { headline: '다름이 매력인 관계', body: '서로 다른 시각이 새로운 발견이 돼요' },
   D: { headline: '평행우주에서 온 두 사람', body: '완전히 다르지만 그게 매력이에요' },
+  X: { headline: '완벽한 반대의 존재', body: '한 문제도 안 맞다니, 이것도 확률적 기적' },
 };
 
 export function getCompareOneLiner(bundleSlug: string, matchRate: number): CompareOneLiner {
   const grade =
-    matchRate >= 90
-      ? 'S'
-      : matchRate >= 70
-        ? 'A'
-        : matchRate >= 50
-          ? 'B'
-          : matchRate >= 30
-            ? 'C'
-            : 'D';
+    matchRate === 100
+      ? 'SS'
+      : matchRate >= 90
+        ? 'S'
+        : matchRate >= 70
+          ? 'A'
+          : matchRate >= 50
+            ? 'B'
+            : matchRate >= 30
+              ? 'C'
+              : matchRate === 0
+                ? 'X'
+                : 'D';
   return BUNDLE_ONE_LINERS[bundleSlug]?.[grade] ?? DEFAULT_ONE_LINERS[grade];
 }
 
@@ -169,10 +179,8 @@ export function getCoupleType(
 export interface ShockPointData {
   electionId: string;
   title: string;
-  optionA: string;
-  optionB: string;
-  mySelected: 'A' | 'B';
-  targetSelected: 'A' | 'B';
+  myOptionText: string;
+  targetOptionText: string;
   myRate: number;
   targetRate: number;
   comment: string;
@@ -188,7 +196,7 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   const differentAnswers = questionStats.filter((stat) => {
     const myAnswer = meAnswers.find((a) => a.electionId === stat.electionId);
     const targetAnswer = targetAnswers.find((a) => a.electionId === stat.electionId);
-    return myAnswer && targetAnswer && myAnswer.selected !== targetAnswer.selected;
+    return myAnswer && targetAnswer && myAnswer.electionItemId !== targetAnswer.electionItemId;
   });
 
   if (differentAnswers.length === 0) {
@@ -200,10 +208,13 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   let shockStat = differentAnswers[0];
 
   for (const stat of differentAnswers) {
-    const total = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
-    const optionARate = total > 0 ? Math.round(((stat.optionACount ?? 0) / total) * 100) : 50;
-    const optionBRate = total > 0 ? Math.round(((stat.optionBCount ?? 0) / total) * 100) : 50;
-    const diff = Math.abs(optionARate - optionBRate);
+    const optionStats = stat.optionStats ?? [];
+    const totalVotes = optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+    if (totalVotes === 0) {
+      continue;
+    }
+    const rates = optionStats.map((o) => Math.round(((o.voteCount ?? 0) / totalVotes) * 100));
+    const diff = rates.length >= 2 ? Math.abs(rates[0] - rates[1]) : 0;
     if (diff > maxDiff) {
       maxDiff = diff;
       shockStat = stat;
@@ -212,13 +223,16 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
 
   const myAnswer = meAnswers.find((a) => a.electionId === shockStat.electionId)!;
   const targetAnswer = targetAnswers.find((a) => a.electionId === shockStat.electionId)!;
-  const shockTotal = (shockStat.optionACount ?? 0) + (shockStat.optionBCount ?? 0);
-  const shockOptARate =
-    shockTotal > 0 ? Math.round(((shockStat.optionACount ?? 0) / shockTotal) * 100) : 50;
-  const shockOptBRate =
-    shockTotal > 0 ? Math.round(((shockStat.optionBCount ?? 0) / shockTotal) * 100) : 50;
-  const myRate = myAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
-  const targetRate = targetAnswer.selected === 'A' ? shockOptARate : shockOptBRate;
+  const shockOptionStats = shockStat.optionStats ?? [];
+  const shockTotal = shockOptionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
+
+  const myOption = shockOptionStats.find((o) => o.electionItemId === myAnswer.electionItemId);
+  const targetOption = shockOptionStats.find(
+    (o) => o.electionItemId === targetAnswer.electionItemId
+  );
+  const myRate = shockTotal > 0 ? Math.round(((myOption?.voteCount ?? 0) / shockTotal) * 100) : 50;
+  const targetRate =
+    shockTotal > 0 ? Math.round(((targetOption?.voteCount ?? 0) / shockTotal) * 100) : 50;
 
   // 코멘트 생성: 소수파인 쪽에 재미 코멘트
   const meMinority = myRate < targetRate;
@@ -228,10 +242,8 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
   return {
     electionId: shockStat.electionId ?? '',
     title: shockStat.title ?? '',
-    optionA: shockStat.optionA ?? '',
-    optionB: shockStat.optionB ?? '',
-    mySelected: myAnswer.selected as 'A' | 'B',
-    targetSelected: targetAnswer.selected as 'A' | 'B',
+    myOptionText: myOption?.title ?? '',
+    targetOptionText: targetOption?.title ?? '',
     myRate,
     targetRate,
     comment,
@@ -245,17 +257,18 @@ export interface AnswerStoryData {
   same: Array<{
     electionId: string;
     title: string;
-    selected: string;
+    selected: string; // option text (not A/B code)
+    selectedImageUrl?: string;
     /** 두 사람이 고른 선택지의 대중 득표율 */
     selectedRate: number;
   }>;
   different: Array<{
     electionId: string;
     title: string;
-    mySelected: string;
-    targetSelected: string;
     myOptionText: string;
+    myImageUrl?: string;
     targetOptionText: string;
+    targetImageUrl?: string;
     /** 내 선택지의 대중 득표율 */
     myRate: number;
     /** 상대 선택지의 대중 득표율 */
@@ -276,30 +289,32 @@ export function classifyAnswers(result: CompareResult): AnswerStoryData {
       continue;
     }
 
-    const statTotal = (stat.optionACount ?? 0) + (stat.optionBCount ?? 0);
-    const optionARate =
-      statTotal > 0 ? Math.round(((stat.optionACount ?? 0) / statTotal) * 100) : 50;
-    const optionBRate =
-      statTotal > 0 ? Math.round(((stat.optionBCount ?? 0) / statTotal) * 100) : 50;
-    const myRate = myAnswer.selected === 'A' ? optionARate : optionBRate;
-    const targetRate = targetAnswer.selected === 'A' ? optionARate : optionBRate;
+    const optionStats = stat.optionStats ?? [];
+    const totalVotes = optionStats.reduce((sum, o) => sum + (o.voteCount ?? 0), 0);
 
-    if (myAnswer.selected === targetAnswer.selected) {
+    const myOption = optionStats.find((o) => o.electionItemId === myAnswer.electionItemId);
+    const targetOption = optionStats.find((o) => o.electionItemId === targetAnswer.electionItemId);
+    const myRate =
+      totalVotes > 0 ? Math.round(((myOption?.voteCount ?? 0) / totalVotes) * 100) : 50;
+    const targetRate =
+      totalVotes > 0 ? Math.round(((targetOption?.voteCount ?? 0) / totalVotes) * 100) : 50;
+
+    if (myAnswer.electionItemId === targetAnswer.electionItemId) {
       same.push({
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
-        selected: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        selected: myOption?.title ?? '',
+        selectedImageUrl: myOption?.imageUrl ?? undefined,
         selectedRate: myRate,
       });
     } else {
       different.push({
         electionId: stat.electionId ?? '',
         title: stat.title ?? '',
-        mySelected: myAnswer.selected ?? '',
-        targetSelected: targetAnswer.selected ?? '',
-        myOptionText: myAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
-        targetOptionText:
-          targetAnswer.selected === 'A' ? (stat.optionA ?? '') : (stat.optionB ?? ''),
+        myOptionText: myOption?.title ?? '',
+        myImageUrl: myOption?.imageUrl ?? undefined,
+        targetOptionText: targetOption?.title ?? '',
+        targetImageUrl: targetOption?.imageUrl ?? undefined,
         myRate,
         targetRate,
       });

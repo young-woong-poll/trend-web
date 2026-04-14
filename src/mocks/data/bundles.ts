@@ -93,42 +93,132 @@ export const mockBundleDetails: Record<string, BundleDetail> = {
 
 // 등급 테스트용 공통 질문
 const gradeTestElections: BundleElection[] = [
-  { electionId: 'gt-1', title: '테스트 질문 1', optionA: '선택 A', optionB: '선택 B' },
-  { electionId: 'gt-2', title: '테스트 질문 2', optionA: '선택 A', optionB: '선택 B' },
-  { electionId: 'gt-3', title: '테스트 질문 3', optionA: '선택 A', optionB: '선택 B' },
-  { electionId: 'gt-4', title: '테스트 질문 4', optionA: '선택 A', optionB: '선택 B' },
-  { electionId: 'gt-5', title: '테스트 질문 5', optionA: '선택 A', optionB: '선택 B' },
+  {
+    electionId: 'gt-1',
+    title: '테스트 질문 1',
+    options: [
+      { electionItemId: 'gt-1-A', title: '선택 A' },
+      { electionItemId: 'gt-1-B', title: '선택 B' },
+    ],
+  },
+  {
+    electionId: 'gt-2',
+    title: '테스트 질문 2',
+    options: [
+      { electionItemId: 'gt-2-A', title: '선택 A' },
+      { electionItemId: 'gt-2-B', title: '선택 B' },
+    ],
+  },
+  {
+    electionId: 'gt-3',
+    title: '테스트 질문 3',
+    options: [
+      { electionItemId: 'gt-3-A', title: '선택 A' },
+      { electionItemId: 'gt-3-B', title: '선택 B' },
+    ],
+  },
+  {
+    electionId: 'gt-4',
+    title: '테스트 질문 4',
+    options: [
+      { electionItemId: 'gt-4-A', title: '선택 A' },
+      { electionItemId: 'gt-4-B', title: '선택 B' },
+    ],
+  },
+  {
+    electionId: 'gt-5',
+    title: '테스트 질문 5',
+    options: [
+      { electionItemId: 'gt-5-A', title: '선택 A' },
+      { electionItemId: 'gt-5-B', title: '선택 B' },
+    ],
+  },
 ];
 
 export const mockBundleElections: Record<string, BundleElection[]> = {
   'love-values': [
-    { electionId: 'le-1', title: '썸 탈 때', optionA: '먼저 연락', optionB: '기다리기' },
+    {
+      electionId: 'le-1',
+      title: '썸 탈 때',
+      options: [
+        { electionItemId: 'le-1-A', title: '먼저 연락' },
+        { electionItemId: 'le-1-B', title: '기다리기' },
+      ],
+    },
     {
       electionId: 'le-2',
       title: '연인의 전 애인 사진',
-      optionA: '지워야 함',
-      optionB: '상관없음',
+      options: [
+        { electionItemId: 'le-2-A', title: '지워야 함' },
+        { electionItemId: 'le-2-B', title: '상관없음' },
+      ],
     },
-    { electionId: 'le-3', title: '기념일', optionA: '챙기는 편', optionB: '별로' },
-    { electionId: 'le-4', title: '연인의 이성 친구 만남', optionA: 'OK', optionB: 'NO' },
+    {
+      electionId: 'le-3',
+      title: '기념일',
+      options: [
+        { electionItemId: 'le-3-A', title: '챙기는 편' },
+        { electionItemId: 'le-3-B', title: '별로' },
+      ],
+    },
+    {
+      electionId: 'le-4',
+      title: '연인의 이성 친구 만남',
+      options: [
+        { electionItemId: 'le-4-A', title: 'OK' },
+        { electionItemId: 'le-4-B', title: 'NO' },
+      ],
+    },
     {
       electionId: 'le-5',
       title: '싸우면',
-      optionA: '바로 풀기',
-      optionB: '혼자 정리하고 대화',
+      options: [
+        { electionItemId: 'le-5-A', title: '바로 풀기' },
+        { electionItemId: 'le-5-B', title: '혼자 정리하고 대화' },
+      ],
     },
   ],
   'marriage-values': [
-    { electionId: 'me-1', title: '혼수 비용', optionA: '각자 알아서', optionB: '반반' },
+    {
+      electionId: 'me-1',
+      title: '혼수 비용',
+      options: [
+        { electionItemId: 'me-1-A', title: '각자 알아서' },
+        { electionItemId: 'me-1-B', title: '반반' },
+      ],
+    },
     {
       electionId: 'me-2',
       title: '결혼 후 경제활동',
-      optionA: '맞벌이',
-      optionB: '한쪽이 집에',
+      options: [
+        { electionItemId: 'me-2-A', title: '맞벌이' },
+        { electionItemId: 'me-2-B', title: '한쪽이 집에' },
+      ],
     },
-    { electionId: 'me-3', title: '신혼집', optionA: '매매', optionB: '전세' },
-    { electionId: 'me-4', title: '시댁·처가 명절', optionA: '매년', optionB: '격년' },
-    { electionId: 'me-5', title: '아이 교육', optionA: '사교육', optionB: '자율' },
+    {
+      electionId: 'me-3',
+      title: '신혼집',
+      options: [
+        { electionItemId: 'me-3-A', title: '매매' },
+        { electionItemId: 'me-3-B', title: '전세' },
+      ],
+    },
+    {
+      electionId: 'me-4',
+      title: '시댁·처가 명절',
+      options: [
+        { electionItemId: 'me-4-A', title: '매년' },
+        { electionItemId: 'me-4-B', title: '격년' },
+      ],
+    },
+    {
+      electionId: 'me-5',
+      title: '아이 교육',
+      options: [
+        { electionItemId: 'me-5-A', title: '사교육' },
+        { electionItemId: 'me-5-B', title: '자율' },
+      ],
+    },
   ],
   'grade-king': gradeTestElections,
   'grade-leader': gradeTestElections,
@@ -140,25 +230,21 @@ export const mockBundleElections: Record<string, BundleElection[]> = {
 /** 번들 답변 인메모리 저장소 (MSW용) */
 export const bundleAnswerStore = new Map<
   string,
-  Array<{ electionId: string; selected: 'A' | 'B' }>
+  Array<{ electionId: string; electionItemId: string }>
 >();
 
 /** 질문별 투표 집계 (MSW용) */
-export const bundleVoteStats = new Map<string, { optionACount: number; optionBCount: number }>();
+export const bundleVoteStats = new Map<string, Map<string, number>>();
 
 export function recordBundleAnswers(
   userId: string,
   slug: string,
-  answers: Array<{ electionId: string; selected: 'A' | 'B' }>
+  answers: Array<{ electionId: string; electionItemId: string }>
 ) {
   bundleAnswerStore.set(`${userId}_${slug}`, answers);
   for (const answer of answers) {
-    const stats = bundleVoteStats.get(answer.electionId) ?? { optionACount: 0, optionBCount: 0 };
-    if (answer.selected === 'A') {
-      stats.optionACount++;
-    } else {
-      stats.optionBCount++;
-    }
+    const stats = bundleVoteStats.get(answer.electionId) ?? new Map<string, number>();
+    stats.set(answer.electionItemId, (stats.get(answer.electionItemId) ?? 0) + 1);
     bundleVoteStats.set(answer.electionId, stats);
   }
 }
@@ -173,22 +259,22 @@ export function seedSecondUser() {
   // mock-user-1 (생성자) 답변 시드
   if (!bundleAnswerStore.has(`mock-user-1_${slug}`)) {
     recordBundleAnswers('mock-user-1', slug, [
-      { electionId: 'le-1', selected: 'A' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'B' },
-      { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-1', electionItemId: 'le-1-A' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-B' },
+      { electionId: 'le-4', electionItemId: 'le-4-A' },
+      { electionId: 'le-5', electionItemId: 'le-5-A' },
     ]);
   }
 
   // mock-user-2 (참여자) 답변 시드
   if (!bundleAnswerStore.has(`mock-user-2_${slug}`)) {
     recordBundleAnswers('mock-user-2', slug, [
-      { electionId: 'le-1', selected: 'B' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'A' },
-      { electionId: 'le-4', selected: 'B' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-1', electionItemId: 'le-1-B' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-A' },
+      { electionId: 'le-4', electionItemId: 'le-4-B' },
+      { electionId: 'le-5', electionItemId: 'le-5-A' },
     ]);
   }
 
@@ -196,22 +282,22 @@ export function seedSecondUser() {
   const marriageSlug = 'marriage-values';
   if (!bundleAnswerStore.has(`mock-user-1_${marriageSlug}`)) {
     recordBundleAnswers('mock-user-1', marriageSlug, [
-      { electionId: 'me-1', selected: 'B' },
-      { electionId: 'me-2', selected: 'A' },
-      { electionId: 'me-3', selected: 'A' },
-      { electionId: 'me-4', selected: 'A' },
-      { electionId: 'me-5', selected: 'B' },
+      { electionId: 'me-1', electionItemId: 'me-1-B' },
+      { electionId: 'me-2', electionItemId: 'me-2-A' },
+      { electionId: 'me-3', electionItemId: 'me-3-A' },
+      { electionId: 'me-4', electionItemId: 'me-4-A' },
+      { electionId: 'me-5', electionItemId: 'me-5-B' },
     ]);
   }
 
   // mock-user-2 marriage-values 답변 시드 (invite2 링크 생성자용)
   if (!bundleAnswerStore.has(`mock-user-2_${marriageSlug}`)) {
     recordBundleAnswers('mock-user-2', marriageSlug, [
-      { electionId: 'me-1', selected: 'A' },
-      { electionId: 'me-2', selected: 'B' },
-      { electionId: 'me-3', selected: 'A' },
-      { electionId: 'me-4', selected: 'B' },
-      { electionId: 'me-5', selected: 'A' },
+      { electionId: 'me-1', electionItemId: 'me-1-A' },
+      { electionId: 'me-2', electionItemId: 'me-2-B' },
+      { electionId: 'me-3', electionItemId: 'me-3-A' },
+      { electionId: 'me-4', electionItemId: 'me-4-B' },
+      { electionId: 'me-5', electionItemId: 'me-5-A' },
     ]);
   }
 }
@@ -227,43 +313,43 @@ export function seedGroupUsers() {
   // user-4: 전부 소신 선택(B,A,B,A,B) → 15,25,22,30,28 → avg 24 (유니콘)
   // user-5: 대중 4개(A,B,A,B,B) → 85,75,78,70,28 → avg 67 (트렌드 여우)
   // user-6: 소신 3개(B,A,B,A,A) → 15,25,22,30,72 → avg 33 (유니콘)
-  const groupAnswers: Record<string, Array<{ electionId: string; selected: 'A' | 'B' }>> = {
+  const groupAnswers: Record<string, Array<{ electionId: string; electionItemId: string }>> = {
     // le-2: 전원 A → 만장일치, le-4: 4:1 → 압도적, le-1: 3:2 → 논쟁
     'mock-user-3': [
-      { electionId: 'le-1', selected: 'A' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'A' },
-      { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-1', electionItemId: 'le-1-A' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-A' },
+      { electionId: 'le-4', electionItemId: 'le-4-A' },
+      { electionId: 'le-5', electionItemId: 'le-5-A' },
     ],
     'mock-user-4': [
-      { electionId: 'le-1', selected: 'B' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'B' },
-      { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'B' },
+      { electionId: 'le-1', electionItemId: 'le-1-B' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-B' },
+      { electionId: 'le-4', electionItemId: 'le-4-A' },
+      { electionId: 'le-5', electionItemId: 'le-5-B' },
     ],
     'mock-user-5': [
-      { electionId: 'le-1', selected: 'A' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'A' },
-      { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'B' },
+      { electionId: 'le-1', electionItemId: 'le-1-A' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-A' },
+      { electionId: 'le-4', electionItemId: 'le-4-A' },
+      { electionId: 'le-5', electionItemId: 'le-5-B' },
     ],
     'mock-user-6': [
-      { electionId: 'le-1', selected: 'B' },
-      { electionId: 'le-2', selected: 'A' },
-      { electionId: 'le-3', selected: 'B' },
-      { electionId: 'le-4', selected: 'A' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-1', electionItemId: 'le-1-B' },
+      { electionId: 'le-2', electionItemId: 'le-2-A' },
+      { electionId: 'le-3', electionItemId: 'le-3-B' },
+      { electionId: 'le-4', electionItemId: 'le-4-A' },
+      { electionId: 'le-5', electionItemId: 'le-5-A' },
     ],
     // 탈퇴 유저 (withdrawn) 답변 시드
     'mock-user-withdrawn': [
-      { electionId: 'le-1', selected: 'A' },
-      { electionId: 'le-2', selected: 'B' },
-      { electionId: 'le-3', selected: 'A' },
-      { electionId: 'le-4', selected: 'B' },
-      { electionId: 'le-5', selected: 'A' },
+      { electionId: 'le-1', electionItemId: 'le-1-A' },
+      { electionId: 'le-2', electionItemId: 'le-2-B' },
+      { electionId: 'le-3', electionItemId: 'le-3-A' },
+      { electionId: 'le-4', electionItemId: 'le-4-B' },
+      { electionId: 'le-5', electionItemId: 'le-5-A' },
     ],
   };
 
@@ -276,27 +362,27 @@ export function seedGroupUsers() {
 
   // marriage-values 답변 시드 (비멤버 시나리오 테스트용)
   const marriageSlug = 'marriage-values';
-  const marriageAnswers: Record<string, Array<{ electionId: string; selected: 'A' | 'B' }>> = {
+  const marriageAnswers: Record<string, Array<{ electionId: string; electionItemId: string }>> = {
     'mock-user-3': [
-      { electionId: 'me-1', selected: 'A' },
-      { electionId: 'me-2', selected: 'B' },
-      { electionId: 'me-3', selected: 'A' },
-      { electionId: 'me-4', selected: 'B' },
-      { electionId: 'me-5', selected: 'A' },
+      { electionId: 'me-1', electionItemId: 'me-1-A' },
+      { electionId: 'me-2', electionItemId: 'me-2-B' },
+      { electionId: 'me-3', electionItemId: 'me-3-A' },
+      { electionId: 'me-4', electionItemId: 'me-4-B' },
+      { electionId: 'me-5', electionItemId: 'me-5-A' },
     ],
     'mock-user-4': [
-      { electionId: 'me-1', selected: 'B' },
-      { electionId: 'me-2', selected: 'A' },
-      { electionId: 'me-3', selected: 'B' },
-      { electionId: 'me-4', selected: 'A' },
-      { electionId: 'me-5', selected: 'B' },
+      { electionId: 'me-1', electionItemId: 'me-1-B' },
+      { electionId: 'me-2', electionItemId: 'me-2-A' },
+      { electionId: 'me-3', electionItemId: 'me-3-B' },
+      { electionId: 'me-4', electionItemId: 'me-4-A' },
+      { electionId: 'me-5', electionItemId: 'me-5-B' },
     ],
     'mock-user-5': [
-      { electionId: 'me-1', selected: 'A' },
-      { electionId: 'me-2', selected: 'A' },
-      { electionId: 'me-3', selected: 'B' },
-      { electionId: 'me-4', selected: 'B' },
-      { electionId: 'me-5', selected: 'A' },
+      { electionId: 'me-1', electionItemId: 'me-1-A' },
+      { electionId: 'me-2', electionItemId: 'me-2-A' },
+      { electionId: 'me-3', electionItemId: 'me-3-B' },
+      { electionId: 'me-4', electionItemId: 'me-4-B' },
+      { electionId: 'me-5', electionItemId: 'me-5-A' },
     ],
   };
 
@@ -323,18 +409,17 @@ export function seedLargeGroupUsers(count: number) {
     }
     // 시드 기반 — 다양한 대중성 분포를 만들기 위해 유저마다 대중 선택 비율이 다름
     // seedRatios=[85,25,78,30,72]에서 대중 선택: le-1→A, le-2→B, le-3→A, le-4→B, le-5→A
-    const popularChoices = ['A', 'B', 'A', 'B', 'A'];
+    const popularSuffixes = ['A', 'B', 'A', 'B', 'A'];
     const hash = i * 31;
     const answers = electionIds.map((electionId, j) => {
       // 유저별로 대중 선택 확률을 다르게 (0%~100%)
       const threshold = (hash + j * 17) % 100;
       const cutoff = (i % 5) * 25; // 0, 25, 50, 75, 100
       const isPopular = threshold >= cutoff;
+      const suffix = isPopular ? popularSuffixes[j] : popularSuffixes[j] === 'A' ? 'B' : 'A';
       return {
         electionId,
-        selected: (isPopular ? popularChoices[j] : popularChoices[j] === 'A' ? 'B' : 'A') as
-          | 'A'
-          | 'B',
+        electionItemId: `${electionId}-${suffix}`,
       };
     });
     recordBundleAnswers(userId, slug, answers);
@@ -363,21 +448,26 @@ export function getBundleResult(userId: string, slug: string): BundleMyResult | 
       return {
         electionId: a.electionId,
         title: election?.title ?? '',
-        optionA: election?.optionA ?? '',
-        optionB: election?.optionB ?? '',
-        selected: a.selected,
+        options: election?.options ?? [],
+        selectedElectionItemId: a.electionItemId,
       };
     }),
     questionStats: elections.map((e, i) => {
-      const stats = bundleVoteStats.get(e.electionId ?? '') ?? { optionACount: 0, optionBCount: 0 };
-      const total = stats.optionACount + stats.optionBCount;
+      const stats = bundleVoteStats.get(e.electionId ?? '');
+      const options = e.options ?? [];
       const seedRatios = [62, 45, 71, 38, 55, 48, 66, 33, 57, 42];
       const seedA = seedRatios[i] ?? 50;
-      const seedB = 100 - seedA;
       return {
         electionId: e.electionId,
-        optionACount: total > 0 ? stats.optionACount : seedA,
-        optionBCount: total > 0 ? stats.optionBCount : seedB,
+        optionStats: options.map((opt, optIdx) => ({
+          electionItemId: opt.electionItemId,
+          title: opt.title,
+          voteCount: stats
+            ? (stats.get(opt.electionItemId ?? '') ?? 0)
+            : optIdx === 0
+              ? seedA
+              : 100 - seedA,
+        })),
       };
     }),
   };

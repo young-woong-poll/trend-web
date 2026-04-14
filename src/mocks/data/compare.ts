@@ -487,12 +487,13 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     for (const answer of creatorAnswers) {
       const stats = bundleVoteStats.get(answer.electionId);
       if (stats) {
-        const total = stats.optionACount + stats.optionBCount;
+        let total = 0;
+        for (const count of stats.values()) {
+          total += count;
+        }
         if (total > 0) {
-          const rate =
-            answer.selected === 'A'
-              ? Math.round((stats.optionACount / total) * 100)
-              : Math.round((stats.optionBCount / total) * 100);
+          const myVotes = stats.get(answer.electionItemId) ?? 0;
+          const rate = Math.round((myVotes / total) * 100);
           totalRate += rate;
           matched++;
         }
@@ -665,7 +666,7 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
   let matchCount = 0;
   for (const me of meAnswers) {
     const target = targetAnswers.find((t) => t.electionId === me.electionId);
-    if (target && me.selected === target.selected) {
+    if (target && me.electionItemId === target.electionItemId) {
       matchCount++;
     }
   }
@@ -679,25 +680,38 @@ export function getCompareResult(token: string, currentUserId: string): CompareR
     totalQuestions: elections.length,
     me: {
       nickname: meNickname,
-      answers: meAnswers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
+      displayName: meNickname,
+      answers: meAnswers.map((a) => ({
+        electionId: a.electionId,
+        electionItemId: a.electionItemId,
+      })),
     },
     target: {
       nickname: targetNickname,
+      displayName: targetNickname,
+      displayProfileColor: isTargetWithdrawn ? undefined : 'coral',
       isWithdrawn: isTargetWithdrawn || undefined,
-      answers: targetAnswers.map((a) => ({ electionId: a.electionId, selected: a.selected })),
+      answers: targetAnswers.map((a) => ({
+        electionId: a.electionId,
+        electionItemId: a.electionItemId,
+      })),
     },
     questionStats: elections.map((e, i) => {
-      const stats = bundleVoteStats.get(e.electionId ?? '') ?? { optionACount: 0, optionBCount: 0 };
-      const total = stats.optionACount + stats.optionBCount;
+      const stats = bundleVoteStats.get(e.electionId ?? '');
+      const options = e.options ?? [];
       const seedA = seedRatios[i] ?? 50;
-      const seedB = 100 - seedA;
       return {
         electionId: e.electionId ?? '',
         title: e.title ?? '',
-        optionA: e.optionA ?? '',
-        optionB: e.optionB ?? '',
-        optionACount: total > 0 ? stats.optionACount : seedA,
-        optionBCount: total > 0 ? stats.optionBCount : seedB,
+        optionStats: options.map((opt, optIdx) => ({
+          electionItemId: opt.electionItemId,
+          title: opt.title,
+          voteCount: stats
+            ? (stats.get(opt.electionItemId ?? '') ?? 0)
+            : optIdx === 0
+              ? seedA
+              : 100 - seedA,
+        })),
       };
     }),
     matchCount,

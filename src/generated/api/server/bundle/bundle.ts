@@ -130,7 +130,7 @@ export const submitAnswers = async (
 };
 
 /**
- * @summary 번들 목록 (API 15, 로그인 필수)
+ * @summary 번들 목록 (API 15, 비로그인 허용)
  */
 export type listResponse200 = {
   data: BaseResponseListBundleSummaryResponse;
@@ -183,7 +183,7 @@ export const list = async (params?: ListParams, options?: RequestInit): Promise<
 };
 
 /**
- * @summary 번들 상세 조회 (API 1, 로그인 필수)
+ * @summary 번들 상세 조회 (API 1, 비로그인 허용)
  */
 export type getDetail1Response200 = {
   data: BaseResponseBundleSummaryResponse;

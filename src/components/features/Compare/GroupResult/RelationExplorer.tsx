@@ -9,11 +9,13 @@ import { getMemberGradient } from '@/constants/profileColors';
 import type { GroupCompareResult, PairChemistry } from '@/types/group-compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  SS: '#E040FB',
   S: '#3B82F6',
   A: '#22C55E',
   B: '#FACC15',
   C: '#F97316',
   D: '#EF4444',
+  X: '#00E5FF',
 };
 
 interface RelationExplorerProps {
@@ -78,17 +80,17 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
     }
 
     return questionStats.map((q) => {
+      const options = q.optionStats ?? [];
       const answerA = (memberA.answers ?? []).find((a) => a.electionId === q.electionId);
       const answerB = (memberB.answers ?? []).find((a) => a.electionId === q.electionId);
-      const selectedA = answerA?.selected ?? null;
-      const selectedB = answerB?.selected ?? null;
+      const selectedA = answerA?.electionItemId ?? null;
+      const selectedB = answerB?.electionItemId ?? null;
       const isMatch = selectedA !== null && selectedB !== null && selectedA === selectedB;
 
       return {
         electionId: q.electionId ?? '',
         title: q.title ?? '',
-        optionA: q.optionA ?? '',
-        optionB: q.optionB ?? '',
+        options,
         selectedA,
         selectedB,
         isMatch,
@@ -115,8 +117,10 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
     return member?.gender;
   };
 
-  const getDisplayLabel = (answer: string, optionA: string, optionB: string) =>
-    answer === 'A' ? optionA : optionB;
+  const getDisplayLabel = (
+    itemId: string,
+    options: Array<{ electionItemId?: string; title?: string }>
+  ) => options.find((o) => o.electionItemId === itemId)?.title ?? '';
 
   return (
     <div className={styles.container}>
@@ -195,7 +199,7 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
                 <span
                   className={`${styles.answerPill} ${q.isMatch ? styles.pillMatch : styles.pillLeft}`}
                 >
-                  {q.selectedA ? getDisplayLabel(q.selectedA, q.optionA, q.optionB) : '-'}
+                  {q.selectedA ? getDisplayLabel(q.selectedA, q.options) : '-'}
                 </span>
               </div>
               <span
@@ -207,7 +211,7 @@ export const RelationExplorer: FC<RelationExplorerProps> = ({ currentUserId, res
                 <span
                   className={`${styles.answerPill} ${q.isMatch ? styles.pillMatch : styles.pillRight}`}
                 >
-                  {q.selectedB ? getDisplayLabel(q.selectedB, q.optionA, q.optionB) : '-'}
+                  {q.selectedB ? getDisplayLabel(q.selectedB, q.options) : '-'}
                 </span>
               </div>
             </div>

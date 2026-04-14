@@ -5,19 +5,23 @@ import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
 import { IDENTITY_COLORS } from '@/constants/compare';
 
 const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  SS: '#E040FB',
   S: '#3B82F6',
   A: '#22C55E',
   B: '#FACC15',
   C: '#F97316',
   D: '#EF4444',
+  X: '#00E5FF',
 };
 
 const GRADE_INFO = [
-  { grade: 'S', range: '80% 이상', title: '말 안 해도 통하는' },
+  { grade: 'SS', range: '100%', title: '도플갱어' },
+  { grade: 'S', range: '80~99%', title: '말 안 해도 통하는' },
   { grade: 'A', range: '60~79%', title: '꽤 잘 맞는' },
   { grade: 'B', range: '40~59%', title: '같을 때도 다를 때도' },
   { grade: 'C', range: '20~39%', title: '각자의 세계' },
-  { grade: 'D', range: '19% 이하', title: '정반대의 가치관' },
+  { grade: 'D', range: '1~19%', title: '정반대의 가치관' },
+  { grade: 'X', range: '0%', title: '완벽한 반대' },
 ];
 
 interface ChemistryCardProps {

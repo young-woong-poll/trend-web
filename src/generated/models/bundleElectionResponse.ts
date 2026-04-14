@@ -4,6 +4,7 @@
  * OpenAPI definition
  * OpenAPI spec version: v0
  */
+import type { BundleElectionOptionResponse } from './bundleElectionOptionResponse';
 
 /**
  * 응답 데이터
@@ -11,6 +12,5 @@
 export interface BundleElectionResponse {
   electionId?: string;
   title?: string;
-  optionA?: string;
-  optionB?: string;
+  options?: BundleElectionOptionResponse[];
 }
