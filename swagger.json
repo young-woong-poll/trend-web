@@ -2289,6 +2289,66 @@
         }
       }
     },
+    "/admin/api/v1/bundles/{bundleId}/stats/rebuild": {
+      "post": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 일별 통계 재구축 (BundleCompletion → BundleDailyStat)",
+        "operationId": "rebuildStats",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseMapStringLong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/v1/bundles/{bundleId}/elections": {
       "post": {
         "tags": ["Admin Bundle"],
@@ -4406,6 +4466,66 @@
           }
         }
       }
+    },
+    "/admin/api/v1/bundles/{bundleId}/stats": {
+      "get": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 상세 통계 (참여현황 + 비교링크 + 질문별 응답분포)",
+        "operationId": "getStats",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminBundleStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5759,6 +5879,31 @@
           }
         }
       },
+      "BaseResponseMapStringLong": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "description": "응답 데이터",
+              "format": "int64"
+            },
+            "description": "응답 데이터"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
       "AddBundleElectionAdminRequest": {
         "required": ["options", "title"],
         "type": "object",
@@ -7075,6 +7220,10 @@
           "memberCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "matchRate": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "description": "응답 데이터"
@@ -7352,6 +7501,151 @@
           }
         },
         "description": "공통 응답 포맷"
+      },
+      "AdminBundleStatsResponse": {
+        "type": "object",
+        "properties": {
+          "bundleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "CLOSED"]
+          },
+          "participation": {
+            "$ref": "#/components/schemas/ParticipationStats"
+          },
+          "compareLinks": {
+            "$ref": "#/components/schemas/CompareLinkStats"
+          },
+          "questionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionStat"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAdminBundleStatsResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminBundleStatsResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CompareLinkItem": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "creatorNickname": {
+            "type": "string"
+          },
+          "groupName": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CompareLinkStats": {
+        "type": "object",
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "oneToOneCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "groupCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "activeGroupCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompareLinkItem"
+            }
+          }
+        }
+      },
+      "DailyStat": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ParticipationStats": {
+        "type": "object",
+        "properties": {
+          "totalParticipants": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "completionRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "dailyStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyStat"
+            }
+          }
+        }
       },
       "DeleteCommentRequest": {
         "type": "object",
