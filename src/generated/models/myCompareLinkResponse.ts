@@ -18,5 +18,5 @@ export interface MyCompareLinkResponse {
   participantNickname?: string;
   groupName?: string;
   memberCount?: number;
-  matchRate: number;
+  matchRate?: number;
 }

@@ -383,6 +383,7 @@
   color: $white;
   line-height: 1.6;
   text-align: center;
+  word-break: keep-all;
 }
 
 .takenNotice {
@@ -390,6 +391,7 @@
   color: $text-tertiary;
   line-height: 1.6;
   text-align: center;
+  word-break: keep-all;
 }
 
 // ─── Fixed Bottom CTA ───
