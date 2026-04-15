@@ -3,6 +3,7 @@
 import { type FC } from 'react';
 
 import LikeIcon from '@/assets/icon/LikeIcon';
+import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
 import { getRelativeTime, sanitizeComment } from '@/lib/utils';
 import type { CommentItem as CommentItemType } from '@/types/comment';
@@ -35,10 +36,19 @@ export const CommentItem: FC<CommentItemProps> = ({
   const formatLikeCount = (count: number | undefined): string =>
     (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
+  const isRegisteredUser = !!comment.profileColor;
+
   return (
     <div className={styles.commentItem}>
-      {/* 헤더: 닉네임, 시간 */}
+      {/* 헤더: 프로필 아바타(로그인 유저) + 닉네임 + 시간 */}
       <div className={styles.header}>
+        {isRegisteredUser && (
+          <ProfileAvatar
+            nickname={comment.nickname ?? null}
+            profileColor={comment.profileColor ?? ''}
+            size={24}
+          />
+        )}
         <span className={styles.nickname}>{comment.nickname}</span>
         <span className={styles.time}>
           {getRelativeTime(comment.createdAt ?? '')}
@@ -63,25 +73,29 @@ export const CommentItem: FC<CommentItemProps> = ({
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
-        <div className={styles.actionButtons}>
-          <button
-            type="button"
-            className={styles.editButton}
-            onClick={handleEditClick}
-            aria-label="댓글 수정"
-          >
-            수정
-          </button>
+        {/* 비로그인 댓글: 누구나 비밀번호로 수정/삭제 시도 가능
+            로그인 댓글: 본인(isMine)만 수정/삭제 가능 */}
+        {(!isRegisteredUser || comment.isMine) && (
+          <div className={styles.actionButtons}>
+            <button
+              type="button"
+              className={styles.editButton}
+              onClick={handleEditClick}
+              aria-label="댓글 수정"
+            >
+              수정
+            </button>
 
-          <button
-            type="button"
-            className={styles.deleteButton}
-            onClick={handleDeleteClick}
-            aria-label="댓글 삭제"
-          >
-            삭제
-          </button>
-        </div>
+            <button
+              type="button"
+              className={styles.deleteButton}
+              onClick={handleDeleteClick}
+              aria-label="댓글 삭제"
+            >
+              삭제
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { defineConfig } from 'orval';
 
-// */* content-type을 application/json으로 변환하는 transformer
-const transformContentType = (inputSchema: Record<string, unknown>) => {
+// */* content-type을 application/json으로 변환 + Admin 스키마 제거 transformer
+const transformSchema = (inputSchema: Record<string, unknown>) => {
   const transformResponses = (responses: Record<string, unknown>) => {
     for (const statusCode in responses) {
       const response = responses[statusCode] as {
@@ -25,6 +25,19 @@ const transformContentType = (inputSchema: Record<string, unknown>) => {
       }
     }
   }
+
+  // Admin 관련 스키마 제거
+  const schemas = (inputSchema.components as Record<string, unknown>)?.schemas as
+    | Record<string, unknown>
+    | undefined;
+  if (schemas) {
+    for (const key of Object.keys(schemas)) {
+      if (/^Admin|Admin/.test(key)) {
+        delete schemas[key];
+      }
+    }
+  }
+
   return inputSchema;
 };
 
@@ -35,7 +48,7 @@ export default defineConfig({
     input: {
       target: './swagger.json',
       override: {
-        transformer: transformContentType,
+        transformer: transformSchema,
       },
       filters: {
         mode: 'exclude',
@@ -64,7 +77,7 @@ export default defineConfig({
     input: {
       target: './swagger.json',
       override: {
-        transformer: transformContentType,
+        transformer: transformSchema,
       },
       filters: {
         mode: 'exclude',

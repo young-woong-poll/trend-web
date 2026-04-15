@@ -6,7 +6,7 @@
  */
 
 export interface UpdateCommentRequest {
-  verifyToken: string;
+  verifyToken?: string;
   /**
    * @minLength 0
    * @maxLength 200

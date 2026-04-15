@@ -11,4 +11,5 @@
 export interface HotpickLikeResponse {
   liked?: boolean;
   likeCount?: number;
+  likedAt?: string;
 }

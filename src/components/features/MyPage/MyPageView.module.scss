@@ -1,0 +1,212 @@
+// src/components/features/MyPage/MyPageView.module.scss
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+}
+
+// ─── 뒤로가기 ───
+.backButton {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: $z-index-sticky;
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: $text-secondary;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
+  }
+}
+
+// ─── 프로필 영역 ───
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px 24px;
+}
+
+.profileName {
+  margin-top: 12px;
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+}
+
+.profileSuffix {
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+}
+
+// ─── 관리 버튼 ───
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: $border-rounded;
+  border: 1px solid $border-placeholder;
+  background: none;
+  font-size: $font-size-12;
+  color: $text-secondary;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    border-color: $text-secondary;
+    color: $white;
+  }
+
+  svg {
+    color: $text-tertiary;
+  }
+}
+
+// ─── 구분선 ───
+.divider {
+  height: 8px;
+  background: #1a1a1a;
+  margin: 0 -16px;
+}
+
+// ─── 계정 관리 ───
+.accountSection {
+  padding: 20px 0;
+}
+
+.logoutButton {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(color, 0.2s, ease);
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.withdrawButton {
+  display: block;
+  width: 100%;
+  padding: 12px 0;
+  font-size: $font-size-14;
+  color: $error;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  @include transition(opacity, 0.2s, ease);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// ─── 댓글/좋아요 목록 (My 탭) ───
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 16px;
+}
+
+.card {
+  display: block;
+  padding: 16px 0;
+  text-decoration: none;
+  border-bottom: 1px solid #2c2c2c;
+  @include transition(background, 0.2s, ease);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  line-height: 1.5;
+  margin: 0;
+
+  // 2줄 말줄임
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardSub {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+.cardDate {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 6px 0 0;
+}
+
+.emptyState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+}
+
+.loadMoreButton {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  margin-top: 8px;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  background: none;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  cursor: pointer;
+  @include transition(all, 0.2s, ease);
+
+  &:hover {
+    border-color: $text-tertiary;
+    color: $white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

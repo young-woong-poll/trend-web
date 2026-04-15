@@ -21,10 +21,51 @@
 
 ## 디자인 시스템
 
-- 다크 테마 (#121212 배경)
+- **다크 테마 전용** (#121212 배경) — 라이트 모드 없음
 - Primary Gradient: #ff00ff → #ff4500
 - Attention: #DFFF00
 - 상세 토큰: `docs/design-system/tokens.md` 참조
+
+### 다크 모드 UI 규칙 (필수 준수)
+
+이 프로젝트는 **다크 모드 전용**입니다. 모든 UI 컴포넌트 생성/수정 시 아래 규칙을 반드시 따르세요.
+
+#### 팝업/모달 (Modal, Alert, Confirm)
+
+| 요소        | 값                                                                  |
+| ----------- | ------------------------------------------------------------------- |
+| 배경        | `$bg-secondary` (#1e1e1e)                                           |
+| 테두리      | 1px solid #333                                                      |
+| 그림자      | `0 20px 40px rgba(0, 0, 0, 0.5)`                                    |
+| 제목 텍스트 | `$white` (#ffffff)                                                  |
+| 본문 텍스트 | `$text-secondary` (#d1d1d1)                                         |
+| 보조 텍스트 | `$text-tertiary` (#8a8a8a)                                          |
+| 닫기 버튼   | `$text-tertiary`, hover 시 `$white` + `rgba(255,255,255,0.05)` 배경 |
+
+#### 입력 필드 (Input)
+
+| 요소          | 값                         |
+| ------------- | -------------------------- |
+| 배경          | `$bg-tertiary` (#2c2c2c)   |
+| 테두리        | 1px solid #3a3a3a          |
+| 텍스트        | `$white`                   |
+| 플레이스홀더  | `$text-tertiary` (#8a8a8a) |
+| 포커스 테두리 | `$text-tertiary` (#8a8a8a) |
+| 에러 테두리   | `$error` (#ff2e2e)         |
+
+#### 버튼
+
+| variant          | 배경                     | 텍스트            | 테두리                          |
+| ---------------- | ------------------------ | ----------------- | ------------------------------- |
+| primary (확인)   | `$bg-tertiary` (#2c2c2c) | `$white`          | 1px solid `$border-placeholder` |
+| secondary (취소) | transparent              | `$text-secondary` | 1px solid #333                  |
+| gradient (CTA)   | `$primary-gradient`      | `$white`          | none                            |
+
+#### 절대 사용 금지
+
+- `$white` (#ffffff)를 배경으로 사용
+- `$neutral-900`, `$neutral-600` 등 라이트 테마 텍스트 색상
+- `$neutral-200`, `$neutral-300` 등 라이트 테마 테두리/배경 색상
 
 ## 문서 위치
 
@@ -48,6 +89,14 @@
 - 스타일: 컴포넌트명.module.scss
 - API 응답 타입: 기획서 섹션 13 참조
 - 서버 API 미구현 시: MSW 또는 하드코딩 mock 데이터로 대체
+- 나중에 API 추가 등으로 변경이 필요한 하드코딩에는 `// TODO: 설명` 주석을 남길 것
+
+### SCSS 변수 사용 규칙
+
+- `src/styles/_variables.scss`에 **정의된 변수만** 사용할 것
+- 존재하지 않는 변수를 추측하여 사용 금지 (예: `$font-size-13` 같은 미정의 변수)
+- 정의된 변수에 없는 값이 필요하면 직접 값(예: `13px`)을 사용
+- 자주 쓰는 font-size 변수: `$font-size-12`, `$font-size-14`, `$font-size-16`, `$font-size-18`, `$font-size-20`, `$font-size-22`, `$font-size-24`, `$font-size-26`, `$font-size-28`, `$font-size-30`, `$font-size-32`, `$font-size-36`, `$font-size-40`, `$font-size-42`, `$font-size-48`
 
 ## 팀 구성
 
@@ -94,6 +143,18 @@
 5. **사용자에게 푸시 확인 요청**
 6. 승인 후 푸시
 
+## 문제 해결 참조
+
+- 버그 수정이나 기술적 문제 해결 시, 먼저 `docs/solutions/` 디렉토리를 검색하여 기존 해결책이 있는지 확인
+- 특히 UI 관련 이슈(모달, z-index, 스크롤 등)는 `docs/solutions/ui-bugs/` 참조
+- 해결한 비자명한 문제는 `/compound` 스킬로 문서화하여 지식 축적
+
+## 모달/오버레이 구현 규칙
+
+- **필수**: `createPortal(el, document.body)` 사용 — `BundleBackground` 등 `backdrop-filter`가 있는 부모 안에서 렌더링하면 stacking context에 갇혀 z-index가 동작하지 않음
+- **필수**: iOS 스크롤 잠금은 `position: fixed` 패턴 사용 (`overflow: hidden`만으로 부족)
+- 상세: `docs/solutions/ui-bugs/modal-scroll-lock-and-zindex-stacking-context-2026-04-02.md`
+
 ## 아이콘 사용 규칙
 
 ### SVG 아이콘 파일 위치
@@ -123,3 +184,41 @@ import IconName from '@/assets/icon/IconName';
 // 컴포넌트에서 사용
 <IconName className={styles.icon} />;
 ```
+
+## gstack
+
+웹 브라우징은 반드시 `/browse` skill을 사용합니다. `mcp__claude-in-chrome__*` 도구는 절대 사용하지 마세요.
+
+### 사용 가능한 skills
+
+- `/office-hours` — 오피스 아워
+- `/plan-ceo-review` — CEO 리뷰 플랜
+- `/plan-eng-review` — 엔지니어링 리뷰 플랜
+- `/plan-design-review` — 디자인 리뷰 플랜
+- `/design-consultation` — 디자인 컨설팅
+- `/design-shotgun` — 디자인 샷건
+- `/design-html` — 디자인 HTML
+- `/review` — 코드 리뷰
+- `/ship` — 배포
+- `/land-and-deploy` — 랜딩 & 디플로이
+- `/canary` — 카나리 배포
+- `/benchmark` — 벤치마크
+- `/browse` — 웹 브라우징 (모든 웹 브라우징에 사용)
+- `/connect-chrome` — 크롬 연결
+- `/qa` — QA
+- `/qa-only` — QA only
+- `/design-review` — 디자인 리뷰
+- `/setup-browser-cookies` — 브라우저 쿠키 설정
+- `/setup-deploy` — 배포 설정
+- `/retro` — 회고
+- `/investigate` — 조사
+- `/document-release` — 릴리스 문서화
+- `/codex` — 코덱스
+- `/cso` — CSO
+- `/autoplan` — 자동 플랜
+- `/careful` — 신중 모드
+- `/freeze` — 프리즈
+- `/guard` — 가드
+- `/unfreeze` — 언프리즈
+- `/gstack-upgrade` — gstack 업그레이드
+- `/learn` — 학습

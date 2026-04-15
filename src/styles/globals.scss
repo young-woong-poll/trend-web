@@ -1,5 +1,13 @@
 @use '@/styles/variables' as *;
 
+:root {
+  --primary-start: #{$primary-start};
+  --primary-end: #{$primary-end};
+  --primary-gradient: linear-gradient(90deg, var(--primary-start) 0%, var(--primary-end) 100%);
+  --primary-start-rgb: 255, 0, 255;
+  --primary-end-rgb: 255, 69, 0;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -11,6 +19,7 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   background: $bg-primary;
+  font-family: $font-family-base;
 }
 
 a {

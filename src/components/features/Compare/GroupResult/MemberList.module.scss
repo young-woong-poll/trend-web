@@ -1,0 +1,112 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.9s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.memberCards {
+  @include flex-column;
+  gap: 8px;
+}
+
+.memberCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(#1e1e1e, 0.8);
+  }
+}
+
+.memberAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.memberInfo {
+  flex: 1;
+  min-width: 0;
+  @include flex-column;
+  gap: 2px;
+}
+
+.memberName {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberGrade {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.memberRate {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+}
+
+.memberRateUnit {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.arrow {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin-left: 4px;
+}

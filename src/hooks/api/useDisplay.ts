@@ -6,6 +6,7 @@ import {
   type InfiniteData,
 } from '@tanstack/react-query';
 
+import { useAuth } from '@/contexts/AuthContext';
 import * as clientApi from '@/generated/api/client/hotpick/hotpick';
 import * as serverApi from '@/generated/api/server/hotpick/hotpick';
 import type {
@@ -80,7 +81,7 @@ export const displayQueries = {
   /**
    * 핫픽 상세 쿼리 옵션
    */
-  hotpick: (slug: string) =>
+  hotpick: (slug: string, options?: { isLoggedIn?: boolean }) =>
     queryOptions<HotpickDetailResponse | null>({
       queryKey: displayKeys.hotpick(slug),
       queryFn: async () => {
@@ -90,7 +91,7 @@ export const displayQueries = {
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        const tkuId = getTKUID();
+        const tkuId = getTKUID({ isLoggedIn: options?.isLoggedIn });
         return clientApi.getDetail(slug, {
           headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
         });
@@ -117,6 +118,7 @@ export const displayQueries = {
     filter?: string;
     sort?: string;
     period?: string;
+    isLoggedIn?: boolean;
   }) =>
     infiniteQueryOptions<
       MainHotpickResponse | null,
@@ -148,7 +150,7 @@ export const displayQueries = {
           });
           return response.status === 200 ? (response.data.data ?? null) : null;
         }
-        const tkuId = getTKUID();
+        const tkuId = getTKUID({ isLoggedIn: params?.isLoggedIn });
         return clientApi.getMain(queryParams as any, {
           headers: tkuId ? { 'x-tku-id': tkuId } : undefined,
         });
@@ -182,7 +184,8 @@ export const useInfiniteMainDisplay = (params?: {
   sort?: string;
   period?: string;
 }) => {
-  const baseOptions = displayQueries.infiniteMain(params);
+  const { isLoggedIn } = useAuth();
+  const baseOptions = displayQueries.infiniteMain({ ...params, isLoggedIn });
 
   return useInfiniteQuery({
     ...baseOptions,
@@ -196,13 +199,15 @@ export const useInfiniteMainDisplay = (params?: {
  * - staleTime: 0으로 설정하여 서버 dehydrate 데이터(x-tku-id 없음)를
  *   클라이언트 마운트 시 즉시 refetch (투표 상태 반영)
  */
-export const useHotpickDetail = (slug: string) =>
-  useQuery({
-    ...displayQueries.hotpick(slug),
+export const useHotpickDetail = (slug: string) => {
+  const { isLoggedIn } = useAuth();
+  return useQuery({
+    ...displayQueries.hotpick(slug, { isLoggedIn }),
     enabled: !!slug,
     staleTime: 0,
     refetchOnMount: 'always',
   });
+};
 
 /**
  * 결과 상세 Hook (BUNDLE 전용 — 스텁)

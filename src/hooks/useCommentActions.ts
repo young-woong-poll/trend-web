@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useDeleteComment } from '@/hooks/api';
 import type { CommentItem } from '@/types/comment';
@@ -12,8 +13,12 @@ interface UseCommentActionsParams {
 /**
  * 댓글 수정/삭제 상태 관리 및 핸들러를 통합 제공합니다.
  * CommentBottomSheet, InlineCommentSection에서 공통으로 사용됩니다.
+ *
+ * 로그인 유저의 자기 댓글(isMine): 비밀번호 검증 스킵 → 바로 수정/삭제
+ * 비로그인 유저 댓글: 기존 비밀번호 검증 플로우 유지
  */
 export function useCommentActions({ slug, electionId }: UseCommentActionsParams) {
+  const { isLoggedIn } = useAuth();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedComment, setSelectedComment] = useState<CommentItem | null>(null);
@@ -23,22 +28,72 @@ export function useCommentActions({ slug, electionId }: UseCommentActionsParams)
   const { showToast, showConfirm } = useModal();
   const { mutate: deleteComment } = useDeleteComment();
 
-  const handleEditRequest = useCallback((comment: CommentItem) => {
-    setSelectedComment(comment);
-    setActionType('edit');
-    setIsPasswordModalOpen(true);
-  }, []);
-
-  const handleDeleteRequest = useCallback((comment: CommentItem) => {
-    setSelectedComment(comment);
-    setActionType('delete');
-    setIsPasswordModalOpen(true);
-  }, []);
-
   const resetState = useCallback(() => {
     setSelectedComment(null);
     setEditToken('');
   }, []);
+
+  /** 로그인 유저 자기 댓글 삭제 (비밀번호 불필요) */
+  const deleteOwnComment = useCallback(
+    (comment: CommentItem) => {
+      showConfirm('댓글 삭제', {
+        message: '정말로 이 댓글을 삭제하시겠습니까?',
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: () => {
+          deleteComment(
+            {
+              commentId: comment.id ?? '',
+              slug,
+              electionId,
+              data: { verifyToken: '' },
+            },
+            {
+              onSuccess: () => {
+                showToast('댓글이 삭제되었습니다');
+                resetState();
+              },
+              onError: () => showToast('댓글 삭제에 실패했습니다'),
+            }
+          );
+        },
+        onCancel: resetState,
+      });
+    },
+    [slug, electionId, deleteComment, showConfirm, showToast, resetState]
+  );
+
+  const handleEditRequest = useCallback(
+    (comment: CommentItem) => {
+      setSelectedComment(comment);
+      setActionType('edit');
+
+      // 로그인 유저 자기 댓글: 비밀번호 스킵 → 바로 수정 모달
+      if (isLoggedIn && comment.isMine) {
+        setIsEditModalOpen(true);
+        return;
+      }
+
+      setIsPasswordModalOpen(true);
+    },
+    [isLoggedIn]
+  );
+
+  const handleDeleteRequest = useCallback(
+    (comment: CommentItem) => {
+      setSelectedComment(comment);
+      setActionType('delete');
+
+      // 로그인 유저 자기 댓글: 비밀번호 스킵 → 바로 삭제 확인
+      if (isLoggedIn && comment.isMine) {
+        deleteOwnComment(comment);
+        return;
+      }
+
+      setIsPasswordModalOpen(true);
+    },
+    [isLoggedIn, deleteOwnComment]
+  );
 
   const handlePasswordVerified = useCallback(
     (token: string) => {

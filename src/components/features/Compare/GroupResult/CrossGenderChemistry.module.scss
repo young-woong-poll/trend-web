@@ -1,0 +1,230 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+// ─── Section header ───
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+// ─── Gender badge row ───
+.genderBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.genderBadgeMale {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #4fc3f7;
+  background: rgba(#4fc3f7, 0.1);
+  padding: 3px 10px;
+  border-radius: $border-rounded;
+}
+
+.genderBadgeFemale {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #ff6b9d;
+  background: rgba(#ff6b9d, 0.1);
+  padding: 3px 10px;
+  border-radius: $border-rounded;
+}
+
+.genderDot {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+// ─── 그룹 이성 궁합 BEST / WORST ───
+.topSection {
+  @include flex-column;
+  gap: 8px;
+}
+
+.topLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #22c55e;
+  padding-left: 2px;
+}
+
+.worstLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: #ef4444;
+  padding-left: 2px;
+}
+
+.topList {
+  @include flex-column;
+  gap: 6px;
+}
+
+.topCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(#1e1e1e, 0.4);
+  border-radius: $border-radius-md;
+  border: 1px solid rgba(#fff, 0.04);
+}
+
+.topRank {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: #22c55e;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.worstRank {
+  font-size: $font-size-16;
+  font-weight: 700;
+  color: #ef4444;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.topAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 12px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.15);
+  flex-shrink: 0;
+}
+
+// ─── Overlapping pair avatars ───
+.pairAvatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.pairAvatarLeft,
+.pairAvatarRight {
+  position: relative;
+  display: inline-flex;
+}
+
+.pairAvatarRight {
+  margin-left: -10px;
+}
+
+.pairAvatarLeft .topAvatar {
+  z-index: 2;
+}
+
+.pairAvatarRight .topAvatar {
+  z-index: 1;
+}
+
+.topGenderBadgeMale,
+.topGenderBadgeFemale {
+  position: absolute;
+  bottom: -2px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  @include flex-center;
+  border: 1.5px solid rgba(#1e1e1e, 0.6);
+  z-index: 3;
+}
+
+.topGenderBadgeMale {
+  background: #4fc3f7;
+  color: $white;
+}
+
+.topGenderBadgeFemale {
+  background: #ff6b9d;
+  color: $white;
+}
+
+.topInfo {
+  @include flex-column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topNames {
+  font-size: 13px;
+  font-weight: 600;
+  color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topGradeText {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+// ─── Grade badge (S/A/B/C/D) ───
+.topGradeBadge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #22c55e;
+  background: rgba(#22c55e, 0.12);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.worstGradeBadge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(#ef4444, 0.12);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  @include flex-center;
+  flex-shrink: 0;
+}

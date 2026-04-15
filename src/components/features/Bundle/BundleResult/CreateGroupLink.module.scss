@@ -1,0 +1,188 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16;
+}
+
+.modal {
+  @include flex-column;
+  gap: 20px;
+  width: 100%;
+  max-width: 360px;
+  padding: $spacing-24;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: $text-tertiary;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
+}
+
+.title {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+}
+
+.bundleInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: -12px;
+}
+
+.bundleTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+}
+
+.description {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.inputLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.inputLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.inputHint {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+.groupNameInput {
+  width: 100%;
+  padding: 12px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-14;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $text-tertiary;
+  }
+}
+
+.linkBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+}
+
+.linkText {
+  flex: 1;
+  font-size: 13px;
+  color: $text-secondary;
+  @include text-ellipsis;
+}
+
+.copyButton {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-md;
+  background: $bg-tertiary;
+  color: $white;
+  font-size: $font-size-12;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(#fff, 0.08);
+  }
+}
+
+.actions {
+  @include flex-column;
+  gap: 8px;
+}
+
+.createButton {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: $border-radius-lg;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.closeButton {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+}

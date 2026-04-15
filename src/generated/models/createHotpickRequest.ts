@@ -15,6 +15,7 @@ export interface CreateHotpickRequest {
    */
   slug: string;
   visible: boolean;
+  fixed?: boolean;
   /**
    * @minLength 0
    * @maxLength 500

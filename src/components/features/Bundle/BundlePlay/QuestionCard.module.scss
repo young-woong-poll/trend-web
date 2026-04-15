@@ -1,0 +1,137 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  gap: 40px;
+  padding: $spacing-24 $spacing-16;
+  flex: 1;
+  justify-content: center;
+  margin-top: -60px;
+}
+
+// ─── 질문 영역 ───
+.questionArea {
+  @include flex-column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  // Q번호 높이(~20px) + gap(12px) = 제목 라인과 수직 정렬
+  top: 32px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.questionNumber {
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $text-tertiary;
+  letter-spacing: 1px;
+}
+
+.question {
+  font-size: $font-size-22;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.4;
+  text-align: center;
+  word-break: keep-all;
+  max-width: 480px;
+}
+
+// ─── 선택지 (2열 그리드) ───
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.option {
+  padding: 24px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $border-radius-lg;
+  background: $bg-secondary;
+  color: $text-secondary;
+  font-size: $font-size-16;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: $white;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.optionSelected {
+    border-color: var(--primary-start);
+    color: $white;
+    background: rgba(var(--primary-start-rgb), 0.08);
+    box-shadow: 0 0 24px rgba(var(--primary-start-rgb), 0.1);
+    transform: scale(1.03);
+  }
+}
+
+// ─── 이미지가 있는 옵션 ───
+.optionImage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.optionImg {
+  object-fit: cover;
+}
+
+// 이미지가 있을 때 padding 조정
+.option:has(.optionImage) {
+  padding: 10px;
+  gap: 0;
+}
+
+.optionText {
+  line-height: 1.4;
+  word-break: keep-all;
+}

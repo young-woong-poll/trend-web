@@ -7,6 +7,7 @@ type TSkeletonProps = {
   height?: string | number;
   borderRadius?: string | number;
   className?: string;
+  variant?: 'light' | 'dark';
 };
 
 export const Skeleton: FC<TSkeletonProps> = ({
@@ -14,6 +15,7 @@ export const Skeleton: FC<TSkeletonProps> = ({
   height = 20,
   borderRadius = 8,
   className,
+  variant = 'light',
 }) => {
   const style: CSSProperties = {
     width: typeof width === 'number' ? `${width}px` : width,
@@ -21,5 +23,7 @@ export const Skeleton: FC<TSkeletonProps> = ({
     borderRadius: typeof borderRadius === 'number' ? `${borderRadius}px` : borderRadius,
   };
 
-  return <div className={`${styles.skeleton} ${className || ''}`} style={style} />;
+  const baseClass = variant === 'dark' ? styles.dark : styles.skeleton;
+
+  return <div className={`${baseClass} ${className || ''}`} style={style} />;
 };

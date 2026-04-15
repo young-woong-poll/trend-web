@@ -1,0 +1,317 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100%);
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal;
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  z-index: $z-index-modal;
+  max-height: 85dvh;
+  overflow-y: auto;
+  background: $bg-secondary;
+  border-radius: $border-radius-lg $border-radius-lg 0 0;
+  padding: 40px $spacing-16 calc($spacing-24 + env(safe-area-inset-bottom, 0px));
+  animation: slideUp 0.3s ease-out both;
+}
+
+.closeButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: $text-tertiary;
+  cursor: pointer;
+  z-index: 1;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
+}
+
+// ─── 히어로 (가로 배치, 중앙 정렬) ───
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.heroImage {
+  flex-shrink: 0;
+}
+
+.personImage {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.personPlaceholder {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: $font-size-32;
+  font-weight: 700;
+  color: $white;
+}
+
+.heroInfo {
+  @include flex-column;
+  gap: 4px;
+}
+
+.personName {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+}
+
+.scoreLabel {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.score {
+  font-size: $font-size-36;
+  font-weight: 700;
+  color: $white;
+  line-height: 1;
+}
+
+.scoreUnit {
+  font-size: $font-size-18;
+  color: $text-tertiary;
+}
+
+.gradeTitle {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+// ─── 답변 리스트 ───
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+.guideRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.guideDot {
+  width: 12px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.4) 0%,
+    rgba(var(--primary-end-rgb), 0.65) 100%
+  );
+  flex-shrink: 0;
+}
+
+.guideText {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.answerList {
+  @include flex-column;
+  gap: 12px;
+}
+
+.answerCard {
+  @include flex-column;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(#fff, 0.02);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.04);
+}
+
+.answerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.questionIndex {
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-tertiary;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.answerQuestion {
+  font-size: $font-size-14;
+  color: $white;
+  line-height: 1.5;
+  font-weight: 500;
+  flex: 1;
+  word-break: keep-all;
+}
+
+.answerBadge {
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: $border-rounded;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.majorityBadge {
+  background: rgba(#fff, 0.06);
+  color: $text-secondary;
+  border: 1px solid rgba(#fff, 0.08);
+}
+
+.minorityBadge {
+  background: rgba(#fff, 0.03);
+  color: $text-tertiary;
+  border: 1px solid rgba(#fff, 0.06);
+}
+
+// ─── 투표 바 ───
+.voteOptions {
+  @include flex-column;
+  gap: 6px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.optionLabel {
+  font-size: 13px;
+  color: $text-secondary;
+  width: 72px;
+  flex-shrink: 0;
+  @include text-ellipsis;
+
+  @include se {
+    width: 60px;
+    font-size: 12px;
+  }
+}
+
+.optionBarTrack {
+  flex: 1;
+  height: 24px;
+  background: rgba(#fff, 0.03);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.optionBarFill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+  transform-origin: left;
+  animation: barGrow 0.5s ease-out both;
+  min-width: 36px;
+  background: rgba(#fff, 0.06);
+
+  &.myFill {
+    background: linear-gradient(
+      90deg,
+      rgba(var(--primary-start-rgb), 0.4) 0%,
+      rgba(var(--primary-end-rgb), 0.65) 100%
+    );
+  }
+}
+
+.optionPercent {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba($white, 0.35);
+  font-variant-numeric: tabular-nums;
+
+  .myFill & {
+    color: $white;
+  }
+}

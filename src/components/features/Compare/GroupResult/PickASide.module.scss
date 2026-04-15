@@ -1,0 +1,373 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.5s ease-out 0.3s both;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+// ─── Swipeable card area ───
+
+.cardScroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.card {
+  flex: 0 0 calc(100% - 32px);
+  scroll-snap-align: center;
+  @include flex-column;
+  gap: 12px;
+  padding: 20px 16px;
+  background: rgba(#1e1e1e, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+  overflow: visible;
+  position: relative;
+}
+
+// ─── 논쟁 카드: 불타는 테두리 글로우 ───
+@keyframes firePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(255, 107, 53, 0.15),
+      0 0 20px rgba(255, 107, 53, 0.05);
+    border-color: rgba(255, 107, 53, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 12px rgba(255, 107, 53, 0.25),
+      0 0 32px rgba(255, 107, 53, 0.1);
+    border-color: rgba(255, 107, 53, 0.35);
+  }
+}
+
+.card_split {
+  border-color: rgba(255, 107, 53, 0.2);
+  animation: firePulse 2.5s ease-in-out infinite;
+}
+
+// ─── 만장일치 카드: 평온한 초록 글로우 ───
+@keyframes calmPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px rgba(102, 187, 106, 0.1),
+      0 0 20px rgba(102, 187, 106, 0.03);
+    border-color: rgba(102, 187, 106, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 0 12px rgba(102, 187, 106, 0.18),
+      0 0 28px rgba(102, 187, 106, 0.06);
+    border-color: rgba(102, 187, 106, 0.3);
+  }
+}
+
+.card_unanimous {
+  border-color: rgba(102, 187, 106, 0.2);
+  animation: calmPulse 3s ease-in-out infinite;
+}
+
+// ─── 압도적 카드: 은은한 파랑 ───
+@keyframes dominantPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.25);
+  }
+}
+
+.card_dominant {
+  border-color: rgba(59, 130, 246, 0.15);
+  animation: dominantPulse 3s ease-in-out infinite;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.questionTitle {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  text-align: center;
+  line-height: 1.4;
+}
+
+// ─── 태그 ───
+
+.tag {
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tag_unanimous {
+  background: rgba(102, 187, 106, 0.1);
+  color: #66bb6a;
+  border: 1px solid rgba(102, 187, 106, 0.2);
+}
+
+.tag_dominant {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.tag_split {
+  background: rgba(255, 107, 53, 0.1);
+  color: #ff6b35;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+// ─── VS row ───
+
+.vsRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.side {
+  flex: 1;
+  @include flex-column;
+  gap: 6px;
+}
+
+.sideLeft {
+  align-items: flex-start;
+}
+
+.sideRight {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.optionName {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+.optionCount {
+  font-size: $font-size-20;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sideLeft .optionCount {
+  color: #a89eff;
+}
+
+.sideRight .optionCount {
+  color: #ff9a6c;
+}
+
+.vsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: $text-tertiary;
+  padding-top: 20px;
+  flex-shrink: 0;
+}
+
+// ─── 겹치는 아바타 스택 ───
+
+.stackWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stack {
+  all: unset;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stackCircleWrap {
+  position: relative;
+  display: inline-flex;
+  margin-left: -14px;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.stackCircle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid $bg-primary;
+}
+
+.stackOverflow {
+  font-size: 11px;
+  font-weight: 600;
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+// ─── 스택 툴팁 (포탈) ───
+
+.stackTooltip {
+  position: fixed;
+  z-index: $z-index-modal;
+  width: 160px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgba(24, 24, 24, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  padding: 6px 4px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(#fff, 0.04) inset;
+  animation: stackTooltipIn 0.15s ease-out;
+}
+
+@keyframes stackTooltipIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stackTooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+
+  &:hover {
+    background: rgba(#fff, 0.04);
+  }
+}
+
+.stackTooltipCircleWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.stackTooltipCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.stackTooltipName {
+  font-size: 13px;
+  color: $white;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ─── Dot indicator ───
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(#fff, 0.15);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dotActive {
+  background: rgba(#fff, 0.6);
+  transform: scale(1.2);
+}

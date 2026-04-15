@@ -1,5 +1,5 @@
 import type { HotpickCardResponse, TopCommentResponse } from '@/generated/models';
-import type { HotpickStatus, VoteType } from '@/types/hotpick';
+import type { CategoryCode, HotpickStatus, VoteType } from '@/types/hotpick';
 import type { SingleVoteData } from '@/types/singleVote';
 
 /** SingleCard UI model */
@@ -26,6 +26,8 @@ export interface BundleCardModel {
   title: string;
   subtitle?: string;
   categories: string[];
+  categoryCode?: CategoryCode;
+  categoryMeta?: string;
   status: HotpickStatus;
   totalVoteCount: number;
   electionCount?: number;

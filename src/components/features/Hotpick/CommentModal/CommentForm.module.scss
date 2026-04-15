@@ -196,3 +196,10 @@
     transform: none;
   }
 }
+
+// 로그인 유저: 전체 너비 게시 버튼
+.submitButtonFull {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: $font-size-14;
+}

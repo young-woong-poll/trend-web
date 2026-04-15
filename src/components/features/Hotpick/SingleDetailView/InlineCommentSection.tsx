@@ -11,6 +11,7 @@ import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
 import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
+import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useInfiniteComments } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
@@ -35,7 +36,8 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
   const canViewComments = voted || isClosed;
 
-  const tkuId = getTKUID();
+  const { isLoggedIn } = useAuth();
+  const tkuId = getTKUID({ isLoggedIn });
   const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ slug, electionId, sort, size: 5, tkuId });
 

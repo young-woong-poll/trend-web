@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateComment } from '@/hooks/api/useComment';
 import {
@@ -36,6 +37,7 @@ export const COMMENT_FORM_LIMITS = {
 } as const;
 
 export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormParams) {
+  const { isLoggedIn } = useAuth();
   const [nickname, setNickname] = useState(() => generateRandomNickname());
   const [password, setPassword] = useState('');
   const [content, setContent] = useState('');
@@ -45,11 +47,13 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
   const { mutate: createComment, isPending } = useCreateComment();
 
   const resetForm = useCallback(() => {
-    setNickname(generateRandomNickname());
-    setPassword('');
+    if (!isLoggedIn) {
+      setNickname(generateRandomNickname());
+      setPassword('');
+    }
     setContent('');
     setErrors({});
-  }, []);
+  }, [isLoggedIn]);
 
   const handleGenerateNickname = useCallback(() => {
     const generated = generateRandomNickname();
@@ -92,8 +96,6 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
   }, []);
 
   const handleSubmit = useCallback(() => {
-    const trimmedNickname = nickname.trim();
-    const trimmedPassword = password.trim();
     const trimmedContent = sanitizeComment(content);
 
     if (!trimmedContent) {
@@ -102,32 +104,60 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
       return;
     }
 
-    const nicknameValidation = validateNickname(trimmedNickname);
-    if (!nicknameValidation.isValid) {
-      setErrors({ nickname: true });
-      showToast(nicknameValidation.error || '닉네임을 입력해주세요');
+    // 비로그인 유저: 닉네임/비밀번호 검증 필요
+    if (!isLoggedIn) {
+      const trimmedNickname = nickname.trim();
+      const trimmedPassword = password.trim();
+
+      const nicknameValidation = validateNickname(trimmedNickname);
+      if (!nicknameValidation.isValid) {
+        setErrors({ nickname: true });
+        showToast(nicknameValidation.error || '닉네임을 입력해주세요');
+        return;
+      }
+
+      if (!trimmedPassword) {
+        setErrors({ password: true });
+        showToast('비밀번호를 입력해주세요');
+        return;
+      }
+
+      if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
+        setErrors({ password: true });
+        showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
+        return;
+      }
+
+      createComment(
+        {
+          slug,
+          electionId,
+          nickname: trimmedNickname,
+          password: trimmedPassword,
+          content: trimmedContent,
+          isLoggedIn: false,
+        },
+        {
+          onSuccess: () => {
+            resetForm();
+            onSuccess();
+          },
+          onError: (error) => {
+            showToast('댓글 작성에 실패했습니다');
+            console.error('Failed to create comment:', error);
+          },
+        }
+      );
       return;
     }
 
-    if (!trimmedPassword) {
-      setErrors({ password: true });
-      showToast('비밀번호를 입력해주세요');
-      return;
-    }
-
-    if (trimmedPassword.length < PASSWORD_MIN_LENGTH) {
-      setErrors({ password: true });
-      showToast(`비밀번호는 최소 ${PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`);
-      return;
-    }
-
+    // 로그인 유저: content만 전송
     createComment(
       {
         slug,
         electionId,
-        nickname: trimmedNickname,
-        password: trimmedPassword,
         content: trimmedContent,
+        isLoggedIn: true,
       },
       {
         onSuccess: () => {
@@ -141,6 +171,7 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
       }
     );
   }, [
+    isLoggedIn,
     nickname,
     password,
     content,
@@ -153,6 +184,7 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
   ]);
 
   return {
+    isLoggedIn,
     nickname,
     password,
     content,

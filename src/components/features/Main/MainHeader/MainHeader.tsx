@@ -8,19 +8,25 @@ import { usePathname } from 'next/navigation';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
 import SearchIcon from '@/assets/icon/SearchIcon';
+import UserIcon from '@/assets/icon/UserIcon';
 import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss';
+import ProfileDropdown from '@/components/features/Main/MainHeader/ProfileDropdown';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
 import { SearchResultList } from '@/components/features/Search/SearchResultList';
+import { useAuth } from '@/contexts/AuthContext';
 
 const MIN_SEARCH_LENGTH = 2;
 
 interface MainHeaderProps {
   /** true(기본): 검색 표시, false: '홈으로>' 표시 */
   showSearch?: boolean;
+  /** true: 로고 + 프로필만 표시 (번들 플레이 등 집중 모드) */
+  minimal?: boolean;
 }
 
-export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
+export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = false }) => {
+  const { isLoading, isLoggedIn, requireLogin } = useAuth();
   const pathname = usePathname();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -96,21 +102,41 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
             <Link href="/" className={styles.logoContainer} aria-label="메인으로 이동">
               <Image src={mainLogo1x} alt="HotPick" className={styles.logo} priority height={24} />
             </Link>
-            <Link
-              href="/about"
-              className={`${styles.navLink} ${pathname === '/about' ? styles.navLinkActive : ''}`}
-            >
-              핫픽이란?
-            </Link>
-            <Link
-              href="/suggest"
-              className={`${styles.navLink} ${pathname === '/suggest' ? styles.navLinkActive : ''}`}
-            >
-              핫픽제안
-            </Link>
+            {!minimal && (
+              <>
+                <Link
+                  href="/about"
+                  className={`${styles.navLink} ${pathname === '/about' ? styles.navLinkActive : ''}`}
+                >
+                  핫픽이란?
+                </Link>
+                <Link
+                  href="/suggest"
+                  className={`${styles.navLink} ${pathname === '/suggest' ? styles.navLinkActive : ''}`}
+                >
+                  핫픽제안
+                </Link>
+              </>
+            )}
           </div>
 
-          {showSearch ? (
+          {minimal ? (
+            <div className={styles.authSlot}>
+              {!isLoading &&
+                (isLoggedIn ? (
+                  <ProfileDropdown />
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.loginButton}
+                    onClick={() => requireLogin('default')}
+                  >
+                    <span className={styles.loginText}>로그인</span>
+                    <UserIcon className={styles.loginIcon} width={20} height={20} />
+                  </button>
+                ))}
+            </div>
+          ) : showSearch ? (
             <>
               {/* PC: 검색 입력 필드 + 모달 (≥768px) */}
               <div className={styles.searchBarWrapper} ref={wrapperRef}>
@@ -163,6 +189,23 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true }) => {
               <Link href="/search" className={styles.searchIconButton} aria-label="검색">
                 <SearchIcon width={20} height={20} />
               </Link>
+
+              {/* 로그인 / 프로필 버튼 (CLS 방지: 고정 크기 wrapper) */}
+              <div className={styles.authSlot}>
+                {!isLoading &&
+                  (isLoggedIn ? (
+                    <ProfileDropdown />
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.loginButton}
+                      onClick={() => requireLogin('default')}
+                    >
+                      <span className={styles.loginText}>로그인</span>
+                      <UserIcon className={styles.loginIcon} width={20} height={20} />
+                    </button>
+                  ))}
+              </div>
             </>
           ) : (
             <Link href="/" className={styles.homeLink}>

@@ -18,7 +18,7 @@
 // ─── Hero 섹션 ───
 .hero {
   text-align: center;
-  padding: $spacing-48 0;
+  padding: $spacing-16 0 $spacing-16;
 }
 
 .heroTitle {
@@ -40,7 +40,7 @@
   font-size: $font-size-16;
   color: $text-secondary;
   line-height: 1.5;
-  margin: 0 0 $spacing-32;
+  margin: 0;
 
   @include tablet {
     font-size: $font-size-18;
@@ -48,8 +48,10 @@
 }
 
 .ctaLink {
-  display: inline-block;
+  display: block;
+  text-align: center;
   text-decoration: none;
+  margin: $spacing-16 0;
 }
 
 .ctaButton {
@@ -82,21 +84,10 @@
 
 // ─── 공통 섹션 ───
 .section {
-  padding: $spacing-32 0;
+  padding: $spacing-8 0 $spacing-16;
 
   & + & {
     border-top: 1px solid $bg-tertiary;
-  }
-}
-
-.sectionTitle {
-  font-size: $font-size-22;
-  font-weight: $font-weight-bold;
-  color: $white;
-  margin: 0 0 $spacing-8;
-
-  @include tablet {
-    font-size: $font-size-24;
   }
 }
 
@@ -105,6 +96,7 @@
   color: $text-tertiary;
   line-height: 1.6;
   margin: 0 0 $spacing-24;
+  text-align: center;
 }
 
 // ─── 서비스 소개 카드 ───
@@ -178,11 +170,47 @@
   font-weight: $font-weight-medium;
 }
 
-// ─── 저작권 ───
+// ─── 약관 · 사업자 정보 · 저작권 ───
 .footer {
   padding: $spacing-32 0 $spacing-16;
   border-top: 1px solid $bg-tertiary;
   text-align: center;
+}
+
+.policyLinks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: $spacing-16;
+}
+
+.policyLink {
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-decoration: none;
+  @include transition;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.policyDivider {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.businessInfo {
+  margin-bottom: $spacing-16;
+
+  p {
+    font-size: $font-size-12;
+    color: $text-tertiary;
+    line-height: 1.6;
+    margin: 0;
+  }
 }
 
 .copyright {

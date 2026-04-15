@@ -11,45 +11,59 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://hotpick.vot
 
 /** 타이틀 */
 export const SITE_TITLE = {
-  default: '핫픽',
+  default: '핫픽 - 생각을 비교하다',
   short: '핫픽',
-  og: '애매하면? 핫픽',
+  og: '핫픽 - 생각을 비교하다',
 } as const;
 
 /** 설명 (Description) */
 export const SITE_DESCRIPTION = {
   /** 메인 설명 (슬로건 + 행동 유도) */
-  main: '애매하면? 핫픽 🔥 투표하고 사람들의 생각을 확인하세요!',
+  main: '생각을 비교하다, 핫픽 🔥 대중의 생각부터 연인의 가치관까지',
   /** OpenGraph/Twitter 설명 (공유 시 노출) */
-  og: '애매한 고민, 사람들의 생각을 확인하세요!',
+  og: '대중의 생각부터 연인의 가치관까지, 숫자로 비교하세요',
   /** Structured Data 설명 (간결) */
-  structured: '애매하면? 핫픽 — 투표하고 사람들의 생각을 확인하세요!',
+  structured: '생각을 비교하다, 핫픽 — 대중의 생각부터 연인의 가치관까지',
 } as const;
 
 /** 키워드 */
 export const SITE_KEYWORDS = [
   '핫픽',
   'HotPick',
-  '애매하면 핫픽',
-  '트렌드 투표',
-  '대중 투표',
-  '이지선다',
-  '밸런스 게임',
-  'A vs B',
+  '가치관 비교',
+  '커플 테스트',
+  '연애 가치관 테스트',
+  '케미 테스트',
+  '생각 비교',
   '대중 의견',
-  '실시간 투표',
-  '취향 테스트',
-  '연애 투표',
-  '직장인 투표',
-  '논란',
+  '커플 궁합',
+  '가치관 테스트',
+  '밸런스 게임',
+  '연인 비교',
 ];
 
 /** OpenGraph 이미지 정보 */
 export const OG_IMAGE = {
-  url: '/og-vote.jpg',
+  url: '/main-og2.png',
   width: 1200,
   height: 630,
-  alt: '애매하면? 핫픽 — 투표하고 사람들의 생각을 확인하세요!',
+  alt: '핫픽 - 생각을 비교하다. 대중의 생각부터 연인의 가치관까지',
+} as const;
+
+// TODO: S3 업로드 후 CDN URL로 교체 (scripts/upload-og-image.js 사용)
+export const OG_IMAGE_BUNDLE = {
+  url: '/main-og2.png',
+  width: 1200,
+  height: 630,
+  alt: '핫픽 번들 - 5개 질문으로 가치관 비교',
+} as const;
+
+// TODO: compare 전용 OG 이미지 제작 후 교체
+export const OG_IMAGE_COMPARE = {
+  url: '/main-og2.png',
+  width: 1200,
+  height: 630,
+  alt: '핫픽 비교 - 우리 생각 얼마나 통할까?',
 } as const;
 
 /** 공통 Metadata 설정 */

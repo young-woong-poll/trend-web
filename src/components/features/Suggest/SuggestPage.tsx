@@ -7,19 +7,12 @@ import Link from 'next/link';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import styles from '@/components/features/Suggest/SuggestPage.module.scss';
+import { useModal } from '@/contexts/ModalContext';
+import { useCategories } from '@/hooks/api/useDisplay';
+import { useCreateSuggestion } from '@/hooks/api/useSuggestion';
 
 const MAX_OPTIONS = 4;
 const MIN_OPTIONS = 2;
-
-const CATEGORIES = [
-  { id: 1, label: '연애' },
-  { id: 2, label: '결혼' },
-  { id: 3, label: '관계' },
-  { id: 4, label: '재테크' },
-  { id: 5, label: '직장' },
-  { id: 6, label: '라이프' },
-  { id: 7, label: '트렌드' },
-];
 
 interface SuggestFormData {
   title: string;
@@ -29,6 +22,11 @@ interface SuggestFormData {
 }
 
 export const SuggestPage: FC = () => {
+  const { showAlert } = useModal();
+  const { data: categories, isLoading: isCategoriesLoading } = useCategories();
+  const { mutate: submitSuggestion, isPending: isSubmitting } = useCreateSuggestion();
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState<SuggestFormData>({
     title: '',
     options: ['', ''],
@@ -36,7 +34,6 @@ export const SuggestPage: FC = () => {
     categoryIds: [],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const updateField = useCallback(
     <K extends keyof SuggestFormData>(key: K, value: SuggestFormData[K]) => {
@@ -118,32 +115,29 @@ export const SuggestPage: FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) {
+    if (!validate() || isSubmitting) {
       return;
     }
 
-    // localStorage에 제안 데이터 저장 (운영용)
-    try {
-      const existing = JSON.parse(localStorage.getItem('hotpick-suggestions') || '[]');
-      existing.push({
+    submitSuggestion(
+      {
         title: formData.title.trim(),
-        options: formData.options.filter((opt) => opt.trim()),
+        items: formData.options.filter((opt) => opt.trim()),
         categoryIds: formData.categoryIds,
-        categoryLabels: formData.categoryIds.map(
-          (id) => CATEGORIES.find((c) => c.id === id)?.label
-        ),
-        hasImage: !!formData.imageUrl,
-        createdAt: new Date().toISOString(),
-      });
-      localStorage.setItem('hotpick-suggestions', JSON.stringify(existing));
-    } catch {
-      // localStorage 실패해도 제안 화면은 보여줌
-    }
-
-    setIsSubmitted(true);
+      },
+      {
+        onSuccess: () => {
+          setIsSubmitted(true);
+        },
+        onError: () => {
+          showAlert('제안 제출에 실패했습니다.', {
+            message: '다시 시도해주세요.',
+          });
+        },
+      }
+    );
   };
 
-  // 제출 완료 화면
   if (isSubmitted) {
     return (
       <>
@@ -159,12 +153,6 @@ export const SuggestPage: FC = () => {
               <br />
               검토 후 핫픽으로 등록될 예정이에요.
             </p>
-            {!formData.imageUrl && (
-              <div className={styles.successNote}>
-                <p>이미지를 첨부하지 않으셨네요.</p>
-                <p>주제에 어울리는 이미지가 자동으로 매칭됩니다!</p>
-              </div>
-            )}
             <div className={styles.successSummary}>
               <div className={styles.summaryItem}>
                 <span className={styles.summaryLabel}>질문</span>
@@ -187,7 +175,7 @@ export const SuggestPage: FC = () => {
                 <div className={styles.summaryOptions}>
                   {formData.categoryIds.map((id) => (
                     <span key={id} className={styles.summaryOptionChip}>
-                      {CATEGORIES.find((c) => c.id === id)?.label}
+                      {categories?.find((c) => c.id === id)?.category}
                     </span>
                   ))}
                 </div>
@@ -226,7 +214,7 @@ export const SuggestPage: FC = () => {
         {/* Hero */}
         <section className={styles.hero}>
           <h1 className={styles.heroTitle}>핫픽 제안</h1>
-          <p className={styles.heroSub}>여러분의 아이디어가 핫픽이 됩니다!</p>
+          <p className={styles.heroSub}>새로운 비교 주제를 제안해주세요!</p>
         </section>
 
         {/* 폼 */}
@@ -236,7 +224,7 @@ export const SuggestPage: FC = () => {
             <label htmlFor="suggest-title" className={styles.label}>
               투표 질문 <span className={styles.required}>*</span>
             </label>
-            <p className={styles.hint}>사람들에게 물어보고 싶은 질문을 적어주세요</p>
+            <p className={styles.hint}>사람들과 비교해보고 싶은 질문을 적어주세요</p>
             <input
               id="suggest-title"
               type="text"
@@ -298,25 +286,30 @@ export const SuggestPage: FC = () => {
             </label>
             <p className={styles.hint}>어울리는 카테고리를 선택해주세요 (복수 선택 가능)</p>
             <div className={styles.categoryGrid}>
-              {CATEGORIES.map((cat) => {
-                const isSelected = formData.categoryIds.includes(cat.id);
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`${styles.categoryChip} ${isSelected ? styles.categoryChipActive : ''}`}
-                    onClick={() => {
-                      const updated = isSelected
-                        ? formData.categoryIds.filter((id) => id !== cat.id)
-                        : [...formData.categoryIds, cat.id];
-                      updateField('categoryIds', updated);
-                    }}
-                  >
-                    {isSelected && <span className={styles.categoryCheck}>&#10003;</span>}
-                    {cat.label}
-                  </button>
-                );
-              })}
+              {isCategoriesLoading ? (
+                <p className={styles.hint}>카테고리 로딩 중...</p>
+              ) : (
+                categories?.map((cat) => {
+                  const catId = cat.id ?? 0;
+                  const isSelected = formData.categoryIds.includes(catId);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      className={`${styles.categoryChip} ${isSelected ? styles.categoryChipActive : ''}`}
+                      onClick={() => {
+                        const updated = isSelected
+                          ? formData.categoryIds.filter((id) => id !== catId)
+                          : [...formData.categoryIds, catId];
+                        updateField('categoryIds', updated);
+                      }}
+                    >
+                      {isSelected && <span className={styles.categoryCheck}>&#10003;</span>}
+                      {cat.category}
+                    </button>
+                  );
+                })
+              )}
             </div>
             {errors.categoryIds && <p className={styles.errorText}>{errors.categoryIds}</p>}
           </div>
@@ -341,8 +334,8 @@ export const SuggestPage: FC = () => {
           </div>
 
           {/* 제출 버튼 */}
-          <button type="submit" className={styles.submitButton}>
-            핫픽 제안하기
+          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+            {isSubmitting ? '제출 중...' : '핫픽 제안하기'}
           </button>
         </form>
       </div>

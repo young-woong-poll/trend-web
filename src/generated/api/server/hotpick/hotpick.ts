@@ -9,6 +9,7 @@ import type {
   BaseResponseHotpickDetailResponse,
   BaseResponseHotpickLikeResponse,
   BaseResponseListCategoryTabResponse,
+  BaseResponseListHotpickCardResponse,
   BaseResponseMainHotpickResponse,
   BaseResponseObject,
   BaseResponseVoid,
@@ -342,6 +343,57 @@ export const getMain = async (
   options?: RequestInit
 ): Promise<getMainResponse> => {
   return serverFetchInstance<getMainResponse>(getGetMainUrl(params), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+/**
+ * @summary Get fixed hotpicks (latest order)
+ */
+export type getFixedHotpicksResponse200 = {
+  data: BaseResponseListHotpickCardResponse;
+  status: 200;
+};
+
+export type getFixedHotpicksResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getFixedHotpicksResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getFixedHotpicksResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getFixedHotpicksResponseSuccess = getFixedHotpicksResponse200 & {
+  headers: Headers;
+};
+export type getFixedHotpicksResponseError = (
+  | getFixedHotpicksResponse409
+  | getFixedHotpicksResponse429
+  | getFixedHotpicksResponse500
+) & {
+  headers: Headers;
+};
+
+export type getFixedHotpicksResponse =
+  | getFixedHotpicksResponseSuccess
+  | getFixedHotpicksResponseError;
+
+export const getGetFixedHotpicksUrl = () => {
+  return `/api/v1/hotpicks/fixed`;
+};
+
+export const getFixedHotpicks = async (
+  options?: RequestInit
+): Promise<getFixedHotpicksResponse> => {
+  return serverFetchInstance<getFixedHotpicksResponse>(getGetFixedHotpicksUrl(), {
     ...options,
     method: 'GET',
   });

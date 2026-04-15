@@ -1,0 +1,465 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 16px;
+  width: 100%;
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+// ─── 섹션 헤더 ───
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $text-tertiary;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.sectionLine {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, #333 0%, transparent 100%);
+}
+
+// ─── 등급 설명 툴팁 ───
+.gradeInfoWrap {
+  position: relative;
+}
+
+.gradeInfoBtn {
+  all: unset;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-tertiary;
+  border: 1px solid rgba(#fff, 0.12);
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+    border-color: rgba(#fff, 0.3);
+  }
+}
+
+.gradeInfoTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: 220px;
+  padding: 12px;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: gradeInfoIn 0.15s ease-out;
+}
+
+@keyframes gradeInfoIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gradeInfoTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $white;
+}
+
+.gradeInfoSub {
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+.gradeInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradeInfoGrade {
+  font-size: $font-size-14;
+  font-weight: 700;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.gradeInfoRange {
+  font-size: 11px;
+  color: $text-secondary;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.gradeInfoLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  flex: 1;
+}
+
+// ─── 요약 카드 ───
+.summaryCard {
+  padding: 16px 20px;
+  background: rgba(#fff, 0.04);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.08);
+}
+
+.summaryTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.summaryName {
+  font-size: 15px;
+  font-weight: 600;
+  color: $white;
+}
+
+.summaryAvg {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.distBar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(#fff, 0.06);
+  gap: 1px;
+}
+
+.distSegment {
+  transition: width 0.3s ease;
+}
+
+.distLabels {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.distLabel {
+  font-size: 11px;
+}
+
+// ─── 기준 멤버 가로 스크롤 ───
+.memberScroller {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  cursor: grab;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.memberChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.memberChipActive {
+  opacity: 1;
+}
+
+.memberAvatarWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.memberAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.memberAvatarActive {
+  border-color: $white;
+}
+
+.memberName {
+  font-size: 11px;
+  color: $text-tertiary;
+  max-width: 44px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .memberChipActive & {
+    color: $white;
+  }
+}
+
+// ─── 등급별 아코디언 ───
+.gradeList {
+  @include flex-column;
+  gap: 8px;
+}
+
+.gradeCard {
+  background: rgba(#fff, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(#fff, 0.06);
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.gradeCardOpen {
+  // 열렸을 때 border-color는 JS에서 inline으로 제어할 수도 있지만
+  // 기본적으로 약간 밝게
+  border-color: rgba(#fff, 0.12);
+}
+
+.gradeHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.gradeBadge {
+  font-size: $font-size-20;
+  font-weight: 800;
+  width: 26px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+// ─── ��침 아바타 스택 ───
+.avatarStack {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatarStackFaded {
+  opacity: 0.3;
+}
+
+.stackAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 11px;
+  font-weight: 600;
+  color: $white;
+  border: 2px solid #1a1a1a;
+  position: relative;
+}
+
+.stackOverflow {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-tertiary;
+  background: #333;
+  border: 2px solid #1a1a1a;
+  position: relative;
+}
+
+.gradeInfo {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.gradeInfoText {
+  font-size: 13px;
+  color: $text-tertiary;
+}
+
+.gradeArrow {
+  font-size: $font-size-14;
+  color: #555;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.gradeArrowOpen {
+  transform: rotate(90deg);
+}
+
+// ─── 펼쳐지는 가로 스크롤 ───
+.gradeContent {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.3s ease;
+}
+
+.gradeContentOpen {
+  max-height: 90px;
+  opacity: 1;
+}
+
+.chipScroller {
+  display: flex;
+  gap: 10px;
+  padding: 0 16px 14px 52px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  cursor: grab;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ─── 칩 ───
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px 8px 8px;
+  background: rgba(#fff, 0.04);
+  border-radius: 24px;
+  border: 1px solid;
+  flex-shrink: 0;
+}
+
+.chipTappable {
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+
+  &:active {
+    background: rgba(#fff, 0.08);
+  }
+}
+
+.chipAvatarWrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.chipAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.chipInfo {
+  @include flex-column;
+  gap: 1px;
+}
+
+.chipName {
+  font-size: 13px;
+  color: $text-secondary;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chipRate {
+  font-size: 11px;
+}
+
+.chipArrow {
+  font-size: $font-size-12;
+  color: #555;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+// ─── 내 프로필 수정 버튼 ───
+.editProfileBtn {
+  align-self: flex-end;
+  padding: 6px 14px;
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: $border-rounded;
+  background: rgba(#fff, 0.04);
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(#fff, 0.08);
+  }
+}
+
+// ─── 안내 텍스트 ───
+.hint {
+  font-size: $font-size-12;
+  color: #555;
+  text-align: center;
+}

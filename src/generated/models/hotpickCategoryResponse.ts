@@ -7,6 +7,7 @@
 
 export interface HotpickCategoryResponse {
   id?: number;
-  name?: string;
-  slug?: string;
+  category?: string;
+  categoryCode?: string;
+  categoryMeta?: string;
 }

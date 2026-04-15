@@ -10,6 +10,11 @@
       "description": "Generated server url"
     }
   ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "tags": [
     {
       "name": "Admin Search",
@@ -20,8 +25,28 @@
       "description": "Category admin API"
     },
     {
-      "name": "ServerMeta",
-      "description": "Server meta API"
+      "name": "Suggestion",
+      "description": "핫픽 제안 API"
+    },
+    {
+      "name": "Admin Hotpick",
+      "description": "Hotpick admin API"
+    },
+    {
+      "name": "Admin Bundle",
+      "description": "번들 어드민 API"
+    },
+    {
+      "name": "Bundle",
+      "description": "번들(가치관 테스트) API"
+    },
+    {
+      "name": "Admin Auth",
+      "description": "인증 어드민 API (테스트 유저 생성 등)"
+    },
+    {
+      "name": "CompareLink",
+      "description": "비교 링크 API"
     },
     {
       "name": "Hotpick Search",
@@ -40,12 +65,8 @@
       "description": "관리자용 S3 Pre-signed URL API"
     },
     {
-      "name": "Admin Hotpick",
-      "description": "Hotpick admin API"
-    },
-    {
-      "name": "Admin ServerMeta",
-      "description": "Admin server meta API"
+      "name": "Admin Suggestion",
+      "description": "핫픽 제안 관리 API"
     }
   ],
   "paths": {
@@ -138,192 +159,8 @@
                 "$ref": "#/components/schemas/DeleteCommentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseObject"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/api/v1/server-metas/{id}": {
-      "get": {
-        "tags": ["Admin ServerMeta"],
-        "summary": "Get server meta detail",
-        "operationId": "get",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseObject"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": ["Admin ServerMeta"],
-        "summary": "Update server meta",
-        "operationId": "update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateServerMetaRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseObject"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Admin ServerMeta"],
-        "summary": "Delete server meta",
-        "operationId": "delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "500": {
             "description": "Internal Server Error",
@@ -682,6 +519,65 @@
         }
       }
     },
+    "/api/v1/suggestions": {
+      "post": {
+        "tags": ["Suggestion"],
+        "summary": "핫픽 제안 제출",
+        "operationId": "createSuggestion",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSuggestionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/hotpicks/{slug}/votes": {
       "post": {
         "tags": ["Hotpick"],
@@ -692,14 +588,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -772,14 +660,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -834,14 +714,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -938,14 +810,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -1069,6 +933,143 @@
         }
       }
     },
+    "/api/v1/compare-links/{token}/join": {
+      "post": {
+        "tags": ["CompareLink"],
+        "summary": "비교 링크 참여 (API 7, 로그인 필수)",
+        "operationId": "join",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCompareLinkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseJoinCompareLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{groupToken}/pair": {
+      "post": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 내 1:1 pair 즉시 생성 (API 13, 로그인 필수)",
+        "operationId": "createPair",
+        "parameters": [
+          {
+            "name": "groupToken",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePairRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCreatePairResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/comments/{commentId}/verify": {
       "post": {
         "tags": ["Comment"],
@@ -1151,14 +1152,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -1216,14 +1209,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -1270,63 +1255,26 @@
         }
       }
     },
-    "/admin/api/v1/server-metas": {
-      "get": {
-        "tags": ["Admin ServerMeta"],
-        "summary": "Get server meta list",
-        "operationId": "getAll",
-        "responses": {
-          "500": {
-            "description": "Internal Server Error",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too Many Requests",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseVoid"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseObject"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseResponseListServerMetaResponse"
-                }
-              }
+    "/api/v1/bundles/{slug}/compare-links": {
+      "post": {
+        "tags": ["Bundle"],
+        "summary": "비교 링크 생성 (API 5, 로그인 필수)",
+        "operationId": "createCompareLink",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
-        }
-      },
-      "post": {
-        "tags": ["Admin ServerMeta"],
-        "summary": "Create server meta",
-        "operationId": "create",
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateServerMetaRequest"
+                "$ref": "#/components/schemas/CreateCompareLinkRequest"
               }
             }
           },
@@ -1368,7 +1316,436 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseResponseCreateServerMetaResponse"
+                  "$ref": "#/components/schemas/BaseResponseCreateCompareLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles/{slug}/answers": {
+      "post": {
+        "tags": ["Bundle"],
+        "summary": "번들 답변 제출 (API 3, 로그인 필수)",
+        "operationId": "submitAnswers",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitBundleAnswersRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseBundleAnswerSubmitResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/signup": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "signup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSignupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "refresh",
+        "parameters": [
+          {
+            "name": "__HPRT",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "logout",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/kakao": {
+      "post": {
+        "tags": ["auth-controller"],
+        "operationId": "kakaoLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KakaoLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseKakaoLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions/{suggestionId}/reject": {
+      "post": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 거절",
+        "operationId": "rejectSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewSuggestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions/{suggestionId}/approve": {
+      "post": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 승인 (Hotpick 자동 생성)",
+        "operationId": "approveSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewSuggestionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
                 }
               }
             }
@@ -1806,14 +2183,319 @@
         }
       }
     },
-    "/api/v1/server-metas/{id}": {
+    "/admin/api/v1/bundles": {
       "get": {
-        "tags": ["ServerMeta"],
-        "summary": "Get server meta",
-        "operationId": "get_1",
+        "tags": ["Admin Bundle"],
+        "summary": "번들 목록",
+        "operationId": "getBundles",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 생성",
+        "operationId": "createBundle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBundleAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/bundles/{bundleId}/elections": {
+      "post": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들에 질문 추가 (hotpickId=null Election + ElectionItem 2개 + BundleElection 매핑)",
+        "operationId": "addElection",
         "parameters": [
           {
-            "name": "id",
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddBundleElectionAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/auth/test-users": {
+      "post": {
+        "tags": ["Admin Auth"],
+        "summary": "테스트 유저 생성 + accessToken/refreshToken 반환",
+        "description": "QA/개발용. 카카오 channel 검증 없이 유저를 즉시 만들고 로그인 토큰을 함께 반환한다. 프로덕션 노출 금지 — 인프라 레벨에서 /admin/** 차단 전제.",
+        "operationId": "createTestUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTestUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCreateTestUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/settings": {
+      "patch": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 설정 변경 (API 10, 생성자만)",
+        "operationId": "updateGroupSettings",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGroupSettingsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/reopen": {
+      "patch": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 재오픈 (API 12, 생성자만)",
+        "operationId": "reopen",
+        "parameters": [
+          {
+            "name": "token",
             "in": "path",
             "required": true,
             "schema": {
@@ -1857,7 +2539,491 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BaseResponseServerMetaResponse"
+                  "$ref": "#/components/schemas/BaseResponseGroupCloseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/my-profile": {
+      "patch": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 내 내 프로필 수정 (API 14, 멤버만)",
+        "operationId": "updateMyCompareProfile",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyCompareProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/close": {
+      "patch": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 마감 (API 11, 생성자만)",
+        "operationId": "close",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseGroupCloseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": ["auth-controller"],
+        "operationId": "getMe",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseUserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["auth-controller"],
+        "operationId": "deleteMe",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["auth-controller"],
+        "operationId": "updateProfile",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "닉네임 변경 쿨다운 (T2009)",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/NicknameChangeCooldownErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/bundles/{bundleId}/status": {
+      "patch": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 상태 변경 (ACTIVE/CLOSED)",
+        "operationId": "updateStatus",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBundleStatusAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/likes": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getMyLikes",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCursorPageResponseMyLikeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me/comments": {
+      "get": {
+        "tags": ["user-controller"],
+        "operationId": "getMyComments",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCursorPageResponseMyCommentResponse"
                 }
               }
             }
@@ -1875,14 +3041,6 @@
             "name": "slug",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
             "schema": {
               "type": "string"
             }
@@ -2185,11 +3343,11 @@
           {
             "name": "filter",
             "in": "query",
-            "description": "필터 방식",
+            "description": "필터 방식 (new: 상단고정 포함 전체, voted: 내가 투표한 것만, hot_1d/hot_1w/hot_1m/hot_1y: 기간별 핫)",
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["voted"]
+              "enum": ["new", "voted", "hot_1d", "hot_1w", "hot_1m", "hot_1y"]
             }
           },
           {
@@ -2207,14 +3365,6 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
-          },
-          {
-            "name": "x-tku-id",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -2255,6 +3405,55 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseMainHotpickResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hotpicks/fixed": {
+      "get": {
+        "tags": ["Hotpick"],
+        "summary": "Get fixed hotpicks (latest order)",
+        "operationId": "getFixedHotpicks",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListHotpickCardResponse"
                 }
               }
             }
@@ -2314,6 +3513,656 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseListCategoryTabResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}": {
+      "get": {
+        "tags": ["CompareLink"],
+        "summary": "비교 링크 정보 조회 (API 6, 비로그인 허용)",
+        "operationId": "getInfo",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCompareLinkInfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/result": {
+      "get": {
+        "tags": ["CompareLink"],
+        "summary": "1:1 비교 결과 (API 8, 로그인 필수)",
+        "operationId": "getOneToOneResult",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseOneToOneCompareResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/compare-links/{token}/group-result": {
+      "get": {
+        "tags": ["CompareLink"],
+        "summary": "그룹 비교 결과 (API 9, 비로그인 허용)",
+        "operationId": "getGroupResult",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseGroupCompareResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles": {
+      "get": {
+        "tags": ["Bundle"],
+        "summary": "번들 목록 (API 15, 비로그인 허용)",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListBundleSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles/{slug}": {
+      "get": {
+        "tags": ["Bundle"],
+        "summary": "번들 상세 조회 (API 1, 비로그인 허용)",
+        "operationId": "getDetail_1",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseBundleSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles/{slug}/my-result": {
+      "get": {
+        "tags": ["Bundle"],
+        "summary": "내 번들 결과 조회 (API 4, 로그인 필수)",
+        "operationId": "getMyResult",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseBundleMyResultResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles/{slug}/my-compare-links": {
+      "get": {
+        "tags": ["Bundle"],
+        "summary": "내 비교 링크 목록 (My 탭, 로그인 필수)",
+        "operationId": "getMyCompareLinks",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListMyCompareLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bundles/{slug}/elections": {
+      "get": {
+        "tags": ["Bundle"],
+        "summary": "번들 질문 목록 (API 2, 로그인 필수)",
+        "operationId": "getElections",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListBundleElectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/nickname/check": {
+      "get": {
+        "tags": ["auth-controller"],
+        "operationId": "checkNickname",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseNicknameCheckResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions": {
+      "get": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 목록 조회",
+        "operationId": "getSuggestions",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["PENDING", "APPROVED", "REJECTED"]
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseListSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/suggestions/{suggestionId}": {
+      "get": {
+        "tags": ["Admin Suggestion"],
+        "summary": "제안 상세 조회",
+        "operationId": "getSuggestion",
+        "parameters": [
+          {
+            "name": "suggestionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseSuggestionResponse"
                 }
               }
             }
@@ -2439,6 +4288,124 @@
           }
         }
       }
+    },
+    "/admin/api/v1/bundles/{bundleId}": {
+      "get": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 상세",
+        "operationId": "getBundle",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminBundleDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Admin Bundle"],
+        "summary": "번들 하드 삭제 (완료자/비교링크 없을 때만)",
+        "operationId": "deleteBundle",
+        "parameters": [
+          {
+            "name": "bundleId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2484,7 +4451,7 @@
         "description": "공통 응답 포맷"
       },
       "UpdateCommentRequest": {
-        "required": ["content", "verifyToken"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "verifyToken": {
@@ -2524,57 +4491,6 @@
           },
           "updatedAt": {
             "type": "string"
-          }
-        },
-        "description": "응답 데이터"
-      },
-      "JsonNode": {
-        "type": "object"
-      },
-      "UpdateServerMetaRequest": {
-        "required": ["meta"],
-        "type": "object",
-        "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/JsonNode"
-          }
-        }
-      },
-      "BaseResponseServerMetaResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "description": "응답 코드",
-            "example": "S0000"
-          },
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "성공"
-          },
-          "data": {
-            "$ref": "#/components/schemas/ServerMetaResponse"
-          }
-        },
-        "description": "공통 응답 포맷"
-      },
-      "ServerMetaResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/JsonNode"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "description": "응답 데이터"
@@ -2643,6 +4559,9 @@
           "visible": {
             "type": "boolean"
           },
+          "fixed": {
+            "type": "boolean"
+          },
           "imageUrl": {
             "maxLength": 500,
             "minLength": 0,
@@ -2675,6 +4594,9 @@
             "type": "string"
           },
           "slug": {
+            "type": "string"
+          },
+          "meta": {
             "type": "string"
           }
         }
@@ -2755,6 +4677,9 @@
           "visible": {
             "type": "boolean"
           },
+          "fixed": {
+            "type": "boolean"
+          },
           "imageUrl": {
             "type": "string"
           },
@@ -2810,6 +4735,9 @@
             "maxLength": 120,
             "minLength": 0,
             "type": "string"
+          },
+          "meta": {
+            "type": "string"
           }
         }
       },
@@ -2832,6 +4760,34 @@
         },
         "description": "공통 응답 포맷"
       },
+      "CreateSuggestionRequest": {
+        "required": ["categoryIds", "items", "title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 100,
+            "minLength": 0,
+            "type": "string"
+          },
+          "items": {
+            "maxItems": 4,
+            "minItems": 2,
+            "type": "array",
+            "items": {
+              "maxLength": 200,
+              "minLength": 0,
+              "type": "string"
+            }
+          },
+          "categoryIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
       "CreateVoteRequest": {
         "required": ["electionItemId"],
         "type": "object",
@@ -2840,13 +4796,13 @@
             "type": "integer",
             "format": "int64"
           },
-          "serverMetaId": {
-            "type": "string"
-          },
           "clientMeta": {
             "$ref": "#/components/schemas/JsonNode"
           }
         }
+      },
+      "JsonNode": {
+        "type": "object"
       },
       "BaseResponseVoteResultResponse": {
         "type": "object",
@@ -2959,12 +4915,16 @@
           "likeCount": {
             "type": "integer",
             "format": "int64"
+          },
+          "likedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "description": "응답 데이터"
       },
       "CreateCommentRequest": {
-        "required": ["content", "nickname", "password"],
+        "required": ["content"],
         "type": "object",
         "properties": {
           "nickname": {
@@ -3007,6 +4967,84 @@
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "JoinCompareLinkRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseJoinCompareLinkResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JoinCompareLinkResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "JoinCompareLinkResponse": {
+        "type": "object",
+        "properties": {
+          "joined": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "CreatePairRequest": {
+        "required": ["targetUserId"],
+        "type": "object",
+        "properties": {
+          "targetUserId": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseCreatePairResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreatePairResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CreatePairResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
             "type": "string"
           }
         },
@@ -3086,20 +5124,34 @@
           "likeCount": {
             "type": "integer",
             "format": "int64"
+          },
+          "likedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "description": "응답 데이터"
       },
-      "CreateServerMetaRequest": {
-        "required": ["meta"],
+      "CreateCompareLinkRequest": {
+        "required": ["type"],
         "type": "object",
         "properties": {
-          "meta": {
-            "$ref": "#/components/schemas/JsonNode"
+          "type": {
+            "type": "string",
+            "enum": ["ONE_TO_ONE", "GROUP"]
+          },
+          "groupName": {
+            "maxLength": 20,
+            "minLength": 1,
+            "pattern": "^[^<>\"'&]+$",
+            "type": "string"
+          },
+          "showGenderContent": {
+            "type": "boolean"
           }
         }
       },
-      "BaseResponseCreateServerMetaResponse": {
+      "BaseResponseCreateCompareLinkResponse": {
         "type": "object",
         "properties": {
           "code": {
@@ -3113,16 +5165,302 @@
             "example": "성공"
           },
           "data": {
-            "$ref": "#/components/schemas/CreateServerMetaResponse"
+            "$ref": "#/components/schemas/CreateCompareLinkResponse"
           }
         },
         "description": "공통 응답 포맷"
       },
-      "CreateServerMetaResponse": {
+      "CreateCompareLinkResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "Answer": {
+        "required": ["electionId", "electionItemId"],
+        "type": "object",
+        "properties": {
+          "electionId": {
+            "type": "string"
+          },
+          "electionItemId": {
+            "type": "string"
+          }
+        }
+      },
+      "SubmitBundleAnswersRequest": {
+        "required": ["answers"],
+        "type": "object",
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            }
+          }
+        }
+      },
+      "BaseResponseBundleAnswerSubmitResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BundleAnswerSubmitResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleAnswerSubmitResponse": {
+        "type": "object",
+        "properties": {
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "SignupRequest": {
+        "required": ["birthYear", "gender", "nickname"],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "birthYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tkuId": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseSignupResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SignupResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "LinkedResult": {
+        "type": "object",
+        "properties": {
+          "votes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "likes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SignupResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "linked": {
+            "$ref": "#/components/schemas/LinkedResult"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "UserResponse": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string"
+          },
+          "lastNicknameChangedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "KakaoLoginRequest": {
+        "required": ["code", "redirectUri"],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "redirectUri": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseKakaoLoginResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/KakaoLoginResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "KakaoLoginResponse": {
+        "type": "object",
+        "properties": {
+          "shouldSignup": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "signupToken": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "ReviewSuggestionRequest": {
+        "type": "object",
+        "properties": {
+          "adminMemo": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SuggestionResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "SuggestionCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "SuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "adminMemo": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reviewedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionItemResponse"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionCategoryResponse"
+            }
           }
         },
         "description": "응답 데이터"
@@ -3165,6 +5503,9 @@
             "type": "string"
           },
           "visible": {
+            "type": "boolean"
+          },
+          "fixed": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -3274,6 +5615,473 @@
             "maxLength": 120,
             "minLength": 0,
             "type": "string"
+          },
+          "meta": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateBundleAdminRequest": {
+        "required": ["categoryId", "slug", "title"],
+        "type": "object",
+        "properties": {
+          "slug": {
+            "maxLength": 120,
+            "minLength": 0,
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "subtitle": {
+            "maxLength": 300,
+            "minLength": 0,
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          }
+        }
+      },
+      "AdminBundleDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "CLOSED"]
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "participantCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "elections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminBundleElectionResponse"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "AdminBundleElectionResponse": {
+        "type": "object",
+        "properties": {
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "displayOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
+          }
+        }
+      },
+      "BaseResponseAdminBundleDetailResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminBundleDetailResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleElectionOptionResponse": {
+        "type": "object",
+        "properties": {
+          "electionItemId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "AddBundleElectionAdminRequest": {
+        "required": ["options", "title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "options": {
+            "maxItems": 10,
+            "minItems": 2,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionRequest"
+            }
+          }
+        }
+      },
+      "BundleElectionOptionRequest": {
+        "required": ["title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          },
+          "imageUrl": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string"
+          }
+        }
+      },
+      "CreateTestUserRequest": {
+        "required": ["nickname"],
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "birthYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "profileColor": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseCreateTestUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateTestUserResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CreateTestUserResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "UpdateGroupSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "groupName": {
+            "maxLength": 20,
+            "minLength": 1,
+            "pattern": "^[^<>\"'&]+$",
+            "type": "string"
+          },
+          "showGenderContent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BaseResponseGroupCloseResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GroupCloseResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "GroupCloseResponse": {
+        "type": "object",
+        "properties": {
+          "closed": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "UpdateMyCompareProfileRequest": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "displayProfileColor": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "maxLength": 20,
+            "minLength": 0,
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string"
+          }
+        }
+      },
+      "NicknameChangeCooldownErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "T2009"
+          },
+          "message": {
+            "type": "string",
+            "example": "닉네임은 마지막 변경일로부터 1달 후에 변경할 수 있습니다."
+          },
+          "data": {
+            "$ref": "#/components/schemas/NicknameChangeCooldownResponse"
+          }
+        },
+        "description": "닉네임 변경 쿨다운 에러 응답"
+      },
+      "NicknameChangeCooldownResponse": {
+        "type": "object",
+        "properties": {
+          "nextAvailableAt": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateBundleStatusAdminRequest": {
+        "required": ["status"],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "CLOSED"]
+          }
+        }
+      },
+      "BaseResponseCursorPageResponseMyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CursorPageResponseMyLikeResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CursorPageResponseMyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyLikeResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "MyLikeResponse": {
+        "type": "object",
+        "properties": {
+          "hotpickId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "hotpickAlias": {
+            "type": "string"
+          },
+          "hotpickTitle": {
+            "type": "string"
+          },
+          "optionSummary": {
+            "type": "string"
+          },
+          "likedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BaseResponseCursorPageResponseMyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CursorPageResponseMyCommentResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CursorPageResponseMyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyCommentResponse"
+            }
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "MyCommentResponse": {
+        "type": "object",
+        "properties": {
+          "commentId": {
+            "type": "string"
+          },
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "hotpickTitle": {
+            "type": "string"
+          },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "content": {
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "edited": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -3388,10 +6196,13 @@
             "type": "integer",
             "format": "int64"
           },
-          "name": {
+          "category": {
             "type": "string"
           },
-          "slug": {
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
             "type": "string"
           }
         }
@@ -3420,12 +6231,21 @@
           "nickname": {
             "type": "string"
           },
+          "profileColor": {
+            "type": "string"
+          },
           "content": {
             "type": "string"
           },
           "likeCount": {
             "type": "integer",
             "format": "int64"
+          },
+          "liked": {
+            "type": "boolean"
+          },
+          "edited": {
+            "type": "boolean"
           },
           "createdAt": {
             "type": "string",
@@ -3459,6 +6279,9 @@
             "type": "string"
           },
           "nickname": {
+            "type": "string"
+          },
+          "profileColor": {
             "type": "string"
           },
           "content": {
@@ -3651,10 +6474,13 @@
             "type": "integer",
             "format": "int64"
           },
-          "name": {
+          "category": {
             "type": "string"
           },
-          "slug": {
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
             "type": "string"
           },
           "selected": {
@@ -3686,6 +6512,29 @@
         },
         "description": "응답 데이터"
       },
+      "BaseResponseListHotpickCardResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/HotpickCardResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
       "BaseResponseListCategoryTabResponse": {
         "type": "object",
         "properties": {
@@ -3704,6 +6553,638 @@
             "description": "응답 데이터",
             "items": {
               "$ref": "#/components/schemas/CategoryTabResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseCompareLinkInfoResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CompareLinkInfoResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CompareLinkInfoResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["ONE_TO_ONE", "GROUP"]
+          },
+          "bundleSlug": {
+            "type": "string"
+          },
+          "bundleTitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "creatorNickname": {
+            "type": "string"
+          },
+          "participantNickname": {
+            "type": "string"
+          },
+          "hasParticipant": {
+            "type": "boolean"
+          },
+          "isCreator": {
+            "type": "boolean"
+          },
+          "isParticipant": {
+            "type": "boolean"
+          },
+          "myBundleCompleted": {
+            "type": "boolean"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "participantCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseOneToOneCompareResultResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/OneToOneCompareResultResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleElectionOptionStatResponse": {
+        "type": "object",
+        "properties": {
+          "electionItemId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "OneToOneCompareResultResponse": {
+        "type": "object",
+        "properties": {
+          "bundleSlug": {
+            "type": "string"
+          },
+          "bundleTitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "me": {
+            "$ref": "#/components/schemas/Participant"
+          },
+          "target": {
+            "$ref": "#/components/schemas/Participant"
+          },
+          "questionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionStat"
+            }
+          },
+          "matchCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "matchRate": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "Participant": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "displayProfileColor": {
+            "type": "string"
+          },
+          "isWithdrawn": {
+            "type": "boolean"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            }
+          }
+        }
+      },
+      "QuestionStat": {
+        "type": "object",
+        "properties": {
+          "electionId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "optionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionStatResponse"
+            }
+          }
+        }
+      },
+      "BaseResponseGroupCompareResultResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/GroupCompareResultResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "GroupCompareResultResponse": {
+        "type": "object",
+        "properties": {
+          "bundleSlug": {
+            "type": "string"
+          },
+          "bundleTitle": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "groupName": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "myUserId": {
+            "type": "string"
+          },
+          "myBundleCompleted": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "showGenderContent": {
+            "type": "boolean"
+          },
+          "isClosed": {
+            "type": "boolean"
+          },
+          "creatorUserId": {
+            "type": "string"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Member"
+            }
+          },
+          "questionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionStat"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "displayProfileColor": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "isWithdrawn": {
+            "type": "boolean"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            }
+          }
+        }
+      },
+      "BaseResponseListBundleSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/BundleSummaryResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "bundleId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "subtitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "questionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["ACTIVE", "CLOSED"]
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "participantCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseBundleSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BundleSummaryResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseBundleMyResultResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BundleMyResultResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleMyResultResponse": {
+        "type": "object",
+        "properties": {
+          "bundleSlug": {
+            "type": "string"
+          },
+          "bundleTitle": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "categoryCode": {
+            "type": "string"
+          },
+          "categoryMeta": {
+            "type": "string"
+          },
+          "totalQuestions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "myAnswers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyAnswer"
+            }
+          },
+          "questionStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QuestionStat"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "MyAnswer": {
+        "type": "object",
+        "properties": {
+          "electionId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
+          },
+          "selectedElectionItemId": {
+            "type": "string"
+          }
+        }
+      },
+      "BaseResponseListMyCompareLinkResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/MyCompareLinkResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "MyCompareLinkResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["ONE_TO_ONE", "GROUP"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["WAITING", "COMPLETED"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "participantNickname": {
+            "type": "string"
+          },
+          "groupName": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseListBundleElectionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BundleElectionResponse": {
+        "type": "object",
+        "properties": {
+          "electionId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BundleElectionOptionResponse"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseNicknameCheckResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NicknameCheckResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "NicknameCheckResponse": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseUserResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "BaseResponseListSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/SuggestionResponse"
             }
           }
         },
@@ -3733,29 +7214,6 @@
         },
         "description": "공통 응답 포맷"
       },
-      "BaseResponseListServerMetaResponse": {
-        "type": "object",
-        "properties": {
-          "code": {
-            "type": "string",
-            "description": "응답 코드",
-            "example": "S0000"
-          },
-          "message": {
-            "type": "string",
-            "description": "응답 메시지",
-            "example": "성공"
-          },
-          "data": {
-            "type": "array",
-            "description": "응답 데이터",
-            "items": {
-              "$ref": "#/components/schemas/ServerMetaResponse"
-            }
-          }
-        },
-        "description": "공통 응답 포맷"
-      },
       "AdminHotpickSummaryResponse": {
         "type": "object",
         "properties": {
@@ -3770,6 +7228,9 @@
             "type": "string"
           },
           "visible": {
+            "type": "boolean"
+          },
+          "fixed": {
             "type": "boolean"
           },
           "imageUrl": {
@@ -3869,14 +7330,44 @@
         },
         "description": "공통 응답 포맷"
       },
+      "BaseResponseListAdminBundleDetailResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "type": "array",
+            "description": "응답 데이터",
+            "items": {
+              "$ref": "#/components/schemas/AdminBundleDetailResponse"
+            }
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
       "DeleteCommentRequest": {
-        "required": ["verifyToken"],
         "type": "object",
         "properties": {
           "verifyToken": {
             "type": "string"
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "signup 시 signupToken 값을 입력하세요",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

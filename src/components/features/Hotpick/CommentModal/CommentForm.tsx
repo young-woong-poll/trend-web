@@ -14,6 +14,7 @@ interface CommentFormProps {
 
 export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess }) => {
   const {
+    isLoggedIn,
     nickname,
     password,
     content,
@@ -45,45 +46,49 @@ export const CommentForm: FC<CommentFormProps> = ({ slug, electionId, onSuccess 
         </span>
       </div>
 
-      {/* 닉네임 + 비밀번호 + 게시 */}
+      {/* 닉네임 + 비밀번호 + 게시 (비로그인) / 게시 버튼만 (로그인) */}
       <div className={styles.bottomRow}>
-        <div className={`${styles.nicknameWrapper} ${errors.nickname ? styles.error : ''}`}>
-          <input
-            type="text"
-            className={`${styles.input} ${styles.nicknameInput}`}
-            placeholder="닉네임"
-            value={nickname}
-            onChange={handleNicknameChange}
-            onBlur={handleNicknameBlur}
-            maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
-            disabled={isPending}
-          />
-          <button
-            type="button"
-            className={styles.generateButton}
-            onClick={handleGenerateNickname}
-            disabled={isPending}
-            aria-label="닉네임 자동생성"
-          >
-            <DiceIcon className={styles.generateIcon} />
-            <span className={styles.generateLabel}>랜덤</span>
-          </button>
-        </div>
-        <input
-          type="password"
-          className={`${styles.input} ${styles.passwordInput} ${errors.password ? styles.error : ''}`}
-          placeholder="비밀번호"
-          value={password}
-          onChange={handlePasswordChange}
-          maxLength={COMMENT_FORM_LIMITS.PASSWORD_MAX_LENGTH}
-          disabled={isPending}
-          autoComplete="new-password"
-          data-1p-ignore
-          data-lpignore="true"
-        />
+        {!isLoggedIn && (
+          <>
+            <div className={`${styles.nicknameWrapper} ${errors.nickname ? styles.error : ''}`}>
+              <input
+                type="text"
+                className={`${styles.input} ${styles.nicknameInput}`}
+                placeholder="닉네임"
+                value={nickname}
+                onChange={handleNicknameChange}
+                onBlur={handleNicknameBlur}
+                maxLength={COMMENT_FORM_LIMITS.NICKNAME_MAX_LENGTH}
+                disabled={isPending}
+              />
+              <button
+                type="button"
+                className={styles.generateButton}
+                onClick={handleGenerateNickname}
+                disabled={isPending}
+                aria-label="닉네임 자동생성"
+              >
+                <DiceIcon className={styles.generateIcon} />
+                <span className={styles.generateLabel}>랜덤</span>
+              </button>
+            </div>
+            <input
+              type="password"
+              className={`${styles.input} ${styles.passwordInput} ${errors.password ? styles.error : ''}`}
+              placeholder="비밀번호"
+              value={password}
+              onChange={handlePasswordChange}
+              maxLength={COMMENT_FORM_LIMITS.PASSWORD_MAX_LENGTH}
+              disabled={isPending}
+              autoComplete="new-password"
+              data-1p-ignore
+              data-lpignore="true"
+            />
+          </>
+        )}
         <button
           type="button"
-          className={styles.submitButton}
+          className={`${styles.submitButton} ${isLoggedIn ? styles.submitButtonFull : ''}`}
           onClick={handleSubmit}
           disabled={isPending}
           aria-label="댓글 게시"

@@ -1,0 +1,403 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  animation: fadeSlideUp 0.6s ease-out both;
+}
+
+// ─── 범례 ───
+.legendRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+// ─── 등급 설명 툴팁 ───
+.gradeInfoWrap {
+  position: relative;
+}
+
+.gradeInfoBtn {
+  all: unset;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-tertiary;
+  border: 1px solid rgba(#fff, 0.12);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+
+  &:hover {
+    color: $white;
+    border-color: rgba(#fff, 0.3);
+  }
+}
+
+.gradeInfoTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  width: 220px;
+  padding: 12px;
+  background: rgba(24, 24, 24, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(#fff, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: gradeInfoIn 0.15s ease-out;
+}
+
+@keyframes gradeInfoIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gradeInfoTitle {
+  font-size: $font-size-12;
+  font-weight: 700;
+  color: $white;
+}
+
+.gradeInfoSub {
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+.gradeInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradeInfoGrade {
+  font-size: $font-size-14;
+  font-weight: 700;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.gradeInfoRange {
+  font-size: 11px;
+  color: $text-secondary;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.gradeInfoLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  flex: 1;
+}
+
+// ─── 네트워크 캔버스 ───
+.networkCanvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.svgLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+// ─── 멤버 노드 (버튼) ───
+@keyframes ringPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.memberNode {
+  all: unset;
+  position: absolute;
+  @include flex-column;
+  align-items: center;
+  gap: 4px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  cursor: pointer;
+  transition:
+    opacity 0.3s,
+    transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+
+  &.inactive {
+    opacity: 0.3;
+  }
+
+  // 선택 전 — 링 펄스로 클릭 유도
+  &.idle .nodeCircle::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 2px solid var(--node-color, rgba(#fff, 0.5));
+    animation: ringPulse 2s ease-out infinite;
+  }
+
+  // 선택됨 — 강한 글로우 + 스케일 업
+  &.selected {
+    transform: translate(-50%, -50%) scale(1.1);
+
+    &:active {
+      transform: translate(-50%, -50%) scale(1.02);
+    }
+
+    .nodeCircle {
+      border-color: rgba(#fff, 0.6);
+      box-shadow:
+        0 0 16px rgba(#fff, 0.35),
+        0 0 32px rgba(#ff00ff, 0.2);
+
+      &::before {
+        display: none;
+      }
+    }
+
+    .nodeName {
+      color: $white;
+      font-weight: 700;
+    }
+  }
+}
+
+.nodeCircleWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.nodeCircle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  @include flex-center;
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $white;
+  border: 2px solid rgba(#fff, 0.15);
+  transition:
+    background 0.3s,
+    box-shadow 0.3s,
+    border-color 0.3s,
+    transform 0.2s;
+}
+
+.nodeName {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  color: $text-secondary;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(#121212, 0.7);
+  transition:
+    color 0.3s,
+    font-weight 0.3s;
+}
+
+.nicknameBadgeMe {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(#fff, 0.5);
+  background: rgba(#fff, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+// ─── 안내 문구 ───
+.hint {
+  text-align: center;
+  font-size: 12px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+// ─── 1:1 비교 유도 패널 ───
+.comparePanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(#fff, 0.04);
+  border: 1px solid rgba(#fff, 0.08);
+  border-radius: $border-radius-lg;
+  animation: panelSlideUp 0.25s ease-out both;
+}
+
+@keyframes panelSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comparePanelInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.comparePanelGrade {
+  font-size: $font-size-24;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.comparePanelText {
+  @include flex-column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.comparePanelNames {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comparePanelTitle {
+  font-size: 12px;
+  color: $text-tertiary;
+}
+
+.comparePanelBtn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: none;
+  border-radius: $border-radius-md;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-12;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  white-space: nowrap;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.comparePanelNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: $text-tertiary;
+  margin-top: -4px;
+}
+
+.noticeArrow {
+  display: inline-block;
+  font-size: $font-size-14;
+  font-weight: 700;
+  color: $text-tertiary;
+  transform: rotate(90deg);
+  animation: arrowFloat 1.4s ease-in-out infinite;
+}
+
+@keyframes arrowFloat {
+  0%,
+  100% {
+    transform: rotate(90deg) translateX(0.5px);
+  }
+  50% {
+    transform: rotate(90deg) translateX(-0.5px);
+  }
+}

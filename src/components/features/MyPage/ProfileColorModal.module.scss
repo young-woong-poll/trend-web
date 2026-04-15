@@ -1,0 +1,64 @@
+@use '@/styles/variables' as *;
+
+.container {
+  padding: 24px 20px;
+}
+
+.title {
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  justify-items: center;
+  margin-bottom: 24px;
+}
+
+.colorButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  cursor: pointer;
+  transition:
+    outline-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.selected {
+  outline-color: $white;
+}
+
+.saveButton {
+  width: 100%;
+  padding: 12px;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  background: $primary-gradient;
+  border: none;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

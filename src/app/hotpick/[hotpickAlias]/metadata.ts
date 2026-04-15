@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: HotpickPageProps): Promise<Me
     const items = election?.items ?? [];
     if (items.length >= 2) {
       const optionTexts = items.map((item) => item.title).join(' vs ');
-      description = `${optionTexts} - 지금 바로 투표하세요!`;
+      description = `${optionTexts} - 대중의 생각을 확인하세요`;
     }
 
     const canonicalUrl = `${SITE_URL}/hotpick/${hotpickAlias}`;

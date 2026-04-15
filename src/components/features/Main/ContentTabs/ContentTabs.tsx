@@ -2,8 +2,8 @@
 
 import { useRef, type FC, type ReactNode } from 'react';
 
-import FlameIcon from '@/assets/icon/FlameIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
+import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
 import styles from '@/components/features/Main/ContentTabs/ContentTabs.module.scss';
 import type { CategoryFilterItem } from '@/constants/category';
@@ -11,7 +11,7 @@ import { FILTER_TABS, type FilterTabType, type TabSelection } from '@/constants/
 
 const TAB_ICONS: Record<FilterTabType, ReactNode> = {
   new: <SparkleIcon className={styles.tabIcon} />,
-  hot: <FlameIcon className={styles.tabIcon} />,
+  top: <TrophyIcon className={styles.tabIcon} />,
   my: <UserCheckIcon className={styles.tabIcon} />,
 };
 
@@ -68,9 +68,10 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
       data-testid="content-tabs"
     >
       <div ref={containerRef} className={styles.tabList}>
-        {/* 필터 탭: NEW, HOT, MY */}
+        {/* 필터 탭: NEW, TOP, MY */}
         {FILTER_TABS.map((tab) => {
           const isActive = isTabActive(selectedTab, 'filter', tab.type);
+
           return (
             <button
               key={tab.type}

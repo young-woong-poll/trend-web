@@ -22,7 +22,7 @@ export const useCommentLike = (
   slug: string,
   electionId: string,
   sort: 'latest' | 'popular',
-  options?: UseCommentLikeOptions
+  options?: UseCommentLikeOptions & { isLoggedIn?: boolean }
 ) => {
   const queryClient = useQueryClient();
   const allSorts: Array<'latest' | 'popular'> = ['latest', 'popular'];
@@ -67,8 +67,8 @@ export const useCommentLike = (
       }));
 
       try {
-        const tkuId = getTKUID();
-        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : undefined;
+        const tkuId = getTKUID({ isLoggedIn: options?.isLoggedIn });
+        const apiOptions = tkuId ? { headers: { 'x-tku-id': tkuId } } : {};
 
         const result = currentLiked
           ? await unlikeComment(commentId, apiOptions)
