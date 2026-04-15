@@ -1,6 +1,6 @@
 import { CompareResult } from '@/components/features/Compare/CompareResult/CompareResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { OG_IMAGE_BUNDLE, SITE_URL } from '@/lib/seo/constants';
+import { OG_IMAGE_COMPARE, SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
           title,
           description: link.bundleTitle,
           url: `${SITE_URL}/compare/match/${token}`,
-          images: [OG_IMAGE_BUNDLE],
+          images: [OG_IMAGE_COMPARE],
         },
         robots: { index: false },
       };
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   return {
     title: '비교 결과',
     description: '궁합 결과를 확인해보세요',
-    openGraph: { images: [OG_IMAGE_BUNDLE] },
+    openGraph: { images: [OG_IMAGE_COMPARE] },
     robots: { index: false },
   };
 }

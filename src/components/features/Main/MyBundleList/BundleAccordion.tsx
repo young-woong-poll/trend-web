@@ -9,11 +9,22 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Main/MyBundleList/MyBundleList.module.scss';
+import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import type { CategoryCode } from '@/types/hotpick';
 import type { MyCompareLink } from '@/types/my-compare';
+
+const GRADE_COLORS: Record<ChemistryGrade, string> = {
+  SS: '#E040FB',
+  S: '#3B82F6',
+  A: '#22C55E',
+  B: '#FACC15',
+  C: '#F97316',
+  D: '#EF4444',
+  X: '#00E5FF',
+};
 
 interface BundleAccordionProps {
   slug: string;
@@ -143,6 +154,18 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
                     >
                       {getOneToOneName(link)}
                     </span>
+                    {link.status === 'COMPLETED' &&
+                      link.matchRate !== null &&
+                      (() => {
+                        const chemistry = getChemistryByRate(link.matchRate);
+                        const color = GRADE_COLORS[chemistry.grade];
+                        return (
+                          <span className={styles.gradeBadge}>
+                            <span style={{ color }}>{chemistry.grade}</span>
+                            <span className={styles.gradeSuffix}>등급</span>
+                          </span>
+                        );
+                      })()}
                     <span className={styles.linkActionIcon}>
                       {link.status === 'WAITING' ? (
                         <CopyDoubleIcon width={16} height={16} stroke="currentColor" />

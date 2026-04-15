@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     if (bundle) {
       return {
         title: bundle.title,
-        description: bundle.subtitle ?? '우리 생각 얼마나 통할까?',
+        description: '테스트하고 친구들과 가치관을 비교하세요!',
         openGraph: {
           title: bundle.title,
-          description: bundle.subtitle ?? '우리 생각 얼마나 통할까?',
+          description: '테스트하고 친구들과 가치관을 비교하세요!',
           url: `${SITE_URL}/bundle/${slug}`,
           images: [OG_IMAGE_BUNDLE],
         },
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
 
   return {
     title: '번들',
-    description: '우리 생각 얼마나 통할까?',
+    description: '테스트하고 친구들과 가치관을 비교하세요!',
     openGraph: { images: [OG_IMAGE_BUNDLE] },
   };
 }

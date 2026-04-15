@@ -212,6 +212,22 @@
   font-size: $font-size-12;
 }
 
+// ─── 케미 등급 뱃지 ───
+.gradeBadge {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  flex-shrink: 0;
+  font-size: $font-size-16;
+  font-weight: 800;
+}
+
+.gradeSuffix {
+  font-size: $font-size-12;
+  font-weight: 500;
+  color: $text-tertiary;
+}
+
 // ─── 아이콘 (행 전체가 클릭 영역) ───
 .linkActionIcon {
   display: flex;
