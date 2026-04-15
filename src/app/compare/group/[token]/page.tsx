@@ -1,6 +1,6 @@
 import { GroupResult } from '@/components/features/Compare/GroupResult/GroupResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { OG_IMAGE_BUNDLE, SITE_URL } from '@/lib/seo/constants';
+import { OG_IMAGE_COMPARE, SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -22,13 +22,13 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
     if (link) {
       const groupName = link.groupName ?? '그룹';
       return {
-        title: `${groupName} 그룹 초대`,
+        title: `'${groupName}' 가치관 비교에 참여하세요!`,
         description: link.bundleTitle,
         openGraph: {
-          title: `${link.creatorNickname}님이 '${groupName}'에 초대했어요`,
+          title: `'${groupName}' 가치관 비교에 참여하세요!`,
           description: link.bundleTitle,
           url: `${SITE_URL}/compare/group/${token}`,
-          images: [OG_IMAGE_BUNDLE],
+          images: [OG_IMAGE_COMPARE],
         },
         robots: { index: false },
       };
@@ -38,9 +38,9 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
   }
 
   return {
-    title: '그룹 비교',
-    description: '그룹 비교 결과를 확인해보세요',
-    openGraph: { images: [OG_IMAGE_BUNDLE] },
+    title: '가치관 비교에 참여하세요!',
+    description: '우리 생각 얼마나 통할까?',
+    openGraph: { images: [OG_IMAGE_COMPARE] },
     robots: { index: false },
   };
 }

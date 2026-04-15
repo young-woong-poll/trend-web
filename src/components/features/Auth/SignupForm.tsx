@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -109,9 +109,10 @@ const SignupForm = () => {
 
   // signupToken 없으면 접근 불가 → 메인으로 리다이렉트
   const isAuthorized = hasSignupToken();
+  const isNavigatingRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthorized) {
+    if (!isAuthorized && !isNavigatingRef.current) {
       router.replace('/');
     }
   }, [isAuthorized, router]);
@@ -205,14 +206,12 @@ const SignupForm = () => {
         ...(tkuId ? { tkuId } : {}),
       });
 
-      // 가입 완료 → signupToken 정리 (연결 동의 시에만 TKUID 제거)
-      clearSignupToken();
-      if (withMigration) {
-        clearTKUID();
-      }
       setUser(result.user);
-
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
+
+      // 가드 비활성화 후 이동 → 토큰 정리 순서로 처리
+      // clearSignupToken()이 먼저 실행되면 setUser 리렌더 시 가드가 홈으로 튕김
+      isNavigatingRef.current = true;
 
       if (isFromGroup) {
         const returnUrlObj = new URL(returnUrl, window.location.origin);
@@ -229,6 +228,12 @@ const SignupForm = () => {
         router.replace(`/bundle/${bundleSlug}/play?compareToken=${compareToken}`);
       } else {
         router.replace(returnUrl);
+      }
+
+      // 이동 후 토큰 정리 (연결 동의 시에만 TKUID 제거)
+      clearSignupToken();
+      if (withMigration) {
+        clearTKUID();
       }
     } catch {
       showToast('회원가입에 실패했습니다. 잠시후 다시 시도해주세요');

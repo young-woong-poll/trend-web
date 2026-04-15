@@ -151,6 +151,7 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
       } else if (compareToken) {
         try {
           await joinMutation.mutateAsync(undefined);
+          await queryClient.invalidateQueries({ queryKey: compareKeys.link(compareToken) });
           router.replace(`/compare/match/${compareToken}`);
         } catch {
           // join 실패 (이미 다른 유저가 참여 등) → 랜딩 페이지로 이동 (isAlreadyTaken 안내)
