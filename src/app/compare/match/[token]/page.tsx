@@ -1,6 +1,7 @@
 import { CompareResult } from '@/components/features/Compare/CompareResult/CompareResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { OG_IMAGE_COMPARE, SITE_URL } from '@/lib/seo/constants';
+import { getChemistryByRate } from '@/constants/bundle';
+import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -24,6 +25,9 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
       const participant = link.participantNickname;
       const title = participant ? `${creator} vs ${participant}` : `${creator}의 비교 결과`;
 
+      const chemistry = getChemistryByRate(link.matchRate ?? 0);
+      const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=MATCH&grade=${chemistry.grade}`;
+
       return {
         title,
         description: link.bundleTitle,
@@ -31,7 +35,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
           title,
           description: link.bundleTitle,
           url: `${SITE_URL}/compare/match/${token}`,
-          images: [OG_IMAGE_COMPARE],
+          images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
         robots: { index: false },
       };
@@ -43,7 +47,15 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   return {
     title: '비교 결과',
     description: '궁합 결과를 확인해보세요',
-    openGraph: { images: [OG_IMAGE_COMPARE] },
+    openGraph: {
+      images: [
+        {
+          url: `${SITE_URL}/api/og/compare?category=TREND&type=MATCH&grade=B`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
     robots: { index: false },
   };
 }

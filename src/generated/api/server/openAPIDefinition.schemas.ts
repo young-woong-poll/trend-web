@@ -631,6 +631,23 @@ export interface BundleElectionOptionResponse {
   imageUrl?: string;
 }
 
+/**
+ * 응답 데이터
+ */
+export type BaseResponseMapStringLongData = { [key: string]: number };
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseMapStringLong {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  /** 응답 데이터 */
+  data?: BaseResponseMapStringLongData;
+}
+
 export interface BundleElectionOptionRequest {
   /**
    * @minLength 0
@@ -1267,6 +1284,7 @@ export interface MyCompareLinkResponse {
   participantNickname?: string;
   groupName?: string;
   memberCount?: number;
+  matchRate?: number;
 }
 
 /**
@@ -1376,6 +1394,35 @@ export interface BaseResponseHotpickSlugCheckResponse {
   /** 응답 메시지 */
   message?: string;
   data?: HotpickSlugCheckResponse;
+}
+
+export interface CompareLinkItem {
+  token?: string;
+  type?: string;
+  creatorNickname?: string;
+  groupName?: string;
+  memberCount?: number;
+  isClosed?: boolean;
+  createdAt?: string;
+}
+
+export interface CompareLinkStats {
+  totalCount?: number;
+  oneToOneCount?: number;
+  groupCount?: number;
+  activeGroupCount?: number;
+  links?: CompareLinkItem[];
+}
+
+export interface DailyStat {
+  date?: string;
+  count?: number;
+}
+
+export interface ParticipationStats {
+  totalParticipants?: number;
+  completionRate?: number;
+  dailyStats?: DailyStat[];
 }
 
 export interface DeleteCommentRequest {

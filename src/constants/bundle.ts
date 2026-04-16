@@ -104,6 +104,11 @@ export function getChemistryByRate(matchRate: number): ChemistryInfo {
   return CHEMISTRY_GRADES[5]; // D
 }
 
+/** grade 문자열로 ChemistryInfo 조회 (OG 이미지 route용) */
+export function getChemistryByGrade(grade: string): ChemistryInfo {
+  return CHEMISTRY_GRADES.find((g) => g.grade === grade) ?? CHEMISTRY_GRADES[3]; // fallback: B
+}
+
 /**
  * 대중성 등급 매핑
  * popularityScore → 등급/캐릭터/설명
