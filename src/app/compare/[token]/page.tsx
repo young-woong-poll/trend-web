@@ -1,6 +1,6 @@
 import { CompareLanding } from '@/components/features/Compare/CompareLanding/CompareLanding';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { OG_IMAGE_COMPARE, SITE_URL } from '@/lib/seo/constants';
+import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
@@ -20,6 +20,8 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
     const link = json?.data;
 
     if (link) {
+      const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=ONE_TO_ONE`;
+
       return {
         title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
         description: link.bundleTitle,
@@ -27,7 +29,7 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
           title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
           description: link.bundleTitle,
           url: `${SITE_URL}/compare/${token}`,
-          images: [OG_IMAGE_COMPARE],
+          images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
         robots: { index: false },
       };
@@ -39,7 +41,15 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
   return {
     title: '가치관 대결을 신청했어요!',
     description: '우리 생각 얼마나 통할까?',
-    openGraph: { images: [OG_IMAGE_COMPARE] },
+    openGraph: {
+      images: [
+        {
+          url: `${SITE_URL}/api/og/compare?category=TREND&type=ONE_TO_ONE`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
     robots: { index: false },
   };
 }

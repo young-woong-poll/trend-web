@@ -156,6 +156,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
                     </span>
                     {link.status === 'COMPLETED' &&
                       link.matchRate !== null &&
+                      link.matchRate !== undefined &&
                       (() => {
                         const chemistry = getChemistryByRate(link.matchRate);
                         const color = GRADE_COLORS[chemistry.grade];
