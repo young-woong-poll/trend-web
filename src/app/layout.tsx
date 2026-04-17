@@ -9,7 +9,7 @@ import AuthProvider from '@/providers/AuthProvider';
 import { ClientProviders } from '@/providers/ClientProviders';
 import { QueryProvider } from '@/providers/QueryProvider';
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import '@/styles/globals.scss';
 
@@ -29,6 +29,11 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
