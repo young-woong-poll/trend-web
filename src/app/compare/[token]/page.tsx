@@ -1,5 +1,6 @@
 import { CompareLanding } from '@/components/features/Compare/CompareLanding/CompareLanding';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
+import { getInfo } from '@/generated/api/server/compare-link/compare-link';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -12,12 +13,8 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
   const { token } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/compare-links/${token}`,
-      { next: { revalidate: 60 } }
-    );
-    const json = await response.json();
-    const link = json?.data;
+    const response = await getInfo(token, { next: { revalidate: 60 } });
+    const link = response.status === 200 ? response.data.data : null;
 
     if (link) {
       const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=ONE_TO_ONE`;

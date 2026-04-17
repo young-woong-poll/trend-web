@@ -1,5 +1,7 @@
 import { GroupResult } from '@/components/features/Compare/GroupResult/GroupResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
+import { getInfo } from '@/generated/api/server/compare-link/compare-link';
+import type { CompareLinkInfoResponse } from '@/generated/api/server/openAPIDefinition.schemas';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -8,16 +10,20 @@ type GroupPageProps = {
   params: Promise<{ token: string }>;
 };
 
+/** CompareLinkInfoResponse 확장 — 서버 실제 응답에 groupName이 포함됨 */
+type GroupCompareLinkInfo = CompareLinkInfoResponse & {
+  groupName?: string | null;
+};
+
 export async function generateMetadata({ params }: GroupPageProps): Promise<Metadata> {
   const { token } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/compare-links/${token}`,
-      { next: { revalidate: 60 } }
-    );
-    const json = await response.json();
-    const link = json?.data;
+    const response = await getInfo(token, { next: { revalidate: 60 } });
+    const link = (response.status === 200 ? response.data.data : null) as
+      | GroupCompareLinkInfo
+      | null
+      | undefined;
 
     if (link) {
       const groupName = link.groupName ?? '그룹';
