@@ -53,3 +53,6 @@ data/hotpick.db
 data/hotpick.db-wal
 data/hotpick.db-shm
 .gstack/
+
+# hp-designer mock directory
+.tmp/
