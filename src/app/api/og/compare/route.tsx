@@ -3,28 +3,15 @@ import type { NextRequest } from 'next/server';
 
 import { getChemistryByGrade } from '@/constants/bundle';
 import { getCategoryTheme } from '@/constants/categoryTheme';
-import {
-  GroupV2Invited,
-  MatchV2Certificate,
-  PendingV2Duel,
-  PendingV3Minimal,
-} from '@/lib/og/compareVariants';
+import { GroupV2Invited, MatchV2Certificate, PendingV2Duel } from '@/lib/og/compareVariants';
 import { buildFontsArray, loadOgFonts } from '@/lib/og/fonts';
 import { OG_HEIGHT, OG_WIDTH, roundMatchRate, roundMemberCount } from '@/lib/og/shared';
 import type { CategoryCode } from '@/types/hotpick';
 
 export const runtime = 'edge';
 
-type Design = 'v1' | 'v2' | 'v3';
 type CompareType = 'ONE_TO_ONE' | 'GROUP';
 type Status = 'PENDING' | 'DONE';
-
-function parseDesign(raw: string | null): Design {
-  if (raw === 'v2' || raw === 'v3') {
-    return raw;
-  }
-  return 'v1';
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -32,7 +19,7 @@ export async function GET(request: NextRequest) {
   const rawType = searchParams.get('type') ?? 'ONE_TO_ONE';
   const type: CompareType = rawType === 'GROUP' ? 'GROUP' : 'ONE_TO_ONE';
   const status: Status = searchParams.get('status') === 'DONE' ? 'DONE' : 'PENDING';
-  const design = parseDesign(searchParams.get('design'));
+  // design 쿼리는 현재 무시 — MATCH/GROUP/PENDING 모두 V2로 확정
 
   // DONE 전용
   const grade = searchParams.get('grade') ?? 'B';
@@ -72,9 +59,15 @@ export async function GET(request: NextRequest) {
       const chemistry = getChemistryByGrade(grade);
       element = <MatchV2Certificate theme={theme} chemistry={chemistry} matchRate={matchRate} />;
     } else {
-      // PENDING — V1 제거됨. V3(Bold Minimal) 또는 V2(Challenge Letter, 기본)
-      const props = { theme, origin, bundleTitle, creatorName };
-      element = design === 'v3' ? <PendingV3Minimal {...props} /> : <PendingV2Duel {...props} />;
+      // PENDING은 V2(Challenge Letter)로 확정. design 쿼리 무시.
+      element = (
+        <PendingV2Duel
+          theme={theme}
+          origin={origin}
+          bundleTitle={bundleTitle}
+          creatorName={creatorName}
+        />
+      );
     }
 
     const isDev = process.env.NODE_ENV !== 'production';

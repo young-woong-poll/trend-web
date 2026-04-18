@@ -24,13 +24,15 @@ export async function GET(request: NextRequest) {
   const participants = Math.max(0, Number(searchParams.get('participants') ?? '0'));
   const questions = Math.max(0, Number(searchParams.get('questions') ?? '0'));
   const design = parseDesign(searchParams.get('design'));
+  const bundleTitleRaw = searchParams.get('bundleTitle') ?? undefined;
+  const bundleTitle = bundleTitleRaw ? bundleTitleRaw.slice(0, 40) : undefined;
 
   try {
     const origin = new URL(request.url).origin;
     const fonts = await loadOgFonts(origin);
     const theme = getCategoryTheme(category);
 
-    const props = { participants, questions, theme };
+    const props = { participants, questions, theme, bundleTitle, origin };
     const element =
       design === 'v3' ? (
         <BundleV3Stats {...props} />

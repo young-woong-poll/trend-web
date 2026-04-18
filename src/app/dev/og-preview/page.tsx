@@ -35,6 +35,7 @@ function buildBundleUrl(params: {
   category: string;
   participants: number;
   questions: number;
+  bundleTitle?: string;
 }) {
   const q = new URLSearchParams({
     design: params.design,
@@ -42,6 +43,9 @@ function buildBundleUrl(params: {
     participants: String(params.participants),
     questions: String(params.questions),
   });
+  if (params.bundleTitle) {
+    q.set('bundleTitle', params.bundleTitle);
+  }
   return `/api/og/bundle?${q.toString()}`;
 }
 
@@ -161,7 +165,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
           gap: 16,
         }}
       >
@@ -186,24 +190,22 @@ export default function OgPreviewPage() {
     () =>
       DESIGNS.map((design) => ({
         design,
-        url: buildBundleUrl({ design, category, participants, questions }),
+        url: buildBundleUrl({ design, category, participants, questions, bundleTitle }),
       })),
-    [category, participants, questions]
+    [category, participants, questions, bundleTitle]
   );
 
-  const pendingUrls = useMemo(
+  // PENDING도 V2로 확정 — 단일 URL
+  const pendingUrl = useMemo(
     () =>
-      DESIGNS.map((design) => ({
-        design,
-        url: buildCompareUrl({
-          design,
-          category,
-          type: 'ONE_TO_ONE',
-          status: 'PENDING',
-          bundleTitle,
-          creatorName,
-        }),
-      })),
+      buildCompareUrl({
+        design: 'v2',
+        category,
+        type: 'ONE_TO_ONE',
+        status: 'PENDING',
+        bundleTitle,
+        creatorName,
+      }),
     [category, bundleTitle, creatorName]
   );
 
@@ -262,10 +264,8 @@ export default function OgPreviewPage() {
         ))}
       </Section>
 
-      <Section title="⚔️ Compare ONE_TO_ONE · PENDING — 신청 링크">
-        {pendingUrls.map(({ design, url }) => (
-          <VariantCard key={design} title={`PENDING ${design.toUpperCase()}`} url={url} />
-        ))}
+      <Section title="⚔️ Compare ONE_TO_ONE · PENDING — 신청 링크 · V2 확정">
+        <VariantCard title="PENDING V2 (Challenge Letter)" url={pendingUrl} />
       </Section>
 
       <Section

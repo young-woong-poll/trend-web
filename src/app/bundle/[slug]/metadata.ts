@@ -30,7 +30,8 @@ function roundParticipants(n: number): number {
 export function buildBundleOgImageUrl(
   categoryCode?: string,
   participantCount?: number,
-  questionCount?: number
+  questionCount?: number,
+  bundleTitle?: string
 ): string {
   const rounded = roundParticipants(participantCount ?? 0);
   const params = new URLSearchParams({
@@ -39,6 +40,9 @@ export function buildBundleOgImageUrl(
     participants: String(rounded),
     questions: String(questionCount ?? 0),
   });
+  if (bundleTitle) {
+    params.set('bundleTitle', bundleTitle.slice(0, 40));
+  }
   return `${SITE_URL}/api/og/bundle?${params.toString()}`;
 }
 
@@ -53,7 +57,8 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       const ogImageUrl = buildBundleOgImageUrl(
         bundle.categoryCode,
         bundle.participantCount,
-        bundle.questionCount
+        bundle.questionCount,
+        bundle.title
       );
       const participantText = bundle.participantCount
         ? `${bundle.participantCount.toLocaleString()}명이 답한 `

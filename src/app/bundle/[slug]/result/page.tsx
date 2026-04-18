@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: ResultPageProps): Promise<Met
       const ogImageUrl = buildBundleOgImageUrl(
         bundle.categoryCode,
         bundle.participantCount,
-        bundle.questionCount
+        bundle.questionCount,
+        bundle.title
       );
 
       return {

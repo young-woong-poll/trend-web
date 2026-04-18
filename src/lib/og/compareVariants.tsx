@@ -9,7 +9,7 @@ import type { ReactElement } from 'react';
 
 import type { ChemistryInfo } from '@/constants/bundle';
 import type { CategoryTheme } from '@/constants/categoryTheme';
-import { BrandCtaBand, CategoryChip, OG_HEIGHT, OG_WIDTH, PlaceholderBox } from '@/lib/og/shared';
+import { BrandCtaBand, OG_HEIGHT, OG_WIDTH, PlaceholderBox } from '@/lib/og/shared';
 
 // ═══════════════════════════════════════════════════════════════════════
 // ONE_TO_ONE PENDING (신청 링크)
@@ -160,96 +160,6 @@ export function PendingV2Duel({ origin, bundleTitle, creatorName }: PendingOgPro
         >
           {senderText}
         </span>
-      </div>
-    </div>
-  );
-}
-
-/** V3 "Bold Minimal" — 거대 VS 타이포 + 한 줄 카피 */
-export function PendingV3Minimal({ theme }: PendingOgProps): ReactElement {
-  return (
-    <div
-      style={{
-        width: OG_WIDTH,
-        height: OG_HEIGHT,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        background: '#FFF9F2',
-        fontFamily: 'Pretendard',
-      }}
-    >
-      {/* 좌측 거대 VS */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '320px',
-          fontFamily: 'Archivo Black',
-          fontWeight: 900,
-          color: 'transparent',
-          backgroundImage: `linear-gradient(135deg, ${theme.start}, ${theme.end})`,
-          backgroundClip: 'text',
-          lineHeight: 1,
-          letterSpacing: '-18px',
-          paddingBottom: '72px',
-        }}
-      >
-        VS
-      </div>
-
-      {/* 우측 카피 */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          gap: '16px',
-          paddingRight: '90px',
-          paddingBottom: '72px',
-        }}
-      >
-        <CategoryChip label={theme.label} themeStart={theme.start} themeEnd={theme.end} />
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '66px',
-            fontWeight: 900,
-            color: '#0a0a0a',
-            letterSpacing: '-2px',
-            lineHeight: 1.08,
-          }}
-        >
-          우리 얼마나
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '66px',
-            fontWeight: 900,
-            color: '#0a0a0a',
-            letterSpacing: '-2px',
-            lineHeight: 1.08,
-          }}
-        >
-          생각이 맞을까?
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '22px',
-            fontWeight: 400,
-            color: '#555',
-            marginTop: '6px',
-          }}
-        >
-          1:1 가치관 대결 · 클릭해서 응답
-        </div>
       </div>
     </div>
   );

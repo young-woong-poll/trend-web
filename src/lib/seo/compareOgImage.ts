@@ -1,8 +1,8 @@
 import { SITE_URL } from '@/lib/seo/constants';
 
-/** Compare OG 확정 디자인 — 프로토타입 검토 후 업데이트 */
+/** Compare OG 확정 디자인 */
 export const COMPARE_OG_DESIGN = {
-  PENDING: 'v1', // 미확정 — V1/V2/V3 프로토타입 진행 중
+  PENDING: 'v2', // V2(Challenge Letter)로 확정
   MATCH: 'v2', // V2(Certificate)로 확정
   GROUP: 'v2', // V2(편지/초대장)로 확정
 } as const;
