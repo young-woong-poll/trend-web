@@ -404,8 +404,8 @@ export function MatchV1Trophy({
 }
 
 /**
- * V2 "Game Complete" — 게임 클리어 화면 스타일
- * 어두운 배경 + 방사형 빛 + 초거대 등급 드라마틱 등장
+ * V2 "Game Complete" — 어두운 배경 + 방사형 빛
+ * V3와 동일한 문구 · V3 스케일에 맞춰 여백·정렬 정돈
  */
 export function MatchV2Certificate({
   theme,
@@ -427,7 +427,9 @@ export function MatchV2Certificate({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
+        paddingTop: '60px',
+        paddingBottom: '72px',
         position: 'relative',
         background: '#0a0a0a',
         fontFamily: 'Pretendard',
@@ -446,148 +448,101 @@ export function MatchV2Certificate({
         }}
       />
 
-      {/* 상단 "MATCH COMPLETE" */}
+      {/* 상단 블록: bundle.title + 이름 (V3 동일 스케일) */}
       <div
         style={{
-          position: 'absolute',
-          top: '56px',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '14px',
-        }}
-      >
-        <div style={{ display: 'flex', width: '48px', height: '2px', background: theme.start }} />
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '24px',
-            fontFamily: 'Archivo Black',
-            color: theme.start,
-            letterSpacing: '14px',
-          }}
-        >
-          MATCH COMPLETE
-        </div>
-        <div style={{ display: 'flex', width: '48px', height: '2px', background: theme.start }} />
-      </div>
-
-      {/* 중앙: 거대 등급 */}
-      <div
-        style={{
-          display: 'flex',
-          fontSize: '300px',
-          fontFamily: 'Archivo Black',
-          color: 'transparent',
-          backgroundImage: chemistry.gradient,
-          backgroundClip: 'text',
-          lineHeight: 0.9,
-          letterSpacing: '-8px',
-        }}
-      >
-        {chemistry.grade}
-      </div>
-
-      {/* 매치율 */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: '6px',
-          marginTop: '8px',
-        }}
-      >
-        <span
-          style={{
-            display: 'flex',
-            fontSize: '96px',
-            fontFamily: 'Archivo Black',
-            color: '#ffffff',
-            letterSpacing: '-2px',
-            lineHeight: 1,
-          }}
-        >
-          {matchRate}
-        </span>
-        <span
-          style={{
-            display: 'flex',
-            fontSize: '48px',
-            fontWeight: 900,
-            color: 'rgba(255,255,255,0.7)',
-          }}
-        >
-          %
-        </span>
-      </div>
-
-      {/* chemistry.title */}
-      <div
-        style={{
-          display: 'flex',
-          marginTop: '14px',
-          fontSize: '44px',
-          fontWeight: 900,
-          color: '#ffffff',
-          letterSpacing: '-1px',
-        }}
-      >
-        {chemistry.title}
-      </div>
-
-      {/* 하단: 이름 + bundle */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '56px',
-          left: 0,
-          right: 0,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '8px',
+          gap: '16px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
-          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#ffffff' }}>
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '60px',
+            fontWeight: 900,
+            color: '#ffffff',
+            letterSpacing: '-1px',
+            lineHeight: 1,
+          }}
+        >
+          {titleText}
+        </div>
+        <div style={{ display: 'flex', marginTop: '24px', alignItems: 'baseline', gap: '14px' }}>
+          <span style={{ display: 'flex', fontSize: '48px', fontWeight: 900, color: '#ffffff' }}>
             {leftName}
           </span>
           <span
             style={{
               display: 'flex',
-              fontSize: '24px',
-              fontFamily: 'Archivo Black',
+              fontSize: '32px',
+              fontWeight: 900,
               color: theme.start,
               letterSpacing: '4px',
             }}
           >
             X
           </span>
-          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#ffffff' }}>
+          <span style={{ display: 'flex', fontSize: '48px', fontWeight: 900, color: '#ffffff' }}>
             {rightName}
           </span>
         </div>
-        <div style={{ display: 'flex', fontSize: '18px', color: 'rgba(255,255,255,0.5)' }}>
-          {titleText}
-        </div>
+      </div>
+
+      {/* 중앙 블록: 거대 등급 (V3의 220 대비 어두운 배경이라 240으로 약간 강조) */}
+      <div
+        style={{
+          display: 'flex',
+          fontSize: '240px',
+          fontFamily: 'Archivo Black',
+          color: 'transparent',
+          backgroundImage: chemistry.gradient,
+          backgroundClip: 'text',
+          lineHeight: 1,
+          letterSpacing: '-8px',
+        }}
+      >
+        {chemistry.grade}
+      </div>
+
+      {/* 하단 블록: 매치율 + chemistry.title */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '48px',
+            fontWeight: 900,
+            color: theme.start,
+            letterSpacing: '-1px',
+            lineHeight: 1,
+          }}
+        >
+          {matchRate}%
+        </span>
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '48px',
+            fontWeight: 900,
+            color: '#ffffff',
+            letterSpacing: '-1px',
+            lineHeight: 1,
+          }}
+        >
+          · {chemistry.title}
+        </span>
       </div>
     </div>
   );
 }
 
 /**
- * V3 "Result Letter" — 결과장 편지봉투 스타일
+ * V3 "Result Letter" — 어두운 봉투 + 흰 편지지 오버레이
  *
- * PENDING V2(도전장) · GROUP V2(초대장)와 같은 편지 시스템.
- * 배경: 사용자가 제작할 결과장 봉투 — `/og/result-envelope-bg.png`
- *
- * Layer 구조:
- *   1. 봉투 배경 이미지
- *   2. 상단 편지지: bundle.title + {A} X {B}
- *   3. 중앙 Hero: 거대 등급 (도 전 장 / 초대합니다 위치)
- *   4. 하단: 매치율% · chemistry.title
+ * 배경: `/og/envelop-dark-bg-2.png` (편지지 영역 없는 봉투)
+ * 그 위에 흰 편지지 직사각형을 CSS로 올려 결과를 표시.
+ * title은 도전장(PENDING V2)과 동일하게 상단.
  */
 export function MatchV3Split({
   theme,
@@ -601,7 +556,7 @@ export function MatchV3Split({
   const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 결과';
   const leftName = creatorName && creatorName.length > 0 ? creatorName : '친구1';
   const rightName = participantName && participantName.length > 0 ? participantName : '친구2';
-  const bgImageUrl = origin ? `${origin}/og/result-envelope-bg.png` : null;
+  const bgImageUrl = origin ? `${origin}/og/envelop-dark-bg-2.png` : null;
 
   return (
     <div
@@ -610,11 +565,11 @@ export function MatchV3Split({
         height: OG_HEIGHT,
         display: 'flex',
         position: 'relative',
-        background: '#F5EFE0',
+        background: '#2a2a2a',
         fontFamily: 'Pretendard',
       }}
     >
-      {/* Layer 1: 결과장 봉투 배경 */}
+      {/* Layer 1: 어두운 봉투 배경 */}
       {bgImageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -626,82 +581,90 @@ export function MatchV3Split({
         />
       ) : (
         <PlaceholderBox
-          label={`[ 결과장 봉투 배경 ]\nPENDING/GROUP 봉투와 동일 구조\n/og/result-envelope-bg.png\n1200×630`}
+          label={`[ 어두운 봉투 배경 ]\n편지지 영역 없는 버전\n/og/envelop-dark-bg-2.png`}
           width={1200}
           height={630}
-          accent={theme.start}
+          accent="#ffffff"
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            background: '#F5EFE0',
+            background: '#2a2a2a',
             borderStyle: 'dashed',
             borderRadius: 0,
-            color: theme.start,
+            color: '#ffffff',
             fontSize: '18px',
             whiteSpace: 'pre-wrap',
           }}
         />
       )}
 
-      {/* Layer 2: 편지지 영역 — bundle.title + {A} X {B} (GROUP V2와 동일 위치 · rotate 2deg) */}
+      {/* Layer 2: 흰 편지지 오버레이 (중앙 정렬 · 봉투가 더 보이게) */}
       <div
         style={{
           position: 'absolute',
           top: '60px',
-          left: 0,
-          right: 0,
+          left: '100px',
+          right: '100px',
+          bottom: '100px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '8px',
+          justifyContent: 'space-between',
+          paddingTop: '20px',
+          paddingBottom: '36px',
+          paddingLeft: '60px',
+          paddingRight: '60px',
+          background: '#ffffff',
           transform: 'rotate(2deg)',
+          boxShadow: '0 18px 50px rgba(0,0,0,0.4)',
         }}
       >
+        {/* 상단 블록: title(도전장 동일 스펙) + 이름 */}
         <div
           style={{
             display: 'flex',
-            fontSize: '40px',
-            fontWeight: 900,
-            color: theme.start,
-            letterSpacing: '-1px',
-            lineHeight: 1,
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
           }}
         >
-          {titleText}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#1a1208' }}>
-            {leftName}
-          </span>
-          <span
+          {/* title — 도전장 PENDING V2 title과 동일 폰트/색 */}
+          <div
             style={{
               display: 'flex',
-              fontSize: '24px',
-              fontFamily: 'Archivo Black',
-              color: '#8a7748',
-              letterSpacing: '4px',
+              fontSize: '60px',
+              fontWeight: 900,
+              color: '#3a3a3a',
+              letterSpacing: '-1px',
+              lineHeight: 1,
             }}
           >
-            X
-          </span>
-          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#1a1208' }}>
-            {rightName}
-          </span>
+            {titleText}
+          </div>
+          {/* 이름 */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
+            <span style={{ display: 'flex', fontSize: '34px', fontWeight: 900, color: '#1a1208' }}>
+              {leftName}
+            </span>
+            <span
+              style={{
+                display: 'flex',
+                fontSize: '26px',
+                fontFamily: 'Archivo Black',
+                color: '#8a7748',
+                letterSpacing: '4px',
+              }}
+            >
+              X
+            </span>
+            <span style={{ display: 'flex', fontSize: '34px', fontWeight: 900, color: '#1a1208' }}>
+              {rightName}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Layer 3: 거대 등급 (PENDING "도 전 장" / GROUP "초대합니다" 동일 위치) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '216px',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-        }}
-      >
+        {/* 중앙 블록: 거대 등급 */}
         <div
           style={{
             display: 'flex',
@@ -712,49 +675,38 @@ export function MatchV3Split({
             backgroundClip: 'text',
             lineHeight: 1,
             letterSpacing: '-8px',
-            textShadow: '0 6px 18px rgba(0,0,0,0.22)',
           }}
         >
           {chemistry.grade}
         </div>
-      </div>
 
-      {/* Layer 4: 매치율 · chemistry.title (하단) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '470px',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'baseline',
-          gap: '14px',
-          color: '#1a1208',
-          fontWeight: 900,
-        }}
-      >
-        <span
-          style={{
-            display: 'flex',
-            fontSize: '56px',
-            fontFamily: 'Archivo Black',
-            color: theme.start,
-            letterSpacing: '-1px',
-          }}
-        >
-          {matchRate}%
-        </span>
-        <span
-          style={{
-            display: 'flex',
-            fontSize: '40px',
-            color: '#1a1208',
-            letterSpacing: '-1px',
-          }}
-        >
-          · {chemistry.title}
-        </span>
+        {/* 하단 블록: 매치율 + chemistry.title */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+          <span
+            style={{
+              display: 'flex',
+              fontSize: '52px',
+              fontFamily: 'Archivo Black',
+              color: theme.start,
+              letterSpacing: '-1px',
+              lineHeight: 1,
+            }}
+          >
+            {matchRate}%
+          </span>
+          <span
+            style={{
+              display: 'flex',
+              fontSize: '36px',
+              fontWeight: 900,
+              color: '#1a1208',
+              letterSpacing: '-1px',
+              lineHeight: 1,
+            }}
+          >
+            · {chemistry.title}
+          </span>
+        </div>
       </div>
     </div>
   );
