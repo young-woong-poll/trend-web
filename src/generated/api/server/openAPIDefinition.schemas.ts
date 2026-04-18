@@ -137,6 +137,12 @@ export interface UpdateCategoryRequest {
   meta?: string;
 }
 
+export interface BundleElectionOptionResponse {
+  electionItemId?: string;
+  title?: string;
+  imageUrl?: string;
+}
+
 export interface CreateSuggestionRequest {
   /**
    * @minLength 0
@@ -625,12 +631,6 @@ export interface CreateCategoryRequest {
   meta?: string;
 }
 
-export interface BundleElectionOptionResponse {
-  electionItemId?: string;
-  title?: string;
-  imageUrl?: string;
-}
-
 /**
  * 응답 데이터
  */
@@ -698,6 +698,32 @@ export interface BaseResponseCreateTestUserResponse {
   /** 응답 메시지 */
   message?: string;
   data?: CreateTestUserResponse;
+}
+
+export interface CreateTestTokensRequest {
+  kakaoId: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface CreateTestTokensResponse {
+  shouldSignup?: boolean;
+  user?: UserResponse;
+  signupToken?: string;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCreateTestTokensResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CreateTestTokensResponse;
 }
 
 export interface UpdateGroupSettingsRequest {

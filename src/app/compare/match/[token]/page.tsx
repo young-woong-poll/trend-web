@@ -1,6 +1,8 @@
 import { CompareResult } from '@/components/features/Compare/CompareResult/CompareResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { getChemistryByRate } from '@/constants/bundle';
+import { getInfo } from '@/generated/api/server/compare-link/compare-link';
+import type { CompareLinkInfoResponse } from '@/generated/api/server/openAPIDefinition.schemas';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -9,16 +11,20 @@ type MatchPageProps = {
   params: Promise<{ token: string }>;
 };
 
+/** CompareLinkInfoResponse 확장 — 서버 실제 응답에 matchRate이 포함됨 */
+type MatchCompareLinkInfo = CompareLinkInfoResponse & {
+  matchRate?: number;
+};
+
 export async function generateMetadata({ params }: MatchPageProps): Promise<Metadata> {
   const { token } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/compare-links/${token}`,
-      { next: { revalidate: 60 } }
-    );
-    const json = await response.json();
-    const link = json?.data;
+    const response = await getInfo(token, { next: { revalidate: 60 } });
+    const link = (response.status === 200 ? response.data.data : null) as
+      | MatchCompareLinkInfo
+      | null
+      | undefined;
 
     if (link) {
       const creator = link.creatorNickname;

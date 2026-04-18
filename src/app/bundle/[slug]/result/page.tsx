@@ -1,5 +1,7 @@
+import { buildBundleOgImageUrl } from '@/app/bundle/[slug]/metadata';
 import { BundleResult } from '@/components/features/Bundle/BundleResult/BundleResult';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
+import { getDetail1 } from '@/generated/api/server/bundle/bundle';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -8,42 +10,12 @@ type ResultPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-/** 참여 수를 구간별 반올림하여 OG 이미지 캐시 키를 안정화 */
-function roundParticipants(n: number): number {
-  if (n < 10) {
-    return 0;
-  }
-  if (n < 100) {
-    return Math.floor(n / 10) * 10;
-  }
-  if (n < 1000) {
-    return Math.floor(n / 100) * 100;
-  }
-  if (n < 10000) {
-    return Math.floor(n / 1000) * 1000;
-  }
-  return Math.floor(n / 5000) * 5000;
-}
-
-function buildBundleOgImageUrl(
-  categoryCode?: string,
-  participantCount?: number,
-  questionCount?: number
-): string {
-  const rounded = roundParticipants(participantCount ?? 0);
-  return `${SITE_URL}/api/og/bundle?category=${encodeURIComponent(categoryCode ?? 'TREND')}&participants=${rounded}&questions=${questionCount ?? 0}`;
-}
-
 export async function generateMetadata({ params }: ResultPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/bundles/${slug}`,
-      { next: { revalidate: 300 } }
-    );
-    const json = await response.json();
-    const bundle = json?.data;
+    const response = await getDetail1(slug, { next: { revalidate: 300 } });
+    const bundle = response.status === 200 ? response.data.data : null;
 
     if (bundle) {
       const ogImageUrl = buildBundleOgImageUrl(

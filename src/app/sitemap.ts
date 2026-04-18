@@ -1,3 +1,4 @@
+import { list } from '@/generated/api/server/bundle/bundle';
 import { getMain } from '@/generated/api/server/hotpick/hotpick';
 
 import type { MetadataRoute } from 'next';
@@ -24,20 +25,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 번들 목록 API에서 동적으로 slug 가져오기
     const bundlePages = await (async () => {
       try {
-        const bundleRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/bundles`, {
-          next: { revalidate: 60 },
-        });
-        if (!bundleRes.ok) {
-          return [];
-        }
-        const bundleData = await bundleRes.json();
-        const bundles: Array<{ slug: string }> = bundleData?.data ?? [];
-        return bundles.map(({ slug }) => ({
-          url: `${baseUrl}/bundle/${slug}`,
-          lastModified: new Date(),
-          changeFrequency: 'weekly' as const,
-          priority: 0.7,
-        }));
+        const bundleRes = await list(undefined, { next: { revalidate: 60 } });
+        const bundles = bundleRes.status === 200 ? (bundleRes.data.data ?? []) : [];
+        return bundles.flatMap((bundle) =>
+          bundle.slug
+            ? [
+                {
+                  url: `${baseUrl}/bundle/${bundle.slug}`,
+                  lastModified: new Date(),
+                  changeFrequency: 'weekly' as const,
+                  priority: 0.7,
+                },
+              ]
+            : []
+        );
       } catch {
         return [];
       }

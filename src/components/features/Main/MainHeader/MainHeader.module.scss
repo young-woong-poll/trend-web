@@ -163,8 +163,11 @@
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  min-width: 400px;
   max-height: 480px;
+
+  @media (min-width: $breakpoint-tablet) {
+    min-width: 400px;
+  }
   overflow-y: auto;
   background-color: $bg-secondary;
   border: 1px solid $border-placeholder;

@@ -127,13 +127,16 @@ function buildChartData(series: ElectionSeriesResponse, maxPoints?: number): Cha
   const startIndex = allPoints.length - basePoints.length;
 
   const allRates: number[] = [];
+  const baselineRate = 100 / items.length;
   const data: ChartDataPoint[] = basePoints.map((pt, pi) => {
     const point: ChartDataPoint = { ts: pt.ts ?? '' };
-    items.forEach((item, ii) => {
-      const p = item.points?.[startIndex + pi];
-      const rate = p?.voteRate ?? 0;
-      point[itemKeys[ii]] = rate;
-      allRates.push(rate);
+    const rawRates = items.map((item) => item.points?.[startIndex + pi]?.voteRate ?? 0);
+    // 아직 투표가 없는 시점은 균등 분배(50/50)로 표시 — Polymarket 방식
+    const useBaseline = rawRates.reduce((sum, r) => sum + r, 0) === 0;
+    rawRates.forEach((rate, ii) => {
+      const finalRate = useBaseline ? baselineRate : rate;
+      point[itemKeys[ii]] = finalRate;
+      allRates.push(finalRate);
     });
     return point;
   });

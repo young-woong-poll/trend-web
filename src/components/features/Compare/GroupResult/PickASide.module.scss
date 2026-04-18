@@ -48,7 +48,7 @@
   scroll-snap-type: x mandatory;
   gap: 12px;
   padding: 0 16px;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: auto;
   cursor: grab;
   user-select: none;
 
@@ -61,6 +61,7 @@
 .card {
   flex: 0 0 calc(100% - 32px);
   scroll-snap-align: center;
+  scroll-snap-stop: always;
   @include flex-column;
   gap: 12px;
   padding: 20px 16px;
