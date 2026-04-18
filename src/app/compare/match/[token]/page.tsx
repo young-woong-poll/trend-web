@@ -3,6 +3,7 @@ import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { getChemistryByRate } from '@/constants/bundle';
 import { getInfo } from '@/generated/api/server/compare-link/compare-link';
 import type { CompareLinkInfoResponse } from '@/generated/api/server/openAPIDefinition.schemas';
+import { buildCompareOgImageUrl } from '@/lib/seo/compareOgImage';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -27,19 +28,28 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
       | undefined;
 
     if (link) {
-      const creator = link.creatorNickname;
+      const creator = link.creatorNickname ?? '친구';
       const participant = link.participantNickname;
-      const title = participant ? `${creator} vs ${participant}` : `${creator}의 비교 결과`;
-
-      const chemistry = getChemistryByRate(link.matchRate ?? 0);
-      const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=MATCH&grade=${chemistry.grade}`;
+      const bundleTitle = link.bundleTitle ?? '가치관 테스트';
+      const matchRate = link.matchRate ?? 0;
+      const chemistry = getChemistryByRate(matchRate);
+      const vsTitle = participant ? `${creator} vs ${participant}` : `${creator}의 비교 결과`;
+      const title = `🏆 ${vsTitle} · ${bundleTitle}`;
+      const description = `매치율 ${matchRate}% · ${chemistry.title}`;
+      const ogImageUrl = buildCompareOgImageUrl({
+        type: 'ONE_TO_ONE',
+        status: 'DONE',
+        categoryCode: link.categoryCode,
+        grade: chemistry.grade,
+        matchRate,
+      });
 
       return {
         title,
-        description: link.bundleTitle,
+        description,
         openGraph: {
           title,
-          description: link.bundleTitle,
+          description,
           url: `${SITE_URL}/compare/match/${token}`,
           images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
@@ -51,12 +61,17 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   }
 
   return {
-    title: '비교 결과',
-    description: '궁합 결과를 확인해보세요',
+    title: '🏆 가치관 비교 결과',
+    description: '우리 궁합은 몇 점?',
     openGraph: {
       images: [
         {
-          url: `${SITE_URL}/api/og/compare?category=TREND&type=MATCH&grade=B`,
+          url: buildCompareOgImageUrl({
+            type: 'ONE_TO_ONE',
+            status: 'DONE',
+            grade: 'B',
+            matchRate: 50,
+          }),
           width: 1200,
           height: 630,
         },

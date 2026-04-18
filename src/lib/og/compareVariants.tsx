@@ -17,11 +17,21 @@ import { BrandCtaBand, CategoryChip, OG_HEIGHT, OG_WIDTH, PlaceholderBox } from 
 
 export interface PendingOgProps {
   theme: CategoryTheme;
+  origin?: string;
+  bundleTitle?: string;
+  creatorName?: string;
 }
 
 const CTA_PENDING = '도전 받아들이기 →';
 
-/** V1 "Boxing Poster" — 검정 배경 + 골드 VS 엠블럼 */
+/**
+ * V1 "Boxing Poster + Frame" (Option A = Level 1 + Level 2)
+ *
+ * 권투 포스터 톤 유지 + 얇은 외곽 프레임(통일감) + 카테고리 색 accent
+ *   - 검정 배경 + 골드 VS 엠블럼 (주인공)
+ *   - 상단 배너는 카테고리 색 서브라벨 + 골드 메인 (GROUP V2와 accent 룰 공유)
+ *   - 외곽 2중 골드 프레임 (포스터 · 카드 통일감)
+ */
 export function PendingV1Boxing({ theme }: PendingOgProps): ReactElement {
   return (
     <div
@@ -32,34 +42,78 @@ export function PendingV1Boxing({ theme }: PendingOgProps): ReactElement {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: '64px',
-        paddingBottom: '96px',
+        paddingTop: '80px',
+        paddingBottom: '104px',
         position: 'relative',
         background: '#0a0a0a',
         fontFamily: 'Pretendard',
       }}
     >
+      {/* 외곽 2중 골드 프레임 (포스터 통일감) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '32px',
+          left: '32px',
+          right: '32px',
+          bottom: '104px',
+          display: 'flex',
+          border: '1px solid rgba(255,215,0,0.4)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '42px',
+          left: '42px',
+          right: '42px',
+          bottom: '114px',
+          display: 'flex',
+          border: '1px solid rgba(255,215,0,0.15)',
+        }}
+      />
+
       {/* 상단 배너 */}
       <div
         style={{
           display: 'flex',
-          fontSize: '32px',
-          fontWeight: 900,
-          color: '#FFD700',
-          letterSpacing: '12px',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
         }}
       >
-        도전장 도착
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '18px',
+            fontWeight: 700,
+            color: theme.start,
+            letterSpacing: '10px',
+          }}
+        >
+          CHALLENGE · {theme.label.toUpperCase()}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '30px',
+            fontWeight: 900,
+            color: '#FFD700',
+            letterSpacing: '10px',
+          }}
+        >
+          도전장 도착
+        </div>
       </div>
 
       {/* 중앙 VS 엠블럼 */}
       <PlaceholderBox
-        label={`[ VS 엠블럼 ]\n골드 그라데 · 권투 포스터 스타일\n320×320`}
-        width={320}
-        height={320}
+        label={`[ VS 엠블럼 ]\n골드 그라데 · 권투 포스터\n280×280`}
+        width={280}
+        height={280}
         accent="#FFD700"
         style={{
-          background: 'rgba(255,215,0,0.08)',
+          background: 'rgba(255,215,0,0.06)',
           color: '#FFD700',
           whiteSpace: 'pre-wrap',
         }}
@@ -67,13 +121,13 @@ export function PendingV1Boxing({ theme }: PendingOgProps): ReactElement {
 
       {/* 하단 카피 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-        <div style={{ display: 'flex', fontSize: '42px', fontWeight: 900, color: '#ffffff' }}>
+        <div style={{ display: 'flex', fontSize: '44px', fontWeight: 900, color: '#ffffff' }}>
           받아들이시겠습니까?
         </div>
         <div
           style={{
             display: 'flex',
-            fontSize: '22px',
+            fontSize: '20px',
             fontWeight: 400,
             color: 'rgba(255,255,255,0.55)',
             letterSpacing: '2px',
@@ -88,77 +142,143 @@ export function PendingV1Boxing({ theme }: PendingOgProps): ReactElement {
   );
 }
 
-/** V2 "Duel Card" — 카테고리 색 배경 + 큰 헤드 카피 */
-export function PendingV2Duel({ theme }: PendingOgProps): ReactElement {
+/**
+ * V2 "Challenge Letter" (Option B = Level 3 편지 메타포 통합)
+ *
+ * GROUP V2(초대장)와 쌍을 이루는 "도전장 편지"
+ *   - 어두운 봉투 배경 이미지 — `/og/envelop-dark-bg.png`
+ *   - Layer 2 (상단 편지지): bundle.title (테마 색)
+ *   - Layer 3 (중앙, 최상위): "도 전 장" 초거대 (GROUP V2의 "초대합니다"와 대응)
+ *   - Layer 4 (하단): "from. {보낸사람}"
+ */
+export function PendingV2Duel({ origin, bundleTitle, creatorName }: PendingOgProps): ReactElement {
+  const bgImageUrl = origin ? `${origin}/og/envelop-dark-bg4.png` : null;
+  const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 대결';
+  const senderText = creatorName && creatorName.length > 0 ? creatorName : '친구';
+
   return (
     <div
       style={{
         width: OG_WIDTH,
         height: OG_HEIGHT,
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingTop: '56px',
-        paddingBottom: '96px',
         position: 'relative',
-        background: `linear-gradient(135deg, ${theme.start}, ${theme.end})`,
+        background: '#3a3a3a',
         fontFamily: 'Pretendard',
       }}
     >
-      {/* 상단 헤드카피 */}
+      {/* Layer 1: 도전장 봉투 배경 이미지 */}
+      {bgImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={bgImageUrl}
+          alt=""
+          width={1200}
+          height={630}
+          style={{ position: 'absolute', top: 0, left: 0 }}
+        />
+      ) : (
+        <PlaceholderBox
+          label={`[ 도전장 봉투 배경 ]\n어두운 봉투 + 크림 편지지\n1200×630 · PNG`}
+          width={1200}
+          height={630}
+          accent="#F5EFE0"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            background: '#3a3a3a',
+            borderStyle: 'dashed',
+            borderRadius: 0,
+            color: '#F5EFE0',
+            fontSize: '18px',
+            whiteSpace: 'pre-wrap',
+          }}
+        />
+      )}
+
+      {/* Layer 2: 상단 편지지 영역 — bundle.title (GROUP V2 동일 CSS) */}
       <div
         style={{
+          position: 'absolute',
+          top: '80px',
+          left: 0,
+          right: 0,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          color: '#ffffff',
           gap: '4px',
         }}
       >
-        <div style={{ display: 'flex', fontSize: '26px', fontWeight: 400, opacity: 0.85 }}>
-          지금 도착한
-        </div>
         <div
           style={{
             display: 'flex',
-            fontSize: '78px',
+            fontSize: '60px',
             fontWeight: 900,
-            letterSpacing: '-2px',
+            color: '3a3a3a',
+            letterSpacing: '-1px',
             lineHeight: 1,
+            transform: 'rotate(2deg)',
           }}
         >
-          가치관 도전장
+          {titleText}
         </div>
       </div>
 
-      {/* 중앙 VS 엠블럼 */}
-      <PlaceholderBox
-        label={`[ VS 엠블럼 ]\n흰색 or 대비색\n240×240`}
-        width={240}
-        height={240}
-        accent="#ffffff"
-        style={{
-          background: 'rgba(255,255,255,0.16)',
-          borderColor: 'rgba(255,255,255,0.7)',
-          color: '#ffffff',
-          whiteSpace: 'pre-wrap',
-        }}
-      />
-
-      {/* 하단 서브 */}
+      {/* Layer 3: "도 전 장" 초거대 (GROUP V2 "초대합니다" 동일 CSS + 노란색) */}
       <div
         style={{
+          position: 'absolute',
+          top: '216px',
+          left: 0,
+          right: 0,
           display: 'flex',
-          fontSize: '26px',
-          fontWeight: 700,
-          color: 'rgba(255,255,255,0.92)',
+          justifyContent: 'center',
         }}
       >
-        {theme.label} 1:1 가치관 케미 대결
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '176px',
+            fontWeight: 900,
+            color: '#ffd900',
+            lineHeight: 1,
+            textShadow: '0 4px 32px rgba(0,0,0,1)',
+          }}
+        >
+          도 전 장
+        </div>
       </div>
 
-      <BrandCtaBand copy={CTA_PENDING} tone="light" />
+      {/* Layer 4: "from. {보낸사람}" (GROUP V2 하단 라인 동일 CSS) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '440px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'baseline',
+          gap: '6px',
+          color: '#ffffff',
+          fontWeight: 500,
+        }}
+      >
+        <span style={{ display: 'flex', fontSize: '48px' }}>From.</span>
+        <span
+          style={{
+            paddingLeft: '4px',
+            display: 'flex',
+            fontSize: '60px',
+            fontWeight: 900,
+            color: '#fff',
+            letterSpacing: '-1px',
+          }}
+        >
+          {senderText}
+        </span>
+      </div>
     </div>
   );
 }
@@ -249,8 +369,6 @@ export function PendingV3Minimal({ theme }: PendingOgProps): ReactElement {
           1:1 가치관 대결 · 클릭해서 응답
         </div>
       </div>
-
-      <BrandCtaBand copy={CTA_PENDING} tone="dark" />
     </div>
   );
 }

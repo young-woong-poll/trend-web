@@ -1,6 +1,7 @@
 import { CompareLanding } from '@/components/features/Compare/CompareLanding/CompareLanding';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { getInfo } from '@/generated/api/server/compare-link/compare-link';
+import { buildCompareOgImageUrl } from '@/lib/seo/compareOgImage';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -17,14 +18,24 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
     const link = response.status === 200 ? response.data.data : null;
 
     if (link) {
-      const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=ONE_TO_ONE`;
+      const creator = link.creatorNickname ?? '친구';
+      const bundleTitle = link.bundleTitle ?? '가치관 테스트';
+      const title = `⚔️ ${creator}님이 "${bundleTitle}"를 신청했어요`;
+      const description = '받아들이고 우리 생각 맞춰볼래요?';
+      const ogImageUrl = buildCompareOgImageUrl({
+        type: 'ONE_TO_ONE',
+        status: 'PENDING',
+        categoryCode: link.categoryCode,
+        bundleTitle: link.bundleTitle,
+        creatorName: link.creatorNickname,
+      });
 
       return {
-        title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
-        description: link.bundleTitle,
+        title,
+        description,
         openGraph: {
-          title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
-          description: link.bundleTitle,
+          title,
+          description,
           url: `${SITE_URL}/compare/${token}`,
           images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
@@ -36,12 +47,12 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
   }
 
   return {
-    title: '가치관 대결을 신청했어요!',
+    title: '⚔️ 가치관 대결을 신청했어요!',
     description: '우리 생각 얼마나 통할까?',
     openGraph: {
       images: [
         {
-          url: `${SITE_URL}/api/og/compare?category=TREND&type=ONE_TO_ONE`,
+          url: buildCompareOgImageUrl({ type: 'ONE_TO_ONE', status: 'PENDING' }),
           width: 1200,
           height: 630,
         },
