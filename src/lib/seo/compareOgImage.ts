@@ -2,9 +2,9 @@ import { SITE_URL } from '@/lib/seo/constants';
 
 /** Compare OG 확정 디자인 — 프로토타입 검토 후 업데이트 */
 export const COMPARE_OG_DESIGN = {
-  PENDING: 'v1',
-  MATCH: 'v1',
-  GROUP: 'v2', // 편지 봉투 + "초대합니다" 확정
+  PENDING: 'v1', // 미확정 — V1/V2/V3 프로토타입 진행 중
+  MATCH: 'v2', // V2(Certificate)로 확정
+  GROUP: 'v2', // V2(편지/초대장)로 확정
 } as const;
 
 type CompareOgParams =
@@ -22,7 +22,13 @@ type CompareOgParams =
       grade: string;
       matchRate: number;
     }
-  | { type: 'GROUP'; categoryCode?: string; memberCount: number; groupName?: string };
+  | {
+      type: 'GROUP';
+      categoryCode?: string;
+      memberCount: number;
+      groupName?: string;
+      bundleTitle?: string;
+    };
 
 /** 5% 단위 반올림 (matchRate 캐시 키 안정화) */
 function roundMatchRate(n: number): number {
@@ -59,6 +65,9 @@ export function buildCompareOgImageUrl(params: CompareOgParams): string {
     query.set('memberCount', String(roundMemberCount(params.memberCount)));
     if (params.groupName) {
       query.set('groupName', params.groupName.slice(0, 20));
+    }
+    if (params.bundleTitle) {
+      query.set('bundleTitle', params.bundleTitle.slice(0, 40));
     }
   } else if (params.status === 'DONE') {
     query.set('design', COMPARE_OG_DESIGN.MATCH);

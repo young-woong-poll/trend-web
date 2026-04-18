@@ -4,13 +4,8 @@ import type { NextRequest } from 'next/server';
 import { getChemistryByGrade } from '@/constants/bundle';
 import { getCategoryTheme } from '@/constants/categoryTheme';
 import {
-  GroupV1Team,
   GroupV2Invited,
-  GroupV3Count,
-  MatchV1Trophy,
   MatchV2Certificate,
-  MatchV3Split,
-  PendingV1Boxing,
   PendingV2Duel,
   PendingV3Minimal,
 } from '@/lib/og/compareVariants';
@@ -62,36 +57,24 @@ export async function GET(request: NextRequest) {
     let element: React.ReactElement;
 
     if (type === 'GROUP') {
-      const props = { theme, memberCount, groupName, origin };
-      element =
-        design === 'v3' ? (
-          <GroupV3Count {...props} />
-        ) : design === 'v2' ? (
-          <GroupV2Invited {...props} />
-        ) : (
-          <GroupV1Team {...props} />
-        );
+      // GROUP은 V2(편지/초대장)로 확정. design 쿼리 무시.
+      element = (
+        <GroupV2Invited
+          theme={theme}
+          memberCount={memberCount}
+          groupName={groupName}
+          bundleTitle={bundleTitle}
+          origin={origin}
+        />
+      );
     } else if (status === 'DONE') {
+      // MATCH는 V2(Certificate)로 확정. design 쿼리 무시.
       const chemistry = getChemistryByGrade(grade);
-      const props = { theme, chemistry, matchRate };
-      element =
-        design === 'v3' ? (
-          <MatchV3Split {...props} />
-        ) : design === 'v2' ? (
-          <MatchV2Certificate {...props} />
-        ) : (
-          <MatchV1Trophy {...props} />
-        );
+      element = <MatchV2Certificate theme={theme} chemistry={chemistry} matchRate={matchRate} />;
     } else {
+      // PENDING — V1 제거됨. V3(Bold Minimal) 또는 V2(Challenge Letter, 기본)
       const props = { theme, origin, bundleTitle, creatorName };
-      element =
-        design === 'v3' ? (
-          <PendingV3Minimal {...props} />
-        ) : design === 'v2' ? (
-          <PendingV2Duel {...props} />
-        ) : (
-          <PendingV1Boxing {...props} />
-        );
+      element = design === 'v3' ? <PendingV3Minimal {...props} /> : <PendingV2Duel {...props} />;
     }
 
     const isDev = process.env.NODE_ENV !== 'production';

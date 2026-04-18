@@ -207,29 +207,31 @@ export default function OgPreviewPage() {
     [category, bundleTitle, creatorName]
   );
 
-  const matchUrls = useMemo(
+  // MATCH/GROUP은 V2로 확정 — 단일 URL만 생성
+  const matchUrl = useMemo(
     () =>
-      DESIGNS.map((design) => ({
-        design,
-        url: buildCompareUrl({
-          design,
-          category,
-          type: 'ONE_TO_ONE',
-          status: 'DONE',
-          grade,
-          matchRate,
-        }),
-      })),
+      buildCompareUrl({
+        design: 'v2',
+        category,
+        type: 'ONE_TO_ONE',
+        status: 'DONE',
+        grade,
+        matchRate,
+      }),
     [category, grade, matchRate]
   );
 
-  const groupUrls = useMemo(
+  const groupUrl = useMemo(
     () =>
-      DESIGNS.map((design) => ({
-        design,
-        url: buildCompareUrl({ design, category, type: 'GROUP', memberCount, groupName }),
-      })),
-    [category, memberCount, groupName]
+      buildCompareUrl({
+        design: 'v2',
+        category,
+        type: 'GROUP',
+        memberCount,
+        groupName,
+        bundleTitle,
+      }),
+    [category, memberCount, groupName, bundleTitle]
   );
 
   return (
@@ -267,17 +269,13 @@ export default function OgPreviewPage() {
       </Section>
 
       <Section
-        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}%)`}
+        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}%) · V2 확정`}
       >
-        {matchUrls.map(({ design, url }) => (
-          <VariantCard key={design} title={`MATCH ${design.toUpperCase()}`} url={url} />
-        ))}
+        <VariantCard title="MATCH V2 (Certificate)" url={matchUrl} />
       </Section>
 
-      <Section title={`👥 Compare GROUP — 그룹 초대 (${memberCount}명 · ${groupName})`}>
-        {groupUrls.map(({ design, url }) => (
-          <VariantCard key={design} title={`GROUP ${design.toUpperCase()}`} url={url} />
-        ))}
+      <Section title={`👥 Compare GROUP — 그룹 초대 (${memberCount}명 · ${groupName}) · V2 확정`}>
+        <VariantCard title="GROUP V2 (편지/초대장)" url={groupUrl} />
       </Section>
 
       {/* 하단 고정 컨트롤 */}

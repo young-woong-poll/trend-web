@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
         categoryCode: link.categoryCode,
         memberCount,
         groupName: link.groupName ?? undefined,
+        bundleTitle: link.bundleTitle ?? undefined,
       });
 
       return {
