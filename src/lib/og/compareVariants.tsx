@@ -9,7 +9,7 @@ import type { ReactElement } from 'react';
 
 import type { ChemistryInfo } from '@/constants/bundle';
 import type { CategoryTheme } from '@/constants/categoryTheme';
-import { BrandCtaBand, OG_HEIGHT, OG_WIDTH, PlaceholderBox } from '@/lib/og/shared';
+import { OG_HEIGHT, OG_WIDTH, PlaceholderBox } from '@/lib/og/shared';
 
 // ═══════════════════════════════════════════════════════════════════════
 // ONE_TO_ONE PENDING (신청 링크)
@@ -34,7 +34,7 @@ export interface PendingOgProps {
  *   - Layer 4 (하단): "from. {보낸사람}"
  */
 export function PendingV2Duel({ origin, bundleTitle, creatorName }: PendingOgProps): ReactElement {
-  const bgImageUrl = origin ? `${origin}/og/envelop-dark-bg4.png` : null;
+  const bgImageUrl = origin ? `${origin}/og/envelop-dark-bg.png` : null;
   const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 대결';
   const senderText = creatorName && creatorName.length > 0 ? creatorName : '친구';
 
@@ -173,12 +173,28 @@ export interface MatchOgProps {
   theme: CategoryTheme;
   chemistry: ChemistryInfo;
   matchRate: number;
+  bundleTitle?: string;
+  creatorName?: string;
+  participantName?: string;
+  origin?: string;
 }
 
-const CTA_MATCH = '우리도 해볼래? →';
+/**
+ * V1 "Score Card" — 공식 성적표 스타일
+ * 정제된 문서 양식 · GRADE · RATE 분할 · 공식 리포트 느낌
+ */
+export function MatchV1Trophy({
+  theme,
+  chemistry,
+  matchRate,
+  bundleTitle,
+  creatorName,
+  participantName,
+}: MatchOgProps): ReactElement {
+  const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 결과';
+  const leftName = creatorName && creatorName.length > 0 ? creatorName : '친구1';
+  const rightName = participantName && participantName.length > 0 ? participantName : '친구2';
 
-/** V2 "Certificate" — 흰 배경 + 외곽 테두리 + 엠블럼 */
-export function MatchV2Certificate({ theme, chemistry, matchRate }: MatchOgProps): ReactElement {
   return (
     <div
       style={{
@@ -188,94 +204,558 @@ export function MatchV2Certificate({ theme, chemistry, matchRate }: MatchOgProps
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: '64px',
-        paddingBottom: '96px',
-        paddingLeft: '80px',
-        paddingRight: '80px',
         position: 'relative',
-        background: '#FFFDF8',
+        background: '#FFFDF5',
         fontFamily: 'Pretendard',
+        paddingTop: '64px',
+        paddingBottom: '64px',
       }}
     >
-      {/* 외곽 테두리 장식 (CTA 밴드 영역은 침범하지 않도록 bottom:96) */}
+      {/* 외곽 테두리 */}
       <div
         style={{
           position: 'absolute',
           top: '32px',
           left: '32px',
           right: '32px',
-          bottom: '96px',
+          bottom: '32px',
           display: 'flex',
           border: `2px solid ${theme.start}`,
-          borderRadius: '6px',
+          borderRadius: '4px',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: '42px',
+          left: '42px',
+          right: '42px',
+          bottom: '42px',
+          display: 'flex',
+          border: `1px solid ${theme.start}44`,
+          borderRadius: '2px',
         }}
       />
 
-      {/* 상단 타이틀 */}
+      {/* 상단 라벨 */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', width: '56px', height: '2px', background: theme.start }} />
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '26px',
+            fontWeight: 900,
+            color: theme.start,
+            letterSpacing: '12px',
+          }}
+        >
+          MATCH RESULT
+        </div>
+        <div style={{ display: 'flex', width: '56px', height: '2px', background: theme.start }} />
+      </div>
+
+      {/* 중앙: 이름 + GRADE · RATE 분할 */}
       <div
         style={{
           display: 'flex',
-          fontSize: '24px',
-          fontWeight: 700,
-          color: theme.start,
-          letterSpacing: '12px',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '24px',
         }}
       >
-        MATCH CERTIFICATE
-      </div>
-
-      {/* 중앙: 엠블럼 + 매치율 */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-        <PlaceholderBox
-          label={`[ ${chemistry.grade}등급 엠블럼 ]\n240×240`}
-          width={240}
-          height={240}
-          accent={theme.start}
-          style={{
-            borderRadius: '50%',
-            background: `${theme.start}10`,
-            whiteSpace: 'pre-wrap',
-          }}
-        />
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+        {/* 이름 */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '18px' }}>
+          <span style={{ display: 'flex', fontSize: '42px', fontWeight: 900, color: '#1a1208' }}>
+            {leftName}
+          </span>
           <span
             style={{
               display: 'flex',
-              fontSize: '80px',
-              fontWeight: 900,
+              fontSize: '32px',
               fontFamily: 'Archivo Black',
-              color: '#0a0a0a',
-              letterSpacing: '-2px',
-              lineHeight: 1,
+              color: theme.start,
+              letterSpacing: '4px',
             }}
           >
-            {matchRate}
+            X
           </span>
-          <span style={{ display: 'flex', fontSize: '40px', fontWeight: 900, color: theme.start }}>
-            %
+          <span style={{ display: 'flex', fontSize: '42px', fontWeight: 900, color: '#1a1208' }}>
+            {rightName}
           </span>
+        </div>
+
+        {/* GRADE · RATE */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '56px' }}>
+          {/* GRADE */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span
+              style={{
+                display: 'flex',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: theme.start,
+                letterSpacing: '10px',
+              }}
+            >
+              GRADE
+            </span>
+            <span
+              style={{
+                display: 'flex',
+                fontSize: '140px',
+                fontFamily: 'Archivo Black',
+                color: 'transparent',
+                backgroundImage: chemistry.gradient,
+                backgroundClip: 'text',
+                lineHeight: 0.9,
+                letterSpacing: '-4px',
+              }}
+            >
+              {chemistry.grade}
+            </span>
+          </div>
+
+          {/* 세로 구분선 */}
+          <div
+            style={{
+              display: 'flex',
+              width: '1px',
+              height: '110px',
+              background: `${theme.start}55`,
+            }}
+          />
+
+          {/* RATE */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span
+              style={{
+                display: 'flex',
+                fontSize: '16px',
+                fontWeight: 700,
+                color: theme.start,
+                letterSpacing: '10px',
+              }}
+            >
+              RATE
+            </span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+              <span
+                style={{
+                  display: 'flex',
+                  fontSize: '140px',
+                  fontFamily: 'Archivo Black',
+                  color: '#1a1208',
+                  lineHeight: 0.9,
+                  letterSpacing: '-4px',
+                }}
+              >
+                {matchRate}
+              </span>
+              <span
+                style={{ display: 'flex', fontSize: '56px', fontWeight: 900, color: theme.start }}
+              >
+                %
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 하단 타이틀 */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+      {/* 하단: chemistry.title + bundle.title */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '4px',
+        }}
+      >
         <div
           style={{
             display: 'flex',
             fontSize: '34px',
             fontWeight: 900,
-            color: '#0a0a0a',
+            color: '#1a1208',
             letterSpacing: '-1px',
           }}
         >
           {chemistry.title}
         </div>
-        <div style={{ display: 'flex', fontSize: '20px', fontWeight: 400, color: '#555' }}>
-          {theme.label} · {chemistry.description}
+        <div style={{ display: 'flex', fontSize: '20px', fontWeight: 400, color: '#8a7748' }}>
+          {titleText}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * V2 "Game Complete" — 게임 클리어 화면 스타일
+ * 어두운 배경 + 방사형 빛 + 초거대 등급 드라마틱 등장
+ */
+export function MatchV2Certificate({
+  theme,
+  chemistry,
+  matchRate,
+  bundleTitle,
+  creatorName,
+  participantName,
+}: MatchOgProps): ReactElement {
+  const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 결과';
+  const leftName = creatorName && creatorName.length > 0 ? creatorName : '친구1';
+  const rightName = participantName && participantName.length > 0 ? participantName : '친구2';
+
+  return (
+    <div
+      style={{
+        width: OG_WIDTH,
+        height: OG_HEIGHT,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        background: '#0a0a0a',
+        fontFamily: 'Pretendard',
+      }}
+    >
+      {/* 방사형 빛 오버레이 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          background: `radial-gradient(circle at center, ${theme.start}44 0%, transparent 65%)`,
+        }}
+      />
+
+      {/* 상단 "MATCH COMPLETE" */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '56px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '14px',
+        }}
+      >
+        <div style={{ display: 'flex', width: '48px', height: '2px', background: theme.start }} />
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '24px',
+            fontFamily: 'Archivo Black',
+            color: theme.start,
+            letterSpacing: '14px',
+          }}
+        >
+          MATCH COMPLETE
+        </div>
+        <div style={{ display: 'flex', width: '48px', height: '2px', background: theme.start }} />
+      </div>
+
+      {/* 중앙: 거대 등급 */}
+      <div
+        style={{
+          display: 'flex',
+          fontSize: '300px',
+          fontFamily: 'Archivo Black',
+          color: 'transparent',
+          backgroundImage: chemistry.gradient,
+          backgroundClip: 'text',
+          lineHeight: 0.9,
+          letterSpacing: '-8px',
+        }}
+      >
+        {chemistry.grade}
+      </div>
+
+      {/* 매치율 */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: '6px',
+          marginTop: '8px',
+        }}
+      >
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '96px',
+            fontFamily: 'Archivo Black',
+            color: '#ffffff',
+            letterSpacing: '-2px',
+            lineHeight: 1,
+          }}
+        >
+          {matchRate}
+        </span>
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '48px',
+            fontWeight: 900,
+            color: 'rgba(255,255,255,0.7)',
+          }}
+        >
+          %
+        </span>
+      </div>
+
+      {/* chemistry.title */}
+      <div
+        style={{
+          display: 'flex',
+          marginTop: '14px',
+          fontSize: '44px',
+          fontWeight: 900,
+          color: '#ffffff',
+          letterSpacing: '-1px',
+        }}
+      >
+        {chemistry.title}
+      </div>
+
+      {/* 하단: 이름 + bundle */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '56px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px' }}>
+          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#ffffff' }}>
+            {leftName}
+          </span>
+          <span
+            style={{
+              display: 'flex',
+              fontSize: '24px',
+              fontFamily: 'Archivo Black',
+              color: theme.start,
+              letterSpacing: '4px',
+            }}
+          >
+            X
+          </span>
+          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#ffffff' }}>
+            {rightName}
+          </span>
+        </div>
+        <div style={{ display: 'flex', fontSize: '18px', color: 'rgba(255,255,255,0.5)' }}>
+          {titleText}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * V3 "Result Letter" — 결과장 편지봉투 스타일
+ *
+ * PENDING V2(도전장) · GROUP V2(초대장)와 같은 편지 시스템.
+ * 배경: 사용자가 제작할 결과장 봉투 — `/og/result-envelope-bg.png`
+ *
+ * Layer 구조:
+ *   1. 봉투 배경 이미지
+ *   2. 상단 편지지: bundle.title + {A} X {B}
+ *   3. 중앙 Hero: 거대 등급 (도 전 장 / 초대합니다 위치)
+ *   4. 하단: 매치율% · chemistry.title
+ */
+export function MatchV3Split({
+  theme,
+  chemistry,
+  matchRate,
+  bundleTitle,
+  creatorName,
+  participantName,
+  origin,
+}: MatchOgProps): ReactElement {
+  const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 결과';
+  const leftName = creatorName && creatorName.length > 0 ? creatorName : '친구1';
+  const rightName = participantName && participantName.length > 0 ? participantName : '친구2';
+  const bgImageUrl = origin ? `${origin}/og/result-envelope-bg.png` : null;
+
+  return (
+    <div
+      style={{
+        width: OG_WIDTH,
+        height: OG_HEIGHT,
+        display: 'flex',
+        position: 'relative',
+        background: '#F5EFE0',
+        fontFamily: 'Pretendard',
+      }}
+    >
+      {/* Layer 1: 결과장 봉투 배경 */}
+      {bgImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={bgImageUrl}
+          alt=""
+          width={1200}
+          height={630}
+          style={{ position: 'absolute', top: 0, left: 0 }}
+        />
+      ) : (
+        <PlaceholderBox
+          label={`[ 결과장 봉투 배경 ]\nPENDING/GROUP 봉투와 동일 구조\n/og/result-envelope-bg.png\n1200×630`}
+          width={1200}
+          height={630}
+          accent={theme.start}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            background: '#F5EFE0',
+            borderStyle: 'dashed',
+            borderRadius: 0,
+            color: theme.start,
+            fontSize: '18px',
+            whiteSpace: 'pre-wrap',
+          }}
+        />
+      )}
+
+      {/* Layer 2: 편지지 영역 — bundle.title + {A} X {B} (GROUP V2와 동일 위치 · rotate 2deg) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '60px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+          transform: 'rotate(2deg)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '40px',
+            fontWeight: 900,
+            color: theme.start,
+            letterSpacing: '-1px',
+            lineHeight: 1,
+          }}
+        >
+          {titleText}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#1a1208' }}>
+            {leftName}
+          </span>
+          <span
+            style={{
+              display: 'flex',
+              fontSize: '24px',
+              fontFamily: 'Archivo Black',
+              color: '#8a7748',
+              letterSpacing: '4px',
+            }}
+          >
+            X
+          </span>
+          <span style={{ display: 'flex', fontSize: '32px', fontWeight: 900, color: '#1a1208' }}>
+            {rightName}
+          </span>
         </div>
       </div>
 
-      <BrandCtaBand copy={CTA_MATCH} tone="dark" />
+      {/* Layer 3: 거대 등급 (PENDING "도 전 장" / GROUP "초대합니다" 동일 위치) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '216px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            fontSize: '220px',
+            fontFamily: 'Archivo Black',
+            color: 'transparent',
+            backgroundImage: chemistry.gradient,
+            backgroundClip: 'text',
+            lineHeight: 1,
+            letterSpacing: '-8px',
+            textShadow: '0 6px 18px rgba(0,0,0,0.22)',
+          }}
+        >
+          {chemistry.grade}
+        </div>
+      </div>
+
+      {/* Layer 4: 매치율 · chemistry.title (하단) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '470px',
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'baseline',
+          gap: '14px',
+          color: '#1a1208',
+          fontWeight: 900,
+        }}
+      >
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '56px',
+            fontFamily: 'Archivo Black',
+            color: theme.start,
+            letterSpacing: '-1px',
+          }}
+        >
+          {matchRate}%
+        </span>
+        <span
+          style={{
+            display: 'flex',
+            fontSize: '40px',
+            color: '#1a1208',
+            letterSpacing: '-1px',
+          }}
+        >
+          · {chemistry.title}
+        </span>
+      </div>
     </div>
   );
 }

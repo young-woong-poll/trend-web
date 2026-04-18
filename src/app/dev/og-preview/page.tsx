@@ -60,6 +60,7 @@ function buildCompareUrl(params: {
   groupName?: string;
   bundleTitle?: string;
   creatorName?: string;
+  participantName?: string;
 }) {
   const q = new URLSearchParams({
     design: params.design,
@@ -86,6 +87,9 @@ function buildCompareUrl(params: {
   }
   if (params.creatorName) {
     q.set('creatorName', params.creatorName);
+  }
+  if (params.participantName) {
+    q.set('participantName', params.participantName);
   }
   return `/api/og/compare?${q.toString()}`;
 }
@@ -185,13 +189,11 @@ export default function OgPreviewPage() {
   const [groupName, setGroupName] = useState('금융F2');
   const [bundleTitle, setBundleTitle] = useState('우리 연애 케미, 통할까?');
   const [creatorName, setCreatorName] = useState('지훈');
+  const [participantName, setParticipantName] = useState('수민');
 
-  const bundleUrls = useMemo(
-    () =>
-      DESIGNS.map((design) => ({
-        design,
-        url: buildBundleUrl({ design, category, participants, questions, bundleTitle }),
-      })),
+  // Bundle은 V3 확정 — 단일 URL
+  const bundleUrl = useMemo(
+    () => buildBundleUrl({ design: 'v3', category, participants, questions, bundleTitle }),
     [category, participants, questions, bundleTitle]
   );
 
@@ -209,18 +211,24 @@ export default function OgPreviewPage() {
     [category, bundleTitle, creatorName]
   );
 
-  // MATCH/GROUP은 V2로 확정 — 단일 URL만 생성
-  const matchUrl = useMemo(
+  // MATCH — V1/V2/V3 프로토타입 3종
+  const matchUrls = useMemo(
     () =>
-      buildCompareUrl({
-        design: 'v2',
-        category,
-        type: 'ONE_TO_ONE',
-        status: 'DONE',
-        grade,
-        matchRate,
-      }),
-    [category, grade, matchRate]
+      DESIGNS.map((design) => ({
+        design,
+        url: buildCompareUrl({
+          design,
+          category,
+          type: 'ONE_TO_ONE',
+          status: 'DONE',
+          grade,
+          matchRate,
+          bundleTitle,
+          creatorName,
+          participantName,
+        }),
+      })),
+    [category, grade, matchRate, bundleTitle, creatorName, participantName]
   );
 
   const groupUrl = useMemo(
@@ -257,11 +265,9 @@ export default function OgPreviewPage() {
       </header>
 
       <Section
-        title={`🎯 Bundle — 테스트 추천 (${participants.toLocaleString()}명 · ${questions}문항)`}
+        title={`🎯 Bundle — 테스트 추천 (${participants.toLocaleString()}명 · ${questions}문항) · V3 확정`}
       >
-        {bundleUrls.map(({ design, url }) => (
-          <VariantCard key={design} title={`Bundle ${design.toUpperCase()}`} url={url} />
-        ))}
+        <VariantCard title="Bundle V3 (Tilted Card)" url={bundleUrl} />
       </Section>
 
       <Section title="⚔️ Compare ONE_TO_ONE · PENDING — 신청 링크 · V2 확정">
@@ -269,9 +275,11 @@ export default function OgPreviewPage() {
       </Section>
 
       <Section
-        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}%) · V2 확정`}
+        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}% · ${creatorName} X ${participantName})`}
       >
-        <VariantCard title="MATCH V2 (Certificate)" url={matchUrl} />
+        {matchUrls.map(({ design, url }) => (
+          <VariantCard key={design} title={`MATCH ${design.toUpperCase()}`} url={url} />
+        ))}
       </Section>
 
       <Section title={`👥 Compare GROUP — 그룹 초대 (${memberCount}명 · ${groupName}) · V2 확정`}>
@@ -383,12 +391,22 @@ export default function OgPreviewPage() {
             style={{ ...inputStyle, width: 220 }}
           />
         </Field>
-        <Field label="보낸사람 (PENDING V2)">
+        <Field label="보낸사람 (PENDING / MATCH)">
           <input
             type="text"
             value={creatorName}
             onChange={(e) => setCreatorName(e.target.value)}
             placeholder="지훈"
+            maxLength={20}
+            style={inputStyle}
+          />
+        </Field>
+        <Field label="상대방 (MATCH)">
+          <input
+            type="text"
+            value={participantName}
+            onChange={(e) => setParticipantName(e.target.value)}
+            placeholder="수민"
             maxLength={20}
             style={inputStyle}
           />

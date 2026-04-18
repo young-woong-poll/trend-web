@@ -7,8 +7,8 @@ type MetadataProps = {
   params: Promise<{ slug: string }>;
 };
 
-/** Bundle OG 확정 디자인. 현재는 프로토타입 검토 중 — 확정 후 업데이트. */
-const BUNDLE_OG_DESIGN = 'v1';
+/** Bundle OG 확정 디자인 — V3(Tilted Card) */
+const BUNDLE_OG_DESIGN = 'v3';
 
 /** 참여 수를 구간별 반올림하여 OG 이미지 캐시 키를 안정화 */
 function roundParticipants(n: number): number {

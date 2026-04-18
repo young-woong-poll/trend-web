@@ -3,7 +3,13 @@ import type { NextRequest } from 'next/server';
 
 import { getChemistryByGrade } from '@/constants/bundle';
 import { getCategoryTheme } from '@/constants/categoryTheme';
-import { GroupV2Invited, MatchV2Certificate, PendingV2Duel } from '@/lib/og/compareVariants';
+import {
+  GroupV2Invited,
+  MatchV1Trophy,
+  MatchV2Certificate,
+  MatchV3Split,
+  PendingV2Duel,
+} from '@/lib/og/compareVariants';
 import { buildFontsArray, loadOgFonts } from '@/lib/og/fonts';
 import { OG_HEIGHT, OG_WIDTH, roundMatchRate, roundMemberCount } from '@/lib/og/shared';
 import type { CategoryCode } from '@/types/hotpick';
@@ -19,7 +25,9 @@ export async function GET(request: NextRequest) {
   const rawType = searchParams.get('type') ?? 'ONE_TO_ONE';
   const type: CompareType = rawType === 'GROUP' ? 'GROUP' : 'ONE_TO_ONE';
   const status: Status = searchParams.get('status') === 'DONE' ? 'DONE' : 'PENDING';
-  // design 쿼리는 현재 무시 — MATCH/GROUP/PENDING 모두 V2로 확정
+  // MATCH는 현재 프로토타입 단계 (V1/V2/V3). GROUP/PENDING은 V2 확정이라 design 무시.
+  const rawDesign = searchParams.get('design');
+  const design: 'v1' | 'v2' | 'v3' = rawDesign === 'v1' || rawDesign === 'v3' ? rawDesign : 'v2';
 
   // DONE 전용
   const grade = searchParams.get('grade') ?? 'B';
@@ -30,11 +38,15 @@ export async function GET(request: NextRequest) {
   const groupNameRaw = searchParams.get('groupName') ?? undefined;
   const groupName = groupNameRaw ? groupNameRaw.slice(0, 20) : undefined;
 
-  // PENDING V2 (편지 메타포) 전용
+  // PENDING/GROUP/MATCH 공통 (자유 텍스트)
   const bundleTitleRaw = searchParams.get('bundleTitle') ?? undefined;
   const bundleTitle = bundleTitleRaw ? bundleTitleRaw.slice(0, 40) : undefined;
   const creatorNameRaw = searchParams.get('creatorName') ?? undefined;
   const creatorName = creatorNameRaw ? creatorNameRaw.slice(0, 20) : undefined;
+
+  // MATCH 전용
+  const participantNameRaw = searchParams.get('participantName') ?? undefined;
+  const participantName = participantNameRaw ? participantNameRaw.slice(0, 20) : undefined;
 
   try {
     const origin = new URL(request.url).origin;
@@ -55,9 +67,25 @@ export async function GET(request: NextRequest) {
         />
       );
     } else if (status === 'DONE') {
-      // MATCH는 V2(Certificate)로 확정. design 쿼리 무시.
+      // MATCH — V1/V2/V3 프로토타입. design 쿼리로 분기.
       const chemistry = getChemistryByGrade(grade);
-      element = <MatchV2Certificate theme={theme} chemistry={chemistry} matchRate={matchRate} />;
+      const matchProps = {
+        theme,
+        chemistry,
+        matchRate,
+        bundleTitle,
+        creatorName,
+        participantName,
+        origin,
+      };
+      element =
+        design === 'v1' ? (
+          <MatchV1Trophy {...matchProps} />
+        ) : design === 'v3' ? (
+          <MatchV3Split {...matchProps} />
+        ) : (
+          <MatchV2Certificate {...matchProps} />
+        );
     } else {
       // PENDING은 V2(Challenge Letter)로 확정. design 쿼리 무시.
       element = (

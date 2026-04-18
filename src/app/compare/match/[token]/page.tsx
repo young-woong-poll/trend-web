@@ -42,6 +42,9 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
         categoryCode: link.categoryCode,
         grade: chemistry.grade,
         matchRate,
+        bundleTitle: link.bundleTitle,
+        creatorName: link.creatorNickname,
+        participantName: link.participantNickname,
       });
 
       return {
