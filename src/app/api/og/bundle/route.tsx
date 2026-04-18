@@ -13,7 +13,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const category = (searchParams.get('category') ?? 'TREND') as CategoryCode;
   const participants = Math.max(0, Number(searchParams.get('participants') ?? '0'));
-  const questions = Math.max(0, Number(searchParams.get('questions') ?? '0'));
   const bundleTitleRaw = searchParams.get('bundleTitle') ?? undefined;
   const bundleTitle = bundleTitleRaw ? bundleTitleRaw.slice(0, 40) : undefined;
 
@@ -26,7 +25,6 @@ export async function GET(request: NextRequest) {
     const element = (
       <BundleV3Stats
         participants={participants}
-        questions={questions}
         theme={theme}
         bundleTitle={bundleTitle}
         origin={origin}

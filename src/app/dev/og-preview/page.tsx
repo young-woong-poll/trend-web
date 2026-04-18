@@ -26,22 +26,17 @@ const CATEGORIES: { code: CategoryCode; label: string }[] = [
 ];
 
 const GRADES: ChemistryGrade[] = ['SS', 'S', 'A', 'B', 'C', 'D', 'X'];
-const DESIGNS = ['v1', 'v2', 'v3'] as const;
-const MATCH_RATES = [100, 85, 70, 50, 30, 10, 0];
-const MEMBER_COUNTS = [1, 3, 6, 10, 20, 50];
 
 function buildBundleUrl(params: {
   design: string;
   category: string;
   participants: number;
-  questions: number;
   bundleTitle?: string;
 }) {
   const q = new URLSearchParams({
     design: params.design,
     category: params.category,
     participants: String(params.participants),
-    questions: String(params.questions),
   });
   if (params.bundleTitle) {
     q.set('bundleTitle', params.bundleTitle);
@@ -193,8 +188,8 @@ export default function OgPreviewPage() {
 
   // Bundle은 V3 확정 — 단일 URL
   const bundleUrl = useMemo(
-    () => buildBundleUrl({ design: 'v3', category, participants, questions, bundleTitle }),
-    [category, participants, questions, bundleTitle]
+    () => buildBundleUrl({ design: 'v3', category, participants, bundleTitle }),
+    [category, participants, bundleTitle]
   );
 
   // PENDING도 V2로 확정 — 단일 URL
@@ -211,23 +206,20 @@ export default function OgPreviewPage() {
     [category, bundleTitle, creatorName]
   );
 
-  // MATCH — V1/V2/V3 프로토타입 3종
-  const matchUrls = useMemo(
+  // MATCH도 V2로 확정 — 단일 URL
+  const matchUrl = useMemo(
     () =>
-      DESIGNS.map((design) => ({
-        design,
-        url: buildCompareUrl({
-          design,
-          category,
-          type: 'ONE_TO_ONE',
-          status: 'DONE',
-          grade,
-          matchRate,
-          bundleTitle,
-          creatorName,
-          participantName,
-        }),
-      })),
+      buildCompareUrl({
+        design: 'v2',
+        category,
+        type: 'ONE_TO_ONE',
+        status: 'DONE',
+        grade,
+        matchRate,
+        bundleTitle,
+        creatorName,
+        participantName,
+      }),
     [category, grade, matchRate, bundleTitle, creatorName, participantName]
   );
 
@@ -275,11 +267,9 @@ export default function OgPreviewPage() {
       </Section>
 
       <Section
-        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}% · ${creatorName} X ${participantName})`}
+        title={`🏆 Compare ONE_TO_ONE · DONE/MATCH — 결과 공유 (${grade}등급 · ${matchRate}% · ${creatorName} X ${participantName}) · V2 확정`}
       >
-        {matchUrls.map(({ design, url }) => (
-          <VariantCard key={design} title={`MATCH ${design.toUpperCase()}`} url={url} />
-        ))}
+        <VariantCard title="MATCH V2 (Game Complete)" url={matchUrl} />
       </Section>
 
       <Section title={`👥 Compare GROUP — 그룹 초대 (${memberCount}명 · ${groupName}) · V2 확정`}>
@@ -345,31 +335,24 @@ export default function OgPreviewPage() {
             ))}
           </select>
         </Field>
-        <Field label="매치율 (MATCH)">
-          <select
+        <Field label="매치율 % (MATCH)">
+          <input
+            type="number"
+            min={0}
+            max={100}
             value={matchRate}
             onChange={(e) => setMatchRate(Number(e.target.value))}
-            style={selectStyle}
-          >
-            {MATCH_RATES.map((r) => (
-              <option key={r} value={r}>
-                {r}%
-              </option>
-            ))}
-          </select>
+            style={inputStyle}
+          />
         </Field>
         <Field label="멤버수 (GROUP)">
-          <select
+          <input
+            type="number"
+            min={1}
             value={memberCount}
             onChange={(e) => setMemberCount(Number(e.target.value))}
-            style={selectStyle}
-          >
-            {MEMBER_COUNTS.map((n) => (
-              <option key={n} value={n}>
-                {n}명
-              </option>
-            ))}
-          </select>
+            style={inputStyle}
+          />
         </Field>
         <Field label="팀 이름 (GROUP)">
           <input

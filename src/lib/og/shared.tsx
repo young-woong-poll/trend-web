@@ -17,29 +17,14 @@ export function formatWithCommas(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-/** 5% 단위 반올림 (matchRate 캐시 키 안정화) */
-export function roundMatchRate(n: number): number {
-  return Math.max(0, Math.min(100, Math.round(n / 5) * 5));
+/** matchRate: 0~100 clamp (UX 정합성을 위해 실제값 그대로 사용) */
+export function clampMatchRate(n: number): number {
+  return Math.max(0, Math.min(100, Math.round(n)));
 }
 
-/** memberCount 구간 반올림 (1/3/6/10/20/50) */
-export function roundMemberCount(n: number): number {
-  if (n <= 1) {
-    return 1;
-  }
-  if (n <= 3) {
-    return 3;
-  }
-  if (n <= 6) {
-    return 6;
-  }
-  if (n <= 10) {
-    return 10;
-  }
-  if (n <= 20) {
-    return 20;
-  }
-  return 50;
+/** memberCount: 양수 정수 clamp (실제값 그대로 사용) */
+export function clampMemberCount(n: number): number {
+  return Math.max(1, Math.round(n));
 }
 
 /** 브랜드 CTA 밴드 — 하단 고정. 맥락별 카피 차별화. */

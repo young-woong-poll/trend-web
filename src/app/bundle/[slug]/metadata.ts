@@ -10,27 +10,36 @@ type MetadataProps = {
 /** Bundle OG 확정 디자인 — V3(Tilted Card) */
 const BUNDLE_OG_DESIGN = 'v3';
 
-/** 참여 수를 구간별 반올림하여 OG 이미지 캐시 키를 안정화 */
+/**
+ * 참여 수를 구간별 **올림**하여 OG 이미지 캐시 키 안정화 + 마케팅 수치.
+ *   - 1~10명    → 10 (초기에 "아무도 없음" 처럼 보이지 않도록)
+ *   - ~100명    → 10 단위 올림
+ *   - ~1,000명  → 50 단위 올림
+ *   - ~10,000명 → 500 단위 올림
+ *   - 그 외     → 1,000 단위 올림
+ */
 function roundParticipants(n: number): number {
-  if (n < 10) {
+  if (n === 0) {
     return 0;
   }
-  if (n < 100) {
-    return Math.floor(n / 10) * 10;
+  if (n <= 10) {
+    return 10;
   }
-  if (n < 1000) {
-    return Math.floor(n / 100) * 100;
+  if (n <= 100) {
+    return Math.ceil(n / 10) * 10;
   }
-  if (n < 10000) {
-    return Math.floor(n / 1000) * 1000;
+  if (n <= 1000) {
+    return Math.ceil(n / 50) * 50;
   }
-  return Math.floor(n / 5000) * 5000;
+  if (n <= 10000) {
+    return Math.ceil(n / 500) * 500;
+  }
+  return Math.ceil(n / 1000) * 1000;
 }
 
 export function buildBundleOgImageUrl(
   categoryCode?: string,
   participantCount?: number,
-  questionCount?: number,
   bundleTitle?: string
 ): string {
   const rounded = roundParticipants(participantCount ?? 0);
@@ -38,7 +47,6 @@ export function buildBundleOgImageUrl(
     design: BUNDLE_OG_DESIGN,
     category: categoryCode ?? 'TREND',
     participants: String(rounded),
-    questions: String(questionCount ?? 0),
   });
   if (bundleTitle) {
     params.set('bundleTitle', bundleTitle.slice(0, 40));
@@ -57,7 +65,6 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
       const ogImageUrl = buildBundleOgImageUrl(
         bundle.categoryCode,
         bundle.participantCount,
-        bundle.questionCount,
         bundle.title
       );
       const participantText = bundle.participantCount

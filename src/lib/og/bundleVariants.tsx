@@ -22,7 +22,6 @@ import { OG_HEIGHT, OG_WIDTH, formatWithCommas } from '@/lib/og/shared';
 
 export interface BundleOgProps {
   participants: number;
-  questions: number;
   theme: CategoryTheme;
   bundleTitle?: string;
   origin?: string;

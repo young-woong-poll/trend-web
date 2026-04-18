@@ -3,15 +3,9 @@ import type { NextRequest } from 'next/server';
 
 import { getChemistryByGrade } from '@/constants/bundle';
 import { getCategoryTheme } from '@/constants/categoryTheme';
-import {
-  GroupV2Invited,
-  MatchV1Trophy,
-  MatchV2Certificate,
-  MatchV3Split,
-  PendingV2Duel,
-} from '@/lib/og/compareVariants';
+import { GroupV2Invited, MatchV2Certificate, PendingV2Duel } from '@/lib/og/compareVariants';
 import { buildFontsArray, loadOgFonts } from '@/lib/og/fonts';
-import { OG_HEIGHT, OG_WIDTH, roundMatchRate, roundMemberCount } from '@/lib/og/shared';
+import { OG_HEIGHT, OG_WIDTH, clampMatchRate, clampMemberCount } from '@/lib/og/shared';
 import type { CategoryCode } from '@/types/hotpick';
 
 export const runtime = 'edge';
@@ -25,16 +19,14 @@ export async function GET(request: NextRequest) {
   const rawType = searchParams.get('type') ?? 'ONE_TO_ONE';
   const type: CompareType = rawType === 'GROUP' ? 'GROUP' : 'ONE_TO_ONE';
   const status: Status = searchParams.get('status') === 'DONE' ? 'DONE' : 'PENDING';
-  // MATCH는 현재 프로토타입 단계 (V1/V2/V3). GROUP/PENDING은 V2 확정이라 design 무시.
-  const rawDesign = searchParams.get('design');
-  const design: 'v1' | 'v2' | 'v3' = rawDesign === 'v1' || rawDesign === 'v3' ? rawDesign : 'v2';
+  // 모든 타입 V2 확정 — design 쿼리 무시
 
   // DONE 전용
   const grade = searchParams.get('grade') ?? 'B';
-  const matchRate = roundMatchRate(Number(searchParams.get('matchRate') ?? '0'));
+  const matchRate = clampMatchRate(Number(searchParams.get('matchRate') ?? '0'));
 
   // GROUP 전용
-  const memberCount = roundMemberCount(Number(searchParams.get('memberCount') ?? '1'));
+  const memberCount = clampMemberCount(Number(searchParams.get('memberCount') ?? '1'));
   const groupNameRaw = searchParams.get('groupName') ?? undefined;
   const groupName = groupNameRaw ? groupNameRaw.slice(0, 20) : undefined;
 
@@ -67,25 +59,18 @@ export async function GET(request: NextRequest) {
         />
       );
     } else if (status === 'DONE') {
-      // MATCH — V1/V2/V3 프로토타입. design 쿼리로 분기.
+      // MATCH는 V2(Game Complete)로 확정
       const chemistry = getChemistryByGrade(grade);
-      const matchProps = {
-        theme,
-        chemistry,
-        matchRate,
-        bundleTitle,
-        creatorName,
-        participantName,
-        origin,
-      };
-      element =
-        design === 'v1' ? (
-          <MatchV1Trophy {...matchProps} />
-        ) : design === 'v3' ? (
-          <MatchV3Split {...matchProps} />
-        ) : (
-          <MatchV2Certificate {...matchProps} />
-        );
+      element = (
+        <MatchV2Certificate
+          theme={theme}
+          chemistry={chemistry}
+          matchRate={matchRate}
+          bundleTitle={bundleTitle}
+          creatorName={creatorName}
+          participantName={participantName}
+        />
+      );
     } else {
       // PENDING은 V2(Challenge Letter)로 확정. design 쿼리 무시.
       element = (
