@@ -136,10 +136,14 @@ const SignupForm = () => {
     setError,
     clearErrors,
     watch,
+    setFocus,
+    setValue,
     formState: { errors },
   } = useForm<SignupFormValues>();
 
   const nicknameValue = watch('nickname');
+  const birthYearValue = watch('birthYear');
+  const agreeTermsValue = watch('agreeTerms');
 
   // 닉네임 값이 변경되면 중복확인 상태 초기화
   useEffect(() => {
@@ -149,11 +153,13 @@ const SignupForm = () => {
   const handleCheckNickname = async () => {
     if (!nicknameValue?.trim()) {
       setError('nickname', { message: '닉네임을 입력해주세요' });
+      setFocus('nickname');
       return;
     }
     const result = validateNickname(nicknameValue);
     if (!result.isValid) {
       setError('nickname', { message: result.error });
+      setFocus('nickname');
       return;
     }
 
@@ -163,6 +169,7 @@ const SignupForm = () => {
       if (!available) {
         setError('nickname', { message: '이미 사용 중인 닉네임이에요' });
         setNicknameChecked('unavailable');
+        setFocus('nickname');
       } else {
         clearErrors('nickname');
         setNicknameChecked('available');
@@ -191,6 +198,7 @@ const SignupForm = () => {
       const available = await checkNicknameAvailability(trimmed);
       if (!available) {
         setError('nickname', { message: '이미 사용 중인 닉네임이에요' });
+        setFocus('nickname');
         setIsSubmitting(false);
         return;
       }
@@ -263,6 +271,7 @@ const SignupForm = () => {
     // 중복확인 안 된 상태면 에러 메시지로 안내
     if (nicknameChecked !== 'available') {
       setError('nickname', { message: '닉네임 중복확인을 해주세요' });
+      setFocus('nickname');
       return;
     }
 
@@ -278,9 +287,55 @@ const SignupForm = () => {
     return null;
   }
 
+  type CtaAction = 'none' | 'check' | 'submit';
+  const ctaState: { label: string; action: CtaAction; disabled: boolean } = (() => {
+    if (isSubmitting) {
+      return { label: '가입 중...', action: 'none', disabled: true };
+    }
+    if (isCheckingNickname) {
+      return { label: '닉네임 확인 중...', action: 'none', disabled: true };
+    }
+    if (!nicknameValue?.trim()) {
+      return { label: '닉네임을 입력해주세요', action: 'none', disabled: true };
+    }
+    if (nicknameChecked === 'unavailable') {
+      return { label: '다른 닉네임을 입력해주세요', action: 'none', disabled: true };
+    }
+    if (nicknameChecked !== 'available') {
+      return { label: '닉네임 중복확인', action: 'check', disabled: false };
+    }
+    if (!gender) {
+      return { label: '성별을 선택해주세요', action: 'none', disabled: true };
+    }
+    if (!birthYearValue) {
+      return { label: '태어난 해를 선택해주세요', action: 'none', disabled: true };
+    }
+    if (!agreeTermsValue) {
+      return { label: '약관 동의하고 시작하기', action: 'submit', disabled: false };
+    }
+    return { label: '핫픽 시작하기', action: 'submit', disabled: false };
+  })();
+
+  const handleCtaClick = () => {
+    if (ctaState.action === 'check') {
+      void handleCheckNickname();
+    } else if (ctaState.action === 'submit') {
+      if (!agreeTermsValue) {
+        setValue('agreeTerms', true, { shouldValidate: true });
+      }
+      void handleSubmit(onSubmit)();
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <form className={styles.content} onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className={styles.content}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleCtaClick();
+        }}
+      >
         <h1 className={styles.title}>프로필 설정 🙂</h1>
         <p className={styles.subtitle}>프로필만 설정하면 핫픽 회원이에요!</p>
 
@@ -294,26 +349,12 @@ const SignupForm = () => {
               </span>
             )}
           </label>
-          <div className={styles.nicknameRow}>
-            <input
-              {...register('nickname', { required: '닉네임을 입력해주세요' })}
-              className={`${styles.input} ${errors.nickname ? styles.error : ''} ${nicknameChecked === 'available' ? styles.checked : ''}`}
-              placeholder="닉네임을 입력해주세요"
-              maxLength={10}
-            />
-            <button
-              type="button"
-              className={`${styles.checkButton} ${nicknameChecked === 'available' ? styles.checkDone : ''}`}
-              onClick={handleCheckNickname}
-              disabled={isCheckingNickname || !nicknameValue?.trim()}
-            >
-              {isCheckingNickname
-                ? '확인 중'
-                : nicknameChecked === 'available'
-                  ? '사용 가능'
-                  : '중복확인'}
-            </button>
-          </div>
+          <input
+            {...register('nickname', { required: '닉네임을 입력해주세요' })}
+            className={`${styles.input} ${errors.nickname ? styles.error : ''} ${nicknameChecked === 'available' ? styles.checked : ''}`}
+            placeholder="닉네임을 입력해주세요"
+            maxLength={10}
+          />
           {nicknameChecked === 'available' && !errors.nickname && (
             <p className={styles.successText}>사용 가능한 닉네임이에요</p>
           )}
@@ -402,18 +443,12 @@ const SignupForm = () => {
 
         <div className={styles.footer}>
           <button
-            type="submit"
+            type="button"
             className={styles.submitButton}
-            disabled={
-              isSubmitting ||
-              isCheckingNickname ||
-              !nicknameValue?.trim() ||
-              !gender ||
-              !watch('birthYear') ||
-              !watch('agreeTerms')
-            }
+            onClick={handleCtaClick}
+            disabled={ctaState.disabled}
           >
-            {isSubmitting ? '가입 중...' : '핫픽 시작하기'}
+            {ctaState.label}
           </button>
         </div>
       </form>

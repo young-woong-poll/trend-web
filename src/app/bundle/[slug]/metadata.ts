@@ -1,3 +1,4 @@
+import { getDetail1 } from '@/generated/api/server/bundle/bundle';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -23,7 +24,7 @@ function roundParticipants(n: number): number {
   return Math.floor(n / 5000) * 5000;
 }
 
-function buildBundleOgImageUrl(
+export function buildBundleOgImageUrl(
   categoryCode?: string,
   participantCount?: number,
   questionCount?: number
@@ -36,12 +37,8 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   const { slug } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/v1/bundles/${slug}`,
-      { next: { revalidate: 300 } }
-    );
-    const json = await response.json();
-    const bundle = json?.data;
+    const response = await getDetail1(slug, { next: { revalidate: 300 } });
+    const bundle = response.status === 200 ? response.data.data : null;
 
     if (bundle) {
       const ogImageUrl = buildBundleOgImageUrl(
