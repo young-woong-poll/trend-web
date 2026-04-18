@@ -436,7 +436,7 @@ export function GroupV2Invited({
       <div
         style={{
           position: 'absolute',
-          top: '80px',
+          top: '88px',
           left: 0,
           right: 0,
           display: 'flex',
