@@ -1,0 +1,173 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes unsealGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(var(--primary-start-rgb), 0.2),
+      0 0 40px rgba(var(--primary-end-rgb), 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(var(--primary-start-rgb), 0.35),
+      0 0 60px rgba(var(--primary-end-rgb), 0.2);
+  }
+}
+
+@keyframes shackleOpen {
+  0% {
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-6px) rotate(-15deg);
+    opacity: 0.7;
+  }
+}
+
+.container {
+  @include flex-column;
+  align-items: center;
+  padding: calc(56px + 32px) $spacing-16 calc(96px + env(safe-area-inset-bottom, 0px));
+  gap: $spacing-24;
+  width: 100%;
+  position: relative;
+}
+
+.backButton {
+  position: absolute;
+  top: calc(56px + 12px);
+  left: $spacing-16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: $text-secondary;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+// ─── 헤더 ───
+.header {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  animation: fadeSlideUp 0.4s ease-out both;
+}
+
+.title {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+// ─── 봉인 히어로 ───
+.hero {
+  @include flex-column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: center;
+  margin-top: $spacing-8;
+  animation: fadeSlideUp 0.5s ease-out 0.1s both;
+}
+
+.unsealIcon {
+  @include flex-center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba($bg-secondary, 0.6);
+  border: 1px solid rgba(#fff, 0.08);
+  animation: unsealGlow 2s ease-in-out infinite;
+  position: relative;
+}
+
+.lockBody {
+  position: relative;
+  width: 24px;
+  height: 20px;
+  background: var(--primary-gradient);
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: $white;
+  }
+}
+
+.lockShackle {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 12px;
+  border: 3px solid $white;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  transform-origin: right bottom;
+  animation: shackleOpen 1.5s ease-in-out infinite alternate;
+}
+
+.heroTitle {
+  font-size: $font-size-22;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  word-break: keep-all;
+  max-width: 320px;
+}
+
+.heroHint {
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+// ─── 샘플 등급 로테이션 ───
+.rotation {
+  @include flex-column;
+  align-items: stretch;
+  gap: $spacing-8;
+  width: 100%;
+  margin-top: $spacing-8;
+  animation: fadeSlideUp 0.5s ease-out 0.25s both;
+}
+
+.rotationLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $text-tertiary;
+  text-align: center;
+  letter-spacing: 0.3px;
+}

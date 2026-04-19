@@ -173,6 +173,8 @@
   color: $text-tertiary;
   line-height: 1.4;
   margin-bottom: 12px;
+  // 한국어 키워드 ("단톡방 친구들", "가치관") 어색한 줄바꿈 방지
+  word-break: keep-all;
 }
 
 .compareHighlight {

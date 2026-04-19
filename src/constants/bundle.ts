@@ -127,35 +127,35 @@ export const POPULARITY_GRADES: PopularityInfo[] = [
   {
     grade: 'KING',
     title: '여론의 사자왕',
-    description: '대중의 마음을 꿰뚫어 봄',
+    description: '대세를 정확하게 읽었음',
     imagePath:
       'https://trend-image.votebox.kr/uploads/2026/03/31/d43a750515e84b68a4d419d2ac59e26a.png',
   },
   {
     grade: 'LEADER',
     title: '트렌드 여우',
-    description: '시대를 읽는 눈이 있음',
+    description: '대중과 비슷한 편',
     imagePath:
       'https://trend-image.votebox.kr/uploads/2026/03/31/3a05846c04944a98bcbc4551da6f6745.png',
   },
   {
     grade: 'BALANCER',
     title: '밸런스 판다',
-    description: '어느 쪽이든 이해하는 균형파',
+    description: '대중과 일치도 반반',
     imagePath:
       'https://trend-image.votebox.kr/uploads/2026/03/31/ead56ea9d0d94b7b92cd13063190fb2f.png',
   },
   {
     grade: 'REBEL',
     title: '소신 고양이',
-    description: '남들과 다른 길을 가는 타입',
+    description: '남들과는 다른 가치관',
     imagePath:
       'https://trend-image.votebox.kr/uploads/2026/03/31/378c5b3b9e6a44d4964fe1c50431ad70.png',
   },
   {
     grade: 'UNICORN',
     title: '유니콘',
-    description: '세상에 없는 독보적 가치관',
+    description: '독보적인 가치관',
     imagePath:
       'https://trend-image.votebox.kr/uploads/2026/03/31/92d62e36e5cb4e1abde95ea7540e0604.png',
   },

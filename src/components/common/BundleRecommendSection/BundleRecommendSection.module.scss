@@ -103,6 +103,7 @@
 
 .chevron {
   flex-shrink: 0;
-  font-size: 18px;
   color: $text-tertiary;
+  // ChevronDownIcon을 -90도 회전해 우측 화살표로 사용
+  transform: rotate(-90deg);
 }

@@ -33,8 +33,9 @@
 
 .meta {
   @include flex-center;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: $font-size-16;
+  font-size: $font-size-14;
   color: $text-tertiary;
   margin-top: 12px;
 }
@@ -48,6 +49,64 @@
   color: $text-tertiary;
 }
 
+// ─── 이렇게 진행돼요 ───
+
+.flowCard {
+  @include flex-column;
+  gap: 12px;
+  width: 100%;
+  max-width: 672px;
+  margin-top: 24px;
+  padding: 16px;
+  background: $bg-secondary;
+  border: 1px solid rgba(#fff, 0.06);
+  border-radius: $border-radius-md;
+}
+
+.flowTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  letter-spacing: -0.2px;
+}
+
+.flowSteps {
+  @include flex-column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flowStep {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flowBadge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+}
+
+.flowText {
+  font-size: $font-size-14;
+  font-weight: $font-weight-regular;
+  color: $text-secondary;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
 // ─── 비교 결과 프리뷰 카드 ───
 
 .comparePreview {
@@ -55,16 +114,12 @@
   gap: 10px;
   width: 100%;
   max-width: 672px;
-  margin-top: 12px;
+  margin-top: 16px;
   padding: 16px;
   background: rgba(#1e1e1e, 0.6);
   backdrop-filter: blur(16px);
   border-radius: $border-radius-lg;
   border: 1px solid rgba(#fff, 0.06);
-
-  &:first-of-type {
-    margin-top: 20px;
-  }
 }
 
 .previewHeader {
@@ -87,16 +142,6 @@
   color: $white;
   word-break: keep-all;
   line-height: 1.4;
-}
-
-.comingSoon {
-  font-size: 10px;
-  font-weight: 600;
-  color: $text-tertiary;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(#fff, 0.06);
-  letter-spacing: 0;
 }
 
 .floatingCta {

@@ -99,14 +99,12 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
 
-        {/* 메타 */}
+        {/* 메타 — 가치관 질문 N개 · 약 N분 · M명 참여 */}
         <div className={styles.metaRow}>
-          {electionCount && <span className={styles.metaText}>{electionCount}개 질문</span>}
+          {electionCount && <span className={styles.metaText}>가치관 질문 {electionCount}개</span>}
           {electionCount && <span className={styles.dot} />}
-          <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
           {electionCount && (
             <>
-              <span className={styles.dot} />
               <span className={styles.durationText}>
                 <ClockIcon width={12} height={12} />
                 {electionCount * 5 <= 30
@@ -115,14 +113,15 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
                     ? '약 1분'
                     : `약 ${Math.round((electionCount * 5) / 60)}분`}
               </span>
+              <span className={styles.dot} />
             </>
           )}
+          <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
         </div>
 
-        {/* 비교 어필 */}
+        {/* 비교 어필 — 단톡방 친구들과 가치관 맞춰보기 */}
         <p className={styles.compareText}>
-          친구랑 <span className={styles.compareHighlight}>1:1 비교</span>,{' '}
-          <span className={styles.compareHighlight}>그룹으로 비교</span> 가능
+          <span className={styles.compareHighlight}>단톡방 친구들</span>과 가치관 맞춰보기
         </p>
 
         {/* CTA 버튼 */}

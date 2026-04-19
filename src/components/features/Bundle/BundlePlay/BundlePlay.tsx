@@ -152,10 +152,10 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
         try {
           await joinMutation.mutateAsync(undefined);
           await queryClient.invalidateQueries({ queryKey: compareKeys.link(compareToken) });
-          router.replace(`/compare/match/${compareToken}`);
+          router.replace(`/compare/group/${compareToken}`);
         } catch {
-          // join 실패 (이미 다른 유저가 참여 등) → 랜딩 페이지로 이동 (isAlreadyTaken 안내)
-          router.replace(`/compare/${compareToken}`);
+          // join 실패 (이미 다른 유저가 참여 등) → 그룹 비교 페이지로 이동
+          router.replace(`/compare/group/${compareToken}`);
         }
       } else {
         router.replace(`/bundle/${slug}/result`);
@@ -205,8 +205,8 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
           <ProgressBar current={currentIndex + 1} total={elections.length} />
           {compareLink?.creatorNickname && (
             <div className={styles.compareBanner}>
-              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과
-              가치관 대결 중
+              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과 케미
+              테스트 중
             </div>
           )}
         </div>

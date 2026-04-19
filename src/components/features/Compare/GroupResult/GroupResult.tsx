@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
+import NewGroupIcon from '@/assets/icon/NewGroupIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
@@ -15,7 +16,6 @@ import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
-import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import { ChemistryNetwork } from '@/components/features/Compare/GroupResult/ChemistryNetwork';
 import { ChemistryRanking } from '@/components/features/Compare/GroupResult/ChemistryRanking';
@@ -25,6 +25,7 @@ import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwar
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
+import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
 import {
   GroupSettingsModal,
   type GroupSettings,
@@ -35,7 +36,7 @@ import {
   calcGroupAwards,
   calcGroupSyncRate,
 } from '@/constants/group-compare';
-import { GHOST_USER_PREFIX, WITHDRAWN_NICKNAME } from '@/constants/profileColors';
+import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
@@ -50,20 +51,6 @@ import { trackGroupResult } from '@/lib/analytics';
 
 /** 네트워크 그래프 → 케미 랭킹 전환 임계값 */
 const NETWORK_THRESHOLD = 16;
-
-/** 프리뷰용 가상 멤버 이름 */
-const GHOST_NAMES = ['멤버 A', '멤버 B', '멤버 C', '멤버 D'];
-
-/** 가상 멤버 답변 생성 (시드 기반 고정 패턴) */
-function generateGhostAnswers(
-  electionIds: string[],
-  seed: number
-): Array<{ electionId: string; electionItemId: string }> {
-  return electionIds.map((id, i) => ({
-    electionId: id,
-    electionItemId: `${id}-${(seed + i) % 2 === 0 ? 'A' : 'B'}`,
-  }));
-}
 
 interface GroupResultProps {
   token: string;
@@ -116,6 +103,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   }, [joinAfter, result, isLoading]);
 
   // displayName이 있으면 nickname 대신 사용 (모든 하위 컴포넌트에 일괄 적용)
+  // 프리뷰(1명) 모드는 WaitingView로 분기되므로 ghost 멤버 합성 제거됨
   const displayResult = useMemo(() => {
     if (!result) {
       return null;
@@ -127,22 +115,6 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
       nickname: m.isWithdrawn ? WITHDRAWN_NICKNAME : (m.displayName ?? m.nickname ?? ''),
     }));
-
-    // 프리뷰: 가상 멤버 3명 추가
-    if (realMembers.length === 1) {
-      const electionIds = (result.questionStats ?? []).map((q) => q.electionId ?? '');
-      const ghostMembers = GHOST_NAMES.map((name, i) => ({
-        userId: `${GHOST_USER_PREFIX}${i}`,
-        nickname: name,
-        displayName: name,
-        answers: generateGhostAnswers(electionIds, i),
-      }));
-      return {
-        ...result,
-        members: [...realMembers, ...ghostMembers],
-        memberCount: 1, // 실제 멤버 수는 1로 유지
-      };
-    }
 
     return { ...result, members: realMembers };
   }, [result]);
@@ -244,6 +216,25 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const currentUserId = result.myUserId ?? '';
   const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
 
+  // ─── 프리뷰 (참여자 1명, 본인) → WaitingView ───
+  // ghost 데이터로 가짜 결과 띄우는 대신 봉인 대기 화면
+  if (isPreview && isMember) {
+    return (
+      <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
+        <WaitingView
+          nickname={myMember?.displayName ?? myMember?.nickname ?? ''}
+          token={token}
+          categoryCode={result.categoryCode}
+          categoryMeta={result.categoryMeta}
+          category={result.category}
+          bundleTitle={result.bundleTitle}
+          showBack={showBack}
+        />
+        <Toast message={toast.message} isVisible={toast.isVisible} />
+      </BundleBackground>
+    );
+  }
+
   // ─── 비멤버 CTA 핸들러 ───
   const groupResultUrl = `/compare/group/${token}`;
 
@@ -313,15 +304,11 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
       <div className={styles.container}>
         <div className={styles.heroSection}>
           {isPreview && (
+            // 비멤버 + 1명짜리 그룹 진입 케이스 (생성자 본인은 위에서 WaitingView로 early return됨)
+            // TODO: 페이즈 B Task 1에서 InviteView로 정식 분리
             <div className={styles.previewBanner}>
               <p className={styles.previewTitle}>아직 참여한 멤버가 없어요</p>
-              <p className={styles.previewText}>
-                지금 보고 있는 건 가상 데이터예요.
-                <br />
-                {isCreator
-                  ? '친구들에게 초대 링크를 공유해주세요'
-                  : '참여하면 진짜 결과를 볼 수 있어요'}
-              </p>
+              <p className={styles.previewText}>참여하면 진짜 결과를 볼 수 있어요</p>
             </div>
           )}
           <div className={styles.groupNameRow}>
@@ -350,14 +337,25 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             </h1>
             <div className={styles.groupNameRight} style={{ display: 'flex', gap: '8px' }}>
               {isMember && (
-                <button
-                  type="button"
-                  className={styles.iconButton}
-                  onClick={() => setShowSettingsModal(true)}
-                  aria-label="그룹 설정"
-                >
-                  <SettingsIcon width={14} height={14} />
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => setShowGroupModal(true)}
+                    aria-label="다른 친구들과 새로 시작"
+                    title="다른 친구들과 새로 시작"
+                  >
+                    <NewGroupIcon width={16} height={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => setShowSettingsModal(true)}
+                    aria-label="그룹 설정"
+                  >
+                    <SettingsIcon width={14} height={14} />
+                  </button>
+                </>
               )}
               <button
                 type="button"
@@ -492,7 +490,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
           {getJoinCtaText(true)}
         </FloatingCta>
-      ) : isPreview && isMember ? (
+      ) : isMember ? (
+        // 새 그룹 만들기는 상단 NewGroupIcon에 이관 — 플로팅 CTA는 "친구 초대하기" 단일
         <FloatingCta
           onClick={() => {
             const url = `${window.location.origin}/compare/group/${token}`;
@@ -500,31 +499,8 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             showToast('초대 링크가 복사되었어요');
           }}
         >
-          초대 링크 복사하기
+          친구 초대하기
         </FloatingCta>
-      ) : isMember ? (
-        <div className={styles.floatingCta}>
-          <div className={styles.floatingCtaRow}>
-            <button
-              type="button"
-              className={styles.ctaOneToOne}
-              onClick={() => setShowGroupModal(true)}
-            >
-              {isCreator ? '새 그룹 만들기' : '내 그룹 만들기'}
-            </button>
-            <button
-              type="button"
-              className={styles.ctaGroup}
-              onClick={() => {
-                const url = `${window.location.origin}/compare/group/${token}`;
-                void navigator.clipboard.writeText(url);
-                showToast('초대 링크가 복사되었어요');
-              }}
-            >
-              친구 초대하기
-            </button>
-          </div>
-        </div>
       ) : (
         <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
           {getJoinCtaText()}
@@ -542,7 +518,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         />
       )}
       {showGroupModal && (
-        <CreateGroupLink
+        <CreateCompareLink
           slug={result.bundleSlug ?? ''}
           categoryCode={result.categoryCode}
           categoryMeta={result.categoryMeta}

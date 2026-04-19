@@ -63,6 +63,9 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
   const { toast, showToast } = useToast();
   const sorted = links ? sortLinks(links) : [];
 
+  // TODO: 페이즈 B에서 1:1 케미 섹션 통합. 스펙(2026-04-19) "1:1 용어 UI 전면 제거" 후속.
+  // 마이그레이션 후 모든 링크가 'GROUP'으로 수렴하면 oneToOneLinks 분기 제거 + 단일 리스트로 단순화.
+  // 라벨 "1:1 케미"/"+ 1:1 케미" 도 같은 PR에서 정리.
   const oneToOneLinks = sorted.filter((l) => l.type === 'ONE_TO_ONE');
   const groupLinks = sorted
     .filter((l) => l.type === 'GROUP')

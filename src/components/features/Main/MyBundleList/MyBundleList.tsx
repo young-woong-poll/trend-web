@@ -3,7 +3,6 @@
 import { useState, useEffect, type FC } from 'react';
 
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
-import { CreateGroupLink } from '@/components/features/Bundle/BundleResult/CreateGroupLink';
 import { BundleAccordion } from '@/components/features/Main/MyBundleList/BundleAccordion';
 import styles from '@/components/features/Main/MyBundleList/MyBundleList.module.scss';
 import type { BundleDetail } from '@/types/bundle';
@@ -64,7 +63,7 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
         />
       )}
       {groupSlug && (
-        <CreateGroupLink
+        <CreateCompareLink
           slug={groupSlug}
           categoryCode={bundles.find((b) => b.slug === groupSlug)?.categoryCode}
           categoryMeta={bundles.find((b) => b.slug === groupSlug)?.categoryMeta}

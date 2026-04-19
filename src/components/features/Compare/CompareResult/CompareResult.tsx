@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
-import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
@@ -16,37 +15,16 @@ import { ChemistryCard } from '@/components/features/Compare/CompareResult/Chemi
 import styles from '@/components/features/Compare/CompareResult/CompareResult.module.scss';
 import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
+import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
 import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
-import { useBundleMyResult } from '@/hooks/api/useBundle';
 import { useCompareLink, useCompareResult } from '@/hooks/api/useCompare';
 import { useToast } from '@/hooks/useToast';
 import { trackCompareResult } from '@/lib/analytics';
 
 interface CompareResultProps {
   token: string;
-}
-
-/** 가상 상대 답변 생성 (시드 기반, ~40-60% matchRate) */
-function generateGhostAnswers(
-  myAnswers: Array<{
-    electionId: string;
-    electionItemId: string;
-    options: Array<{ electionItemId?: string }>;
-  }>,
-  seed: number
-): Array<{ electionId: string; electionItemId: string }> {
-  return myAnswers.map((a, i) => {
-    if ((seed + i) % 3 === 0) {
-      return { electionId: a.electionId, electionItemId: a.electionItemId };
-    }
-    const other = a.options.find((o) => o.electionItemId !== a.electionItemId);
-    return {
-      electionId: a.electionId,
-      electionItemId: other?.electionItemId ?? a.electionItemId,
-    };
-  });
 }
 
 export const CompareResult: FC<CompareResultProps> = ({ token }) => {
@@ -62,9 +40,8 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const routeGuardDone = useRef(false);
 
-  // 프리뷰 모드: 결과 없음 + 생성자
+  // 프리뷰 모드: 결과 없음 + 생성자 (참여자 없음 — 봉인 대기 화면)
   const isPreview = !result && !isLoading && !!link?.isCreator;
-  const { data: myBundleResult } = useBundleMyResult(isPreview ? (link?.bundleSlug ?? '') : '');
 
   // GA4: 1:1 비교 결과 조회
   useEffect(() => {
@@ -84,16 +61,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     }
   }, [isLoading, isLoggedIn, link, token, router]);
 
-  const handleCopyInvite = async () => {
-    const url = `${window.location.origin}/compare/${token}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      showToast('초대 링크가 복사되었어요');
-    } catch {
-      showToast('복사에 실패했습니다');
-    }
-  };
-
   const handleShareBundle = async () => {
     const slug = result?.bundleSlug ?? link?.bundleSlug ?? '';
     const url = `${window.location.origin}/bundle/${slug}`;
@@ -104,49 +71,6 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
       showToast('복사에 실패했습니다');
     }
   };
-
-  // ─── 프리뷰 데이터 생성 ───
-  const previewResult = useMemo(() => {
-    if (!isPreview || !myBundleResult || !link) {
-      return null;
-    }
-
-    const rawAnswers = myBundleResult.myAnswers ?? [];
-    const rawStats = myBundleResult.questionStats ?? [];
-
-    const myAnswers = rawAnswers.map((a) => ({
-      electionId: a.electionId ?? '',
-      electionItemId: a.selectedElectionItemId ?? '',
-      options: a.options ?? [],
-    }));
-    const ghostAnswers = generateGhostAnswers(myAnswers, 42);
-
-    let matchCount = 0;
-    for (const my of myAnswers) {
-      const ghost = ghostAnswers.find((g) => g.electionId === my.electionId);
-      if (ghost && my.electionItemId === ghost.electionItemId) {
-        matchCount++;
-      }
-    }
-
-    return {
-      bundleSlug: myBundleResult.bundleSlug ?? '',
-      bundleTitle: myBundleResult.bundleTitle ?? '',
-      totalQuestions: myBundleResult.totalQuestions ?? rawAnswers.length,
-      categoryCode: link.categoryCode,
-      me: {
-        nickname: link.creatorNickname ?? '',
-        answers: myAnswers.map((a) => ({
-          electionId: a.electionId,
-          electionItemId: a.electionItemId,
-        })),
-      },
-      target: { nickname: '???', answers: ghostAnswers },
-      questionStats: rawStats,
-      matchCount,
-      matchRate: myAnswers.length > 0 ? Math.round((matchCount / myAnswers.length) * 100) : 0,
-    };
-  }, [isPreview, myBundleResult, link]);
 
   // ─── 로딩 ───
   if (isAuthLoading || isLoading) {
@@ -172,57 +96,20 @@ export const CompareResult: FC<CompareResultProps> = ({ token }) => {
     );
   }
 
-  // ─── 프리뷰 모드 ───
-  if (previewResult) {
-    const previewShockPoint = findShockPoint(previewResult);
-    const previewStoryData = classifyAnswers(previewResult);
-
+  // ─── 프리뷰 (생성자, 참여자 없음) → 봉인 대기 화면 ───
+  // ghost 데이터로 가짜 결과 띄우는 대신 WaitingView 재활용
+  if (isPreview && link) {
     return (
-      <BundleBackground categoryCode={previewResult.categoryCode} categoryMeta={link?.categoryMeta}>
-        <div className={styles.container}>
-          <div className={styles.previewBanner}>
-            <p className={styles.previewTitle}>아직 참여한 사람이 없어요!</p>
-            <p className={styles.previewText}>
-              지금 보고 있는 건 가상 데이터예요.
-              <br />
-              아래 버튼으로 링크를 공유하면 진짜 결과를 볼 수 있어요!
-            </p>
-          </div>
-
-          <div className={styles.resultHeader}>
-            <CategoryBadge
-              categoryCode={previewResult.categoryCode}
-              categoryMeta={link?.categoryMeta}
-              label={link?.category}
-            />
-            <h2 className={styles.resultTitle}>{previewResult.bundleTitle}</h2>
-          </div>
-
-          <ChemistryCard
-            matchRate={previewResult.matchRate}
-            myNickname={previewResult.me.nickname}
-            targetNickname={previewResult.target.nickname}
-          />
-
-          <AnswerComparison
-            data={previewStoryData}
-            myNickname={previewResult.me.nickname}
-            targetNickname={previewResult.target.nickname}
-          />
-
-          {previewShockPoint && (
-            <ShockPoint
-              data={previewShockPoint}
-              myNickname={previewResult.me.nickname}
-              targetNickname={previewResult.target.nickname}
-            />
-          )}
-
-          <PopularityCompare result={previewResult} />
-        </div>
-
-        <FloatingCta onClick={handleCopyInvite}>초대 링크 복사하기</FloatingCta>
-
+      <BundleBackground categoryCode={link.categoryCode} categoryMeta={link.categoryMeta}>
+        <WaitingView
+          nickname={link.creatorNickname ?? ''}
+          token={token}
+          categoryCode={link.categoryCode}
+          categoryMeta={link.categoryMeta}
+          category={link.category}
+          bundleTitle={link.bundleTitle}
+          showBack={showBack}
+        />
         <Toast message={toast.message} isVisible={toast.isVisible} />
       </BundleBackground>
     );
