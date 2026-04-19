@@ -8,7 +8,6 @@ import { BundleBackground } from '@/components/features/Bundle/BundleBackground/
 import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { InviteView } from '@/components/features/Compare/GroupResult/InviteView';
-import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
 import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
 import { useGroupCompareResult } from '@/hooks/api/useCompare';
 
@@ -20,15 +19,15 @@ interface GroupResultProps {
  * 그룹 결과 페이지의 얇은 라우터.
  * 상태별로 InviteView / WaitingView / FullGroupResultView / NotFoundView 분기.
  *
- * 분기:
+ * 분기 (group-result API는 비멤버에게 권한 없음 — InviteView로 fallback):
  * - isLoading → 로딩 (orbit 애니메이션)
- * - !result → NotFoundView
+ * - !result (비멤버 또는 토큰 무효) → InviteView 시도
+ *   InviteView가 자체 useCompareLink로 link 받아 비멤버 화면 또는 NotFound 표시
  * - isMember && participantCount === 1 → WaitingView (생성자 본인, 봉인)
  * - isMember && participantCount >= 2 → FullGroupResultView (정상 그룹 결과)
- * - !isMember → InviteView (비멤버 진입 — 자체 link fetch + join 처리)
  */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
-  const { data: result, isLoading, isError, refetch } = useGroupCompareResult(token);
+  const { data: result, isLoading, refetch } = useGroupCompareResult(token);
   const searchParams = useSearchParams();
   const showBack = searchParams.get('from') === 'my';
 
@@ -84,13 +83,10 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  // API 호출 실패 (네트워크 등) — 재시도 액션 노출
-  if (isError && !result) {
-    return <NotFoundView isError onRetry={() => void refetch()} />;
-  }
-
+  // result 없음 (비멤버 권한 없음 또는 토큰 무효) → InviteView로 fallback.
+  // InviteView 자체에서 useCompareLink로 link 받아 비멤버 화면 렌더 또는 NotFound 처리.
   if (!result) {
-    return <NotFoundView message="그룹 케미 결과를 찾을 수 없어요" />;
+    return <InviteView token={token} onJoined={() => void refetch()} />;
   }
 
   const currentUserId = result.myUserId ?? '';
@@ -98,9 +94,9 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const isMember = members.some((m) => m.userId === currentUserId);
   const participantCount = members.length;
 
-  // 비멤버 진입 — InviteView (자체 link fetch + join 처리)
+  // 비멤버지만 result는 받음 (특수 케이스 — 1명짜리 그룹 등) → InviteView
   if (!isMember) {
-    return <InviteView token={token} onJoined={() => refetch()} />;
+    return <InviteView token={token} onJoined={() => void refetch()} />;
   }
 
   // 멤버 + 참여자 1명 (= 생성자 본인 혼자) → WaitingView

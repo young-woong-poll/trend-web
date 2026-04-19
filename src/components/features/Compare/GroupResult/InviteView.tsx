@@ -9,6 +9,7 @@ import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
 import styles from '@/components/features/Compare/GroupResult/InviteView.module.scss';
+import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
 import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleElections } from '@/hooks/api/useBundle';
@@ -30,7 +31,7 @@ interface InviteViewProps {
  */
 export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
   const { isLoggedIn, requireLogin } = useAuth();
-  const { data: link, isLoading, refetch } = useCompareLink(token);
+  const { data: link, isLoading, isError, refetch } = useCompareLink(token);
   const joinMutation = useJoinCompareLink(token);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -61,7 +62,7 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
     }
   }, [joinAfter, link, isLoading]);
 
-  if (isLoading || !link) {
+  if (isLoading) {
     return (
       <BundleBackground>
         <div className={styles.loadingState} role="status" aria-live="polite">
@@ -78,6 +79,11 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
         </div>
       </BundleBackground>
     );
+  }
+
+  // 토큰 무효 (404) — link도 못 받음
+  if (!link) {
+    return <NotFoundView isError={isError} onRetry={isError ? () => void refetch() : undefined} />;
   }
 
   const needsLogin = !isLoggedIn;
