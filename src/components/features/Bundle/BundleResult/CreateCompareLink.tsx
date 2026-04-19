@@ -152,7 +152,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
         <div>
           <div className={styles.inputLabelRow}>
             <label className={styles.inputLabel} htmlFor="compare-link-name">
-              케미 이름
+              링크 이름
             </label>
             <span className={styles.inputHint}>최대 12자</span>
           </div>
@@ -160,7 +160,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
             id="compare-link-name"
             type="text"
             className={styles.nameInput}
-            placeholder="예: 단톡방 케미, 동아리 케미"
+            placeholder="예: 우리가족, 수수커플"
             value={name}
             onChange={handleNameChange}
             maxLength={12}

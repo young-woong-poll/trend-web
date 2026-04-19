@@ -82,30 +82,3 @@ export interface GroupAward {
   /** 수치 (일치율, 점수 등) */
   value: number;
 }
-
-/**
- * 가치관 지도 좌표 (FE 계산)
- */
-export interface ValueMapCoordinate {
-  userId: string;
-  nickname: string;
-  x: number; // -1 ~ +1
-  y: number; // -1 ~ +1
-}
-
-/**
- * 가치관 지도 설정 (어드민 → 서버 → FE)
- * Phase 2에서는 MSW 하드코딩, 추후 어드민 UI 연동
- */
-export interface ValueMapConfig {
-  xAxisLeft: string;
-  xAxisRight: string;
-  yAxisBottom: string;
-  yAxisTop: string;
-  quadrantLabels: {
-    topLeft: string;
-    topRight: string;
-    bottomLeft: string;
-    bottomRight: string;
-  };
-}
