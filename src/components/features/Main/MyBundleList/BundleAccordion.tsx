@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, type FC } from 'react';
+import { useCallback, useState, type FC } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -9,22 +9,11 @@ import StartArrowIcon from '@/assets/icon/StartArrowIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Toast } from '@/components/common/Toast/Toast';
 import styles from '@/components/features/Main/MyBundleList/MyBundleList.module.scss';
-import { getChemistryByRate, type ChemistryGrade } from '@/constants/bundle';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import type { CategoryCode } from '@/types/hotpick';
 import type { MyCompareLink } from '@/types/my-compare';
-
-const GRADE_COLORS: Record<ChemistryGrade, string> = {
-  SS: '#E040FB',
-  S: '#3B82F6',
-  A: '#22C55E',
-  B: '#FACC15',
-  C: '#F97316',
-  D: '#EF4444',
-  X: '#00E5FF',
-};
 
 interface BundleAccordionProps {
   slug: string;
@@ -34,8 +23,8 @@ interface BundleAccordionProps {
   category?: string;
   isOpen: boolean;
   onToggle: () => void;
-  onNewOneToOne: () => void;
-  onNewGroup: () => void;
+  /** 케미 테스트 만들기 모달 트리거 (그룹/1:1 단일화) */
+  onNewCompare: () => void;
 }
 
 function sortLinks(links: MyCompareLink[]): MyCompareLink[] {
@@ -55,64 +44,52 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
   category,
   isOpen,
   onToggle,
-  onNewOneToOne,
-  onNewGroup,
+  onNewCompare,
 }) => {
   const { data: links } = useMyCompareLinks(slug);
   const router = useRouter();
   const { toast, showToast } = useToast();
+
+  // 마이그레이션 후 모든 링크가 GROUP으로 수렴. ONE_TO_ONE 링크도 /compare/group/{token}으로
+  // 라우트가 redirect 되므로 단일 리스트로 통합 노출.
   const sorted = links ? sortLinks(links) : [];
 
-  // TODO: 페이즈 B에서 1:1 케미 섹션 통합. 스펙(2026-04-19) "1:1 용어 UI 전면 제거" 후속.
-  // 마이그레이션 후 모든 링크가 'GROUP'으로 수렴하면 oneToOneLinks 분기 제거 + 단일 리스트로 단순화.
-  // 라벨 "1:1 케미"/"+ 1:1 케미" 도 같은 PR에서 정리.
-  const oneToOneLinks = sorted.filter((l) => l.type === 'ONE_TO_ONE');
-  const groupLinks = sorted
-    .filter((l) => l.type === 'GROUP')
-    .sort((a, b) => (b.memberCount ?? 0) - (a.memberCount ?? 0));
+  // 5개 초과 시 페이드 마스크 — 스크롤 위치별 제어
+  const [scrollState, setScrollState] = useState({ atTop: true, atBottom: false });
 
-  // 스크롤 위치별 블러 제어: 상단/하단 도달 감지
-  const [oneToOneScroll, setOneToOneScroll] = useState({ atTop: true, atBottom: false });
-  const [groupScroll, setGroupScroll] = useState({ atTop: true, atBottom: false });
-
-  const handleSectionScroll = useCallback(
-    (
-      e: React.UIEvent<HTMLDivElement>,
-      setter: (v: { atTop: boolean; atBottom: boolean }) => void
-    ) => {
-      const el = e.currentTarget;
-      setter({
-        atTop: el.scrollTop < 4,
-        atBottom: el.scrollHeight - el.scrollTop - el.clientHeight < 4,
-      });
-    },
-    []
-  );
+  const handleSectionScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    setScrollState({
+      atTop: el.scrollTop < 4,
+      atBottom: el.scrollHeight - el.scrollTop - el.clientHeight < 4,
+    });
+  }, []);
 
   const handleAction = async (link: MyCompareLink) => {
     if (link.status === 'WAITING') {
-      const url =
-        link.type === 'GROUP'
-          ? `${window.location.origin}/compare/group/${link.token}`
-          : `${window.location.origin}/compare/${link.token}`;
+      // 대기 상태 — 초대 링크 복사
+      const url = `${window.location.origin}/compare/group/${link.token}`;
       try {
         await navigator.clipboard.writeText(url);
         showToast('링크가 복사되었어요');
       } catch {
-        showToast('복사에 실패했습니다');
+        showToast('복사에 실패했어요');
       }
       return;
     }
-    if (link.type === 'GROUP') {
-      router.push(`/compare/group/${link.token}?from=my`);
-    } else {
-      router.push(`/compare/match/${link.token}?from=my`);
-    }
+    // 완료 — 그룹 결과 페이지 (1:1 라우트는 자동 redirect)
+    router.push(`/compare/group/${link.token}?from=my`);
   };
 
-  const getOneToOneName = (link: MyCompareLink) => link.participantNickname ?? '상대방 참여 대기중';
-
-  const getGroupName = (link: MyCompareLink) => link.groupName ?? '그룹';
+  const getLinkName = (link: MyCompareLink) => {
+    if (link.groupName) {
+      return link.groupName;
+    }
+    if (link.participantNickname) {
+      return link.participantNickname;
+    }
+    return '내 케미 테스트';
+  };
 
   return (
     <div
@@ -132,15 +109,20 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
 
       <div className={`${styles.accordionContent} ${isOpen ? styles.accordionContentOpen : ''}`}>
         <div className={styles.linkList}>
-          {/* 1:1 비교 섹션 */}
-          {oneToOneLinks.length > 0 && (
+          {sorted.length > 0 && (
             <>
-              <span className={styles.linkSectionLabel}>1:1 케미</span>
+              <span className={styles.linkSectionLabel}>내 케미</span>
               <div
-                className={`${styles.linkSection} ${oneToOneLinks.length > 5 ? `${!oneToOneScroll.atTop ? styles.fadeTop : ''} ${!oneToOneScroll.atBottom ? styles.fadeBottom : ''}` : ''}`}
-                onScroll={(e) => handleSectionScroll(e, setOneToOneScroll)}
+                className={`${styles.linkSection} ${
+                  sorted.length > 5
+                    ? `${!scrollState.atTop ? styles.fadeTop : ''} ${
+                        !scrollState.atBottom ? styles.fadeBottom : ''
+                      }`
+                    : ''
+                }`}
+                onScroll={handleSectionScroll}
               >
-                {oneToOneLinks.map((link) => (
+                {sorted.map((link) => (
                   <button
                     key={link.token}
                     type="button"
@@ -148,28 +130,17 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
                     onClick={() => handleAction(link)}
                   >
                     <span
-                      className={`${styles.linkStatusTag} ${link.status === 'WAITING' ? styles.linkStatusWaiting : styles.linkStatusDone}`}
+                      className={`${styles.linkStatusTag} ${
+                        link.status === 'WAITING' ? styles.linkStatusWaiting : styles.linkStatusDone
+                      }`}
                     >
-                      {link.status === 'WAITING' ? '대기' : '완료'}
+                      {link.status === 'WAITING'
+                        ? '대기'
+                        : link.memberCount
+                          ? `${link.memberCount}명`
+                          : '완료'}
                     </span>
-                    <span
-                      className={`${styles.linkName} ${!link.participantNickname ? styles.linkNameWaiting : ''}`}
-                    >
-                      {getOneToOneName(link)}
-                    </span>
-                    {link.status === 'COMPLETED' &&
-                      link.matchRate !== null &&
-                      link.matchRate !== undefined &&
-                      (() => {
-                        const chemistry = getChemistryByRate(link.matchRate);
-                        const color = GRADE_COLORS[chemistry.grade];
-                        return (
-                          <span className={styles.gradeBadge}>
-                            <span style={{ color }}>{chemistry.grade}</span>
-                            <span className={styles.gradeSuffix}>등급</span>
-                          </span>
-                        );
-                      })()}
+                    <span className={styles.linkName}>{getLinkName(link)}</span>
                     <span className={styles.linkActionIcon}>
                       {link.status === 'WAITING' ? (
                         <CopyDoubleIcon width={16} height={16} stroke="currentColor" />
@@ -183,42 +154,9 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
             </>
           )}
 
-          {/* 그룹 비교 섹션 */}
-          {groupLinks.length > 0 && (
-            <>
-              <span
-                className={`${styles.linkSectionLabel} ${oneToOneLinks.length > 0 ? styles.linkSectionLabelDivider : ''}`}
-              >
-                그룹 케미
-              </span>
-              <div
-                className={`${styles.linkSection} ${groupLinks.length > 5 ? `${!groupScroll.atTop ? styles.fadeTop : ''} ${!groupScroll.atBottom ? styles.fadeBottom : ''}` : ''}`}
-                onScroll={(e) => handleSectionScroll(e, setGroupScroll)}
-              >
-                {groupLinks.map((link) => (
-                  <button
-                    key={link.token}
-                    type="button"
-                    className={styles.linkItem}
-                    onClick={() => handleAction(link)}
-                  >
-                    <span className={styles.linkStatusTag}>{link.memberCount}명</span>
-                    <span className={styles.linkName}>{getGroupName(link)}</span>
-                    <span className={styles.linkActionIcon}>
-                      <StartArrowIcon width={16} height={16} />
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-
           <div className={styles.newCompareRow}>
-            <button type="button" className={styles.newOneToOneButton} onClick={onNewOneToOne}>
-              + 1:1 케미
-            </button>
-            <button type="button" className={styles.newGroupButton} onClick={onNewGroup}>
-              + 그룹 케미
+            <button type="button" className={styles.newGroupButton} onClick={onNewCompare}>
+              + 새 케미 테스트
             </button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useId, useRef, useState, type FC } from 'react';
 
 import { createPortal } from 'react-dom';
 
@@ -36,8 +36,15 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
   const [pairToken, setPairToken] = useState<string | null>(null);
   const { data: result, isLoading } = useCompareResult(pairToken ?? '');
   const { toast, showToast } = useToast();
+  const labelId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEscapeKey(true, onClose);
+
+  // 시트 마운트 직후 닫기 버튼으로 포커스 이동 (스크린리더/키보드 사용자)
+  useEffect(() => {
+    closeButtonRef.current?.focus();
+  }, []);
 
   // 시트 열릴 때 즉시 pair compare 링크 생성
   useEffect(() => {
@@ -90,14 +97,12 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
   const shockPoint = result ? findShockPoint(result) : null;
   const storyData = result ? classifyAnswers(result) : null;
 
-  const handleShareThis = async () => {
-    if (!pairToken) {
-      return;
-    }
+  const handleShareGroup = async () => {
+    // 멤버별 1:1 결과는 공유 불가능 (참여자만 열람) → 그룹 초대 링크 공유
     const url = `${window.location.origin}/compare/group/${token}`;
     try {
       await navigator.clipboard.writeText(url);
-      showToast('초대 링크가 복사되었어요');
+      showToast('그룹 초대 링크가 복사되었어요');
     } catch {
       showToast('복사에 실패했어요');
     }
@@ -106,10 +111,18 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
   return createPortal(
     <>
       <div className={styles.overlay} onClick={onClose} />
-      <div className={styles.sheet} role="dialog" aria-label="멤버별 케미 상세">
+      <div className={styles.sheet} role="dialog" aria-modal="true" aria-labelledby={labelId}>
         <div className={styles.sheetHeader}>
-          <span className={styles.sheetLabel}>케미 상세보기</span>
-          <button type="button" className={styles.closeButton} onClick={onClose} aria-label="닫기">
+          <span id={labelId} className={styles.sheetLabel}>
+            케미 상세보기
+          </span>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className={styles.closeButton}
+            onClick={onClose}
+            aria-label="닫기"
+          >
             <CloseIcon width={16} height={16} />
           </button>
         </div>
@@ -155,8 +168,8 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
 
         {result && (
           <div className={styles.sheetFooter}>
-            <button type="button" className={styles.shareButton} onClick={handleShareThis}>
-              이 케미 결과 공유하기
+            <button type="button" className={styles.shareButton} onClick={handleShareGroup}>
+              그룹에 친구 더 초대하기
             </button>
           </div>
         )}

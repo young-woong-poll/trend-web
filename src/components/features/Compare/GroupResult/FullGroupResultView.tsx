@@ -338,7 +338,7 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
           showToast('초대 링크가 복사되었어요');
         }}
       >
-        친구 초대하기
+        친구들 초대하기
       </FloatingCta>
 
       {/* 멤버별 1:1 비교 바텀시트 */}

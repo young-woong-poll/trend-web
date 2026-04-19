@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
       const groupName = link.groupName ?? '그룹';
       const bundleTitle = link.bundleTitle ?? '가치관 테스트';
       const memberCount = link.memberCount ?? 1;
-      const title = `👥 '${groupName}' · ${bundleTitle}`;
-      const description = '참여하고 그룹 결과 확인하기';
+      const title = `'${groupName}' · ${bundleTitle}`;
+      const description = '우리 케미, 얼마나 통하는지 맞춰볼까요?';
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
@@ -58,8 +58,8 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
   }
 
   return {
-    title: '👥 가치관 비교에 참여하세요!',
-    description: '우리 생각 얼마나 통할까?',
+    title: '케미 테스트 초대',
+    description: '우리 케미, 얼마나 통하는지 맞춰볼까요?',
     openGraph: {
       images: [
         {

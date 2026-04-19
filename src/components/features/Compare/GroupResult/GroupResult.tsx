@@ -28,7 +28,7 @@ interface GroupResultProps {
  * - !isMember → InviteView (비멤버 진입 — 자체 link fetch + join 처리)
  */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
-  const { data: result, isLoading, refetch } = useGroupCompareResult(token);
+  const { data: result, isLoading, isError, refetch } = useGroupCompareResult(token);
   const searchParams = useSearchParams();
   const showBack = searchParams.get('from') === 'my';
 
@@ -82,6 +82,11 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
         </div>
       </BundleBackground>
     );
+  }
+
+  // API 호출 실패 (네트워크 등) — 재시도 액션 노출
+  if (isError && !result) {
+    return <NotFoundView isError onRetry={() => void refetch()} />;
   }
 
   if (!result) {

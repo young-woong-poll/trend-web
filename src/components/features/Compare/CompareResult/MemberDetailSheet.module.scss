@@ -36,7 +36,8 @@
   z-index: $z-index-modal;
   max-height: 90dvh;
   background: $bg-secondary;
-  border-radius: $border-radius-lg $border-radius-lg 0 0;
+  // tokens.md "바텀시트 상단 = rounded-xl 24px" — 직접 값 사용 ($border-radius-xl 토큰 미정의)
+  border-radius: 24px 24px 0 0;
   border-top: 1px solid #333;
   box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -55,20 +56,22 @@
 
 .sheetLabel {
   font-size: $font-size-14;
-  font-weight: 700;
+  font-weight: 600;
   color: $white;
   letter-spacing: -0.2px;
 }
 
 .closeButton {
+  // WCAG 2.5.5 — 터치 타겟 최소 44x44
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
   border: none;
   border-radius: 50%;
-  background: rgba(#fff, 0.04);
+  background: transparent;
   color: $text-tertiary;
   cursor: pointer;
   transition:
@@ -76,14 +79,14 @@
     color 0.15s ease;
 
   &:hover {
-    background: rgba(#fff, 0.08);
+    background: rgba(#fff, 0.06);
     color: $white;
   }
 }
 
 .sheetBody {
   @include flex-column;
-  gap: 16px;
+  gap: $spacing-16;
   padding: $spacing-16;
   overflow-y: auto;
   flex: 1;

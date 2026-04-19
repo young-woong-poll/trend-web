@@ -85,7 +85,7 @@
 .hero {
   @include flex-column;
   align-items: center;
-  gap: 14px;
+  gap: $spacing-16;
   width: 100%;
   text-align: center;
   margin-top: $spacing-8;

@@ -64,7 +64,18 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
   if (isLoading || !link) {
     return (
       <BundleBackground>
-        <div className={styles.loading} />
+        <div className={styles.loadingState} role="status" aria-live="polite">
+          <div className={styles.loadingOrbit} aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className={styles.loadingDot}
+                style={{ '--i': i } as React.CSSProperties}
+              />
+            ))}
+          </div>
+          <p className={styles.loadingText}>케미 테스트 정보를 불러오는 중...</p>
+        </div>
       </BundleBackground>
     );
   }
@@ -116,7 +127,8 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
   };
 
   // ─── 카피 분기 ───
-  const heroTitle = `${link.creatorNickname ?? '친구'}님이 케미 테스트를 보냈어요`;
+  const creatorName = link.creatorNickname ?? '친구';
+  const heroAriaLabel = `${creatorName}님이 케미 테스트를 보냈어요`;
   const heroSubtitle = needsBundle
     ? '먼저 답변하면 우리 케미가 열려요'
     : '우리 생각, 얼마나 통할까요?';
@@ -146,22 +158,25 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
           <h2 className={styles.resultTitle}>{link.bundleTitle}</h2>
         </div>
 
-        {/* 히어로 */}
+        {/* 히어로 — aria-label로 전체 문장 한 번만 낭독 */}
         <div className={styles.heroSection}>
-          <h1 className={styles.heroTitle}>
-            <span className={styles.highlight}>{link.creatorNickname ?? '친구'}</span>님이
-            <br />
-            케미 테스트를 보냈어요
+          <h1 className={styles.heroTitle} aria-label={heroAriaLabel}>
+            <span className={styles.highlight} aria-hidden>
+              {creatorName}
+            </span>
+            <span aria-hidden>님이</span>
+            <br aria-hidden />
+            <span aria-hidden>케미 테스트를 보냈어요</span>
           </h1>
           <p className={styles.heroSubtitle}>{heroSubtitle}</p>
         </div>
 
         {/* 결과 프리뷰 로테이션 (미완료/비로그인) */}
-        {showPreview && <PreviewRotation nickname={link.creatorNickname ?? '친구'} />}
+        {showPreview && <PreviewRotation nickname={creatorName} />}
 
         {/* 첫 질문 미리보기 (미완료/비로그인) */}
         {showPreview && firstQuestion && (
-          <div className={styles.questionPreview}>
+          <div className={styles.questionPreview} aria-hidden>
             <span className={styles.questionLabel}>이런 질문에 답하게 돼요</span>
             <div className={styles.questionTitle}>{firstQuestion.title}</div>
             <div className={styles.questionOptions}>
@@ -177,10 +192,6 @@ export const InviteView: FC<InviteViewProps> = ({ token, onJoined }) => {
             </span>
           </div>
         )}
-
-        <span className={styles.heroLeadHint} aria-label="히어로 안내">
-          {heroTitle}
-        </span>
       </div>
 
       <FloatingCta onClick={handleAction} disabled={joinMutation.isPending}>

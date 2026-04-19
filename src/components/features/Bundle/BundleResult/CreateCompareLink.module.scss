@@ -6,7 +6,8 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
-  z-index: $z-index-modal;
+  // overlay는 backdrop, modal은 한 단계 위 — MemberDetailSheet 등 다른 모달과 동시 개방 시 계층 분리
+  z-index: $z-index-modal-backdrop;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -15,7 +16,7 @@
 
 .modal {
   @include flex-column;
-  gap: 16px;
+  gap: $spacing-16;
   width: 100%;
   max-width: 360px;
   padding: $spacing-24;
@@ -24,6 +25,7 @@
   border-radius: $border-radius-lg;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   position: relative;
+  z-index: $z-index-modal;
 }
 
 .modalHeader {
@@ -86,7 +88,7 @@
 }
 
 .inputHint {
-  font-size: 11px;
+  font-size: $font-size-12;
   color: $text-tertiary;
 }
 
@@ -134,9 +136,10 @@
 // ─── 이전 케미 리스트 (있을 때만 노출) ───
 .existingSection {
   @include flex-column;
-  gap: 8px;
-  border-top: 1px solid #2c2c2c;
-  padding-top: 16px;
+  gap: $spacing-8;
+  // 모달 내부 다른 구분선 패턴과 일치 — 가시성 확보를 위해 rgba 사용
+  border-top: 1px solid rgba(#fff, 0.06);
+  padding-top: $spacing-16;
 }
 
 .existingHeader {

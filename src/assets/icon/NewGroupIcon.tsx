@@ -3,12 +3,13 @@ import type { FC, SVGProps } from 'react';
 type NewGroupIconProps = SVGProps<SVGSVGElement>;
 
 const NewGroupIcon: FC<NewGroupIconProps> = (props) => (
+  // 기본 크기는 SVG 그릴 캔버스(24x24)만 — 호출부에서 width/height props로 제어
   <svg
-    width="20"
-    height="20"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
     {...props}
   >
     <path

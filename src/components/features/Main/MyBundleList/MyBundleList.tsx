@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { BundleAccordion } from '@/components/features/Main/MyBundleList/BundleAccordion';
@@ -14,6 +14,7 @@ interface MyBundleListProps {
 export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+  const [compareSlug, setCompareSlug] = useState<string | null>(null);
 
   // 번들 데이터가 도착하면 첫 번째 아코디언을 애니메이션으로 열기
   useEffect(() => {
@@ -25,12 +26,12 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
       return () => clearTimeout(timer);
     }
   }, [bundles, hasAutoOpened]);
-  const [compareSlug, setCompareSlug] = useState<string | null>(null);
-  const [groupSlug, setGroupSlug] = useState<string | null>(null);
 
   if (bundles.length === 0) {
     return <div className={styles.emptyState}>아직 참여한 테스트가 없어요</div>;
   }
+
+  const compareBundle = bundles.find((b) => b.slug === compareSlug);
 
   return (
     <div className={styles.container}>
@@ -46,30 +47,19 @@ export const MyBundleList: FC<MyBundleListProps> = ({ bundles }) => {
             category={bundle.category}
             isOpen={openSlug === slug}
             onToggle={() => setOpenSlug((prev) => (prev === slug ? null : slug))}
-            onNewOneToOne={() => setCompareSlug(slug)}
-            onNewGroup={() => setGroupSlug(slug)}
+            onNewCompare={() => setCompareSlug(slug)}
           />
         );
       })}
 
-      {compareSlug && (
+      {compareSlug && compareBundle && (
         <CreateCompareLink
           slug={compareSlug}
-          categoryCode={bundles.find((b) => b.slug === compareSlug)?.categoryCode}
-          categoryMeta={bundles.find((b) => b.slug === compareSlug)?.categoryMeta}
-          category={bundles.find((b) => b.slug === compareSlug)?.category}
-          bundleTitle={bundles.find((b) => b.slug === compareSlug)?.title}
+          categoryCode={compareBundle.categoryCode}
+          categoryMeta={compareBundle.categoryMeta}
+          category={compareBundle.category}
+          bundleTitle={compareBundle.title}
           onClose={() => setCompareSlug(null)}
-        />
-      )}
-      {groupSlug && (
-        <CreateCompareLink
-          slug={groupSlug}
-          categoryCode={bundles.find((b) => b.slug === groupSlug)?.categoryCode}
-          categoryMeta={bundles.find((b) => b.slug === groupSlug)?.categoryMeta}
-          category={bundles.find((b) => b.slug === groupSlug)?.category}
-          bundleTitle={bundles.find((b) => b.slug === groupSlug)?.title}
-          onClose={() => setGroupSlug(null)}
         />
       )}
     </div>
