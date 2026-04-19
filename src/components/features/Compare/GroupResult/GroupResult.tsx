@@ -1,149 +1,63 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
-import { useQueryClient } from '@tanstack/react-query';
-
-import BackIcon from '@/assets/icon/BackIcon';
-import LinkIcon from '@/assets/icon/LinkIcon';
-import NewGroupIcon from '@/assets/icon/NewGroupIcon';
-import SettingsIcon from '@/assets/icon/SettingsIcon';
-import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
-import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
-import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
-import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
-import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
-import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
-import { ChemistryNetwork } from '@/components/features/Compare/GroupResult/ChemistryNetwork';
-import { ChemistryRanking } from '@/components/features/Compare/GroupResult/ChemistryRanking';
-import { CrossGenderChemistry } from '@/components/features/Compare/GroupResult/CrossGenderChemistry';
-import { GenderBattle } from '@/components/features/Compare/GroupResult/GenderBattle';
-import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwards';
+import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
-import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
-import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
+import { InviteView } from '@/components/features/Compare/GroupResult/InviteView';
+import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
 import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
-import {
-  GroupSettingsModal,
-  type GroupSettings,
-} from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
-import { PopularityBarGraph } from '@/components/features/Compare/PopularityBarGraph/PopularityBarGraph';
-import {
-  calcAllPairChemistry,
-  calcGroupAwards,
-  calcGroupSyncRate,
-} from '@/constants/group-compare';
-import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
-import { useAuth } from '@/contexts/AuthContext';
-import {
-  compareKeys,
-  useCreatePairCompare,
-  useGroupCompareResult,
-  useJoinCompareLink,
-  useUpdateGroupSettings,
-  useUpdateMyGroupProfile,
-} from '@/hooks/api/useCompare';
-import { useToast } from '@/hooks/useToast';
-import { trackGroupResult } from '@/lib/analytics';
-
-/** 네트워크 그래프 → 케미 랭킹 전환 임계값 */
-const NETWORK_THRESHOLD = 16;
+import { useGroupCompareResult } from '@/hooks/api/useCompare';
 
 interface GroupResultProps {
   token: string;
 }
 
+/**
+ * 그룹 결과 페이지의 얇은 라우터.
+ * 상태별로 InviteView / WaitingView / FullGroupResultView / NotFoundView 분기.
+ *
+ * 분기:
+ * - isLoading → 로딩 (orbit 애니메이션)
+ * - !result → NotFoundView
+ * - isMember && participantCount === 1 → WaitingView (생성자 본인, 봉인)
+ * - isMember && participantCount >= 2 → FullGroupResultView (정상 그룹 결과)
+ * - !isMember → InviteView (비멤버 진입 — 자체 link fetch + join 처리)
+ */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
-  const { isLoggedIn, requireLogin } = useAuth();
   const { data: result, isLoading, refetch } = useGroupCompareResult(token);
-  const joinMutation = useJoinCompareLink(token);
-  const pairCompareMutation = useCreatePairCompare(token);
-  const updateGroupSettingsMutation = useUpdateGroupSettings(token);
-  const updateMyProfileMutation = useUpdateMyGroupProfile(token);
-  const queryClient = useQueryClient();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const showBack = searchParams.get('from') === 'my';
-  const joinAfter = searchParams.get('joinAfter') === 'true';
-  const [showCompareModal, setShowCompareModal] = useState(false);
-  const [showGroupModal, setShowGroupModal] = useState(false);
-  const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-  const { toast, showToast } = useToast();
+  // 마이그레이션 1회 고지 배너 (1:1 → GROUP 전환 링크 첫 진입)
+  // BE의 migratedFromOneToOne 플래그 기반 (옵셔널 — 플래그 없으면 자연스럽게 비노출)
+  const migratedFromOneToOne =
+    (result as { migratedFromOneToOne?: boolean } | undefined)?.migratedFromOneToOne === true;
+  const [showMigrationBanner, setShowMigrationBanner] = useState(false);
 
-  // GA4: 그룹 비교 결과 조회
   useEffect(() => {
-    if (result && (result.members ?? []).length > 1) {
-      trackGroupResult(result.bundleSlug ?? '', result.memberCount ?? 0);
-    }
-  }, [result]);
-
-  // 프리뷰 모드: 실제 멤버가 1명뿐일 때 (생성자·비멤버 모두)
-  const isCreator = result ? result.creatorUserId === result.myUserId : false;
-  const isPreview = (result?.members ?? []).length === 1;
-
-  // bundle/play 완료 후 돌아왔으면 자동으로 displayName 팝업 열기
-  useEffect(() => {
-    if (!joinAfter || !result || isLoading) {
+    if (!result || !migratedFromOneToOne) {
       return;
     }
-    const alreadyMember = (result.members ?? []).some((m) => m.userId === result.myUserId);
-    if (result.myBundleCompleted && !alreadyMember) {
-      setShowDisplayNameModal(true);
-      // URL에서 joinAfter 파라미터 제거 (뒤로가기 시 재트리거 방지)
-      const url = new URL(window.location.href);
-      url.searchParams.delete('joinAfter');
-      window.history.replaceState(null, '', url.toString());
+    const storageKey = `compare.migrationBanner.seen.${token}`;
+    if (typeof window === 'undefined') {
+      return;
     }
-  }, [joinAfter, result, isLoading]);
-
-  // displayName이 있으면 nickname 대신 사용 (모든 하위 컴포넌트에 일괄 적용)
-  // 프리뷰(1명) 모드는 WaitingView로 분기되므로 ghost 멤버 합성 제거됨
-  const displayResult = useMemo(() => {
-    if (!result) {
-      return null;
+    if (window.localStorage.getItem(storageKey)) {
+      return;
     }
+    setShowMigrationBanner(true);
+  }, [result, migratedFromOneToOne, token]);
 
-    const realMembers = (result.members ?? []).map((m) => ({
-      ...m,
-      userId: m.userId ?? '',
-      // FE 방어: BE에서 마스킹하지만 혹시 모를 경우 대비
-      nickname: m.isWithdrawn ? WITHDRAWN_NICKNAME : (m.displayName ?? m.nickname ?? ''),
-    }));
-
-    return { ...result, members: realMembers };
-  }, [result]);
-
-  const groupSyncRate = useMemo(
-    () => (result ? calcGroupSyncRate(result.members ?? [], result.totalQuestions ?? 0) : 0),
-    [result]
-  );
-  const pairs = useMemo(
-    () => (displayResult ? calcAllPairChemistry(displayResult) : []),
-    [displayResult]
-  );
-  const awards = useMemo(
-    () => (displayResult ? calcGroupAwards(displayResult, pairs) : []),
-    [displayResult, pairs]
-  );
-  // 현재 유저가 이 그룹의 멤버인지 (group-result 응답에서 판별)
-  const isMember = result
-    ? (result.members ?? []).some((m) => m.userId === result.myUserId)
-    : false;
-
-  const handleSaveSettings = async (settings: GroupSettings) => {
-    setShowSettingsModal(false);
+  const handleDismissMigrationBanner = () => {
+    setShowMigrationBanner(false);
     try {
-      await updateGroupSettingsMutation.mutateAsync(settings);
-      await queryClient.invalidateQueries({ queryKey: compareKeys.groupResult(token) });
-      await queryClient.invalidateQueries({ queryKey: compareKeys.link(token) });
+      window.localStorage.setItem(`compare.migrationBanner.seen.${token}`, '1');
     } catch {
-      // 실패 시 원래 설정 유지
+      // ignore storage errors
     }
   };
 
@@ -170,55 +84,23 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  // 멤버가 아직 없는 경우 (엣지케이스: 생성 직후 아무도 참여 안 함)
-  if (result && result.memberCount === 0) {
-    return (
-      <BundleBackground>
-        <div className={styles.loading}>
-          아직 참여한 멤버가 없어요.
-          <p style={{ fontSize: 13, color: '#8a8a8a', marginTop: 8 }}>
-            초대 링크를 공유하면 멤버들이 참여할 수 있어요.
-          </p>
-          <button
-            type="button"
-            className={styles.secondaryCta}
-            style={{ maxWidth: 240 }}
-            onClick={() => {
-              const url = `${window.location.origin}/compare/group/${token}`;
-              void navigator.clipboard.writeText(url);
-            }}
-          >
-            초대 링크 복사하기
-          </button>
-        </div>
-      </BundleBackground>
-    );
-  }
-
-  if (!result || !displayResult) {
-    return (
-      <BundleBackground>
-        <div className={styles.loading}>
-          그룹 케미 결과를 찾을 수 없습니다.
-          <button
-            type="button"
-            className={styles.secondaryCta}
-            style={{ maxWidth: 200 }}
-            onClick={() => router.push('/')}
-          >
-            메인으로
-          </button>
-        </div>
-      </BundleBackground>
-    );
+  if (!result) {
+    return <NotFoundView message="그룹 케미 결과를 찾을 수 없어요" />;
   }
 
   const currentUserId = result.myUserId ?? '';
-  const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
+  const members = result.members ?? [];
+  const isMember = members.some((m) => m.userId === currentUserId);
+  const participantCount = members.length;
 
-  // ─── 프리뷰 (참여자 1명, 본인) → WaitingView ───
-  // ghost 데이터로 가짜 결과 띄우는 대신 봉인 대기 화면
-  if (isPreview && isMember) {
+  // 비멤버 진입 — InviteView (자체 link fetch + join 처리)
+  if (!isMember) {
+    return <InviteView token={token} onJoined={() => refetch()} />;
+  }
+
+  // 멤버 + 참여자 1명 (= 생성자 본인 혼자) → WaitingView
+  if (participantCount === 1) {
+    const myMember = members.find((m) => m.userId === currentUserId);
     return (
       <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
         <WaitingView
@@ -230,338 +112,16 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           bundleTitle={result.bundleTitle}
           showBack={showBack}
         />
-        <Toast message={toast.message} isVisible={toast.isVisible} />
       </BundleBackground>
     );
   }
 
-  // ─── 비멤버 CTA 핸들러 ───
-  const groupResultUrl = `/compare/group/${token}`;
-
-  const handleJoin = () => {
-    if (!isLoggedIn) {
-      // LoginModal이 returnUrl 쿼리를 읽어 카카오 OAuth state에 포함시킨다
-      // → 콜백 → 회원가입 → SignupForm이 bundleSlug를 파싱해 번들 플레이로 직행
-      const extraParams = new URLSearchParams({
-        bundleSlug: result.bundleSlug ?? '',
-      });
-      const returnUrl = `${window.location.pathname}?${extraParams.toString()}`;
-      const url = new URL(window.location.href);
-      url.searchParams.set('bundleSlug', result.bundleSlug ?? '');
-      url.searchParams.set('returnUrl', returnUrl);
-      window.history.replaceState(null, '', url.toString());
-      requireLogin('compare');
-      return;
-    }
-    if (!result.myBundleCompleted) {
-      // 번들 완료 후 그룹 결과 페이지로 돌아와서 자동으로 displayName 팝업 열기
-      const returnWithJoin = `${groupResultUrl}?joinAfter=true`;
-      router.push(
-        `/bundle/${result.bundleSlug}/play?returnUrl=${encodeURIComponent(returnWithJoin)}`
-      );
-      return;
-    }
-    setShowDisplayNameModal(true);
-  };
-
-  const handleDisplayNameConfirm = async (displayName: string, profileColor: string) => {
-    try {
-      await joinMutation.mutateAsync({ displayName, profileColor });
-      setShowDisplayNameModal(false);
-      await refetch();
-    } catch {
-      // 이미 참여한 경우 등
-    }
-  };
-
-  const handleEditProfileConfirm = async (displayName: string, profileColor: string) => {
-    try {
-      await updateMyProfileMutation.mutateAsync({
-        displayName,
-        displayProfileColor: profileColor,
-      });
-      setShowEditProfileModal(false);
-      await queryClient.invalidateQueries({ queryKey: compareKeys.groupResult(token) });
-    } catch {
-      // 실패 시 무시
-    }
-  };
-
-  const getJoinCtaText = (isPreview: boolean = false) => {
-    if (joinMutation.isPending) {
-      return '참여 중...';
-    }
-
-    if (isPreview) {
-      return '참여하기';
-    }
-
-    return '나도 참여하기';
-  };
-
+  // 멤버 + 참여자 2명+ → FullGroupResultView
   return (
-    <BundleBackground categoryCode={result?.categoryCode} categoryMeta={result?.categoryMeta}>
-      <div className={styles.container}>
-        <div className={styles.heroSection}>
-          {isPreview && (
-            // 비멤버 + 1명짜리 그룹 진입 케이스 (생성자 본인은 위에서 WaitingView로 early return됨)
-            // TODO: 페이즈 B Task 1에서 InviteView로 정식 분리
-            <div className={styles.previewBanner}>
-              <p className={styles.previewTitle}>아직 참여한 멤버가 없어요</p>
-              <p className={styles.previewText}>참여하면 진짜 결과를 볼 수 있어요</p>
-            </div>
-          )}
-          <div className={styles.groupNameRow}>
-            <div className={styles.groupNameLeft}>
-              {showBack && (
-                <button
-                  type="button"
-                  className={styles.backButton}
-                  onClick={() => router.back()}
-                  aria-label="마이 탭으로 돌아가기"
-                >
-                  <BackIcon width={20} height={20} />
-                </button>
-              )}
-            </div>
-            <h1
-              className={styles.groupName}
-              title={result.groupName}
-              onClick={() => {
-                const url = `${window.location.origin}/compare/group/${token}`;
-                void navigator.clipboard.writeText(url);
-                showToast('초대 링크가 복사되었어요');
-              }}
-            >
-              {result.groupName}
-            </h1>
-            <div className={styles.groupNameRight} style={{ display: 'flex', gap: '8px' }}>
-              {isMember && (
-                <>
-                  <button
-                    type="button"
-                    className={styles.iconButton}
-                    onClick={() => setShowGroupModal(true)}
-                    aria-label="다른 친구들과 새로 시작"
-                    title="다른 친구들과 새로 시작"
-                  >
-                    <NewGroupIcon width={16} height={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.iconButton}
-                    onClick={() => setShowSettingsModal(true)}
-                    aria-label="그룹 설정"
-                  >
-                    <SettingsIcon width={14} height={14} />
-                  </button>
-                </>
-              )}
-              <button
-                type="button"
-                className={styles.iconButton}
-                onClick={() => {
-                  const url = `${window.location.origin}/compare/group/${token}`;
-                  void navigator.clipboard.writeText(url);
-                  showToast('초대 링크가 복사되었어요');
-                }}
-                aria-label="초대 링크 복사"
-              >
-                <LinkIcon />
-              </button>
-            </div>
-          </div>
-          <span className={styles.bundleTitle}>
-            <CategoryBadge
-              categoryCode={result.categoryCode}
-              categoryMeta={result.categoryMeta}
-              label={result.category}
-            />
-            <span className={styles.bundleTitleDot}>·</span>
-            {result.bundleTitle}
-          </span>
-          <div className={styles.syncRateDisplay}>
-            <span className={styles.syncLabel}>그룹 싱크율</span>
-            <div>
-              <span className={styles.syncValue}>{groupSyncRate}</span>
-              <span className={styles.syncUnit}>%</span>
-            </div>
-          </div>
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatLabel}>참여</span>
-              <span className={styles.heroStatValue}>{result.memberCount}</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <div className={styles.heroStat}>
-              <span className={styles.heroStatLabel}>질문</span>
-              <span className={styles.heroStatValue}>{result.totalQuestions}</span>
-            </div>
-            <div className={styles.heroStatDivider} />
-            <span
-              className={
-                groupSyncRate >= 60
-                  ? styles.syncTagHigh
-                  : groupSyncRate >= 40
-                    ? styles.syncTagMid
-                    : styles.syncTagLow
-              }
-            >
-              {'싱크로율 '}
-              <span className={styles.syncTagAccent}>
-                {groupSyncRate >= 60 ? '높음' : groupSyncRate >= 40 ? '보통' : '낮음'}
-              </span>
-            </span>
-          </div>
-        </div>
-
-        {displayResult.members.length < NETWORK_THRESHOLD ? (
-          <ChemistryNetwork
-            currentUserId={currentUserId}
-            members={displayResult.members}
-            pairs={pairs}
-            onCompareRequest={
-              isMember
-                ? async (targetUserId: string) => {
-                    try {
-                      const res = await pairCompareMutation.mutateAsync(targetUserId);
-                      router.push(`/compare/match/${res.token}?from=group`);
-                    } catch {
-                      showToast('케미 상세보기 생성에 실패했어요');
-                    }
-                  }
-                : undefined
-            }
-            onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
-          />
-        ) : (
-          <ChemistryRanking
-            currentUserId={currentUserId}
-            members={displayResult.members}
-            pairs={pairs}
-            onCompareRequest={
-              isMember
-                ? async (targetUserId: string) => {
-                    try {
-                      const res = await pairCompareMutation.mutateAsync(targetUserId);
-                      router.push(`/compare/match/${res.token}?from=group`);
-                    } catch {
-                      showToast('케미 상세보기 생성에 실패했어요');
-                    }
-                  }
-                : undefined
-            }
-            onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
-          />
-        )}
-        <PickASide result={displayResult} currentUserId={currentUserId} />
-        <GroupAwards awards={awards} currentUserId={currentUserId} />
-        <PopularityBarGraph questionStats={displayResult.questionStats ?? []} />
-        <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
-
-        {/* ─── 성별 기반 (이성 콘텐츠 토글 ON 시) ─── */}
-        {displayResult.showGenderContent && (
-          <>
-            <CrossGenderChemistry
-              currentUserId={currentUserId}
-              members={displayResult.members}
-              pairs={pairs}
-            />
-            <GenderBattle result={displayResult} />
-          </>
-        )}
-
-        {isMember && (
-          <div className={styles.ctaSection}>
-            <button
-              type="button"
-              className={styles.secondaryCta}
-              onClick={() => router.push(`/bundle/${result.bundleSlug}/result?from=group`)}
-            >
-              내 결과 다시 보기
-            </button>
-          </div>
-        )}
-
-        {!isPreview && <BundleRecommendSection currentSlug={result.bundleSlug ?? ''} />}
-      </div>
-
-      {isPreview && !isMember ? (
-        <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
-          {getJoinCtaText(true)}
-        </FloatingCta>
-      ) : isMember ? (
-        // 새 그룹 만들기는 상단 NewGroupIcon에 이관 — 플로팅 CTA는 "친구 초대하기" 단일
-        <FloatingCta
-          onClick={() => {
-            const url = `${window.location.origin}/compare/group/${token}`;
-            void navigator.clipboard.writeText(url);
-            showToast('초대 링크가 복사되었어요');
-          }}
-        >
-          친구 초대하기
-        </FloatingCta>
-      ) : (
-        <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
-          {getJoinCtaText()}
-        </FloatingCta>
-      )}
-
-      {showCompareModal && (
-        <CreateCompareLink
-          slug={result.bundleSlug ?? ''}
-          categoryCode={result.categoryCode}
-          categoryMeta={result.categoryMeta}
-          category={result.category}
-          bundleTitle={result.bundleTitle}
-          onClose={() => setShowCompareModal(false)}
-        />
-      )}
-      {showGroupModal && (
-        <CreateCompareLink
-          slug={result.bundleSlug ?? ''}
-          categoryCode={result.categoryCode}
-          categoryMeta={result.categoryMeta}
-          category={result.category}
-          bundleTitle={result.bundleTitle}
-          onClose={() => setShowGroupModal(false)}
-        />
-      )}
-
-      <DisplayNameModal
-        isOpen={showDisplayNameModal}
-        categoryCode={result.categoryCode}
-        categoryMeta={result.categoryMeta}
-        onClose={() => setShowDisplayNameModal(false)}
-        onConfirm={handleDisplayNameConfirm}
-        isLoading={joinMutation.isPending}
-      />
-
-      <DisplayNameModal
-        isOpen={showEditProfileModal}
-        categoryCode={result.categoryCode}
-        categoryMeta={result.categoryMeta}
-        onClose={() => setShowEditProfileModal(false)}
-        onConfirm={handleEditProfileConfirm}
-        isLoading={updateMyProfileMutation.isPending}
-        mode="edit"
-        currentDisplayName={myMember?.displayName ?? myMember?.nickname}
-        currentProfileColor={myMember?.displayProfileColor}
-      />
-
-      <GroupSettingsModal
-        isOpen={showSettingsModal}
-        currentName={result.groupName ?? ''}
-        currentShowGenderContent={result.showGenderContent ?? false}
-        isCreator={isCreator}
-        categoryCode={result.categoryCode}
-        categoryMeta={result.categoryMeta}
-        onClose={() => setShowSettingsModal(false)}
-        onConfirm={handleSaveSettings}
-        isLoading={updateGroupSettingsMutation.isPending}
-      />
-
-      {toast.isVisible && <Toast message={toast.message} />}
-    </BundleBackground>
+    <FullGroupResultView
+      token={token}
+      showMigrationBanner={showMigrationBanner}
+      onDismissMigrationBanner={handleDismissMigrationBanner}
+    />
   );
 };

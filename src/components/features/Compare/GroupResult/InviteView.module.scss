@@ -1,0 +1,141 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.container {
+  @include flex-column;
+  align-items: center;
+  padding: calc(56px + 32px) $spacing-16 calc(96px + env(safe-area-inset-bottom, 0px));
+  gap: $spacing-24;
+  width: 100%;
+  position: relative;
+}
+
+.loading {
+  min-height: 60dvh;
+}
+
+// ─── 카테고리 + 번들 제목 ───
+.resultHeader {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  animation: fadeSlideUp 0.4s ease-out both;
+}
+
+.resultTitle {
+  font-size: $font-size-18;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+// ─── 히어로 ───
+.heroSection {
+  @include flex-column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: center;
+  margin-top: $spacing-8;
+  animation: fadeSlideUp 0.5s ease-out 0.1s both;
+}
+
+.heroTitle {
+  font-size: $font-size-22;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  word-break: keep-all;
+  max-width: 320px;
+}
+
+.highlight {
+  background: var(--primary-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroSubtitle {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.heroLeadHint {
+  // 시각 노출 X — aria 용 sr-only
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// ─── 첫 질문 미리보기 ───
+.questionPreview {
+  @include flex-column;
+  gap: 10px;
+  width: 100%;
+  max-width: 480px;
+  padding: $spacing-16;
+  background: rgba($bg-secondary, 0.6);
+  backdrop-filter: blur(16px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(#fff, 0.06);
+  animation: fadeSlideUp 0.5s ease-out 0.25s both;
+}
+
+.questionLabel {
+  font-size: $font-size-12;
+  font-weight: 600;
+  color: $text-tertiary;
+  letter-spacing: 0.3px;
+}
+
+.questionTitle {
+  font-size: $font-size-16;
+  font-weight: 600;
+  color: $white;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.questionOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.questionOption {
+  padding: 10px 12px;
+  border-radius: $border-radius-md;
+  background: $bg-tertiary;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  border: 1px solid transparent;
+}
+
+.questionMore {
+  margin-top: 4px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}

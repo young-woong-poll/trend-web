@@ -1,8 +1,6 @@
-import { CompareResult } from '@/components/features/Compare/CompareResult/CompareResult';
-import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
-import { getChemistryByRate } from '@/constants/bundle';
+import { redirect } from 'next/navigation';
+
 import { getInfo } from '@/generated/api/server/compare-link/compare-link';
-import type { CompareLinkInfoResponse } from '@/generated/api/server/openAPIDefinition.schemas';
 import { buildCompareOgImageUrl } from '@/lib/seo/compareOgImage';
 import { SITE_URL } from '@/lib/seo/constants';
 
@@ -12,39 +10,24 @@ type MatchPageProps = {
   params: Promise<{ token: string }>;
 };
 
-/** CompareLinkInfoResponse 확장 — 서버 실제 응답에 matchRate이 포함됨 */
-type MatchCompareLinkInfo = CompareLinkInfoResponse & {
-  matchRate?: number;
-};
-
 export async function generateMetadata({ params }: MatchPageProps): Promise<Metadata> {
   const { token } = await params;
 
+  // 캐시된 OG 이미지/공유 링크 호환을 위해 metadata 유지 (URL은 group으로)
   try {
     const response = await getInfo(token, { next: { revalidate: 60 } });
-    const link = (response.status === 200 ? response.data.data : null) as
-      | MatchCompareLinkInfo
-      | null
-      | undefined;
+    const link = response.status === 200 ? response.data.data : null;
 
     if (link) {
       const creator = link.creatorNickname ?? '친구';
-      const participant = link.participantNickname;
       const bundleTitle = link.bundleTitle ?? '가치관 테스트';
-      const matchRate = link.matchRate ?? 0;
-      const chemistry = getChemistryByRate(matchRate);
-      const vsTitle = participant ? `${creator} vs ${participant}` : `${creator}의 비교 결과`;
-      const title = `🏆 ${vsTitle} · ${bundleTitle}`;
-      const description = `매치율 ${matchRate}% · ${chemistry.title}`;
+      const title = `${creator}님의 케미 결과 · ${bundleTitle}`;
+      const description = '우리 케미가 얼마나 통하는지 확인해 보세요';
       const ogImageUrl = buildCompareOgImageUrl({
-        type: 'ONE_TO_ONE',
-        status: 'DONE',
+        type: 'GROUP',
         categoryCode: link.categoryCode,
-        grade: chemistry.grade,
-        matchRate,
-        bundleTitle: link.bundleTitle,
-        creatorName: link.creatorNickname,
-        participantName: link.participantNickname,
+        memberCount: 1,
+        bundleTitle: link.bundleTitle ?? undefined,
       });
 
       return {
@@ -53,28 +36,23 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
         openGraph: {
           title,
           description,
-          url: `${SITE_URL}/compare/match/${token}`,
+          url: `${SITE_URL}/compare/group/${token}`,
           images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
         robots: { index: false },
       };
     }
   } catch {
-    // fetch 실패 시 기본값
+    // fallback
   }
 
   return {
-    title: '🏆 가치관 비교 결과',
-    description: '우리 궁합은 몇 점?',
+    title: '케미 결과',
+    description: '우리 케미가 얼마나 통하는지 확인해 보세요',
     openGraph: {
       images: [
         {
-          url: buildCompareOgImageUrl({
-            type: 'ONE_TO_ONE',
-            status: 'DONE',
-            grade: 'B',
-            matchRate: 50,
-          }),
+          url: buildCompareOgImageUrl({ type: 'GROUP', memberCount: 1 }),
           width: 1200,
           height: 630,
         },
@@ -84,13 +62,12 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   };
 }
 
+/**
+ * 1:1 비교 결과 라우트 deprecated.
+ * 멤버별 1:1 비교는 그룹 결과 페이지의 MemberDetailSheet (바텀시트)로 대체.
+ * 캐시된 외부 링크 호환을 위해 group 페이지로 redirect.
+ */
 export default async function CompareMatchPage({ params }: MatchPageProps) {
   const { token } = await params;
-
-  return (
-    <>
-      <MainHeader />
-      <CompareResult token={token} />
-    </>
-  );
+  redirect(`/compare/group/${token}`);
 }
