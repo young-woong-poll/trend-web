@@ -88,7 +88,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
     if (link.participantNickname) {
       return link.participantNickname;
     }
-    return '내 케미 테스트';
+    return '내 가치관 비교';
   };
 
   return (
@@ -111,7 +111,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
         <div className={styles.linkList}>
           {sorted.length > 0 && (
             <>
-              <span className={styles.linkSectionLabel}>내 케미</span>
+              <span className={styles.linkSectionLabel}>참여 중인 비교링크</span>
               <div
                 className={`${styles.linkSection} ${
                   sorted.length > 5
@@ -156,7 +156,7 @@ export const BundleAccordion: FC<BundleAccordionProps> = ({
 
           <div className={styles.newCompareRow}>
             <button type="button" className={styles.newGroupButton} onClick={onNewCompare}>
-              + 새 케미 테스트
+              + 새 비교링크 만들기
             </button>
           </div>
         </div>

@@ -23,7 +23,7 @@ export type TopContentType = 'single' | 'bundle';
 
 export const TOP_CONTENT_TYPES: Array<{ value: TopContentType; label: string }> = [
   { value: 'single', label: '핫픽' },
-  { value: 'bundle', label: '케미' },
+  { value: 'bundle', label: '가치관' },
 ];
 
 export const DEFAULT_TOP_CONTENT_TYPE: TopContentType = 'single';
@@ -52,7 +52,7 @@ export type MySubTabType = 'vote' | 'compare' | 'comments' | 'likes';
 
 export const MY_SUB_TABS: Array<{ type: MySubTabType; label: string }> = [
   { type: 'vote', label: '투표' },
-  { type: 'compare', label: '케미' },
+  { type: 'compare', label: '비교' },
   { type: 'comments', label: '댓글' },
   { type: 'likes', label: '좋아요' },
 ];

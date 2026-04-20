@@ -305,7 +305,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
         <section className={styles.gateSection} aria-label="친구들과 비교하기">
           <h1 className={styles.gateHeadline}>이제 진짜 시작이에요</h1>
           <p className={styles.gateSubtitle}>
-            친구와 답을 맞춰보면 케미 등급·공통점·의외의 차이가 한 번에 열려요
+            친구와 답을 맞춰보면 일치 등급·공통점·의외의 차이가 한 번에 열려요
           </p>
 
           <div className={styles.gateVisual} aria-hidden="true">

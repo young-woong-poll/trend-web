@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
     if (link) {
       const creator = link.creatorNickname ?? '친구';
       const bundleTitle = link.bundleTitle ?? '가치관 테스트';
-      const title = `${creator}님의 케미 결과 · ${bundleTitle}`;
-      const description = '우리 케미가 얼마나 통하는지 확인해 보세요';
+      const title = `${creator}님의 비교 결과 · ${bundleTitle}`;
+      const description = '우리 가치관이 얼마나 통하는지 확인해 보세요';
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   }
 
   return {
-    title: '케미 결과',
-    description: '우리 케미가 얼마나 통하는지 확인해 보세요',
+    title: '비교 결과',
+    description: '우리 가치관이 얼마나 통하는지 확인해 보세요',
     openGraph: {
       images: [
         {

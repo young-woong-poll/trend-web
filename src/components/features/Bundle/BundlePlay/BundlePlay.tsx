@@ -205,8 +205,8 @@ export const BundlePlay: FC<BundlePlayProps> = ({ slug }) => {
           <ProgressBar current={currentIndex + 1} total={elections.length} />
           {compareLink?.creatorNickname && (
             <div className={styles.compareBanner}>
-              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과 케미
-              테스트 중
+              <span className={styles.compareNickname}>{compareLink.creatorNickname}</span>님과
+              가치관 비교 중
             </div>
           )}
         </div>

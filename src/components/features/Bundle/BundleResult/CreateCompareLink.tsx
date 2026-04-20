@@ -37,7 +37,7 @@ function sanitizeName(value: string): string {
 function validateName(name: string): string | null {
   const trimmed = name.trim();
   if (!trimmed) {
-    return '케미 이름을 입력해 주세요';
+    return '비교링크 이름을 입력해 주세요';
   }
   if (DANGEROUS_CHARS.test(trimmed)) {
     return '< > " \' & 문자는 사용할 수 없어요';

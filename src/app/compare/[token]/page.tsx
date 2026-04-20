@@ -21,8 +21,8 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
     if (link) {
       const creator = link.creatorNickname ?? '친구';
       const bundleTitle = link.bundleTitle ?? '가치관 테스트';
-      const title = `${creator}님의 케미 테스트 초대 · ${bundleTitle}`;
-      const description = '우리 케미, 얼마나 통하는지 맞춰볼까요?';
+      const title = `${creator}님의 가치관 비교 초대 · ${bundleTitle}`;
+      const description = '우리 가치관, 얼마나 통하는지 맞춰볼까요?';
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
   }
 
   return {
-    title: '케미 테스트 초대',
-    description: '우리 케미, 얼마나 통하는지 맞춰볼까요?',
+    title: '가치관 비교 초대',
+    description: '우리 가치관, 얼마나 통하는지 맞춰볼까요?',
     openGraph: {
       images: [
         {

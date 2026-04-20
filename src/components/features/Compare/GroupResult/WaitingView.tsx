@@ -61,8 +61,11 @@ export const WaitingView: FC<WaitingViewProps> = ({
             <div className={styles.lockShackle} />
           </div>
         </div>
-        <h1 className={styles.heroTitle}>{nickname}님의 케미, 친구가 오면 열려요</h1>
-        <p className={styles.heroHint}>친구가 링크를 누르면 바로 시작돼요</p>
+        <h1 className={styles.heroTitle}>
+          {nickname}님의 비교 링크
+          <br />
+          친구가 오면 열려요
+        </h1>
       </section>
 
       {/* 샘플 등급 로테이션 */}

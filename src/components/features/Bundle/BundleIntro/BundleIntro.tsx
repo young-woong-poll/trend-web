@@ -140,7 +140,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
             </li>
             <li className={styles.flowStep}>
               <span className={styles.flowBadge}>3</span>
-              <span className={styles.flowText}>친구들이 풀면 그룹 케미가 열려요</span>
+              <span className={styles.flowText}>친구들이 풀면 그룹 비교가 열려요</span>
             </li>
           </ol>
         </section>
@@ -149,7 +149,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareGroupIcon width={20} height={20} />
-            <span className={styles.previewLabel}>우리의 케미</span>
+            <span className={styles.previewLabel}>우리의 가치관</span>
           </div>
           <p className={styles.previewHook}>{compareHook.group}</p>
           <GroupPreviewNetwork embedded />

@@ -333,16 +333,16 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
                 아직{' '}
                 {(result.members ?? [])[0]?.displayName ??
                   (result.members ?? [])[0]?.nickname ??
-                  '참가자가 '}
-                혼자예요
+                  '참여자가'}{' '}
+                혼자에요
               </p>
               <p className={styles.singleMemberText}>
-                참여하면 답변을 비교해 케미 등급·공통점·의외의 차이가 열려요
+                참여하면 답변을 비교해 일치 등급·공통점·의외의 차이가 열려요
               </p>
             </div>
             <LockedSectionPreview
-              title="케미 네트워크"
-              desc="참여하면 친구와의 케미가 선으로 연결돼 펼쳐져요"
+              title="가치관 네트워크"
+              desc="참여하면 친구와의 가치관이 선으로 연결돼 펼쳐져요"
               sketchType="chemistry-network"
             />
             <LockedSectionPreview

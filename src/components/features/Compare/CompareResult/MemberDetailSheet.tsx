@@ -57,7 +57,7 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
         }
       } catch {
         if (!cancelled) {
-          showToast('케미 상세보기 생성에 실패했어요');
+          showToast('비교 상세보기 생성에 실패했어요');
           onClose();
         }
       }
@@ -114,7 +114,7 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
       <div className={styles.sheet} role="dialog" aria-modal="true" aria-labelledby={labelId}>
         <div className={styles.sheetHeader}>
           <span id={labelId} className={styles.sheetLabel}>
-            케미 상세보기
+            비교 상세보기
           </span>
           <button
             ref={closeButtonRef}
@@ -130,7 +130,7 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
         <div className={styles.sheetBody}>
           {(isLoading || !result) && (
             <div className={styles.loading}>
-              <p className={styles.loadingTitle}>케미를 분석하고 있어요</p>
+              <p className={styles.loadingTitle}>비교를 분석하고 있어요</p>
             </div>
           )}
 
@@ -161,7 +161,7 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
 
               <PopularityCompare result={result} />
 
-              <p className={styles.notice}>이 케미 결과는 이력에 저장되지 않아요</p>
+              <p className={styles.notice}>이 비교 결과는 이력에 저장되지 않아요</p>
             </>
           )}
         </div>

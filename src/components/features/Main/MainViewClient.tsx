@@ -329,8 +329,8 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
                   isError={false}
                   isFetching={!bundleListData && isTopBundleMode}
                   emptyState={{
-                    title: '케미 랭킹이 없어요',
-                    description: '케미에 참여해서 순위를 확인해 보세요.',
+                    title: '가치관 비교 랭킹이 없어요',
+                    description: '가치관 비교에 참여해서 순위를 확인해 보세요.',
                   }}
                 />
               ) : (

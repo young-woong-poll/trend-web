@@ -78,7 +78,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
               </span>
             ))}
             {categories.length > 0 && <span className={styles.categorySeparator}>·</span>}
-            <span className={styles.chemiBadge}>케미 테스트</span>
+            <span className={styles.chemiBadge}>가치관 비교</span>
           </div>
           <button
             type="button"

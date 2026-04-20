@@ -16,13 +16,13 @@ interface GroupResultProps {
 /**
  * 그룹 결과 페이지 라우터.
  *
- * 분기 (생성자 판별은 result.creatorUserId === result.myUserId로):
+ * 분기:
  * - isLoading → 로딩 (orbit 애니메이션)
  * - !result → NotFoundView (API 실패 또는 무효 토큰)
- * - isCreator && 참여자 1명 → WaitingView (생성자 본인 혼자 봉인 대기)
- * - 그 외 (멤버든 비멤버든) → FullGroupResultView
+ * - 멤버 혼자 (생성자든 일반 멤버든) → WaitingView (봉인 대기)
+ * - 그 외 (비멤버 진입 / 2명+) → FullGroupResultView
  *   비멤버도 결과를 보면서 "나도 참여하기" 동기 형성.
- *   참여자 1명 + 비멤버 진입 시엔 섹션별 폴백 UI로 안내.
+ *   참여자 1명 + 비멤버 진입 시엔 LockedSectionPreview로 잠긴 섹션 안내.
  */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const { data: result, isLoading, isError, refetch } = useGroupCompareResult(token);
@@ -42,7 +42,7 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
             <div className={styles.loadingCenter} />
           </div>
           <div className={styles.loadingTextGroup}>
-            <p className={styles.loadingTitle}>그룹 케미를 분석하고 있어요</p>
+            <p className={styles.loadingTitle}>그룹 비교를 분석하고 있어요</p>
             <p className={styles.loadingSubtitle}>멤버들의 답변을 비교 중...</p>
           </div>
         </div>
@@ -54,13 +54,15 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     return <NotFoundView isError={isError} onRetry={isError ? () => void refetch() : undefined} />;
   }
 
-  const isCreator =
-    !!result.creatorUserId && !!result.myUserId && result.creatorUserId === result.myUserId;
-  const participantCount = (result.members ?? []).length;
+  const currentUserId = result.myUserId ?? '';
+  const members = result.members ?? [];
+  const isMember = members.some((m) => m.userId === currentUserId);
+  const participantCount = members.length;
 
-  // 생성자 본인 혼자 → 봉인 대기
-  if (isCreator && participantCount === 1) {
-    const myMember = (result.members ?? []).find((m) => m.userId === result.myUserId);
+  // 멤버 혼자 (생성자든 탈퇴 후 남은 일반 멤버든) → 봉인 대기
+  // 생성자가 아닌 멤버가 혼자인 edge case에도 동일 UI 제공.
+  if (isMember && participantCount === 1) {
+    const myMember = members.find((m) => m.userId === currentUserId);
     return (
       <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
         <WaitingView
@@ -75,6 +77,6 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  // 그 외 모두 (멤버/비멤버, 참여자 1명/N명) → FullGroupResultView
+  // 그 외 (비멤버 진입 / 2명+) → FullGroupResultView
   return <FullGroupResultView token={token} />;
 };

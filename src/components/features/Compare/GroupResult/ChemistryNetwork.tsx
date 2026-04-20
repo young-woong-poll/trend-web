@@ -370,7 +370,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
       <p className={styles.hint}>
         {selectedUserId
           ? '다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다'
-          : '멤버를 탭하면 전체 케미를 확인할 수 있어요'}
+          : '멤버를 탭하면 전체 비교를 확인할 수 있어요'}
       </p>
 
       {/* "나" 선택 시 프로필 편집 패널 */}
@@ -414,12 +414,12 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
                 className={styles.comparePanelBtn}
                 onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
               >
-                케미 상세보기
+                비교 상세보기
               </button>
             </div>
             <p className={styles.comparePanelNotice}>
               <span className={styles.noticeArrow}>‹‹</span>
-              케미 결과 이력에 남지 않아요
+              비교 결과 이력에 남지 않아요
             </p>
           </>
         )}
