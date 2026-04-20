@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { createPortal } from 'react-dom';
 
@@ -9,10 +9,31 @@ import styles from '@/components/features/Auth/LoginModal.module.scss';
 import type { LoginTrigger } from '@/contexts/AuthContext';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
+import { trackAuthKakaoClick, trackAuthModalOpen, type ReturnUrlType } from '@/lib/analytics';
+
+function deriveReturnUrlType(pathname: string): ReturnUrlType {
+  if (pathname === '/') {
+    return 'main';
+  }
+  if (pathname.startsWith('/hotpick/')) {
+    return 'single';
+  }
+  if (pathname.startsWith('/bundle/')) {
+    return 'bundle';
+  }
+  if (pathname.startsWith('/compare/')) {
+    return 'compare';
+  }
+  if (pathname === '/my' || pathname.startsWith('/my/')) {
+    return 'my';
+  }
+  return 'other';
+}
 
 const TRIGGER_MESSAGES: Record<LoginTrigger, string> = {
-  comment: '댓글을 남기려면 로그인이 필요해요',
-  like: '좋아요는 로그인 후 이용할 수 있어요',
+  header: '로그인하고 더 많은 기능을 이용해보세요',
+  bundle: '번들을 풀려면 로그인이 필요해요',
+  my: '로그인하고 내 활동을 확인해보세요',
   compare: '', // compare는 별도 UI 사용
   default: '로그인하고 더 많은 기능을 이용해보세요',
 };
@@ -54,6 +75,8 @@ const LoginModalContent = ({
     const urlParams = new URLSearchParams(window.location.search);
     const returnUrl =
       urlParams.get('returnUrl') || `${window.location.pathname}${window.location.search}`;
+    const returnUrlType = deriveReturnUrlType(window.location.pathname);
+    trackAuthKakaoClick(returnUrlType);
     const state = encodeURIComponent(new URLSearchParams({ returnUrl }).toString());
     window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&state=${state}`;
   };
@@ -116,6 +139,17 @@ const LoginModal = ({ isOpen, onClose, trigger }: LoginModalProps) => {
   const isMobile = useIsMobile();
   useBodyScrollLock(isOpen);
   useEscapeKey(isOpen, onClose);
+
+  // 한 번의 open 라이프사이클에서 1회만 트래킹 (닫혔다가 다시 열리면 재발화)
+  const lastTrackedOpenRef = useRef(false);
+  useEffect(() => {
+    if (isOpen && !lastTrackedOpenRef.current) {
+      lastTrackedOpenRef.current = true;
+      trackAuthModalOpen(trigger);
+    } else if (!isOpen) {
+      lastTrackedOpenRef.current = false;
+    }
+  }, [isOpen, trigger]);
 
   if (!isOpen) {
     return null;

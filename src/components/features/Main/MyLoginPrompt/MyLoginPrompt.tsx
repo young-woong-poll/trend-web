@@ -24,14 +24,14 @@ export const MyLoginPrompt: FC<MyLoginPromptProps> = ({ tab }) => {
   useEffect(() => {
     if (!autoTriggered.current) {
       autoTriggered.current = true;
-      requireLogin('default');
+      requireLogin('my');
     }
   }, [requireLogin]);
 
   return (
     <div className={styles.container}>
       <p className={styles.message}>{PROMPTS[tab]}</p>
-      <button type="button" className={styles.loginButton} onClick={() => requireLogin('default')}>
+      <button type="button" className={styles.loginButton} onClick={() => requireLogin('my')}>
         로그인하기
       </button>
     </div>

@@ -77,7 +77,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
       const params = new URLSearchParams(window.location.search);
       params.set('returnUrl', dest);
       window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
-      requireLogin('default');
+      requireLogin('bundle');
       return;
     }
     if (bundle.completed) {

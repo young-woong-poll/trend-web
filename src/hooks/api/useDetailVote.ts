@@ -8,6 +8,11 @@ import { vote } from '@/generated/api/client/hotpick/hotpick';
 import type { HotpickDetailResponse } from '@/generated/models';
 import { displayKeys } from '@/hooks/api/useDisplay';
 import { electionSeriesKeys } from '@/hooks/api/useElectionSeries';
+import {
+  trackSingleVoteAttempt,
+  trackSingleVoteBlocked,
+  trackSingleVoteSuccess,
+} from '@/lib/analytics';
 import { getTKUID } from '@/lib/tkuid';
 
 interface UseDetailVoteReturn {
@@ -26,11 +31,22 @@ export const useDetailVote = (
 
   const handleVote = useCallback(
     async (optionId: number) => {
-      if (isExpired || voted || pendingRef.current) {
+      trackSingleVoteAttempt(slug, optionId);
+
+      if (isExpired) {
+        trackSingleVoteBlocked(slug, 'expired');
+        return;
+      }
+      if (voted) {
+        trackSingleVoteBlocked(slug, 'already_voted');
+        return;
+      }
+      if (pendingRef.current) {
         return;
       }
 
       pendingRef.current = true;
+      const startTime = Date.now();
 
       const queryKey = displayKeys.hotpick(slug);
       const prevData = queryClient.getQueryData<HotpickDetailResponse | null>(queryKey);
@@ -60,6 +76,7 @@ export const useDetailVote = (
         const tkuId = getTKUID({ isLoggedIn });
         const headers = tkuId ? { 'x-tku-id': tkuId } : {};
         await vote(slug, { electionItemId: optionId }, { headers });
+        trackSingleVoteSuccess(slug, optionId, Date.now() - startTime);
         // 투표 성공 후 그래프 데이터 갱신 — 내 투표가 반영된 최신 추이 표시
         void queryClient.invalidateQueries({ queryKey: electionSeriesKeys.all });
       } catch (error) {
@@ -67,6 +84,7 @@ export const useDetailVote = (
         if (error && typeof error === 'object' && 'response' in error) {
           const res = (error as { response?: { status?: number } }).response;
           if (res?.status === 409) {
+            trackSingleVoteBlocked(slug, 'already_voted');
             return;
           }
         }
