@@ -321,7 +321,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
     <div className={styles.container}>
       {/* 섹션 헤더 */}
       <div className={styles.sectionHeader}>
-        <span className={styles.sectionTitle}>케미 랭킹</span>
+        <span className={styles.sectionTitle}>일치율 랭킹</span>
         <div className={styles.gradeInfoWrap}>
           <button
             ref={gradeBtnRef}

@@ -1,0 +1,35 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-16;
+  min-height: 60dvh;
+  padding: $spacing-24;
+  text-align: center;
+}
+
+.message {
+  font-size: $font-size-16;
+  color: $text-secondary;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.ctaButton {
+  padding: 12px 32px;
+  border: 1px solid #333;
+  border-radius: $border-rounded;
+  background: $bg-secondary;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: $bg-tertiary;
+  }
+}

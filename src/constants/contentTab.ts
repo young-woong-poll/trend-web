@@ -1,5 +1,5 @@
-/** 필터 탭 타입 (NEW, TOP, MY) */
-export type FilterTabType = 'new' | 'top' | 'my';
+/** 필터 탭 타입 (NEW, TOP, CHEM, MY) */
+export type FilterTabType = 'new' | 'top' | 'chem' | 'my';
 
 /** TOP 탭 기간 필터 */
 export type TopPeriod = 'all' | '1y' | '1m' | '1w';
@@ -18,15 +18,15 @@ export const TOP_PERIODS: TopPeriodItem[] = [
 
 export const DEFAULT_TOP_PERIOD: TopPeriod = 'all';
 
-/** TOP 탭 콘텐츠 유형 필터 */
-export type TopContentType = 'single' | 'bundle';
+/** 가치관 비교 탭 정렬 */
+export type ChemSort = 'popular' | 'latest';
 
-export const TOP_CONTENT_TYPES: Array<{ value: TopContentType; label: string }> = [
-  { value: 'single', label: '핫픽' },
-  { value: 'bundle', label: '케미' },
+export const CHEM_SORTS: Array<{ value: ChemSort; label: string }> = [
+  { value: 'popular', label: '인기순' },
+  { value: 'latest', label: '최신순' },
 ];
 
-export const DEFAULT_TOP_CONTENT_TYPE: TopContentType = 'single';
+export const DEFAULT_CHEM_SORT: ChemSort = 'popular';
 
 /** 탭 선택 상태 — 필터탭 또는 카테고리탭 */
 export type TabSelection =
@@ -41,6 +41,7 @@ export interface FilterTabItem {
 export const FILTER_TABS: FilterTabItem[] = [
   { type: 'new', label: 'NEW' },
   { type: 'top', label: 'TOP' },
+  { type: 'chem', label: '가치관 비교' },
   { type: 'my', label: 'MY' },
 ];
 
@@ -52,7 +53,7 @@ export type MySubTabType = 'vote' | 'compare' | 'comments' | 'likes';
 
 export const MY_SUB_TABS: Array<{ type: MySubTabType; label: string }> = [
   { type: 'vote', label: '투표' },
-  { type: 'compare', label: '케미' },
+  { type: 'compare', label: '내 테스트' },
   { type: 'comments', label: '댓글' },
   { type: 'likes', label: '좋아요' },
 ];

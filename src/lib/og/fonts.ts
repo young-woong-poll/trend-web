@@ -8,19 +8,10 @@
  *   - Archivo Black — 영문/숫자/등급 강조
  *   - Gmarket Sans Bold — 포스터 톤 variant (선택적)
  *
- * Edge runtime에서 module-level fetch는 1회만 실행 후 promise 캐싱됨.
+ * origin을 인자로 받는 이유: dev/prod/staging 환경별로 폰트 fetch 대상이 달라져야 하고,
+ * NEXT_PUBLIC_SITE_URL가 dev에 세팅되지 않은 경우 폰트 404 방지.
+ * edge runtime의 fetch는 내부적으로 응답을 캐싱하므로 반복 호출 비용이 크지 않음.
  */
-import { SITE_URL } from '@/lib/seo/constants';
-
-const fontUrl = (file: string) => new URL(`/fonts/${file}`, SITE_URL);
-
-const fetchFont = (file: string): Promise<ArrayBuffer> =>
-  fetch(fontUrl(file)).then((res) => res.arrayBuffer());
-
-export const pretendardBlackPromise = fetchFont('Pretendard-Black.otf');
-export const pretendardRegularPromise = fetchFont('Pretendard-Regular.otf');
-export const archivoBlackPromise = fetchFont('ArchivoBlack-Regular.ttf');
-export const gmarketBoldPromise = fetchFont('GmarketSansTTFBold.ttf');
 
 export interface LoadedFonts {
   pretendardBlack: ArrayBuffer;
@@ -29,12 +20,20 @@ export interface LoadedFonts {
   gmarketBold: ArrayBuffer;
 }
 
-export async function loadOgFonts(): Promise<LoadedFonts> {
+export async function loadOgFonts(origin: string): Promise<LoadedFonts> {
+  const fetchFont = (file: string): Promise<ArrayBuffer> =>
+    fetch(new URL(`/fonts/${file}`, origin)).then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to load font ${file}: ${res.status}`);
+      }
+      return res.arrayBuffer();
+    });
+
   const [pretendardBlack, pretendardRegular, archivoBlack, gmarketBold] = await Promise.all([
-    pretendardBlackPromise,
-    pretendardRegularPromise,
-    archivoBlackPromise,
-    gmarketBoldPromise,
+    fetchFont('Pretendard-Black.otf'),
+    fetchFont('Pretendard-Regular.otf'),
+    fetchFont('ArchivoBlack-Regular.ttf'),
+    fetchFont('GmarketSansTTFBold.ttf'),
   ]);
   return { pretendardBlack, pretendardRegular, archivoBlack, gmarketBold };
 }

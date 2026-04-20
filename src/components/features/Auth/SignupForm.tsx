@@ -13,9 +13,16 @@ import { useModal } from '@/contexts/ModalContext';
 import { submitSignup } from '@/hooks/api/useAuthApi';
 import { checkNicknameAvailability } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
+import {
+  trackAuthSignupSubmit,
+  trackAuthSignupSuccess,
+  trackAuthSignupView,
+} from '@/lib/analytics';
 import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
 import { validateNickname } from '@/lib/utils';
+
+const computeBirthYearBucket = (year: number): string => `${Math.floor(year / 10) * 10}s`;
 
 type Gender = 'male' | 'female' | null;
 
@@ -117,6 +124,15 @@ const SignupForm = () => {
     }
   }, [isAuthorized, router]);
 
+  const signupViewTrackedRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthorized || signupViewTrackedRef.current) {
+      return;
+    }
+    signupViewTrackedRef.current = true;
+    trackAuthSignupView();
+  }, [isAuthorized]);
+
   const [gender, setGender] = useState<Gender>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
@@ -191,6 +207,11 @@ const SignupForm = () => {
       return;
     }
 
+    trackAuthSignupSubmit({
+      gender: gender === 'male' ? 'male' : 'female',
+      has_migration: !!withMigration,
+    });
+
     setIsSubmitting(true);
 
     // 제출 전 닉네임 중복 재확인
@@ -212,6 +233,11 @@ const SignupForm = () => {
         gender: gender === 'male' ? 'MALE' : 'FEMALE',
         birthYear: Number(data.birthYear),
         ...(tkuId ? { tkuId } : {}),
+      });
+
+      trackAuthSignupSuccess({
+        gender: gender === 'male' ? 'male' : 'female',
+        birth_year_bucket: computeBirthYearBucket(Number(data.birthYear)),
       });
 
       setUser(result.user);

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { LazyMotion, domAnimation } from 'framer-motion';
 
 import { CardList } from '@/components/features/Main/CardList/CardList';
+import { ChemSubFilter } from '@/components/features/Main/ChemSubFilter/ChemSubFilter';
 import { ContentTabs } from '@/components/features/Main/ContentTabs';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { MyBundleList } from '@/components/features/Main/MyBundleList/MyBundleList';
@@ -19,12 +20,12 @@ import MyCommentList from '@/components/features/MyPage/MyCommentList';
 import type { CategoryFilterItem } from '@/constants/category';
 import {
   DEFAULT_TOP_PERIOD,
-  DEFAULT_TOP_CONTENT_TYPE,
+  DEFAULT_CHEM_SORT,
   DEFAULT_TAB,
   DEFAULT_MY_SUB_TAB_GUEST,
   DEFAULT_MY_SUB_TAB_LOGGED_IN,
   type TopPeriod,
-  type TopContentType,
+  type ChemSort,
   type TabSelection,
   type FilterTabType,
   type MySubTabType,
@@ -44,7 +45,7 @@ type TMainViewClientProps = {
   children?: ReactNode;
 };
 
-const FILTER_TAB_TYPES: FilterTabType[] = ['new', 'top', 'my'];
+const FILTER_TAB_TYPES: FilterTabType[] = ['new', 'top', 'chem', 'my'];
 
 /**
  * URL 쿼리에서 탭 정보 파싱
@@ -114,6 +115,9 @@ function buildQueryParams(tab: TabSelection, topPeriod: TopPeriod, topCategory: 
       }
       case 'my':
         return { size: 18, sort: 'latest', filter: 'voted' };
+      case 'chem':
+        // 가치관 비교 탭은 useInfiniteMainDisplay 결과를 사용하지 않음 (useBundleList가 소스)
+        return { size: 0, sort: 'latest' };
     }
   }
 
@@ -152,6 +156,12 @@ function getEmptyState(
           title: '투표한 핫픽이 없어요',
           description: '관심 있는 주제에 투표해 보세요!',
         };
+      case 'chem':
+        // 가치관 비교 탭은 chemEmptyState를 별도로 사용 (이 분기는 도달하지 않음)
+        return {
+          title: '가치관 비교가 없어요',
+          description: '곧 새 테스트가 올라옵니다.',
+        };
     }
   }
 
@@ -176,7 +186,10 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   // TOP 서브필터 상태 (탭 전환해도 선택값 보존)
   const [topPeriod, setTopPeriod] = useState<TopPeriod>(DEFAULT_TOP_PERIOD);
   const [topCategory, setTopCategory] = useState<string | null>(null);
-  const [topContentType, setTopContentType] = useState<TopContentType>(DEFAULT_TOP_CONTENT_TYPE);
+
+  // 가치관 비교 탭 필터 상태 (탭 이탈 후 재진입 시 복원, 새로고침 시엔 기본값)
+  const [chemSort, setChemSort] = useState<ChemSort>(DEFAULT_CHEM_SORT);
+  const [chemExcludeParticipated, setChemExcludeParticipated] = useState(false);
 
   // My 하위 탭 상태 (URL mysub 파라미터에서 복원)
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
@@ -196,8 +209,14 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
   const isMyTab = selectedTab.kind === 'filter' && selectedTab.type === 'my';
   const isNewTab = selectedTab.kind === 'filter' && selectedTab.type === 'new';
-  const isTopBundleMode = isTopTab && topContentType === 'bundle';
-  const { data: bundleListData } = useBundleList(isNewTab || isTopBundleMode);
+  const isChemTab = selectedTab.kind === 'filter' && selectedTab.type === 'chem';
+  const {
+    data: bundleListData,
+    isLoading: isBundleListLoading,
+    isError: isBundleListError,
+    isFetching: isBundleListFetching,
+    refetch: refetchBundleList,
+  } = useBundleList(isNewTab || isChemTab);
   const { data: myBundles } = useMyBundles(isMyTab && isLoggedIn && mySubTab === 'compare');
 
   const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
@@ -271,14 +290,22 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
     return cards;
   }, [cards, bundleCards, isNewTab]);
 
-  // TOP 케미 모드: participantCount 내림차순 정렬
-  const topBundleCards = useMemo(() => {
-    if (!isTopBundleMode) {
+  // 가치관 비교 탭: 필터 + 정렬
+  const chemCards = useMemo(() => {
+    if (!isChemTab) {
       return [];
     }
-    const sorted = [...bundleCards].sort((a, b) => b.totalVoteCount - a.totalVoteCount);
-    return sorted.map((data): CardModel => ({ type: 'BUNDLE', data }));
-  }, [bundleCards, isTopBundleMode]);
+    let result = [...bundleCards];
+    if (chemExcludeParticipated) {
+      result = result.filter((b) => !b.participated);
+    }
+    if (chemSort === 'popular') {
+      result.sort((a, b) => b.totalVoteCount - a.totalVoteCount);
+    }
+    // 'latest'는 BE에 createdAt 정렬이 없어 원 순서 유지 (추후 BE 지원 시 교체)
+    // TODO: 번들 최신순 정렬을 위한 BE 정렬 파라미터 지원 요청
+    return result.map((data): CardModel => ({ type: 'BUNDLE', data }));
+  }, [bundleCards, isChemTab, chemSort, chemExcludeParticipated]);
 
   // TOP 카테고리 라벨 찾기 (빈 상태 메시지용)
   const topCategoryLabel = topCategory
@@ -289,6 +316,24 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
     () => getEmptyState(selectedTab, topCategory, topCategoryLabel),
     [selectedTab, topCategory, topCategoryLabel]
   );
+
+  // 가치관 비교 탭 전용 빈 상태 — 필터 0개 / 번들 자체 0개 분기
+  const chemEmptyState = useMemo(() => {
+    if (chemExcludeParticipated && bundleCards.length > 0) {
+      return {
+        title: '이제 안 해본 테스트가 없어요',
+        description: '새로 올라오면 알려드릴게요.',
+        actionLabel: '전체 보기',
+        onAction: () => setChemExcludeParticipated(false),
+      };
+    }
+    return {
+      title: '아직 준비 중인 가치관 비교예요',
+      description: '곧 새 테스트가 올라옵니다.',
+      actionLabel: '지금 투표 보러가기',
+      onAction: () => router.replace('/?filter=new'),
+    };
+  }, [chemExcludeParticipated, bundleCards.length, router]);
 
   return (
     <>
@@ -308,8 +353,20 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
           selectedCategory={topCategory}
           onCategoryChange={setTopCategory}
           categories={dynamicCategories}
-          selectedContentType={topContentType}
-          onContentTypeChange={setTopContentType}
+        />
+      )}
+
+      {/* 가치관 비교 탭 서브필터 (정렬 + 참여 범위 세그먼트) */}
+      {isChemTab && (
+        <ChemSubFilter
+          selectedSort={chemSort}
+          onSortChange={setChemSort}
+          participationMode={chemExcludeParticipated ? 'unparticipated' : 'all'}
+          onParticipationModeChange={(mode) =>
+            setChemExcludeParticipated(mode === 'unparticipated')
+          }
+          totalCount={bundleCards.length}
+          unparticipatedCount={bundleCards.filter((b) => !b.participated).length}
         />
       )}
 
@@ -317,31 +374,34 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
       {isMyTab && <MySubTabs activeTab={mySubTab} onChange={handleMySubTabChange} />}
 
       <div
-        className={`${styles.container} ${isTopTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}
+        className={`${styles.container} ${isTopTab || isChemTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}
       >
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
             {isTopTab ? (
-              isTopBundleMode ? (
-                <TopRankingList
-                  cards={topBundleCards}
-                  isLoading={!bundleListData && isTopBundleMode}
-                  isError={false}
-                  isFetching={!bundleListData && isTopBundleMode}
-                  emptyState={{
-                    title: '케미 랭킹이 없어요',
-                    description: '케미에 참여해서 순위를 확인해 보세요.',
-                  }}
-                />
-              ) : (
-                <TopRankingList
-                  cards={cards}
-                  isLoading={isLoading}
-                  isError={isError}
-                  isFetching={isFetching}
-                  emptyState={emptyState}
-                />
-              )
+              <TopRankingList
+                cards={cards}
+                isLoading={isLoading}
+                isError={isError}
+                isFetching={isFetching}
+                emptyState={emptyState}
+              />
+            ) : isChemTab ? (
+              <CardList
+                cards={chemCards}
+                isLoading={isBundleListLoading}
+                isError={isBundleListError}
+                isFetching={isBundleListFetching}
+                isFetchingNextPage={false}
+                hasNextPage={false}
+                error={null}
+                observerTarget={observerTarget}
+                onRetry={() => {
+                  void refetchBundleList();
+                }}
+                emptyState={chemEmptyState}
+                bundleCtaLabel="자세히 보기"
+              />
             ) : isMyTab && mySubTab !== 'vote' ? (
               // My 탭: 인증 로딩 중이면 빈 상태 (로그인 프롬프트 깜빡임 방지)
               isAuthLoading ? null : mySubTab === 'compare' ? (

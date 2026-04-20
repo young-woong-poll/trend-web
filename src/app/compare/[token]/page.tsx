@@ -1,6 +1,7 @@
-import { CompareLanding } from '@/components/features/Compare/CompareLanding/CompareLanding';
-import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
+import { redirect } from 'next/navigation';
+
 import { getInfo } from '@/generated/api/server/compare-link/compare-link';
+import { buildCompareOgImageUrl } from '@/lib/seo/compareOgImage';
 import { SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
@@ -12,36 +13,46 @@ type ComparePageProps = {
 export async function generateMetadata({ params }: ComparePageProps): Promise<Metadata> {
   const { token } = await params;
 
+  // 캐시된 OG 이미지 호환을 위해 metadata는 유지 (단, URL은 group으로)
   try {
     const response = await getInfo(token, { next: { revalidate: 60 } });
     const link = response.status === 200 ? response.data.data : null;
 
     if (link) {
-      const ogImageUrl = `${SITE_URL}/api/og/compare?category=${encodeURIComponent(link.categoryCode ?? 'TREND')}&type=ONE_TO_ONE`;
+      const creator = link.creatorNickname ?? '친구';
+      const bundleTitle = link.bundleTitle ?? '가치관 테스트';
+      const title = `${creator}님의 가치관 비교 초대 · ${bundleTitle}`;
+      const description = '우리 가치관, 얼마나 통하는지 맞춰볼까요?';
+      const ogImageUrl = buildCompareOgImageUrl({
+        type: 'GROUP',
+        categoryCode: link.categoryCode,
+        memberCount: 1,
+        bundleTitle: link.bundleTitle ?? undefined,
+      });
 
       return {
-        title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
-        description: link.bundleTitle,
+        title,
+        description,
         openGraph: {
-          title: `${link.creatorNickname}님이 가치관 대결을 신청했어요!`,
-          description: link.bundleTitle,
-          url: `${SITE_URL}/compare/${token}`,
+          title,
+          description,
+          url: `${SITE_URL}/compare/group/${token}`,
           images: [{ url: ogImageUrl, width: 1200, height: 630 }],
         },
         robots: { index: false },
       };
     }
   } catch {
-    // fetch 실패 시 기본값
+    // fallback to default
   }
 
   return {
-    title: '가치관 대결을 신청했어요!',
-    description: '우리 생각 얼마나 통할까?',
+    title: '가치관 비교 초대',
+    description: '우리 가치관, 얼마나 통하는지 맞춰볼까요?',
     openGraph: {
       images: [
         {
-          url: `${SITE_URL}/api/og/compare?category=TREND&type=ONE_TO_ONE`,
+          url: buildCompareOgImageUrl({ type: 'GROUP', memberCount: 1 }),
           width: 1200,
           height: 630,
         },
@@ -51,13 +62,11 @@ export async function generateMetadata({ params }: ComparePageProps): Promise<Me
   };
 }
 
+/**
+ * 1:1 비교 라우트 deprecated — 모든 토큰이 그룹으로 마이그레이션됨.
+ * 서버 사이드 redirect로 SEO/캐시된 링크 호환.
+ */
 export default async function ComparePage({ params }: ComparePageProps) {
   const { token } = await params;
-
-  return (
-    <>
-      <MainHeader />
-      <CompareLanding token={token} />
-    </>
-  );
+  redirect(`/compare/group/${token}`);
 }

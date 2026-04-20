@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import Image from 'next/image';
 
@@ -26,6 +26,7 @@ import { useModal } from '@/contexts/ModalContext';
 import { useDetailVote } from '@/hooks/api/useDetailVote';
 import { useHotpickDetail } from '@/hooks/api/useDisplay';
 import { useLike } from '@/hooks/api/useLike';
+import { trackSingleView } from '@/lib/analytics';
 import { toSingleDetailModel } from '@/lib/mappers/cardMapper';
 import { formatCount } from '@/lib/utils';
 import { calcPercentage, OPTION_LABELS } from '@/types/singleVote';
@@ -55,6 +56,19 @@ export const SingleDetailView = ({ hotpickAlias }: SingleDetailViewProps) => {
     detail?.isExpired ?? false,
     detail?.voted ?? false
   );
+
+  const viewTrackedRef = useRef(false);
+  useEffect(() => {
+    if (viewTrackedRef.current || !detail) {
+      return;
+    }
+    viewTrackedRef.current = true;
+    const voteStatus = detail.isExpired ? 'expired' : detail.voted ? 'voted' : 'not_voted';
+    trackSingleView(hotpickAlias, {
+      category: detail.categories[0],
+      vote_status: voteStatus,
+    });
+  }, [detail, hotpickAlias]);
 
   if (isLoading && !detail) {
     return detailSkeleton;

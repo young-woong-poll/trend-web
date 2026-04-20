@@ -1,0 +1,66 @@
+@use '@/styles/variables' as *;
+
+.container {
+  position: fixed;
+  top: 92px;
+  left: 0;
+  right: 0;
+  z-index: $z-index-sticky;
+  background: $bg-primary;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba($white, 0.06);
+  }
+}
+
+.selectRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px $spacing-16;
+}
+
+.select {
+  flex-shrink: 0;
+  max-width: 140px;
+  padding: 8px 12px;
+  padding-right: 28px;
+  border-radius: $border-radius-md;
+  border: 1px solid rgba($white, 0.12);
+  background-color: $bg-secondary;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8a8a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+
+  &:focus {
+    outline: none;
+    border-color: $text-tertiary;
+  }
+
+  option {
+    background: $bg-secondary;
+    color: $white;
+  }
+}
+
+.segmentWrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 232px;
+}

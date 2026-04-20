@@ -4,14 +4,13 @@ import { useEffect, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import ClockIcon from '@/assets/icon/ClockIcon';
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
-import CompareOneIcon from '@/assets/icon/CompareOneIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleIntro/BundleIntro.module.scss';
 import { GroupPreviewNetwork } from '@/components/features/Compare/GroupPreviewNetwork/GroupPreviewNetwork';
-import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { getCompareHook } from '@/constants/compare';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail } from '@/hooks/api/useBundle';
@@ -21,6 +20,17 @@ import { formatCount } from '@/lib/utils';
 
 interface BundleIntroProps {
   slug: string;
+}
+
+function formatDuration(electionCount: number): string {
+  const seconds = electionCount * 5;
+  if (seconds <= 30) {
+    return '약 30초';
+  }
+  if (seconds <= 59) {
+    return '약 1분';
+  }
+  return `약 ${Math.round(seconds / 60)}분`;
 }
 
 export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
@@ -54,7 +64,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
   if (!bundle) {
     return (
       <BundleBackground>
-        <div className={styles.loading}>번들을 찾을 수 없습니다.</div>
+        <div className={styles.loading}>테스트를 찾을 수 없어요. 링크를 다시 확인해 주세요.</div>
       </BundleBackground>
     );
   }
@@ -67,7 +77,7 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
       const params = new URLSearchParams(window.location.search);
       params.set('returnUrl', dest);
       window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
-      requireLogin('default');
+      requireLogin('bundle');
       return;
     }
     if (bundle.completed) {
@@ -87,6 +97,8 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
     return '시작하기';
   };
 
+  const questionCount = bundle.questionCount ?? 0;
+
   return (
     <BundleBackground
       fireworks
@@ -104,26 +116,40 @@ export const BundleIntro: FC<BundleIntroProps> = ({ slug }) => {
         </div>
 
         <div className={styles.meta}>
-          <span className={styles.metaItem}>질문 {bundle.questionCount}개</span>
+          <span className={styles.metaItem}>가치관 질문 {questionCount}개</span>
+          <span className={styles.metaDot}>·</span>
+          <span className={styles.metaItem}>
+            <ClockIcon width={14} height={14} />
+            {formatDuration(questionCount)}
+          </span>
           <span className={styles.metaDot}>·</span>
           <span className={styles.metaItem}>{formatCount(animatedCount)}명 참여</span>
         </div>
 
-        {/* 1:1 비교 프리뷰 */}
-        <div className={styles.comparePreview}>
-          <div className={styles.previewHeader}>
-            <CompareOneIcon width={20} height={20} />
-            <span className={styles.previewLabel}>1:1 케미</span>
-          </div>
-          <p className={styles.previewHook}>{compareHook.oneToOne}</p>
-          <PreviewRotation nickname="나" embedded compact />
-        </div>
+        {/* ═══ 이렇게 진행돼요 ═══ */}
+        <section className={styles.flowCard}>
+          <h2 className={styles.flowTitle}>이렇게 진행돼요</h2>
+          <ol className={styles.flowSteps}>
+            <li className={styles.flowStep}>
+              <span className={styles.flowBadge}>1</span>
+              <span className={styles.flowText}>가치관 질문 {questionCount}개에 답해요</span>
+            </li>
+            <li className={styles.flowStep}>
+              <span className={styles.flowBadge}>2</span>
+              <span className={styles.flowText}>단톡방 친구들에게 링크를 보내요</span>
+            </li>
+            <li className={styles.flowStep}>
+              <span className={styles.flowBadge}>3</span>
+              <span className={styles.flowText}>친구들이 풀면 그룹 비교가 열려요</span>
+            </li>
+          </ol>
+        </section>
 
-        {/* 그룹 비교 */}
+        {/* ═══ 우리의 케미 프리뷰 ═══ */}
         <div className={styles.comparePreview}>
           <div className={styles.previewHeader}>
             <CompareGroupIcon width={20} height={20} />
-            <span className={styles.previewLabel}>그룹 케미</span>
+            <span className={styles.previewLabel}>우리의 가치관</span>
           </div>
           <p className={styles.previewHook}>{compareHook.group}</p>
           <GroupPreviewNetwork embedded />

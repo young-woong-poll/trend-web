@@ -1,0 +1,165 @@
+@use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal-backdrop;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: $z-index-modal;
+  // 로딩 → 콘텐츠 전환 시 시트 높이가 점프하지 않도록 고정 높이
+  height: 90dvh;
+  background: $bg-secondary;
+  // tokens.md "바텀시트 상단 = rounded-xl 24px" — 직접 값 사용 ($border-radius-xl 토큰 미정의)
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid #333;
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: sheetSlideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-16;
+  border-bottom: 1px solid rgba(#fff, 0.06);
+  flex-shrink: 0;
+}
+
+.sheetLabel {
+  font-size: $font-size-14;
+  font-weight: 600;
+  color: $white;
+  letter-spacing: -0.2px;
+}
+
+.closeButton {
+  // WCAG 2.5.5 — 터치 타겟 최소 44x44
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba(#fff, 0.06);
+    color: $white;
+  }
+}
+
+.sheetBody {
+  @include flex-column;
+  gap: $spacing-16;
+  padding: $spacing-16;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.notice {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  text-align: center;
+  margin-top: $spacing-8;
+}
+
+.skeleton {
+  @include flex-column;
+  align-items: center;
+  gap: 16px;
+  padding: $spacing-16 0;
+  width: 100%;
+}
+
+.skeletonGradeGroup {
+  @include flex-column;
+  align-items: center;
+  gap: 8px;
+}
+
+// ─── 푸터 (공유 버튼) ───
+.sheetFooter {
+  padding: $spacing-16;
+  padding-bottom: calc($spacing-16 + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(#fff, 0.06);
+  flex-shrink: 0;
+}
+
+.shareButton {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: $border-rounded;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-16;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.01);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ─── 시트 안 토스트 ───
+.toastWrap {
+  position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-index-tooltip;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.85);
+  color: $white;
+  font-size: $font-size-14;
+  border-radius: $border-rounded;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}

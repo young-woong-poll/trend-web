@@ -31,6 +31,8 @@ const skeletonGroupMore = (
 interface EmptyStateConfig {
   title: string;
   description: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 interface CardListProps {
@@ -44,6 +46,8 @@ interface CardListProps {
   observerTarget: RefObject<HTMLDivElement | null>;
   onRetry: () => void;
   emptyState?: EmptyStateConfig;
+  /** BundleCard 렌더 시 적용할 CTA 라벨(미참여 상태). 가치관 비교 탭 등 맥락별 오버라이드 용도. */
+  bundleCtaLabel?: string;
 }
 
 // eslint-disable-next-line react/display-name
@@ -59,6 +63,7 @@ export const CardList = memo<CardListProps>(
     observerTarget,
     onRetry,
     emptyState,
+    bundleCtaLabel,
   }) => {
     const columnCount = useColumnCount();
 
@@ -94,6 +99,11 @@ export const CardList = memo<CardListProps>(
         <div className={styles.emptyState}>
           <h2 className={styles.title}>{empty.title}</h2>
           <p className={styles.description}>{empty.description}</p>
+          {empty.actionLabel && empty.onAction && (
+            <button type="button" className={styles.emptyAction} onClick={empty.onAction}>
+              {empty.actionLabel}
+            </button>
+          )}
         </div>
       );
     }
@@ -110,7 +120,7 @@ export const CardList = memo<CardListProps>(
                   </div>
                 ) : (
                   <div key={card.data.slug} id={card.data.slug} className={styles.cardWrapper}>
-                    <BundleCard data={card.data} />
+                    <BundleCard data={card.data} ctaLabel={bundleCtaLabel} />
                   </div>
                 )
               )}

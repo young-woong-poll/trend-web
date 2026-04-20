@@ -129,7 +129,7 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
                   <button
                     type="button"
                     className={styles.loginButton}
-                    onClick={() => requireLogin('default')}
+                    onClick={() => requireLogin('header')}
                   >
                     <span className={styles.loginText}>로그인</span>
                     <UserIcon className={styles.loginIcon} width={20} height={20} />
@@ -199,7 +199,7 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
                     <button
                       type="button"
                       className={styles.loginButton}
-                      onClick={() => requireLogin('default')}
+                      onClick={() => requireLogin('header')}
                     >
                       <span className={styles.loginText}>로그인</span>
                       <UserIcon className={styles.loginIcon} width={20} height={20} />

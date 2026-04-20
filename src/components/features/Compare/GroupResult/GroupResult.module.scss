@@ -5,7 +5,7 @@
   @include flex-column;
   align-items: center;
   padding: calc(56px + 16px) 0 80px;
-  gap: 28px;
+  gap: 24px;
   width: 100%;
 }
 
@@ -20,7 +20,37 @@
   margin-top: 8px;
 }
 
-// ─── 프리뷰 배너 ───
+// ─── 참여자 1명 폴백 (비멤버 진입 시) ───
+.singleMemberHint {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 20px $spacing-24;
+  background: rgba(var(--primary-start-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-start-rgb), 0.2);
+  border-radius: $border-radius-lg;
+  text-align: center;
+}
+
+.singleMemberTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.singleMemberText {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.55;
+  margin: 0;
+  word-break: keep-all;
+}
+
+// ─── 프리뷰 배너 (deprecated — 구 fake 결과 안내 잔존) ───
 .previewBanner {
   @include flex-column;
   align-items: center;
@@ -123,6 +153,36 @@
   &:hover {
     background: rgba(#fff, 0.05);
     color: $white;
+  }
+}
+
+// 새 그룹 만들기 CTA — ctaSection 위치, primary 톤의 full width outline 버튼
+.newGroupCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(var(--primary-start-rgb), 0.3);
+  border-radius: $border-radius-lg;
+  background: rgba(var(--primary-start-rgb), 0.08);
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--primary-start-rgb), 0.14);
+    border-color: rgba(var(--primary-start-rgb), 0.5);
+  }
+
+  &:active {
+    transform: scale(0.99);
   }
 }
 
@@ -260,21 +320,6 @@
   width: 100%;
 }
 
-.secondaryCta {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid rgba(#fff, 0.06);
-  border-radius: $border-radius-lg;
-  background: rgba(#fff, 0.02);
-  color: $text-secondary;
-  font-size: $font-size-14;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(#fff, 0.04);
-  }
-}
-
 .loading {
   @include flex-center;
   flex-direction: column;
@@ -282,7 +327,7 @@
   width: 100%;
   min-height: 60dvh;
   height: 100vh;
-  color: #fff;
+  color: $white;
 }
 
 // ─── 로딩 애니메이션 ───

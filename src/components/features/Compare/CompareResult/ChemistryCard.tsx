@@ -126,7 +126,7 @@ export const ChemistryCard: FC<ChemistryCardProps> = ({
       {/* 분포 곡선 — 별도 카드 */}
       <div className={styles.distributionCard}>
         <div className={styles.distributionHeader}>
-          <span className={styles.distributionLabel}>우리의 케미는</span>
+          <span className={styles.distributionLabel}>우리의 일치율은</span>
           <span className={styles.distributionHighlight}>
             {matchRate >= 70 ? '상위권' : matchRate >= 40 ? '중간쯤' : '독특한 편'}
           </span>

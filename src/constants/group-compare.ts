@@ -4,8 +4,6 @@ import type {
   PairChemistry,
   GroupAward,
   GroupAwardType,
-  ValueMapCoordinate,
-  ValueMapConfig,
 } from '@/types/group-compare';
 
 /** optionStats 기반 questionStats에서 대중성 지수를 계산 (group-compare 전용, 1:1과 동일 방식) */
@@ -391,103 +389,6 @@ export function calcGroupAwards(result: GroupCompareResult, pairs: PairChemistry
 
   return awards;
 }
-
-/**
- * 가치관 지도 좌표 계산
- *
- * X = (X축 질문 중 rightAnswer 수 / X축 질문 수) × 2 - 1
- * Y = (Y축 질문 중 upAnswer 수 / Y축 질문 수) × 2 - 1
- * 범위: -1 ~ +1
- *
- * axis 컨벤션:
- *   X축 질문: optionB → right(+1 방향), optionA → left(-1 방향)
- *   Y축 질문: optionB → up(+1 방향), optionA → down(-1 방향)
- */
-export function calcValueMapCoordinates(result: GroupCompareResult): ValueMapCoordinate[] {
-  const questionStats = result.questionStats ?? [];
-  const members = result.members ?? [];
-  const xQuestions = questionStats.filter((s) => s.axis === 'X');
-  const yQuestions = questionStats.filter((s) => s.axis === 'Y');
-
-  return members.map((member) => {
-    const memberAnswers = member.answers ?? [];
-    let xRight = 0;
-    for (const q of xQuestions) {
-      const ans = memberAnswers.find((a) => a.electionId === q.electionId);
-      // 두 번째 옵션(index 1) = right(+1 방향)
-      const secondOptionId = (q.optionStats ?? [])[1]?.electionItemId;
-      if (ans && secondOptionId && ans.electionItemId === secondOptionId) {
-        xRight++;
-      }
-    }
-
-    let yUp = 0;
-    for (const q of yQuestions) {
-      const ans = memberAnswers.find((a) => a.electionId === q.electionId);
-      // 두 번째 옵션(index 1) = up(+1 방향)
-      const secondOptionId = (q.optionStats ?? [])[1]?.electionItemId;
-      if (ans && secondOptionId && ans.electionItemId === secondOptionId) {
-        yUp++;
-      }
-    }
-
-    const x = xQuestions.length > 0 ? (xRight / xQuestions.length) * 2 - 1 : 0;
-    const y = yQuestions.length > 0 ? (yUp / yQuestions.length) * 2 - 1 : 0;
-
-    return {
-      userId: member.userId ?? '',
-      nickname: member.nickname ?? '',
-      x: Math.round(x * 100) / 100,
-      y: Math.round(y * 100) / 100,
-    };
-  });
-}
-
-/**
- * 그룹 평균 좌표 계산
- */
-export function calcGroupAverage(coords: ValueMapCoordinate[]): { x: number; y: number } {
-  if (coords.length === 0) {
-    return { x: 0, y: 0 };
-  }
-  const avgX = coords.reduce((sum, c) => sum + c.x, 0) / coords.length;
-  const avgY = coords.reduce((sum, c) => sum + c.y, 0) / coords.length;
-  return {
-    x: Math.round(avgX * 100) / 100,
-    y: Math.round(avgY * 100) / 100,
-  };
-}
-
-/**
- * 번들별 가치관 지도 설정
- * Phase 2에서는 하드코딩, 추후 어드민 설정 연동
- */
-export const VALUE_MAP_CONFIGS: Record<string, ValueMapConfig> = {
-  'love-values': {
-    xAxisLeft: '현실주의',
-    xAxisRight: '이상주의',
-    yAxisBottom: '개인 중심',
-    yAxisTop: '관계 중심',
-    quadrantLabels: {
-      topLeft: '현실적 헌신파',
-      topRight: '이상적 로맨티스트',
-      bottomLeft: '현실적 독립파',
-      bottomRight: '이상적 자유주의자',
-    },
-  },
-  'marriage-values': {
-    xAxisLeft: '현실주의',
-    xAxisRight: '이상주의',
-    yAxisBottom: '개인 중심',
-    yAxisTop: '가정 중심',
-    quadrantLabels: {
-      topLeft: '현실적 가정인',
-      topRight: '이상적 가정인',
-      bottomLeft: '현실적 개인주의자',
-      bottomRight: '이상적 개인주의자',
-    },
-  },
-};
 
 /**
  * 케미 등급별 네트워크 선 색상
