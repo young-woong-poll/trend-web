@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useState, type FC } from 'react';
-
-import { useSearchParams } from 'next/navigation';
+import { type FC } from 'react';
 
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
-import { InviteView } from '@/components/features/Compare/GroupResult/InviteView';
+import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
 import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
 import { useGroupCompareResult } from '@/hooks/api/useCompare';
 
@@ -16,49 +14,18 @@ interface GroupResultProps {
 }
 
 /**
- * 그룹 결과 페이지의 얇은 라우터.
- * 상태별로 InviteView / WaitingView / FullGroupResultView / NotFoundView 분기.
+ * 그룹 결과 페이지 라우터.
  *
- * 분기 (group-result API는 비멤버에게 권한 없음 — InviteView로 fallback):
+ * 분기 (생성자 판별은 result.creatorUserId === result.myUserId로):
  * - isLoading → 로딩 (orbit 애니메이션)
- * - !result (비멤버 또는 토큰 무효) → InviteView 시도
- *   InviteView가 자체 useCompareLink로 link 받아 비멤버 화면 또는 NotFound 표시
- * - isMember && participantCount === 1 → WaitingView (생성자 본인, 봉인)
- * - isMember && participantCount >= 2 → FullGroupResultView (정상 그룹 결과)
+ * - !result → NotFoundView (API 실패 또는 무효 토큰)
+ * - isCreator && 참여자 1명 → WaitingView (생성자 본인 혼자 봉인 대기)
+ * - 그 외 (멤버든 비멤버든) → FullGroupResultView
+ *   비멤버도 결과를 보면서 "나도 참여하기" 동기 형성.
+ *   참여자 1명 + 비멤버 진입 시엔 섹션별 폴백 UI로 안내.
  */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
-  const { data: result, isLoading, refetch } = useGroupCompareResult(token);
-  const searchParams = useSearchParams();
-  const showBack = searchParams.get('from') === 'my';
-
-  // 마이그레이션 1회 고지 배너 (1:1 → GROUP 전환 링크 첫 진입)
-  // BE의 migratedFromOneToOne 플래그 기반 (옵셔널 — 플래그 없으면 자연스럽게 비노출)
-  const migratedFromOneToOne =
-    (result as { migratedFromOneToOne?: boolean } | undefined)?.migratedFromOneToOne === true;
-  const [showMigrationBanner, setShowMigrationBanner] = useState(false);
-
-  useEffect(() => {
-    if (!result || !migratedFromOneToOne) {
-      return;
-    }
-    const storageKey = `compare.migrationBanner.seen.${token}`;
-    if (typeof window === 'undefined') {
-      return;
-    }
-    if (window.localStorage.getItem(storageKey)) {
-      return;
-    }
-    setShowMigrationBanner(true);
-  }, [result, migratedFromOneToOne, token]);
-
-  const handleDismissMigrationBanner = () => {
-    setShowMigrationBanner(false);
-    try {
-      window.localStorage.setItem(`compare.migrationBanner.seen.${token}`, '1');
-    } catch {
-      // ignore storage errors
-    }
-  };
+  const { data: result, isLoading, isError, refetch } = useGroupCompareResult(token);
 
   if (isLoading) {
     return (
@@ -83,25 +50,17 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     );
   }
 
-  // result 없음 (비멤버 권한 없음 또는 토큰 무효) → InviteView로 fallback.
-  // InviteView 자체에서 useCompareLink로 link 받아 비멤버 화면 렌더 또는 NotFound 처리.
   if (!result) {
-    return <InviteView token={token} onJoined={() => void refetch()} />;
+    return <NotFoundView isError={isError} onRetry={isError ? () => void refetch() : undefined} />;
   }
 
-  const currentUserId = result.myUserId ?? '';
-  const members = result.members ?? [];
-  const isMember = members.some((m) => m.userId === currentUserId);
-  const participantCount = members.length;
+  const isCreator =
+    !!result.creatorUserId && !!result.myUserId && result.creatorUserId === result.myUserId;
+  const participantCount = (result.members ?? []).length;
 
-  // 비멤버지만 result는 받음 (특수 케이스 — 1명짜리 그룹 등) → InviteView
-  if (!isMember) {
-    return <InviteView token={token} onJoined={() => void refetch()} />;
-  }
-
-  // 멤버 + 참여자 1명 (= 생성자 본인 혼자) → WaitingView
-  if (participantCount === 1) {
-    const myMember = members.find((m) => m.userId === currentUserId);
+  // 생성자 본인 혼자 → 봉인 대기
+  if (isCreator && participantCount === 1) {
+    const myMember = (result.members ?? []).find((m) => m.userId === result.myUserId);
     return (
       <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
         <WaitingView
@@ -111,18 +70,11 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
           categoryMeta={result.categoryMeta}
           category={result.category}
           bundleTitle={result.bundleTitle}
-          showBack={showBack}
         />
       </BundleBackground>
     );
   }
 
-  // 멤버 + 참여자 2명+ → FullGroupResultView
-  return (
-    <FullGroupResultView
-      token={token}
-      showMigrationBanner={showMigrationBanner}
-      onDismissMigrationBanner={handleDismissMigrationBanner}
-    />
-  );
+  // 그 외 모두 (멤버/비멤버, 참여자 1명/N명) → FullGroupResultView
+  return <FullGroupResultView token={token} />;
 };

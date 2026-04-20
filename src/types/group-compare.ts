@@ -10,10 +10,6 @@ import type { CategoryCode } from '@/types/hotpick';
 
 /**
  * GroupCompareResult: BE 타입 기반 + FE 전용 필드
- *
- * BE에 없는 FE 전용 필드:
- * - members[].birthYear: 연령대 표시 (확인 필요)
- * - questionStats[].axis: 가치맵 축 매핑 (FE-only 로직)
  */
 export type GroupCompareResult = Omit<
   GroupCompareResultResponse,
@@ -26,8 +22,6 @@ export type GroupCompareResult = Omit<
     displayName?: string;
     displayProfileColor?: string;
     gender?: 'MALE' | 'FEMALE';
-    // TODO: BE swagger에 누락된 필드 — BE에 추가 요청 필요
-    birthYear?: number;
     isWithdrawn?: boolean;
     answers?: Array<{ electionId: string; electionItemId: string }>;
   }>;
@@ -40,8 +34,6 @@ export type GroupCompareResult = Omit<
       imageUrl?: string;
       voteCount?: number;
     }>;
-    /** 가치관 지도 축 배정 (FE-only, null = 미배정) */
-    axis?: 'X' | 'Y' | null;
   }>;
 };
 

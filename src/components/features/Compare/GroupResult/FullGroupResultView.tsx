@@ -37,9 +37,12 @@ import {
   calcGroupSyncRate,
 } from '@/constants/group-compare';
 import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   compareKeys,
+  useCompareLink,
   useGroupCompareResult,
+  useJoinCompareLink,
   useUpdateGroupSettings,
   useUpdateMyGroupProfile,
 } from '@/hooks/api/useCompare';
@@ -51,31 +54,38 @@ const NETWORK_THRESHOLD = 16;
 
 interface FullGroupResultViewProps {
   token: string;
-  /** 마이그레이션 1:1→GROUP 링크 첫 진입 시 1회 노출 */
-  showMigrationBanner?: boolean;
-  onDismissMigrationBanner?: () => void;
 }
 
 /**
- * 정상 그룹 결과 본문 (멤버 + 참여자 2명+).
- * GroupResult가 라우터 역할을 하면서 이 컴포넌트로 분리됨.
+ * 그룹 결과 본문.
+ * 멤버/비멤버 모두 결과를 노출한다 — 비멤버는 결과를 보며 "나도 참여하기" 동기 형성.
+ *
+ * 참여자 수별 렌더:
+ * - 2명+: 전체 섹션 노출 (ChemistryNetwork/PickASide/GroupAwards/...)
+ * - 1명 (비멤버 진입 edge case): 비교 의존 섹션 숨김 + "아직 혼자예요" 플레이스홀더
+ *   (생성자 본인 혼자는 GroupResult 라우터가 WaitingView로 분기)
+ *
+ * 플로팅 CTA:
+ * - 멤버: "친구들 초대하기" (링크 복사)
+ * - 비멤버: "나도 참여하기" (로그인→번들→join 흐름)
  */
-export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
-  token,
-  showMigrationBanner = false,
-  onDismissMigrationBanner,
-}) => {
+export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => {
   const { data: result, refetch } = useGroupCompareResult(token);
+  const { data: link } = useCompareLink(token);
+  const { isLoggedIn, requireLogin } = useAuth();
+  const joinMutation = useJoinCompareLink(token);
   const updateGroupSettingsMutation = useUpdateGroupSettings(token);
   const updateMyProfileMutation = useUpdateMyGroupProfile(token);
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const showBack = searchParams.get('from') === 'my';
+  const joinAfter = searchParams.get('joinAfter') === 'true';
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
   const [memberSheetUserId, setMemberSheetUserId] = useState<string | null>(null);
   const { toast, showToast } = useToast();
 
@@ -86,7 +96,29 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
     }
   }, [result]);
 
-  const isCreator = result ? result.creatorUserId === result.myUserId : false;
+  const isCreator =
+    result && result.creatorUserId && result.myUserId
+      ? result.creatorUserId === result.myUserId
+      : false;
+
+  const currentUserId = result?.myUserId ?? '';
+  const members = result?.members ?? [];
+  const isMember = members.some((m) => m.userId === currentUserId);
+  const participantCount = members.length;
+  const singleMember = participantCount === 1;
+
+  // bundle/play 완료 후 복귀 시 자동으로 displayName 모달 열기 (비멤버만)
+  useEffect(() => {
+    if (!joinAfter || !result || isMember) {
+      return;
+    }
+    if (result.myBundleCompleted) {
+      setShowDisplayNameModal(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('joinAfter');
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [joinAfter, result, isMember]);
 
   const displayResult = useMemo(() => {
     if (!result) {
@@ -117,7 +149,6 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
     return null;
   }
 
-  const currentUserId = result.myUserId ?? '';
   const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
 
   const handleSaveSettings = async (settings: GroupSettings) => {
@@ -152,26 +183,55 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
     setMemberSheetUserId(targetUserId);
   };
 
+  // 비멤버 "나도 참여하기" — 상태별 분기
+  const handleJoin = () => {
+    if (!isLoggedIn) {
+      // 카카오 OAuth state에 returnUrl 전달 → 콜백 후 같은 페이지로 복귀
+      const bundleSlug = link?.bundleSlug ?? result.bundleSlug ?? '';
+      const extraParams = new URLSearchParams({ bundleSlug, compareToken: token });
+      const returnUrl = `${window.location.pathname}?${extraParams.toString()}`;
+      const url = new URL(window.location.href);
+      url.searchParams.set('bundleSlug', bundleSlug);
+      url.searchParams.set('compareToken', token);
+      url.searchParams.set('returnUrl', returnUrl);
+      window.history.replaceState(null, '', url.toString());
+      requireLogin('compare');
+      return;
+    }
+    const bundleCompleted = link?.myBundleCompleted ?? result.myBundleCompleted ?? false;
+    if (!bundleCompleted) {
+      // 번들 완료 후 그룹 결과 페이지로 돌아와서 자동으로 displayName 팝업 열기
+      const bundleSlug = link?.bundleSlug ?? result.bundleSlug ?? '';
+      const returnWithJoin = `/compare/group/${token}?joinAfter=true`;
+      router.push(`/bundle/${bundleSlug}/play?returnUrl=${encodeURIComponent(returnWithJoin)}`);
+      return;
+    }
+    setShowDisplayNameModal(true);
+  };
+
+  const handleDisplayNameConfirm = async (displayName: string, profileColor: string) => {
+    try {
+      await joinMutation.mutateAsync({ displayName, profileColor });
+      setShowDisplayNameModal(false);
+      await refetch();
+    } catch {
+      // 이미 참여한 경우 등 — refetch로 최신 상태 갱신
+      setShowDisplayNameModal(false);
+      await refetch();
+    }
+  };
+
+  const handleCopyInvite = () => {
+    const url = `${window.location.origin}/compare/group/${token}`;
+    void navigator.clipboard.writeText(url);
+    showToast('초대 링크가 복사되었어요');
+  };
+
+  const joinCtaText = joinMutation.isPending ? '참여 중...' : '나도 참여하기';
+
   return (
     <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
       <div className={styles.container}>
-        {/* 마이그레이션 1회 고지 배너 (1:1 → GROUP 전환 링크 첫 진입) */}
-        {showMigrationBanner && (
-          <div className={styles.migrationBanner} role="status">
-            <span className={styles.migrationText}>
-              이 테스트는 이제 다른 친구도 참여할 수 있어요
-            </span>
-            <button
-              type="button"
-              className={styles.migrationDismiss}
-              onClick={onDismissMigrationBanner}
-              aria-label="배너 닫기"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
         <div className={styles.heroSection}>
           <div className={styles.groupNameRow}>
             <div className={styles.groupNameLeft}>
@@ -186,46 +246,38 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
                 </button>
               )}
             </div>
-            <h1
-              className={styles.groupName}
-              title={result.groupName}
-              onClick={() => {
-                const url = `${window.location.origin}/compare/group/${token}`;
-                void navigator.clipboard.writeText(url);
-                showToast('초대 링크가 복사되었어요');
-              }}
-            >
+            <h1 className={styles.groupName} title={result.groupName} onClick={handleCopyInvite}>
               {result.groupName}
             </h1>
             <div
               className={styles.groupNameRight}
               style={{ display: 'flex', gap: '8px' } as CSSProperties}
             >
+              {isMember && (
+                <>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => setShowCreateModal(true)}
+                    aria-label="다른 친구들과 새로 시작"
+                    title="다른 친구들과 새로 시작"
+                  >
+                    <NewGroupIcon width={16} height={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.iconButton}
+                    onClick={() => setShowSettingsModal(true)}
+                    aria-label="그룹 설정"
+                  >
+                    <SettingsIcon width={14} height={14} />
+                  </button>
+                </>
+              )}
               <button
                 type="button"
                 className={styles.iconButton}
-                onClick={() => setShowCreateModal(true)}
-                aria-label="다른 친구들과 새로 시작"
-                title="다른 친구들과 새로 시작"
-              >
-                <NewGroupIcon width={16} height={16} />
-              </button>
-              <button
-                type="button"
-                className={styles.iconButton}
-                onClick={() => setShowSettingsModal(true)}
-                aria-label="그룹 설정"
-              >
-                <SettingsIcon width={14} height={14} />
-              </button>
-              <button
-                type="button"
-                className={styles.iconButton}
-                onClick={() => {
-                  const url = `${window.location.origin}/compare/group/${token}`;
-                  void navigator.clipboard.writeText(url);
-                  showToast('초대 링크가 복사되었어요');
-                }}
+                onClick={handleCopyInvite}
                 aria-label="초대 링크 복사"
               >
                 <LinkIcon />
@@ -241,69 +293,102 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
             <span className={styles.bundleTitleDot}>·</span>
             {result.bundleTitle}
           </span>
-          <div className={styles.syncRateDisplay}>
-            <span className={styles.syncLabel}>그룹 싱크율</span>
-            <div>
-              <span className={styles.syncValue}>{groupSyncRate}</span>
-              <span className={styles.syncUnit}>%</span>
+          {!singleMember && (
+            <div className={styles.syncRateDisplay}>
+              <span className={styles.syncLabel}>그룹 싱크율</span>
+              <div>
+                <span className={styles.syncValue}>{groupSyncRate}</span>
+                <span className={styles.syncUnit}>%</span>
+              </div>
             </div>
-          </div>
+          )}
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <span className={styles.heroStatLabel}>참여</span>
-              <span className={styles.heroStatValue}>{result.memberCount}</span>
+              <span className={styles.heroStatValue}>{result.memberCount ?? participantCount}</span>
             </div>
             <div className={styles.heroStatDivider} />
             <div className={styles.heroStat}>
               <span className={styles.heroStatLabel}>질문</span>
               <span className={styles.heroStatValue}>{result.totalQuestions}</span>
             </div>
-            <div className={styles.heroStatDivider} />
-            <span
-              className={
-                groupSyncRate >= 60
-                  ? styles.syncTagHigh
-                  : groupSyncRate >= 40
-                    ? styles.syncTagMid
-                    : styles.syncTagLow
-              }
-            >
-              {'싱크로율 '}
-              <span className={styles.syncTagAccent}>
-                {groupSyncRate >= 60 ? '높음' : groupSyncRate >= 40 ? '보통' : '낮음'}
-              </span>
-            </span>
+            {!singleMember && (
+              <>
+                <div className={styles.heroStatDivider} />
+                <span
+                  className={
+                    groupSyncRate >= 60
+                      ? styles.syncTagHigh
+                      : groupSyncRate >= 40
+                        ? styles.syncTagMid
+                        : styles.syncTagLow
+                  }
+                >
+                  {'싱크로율 '}
+                  <span className={styles.syncTagAccent}>
+                    {groupSyncRate >= 60 ? '높음' : groupSyncRate >= 40 ? '보통' : '낮음'}
+                  </span>
+                </span>
+              </>
+            )}
           </div>
         </div>
 
-        {displayResult.members.length < NETWORK_THRESHOLD ? (
-          <ChemistryNetwork
-            currentUserId={currentUserId}
-            members={displayResult.members}
-            pairs={pairs}
-            onCompareRequest={async (targetUserId: string) => {
-              handleMemberCompare(targetUserId);
-            }}
-            onEditProfile={() => setShowEditProfileModal(true)}
-          />
-        ) : (
-          <ChemistryRanking
-            currentUserId={currentUserId}
-            members={displayResult.members}
-            pairs={pairs}
-            onCompareRequest={async (targetUserId: string) => {
-              handleMemberCompare(targetUserId);
-            }}
-            onEditProfile={() => setShowEditProfileModal(true)}
-          />
+        {/* 참여자 1명 (비멤버 진입) 폴백 — 비교 의존 섹션 숨기고 참여 유도 배너 */}
+        {singleMember && !isMember && (
+          <div className={styles.singleMemberHint} role="status">
+            <p className={styles.singleMemberTitle}>
+              아직 {myMember?.displayName ?? '창작자'}님 혼자예요
+            </p>
+            <p className={styles.singleMemberText}>
+              참여하면 답변을 비교해 케미 등급·공통점·의외의 차이가 열려요
+            </p>
+          </div>
         )}
-        <PickASide result={displayResult} currentUserId={currentUserId} />
-        <GroupAwards awards={awards} currentUserId={currentUserId} />
+
+        {/* 비교 의존 섹션 — 2명+ 일 때만 노출 */}
+        {!singleMember && (
+          <>
+            {displayResult.members.length < NETWORK_THRESHOLD ? (
+              <ChemistryNetwork
+                currentUserId={currentUserId}
+                members={displayResult.members}
+                pairs={pairs}
+                onCompareRequest={
+                  isMember
+                    ? async (targetUserId: string) => {
+                        handleMemberCompare(targetUserId);
+                      }
+                    : undefined
+                }
+                onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
+              />
+            ) : (
+              <ChemistryRanking
+                currentUserId={currentUserId}
+                members={displayResult.members}
+                pairs={pairs}
+                onCompareRequest={
+                  isMember
+                    ? async (targetUserId: string) => {
+                        handleMemberCompare(targetUserId);
+                      }
+                    : undefined
+                }
+                onEditProfile={isMember ? () => setShowEditProfileModal(true) : undefined}
+              />
+            )}
+            <PickASide result={displayResult} currentUserId={currentUserId} />
+            <GroupAwards awards={awards} currentUserId={currentUserId} />
+          </>
+        )}
+
+        {/* 단일 멤버도 의미 있는 섹션 — 항상 노출 */}
         <PopularityBarGraph questionStats={displayResult.questionStats ?? []} />
         <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
 
-        {/* 성별 기반 (이성 콘텐츠 토글 ON) */}
-        {displayResult.showGenderContent && (
+        {/* 성별 기반 (이성 콘텐츠 토글 ON) — 2명+ 일 때만 의미 */}
+        {!singleMember && displayResult.showGenderContent && (
           <>
             <CrossGenderChemistry
               currentUserId={currentUserId}
@@ -314,15 +399,17 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
           </>
         )}
 
-        <div className={styles.ctaSection}>
-          <button
-            type="button"
-            className={styles.secondaryCta}
-            onClick={() => router.push(`/bundle/${result.bundleSlug}/result?from=group`)}
-          >
-            내 결과 다시 보기
-          </button>
-        </div>
+        {isMember && (
+          <div className={styles.ctaSection}>
+            <button
+              type="button"
+              className={styles.secondaryCta}
+              onClick={() => router.push(`/bundle/${result.bundleSlug}/result?from=group`)}
+            >
+              내 결과 다시 보기
+            </button>
+          </div>
+        )}
 
         <BundleRecommendSection
           currentSlug={result.bundleSlug ?? ''}
@@ -330,16 +417,14 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
         />
       </div>
 
-      {/* 플로팅 CTA — "친구 초대하기" 단일 (새 그룹 만들기는 상단 NewGroupIcon 이관) */}
-      <FloatingCta
-        onClick={() => {
-          const url = `${window.location.origin}/compare/group/${token}`;
-          void navigator.clipboard.writeText(url);
-          showToast('초대 링크가 복사되었어요');
-        }}
-      >
-        친구들 초대하기
-      </FloatingCta>
+      {/* 플로팅 CTA — 멤버/비멤버 분기 */}
+      {isMember ? (
+        <FloatingCta onClick={handleCopyInvite}>친구들 초대하기</FloatingCta>
+      ) : (
+        <FloatingCta onClick={handleJoin} disabled={joinMutation.isPending}>
+          {joinCtaText}
+        </FloatingCta>
+      )}
 
       {/* 멤버별 1:1 비교 바텀시트 */}
       {memberSheetUserId && (
@@ -360,6 +445,15 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({
           onClose={() => setShowCreateModal(false)}
         />
       )}
+
+      <DisplayNameModal
+        isOpen={showDisplayNameModal}
+        categoryCode={result.categoryCode}
+        categoryMeta={result.categoryMeta}
+        onClose={() => setShowDisplayNameModal(false)}
+        onConfirm={handleDisplayNameConfirm}
+        isLoading={joinMutation.isPending}
+      />
 
       <DisplayNameModal
         isOpen={showEditProfileModal}

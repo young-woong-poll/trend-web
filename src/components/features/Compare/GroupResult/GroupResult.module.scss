@@ -9,48 +9,6 @@
   width: 100%;
 }
 
-// ─── 마이그레이션 1회 고지 배너 (1:1 → GROUP 전환 링크) ───
-.migrationBanner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: calc(100% - #{$spacing-32});
-  max-width: 480px;
-  padding: 12px 14px;
-  background: rgba(var(--primary-start-rgb), 0.12);
-  border: 1px solid rgba(var(--primary-start-rgb), 0.3);
-  border-radius: $border-radius-md;
-}
-
-.migrationText {
-  flex: 1;
-  font-size: $font-size-14;
-  color: $white;
-  line-height: 1.4;
-  word-break: keep-all;
-}
-
-.migrationDismiss {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(#fff, 0.08);
-  color: $white;
-  font-size: $font-size-16;
-  line-height: 1;
-  cursor: pointer;
-
-  &:hover {
-    background: rgba(#fff, 0.14);
-  }
-}
-
 // backButton은 groupNameRow 안으로 이동 — absolute 제거
 
 .heroSection {
@@ -62,7 +20,38 @@
   margin-top: 8px;
 }
 
-// ─── 프리뷰 배너 ───
+// ─── 참여자 1명 폴백 (비멤버 진입 시) ───
+.singleMemberHint {
+  @include flex-column;
+  align-items: center;
+  gap: 6px;
+  width: calc(100% - #{$spacing-32});
+  max-width: 480px;
+  padding: 20px $spacing-24;
+  background: rgba(var(--primary-start-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-start-rgb), 0.2);
+  border-radius: $border-radius-lg;
+  text-align: center;
+}
+
+.singleMemberTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  margin: 0;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.singleMemberText {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.55;
+  margin: 0;
+  word-break: keep-all;
+}
+
+// ─── 프리뷰 배너 (deprecated — 구 fake 결과 안내 잔존) ───
 .previewBanner {
   @include flex-column;
   align-items: center;
