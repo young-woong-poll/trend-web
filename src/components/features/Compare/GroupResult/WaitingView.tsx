@@ -2,11 +2,9 @@
 
 import { type FC } from 'react';
 
-import { useRouter } from 'next/navigation';
-
-import BackIcon from '@/assets/icon/BackIcon';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
+import { SmartBackButton } from '@/components/common/SmartBackButton/SmartBackButton';
 import styles from '@/components/features/Compare/GroupResult/WaitingView.module.scss';
 import { PreviewRotation } from '@/components/features/Compare/PreviewRotation/PreviewRotation';
 import { useToast } from '@/hooks/useToast';
@@ -22,8 +20,6 @@ interface WaitingViewProps {
   categoryMeta?: string | null;
   category?: string;
   bundleTitle?: string;
-  /** 뒤로가기 표시 여부 */
-  showBack?: boolean;
 }
 
 export const WaitingView: FC<WaitingViewProps> = ({
@@ -33,9 +29,7 @@ export const WaitingView: FC<WaitingViewProps> = ({
   categoryMeta,
   category,
   bundleTitle,
-  showBack = false,
 }) => {
-  const router = useRouter();
   const { showToast } = useToast();
 
   const handleCopyInvite = async () => {
@@ -50,16 +44,7 @@ export const WaitingView: FC<WaitingViewProps> = ({
 
   return (
     <div className={styles.container}>
-      {showBack && (
-        <button
-          type="button"
-          className={styles.backButton}
-          onClick={() => router.back()}
-          aria-label="뒤로 가기"
-        >
-          <BackIcon width={22} height={22} />
-        </button>
-      )}
+      <SmartBackButton className={styles.backButton} size={22} />
 
       {/* 카테고리 + 번들 제목 */}
       <div className={styles.header}>

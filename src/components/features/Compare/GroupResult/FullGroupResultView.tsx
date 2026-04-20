@@ -6,13 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
-import BackIcon from '@/assets/icon/BackIcon';
 import LinkIcon from '@/assets/icon/LinkIcon';
 import NewGroupIcon from '@/assets/icon/NewGroupIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
 import { FloatingCta } from '@/components/common/FloatingCta/FloatingCta';
+import { SmartBackButton } from '@/components/common/SmartBackButton/SmartBackButton';
 import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
@@ -79,7 +79,6 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const showBack = searchParams.get('from') === 'my';
   const joinAfter = searchParams.get('joinAfter') === 'true';
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -235,16 +234,7 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
         <div className={styles.heroSection}>
           <div className={styles.groupNameRow}>
             <div className={styles.groupNameLeft}>
-              {showBack && (
-                <button
-                  type="button"
-                  className={styles.backButton}
-                  onClick={() => router.back()}
-                  aria-label="마이 탭으로 돌아가기"
-                >
-                  <BackIcon width={20} height={20} />
-                </button>
-              )}
+              <SmartBackButton className={styles.backButton} />
             </div>
             <h1 className={styles.groupName} title={result.groupName} onClick={handleCopyInvite}>
               {result.groupName}
