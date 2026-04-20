@@ -40,7 +40,7 @@
 .container {
   @include flex-column;
   align-items: center;
-  padding: calc(56px + 32px) $spacing-16 calc(96px + env(safe-area-inset-bottom, 0px));
+  padding: calc(56px + 32px) 0 calc(96px + env(safe-area-inset-bottom, 0px));
   gap: $spacing-24;
   width: 100%;
   position: relative;

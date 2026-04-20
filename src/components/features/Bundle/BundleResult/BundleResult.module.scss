@@ -57,7 +57,7 @@
   @include flex-column;
   align-items: center;
   // 하단 플로팅 CTA 없음 — bottom padding 가볍게
-  padding: calc(56px + 32px) $spacing-16 calc(40px + env(safe-area-inset-bottom, 0px));
+  padding: calc(56px + 32px) 0 calc(40px + env(safe-area-inset-bottom, 0px));
   gap: $spacing-16;
   width: 100%;
 }
