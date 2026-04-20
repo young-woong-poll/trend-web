@@ -18,10 +18,12 @@ const EMPTY_CATEGORIES: string[] = [];
 
 interface BundleCardProps {
   data: BundleCardModel;
+  /** 미참여 상태 CTA 라벨 오버라이드. 기본값 '시작하기'. 참여 완료 상태는 항상 '결과 보기'. */
+  ctaLabel?: string;
 }
 
 // eslint-disable-next-line react/display-name
-export const BundleCard = memo<BundleCardProps>(({ data }) => {
+export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel }) => {
   const {
     slug,
     title,
@@ -78,7 +80,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
               </span>
             ))}
             {categories.length > 0 && <span className={styles.categorySeparator}>·</span>}
-            <span className={styles.chemiBadge}>케미 테스트</span>
+            <span className={styles.chemiBadge}>가치관 비교</span>
           </div>
           <button
             type="button"
@@ -99,14 +101,12 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
           {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
         </div>
 
-        {/* 메타 */}
+        {/* 메타 — 가치관 질문 N개 · 약 N분 · M명 참여 */}
         <div className={styles.metaRow}>
-          {electionCount && <span className={styles.metaText}>{electionCount}개 질문</span>}
+          {electionCount && <span className={styles.metaText}>가치관 질문 {electionCount}개</span>}
           {electionCount && <span className={styles.dot} />}
-          <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
           {electionCount && (
             <>
-              <span className={styles.dot} />
               <span className={styles.durationText}>
                 <ClockIcon width={12} height={12} />
                 {electionCount * 5 <= 30
@@ -115,15 +115,11 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
                     ? '약 1분'
                     : `약 ${Math.round((electionCount * 5) / 60)}분`}
               </span>
+              <span className={styles.dot} />
             </>
           )}
+          <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
         </div>
-
-        {/* 비교 어필 */}
-        <p className={styles.compareText}>
-          친구랑 <span className={styles.compareHighlight}>1:1 비교</span>,{' '}
-          <span className={styles.compareHighlight}>그룹으로 비교</span> 가능
-        </p>
 
         {/* CTA 버튼 */}
         <button
@@ -143,7 +139,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
             </>
           ) : (
             <>
-              시작하기 <StartArrowIcon width={16} height={16} />
+              {ctaLabel ?? '시작하기'} <StartArrowIcon width={16} height={16} />
             </>
           )}
         </button>

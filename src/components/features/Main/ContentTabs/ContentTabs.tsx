@@ -2,6 +2,7 @@
 
 import { useRef, type FC, type ReactNode } from 'react';
 
+import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
@@ -12,6 +13,7 @@ import { FILTER_TABS, type FilterTabType, type TabSelection } from '@/constants/
 const TAB_ICONS: Record<FilterTabType, ReactNode> = {
   new: <SparkleIcon className={styles.tabIcon} />,
   top: <TrophyIcon className={styles.tabIcon} />,
+  chem: <CompareGroupIcon className={styles.tabIcon} width={13} height={13} />,
   my: <UserCheckIcon className={styles.tabIcon} />,
 };
 

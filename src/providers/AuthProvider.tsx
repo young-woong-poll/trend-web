@@ -8,7 +8,13 @@ import LoginModal from '@/components/features/Auth/LoginModal';
 import { AuthContext, type LoginTrigger } from '@/contexts/AuthContext';
 import { postLogout } from '@/hooks/api/useAuthApi';
 import { useAuthMe, useSetAuthData } from '@/hooks/api/useAuthMe';
-import { setAnalyticsUserId, clearAnalyticsUserId } from '@/lib/analytics';
+import {
+  clearAnalyticsUserId,
+  initRealUserDetection,
+  setAnalyticsUserId,
+  setUserType,
+  trackAuthLogout,
+} from '@/lib/analytics';
 import { setForceLogoutHandler } from '@/lib/axios';
 import { isCSRNavigation, markHydrated } from '@/lib/csr-guard';
 
@@ -180,12 +186,14 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     trigger: 'default',
   });
 
-  // Analytics userId 동기화
+  // Analytics userId / user_type 동기화
   useEffect(() => {
     if (user) {
       setAnalyticsUserId(String(user.id));
+      setUserType('logged_in');
     } else {
       clearAnalyticsUserId();
+      setUserType('guest');
     }
   }, [user]);
 
@@ -198,6 +206,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   // 앱 hydration 완료 마킹 — CSRGuard가 CSR 이동과 풀 로드를 구분하는 데 사용
   useEffect(() => {
     markHydrated();
+    initRealUserDetection();
   }, []);
 
   const requireLogin = useCallback(
@@ -215,6 +224,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const logout = useCallback(async () => {
+    trackAuthLogout();
     try {
       await postLogout();
     } catch {

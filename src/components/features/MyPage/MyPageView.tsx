@@ -16,6 +16,7 @@ import ProfileColorModal from '@/components/features/MyPage/ProfileColorModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { deleteAccount } from '@/hooks/api/useAuthApi';
+import { trackAuthWithdraw } from '@/lib/analytics';
 
 const NICKNAME_CHANGE_INTERVAL_DAYS = 30;
 
@@ -59,6 +60,7 @@ const MyPageView = () => {
       onConfirm: async () => {
         try {
           await deleteAccount();
+          trackAuthWithdraw();
           await logout();
           window.location.href = '/';
         } catch {

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { postKakaoLogin } from '@/hooks/api/useAuthApi';
+import { trackAuthKakaoCallback } from '@/lib/analytics';
 import { setSignupToken } from '@/lib/signupToken';
 
 const parseReturnUrl = (stateParam: string | null) => {
@@ -33,6 +34,7 @@ const KakaoCallbackContent = () => {
     processedRef.current = true;
 
     if (!code) {
+      trackAuthKakaoCallback({ is_new_user: false, success: false });
       showToast('로그인에 실패했습니다');
       router.replace(returnUrl);
       return;
@@ -44,6 +46,7 @@ const KakaoCallbackContent = () => {
         const result = await postKakaoLogin(code, redirectUri);
 
         if (result.shouldSignup && result.signupToken) {
+          trackAuthKakaoCallback({ is_new_user: true, success: true });
           setSignupToken(result.signupToken);
           const signupParams = new URLSearchParams({ returnUrl });
           router.replace(`/auth/signup?${signupParams.toString()}`);
@@ -51,11 +54,15 @@ const KakaoCallbackContent = () => {
         }
 
         if (result.user) {
+          trackAuthKakaoCallback({ is_new_user: false, success: true });
           setUser(result.user);
           router.replace(returnUrl);
           return;
         }
+        // user도 없고 signup도 아닌 비정상 분기
+        trackAuthKakaoCallback({ is_new_user: false, success: false });
       } catch {
+        trackAuthKakaoCallback({ is_new_user: false, success: false });
         showToast('로그인에 실패했습니다');
       }
       router.replace(returnUrl);

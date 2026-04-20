@@ -5,30 +5,155 @@
  * 이 모듈은 커스텀 이벤트 전송을 담당합니다.
  */
 
-type GtagParams = Record<string, string | number | boolean | undefined>;
+import type { LoginTrigger } from '@/contexts/AuthContext';
+import { detectBotLikelihood, type BotScore } from '@/lib/botDetector';
 
-/** GA4 커스텀 이벤트 전송 */
+type GtagPrimitive = string | number | boolean | undefined;
+type GtagParams = Record<string, GtagPrimitive>;
+
+type UserType = 'guest' | 'logged_in';
+
+// 현재 user_type을 모듈 상태로 유지해서 매 이벤트에 자동 주입.
+let currentUserType: UserType = 'guest';
+
+const HAS_VOTED_KEY = 'hp_has_voted';
+const HAS_COMPLETED_BUNDLE_KEY = 'hp_has_completed_bundle';
+const IS_REAL_USER_KEY = 'hp_is_real_user';
+
+// 봇 스코어는 세션 내 1회만 계산 (계산 비용 회피).
+let cachedBotScore: BotScore | null = null;
+function getBotScore(): BotScore {
+  if (cachedBotScore === null) {
+    cachedBotScore = detectBotLikelihood();
+  }
+  return cachedBotScore;
+}
+
+// ──────────────────────────────────────────────────────────
+// 내부 공통 전송 로직
+// ──────────────────────────────────────────────────────────
+
+/** 개발 환경/`/dev/*` 경로 여부를 판단해서 실제 전송 여부를 결정. */
+function shouldSkipSend(): boolean {
+  if (typeof window === 'undefined') {
+    return true;
+  }
+  if (window.location.pathname.startsWith('/dev')) {
+    return true;
+  }
+  return false;
+}
+
+/** 공통 래퍼 — 모든 이벤트에 user_type/bot_score 자동 주입 + dev/prod 분기. */
+function track(eventName: string, params?: GtagParams) {
+  if (shouldSkipSend()) {
+    return;
+  }
+
+  // 고위험 봇은 이벤트 자체를 차단 — "봇인데 인터랙션 이벤트" 오염 제거.
+  const botScore = getBotScore();
+  if (botScore === 'high') {
+    return;
+  }
+
+  const merged: GtagParams = {
+    ...(params ?? {}),
+    user_type: currentUserType,
+    bot_score: botScore,
+  };
+
+  if (process.env.NODE_ENV !== 'production') {
+    // dev: 실제 전송 대신 디버그 로그
+    // eslint-disable-next-line no-console
+    console.debug('[GA]', eventName, merged);
+    return;
+  }
+
+  if (typeof window.gtag !== 'function') {
+    return;
+  }
+  window.gtag('event', eventName, merged);
+}
+
+/**
+ * GA4 커스텀 이벤트 전송 — 기존 시그니처 유지.
+ * 내부적으로 공통 래퍼 track()을 사용해 user_type/dev 가드가 자동 적용됨.
+ */
 export function trackEvent(eventName: string, params?: GtagParams) {
+  track(eventName, params);
+}
+
+/** user_properties 일괄 세팅 — gtag('set', 'user_properties', {...}) 래핑. */
+export function setUserProperties(props: Record<string, GtagPrimitive>) {
   if (typeof window === 'undefined' || typeof window.gtag !== 'function') {
     return;
   }
-  window.gtag('event', eventName, params);
+  window.gtag('set', 'user_properties', props);
 }
 
 /** GA4 User ID 설정 (로그인 시 호출) */
 export function setAnalyticsUserId(userId: string) {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') {
+  if (typeof window === 'undefined') {
     return;
   }
-  window.gtag('set', { user_id: userId });
+  currentUserType = 'logged_in';
+  setUserProperties({ user_type: 'logged_in' });
+  if (typeof window.gtag === 'function') {
+    window.gtag('set', { user_id: userId });
+  }
 }
 
 /** GA4 User ID 해제 (로그아웃 시 호출) */
 export function clearAnalyticsUserId() {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') {
+  if (typeof window === 'undefined') {
     return;
   }
-  window.gtag('set', { user_id: undefined });
+  currentUserType = 'guest';
+  setUserProperties({ user_type: 'guest' });
+  if (typeof window.gtag === 'function') {
+    window.gtag('set', { user_id: undefined });
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// 사용자 속성 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export function setUserType(type: UserType) {
+  currentUserType = type;
+  setUserProperties({ user_type: type });
+}
+
+/** 첫 투표 성공 시 1회만 user property 세팅 (localStorage 가드). */
+export function markHasVoted() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    if (window.localStorage.getItem(HAS_VOTED_KEY) === '1') {
+      return;
+    }
+    window.localStorage.setItem(HAS_VOTED_KEY, '1');
+  } catch {
+    // localStorage 접근 실패 시에도 property는 설정
+  }
+  setUserProperties({ has_voted_ever: true });
+}
+
+/** 첫 번들 완료 시 1회만 user property 세팅. */
+export function markHasCompletedBundle() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    if (window.localStorage.getItem(HAS_COMPLETED_BUNDLE_KEY) === '1') {
+      return;
+    }
+    window.localStorage.setItem(HAS_COMPLETED_BUNDLE_KEY, '1');
+  } catch {
+    // noop
+  }
+  setUserProperties({ has_completed_bundle: true });
 }
 
 // ──────────────────────────────────────────────────────────
@@ -37,32 +162,34 @@ export function clearAnalyticsUserId() {
 
 /** 번들 인트로 페이지 조회 */
 export function trackBundleView(slug: string, entryPoint?: string) {
-  trackEvent('bundle_view', { slug, entry_point: entryPoint });
+  track('bundle_view', { slug, entry_point: entryPoint });
 }
 
 /** 번들 "시작하기" 클릭 */
 export function trackBundleStart(slug: string) {
-  trackEvent('bundle_start', { slug });
+  track('bundle_start', { slug });
 }
 
 /** 번들 질문 답변 */
 export function trackBundleAnswer(slug: string, questionIndex: number, selected: string) {
-  trackEvent('bundle_answer', { slug, question_index: questionIndex, selected });
+  track('bundle_answer', { slug, question_index: questionIndex, selected });
 }
 
 /** 번들 완료 (전체 제출) */
 export function trackBundleComplete(slug: string, questionCount: number) {
-  trackEvent('bundle_complete', { slug, question_count: questionCount });
+  track('bundle_complete', { slug, question_count: questionCount });
+  markHasVoted();
+  markHasCompletedBundle();
 }
 
 /** 번들 결과 페이지 조회 */
 export function trackBundleResultView(slug: string) {
-  trackEvent('bundle_result_view', { slug });
+  track('bundle_result_view', { slug });
 }
 
 /** 비교 링크 생성 */
 export function trackCompareCreate(slug: string, type: 'ONE_TO_ONE' | 'GROUP', source: string) {
-  trackEvent('compare_create', { slug, compare_type: type, source });
+  track('compare_create', { slug, compare_type: type, source });
 }
 
 /** 비교 링크 공유 */
@@ -72,20 +199,171 @@ export function trackCompareShare(
   type: 'ONE_TO_ONE' | 'GROUP',
   source: string
 ) {
-  trackEvent('compare_share', { slug, method, compare_type: type, source });
+  track('compare_share', { slug, method, compare_type: type, source });
 }
 
 /** 비교 랜딩 페이지 조회 */
 export function trackCompareLanding(bundleSlug: string, type: 'ONE_TO_ONE' | 'GROUP') {
-  trackEvent('compare_landing', { bundle_slug: bundleSlug, compare_type: type });
+  track('compare_landing', { bundle_slug: bundleSlug, compare_type: type });
 }
 
 /** 1:1 비교 결과 조회 */
 export function trackCompareResult(bundleSlug: string) {
-  trackEvent('compare_result', { bundle_slug: bundleSlug });
+  track('compare_result', { bundle_slug: bundleSlug });
 }
 
 /** 그룹 비교 결과 조회 */
 export function trackGroupResult(bundleSlug: string, memberCount: number) {
-  trackEvent('group_result', { bundle_slug: bundleSlug, member_count: memberCount });
+  track('group_result', { bundle_slug: bundleSlug, member_count: memberCount });
+}
+
+// ──────────────────────────────────────────────────────────
+// 싱글 투표 이벤트 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export type SingleVoteStatus = 'not_voted' | 'voted' | 'expired';
+
+export function trackSingleView(
+  alias: string,
+  params: { category?: string; vote_status: SingleVoteStatus }
+) {
+  track('single_view', {
+    alias,
+    content_id: alias,
+    category: params.category,
+    vote_status: params.vote_status,
+    page_type: 'single_detail',
+  });
+}
+
+export function trackSingleVoteAttempt(alias: string, optionId: number) {
+  track('single_vote_attempt', {
+    alias,
+    content_id: alias,
+    option_id: optionId,
+    page_type: 'single_detail',
+  });
+}
+
+export function trackSingleVoteSuccess(alias: string, optionId: number, timeToVoteMs?: number) {
+  track('single_vote_success', {
+    alias,
+    content_id: alias,
+    option_id: optionId,
+    time_to_vote_ms: timeToVoteMs,
+    page_type: 'single_detail',
+  });
+  markHasVoted();
+}
+
+export function trackSingleVoteBlocked(alias: string, reason: 'already_voted' | 'expired') {
+  track('single_vote_blocked', {
+    alias,
+    content_id: alias,
+    reason,
+    page_type: 'single_detail',
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// 인증 이벤트 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export type ReturnUrlType = 'main' | 'single' | 'bundle' | 'compare' | 'my' | 'other';
+
+export function trackAuthModalOpen(trigger: LoginTrigger) {
+  track('auth_modal_open', { trigger, page_type: 'auth' });
+}
+
+export function trackAuthKakaoClick(returnUrlType: ReturnUrlType) {
+  track('auth_kakao_click', { return_url_type: returnUrlType, page_type: 'auth' });
+}
+
+export function trackAuthKakaoCallback(params: { is_new_user: boolean; success: boolean }) {
+  track('auth_kakao_callback', {
+    is_new_user: params.is_new_user,
+    success: params.success,
+    page_type: 'auth_callback',
+  });
+}
+
+export function trackAuthSignupView() {
+  track('auth_signup_view', { page_type: 'auth_signup' });
+}
+
+export function trackAuthSignupSubmit(params: {
+  gender: 'male' | 'female';
+  has_migration: boolean;
+}) {
+  track('auth_signup_submit', {
+    gender: params.gender,
+    has_migration: params.has_migration,
+    page_type: 'auth_signup',
+  });
+}
+
+export function trackAuthSignupSuccess(params: {
+  gender: 'male' | 'female';
+  birth_year_bucket: string;
+}) {
+  track('auth_signup_success', {
+    gender: params.gender,
+    birth_year_bucket: params.birth_year_bucket,
+    signup_method: 'kakao',
+    page_type: 'auth_signup',
+  });
+  setUserProperties({
+    signup_method: 'kakao',
+    gender: params.gender,
+  });
+}
+
+export function trackAuthLogout() {
+  track('auth_logout');
+}
+
+export function trackAuthWithdraw() {
+  track('auth_withdraw');
+}
+
+// ──────────────────────────────────────────────────────────
+// Real User 감지 — 첫 실제 인터랙션 시 사용자 속성 세팅
+// ──────────────────────────────────────────────────────────
+
+/**
+ * pointerdown/keydown/scroll 중 첫 1회가 일어나면 `is_real_user=true`를
+ * 사용자 속성으로 세팅. 봇은 대체로 인터랙션이 없으므로 bot_score로
+ * 잡히지 않은 케이스까지 한번 더 걸러낸다. 한 세션에서 1회만 발화.
+ */
+export function initRealUserDetection() {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  if (getBotScore() === 'high') {
+    return;
+  }
+  try {
+    if (window.localStorage.getItem(IS_REAL_USER_KEY) === '1') {
+      setUserProperties({ is_real_user: true });
+      return;
+    }
+  } catch {
+    // localStorage 접근 실패 시 계속 진행
+  }
+
+  const onInteraction = () => {
+    try {
+      window.localStorage.setItem(IS_REAL_USER_KEY, '1');
+    } catch {
+      // noop
+    }
+    setUserProperties({ is_real_user: true });
+    window.removeEventListener('pointerdown', onInteraction);
+    window.removeEventListener('keydown', onInteraction);
+    window.removeEventListener('scroll', onInteraction, true);
+  };
+
+  window.addEventListener('pointerdown', onInteraction, { passive: true, once: true });
+  window.addEventListener('keydown', onInteraction, { passive: true, once: true });
+  window.addEventListener('scroll', onInteraction, { passive: true, once: true, capture: true });
 }

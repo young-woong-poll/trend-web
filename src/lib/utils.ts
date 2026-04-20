@@ -363,6 +363,22 @@ export function generateUniqueNickname(): string {
  * 친구 이름 resolver
  */
 
+/**
+ * 이름 뒤 조사 처리 — 받침 있으면 "과", 없으면 "와"
+ * 한글 이외 문자는 받침 없음으로 처리
+ */
+export function withParticle(name: string): string {
+  if (!name) {
+    return name;
+  }
+  const lastChar = name.charCodeAt(name.length - 1);
+  if (lastChar < 0xac00 || lastChar > 0xd7a3) {
+    return `${name}와`;
+  }
+  const hasJongseong = (lastChar - 0xac00) % 28 !== 0;
+  return `${name}${hasJongseong ? '과' : '와'}`;
+}
+
 export function fNameRes(name: string | undefined, resultId: string): string {
   if (!!name) {
     return name;

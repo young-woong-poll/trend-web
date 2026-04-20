@@ -1,0 +1,58 @@
+@use '@/styles/variables' as *;
+
+.segment {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px;
+  background: rgba($white, 0.04);
+  border: 1px solid rgba($white, 0.06);
+  border-radius: $border-radius-md;
+  width: 100%;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid $text-tertiary;
+    outline-offset: 2px;
+  }
+}
+
+.tabActive {
+  background: $bg-tertiary;
+  color: $white;
+  font-weight: $font-weight-semibold;
+
+  .count {
+    color: rgba($white, 0.7);
+  }
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.count {
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+}
