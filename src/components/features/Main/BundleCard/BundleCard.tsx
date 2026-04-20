@@ -18,10 +18,12 @@ const EMPTY_CATEGORIES: string[] = [];
 
 interface BundleCardProps {
   data: BundleCardModel;
+  /** 미참여 상태 CTA 라벨 오버라이드. 기본값 '시작하기'. 참여 완료 상태는 항상 '결과 보기'. */
+  ctaLabel?: string;
 }
 
 // eslint-disable-next-line react/display-name
-export const BundleCard = memo<BundleCardProps>(({ data }) => {
+export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel }) => {
   const {
     slug,
     title,
@@ -119,11 +121,6 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
           <span className={styles.metaText}>{formatCount(totalVoteCount)}명 참여</span>
         </div>
 
-        {/* 비교 어필 — 단톡방 친구들과 가치관 맞춰보기 */}
-        <p className={styles.compareText}>
-          <span className={styles.compareHighlight}>단톡방 친구들</span>과 가치관 맞춰보기
-        </p>
-
         {/* CTA 버튼 */}
         <button
           type="button"
@@ -142,7 +139,7 @@ export const BundleCard = memo<BundleCardProps>(({ data }) => {
             </>
           ) : (
             <>
-              시작하기 <StartArrowIcon width={16} height={16} />
+              {ctaLabel ?? '시작하기'} <StartArrowIcon width={16} height={16} />
             </>
           )}
         </button>

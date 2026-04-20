@@ -61,7 +61,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
 }) => {
   const router = useRouter();
   const createMutation = useCreateCompareLink(slug);
-  const { data: myLinks } = useMyCompareLinks(slug);
+  const { data: myLinks, isPending: isLinksPending } = useMyCompareLinks(slug);
   const [name, setName] = useState('');
   const { toast, showToast } = useToast();
 
@@ -131,7 +131,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.title}>비교 링크 생성</h2>
+          <h2 className={styles.title}>비교링크 생성</h2>
           <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
             <CloseIcon width={16} height={16} />
           </button>
@@ -160,7 +160,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
             id="compare-link-name"
             type="text"
             className={styles.nameInput}
-            placeholder="예: 우리가족, 수수커플"
+            placeholder="예: 우리가족, 3학년5반 등"
             value={name}
             onChange={handleNameChange}
             maxLength={12}
@@ -176,8 +176,19 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
           {createMutation.isPending ? '만드는 중...' : '링크 만들기'}
         </button>
 
-        {/* 이전 케미 리스트 (있을 때만) */}
-        {existingGroups.length > 0 && (
+        {/* 이전 케미 리스트 — 로딩 중엔 skeleton으로 공간 예약해 CLS 방지 */}
+        {isLinksPending ? (
+          <div className={styles.existingSection} aria-hidden>
+            <div className={styles.existingHeader}>
+              <span className={styles.existingLabelSkeleton} />
+            </div>
+            <div className={styles.existingList}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={styles.existingRowSkeleton} />
+              ))}
+            </div>
+          </div>
+        ) : existingGroups.length > 0 ? (
           <div className={styles.existingSection}>
             <div className={styles.existingHeader}>
               <span className={styles.existingLabel}>참여 중인 링크 {existingGroups.length}개</span>
@@ -207,7 +218,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
               })}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
       <Toast message={toast.message} isVisible={toast.isVisible} />
     </div>,

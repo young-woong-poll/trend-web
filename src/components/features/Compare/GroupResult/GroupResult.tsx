@@ -6,7 +6,6 @@ import { BundleBackground } from '@/components/features/Bundle/BundleBackground/
 import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
-import { WaitingView } from '@/components/features/Compare/GroupResult/WaitingView';
 import { useGroupCompareResult } from '@/hooks/api/useCompare';
 
 interface GroupResultProps {
@@ -19,10 +18,13 @@ interface GroupResultProps {
  * 분기:
  * - isLoading → 로딩 (orbit 애니메이션)
  * - !result → NotFoundView (API 실패 또는 무효 토큰)
- * - 멤버 혼자 (생성자든 일반 멤버든) → WaitingView (봉인 대기)
- * - 그 외 (비멤버 진입 / 2명+) → FullGroupResultView
- *   비멤버도 결과를 보면서 "나도 참여하기" 동기 형성.
- *   참여자 1명 + 비멤버 진입 시엔 LockedSectionPreview로 잠긴 섹션 안내.
+ * - 그 외 → FullGroupResultView (참여자 1명/N명 · 멤버/비멤버 모두 처리)
+ *
+ * FullGroupResultView가 singleMember/isMember 조합을 내부에서 분기:
+ * - 참여자 1명: LockedSectionPreview로 잠긴 섹션 안내
+ *   - 멤버(=생성자 등)면 "친구들 초대하기" CTA + "친구가 참여하면..." 카피
+ *   - 비멤버면 "나도 참여하기" CTA + "참여하면..." 카피
+ * - 참여자 2명+: 전체 결과 섹션 노출
  */
 export const GroupResult: FC<GroupResultProps> = ({ token }) => {
   const { data: result, isLoading, isError, refetch } = useGroupCompareResult(token);
@@ -54,29 +56,5 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     return <NotFoundView isError={isError} onRetry={isError ? () => void refetch() : undefined} />;
   }
 
-  const currentUserId = result.myUserId ?? '';
-  const members = result.members ?? [];
-  const isMember = members.some((m) => m.userId === currentUserId);
-  const participantCount = members.length;
-
-  // 멤버 혼자 (생성자든 탈퇴 후 남은 일반 멤버든) → 봉인 대기
-  // 생성자가 아닌 멤버가 혼자인 edge case에도 동일 UI 제공.
-  if (isMember && participantCount === 1) {
-    const myMember = members.find((m) => m.userId === currentUserId);
-    return (
-      <BundleBackground categoryCode={result.categoryCode} categoryMeta={result.categoryMeta}>
-        <WaitingView
-          nickname={myMember?.displayName ?? myMember?.nickname ?? ''}
-          token={token}
-          categoryCode={result.categoryCode}
-          categoryMeta={result.categoryMeta}
-          category={result.category}
-          bundleTitle={result.bundleTitle}
-        />
-      </BundleBackground>
-    );
-  }
-
-  // 그 외 (비멤버 진입 / 2명+) → FullGroupResultView
   return <FullGroupResultView token={token} />;
 };

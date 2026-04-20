@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>그룹 결과 — 새 그룹 만들기 버튼 위치 비교</title>
+<style>
+  :root {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2c2c2c;
+    --white: #ffffff;
+    --text-secondary: #d1d1d1;
+    --text-tertiary: #8a8a8a;
+    --primary-start: #ff00ff;
+    --primary-end: #ff4500;
+    --border-placeholder: rgba(255, 255, 255, 0.2);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Pretendard', sans-serif;
+    background: #0a0a0a;
+    color: var(--white);
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  .page-header {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+    text-align: center;
+  }
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .page-sub {
+    font-size: 14px;
+    color: var(--text-tertiary);
+  }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1100px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+  .variant {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .variant-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .variant-label .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+    color: var(--white);
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .variant-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .variant-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+  .phone {
+    position: relative;
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    height: 720px;
+    background: var(--bg-primary);
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .status-bar {
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 96px;
+    scrollbar-width: thin;
+  }
+  .scroll-area::-webkit-scrollbar {
+    width: 3px;
+  }
+  .scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  /* Header row */
+  .header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 8px;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+  .group-name {
+    flex: 1;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+  }
+  .icon-btn:hover { color: var(--white); }
+
+  /* B variant — pill 버튼 */
+  .pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: rgba(255, 0, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.3);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Bundle meta */
+  .bundle-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+  .category-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(255, 107, 53, 0.15);
+    color: #ff6b35;
+  }
+
+  /* Sync hero */
+  .sync-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin: 10px 0 12px;
+  }
+  .sync-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .sync-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+  .sync-unit {
+    font-size: 18px;
+    color: var(--text-tertiary);
+  }
+  .hero-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    margin: 0 auto 16px;
+    max-width: 280px;
+  }
+  .hero-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 0 12px;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  .hero-stat-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .hero-divider {
+    width: 1px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* C variant — secondary link */
+  .secondary-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 auto;
+  }
+
+  /* Section placeholder */
+  .section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .section-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: var(--text-tertiary);
+    font-size: 11px;
+  }
+
+  /* A variant — 하단 유도 카드 */
+  .encourage-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(255, 0, 255, 0.08), rgba(255, 69, 0, 0.08));
+    border: 1px solid rgba(255, 0, 255, 0.2);
+    border-radius: 16px;
+    margin: 16px 0 12px;
+    text-align: center;
+  }
+  .encourage-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .encourage-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .encourage-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 8px auto 0;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Floating CTA */
+  .floating-cta {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px 20px;
+    background: linear-gradient(to top, rgba(18, 18, 18, 0.95) 60%, transparent 100%);
+  }
+  .floating-btn {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary-start), var(--primary-end));
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* Trade-off box */
+  .trade-off {
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .trade-off .row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .trade-off .row:last-child { margin-bottom: 0; }
+  .trade-off .row .tag {
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .trade-off .pro .tag { color: #66bb6a; }
+  .trade-off .con .tag { color: #ff6b9d; }
+  .trade-off .txt { color: var(--text-secondary); }
+
+  /* Highlight indicator */
+  .highlight {
+    position: relative;
+  }
+  .highlight::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 2px dashed #ff00ff;
+    border-radius: 12px;
+    pointer-events: none;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <div class="page-header">
+    <h1 class="page-title">그룹 결과 페이지 — 새 그룹 만들기 버튼 위치 비교</h1>
+    <p class="page-sub">현재: 톱니바퀴 왼쪽 아이콘만 배치 → 인지 어려움. A/B/C 방향 비교.</p>
+  </div>
+
+  <div class="compare-grid">
+
+    <!-- ============ A: 하단 유도 섹션 ============ -->
+    <div class="variant">
+      <div class="variant-label"><span class="badge">A</span> 페이지 하단 유도 섹션</div>
+      <div class="variant-title">결과 다 본 후 next action</div>
+      <div class="variant-desc">GroupAwards 아래, floatingCta 위. 카드 + outline 버튼.</div>
+
+      <div class="phone">
+        <div class="status-bar">9:41</div>
+        <div class="scroll-area">
+          <!-- 헤더: 기존 유지 (아이콘 3개) -->
+          <div class="header-row">
+            <div class="back-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <h1 class="group-name">수수커플</h1>
+            <div class="header-actions">
+              <button class="icon-btn" title="새 그룹">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M19 16v6"/><path d="M22 19h-6"/></svg>
+              </button>
+              <button class="icon-btn" title="설정">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+              <button class="icon-btn" title="링크">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:center;margin-bottom:8px;">
+            <span class="bundle-meta">
+              <span class="category-badge">연애</span>
+              <span style="color:var(--text-tertiary);">·</span>
+              <span>MBTI 궁합</span>
+            </span>
+          </div>
+
+          <div class="sync-hero">
+            <span class="sync-label">그룹 싱크율</span>
+            <div>
+              <span class="sync-value">72</span>
+              <span class="sync-unit">%</span>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-label">참여</span><span class="hero-stat-value">4</span></div>
+            <div class="hero-divider"></div>
+            <div class="hero-stat"><span class="hero-stat-label">질문</span><span class="hero-stat-value">10</span></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">가치관 네트워크</div>
+            <div class="section-placeholder">ChemistryNetwork</div>
+          </div>
+          <div class="section">
+            <div class="section-title">투표 현황</div>
+            <div class="section-placeholder">PickASide</div>
+          </div>
+          <div class="section">
+            <div class="section-title">그룹 어워드</div>
+            <div class="section-placeholder">GroupAwards</div>
+          </div>
+
+          <!-- A: 하단 유도 카드 -->
+          <div class="encourage-card highlight">
+            <div class="encourage-title">다른 번들로 새 그룹 만들어볼까요?</div>
+            <div class="encourage-desc">다른 친구들과 새로운 주제로 가치관을 맞춰볼 수 있어요.</div>
+            <button class="encourage-cta">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              새 그룹 만들기
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">이런 테스트도 해볼래요?</div>
+            <div class="section-placeholder">BundleRecommendSection</div>
+          </div>
+        </div>
+        <div class="floating-cta">
+          <button class="floating-btn">친구들 초대하기</button>
+        </div>
+      </div>
+
+      <div class="trade-off">
+        <div class="row pro"><span class="tag">장점</span><span class="txt">결과 소비 후 자연스러운 흐름. 현재 그룹 engagement 방해 없음.</span></div>
+        <div class="row con"><span class="tag">단점</span><span class="txt">스크롤해야 보임 — "눈에 띄게"와 살짝 어긋남.</span></div>
+      </div>
+    </div>
+
+    <!-- ============ B: 헤더 pill 버튼 ============ -->
+    <div class="variant">
+      <div class="variant-label"><span class="badge">B</span> 헤더 pill 버튼화</div>
+      <div class="variant-title">상단 즉시 가시성</div>
+      <div class="variant-desc">groupNameRight 내 아이콘을 텍스트 포함 pill로 교체.</div>
+
+      <div class="phone">
+        <div class="status-bar">9:41</div>
+        <div class="scroll-area">
+          <!-- 헤더: pill 버튼 -->
+          <div class="header-row">
+            <div class="back-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <h1 class="group-name" style="font-size:18px;">수수커플</h1>
+            <div class="header-actions">
+              <button class="pill-btn highlight" title="새 그룹">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                새 그룹
+              </button>
+              <button class="icon-btn" title="설정">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:center;margin-bottom:8px;">
+            <span class="bundle-meta">
+              <span class="category-badge">연애</span>
+              <span style="color:var(--text-tertiary);">·</span>
+              <span>MBTI 궁합</span>
+            </span>
+          </div>
+
+          <div class="sync-hero">
+            <span class="sync-label">그룹 싱크율</span>
+            <div>
+              <span class="sync-value">72</span>
+              <span class="sync-unit">%</span>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-label">참여</span><span class="hero-stat-value">4</span></div>
+            <div class="hero-divider"></div>
+            <div class="hero-stat"><span class="hero-stat-label">질문</span><span class="hero-stat-value">10</span></div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">가치관 네트워크</div>
+            <div class="section-placeholder">ChemistryNetwork</div>
+          </div>
+          <div class="section">
+            <div class="section-title">투표 현황</div>
+            <div class="section-placeholder">PickASide</div>
+          </div>
+          <div class="section">
+            <div class="section-title">그룹 어워드</div>
+            <div class="section-placeholder">GroupAwards</div>
+          </div>
+          <div class="section">
+            <div class="section-title">이런 테스트도 해볼래요?</div>
+            <div class="section-placeholder">BundleRecommendSection</div>
+          </div>
+        </div>
+        <div class="floating-cta">
+          <button class="floating-btn">친구들 초대하기</button>
+        </div>
+      </div>
+
+      <div class="trade-off">
+        <div class="row pro"><span class="tag">장점</span><span class="txt">진입 즉시 인지. 아이콘 의미 모호성 해소. 링크 복사 버튼 제거로 공간 확보.</span></div>
+        <div class="row con"><span class="tag">단점</span><span class="txt">상단 공간 타이트, 그룹 이름 영역 축소 (18px로 줄임).</span></div>
+      </div>
+    </div>
+
+    <!-- ============ C: heroSection secondary CTA ============ -->
+    <div class="variant">
+      <div class="variant-label"><span class="badge">C</span> heroSection 보조 링크</div>
+      <div class="variant-title">결과 요약 직후 맥락 유도</div>
+      <div class="variant-desc">heroStats 아래 텍스트 링크. 낮은 시각 무게.</div>
+
+      <div class="phone">
+        <div class="status-bar">9:41</div>
+        <div class="scroll-area">
+          <!-- 헤더: 기존 유지 (아이콘 없음, 설정+링크만) -->
+          <div class="header-row">
+            <div class="back-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <h1 class="group-name">수수커플</h1>
+            <div class="header-actions">
+              <button class="icon-btn" title="설정">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+              <button class="icon-btn" title="링크">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:center;margin-bottom:8px;">
+            <span class="bundle-meta">
+              <span class="category-badge">연애</span>
+              <span style="color:var(--text-tertiary);">·</span>
+              <span>MBTI 궁합</span>
+            </span>
+          </div>
+
+          <div class="sync-hero">
+            <span class="sync-label">그룹 싱크율</span>
+            <div>
+              <span class="sync-value">72</span>
+              <span class="sync-unit">%</span>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-label">참여</span><span class="hero-stat-value">4</span></div>
+            <div class="hero-divider"></div>
+            <div class="hero-stat"><span class="hero-stat-label">질문</span><span class="hero-stat-value">10</span></div>
+          </div>
+
+          <!-- C: heroSection 하단 secondary link -->
+          <div style="display:flex;justify-content:center;margin:4px 0 12px;" class="highlight">
+            <button class="secondary-link">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              다른 번들로 새 그룹 만들기
+            </button>
+          </div>
+
+          <div class="section">
+            <div class="section-title">가치관 네트워크</div>
+            <div class="section-placeholder">ChemistryNetwork</div>
+          </div>
+          <div class="section">
+            <div class="section-title">투표 현황</div>
+            <div class="section-placeholder">PickASide</div>
+          </div>
+          <div class="section">
+            <div class="section-title">그룹 어워드</div>
+            <div class="section-placeholder">GroupAwards</div>
+          </div>
+          <div class="section">
+            <div class="section-title">이런 테스트도 해볼래요?</div>
+            <div class="section-placeholder">BundleRecommendSection</div>
+          </div>
+        </div>
+        <div class="floating-cta">
+          <button class="floating-btn">친구들 초대하기</button>
+        </div>
+      </div>
+
+      <div class="trade-off">
+        <div class="row pro"><span class="tag">장점</span><span class="txt">상단 fold 안, 낮은 시각 무게. 결과 요약 직후 맥락적 유도.</span></div>
+        <div class="row con"><span class="tag">단점</span><span class="txt">syncRate와 섹션 사이에 끼어 시선 분산. 헤더 아이콘 영구 제거.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="max-width:1400px;margin:40px auto 0;padding:20px;background:rgba(255,255,255,0.03);border-radius:12px;">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--white);">결의 추천</div>
+    <div style="font-size:13px;line-height:1.7;color:var(--text-secondary);">
+      <strong style="color:#ff00ff;">B (헤더 pill 버튼)</strong> 단독 추천.
+      "눈에 띄게"라는 요구는 상단 가시성을 의미하고, 하단 유도 섹션(A)은 이미 floatingCta와 BundleRecommendSection이 있어 시각 노이즈 위험.
+      pill은 설정 톱니바퀴와 기능적으로 구분되면서도 과하지 않게 인지됩니다.
+      <br /><br />
+      <strong>주의</strong>: B 채택 시 현재 헤더의 링크 복사 버튼은 floatingCta "친구들 초대하기"와 기능 중복 — 헤더 링크 아이콘 제거 권장 (그룹명 탭도 링크 복사 동작 유지).
+    </div>
+  </div>
+</body>
+</html>

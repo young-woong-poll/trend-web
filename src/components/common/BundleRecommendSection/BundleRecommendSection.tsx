@@ -101,6 +101,12 @@ export const BundleRecommendSection = memo<BundleRecommendSectionProps>(
             );
           })}
         </div>
+        <div className={styles.footer}>
+          <Link href="/?filter=chem" className={styles.seeAllLink}>
+            전체 가치관 비교 보기
+            <ChevronDownIcon className={styles.seeAllChevron} width={14} height={14} aria-hidden />
+          </Link>
+        </div>
       </div>
     );
   }

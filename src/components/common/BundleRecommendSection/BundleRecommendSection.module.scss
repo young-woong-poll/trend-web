@@ -107,3 +107,34 @@
   // ChevronDownIcon을 -90도 회전해 우측 화살표로 사용
   transform: rotate(-90deg);
 }
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 4px;
+}
+
+.seeAllLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 8px $spacing-16;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+// 기존 .chevron과 동일한 패턴 — ChevronDownIcon을 -90도 회전해 우측 화살표로 사용 (통일감)
+.seeAllChevron {
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}

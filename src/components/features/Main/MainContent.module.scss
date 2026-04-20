@@ -100,6 +100,24 @@
     line-height: 1.6;
     max-width: 400px;
   }
+
+  .emptyAction {
+    margin-top: $spacing-24;
+    padding: 12px 24px;
+    min-height: 44px;
+    border-radius: $border-radius-md;
+    border: 1px solid $border-placeholder;
+    background: $bg-tertiary;
+    color: $white;
+    font-size: $font-size-14;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba($white, 0.05);
+    }
+  }
 }
 
 .statusContainer {

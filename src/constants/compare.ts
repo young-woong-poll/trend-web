@@ -236,8 +236,10 @@ export function findShockPoint(result: CompareResult): ShockPointData | null {
 
   // 코멘트 생성: 소수파인 쪽에 재미 코멘트
   const meMinority = myRate < targetRate;
-  const minorityName = meMinority ? '나' : (target?.nickname ?? '');
-  const comment = `${minorityName}${meMinority ? '는' : '님은'} 좀 양보하셔야...`;
+  const myName = me?.displayName ?? me?.nickname ?? '나';
+  const targetName = target?.displayName ?? target?.nickname ?? '상대';
+  const minorityName = meMinority ? myName : targetName;
+  const comment = `${minorityName}님은 좀 양보하셔야...`;
 
   return {
     electionId: shockStat.electionId ?? '',

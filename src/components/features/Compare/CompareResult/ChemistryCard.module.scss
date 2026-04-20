@@ -249,11 +249,13 @@
   @include flex-column;
   align-items: center;
   gap: 4px;
+  padding-top: 8px; // 원이 SVG 경계 밖으로 튀어나와도 잘리지 않도록
 }
 
 .curveSvg {
   width: 100%;
   height: 72px;
+  overflow: visible; // 상단 정점의 원이 viewBox 바깥으로 렌더될 수 있어서
 
   @include tablet {
     height: 100px;

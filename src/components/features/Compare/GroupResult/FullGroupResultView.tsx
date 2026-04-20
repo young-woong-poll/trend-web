@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useState, type CSSProperties, type FC } from 'react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useQueryClient } from '@tanstack/react-query';
 
 import LinkIcon from '@/assets/icon/LinkIcon';
-import NewGroupIcon from '@/assets/icon/NewGroupIcon';
+import PlusIcon from '@/assets/icon/PlusIcon';
 import SettingsIcon from '@/assets/icon/SettingsIcon';
 import { BundleRecommendSection } from '@/components/common/BundleRecommendSection/BundleRecommendSection';
 import { CategoryBadge } from '@/components/common/CategoryBadge/CategoryBadge';
@@ -240,39 +240,26 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
             <h1 className={styles.groupName} title={result.groupName} onClick={handleCopyInvite}>
               {result.groupName}
             </h1>
-            <div
-              className={styles.groupNameRight}
-              style={{ display: 'flex', gap: '8px' } as CSSProperties}
-            >
-              {isMember && (
-                <>
-                  <button
-                    type="button"
-                    className={styles.iconButton}
-                    onClick={() => setShowCreateModal(true)}
-                    aria-label="다른 친구들과 새로 시작"
-                    title="다른 친구들과 새로 시작"
-                  >
-                    <NewGroupIcon width={16} height={16} />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.iconButton}
-                    onClick={() => setShowSettingsModal(true)}
-                    aria-label="그룹 설정"
-                  >
-                    <SettingsIcon width={14} height={14} />
-                  </button>
-                </>
+            <div className={styles.groupNameRight}>
+              {isMember ? (
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => setShowSettingsModal(true)}
+                  aria-label="그룹 설정"
+                >
+                  <SettingsIcon width={14} height={14} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={handleCopyInvite}
+                  aria-label="초대 링크 복사"
+                >
+                  <LinkIcon />
+                </button>
               )}
-              <button
-                type="button"
-                className={styles.iconButton}
-                onClick={handleCopyInvite}
-                aria-label="초대 링크 복사"
-              >
-                <LinkIcon />
-              </button>
             </div>
           </div>
           <span className={styles.bundleTitle}>
@@ -325,38 +312,43 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
           </div>
         </div>
 
-        {/* 참여자 1명 (비멤버 진입) — 안내 배너 + 잠긴 섹션 프리뷰 3종 */}
-        {singleMember && !isMember && (
-          <>
-            <div className={styles.singleMemberHint} role="status">
-              <p className={styles.singleMemberTitle}>
-                아직{' '}
-                {(result.members ?? [])[0]?.displayName ??
-                  (result.members ?? [])[0]?.nickname ??
-                  '참여자가'}{' '}
-                혼자에요
-              </p>
-              <p className={styles.singleMemberText}>
-                참여해서 비교하면 재미난 결과를 볼 수 있어요
-              </p>
-            </div>
-            <LockedSectionPreview
-              title="가치관 네트워크"
-              desc="친구들과 가치관이 선으로 연결돼 펼쳐져요"
-              sketchType="chemistry-network"
-            />
-            <LockedSectionPreview
-              title="투표 현황"
-              desc="누가 어떤 답을 골랐는지 한눈에 볼 수 있어요"
-              sketchType="pick-a-side"
-            />
-            <LockedSectionPreview
-              title="그룹 어워드"
-              desc="가장 잘 통하는 짝부터 의외의 매칭까지 공개돼요"
-              sketchType="group-awards"
-            />
-          </>
-        )}
+        {/* 참여자 1명 — 안내 배너 + 잠긴 섹션 프리뷰 3종
+            멤버(생성자 등) / 비멤버 모두 같은 레이아웃, 카피만 분기 */}
+        {singleMember &&
+          (() => {
+            const firstMember = members[0];
+            const singleMemberName = firstMember?.displayName ?? firstMember?.nickname ?? '참여자';
+            const hintTitle = `아직 ${singleMemberName}님 혼자예요`;
+            const hintText = isMember
+              ? '친구가 참여하면 재미난 비교 결과를 볼 수 있어요'
+              : '참여해서 비교하면 재미난 결과를 볼 수 있어요';
+            const networkDesc = isMember
+              ? '친구가 참여하면 가치관이 선으로 연결돼 펼쳐져요'
+              : '친구들과 가치관이 선으로 연결돼 펼쳐져요';
+            return (
+              <>
+                <div className={styles.singleMemberHint} role="status">
+                  <p className={styles.singleMemberTitle}>{hintTitle}</p>
+                  <p className={styles.singleMemberText}>{hintText}</p>
+                </div>
+                <LockedSectionPreview
+                  title="가치관 네트워크"
+                  desc={networkDesc}
+                  sketchType="chemistry-network"
+                />
+                <LockedSectionPreview
+                  title="투표 현황"
+                  desc="누가 어떤 답을 골랐는지 한눈에 볼 수 있어요"
+                  sketchType="pick-a-side"
+                />
+                <LockedSectionPreview
+                  title="그룹 어워드"
+                  desc="가장 잘 통하는 짝부터 의외의 매칭까지 공개돼요"
+                  sketchType="group-awards"
+                />
+              </>
+            );
+          })()}
 
         {/* 비교 의존 섹션 — 2명+ 일 때만 노출 */}
         {!singleMember && (
@@ -415,10 +407,10 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
           <div className={styles.ctaSection}>
             <button
               type="button"
-              className={styles.secondaryCta}
-              onClick={() => router.push(`/bundle/${result.bundleSlug}/result?from=group`)}
+              className={styles.newGroupCta}
+              onClick={() => setShowCreateModal(true)}
             >
-              내 결과 다시 보기
+              <PlusIcon width={14} height={14} />새 비교링크 만들기
             </button>
           </div>
         )}

@@ -34,7 +34,8 @@
   left: 0;
   right: 0;
   z-index: $z-index-modal;
-  max-height: 90dvh;
+  // 로딩 → 콘텐츠 전환 시 시트 높이가 점프하지 않도록 고정 높이
+  height: 90dvh;
   background: $bg-secondary;
   // tokens.md "바텀시트 상단 = rounded-xl 24px" — 직접 값 사용 ($border-radius-xl 토큰 미정의)
   border-radius: 24px 24px 0 0;
@@ -100,17 +101,18 @@
   margin-top: $spacing-8;
 }
 
-.loading {
-  @include flex-center;
-  flex-direction: column;
-  gap: $spacing-8;
-  padding: $spacing-48 $spacing-16;
-  min-height: 200px;
+.skeleton {
+  @include flex-column;
+  align-items: center;
+  gap: 16px;
+  padding: $spacing-16 0;
+  width: 100%;
 }
 
-.loadingTitle {
-  font-size: $font-size-14;
-  color: $text-secondary;
+.skeletonGradeGroup {
+  @include flex-column;
+  align-items: center;
+  gap: 8px;
 }
 
 // ─── 푸터 (공유 버튼) ───

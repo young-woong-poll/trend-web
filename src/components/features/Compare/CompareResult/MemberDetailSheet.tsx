@@ -5,10 +5,10 @@ import { useEffect, useId, useRef, useState, type FC } from 'react';
 import { createPortal } from 'react-dom';
 
 import CloseIcon from '@/assets/icon/CloseIcon';
+import { Skeleton } from '@/components/common/Skeleton/Skeleton';
 import { AnswerComparison } from '@/components/features/Compare/CompareResult/AnswerComparison';
 import { ChemistryCard } from '@/components/features/Compare/CompareResult/ChemistryCard';
 import styles from '@/components/features/Compare/CompareResult/MemberDetailSheet.module.scss';
-import { PopularityCompare } from '@/components/features/Compare/CompareResult/PopularityCompare';
 import { ShockPoint } from '@/components/features/Compare/CompareResult/ShockPoint';
 import { classifyAnswers, findShockPoint } from '@/constants/compare';
 import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
@@ -29,7 +29,9 @@ interface MemberDetailSheetProps {
  * URL 변경 없이 바텀시트로 노출 — 기존 CompareResult 페이지 자산을 컴포지션.
  *
  * 흐름: 그룹 token + targetUserId → POST createPair → 1:1 token 발급 →
- * useCompareResult로 결과 fetch → ChemistryCard + AnswerComparison + ShockPoint + PopularityCompare 렌더
+ * useCompareResult로 결과 fetch → ChemistryCard + AnswerComparison + ShockPoint 렌더
+ *
+ * 대중성 비교는 그룹 결과의 PopularitySpectrum에서 이미 다루므로 1:1 시트에서 제외.
  */
 export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUserId, onClose }) => {
   const pairMutation = useCreatePairCompare(token);
@@ -129,8 +131,16 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
 
         <div className={styles.sheetBody}>
           {(isLoading || !result) && (
-            <div className={styles.loading}>
-              <p className={styles.loadingTitle}>비교를 분석하고 있어요</p>
+            <div className={styles.skeleton} aria-label="비교 분석 중" aria-live="polite">
+              <Skeleton variant="dark" width={160} height={20} borderRadius={10} />
+              <div className={styles.skeletonGradeGroup}>
+                <Skeleton variant="dark" width={96} height={72} borderRadius={16} />
+                <Skeleton variant="dark" width={120} height={14} borderRadius={8} />
+                <Skeleton variant="dark" width={180} height={12} borderRadius={8} />
+              </div>
+              <Skeleton variant="dark" width="100%" height={120} borderRadius={12} />
+              <Skeleton variant="dark" width="100%" height={180} borderRadius={12} />
+              <Skeleton variant="dark" width="100%" height={140} borderRadius={12} />
             </div>
           )}
 
@@ -158,8 +168,6 @@ export const MemberDetailSheet: FC<MemberDetailSheetProps> = ({ token, targetUse
                   targetNickname={targetNickname}
                 />
               )}
-
-              <PopularityCompare result={result} />
 
               <p className={styles.notice}>이 비교 결과는 이력에 저장되지 않아요</p>
             </>
