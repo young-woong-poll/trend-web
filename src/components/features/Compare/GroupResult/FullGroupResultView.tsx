@@ -337,17 +337,17 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
                 혼자에요
               </p>
               <p className={styles.singleMemberText}>
-                참여하면 답변을 비교해 일치 등급·공통점·의외의 차이가 열려요
+                참여해서 비교하면 재미난 결과를 볼 수 있어요
               </p>
             </div>
             <LockedSectionPreview
               title="가치관 네트워크"
-              desc="참여하면 친구와의 가치관이 선으로 연결돼 펼쳐져요"
+              desc="친구들과 가치관이 선으로 연결돼 펼쳐져요"
               sketchType="chemistry-network"
             />
             <LockedSectionPreview
               title="투표 현황"
-              desc="질문마다 누가 어떤 답을 골랐는지 한눈에 볼 수 있어요"
+              desc="누가 어떤 답을 골랐는지 한눈에 볼 수 있어요"
               sketchType="pick-a-side"
             />
             <LockedSectionPreview

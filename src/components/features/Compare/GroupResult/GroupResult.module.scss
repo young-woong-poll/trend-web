@@ -25,8 +25,7 @@
   @include flex-column;
   align-items: center;
   gap: 6px;
-  width: calc(100% - #{$spacing-32});
-  max-width: 480px;
+  width: 100%;
   padding: 20px $spacing-24;
   background: rgba(var(--primary-start-rgb), 0.08);
   border: 1px solid rgba(var(--primary-start-rgb), 0.2);
