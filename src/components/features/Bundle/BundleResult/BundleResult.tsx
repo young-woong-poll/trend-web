@@ -378,7 +378,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           </div>
 
           <button type="button" className={styles.gateCta} onClick={() => setShowGroupModal(true)}>
-            친구들과 비교 시작하기
+            친구들과 가치관 비교하기
           </button>
         </section>
 

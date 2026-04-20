@@ -1,0 +1,132 @@
+@use '@/styles/variables' as *;
+
+.card {
+  background: rgba($bg-secondary, 0.6);
+  border: 1px solid rgba(#fff, 0.06);
+  border-radius: $border-radius-lg;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  backdrop-filter: blur(4px);
+}
+
+.cardTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.sketchFrame {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(#fff, 0.02) 0%, rgba(#000, 0.15) 100%);
+}
+
+.sketchLayer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  filter: blur(8px) saturate(1.1);
+  opacity: 0.55;
+  pointer-events: none;
+
+  > svg {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+  }
+}
+
+// 중앙 다크닝 radial-gradient — 오버레이 텍스트 가독성 확보
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.3) 45%,
+    transparent 85%
+  );
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+// 자물쇠 아이콘 (WaitingView lockBody/lockShackle 패턴 재활용)
+.lockIcon {
+  position: relative;
+  width: 30px;
+  height: 38px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.lockShackle {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 16px;
+  border: 2.5px solid $white;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+.lockBody {
+  position: relative;
+  width: 28px;
+  height: 22px;
+  background: var(--primary-gradient, $primary-gradient);
+  border-radius: 5px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: $white;
+  }
+}
+
+.overlayTitle {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.overlayDesc {
+  font-size: 13px;
+  color: $text-secondary;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 260px;
+  word-break: keep-all;
+}

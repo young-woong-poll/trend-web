@@ -24,6 +24,7 @@ import { CrossGenderChemistry } from '@/components/features/Compare/GroupResult/
 import { GenderBattle } from '@/components/features/Compare/GroupResult/GenderBattle';
 import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwards';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
+import { LockedSectionPreview } from '@/components/features/Compare/GroupResult/LockedSectionPreview';
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
 import {
@@ -324,16 +325,37 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
           </div>
         </div>
 
-        {/* 참여자 1명 (비멤버 진입) 폴백 — 비교 의존 섹션 숨기고 참여 유도 배너 */}
+        {/* 참여자 1명 (비멤버 진입) — 안내 배너 + 잠긴 섹션 프리뷰 3종 */}
         {singleMember && !isMember && (
-          <div className={styles.singleMemberHint} role="status">
-            <p className={styles.singleMemberTitle}>
-              아직 {myMember?.displayName ?? '창작자'}님 혼자예요
-            </p>
-            <p className={styles.singleMemberText}>
-              참여하면 답변을 비교해 케미 등급·공통점·의외의 차이가 열려요
-            </p>
-          </div>
+          <>
+            <div className={styles.singleMemberHint} role="status">
+              <p className={styles.singleMemberTitle}>
+                아직{' '}
+                {(result.members ?? [])[0]?.displayName ??
+                  (result.members ?? [])[0]?.nickname ??
+                  '참가자가 '}
+                혼자예요
+              </p>
+              <p className={styles.singleMemberText}>
+                참여하면 답변을 비교해 케미 등급·공통점·의외의 차이가 열려요
+              </p>
+            </div>
+            <LockedSectionPreview
+              title="케미 네트워크"
+              desc="참여하면 친구와의 케미가 선으로 연결돼 펼쳐져요"
+              sketchType="chemistry-network"
+            />
+            <LockedSectionPreview
+              title="투표 현황"
+              desc="질문마다 누가 어떤 답을 골랐는지 한눈에 볼 수 있어요"
+              sketchType="pick-a-side"
+            />
+            <LockedSectionPreview
+              title="그룹 어워드"
+              desc="가장 잘 통하는 짝부터 의외의 매칭까지 공개돼요"
+              sketchType="group-awards"
+            />
+          </>
         )}
 
         {/* 비교 의존 섹션 — 2명+ 일 때만 노출 */}

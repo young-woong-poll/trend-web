@@ -131,7 +131,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     >
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.title}>케미 테스트 공유</h2>
+          <h2 className={styles.title}>비교 링크 생성</h2>
           <button type="button" className={styles.modalClose} onClick={onClose} aria-label="닫기">
             <CloseIcon width={16} height={16} />
           </button>
@@ -180,7 +180,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
         {existingGroups.length > 0 && (
           <div className={styles.existingSection}>
             <div className={styles.existingHeader}>
-              <span className={styles.existingLabel}>이전 케미 {existingGroups.length}개</span>
+              <span className={styles.existingLabel}>참여 중인 링크 {existingGroups.length}개</span>
             </div>
             <div className={styles.existingList} role="list">
               {existingGroups.map((g) => {
