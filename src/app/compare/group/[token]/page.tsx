@@ -17,6 +17,16 @@ type GroupCompareLinkInfo = CompareLinkInfoResponse & {
   memberCount?: number | null;
 };
 
+const FALLBACK_TITLE = '가치관 비교 초대';
+const FALLBACK_DESCRIPTION = '친구들과 함께 가치관 비교해요';
+
+function buildGroupDescription(groupName?: string | null, memberCount?: number | null): string {
+  if (!groupName || memberCount === undefined || memberCount === null) {
+    return FALLBACK_DESCRIPTION;
+  }
+  return `${groupName} · ${memberCount}명 참여 중`;
+}
+
 export async function generateMetadata({ params }: GroupPageProps): Promise<Metadata> {
   const { token } = await params;
 
@@ -28,16 +38,13 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
       | undefined;
 
     if (link) {
-      const groupName = link.groupName ?? '그룹';
-      const bundleTitle = link.bundleTitle ?? '가치관 테스트';
-      const memberCount = link.memberCount ?? 1;
-      const title = `'${groupName}' · ${bundleTitle}`;
-      const description = '우리 가치관, 얼마나 통하는지 맞춰볼까요?';
+      const title =
+        link.bundleTitle && link.bundleTitle.length > 0 ? link.bundleTitle : FALLBACK_TITLE;
+      const description = buildGroupDescription(link.groupName, link.memberCount);
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
-        memberCount,
-        groupName: link.groupName ?? undefined,
+        categoryMeta: link.categoryMeta,
         bundleTitle: link.bundleTitle ?? undefined,
       });
 
@@ -58,12 +65,14 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
   }
 
   return {
-    title: '가치관 비교 초대',
-    description: '우리 가치관, 얼마나 통하는지 맞춰볼까요?',
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
     openGraph: {
+      title: FALLBACK_TITLE,
+      description: FALLBACK_DESCRIPTION,
       images: [
         {
-          url: buildCompareOgImageUrl({ type: 'GROUP', memberCount: 1 }),
+          url: buildCompareOgImageUrl({ type: 'GROUP' }),
           width: 1200,
           height: 630,
         },

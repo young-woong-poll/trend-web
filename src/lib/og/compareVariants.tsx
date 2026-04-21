@@ -319,8 +319,6 @@ export function MatchV2Certificate({
 
 export interface GroupOgProps {
   theme: CategoryTheme;
-  memberCount: number;
-  groupName?: string;
   bundleTitle?: string;
   origin?: string;
 }
@@ -328,24 +326,12 @@ export interface GroupOgProps {
 // GROUP V2는 편지 봉투 디자인상 CTA 밴드 생략
 
 /**
- * V2 "Torn-open Envelope with Letter" — 봉투가 뜯어져 편지지가 빠져나온 구조
+ * V2 "Envelope Invitation" — 편지 봉투 배경 + "초대합니다" + 번들 제목.
  *
- * 레이어 (back → front):
- *   1. 흰 배경
- *   2. 봉투 몸통 (좌/우/하 테두리 + 대각선 flap 라인) — 상단은 뜯어져 열림
- *   3. 편지지 카드 (봉투 안에서 위로 빠져나와 상단에 걸림) — TEAM 라벨 + groupName
- *   4. "초대합니다" 초거대 타이포 (최상위, 편지지·봉투 위로 떠 있음)
- *   5. "현재 N명 참여 중" (초대합니다 아래)
- *   6. CTA 밴드
+ * 캐싱 키 = 번들(start/end/bundleTitle) 기준. token당 1장 고정.
+ * 그룹명/인원수는 이미지에서 제거 → OG description에서만 동적 노출.
  */
-export function GroupV2Invited({
-  theme,
-  memberCount,
-  groupName,
-  bundleTitle,
-  origin,
-}: GroupOgProps): ReactElement {
-  const displayName = groupName && groupName.length > 0 ? groupName : '그룹';
+export function GroupV2Invited({ theme, bundleTitle, origin }: GroupOgProps): ReactElement {
   const titleText = bundleTitle && bundleTitle.length > 0 ? bundleTitle : '가치관 비교';
   const bgImageUrl = origin ? `${origin}/og/envelope-bg.png` : null;
 
@@ -355,12 +341,16 @@ export function GroupV2Invited({
         width: OG_WIDTH,
         height: OG_HEIGHT,
         display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '40px',
         position: 'relative',
         background: '#FDFBF2',
         fontFamily: 'Pretendard',
       }}
     >
-      {/* Layer 1: 봉투 배경 이미지 (풀 캔버스) — origin 없으면 fallback 단색 */}
+      {/* Layer 1: 봉투 배경 이미지 */}
       {bgImageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -372,128 +362,37 @@ export function GroupV2Invited({
         />
       )}
 
-      {/*
-       * Layer 2: 편지지 영역 — {groupName}
-       * 팀 이름 강조 · 카테고리 색 · 편지지 기울어진 느낌 rotate 2deg
-       */}
+      {/* Layer 2: "초대합니다" */}
       <div
         style={{
-          position: 'absolute',
-          top: '88px',
-          left: 0,
-          right: 0,
           display: 'flex',
-          justifyContent: 'center',
-          transform: 'rotate(2deg)',
+          fontSize: '160px',
+          fontWeight: 900,
+          color: '#1a1208',
+          letterSpacing: '-4px',
+          lineHeight: 1,
+          textShadow: '0 6px 18px rgba(0,0,0,0.18)',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '60px',
-            fontWeight: 900,
-            color: '#1a1208',
-            letterSpacing: '-1px',
-            lineHeight: 1,
-          }}
-        >
-          {displayName}
-          <span
-            style={{
-              fontSize: '60px',
-              paddingLeft: '8px',
-              fontWeight: 500,
-              color: '#1a1208',
-              letterSpacing: '-1px',
-              lineHeight: 1,
-            }}
-          >
-            에
-          </span>
-        </div>
+        초대합니다
       </div>
 
-      {/* Layer 3: "초대합니다" 초거대 (봉투 상단 flap 영) */}
+      {/* Layer 3: 번들 제목 — 카테고리 테마 색 */}
       <div
         style={{
-          position: 'absolute',
-          top: '216px',
-          left: 0,
-          right: 0,
           display: 'flex',
-          justifyContent: 'center',
+          maxWidth: '1000px',
+          padding: '0 80px',
+          fontSize: '60px',
+          fontWeight: 900,
+          color: theme.start,
+          letterSpacing: '-1px',
+          lineHeight: 1.1,
+          textAlign: 'center',
+          wordBreak: 'keep-all',
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            fontSize: '160px',
-            fontWeight: 900,
-            color: '#1a1208',
-            letterSpacing: '-4px',
-            lineHeight: 1,
-            textShadow: '0 6px 18px rgba(0,0,0,0.18)',
-          }}
-        >
-          초대합니다
-        </div>
-      </div>
-
-      {/*
-       * Layer 4: "{bundle.title} ⋅ {N}명" — 봉투 하단 flap 위
-       *   bundle.title: 주제(#1a1208, 44px)
-       *   ⋅: 구분자(#8a7748, 44px)
-       *   {N}명: 인원 (숫자는 theme.start 강조 · 56px / "명"은 서브 36px)
-       */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '448px',
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'baseline',
-          gap: '14px',
-        }}
-      >
-        {/* bundle.title */}
-        <span
-          style={{
-            display: 'flex',
-            fontSize: '60px',
-            fontWeight: 900,
-            color: theme.start,
-            letterSpacing: '-1px',
-            lineHeight: 1,
-          }}
-        >
-          {titleText}
-        </span>
-
-        {/* N명 */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
-          <span
-            style={{
-              display: 'flex',
-              fontSize: '56px',
-              fontWeight: 500,
-              color: '#1a1208',
-              letterSpacing: '-1px',
-              lineHeight: 1,
-            }}
-          >
-            / 현재{' '}
-            <span
-              style={{
-                fontWeight: 900,
-                paddingLeft: '8px',
-              }}
-            >
-              {memberCount}명
-            </span>
-          </span>
-        </div>
+        {titleText}
       </div>
     </div>
   );

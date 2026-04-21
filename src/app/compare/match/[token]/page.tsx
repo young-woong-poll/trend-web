@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
-        memberCount: 1,
+        categoryMeta: link.categoryMeta,
         bundleTitle: link.bundleTitle ?? undefined,
       });
 
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
     openGraph: {
       images: [
         {
-          url: buildCompareOgImageUrl({ type: 'GROUP', memberCount: 1 }),
+          url: buildCompareOgImageUrl({ type: 'GROUP' }),
           width: 1200,
           height: 630,
         },

@@ -1,4 +1,5 @@
-import { clampMatchRate, clampMemberCount } from '@/lib/og/shared';
+import { parseCategoryMeta } from '@/constants/categoryTheme';
+import { clampMatchRate } from '@/lib/og/shared';
 import { SITE_URL } from '@/lib/seo/constants';
 
 /** Compare OG 확정 디자인 */
@@ -13,6 +14,7 @@ type CompareOgParams =
       type: 'ONE_TO_ONE';
       status: 'PENDING';
       categoryCode?: string;
+      categoryMeta?: string | null;
       bundleTitle?: string;
       creatorName?: string;
     }
@@ -20,6 +22,7 @@ type CompareOgParams =
       type: 'ONE_TO_ONE';
       status: 'DONE';
       categoryCode?: string;
+      categoryMeta?: string | null;
       grade: string;
       matchRate: number;
       bundleTitle?: string;
@@ -29,22 +32,36 @@ type CompareOgParams =
   | {
       type: 'GROUP';
       categoryCode?: string;
-      memberCount: number;
-      groupName?: string;
+      categoryMeta?: string | null;
       bundleTitle?: string;
     };
 
+function stripHash(hex: string): string {
+  return hex.replace(/^#/, '');
+}
+
+/** BE categoryMeta(JSON) SSoT → start/end 쿼리 우선, 없으면 categoryCode 폴백. */
+function applyThemeQuery(
+  query: URLSearchParams,
+  categoryCode?: string,
+  categoryMeta?: string | null
+): void {
+  const theme = parseCategoryMeta(categoryMeta);
+  if (theme) {
+    query.set('start', stripHash(theme.start));
+    query.set('end', stripHash(theme.end));
+    return;
+  }
+  query.set('category', categoryCode ?? 'TREND');
+}
+
 export function buildCompareOgImageUrl(params: CompareOgParams): string {
-  const category = params.categoryCode ?? 'TREND';
-  const query = new URLSearchParams({ category });
+  const query = new URLSearchParams();
+  applyThemeQuery(query, params.categoryCode, params.categoryMeta);
 
   if (params.type === 'GROUP') {
     query.set('design', COMPARE_OG_DESIGN.GROUP);
     query.set('type', 'GROUP');
-    query.set('memberCount', String(clampMemberCount(params.memberCount)));
-    if (params.groupName) {
-      query.set('groupName', params.groupName.slice(0, 20));
-    }
     if (params.bundleTitle) {
       query.set('bundleTitle', params.bundleTitle.slice(0, 40));
     }
