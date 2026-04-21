@@ -47,6 +47,7 @@ import {
   useUpdateGroupSettings,
   useUpdateMyGroupProfile,
 } from '@/hooks/api/useCompare';
+import { prefetchMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import { trackGroupResult } from '@/lib/analytics';
 
@@ -95,6 +96,15 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
       trackGroupResult(result.bundleSlug ?? '', result.memberCount ?? 0);
     }
   }, [result]);
+
+  // 새 비교링크 모달 CLS 방지 — 페이지 진입 시 '참여 중인 링크' 리스트 미리 받아둠
+  const bundleSlug = result?.bundleSlug;
+  useEffect(() => {
+    if (!isLoggedIn || !bundleSlug) {
+      return;
+    }
+    void prefetchMyCompareLinks(queryClient, bundleSlug);
+  }, [isLoggedIn, bundleSlug, queryClient]);
 
   const isCreator =
     result && result.creatorUserId && result.myUserId
@@ -271,15 +281,6 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
             <span className={styles.bundleTitleDot}>·</span>
             {result.bundleTitle}
           </span>
-          {!singleMember && (
-            <div className={styles.syncRateDisplay}>
-              <span className={styles.syncLabel}>그룹 싱크율</span>
-              <div>
-                <span className={styles.syncValue}>{groupSyncRate}</span>
-                <span className={styles.syncUnit}>%</span>
-              </div>
-            </div>
-          )}
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <span className={styles.heroStatLabel}>참여</span>
@@ -293,20 +294,10 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
             {!singleMember && (
               <>
                 <div className={styles.heroStatDivider} />
-                <span
-                  className={
-                    groupSyncRate >= 60
-                      ? styles.syncTagHigh
-                      : groupSyncRate >= 40
-                        ? styles.syncTagMid
-                        : styles.syncTagLow
-                  }
-                >
-                  {'싱크로율 '}
-                  <span className={styles.syncTagAccent}>
-                    {groupSyncRate >= 60 ? '높음' : groupSyncRate >= 40 ? '보통' : '낮음'}
-                  </span>
-                </span>
+                <div className={styles.heroStat}>
+                  <span className={styles.heroStatLabel}>싱크로율</span>
+                  <span className={styles.heroStatValue}>{groupSyncRate}%</span>
+                </div>
               </>
             )}
           </div>
