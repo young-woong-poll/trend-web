@@ -13,6 +13,7 @@ import {
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
 import BackIcon from '@/assets/icon/BackIcon';
@@ -27,6 +28,7 @@ import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail, useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
+import { prefetchMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import { trackBundleResultView } from '@/lib/analytics';
 
@@ -38,6 +40,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const { data: bundle } = useBundleDetail(slug);
   const { data: result, isLoading } = useBundleMyResult(slug);
+  const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const compareToken =
@@ -104,6 +107,14 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
       trackBundleResultView(slug);
     }
   }, [result, slug]);
+
+  // 비교링크 모달 CLS 방지 — 결과 페이지 진입 시 '참여 중인 링크' 리스트를 미리 받아둠
+  useEffect(() => {
+    if (!isLoggedIn || !slug) {
+      return;
+    }
+    void prefetchMyCompareLinks(queryClient, slug);
+  }, [isLoggedIn, slug, queryClient]);
 
   // 접근제어: 미완료 → 플레이
   useEffect(() => {
