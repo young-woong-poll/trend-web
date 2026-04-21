@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: GroupPageProps): Promise<Meta
     if (link) {
       const title =
         link.bundleTitle && link.bundleTitle.length > 0 ? link.bundleTitle : FALLBACK_TITLE;
-      const description = buildGroupDescription(link.groupName, link.memberCount);
+      const description = buildGroupDescription(link.groupName, link.participantCount);
       const ogImageUrl = buildCompareOgImageUrl({
         type: 'GROUP',
         categoryCode: link.categoryCode,
