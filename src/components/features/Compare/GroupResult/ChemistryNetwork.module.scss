@@ -151,14 +151,18 @@
 
 // ─── 네트워크 캔버스 ───
 // aspect-ratio: 1 — 노드 배치가 원형 계산이라 정사각형 유지
-// max-width: 짧은 화면(갤럭시 S8 740px 등)에서 하단 comparePanel이 fold 밖으로 밀리지 않도록
-// viewport 높이 40% 상한 추가 — 큰 화면에서는 340px 유지, 짧은 화면에서 자동 축소
+// px 고정 — 카카오 웹뷰 바텀바 토글로 뷰포트 높이가 변동해도 그래프 크기가 튀지 않도록
+// 짧은 화면에서는 296px까지 축소해 하단 comparePanel이 fold 밖으로 밀리지 않게 처리
 .networkCanvas {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  max-width: min(340px, 40vh);
+  max-width: 340px;
   margin: 0 auto;
+
+  @media (max-height: 700px) {
+    max-width: 296px;
+  }
 }
 
 .svgLayer {

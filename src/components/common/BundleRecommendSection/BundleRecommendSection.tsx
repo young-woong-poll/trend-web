@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useMemo, useRef } from 'react';
+import { memo, useMemo } from 'react';
 
 import Link from 'next/link';
 
@@ -10,19 +10,8 @@ import { getCategoryTheme } from '@/constants/categoryTheme';
 import { useBundleList } from '@/hooks/api/useBundle';
 import { toBundleCardModelFromSummary } from '@/lib/mappers/cardMapper';
 import { withParticle } from '@/lib/utils';
-import type { BundleCardModel } from '@/types/card';
 
 const RECOMMEND_COUNT = 3;
-
-/** Fisher-Yates 셔플 */
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 interface BundleRecommendSectionProps {
   currentSlug: string;
@@ -34,7 +23,6 @@ interface BundleRecommendSectionProps {
 export const BundleRecommendSection = memo<BundleRecommendSectionProps>(
   ({ currentSlug, contextName }) => {
     const { data: bundles, isLoading } = useBundleList(true);
-    const shuffledRef = useRef<BundleCardModel[] | null>(null);
 
     const recommendations = useMemo(() => {
       if (!bundles || isLoading) {
@@ -42,20 +30,16 @@ export const BundleRecommendSection = memo<BundleRecommendSectionProps>(
       }
 
       const cards = bundles.map(toBundleCardModelFromSummary);
-      const filtered = cards.filter(
-        (b) => b.slug !== currentSlug && !b.participated && b.status !== 'CLOSED'
-      );
+      // 참여 여부와 무관하게 인기순(참여자 수) TOP3 노출 — 현재 번들과 CLOSED만 제외
+      const filtered = cards.filter((b) => b.slug !== currentSlug && b.status !== 'CLOSED');
 
       if (filtered.length === 0) {
         return [];
       }
 
-      // 마운트 시 1회만 셔플, 이후 리렌더에서 동일 결과 유지
-      if (!shuffledRef.current || shuffledRef.current.length !== filtered.length) {
-        shuffledRef.current = shuffle(filtered);
-      }
-
-      return shuffledRef.current.slice(0, RECOMMEND_COUNT);
+      return [...filtered]
+        .sort((a, b) => b.totalVoteCount - a.totalVoteCount)
+        .slice(0, RECOMMEND_COUNT);
     }, [bundles, isLoading, currentSlug]);
 
     if (recommendations.length === 0) {

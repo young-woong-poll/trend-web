@@ -316,6 +316,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
           const active = isNodeActive(member.userId);
           const isSelected = selectedUserId === member.userId;
           const isDimmed = isGhostUser(member.userId) || member.isWithdrawn === true;
+          const isMe = member.userId === currentUserId;
 
           return (
             <button
@@ -358,9 +359,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
               </div>
               <span className={styles.nodeName}>
                 {truncateName(member.nickname)}
-                {member.userId === currentUserId && (
-                  <span className={styles.nicknameBadgeMe}>나</span>
-                )}
+                {isMe && <span className={styles.nicknameBadgeMe}>나</span>}
               </span>
             </button>
           );
@@ -369,60 +368,51 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
 
       <p className={styles.hint}>
         {selectedUserId
-          ? '다른 멤버를 탭하거나 다시 탭하면 전체 보기로 돌아갑니다'
-          : '멤버를 탭하면 전체 비교를 확인할 수 있어요'}
+          ? '다시 탭하면 전체 보기로 돌아가요'
+          : '멤버를 탭하면 1:1 케미를 확인할 수 있어요'}
       </p>
-
-      {/* "나" 선택 시 프로필 편집 패널 */}
-      {selectedUserId === currentUserId && onEditProfile && (
-        <div className={styles.comparePanel}>
-          <div className={styles.comparePanelText}>
-            <span className={styles.comparePanelNames}>내 프로필</span>
-            <span className={styles.comparePanelTitle}>표시 이름 · 프로필 색상</span>
-          </div>
-          <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
-            수정하기
-          </button>
-        </div>
-      )}
 
       {/* 선택된 멤버와의 케미 패널 (탈퇴 유저 제외) */}
       {selectedPairInfo &&
-        onCompareRequest &&
-        !selectedPairInfo.isGhost &&
-        !selectedPairInfo.isWithdrawn && (
-          <>
-            <div className={styles.comparePanel}>
-              <div className={styles.comparePanelInfo}>
-                <span
-                  className={styles.comparePanelGrade}
-                  style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
-                >
-                  {selectedPairInfo.chemistry.grade}
-                </span>
-                <div className={styles.comparePanelText}>
-                  <span className={styles.comparePanelNames}>
-                    나 × {truncateName(selectedPairInfo.nickname, 8)}
-                  </span>
-                  <span className={styles.comparePanelTitle}>
-                    {selectedPairInfo.chemistry.title}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className={styles.comparePanelBtn}
-                onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
-              >
-                비교 상세보기
-              </button>
+      onCompareRequest &&
+      !selectedPairInfo.isGhost &&
+      !selectedPairInfo.isWithdrawn ? (
+        <div className={styles.comparePanel}>
+          <div className={styles.comparePanelInfo}>
+            <span
+              className={styles.comparePanelGrade}
+              style={{ color: TIER_COLORS[selectedPairInfo.tier] }}
+            >
+              {selectedPairInfo.chemistry.grade}
+            </span>
+            <div className={styles.comparePanelText}>
+              <span className={styles.comparePanelNames}>
+                나 × {truncateName(selectedPairInfo.nickname, 8)}
+              </span>
+              <span className={styles.comparePanelTitle}>{selectedPairInfo.chemistry.title}</span>
             </div>
-            <p className={styles.comparePanelNotice}>
-              <span className={styles.noticeArrow}>‹‹</span>
-              비교 결과 이력에 남지 않아요
-            </p>
-          </>
-        )}
+          </div>
+          <button
+            type="button"
+            className={styles.comparePanelBtn}
+            onClick={() => selectedUserId && onCompareRequest(selectedUserId)}
+          >
+            비교 상세보기
+          </button>
+        </div>
+      ) : (
+        // 아무도 선택 안 함 or 나 선택 → 내 프로필 수정 패널
+        onEditProfile && (
+          <div className={styles.comparePanel}>
+            <div className={styles.comparePanelText}>
+              <span className={styles.comparePanelNames}>프로필 수정하고 싶다면?</span>
+            </div>
+            <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
+              수정하기
+            </button>
+          </div>
+        )
+      )}
     </div>
   );
 };

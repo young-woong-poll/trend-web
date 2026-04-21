@@ -199,31 +199,6 @@
   color: $text-tertiary;
 }
 
-.syncRateDisplay {
-  @include flex-column;
-  align-items: center;
-  gap: 2px;
-  margin-top: 6px;
-}
-
-.syncLabel {
-  font-size: $font-size-12;
-  color: $text-tertiary;
-}
-
-.syncValue {
-  font-size: $font-size-36;
-  font-weight: 700;
-  color: $white;
-  line-height: 1;
-  letter-spacing: -1px;
-}
-
-.syncUnit {
-  font-size: $font-size-18;
-  color: $text-tertiary;
-}
-
 .heroStats {
   display: flex;
   align-items: center;
@@ -285,33 +260,6 @@
 .syncTierLow {
   color: #ff6b9d;
   background: rgba(#ff6b9d, 0.1);
-}
-
-// ─── heroStats 내 싱크로율 태그 ───
-.syncTagHigh,
-.syncTagMid,
-.syncTagLow {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 0 16px;
-  white-space: nowrap;
-}
-
-.syncTagHigh {
-  color: $text-tertiary;
-}
-
-.syncTagMid {
-  color: $text-tertiary;
-}
-
-.syncTagLow {
-  color: $text-tertiary;
-}
-
-.syncTagAccent {
-  color: $white;
-  font-weight: 700;
 }
 
 .ctaSection {
