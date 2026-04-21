@@ -1,3 +1,4 @@
+import { parseCategoryMeta } from '@/constants/categoryTheme';
 import { getDetail1 } from '@/generated/api/server/bundle/bundle';
 import { SITE_URL } from '@/lib/seo/constants';
 
@@ -7,51 +8,52 @@ type MetadataProps = {
   params: Promise<{ slug: string }>;
 };
 
-/** Bundle OG 확정 디자인 — V3(Tilted Card) */
-const BUNDLE_OG_DESIGN = 'v3';
+const FALLBACK_TITLE = '가치관 비교 테스트';
+const FALLBACK_DESCRIPTION = '최근 핫한 주제 모음';
 
-/**
- * 참여 수를 구간별 **올림**하여 OG 이미지 캐시 키 안정화 + 마케팅 수치.
- *   - 1~10명    → 10 (초기에 "아무도 없음" 처럼 보이지 않도록)
- *   - ~100명    → 10 단위 올림
- *   - ~1,000명  → 50 단위 올림
- *   - ~10,000명 → 500 단위 올림
- *   - 그 외     → 1,000 단위 올림
- */
-function roundParticipants(n: number): number {
-  if (n === 0) {
-    return 0;
-  }
-  if (n <= 10) {
-    return 10;
-  }
-  if (n <= 100) {
-    return Math.ceil(n / 10) * 10;
-  }
-  if (n <= 1000) {
-    return Math.ceil(n / 50) * 50;
-  }
-  if (n <= 10000) {
-    return Math.ceil(n / 500) * 500;
-  }
-  return Math.ceil(n / 1000) * 1000;
+/** URL 쿼리용 hex 변환 — "#FF6B9D" → "FF6B9D" */
+function stripHash(hex: string): string {
+  return hex.replace(/^#/, '');
 }
 
+/**
+ * 번들 OG 이미지 URL.
+ *
+ * BE `categoryMeta`(JSON 문자열)가 테마의 SSoT. 파싱해서 start/end 색상 값을 URL에 직접 전달.
+ * categoryMeta가 없으면 categoryCode로 fallback.
+ *
+ * Edge runtime의 응답 캐시(`s-maxage=2592000`, 30일)가 slug당 1장을 유지.
+ */
 export function buildBundleOgImageUrl(
   categoryCode?: string,
-  participantCount?: number,
+  categoryMeta?: string | null,
   bundleTitle?: string
 ): string {
-  const rounded = roundParticipants(participantCount ?? 0);
-  const params = new URLSearchParams({
-    design: BUNDLE_OG_DESIGN,
-    category: categoryCode ?? 'TREND',
-    participants: String(rounded),
-  });
+  const params = new URLSearchParams();
+
+  const theme = parseCategoryMeta(categoryMeta);
+  if (theme) {
+    params.set('start', stripHash(theme.start));
+    params.set('end', stripHash(theme.end));
+  } else if (categoryCode) {
+    params.set('category', categoryCode);
+  }
+
   if (bundleTitle) {
     params.set('bundleTitle', bundleTitle.slice(0, 40));
   }
+
   return `${SITE_URL}/api/og/bundle?${params.toString()}`;
+}
+
+function buildBundleDescription(participantCount?: number, questionCount?: number): string {
+  if (participantCount === undefined || participantCount === null) {
+    return FALLBACK_DESCRIPTION;
+  }
+  if (questionCount === undefined || questionCount === null) {
+    return FALLBACK_DESCRIPTION;
+  }
+  return `${participantCount.toLocaleString()}명 참여 · ${questionCount}문항 가치관 테스트`;
 }
 
 export async function generateMetadata({ params }: MetadataProps): Promise<Metadata> {
@@ -61,22 +63,20 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
     const response = await getDetail1(slug, { next: { revalidate: 300 } });
     const bundle = response.status === 200 ? response.data.data : null;
 
-    if (bundle?.title) {
+    if (bundle) {
+      const title = bundle.title && bundle.title.length > 0 ? bundle.title : FALLBACK_TITLE;
+      const description = buildBundleDescription(bundle.participantCount, bundle.questionCount);
       const ogImageUrl = buildBundleOgImageUrl(
         bundle.categoryCode,
-        bundle.participantCount,
-        bundle.title
+        bundle.categoryMeta,
+        bundle.title ?? undefined
       );
-      const participantText = bundle.participantCount
-        ? `${bundle.participantCount.toLocaleString()}명이 답한 `
-        : '';
-      const description = `${participantText}${bundle.questionCount ?? 0}문항 가치관 테스트`;
 
       return {
-        title: `🔥 ${bundle.title}`,
+        title,
         description,
         openGraph: {
-          title: `🔥 ${bundle.title}`,
+          title,
           description,
           url: `${SITE_URL}/bundle/${slug}`,
           images: [{ url: ogImageUrl, width: 1200, height: 630 }],
@@ -88,8 +88,12 @@ export async function generateMetadata({ params }: MetadataProps): Promise<Metad
   }
 
   return {
-    title: '🔥 가치관 테스트',
-    description: '테스트하고 친구들과 가치관을 비교하세요!',
-    openGraph: { images: [{ url: buildBundleOgImageUrl(), width: 1200, height: 630 }] },
+    title: FALLBACK_TITLE,
+    description: FALLBACK_DESCRIPTION,
+    openGraph: {
+      title: FALLBACK_TITLE,
+      description: FALLBACK_DESCRIPTION,
+      images: [{ url: buildBundleOgImageUrl(), width: 1200, height: 630 }],
+    },
   };
 }

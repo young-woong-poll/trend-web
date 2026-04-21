@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: ResultPageProps): Promise<Met
     if (bundle) {
       const ogImageUrl = buildBundleOgImageUrl(
         bundle.categoryCode,
-        bundle.participantCount,
-        bundle.title
+        bundle.categoryMeta,
+        bundle.title ?? undefined
       );
 
       return {
