@@ -21,6 +21,24 @@ const TEST_GROUPS = [
   { token: 'group-new', label: '0명 (신규 그룹)', members: 0, description: '빈 그룹 테스트' },
 ];
 
+const EXTERNAL_MOCKS = [
+  {
+    href: '/dev/group-mock-15',
+    label: '15명 남8여7 (BE 응답 mock)',
+    description: '네트워크 그래프 홀수 인원',
+  },
+  {
+    href: '/dev/group-mock-16',
+    label: '16명 남녀 8:8 (BE 응답 mock)',
+    description: '케미 랭킹 전환 경계',
+  },
+  {
+    href: '/dev/group-mock-40',
+    label: '40명 남녀 20:20 (BE 응답 mock)',
+    description: '대인원 케미 랭킹',
+  },
+];
+
 export default function GroupTestPage() {
   return (
     <div style={{ padding: '24px', maxWidth: 480, margin: '0 auto' }}>
@@ -61,6 +79,34 @@ export default function GroupTestPage() {
               }}
             >
               {g.members}명 →
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+        {EXTERNAL_MOCKS.map((m) => (
+          <Link
+            key={m.href}
+            href={m.href}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '14px 16px',
+              background: 'rgba(30, 30, 30, 0.6)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              borderRadius: 12,
+              textDecoration: 'none',
+              color: '#fff',
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600 }}>{m.label}</div>
+              <div style={{ fontSize: 12, color: '#8a8a8a', marginTop: 2 }}>{m.description}</div>
+            </div>
+            <div style={{ fontSize: 12, color: '#8a8a8a', flexShrink: 0, marginLeft: 12 }}>
+              열기 →
             </div>
           </Link>
         ))}
