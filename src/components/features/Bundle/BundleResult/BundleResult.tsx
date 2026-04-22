@@ -13,7 +13,6 @@ import {
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
 import BackIcon from '@/assets/icon/BackIcon';
@@ -24,11 +23,12 @@ import { Toast } from '@/components/common/Toast/Toast';
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
 import styles from '@/components/features/Bundle/BundleResult/BundleResult.module.scss';
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
+import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
 import { calcPopularityScore, getPopularityByScore } from '@/constants/bundle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBundleDetail, useBundleMyResult } from '@/hooks/api/useBundle';
 import { useJoinCompareLink } from '@/hooks/api/useCompare';
-import { prefetchMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
+import { useMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import { trackBundleResultView } from '@/lib/analytics';
 
@@ -40,7 +40,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const { data: bundle } = useBundleDetail(slug);
   const { data: result, isLoading } = useBundleMyResult(slug);
-  const queryClient = useQueryClient();
+  const { data: myLinks } = useMyCompareLinks(isLoggedIn ? slug : '');
   const router = useRouter();
   const searchParams = useSearchParams();
   const compareToken =
@@ -49,6 +49,7 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const joinMutation = useJoinCompareLink(compareToken ?? '');
   const { toast } = useToast();
   const [showGroupModal, setShowGroupModal] = useState(false);
+  const [showLinksSheet, setShowLinksSheet] = useState(false);
   const [showPopularityInfo, setShowPopularityInfo] = useState(false);
   const [tooltipPos, setTooltipPos] = useState<{ top: number; left: number } | null>(null);
   const [activeAnswerIndex, setActiveAnswerIndex] = useState(0);
@@ -107,14 +108,6 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
       trackBundleResultView(slug);
     }
   }, [result, slug]);
-
-  // 비교링크 모달 CLS 방지 — 결과 페이지 진입 시 '참여 중인 링크' 리스트를 미리 받아둠
-  useEffect(() => {
-    if (!isLoggedIn || !slug) {
-      return;
-    }
-    void prefetchMyCompareLinks(queryClient, slug);
-  }, [isLoggedIn, slug, queryClient]);
 
   // 접근제어: 미완료 → 플레이
   useEffect(() => {
@@ -233,6 +226,15 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
   const questionStats = result.questionStats ?? [];
   const popularityScore = calcPopularityScore(myAnswers, questionStats);
   const popularity = getPopularityByScore(popularityScore);
+
+  // 같은 번들로 만든 GROUP 링크 — 최근 생성순. 시트 진입점 / 시트 본문 공용
+  const myGroupLinks = (myLinks ?? [])
+    .filter((l) => l.type === 'GROUP' && !!l.token)
+    .sort((a, b) => {
+      const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bt - at;
+    });
 
   return (
     <BundleBackground categoryCode={bundle?.categoryCode} categoryMeta={bundle?.categoryMeta}>
@@ -389,6 +391,16 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           <button type="button" className={styles.gateCta} onClick={() => setShowGroupModal(true)}>
             친구들과 가치관 비교하기
           </button>
+
+          {myGroupLinks.length > 0 && (
+            <button
+              type="button"
+              className={styles.gateSecondary}
+              onClick={() => setShowLinksSheet(true)}
+            >
+              참여 중인 비교링크 {myGroupLinks.length}개 ›
+            </button>
+          )}
         </section>
 
         {/* ═══ 4. 답변 미리보기 — swiper (게이트 다음, 결과 디테일) ═══ */}
@@ -501,6 +513,15 @@ export const BundleResult: FC<BundleResultProps> = ({ slug }) => {
           onClose={() => setShowGroupModal(false)}
         />
       )}
+      <MyCompareLinksSheet
+        isOpen={showLinksSheet}
+        links={myGroupLinks}
+        onItemClick={(token) => {
+          setShowLinksSheet(false);
+          router.push(`/compare/group/${token}`);
+        }}
+        onClose={() => setShowLinksSheet(false)}
+      />
     </BundleBackground>
   );
 };

@@ -1,5 +1,5 @@
 // src/hooks/api/useCompare.ts
-import { queryOptions, useQuery, useMutation } from '@tanstack/react-query';
+import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { createCompareLink } from '@/generated/api/client/bundle/bundle';
 import {
@@ -13,6 +13,7 @@ import {
   reopen,
   createPair,
 } from '@/generated/api/client/compare-link/compare-link';
+import { myCompareLinksQueryKey } from '@/hooks/api/useMyCompareLinks';
 import type { CompareLink, CompareResult, CreateCompareLinkRequest } from '@/types/compare';
 import type { GroupCompareResult } from '@/types/group-compare';
 
@@ -70,10 +71,15 @@ export const useCompareResult = (token: string) =>
     enabled: !!token,
   });
 
-export const useCreateCompareLink = (slug: string) =>
-  useMutation({
+export const useCreateCompareLink = (slug: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: (data: CreateCompareLinkRequest) => createCompareLink(slug, data),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: myCompareLinksQueryKey(slug) });
+    },
   });
+};
 
 export const useJoinCompareLink = (token: string) =>
   useMutation({
