@@ -334,6 +334,27 @@
   }
 }
 
+// 게이트 CTA 아래 보조 진입점 — 재방문 유저용 "참여 중인 비교링크" 시트 트리거
+.gateSecondary {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  margin-top: 2px;
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: $font-size-12;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $white;
+  }
+}
+
 .gateCta {
   position: relative;
   z-index: 1;

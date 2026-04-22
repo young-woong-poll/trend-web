@@ -13,7 +13,6 @@ import styles from '@/components/features/Bundle/BundleResult/CreateCompareLink.
 import { isGenderCategory } from '@/constants/bundle';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCreateCompareLink } from '@/hooks/api/useCompare';
-import { useMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import { trackCompareCreate } from '@/lib/analytics';
 import type { CategoryCode } from '@/types/hotpick';
@@ -61,7 +60,6 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
 }) => {
   const router = useRouter();
   const createMutation = useCreateCompareLink(slug);
-  const { data: myLinks, isPending: isLinksPending } = useMyCompareLinks(slug);
   const [name, setName] = useState('');
   const { toast, showToast } = useToast();
 
@@ -83,15 +81,6 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
       window.scrollTo(0, scrollY);
     };
   }, []);
-
-  // 같은 번들로 이미 만든 그룹 리스트 (최근 생성순)
-  const existingGroups = (myLinks ?? [])
-    .filter((l) => l.type === 'GROUP' && !!l.token)
-    .sort((a, b) => {
-      const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return bt - at;
-    });
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(sanitizeName(e.target.value));
@@ -116,11 +105,6 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
     } catch {
       showToast('링크 생성에 실패했어요. 번들을 먼저 완료해 주세요.');
     }
-  };
-
-  const handleOpenExisting = (token: string) => {
-    onClose();
-    router.push(`/compare/group/${token}`);
   };
 
   return createPortal(
@@ -175,50 +159,6 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
         >
           {createMutation.isPending ? '만드는 중...' : '링크 만들기'}
         </button>
-
-        {/* 이전 케미 리스트 — 로딩 중엔 skeleton으로 공간 예약해 CLS 방지 */}
-        {isLinksPending ? (
-          <div className={styles.existingSection} aria-hidden>
-            <div className={styles.existingHeader}>
-              <span className={styles.existingLabelSkeleton} />
-            </div>
-            <div className={styles.existingList}>
-              {[0, 1, 2].map((i) => (
-                <div key={i} className={styles.existingRowSkeleton} />
-              ))}
-            </div>
-          </div>
-        ) : existingGroups.length > 0 ? (
-          <div className={styles.existingSection}>
-            <div className={styles.existingHeader}>
-              <span className={styles.existingLabel}>참여 중인 링크 {existingGroups.length}개</span>
-            </div>
-            <div className={styles.existingList} role="list">
-              {existingGroups.map((g) => {
-                const token = g.token ?? '';
-                return (
-                  <button
-                    key={token}
-                    type="button"
-                    className={styles.existingRow}
-                    onClick={() => handleOpenExisting(token)}
-                    role="listitem"
-                  >
-                    <span className={styles.existingName} title={g.groupName}>
-                      {g.groupName ?? '이름 없음'}
-                    </span>
-                    <span className={styles.existingMeta}>
-                      {g.memberCount ?? 0}명 참여
-                      <span className={styles.existingArrow} aria-hidden>
-                        ›
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ) : null}
       </div>
       <Toast message={toast.message} isVisible={toast.isVisible} />
     </div>,

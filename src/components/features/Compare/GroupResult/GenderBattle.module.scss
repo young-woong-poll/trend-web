@@ -14,7 +14,7 @@
 
 .container {
   @include flex-column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   animation: fadeSlideUp 0.5s ease-out 0.3s both;
 }
@@ -43,20 +43,34 @@
 .subtitle {
   font-size: 13px;
   color: $text-tertiary;
-  margin: -8px 0 0;
+  margin: -4px 0 0;
   line-height: 1.4;
 }
 
-// ─── Question list ───
-
-.questionList {
-  @include flex-column;
+// ─── 슬라이드 스크롤러 (PopularityBarGraph와 동일) ───
+.cardScroller {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   gap: 12px;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: auto;
+  cursor: grab;
+  user-select: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
+// ─── 카드 ───
 .card {
+  flex: 0 0 calc(100% - 32px);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
   @include flex-column;
-  gap: 12px;
+  gap: 10px;
   padding: 16px;
   background: rgba(#1e1e1e, 0.6);
   backdrop-filter: blur(16px);
@@ -68,14 +82,17 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-bottom: 8px;
 }
 
 .questionTitle {
   font-size: $font-size-14;
-  font-weight: 600;
+  font-weight: 700;
   color: $white;
   line-height: 1.4;
   flex: 1;
+  text-align: left;
+  word-break: keep-all;
 }
 
 .badgeExtreme {
@@ -100,7 +117,34 @@
   line-height: 1.4;
 }
 
-// ─── Gender row ───
+// ─── 옵션명 (한 번만 노출) ───
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.optName {
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  max-width: 48%;
+  @include text-ellipsis;
+
+  @include se {
+    font-size: 12px;
+  }
+}
+
+.optNameRight {
+  text-align: right;
+}
+
+// ─── 남/여 바 묶음 — 좁은 간격으로 붙여 비교 용이 ───
+.barGroup {
+  @include flex-column;
+  gap: 6px;
+}
 
 .genderRow {
   display: flex;
@@ -108,52 +152,47 @@
   gap: 8px;
 }
 
-.genderLabel {
-  flex-shrink: 0;
-  width: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .genderIconMale {
   color: #4fc3f7;
   flex-shrink: 0;
+  width: 14px;
 }
 
 .genderIconFemale {
   color: #ff6b9d;
   flex-shrink: 0;
+  width: 14px;
 }
 
-.barArea {
-  flex: 1;
-  @include flex-column;
-  gap: 4px;
+.percent {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: $text-secondary;
+  flex-shrink: 0;
+  min-width: 32px;
 }
 
-.barLabels {
-  @include flex-between;
-}
-
-.barLabelLeft,
-.barLabelRight {
-  font-size: 11px;
-  color: $text-tertiary;
-  line-height: 1;
-  @include text-ellipsis;
-  max-width: 48%;
-}
-
-.barLabelRight {
+.percentRight {
   text-align: right;
 }
 
-// ─── Bar visualization ───
+.percentWinMale {
+  color: #4fc3f7;
+}
 
+.percentWinFemale {
+  color: #ff6b9d;
+}
+
+.percentLose {
+  color: $text-tertiary;
+}
+
+// ─── Bar ───
 .barTrack {
   display: flex;
-  width: 100%;
+  flex: 1;
   height: 6px;
   border-radius: $border-rounded;
   overflow: hidden;
@@ -168,7 +207,7 @@
 
 .barMaleB {
   height: 100%;
-  background: linear-gradient(90deg, rgba(#00bcd4, 0.25), rgba(#4fc3f7, 0.1));
+  background: rgba(#4fc3f7, 0.12);
   border-radius: 0 $border-rounded $border-rounded 0;
   transition: width 0.4s ease;
 }
@@ -182,7 +221,29 @@
 
 .barFemaleB {
   height: 100%;
-  background: linear-gradient(90deg, rgba(#8b5cf6, 0.25), rgba(#ec4899, 0.1));
+  background: rgba(#ec4899, 0.12);
   border-radius: 0 $border-rounded $border-rounded 0;
   transition: width 0.4s ease;
+}
+
+// ─── Dot indicator ───
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(#fff, 0.15);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dotActive {
+  background: rgba(#fff, 0.6);
+  transform: scale(1.2);
 }

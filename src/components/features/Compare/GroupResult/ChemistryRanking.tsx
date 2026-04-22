@@ -387,13 +387,6 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
         })}
       </div>
 
-      {/* "나" 기준일 때 프로필 편집 버튼 */}
-      {isMyView && onEditProfile && (
-        <button type="button" className={styles.editProfileBtn} onClick={onEditProfile}>
-          내 프로필 수정
-        </button>
-      )}
-
       {/* 요약: 등급 분포 바 */}
       <div className={styles.summaryCard}>
         <div className={styles.summaryTop}>
@@ -449,6 +442,19 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
       </div>
 
       <p className={styles.hint}>등급을 탭하면 멤버를 확인할 수 있어요</p>
+
+      {/* 내 기준 뷰에서 프로필 수정 패널 — ChemistryNetwork와 동일 디자인 */}
+      {isMyView && onEditProfile && (
+        <div className={styles.comparePanel}>
+          <div className={styles.comparePanelText}>
+            <span className={styles.comparePanelNames}>내 프로필</span>
+            <span className={styles.comparePanelTitle}>표시 이름 · 프로필 색상</span>
+          </div>
+          <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
+            수정하기
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,0 +1,516 @@
+@use '@/styles/variables' as *;
+
+// ─── 페이지 컨테이너 ───
+.page {
+  min-height: 100vh;
+  background: #121212;
+  color: $white;
+  padding: $spacing-16;
+  padding-bottom: 96px;
+}
+
+.inner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+}
+
+// ─── 탭 바 ───
+.tabBar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-8;
+  position: sticky;
+  top: $spacing-16;
+  z-index: 5;
+  background: rgba(#121212, 0.85);
+  backdrop-filter: blur(8px);
+  padding: $spacing-8;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+}
+
+.tabBtn {
+  appearance: none;
+  background: $bg-tertiary;
+  color: $text-secondary;
+  border: 1px solid #3a3a3a;
+  padding: 10px 8px;
+  border-radius: $border-radius-md;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: -0.2px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.tabBtnActive {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--primary-start-rgb), 0.18),
+    rgba(var(--primary-end-rgb), 0.18)
+  );
+  color: $white;
+  border-color: rgba(var(--primary-end-rgb), 0.55);
+}
+
+.label {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+// ═════════════════════════════════════════
+//  게이트 섹션 (BundleResult.module.scss 톤 그대로)
+// ═════════════════════════════════════════
+.gateSection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: $spacing-32 $spacing-24 $spacing-24;
+  border-radius: 20px;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--primary-start-rgb), 0.12) 0%,
+    rgba(var(--primary-end-rgb), 0.08) 55%,
+    rgba($bg-secondary, 0.65) 100%
+  );
+  border: 1px solid rgba(var(--primary-start-rgb), 0.22);
+  text-align: center;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(var(--primary-end-rgb), 0.18) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.gateHeadline {
+  position: relative;
+  z-index: 1;
+  font-size: $font-size-24;
+  font-weight: 700;
+  color: $white;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  word-break: keep-all;
+  margin: 0;
+}
+
+.gateSubtitle {
+  position: relative;
+  z-index: 1;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.55;
+  word-break: keep-all;
+  max-width: 320px;
+  margin: 0;
+}
+
+.gateVisual {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 280px;
+  padding: $spacing-8 0 $spacing-4;
+
+  svg {
+    display: block;
+  }
+}
+
+.gateCta {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 52px;
+  margin-top: $spacing-4;
+  padding: 0 $spacing-16;
+  border: none;
+  border-radius: 999px;
+  background: var(--primary-gradient);
+  color: $white;
+  font-size: $font-size-18;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  cursor: pointer;
+  box-shadow:
+    0 6px 20px rgba(var(--primary-start-rgb), 0.32),
+    0 0 36px rgba(var(--primary-end-rgb), 0.18);
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.01);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ═════════════════════════════════════════
+//  공통 — 게이트 아래 진입점 영역
+// ═════════════════════════════════════════
+.entryArea {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: $spacing-8;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.entryLink {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  text-decoration: underline;
+  text-decoration-color: rgba(#fff, 0.18);
+  text-underline-offset: 4px;
+
+  &:hover {
+    color: $white;
+  }
+
+  strong {
+    color: $white;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+// ─── 공통 리스트 항목 ───
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: $bg-tertiary;
+  border: 1px solid transparent;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(#fff, 0.06);
+    border-color: #3a3a3a;
+  }
+}
+
+.rowName {
+  flex: 1;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.rowArrow {
+  color: $text-tertiary;
+  font-size: $font-size-16;
+  line-height: 1;
+}
+
+// ═════════════════════════════════════════
+//  (가) 하프시트
+// ═════════════════════════════════════════
+.sheetOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.5);
+  padding: $spacing-16 $spacing-16 $spacing-32;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  z-index: $z-index-modal;
+  animation: slideUp 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.sheetHandleWrap {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 $spacing-4;
+}
+
+.sheetHandle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(#fff, 0.18);
+}
+
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-4;
+}
+
+.sheetTitle {
+  font-size: $font-size-16;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0;
+}
+
+.sheetClose {
+  appearance: none;
+  border: none;
+  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: $text-tertiary;
+  font-size: $font-size-18;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
+}
+
+.sheetList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+// ═════════════════════════════════════════
+//  (나) 작은 중앙 모달
+// ═════════════════════════════════════════
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal-backdrop;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  width: 100%;
+  max-width: 360px;
+  padding: $spacing-24;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  z-index: $z-index-modal;
+  animation: modalIn 0.2s ease;
+  max-height: 70vh;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-size: $font-size-18;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0;
+}
+
+.modalClose {
+  appearance: none;
+  border: none;
+  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: $text-tertiary;
+  font-size: $font-size-18;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $white;
+    background: rgba(#fff, 0.05);
+  }
+}
+
+.modalList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  max-height: 50vh;
+  padding-right: 4px;
+}
+
+// ═════════════════════════════════════════
+//  (다) 페이지 내 인라인 펼침
+// ═════════════════════════════════════════
+.inlineWrap {
+  width: 100%;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  background: $bg-secondary;
+  overflow: hidden;
+}
+
+.inlineToggle {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  color: $white;
+  font-size: $font-size-14;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: rgba(#fff, 0.04);
+  }
+}
+
+.inlineCount {
+  color: $text-tertiary;
+  font-weight: $font-weight-regular;
+  margin-left: 4px;
+}
+
+.inlineChev {
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  transition: transform 0.2s ease;
+}
+
+.inlineChevOpen {
+  transform: rotate(180deg);
+  color: $white;
+}
+
+.inlineCollapse {
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+
+.inlineList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px 12px;
+  border-top: 1px solid rgba(#fff, 0.06);
+  padding-top: 12px;
+}
+
+// ─── 애니메이션 ───
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
