@@ -31,6 +31,7 @@ import {
   GroupSettingsModal,
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
+import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
 import { PopularityBarGraph } from '@/components/features/Compare/PopularityBarGraph/PopularityBarGraph';
 import {
   calcAllPairChemistry,
@@ -47,7 +48,7 @@ import {
   useUpdateGroupSettings,
   useUpdateMyGroupProfile,
 } from '@/hooks/api/useCompare';
-import { prefetchMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
+import { useMyCompareLinks } from '@/hooks/api/useMyCompareLinks';
 import { useToast } from '@/hooks/useToast';
 import { trackGroupResult } from '@/lib/analytics';
 
@@ -87,8 +88,12 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showDisplayNameModal, setShowDisplayNameModal] = useState(false);
+  const [showLinksSheet, setShowLinksSheet] = useState(false);
   const [memberSheetUserId, setMemberSheetUserId] = useState<string | null>(null);
   const { toast, showToast } = useToast();
+
+  const bundleSlug = result?.bundleSlug;
+  const { data: myLinks } = useMyCompareLinks(isLoggedIn && bundleSlug ? bundleSlug : '');
 
   // GA4
   useEffect(() => {
@@ -96,15 +101,6 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
       trackGroupResult(result.bundleSlug ?? '', result.memberCount ?? 0);
     }
   }, [result]);
-
-  // 새 비교링크 모달 CLS 방지 — 페이지 진입 시 '참여 중인 링크' 리스트 미리 받아둠
-  const bundleSlug = result?.bundleSlug;
-  useEffect(() => {
-    if (!isLoggedIn || !bundleSlug) {
-      return;
-    }
-    void prefetchMyCompareLinks(queryClient, bundleSlug);
-  }, [isLoggedIn, bundleSlug, queryClient]);
 
   const isCreator =
     result && result.creatorUserId && result.myUserId
@@ -160,6 +156,15 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
   }
 
   const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
+
+  // 같은 번들의 다른 GROUP 링크 — 현재 토큰 제외, 최근 생성순
+  const myGroupLinks = (myLinks ?? [])
+    .filter((l) => l.type === 'GROUP' && !!l.token && l.token !== token)
+    .sort((a, b) => {
+      const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bt - at;
+    });
 
   const handleSaveSettings = async (settings: GroupSettings) => {
     setShowSettingsModal(false);
@@ -403,6 +408,15 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
             >
               <PlusIcon width={14} height={14} />새 비교링크 만들기
             </button>
+            {myGroupLinks.length > 0 && (
+              <button
+                type="button"
+                className={styles.linksEntry}
+                onClick={() => setShowLinksSheet(true)}
+              >
+                참여 중인 비교링크 {myGroupLinks.length}개 ›
+              </button>
+            )}
           </div>
         )}
 
@@ -472,6 +486,16 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
         onClose={() => setShowSettingsModal(false)}
         onConfirm={handleSaveSettings}
         isLoading={updateGroupSettingsMutation.isPending}
+      />
+
+      <MyCompareLinksSheet
+        isOpen={showLinksSheet}
+        links={myGroupLinks}
+        onItemClick={(targetToken) => {
+          setShowLinksSheet(false);
+          router.push(`/compare/group/${targetToken}`);
+        }}
+        onClose={() => setShowLinksSheet(false)}
       />
 
       {toast.isVisible && <Toast message={toast.message} />}
