@@ -30,12 +30,13 @@ import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMed
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
 import type { OrbitMember } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
 import { OrbitMap } from '@/components/features/Compare/MyResultView/OrbitMap/OrbitMap';
+import { renderShareCard } from '@/components/features/Compare/MyResultView/ShareCardCanvas';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
   calcGroupSyncRate,
 } from '@/constants/group-compare';
-import type { MyMedal } from '@/constants/my-medals';
+import { getMyMedals, type MyMedal } from '@/constants/my-medals';
 import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -166,14 +167,25 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
       });
   }, [displayResult, currentUserId, pairs]);
 
-  // TODO: Task 9에서 ShareCardCanvas의 renderShareCard 호출로 교체
-  const handleCaptureStub = async (): Promise<Blob | null> => null;
-
   if (!result || !displayResult) {
     return null;
   }
 
   const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
+
+  const handleCapture = async (): Promise<Blob | null> => {
+    const medals = getMyMedals(awards, currentUserId, personaLabelStub);
+    return renderShareCard({
+      members: orbitMembers,
+      myNickname: myMember?.displayName ?? myMember?.nickname ?? '나',
+      groupName: result.groupName ?? '',
+      bundleTitle: result.bundleTitle ?? '',
+      syncRate: groupSyncRate,
+      topMedalTitle: medals.top.title,
+      topMedalOneLiner: medals.top.oneLiner,
+      topMedalPartner: medals.top.partnerNickname,
+    });
+  };
 
   // 같은 번들의 다른 GROUP 링크 — 현재 토큰 제외, 최근 생성순
   const myGroupLinks = (myLinks ?? [])
@@ -351,7 +363,7 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           )}
           {isMember && !singleMember && (
             <CaptureButton
-              onCaptureRequest={handleCaptureStub}
+              onCaptureRequest={handleCapture}
               shareTitle={`${result.bundleTitle ?? ''} 비교 결과`}
               shareText="HotPick에서 내 결과를 확인해봤어요"
             />
