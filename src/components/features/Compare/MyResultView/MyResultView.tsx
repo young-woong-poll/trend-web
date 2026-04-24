@@ -24,6 +24,7 @@ import {
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
 import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
+import { MyExtremeAnswersSection } from '@/components/features/Compare/MyResultView/MyExtremeAnswersSection';
 import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMedalSection';
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
 import type { OrbitMember } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
@@ -340,6 +341,9 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               isMember={isMember}
               onMemberTap={handleMemberCompare}
             />
+          )}
+          {isMember && !singleMember && (
+            <MyExtremeAnswersSection result={displayResult} currentUserId={currentUserId} />
           )}
         </section>
 
