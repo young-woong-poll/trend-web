@@ -94,9 +94,13 @@
 ### SCSS 변수 사용 규칙
 
 - `src/styles/_variables.scss`에 **정의된 변수만** 사용할 것
-- 존재하지 않는 변수를 추측하여 사용 금지 (예: `$font-size-13` 같은 미정의 변수)
-- 정의된 변수에 없는 값이 필요하면 직접 값(예: `13px`)을 사용
+- **존재하지 않는 변수를 추측하여 사용 절대 금지** — 변수를 처음 쓰기 전 반드시 `src/styles/_variables.scss`(및 `src/styles/` 하위 partial)를 확인할 것
+  - 잘못된 예: `$font-size-13`, `$border-radius-pill`, `$border-radius-full`, `$spacing-20` 등 모두 미정의
+  - 특히 pill/circle 모양을 만들 때 `$border-radius-pill`은 **존재하지 않는다** — `999px` 직접 값을 쓸 것
+- 정의된 변수에 없는 값이 필요하면 직접 값(예: `13px`, `999px`)을 사용. 새 변수를 임의로 추가하지 말 것
+- 변수 누락으로 SCSS 컴파일 실패가 발생하지 않도록, SCSS 편집 후에는 해당 파일에 쓴 모든 `$` 변수가 `_variables.scss`에 실제로 정의돼 있는지 확인할 것
 - 자주 쓰는 font-size 변수: `$font-size-12`, `$font-size-14`, `$font-size-16`, `$font-size-18`, `$font-size-20`, `$font-size-22`, `$font-size-24`, `$font-size-26`, `$font-size-28`, `$font-size-30`, `$font-size-32`, `$font-size-36`, `$font-size-40`, `$font-size-42`, `$font-size-48`
+- 정의된 border-radius 변수: `$border-radius-sm` (4px), `$border-radius-md` (8px), `$border-radius-lg` (12px). 그 외 형태는 직접 값 사용
 
 ## 팀 구성
 

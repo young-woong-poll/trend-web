@@ -326,6 +326,15 @@ export const FullGroupResultView: FC<FullGroupResultViewProps> = ({ token }) => 
                 <div className={styles.singleMemberHint} role="status">
                   <p className={styles.singleMemberTitle}>{hintTitle}</p>
                   <p className={styles.singleMemberText}>{hintText}</p>
+                  {isMember && (
+                    <button
+                      type="button"
+                      className={styles.singleMemberEditProfile}
+                      onClick={() => setShowEditProfileModal(true)}
+                    >
+                      참여 프로필 수정
+                    </button>
+                  )}
                 </div>
                 <LockedSectionPreview
                   title="가치관 네트워크"

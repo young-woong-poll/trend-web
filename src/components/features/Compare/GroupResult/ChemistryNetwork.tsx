@@ -405,7 +405,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
         onEditProfile && (
           <div className={styles.comparePanel}>
             <div className={styles.comparePanelText}>
-              <span className={styles.comparePanelNames}>프로필 수정하고 싶다면?</span>
+              <span className={styles.comparePanelNames}>참여 프로필 수정하고 싶다면?</span>
             </div>
             <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>
               수정하기
