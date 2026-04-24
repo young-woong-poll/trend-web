@@ -26,6 +26,8 @@ import {
 import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
 import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMedalSection';
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
+import type { OrbitMember } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
+import { OrbitMap } from '@/components/features/Compare/MyResultView/OrbitMap/OrbitMap';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
@@ -141,8 +143,26 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
     [displayResult, pairs]
   );
 
-  // pairs는 Task 1에서 사용되지 않음 — 이후 태스크에서 Layer 2/3가 소비 예정
-  void pairs;
+  const orbitMembers = useMemo<OrbitMember[]>(() => {
+    if (!displayResult) {
+      return [];
+    }
+    return displayResult.members
+      .filter((m) => m.userId !== currentUserId)
+      .map((m) => {
+        const pair = pairs.find(
+          (p) =>
+            (p.memberA === currentUserId && p.memberB === m.userId) ||
+            (p.memberB === currentUserId && p.memberA === m.userId)
+        );
+        return {
+          userId: m.userId,
+          nickname: m.nickname,
+          matchRate: pair?.matchRate ?? 0,
+          profileColor: m.displayProfileColor,
+        };
+      });
+  }, [displayResult, currentUserId, pairs]);
 
   if (!result || !displayResult) {
     return null;
@@ -312,6 +332,13 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               awards={awards}
               currentUserId={currentUserId}
               personaLabel={personaLabelStub}
+            />
+          )}
+          {!singleMember && (
+            <OrbitMap
+              members={orbitMembers}
+              myNickname={myMember?.displayName ?? myMember?.nickname ?? '나'}
+              isMember={isMember}
             />
           )}
         </section>
