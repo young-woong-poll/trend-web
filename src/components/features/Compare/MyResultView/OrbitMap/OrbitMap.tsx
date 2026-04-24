@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, type FC } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC } from 'react';
 
 import {
   assignAngles,
@@ -23,6 +23,7 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
   void onMemberTap; // Task 6에서 탭 인터랙션 연결 시 소비
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [renderError, setRenderError] = useState(false);
 
   const stars = useMemo<OrbitStar[]>(() => generateStars(220), []);
   const memberAngles = useMemo(() => assignAngles(members), [members]);
@@ -38,6 +39,7 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) {
+      setRenderError(true);
       return;
     }
 
@@ -53,21 +55,27 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
 
     let rafId = 0;
     const loop = () => {
-      drawOrbitScene({
-        ctx,
-        width: canvas.width,
-        height: canvas.height,
-        dpr,
-        cam: camRef.current,
-        stars,
-        members,
-        myNickname,
-        rotation: rotationRef.current,
-        selectedUserId: selectedRef.current,
-        memberAngles,
-        isMember,
-        nodeHitBoxes: nodeHitBoxesRef.current,
-      });
+      try {
+        drawOrbitScene({
+          ctx,
+          width: canvas.width,
+          height: canvas.height,
+          dpr,
+          cam: camRef.current,
+          stars,
+          members,
+          myNickname,
+          rotation: rotationRef.current,
+          selectedUserId: selectedRef.current,
+          memberAngles,
+          isMember,
+          nodeHitBoxes: nodeHitBoxesRef.current,
+        });
+      } catch (err) {
+        console.error('[OrbitMap] draw failed', err);
+        setRenderError(true);
+        return; // 다음 프레임 스케줄 안 함 — 폴백 이미지로 전환
+      }
       rotationRef.current += 0.0008;
       rafId = requestAnimationFrame(loop);
     };
@@ -78,6 +86,15 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
       window.removeEventListener('resize', fit);
     };
   }, [stars, members, memberAngles, myNickname, isMember]);
+
+  if (renderError) {
+    return (
+      <div className={styles.fallback} aria-label="궤도 정적 이미지">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/orbit-fallback.svg" alt="" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrap} aria-label="나의 위치 궤도">
