@@ -3,9 +3,9 @@
 import { type FC } from 'react';
 
 import { BundleBackground } from '@/components/features/Bundle/BundleBackground/BundleBackground';
-import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
 import styles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { NotFoundView } from '@/components/features/Compare/GroupResult/NotFoundView';
+import { MyResultView } from '@/components/features/Compare/MyResultView/MyResultView';
 import { useGroupCompareResult } from '@/hooks/api/useCompare';
 
 interface GroupResultProps {
@@ -56,5 +56,5 @@ export const GroupResult: FC<GroupResultProps> = ({ token }) => {
     return <NotFoundView isError={isError} onRetry={isError ? () => void refetch() : undefined} />;
   }
 
-  return <FullGroupResultView token={token} />;
+  return <MyResultView token={token} />;
 };
