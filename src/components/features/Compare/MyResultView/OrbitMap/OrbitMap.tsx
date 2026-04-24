@@ -10,6 +10,10 @@ import {
   type OrbitMember,
   type OrbitStar,
 } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
+import {
+  dismissOrbitHint,
+  wasOrbitHintDismissed,
+} from '@/components/features/Compare/MyResultView/OrbitMap/orbit-hint';
 import styles from '@/components/features/Compare/MyResultView/OrbitMap/OrbitMap.module.scss';
 
 export interface OrbitMapProps {
@@ -20,10 +24,9 @@ export interface OrbitMapProps {
 }
 
 export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onMemberTap }) => {
-  void onMemberTap; // Task 6에서 탭 인터랙션 연결 시 소비
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [renderError, setRenderError] = useState(false);
+  const [hintVisible, setHintVisible] = useState(() => !wasOrbitHintDismissed());
 
   const stars = useMemo<OrbitStar[]>(() => generateStars(220), []);
   const memberAngles = useMemo(() => assignAngles(members), [members]);
@@ -87,6 +90,145 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
     };
   }, [stars, members, memberAngles, myNickname, isMember]);
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const zoomAtScreenCenter = (factor: number) => {
+      const prev = camRef.current.scale;
+      const nextScale = Math.max(0.5, Math.min(2.5, prev * factor));
+      const realFactor = nextScale / prev;
+      camRef.current = {
+        x: camRef.current.x * realFactor,
+        y: camRef.current.y * realFactor,
+        scale: nextScale,
+      };
+    };
+
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    let pointerStart: { x: number; y: number } | null = null;
+
+    const onPointerDown = (e: PointerEvent) => {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      pointerStart = { x: e.clientX, y: e.clientY };
+      canvas.setPointerCapture(e.pointerId);
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragging) {
+        return;
+      }
+      camRef.current = {
+        ...camRef.current,
+        x: camRef.current.x + (e.clientX - lastX) * dpr,
+        y: camRef.current.y + (e.clientY - lastY) * dpr,
+      };
+      lastX = e.clientX;
+      lastY = e.clientY;
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      dragging = false;
+      if (pointerStart && Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y) < 6) {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX - rect.left) * dpr;
+        const y = (e.clientY - rect.top) * dpr;
+        for (const [userId, box] of nodeHitBoxesRef.current) {
+          if (Math.hypot(x - box.x, y - box.y) < box.r + 6 * dpr) {
+            selectedRef.current = userId;
+            onMemberTap?.(userId);
+            return;
+          }
+        }
+        selectedRef.current = null;
+      }
+    };
+
+    let pinchStart: { dist: number; scale: number; camX: number; camY: number } | null = null;
+    const pinchDist = (t: TouchList) =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        pinchStart = {
+          dist: pinchDist(e.touches),
+          scale: camRef.current.scale,
+          camX: camRef.current.x,
+          camY: camRef.current.y,
+        };
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && pinchStart) {
+        e.preventDefault();
+        const d = pinchDist(e.touches);
+        const targetScale = Math.max(0.5, Math.min(2.5, pinchStart.scale * (d / pinchStart.dist)));
+        const factor = targetScale / pinchStart.scale;
+        camRef.current = {
+          scale: targetScale,
+          x: pinchStart.camX * factor,
+          y: pinchStart.camY * factor,
+        };
+      }
+    };
+
+    const onTouchEnd = () => {
+      pinchStart = null;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      zoomAtScreenCenter(e.deltaY < 0 ? 1.08 : 0.92);
+    };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('touchstart', onTouchStart);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd);
+    canvas.addEventListener('wheel', onWheel, { passive: false });
+
+    return () => {
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
+      canvas.removeEventListener('wheel', onWheel);
+    };
+  }, [onMemberTap]);
+
+  const zoom = (factor: number) => {
+    const prev = camRef.current.scale;
+    const nextScale = Math.max(0.5, Math.min(2.5, prev * factor));
+    const realFactor = nextScale / prev;
+    camRef.current = {
+      x: camRef.current.x * realFactor,
+      y: camRef.current.y * realFactor,
+      scale: nextScale,
+    };
+  };
+
+  const reset = () => {
+    camRef.current = { x: 0, y: 0, scale: 1 };
+  };
+
+  const handleHintDismiss = () => {
+    dismissOrbitHint();
+    setHintVisible(false);
+  };
+
   if (renderError) {
     return (
       <div className={styles.fallback} aria-label="궤도 정적 이미지">
@@ -102,6 +244,27 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
       <div className={styles.hudTop} aria-hidden="true">
         <span className={styles.hudLeft}>VOYAGER 1 / {myNickname}</span>
       </div>
+      <div className={styles.controls} aria-label="궤도 조작">
+        <button type="button" onClick={() => zoom(1.2)} aria-label="확대">
+          +
+        </button>
+        <button type="button" onClick={() => zoom(0.833)} aria-label="축소">
+          −
+        </button>
+        <button type="button" onClick={reset} aria-label="원위치">
+          ↻
+        </button>
+      </div>
+      {hintVisible && (
+        <button
+          type="button"
+          className={styles.hudHint}
+          onClick={handleHintDismiss}
+          aria-label="힌트 닫기"
+        >
+          탭해서 자세히 보기
+        </button>
+      )}
     </div>
   );
 };

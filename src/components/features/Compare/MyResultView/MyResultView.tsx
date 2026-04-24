@@ -210,7 +210,6 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
     }
     setMemberSheetUserId(targetUserId);
   };
-  void handleMemberCompare;
 
   // 비멤버 "나도 참여하기" — 상태별 분기
   const handleJoin = () => {
@@ -339,6 +338,7 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               members={orbitMembers}
               myNickname={myMember?.displayName ?? myMember?.nickname ?? '나'}
               isMember={isMember}
+              onMemberTap={handleMemberCompare}
             />
           )}
         </section>

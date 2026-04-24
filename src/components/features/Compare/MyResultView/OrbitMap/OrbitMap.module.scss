@@ -53,3 +53,40 @@
   height: 100%;
   object-fit: contain;
 }
+
+.controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.controls button {
+  width: 32px;
+  height: 32px;
+  border-radius: $border-rounded;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  color: $white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: $font-size-14;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.hudHint {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px 14px;
+  border-radius: $border-rounded;
+  backdrop-filter: blur(10px);
+  border: none;
+  cursor: pointer;
+}
