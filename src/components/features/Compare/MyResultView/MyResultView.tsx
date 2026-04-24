@@ -24,12 +24,14 @@ import {
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
 import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
+import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMedalSection';
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
   calcGroupSyncRate,
 } from '@/constants/group-compare';
+import type { MyMedal } from '@/constants/my-medals';
 import { WITHDRAWN_NICKNAME } from '@/constants/profileColors';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -47,6 +49,13 @@ import { trackGroupResult } from '@/lib/analytics';
 interface MyResultViewProps {
   token: string;
 }
+
+// TODO: Task 10에서 bundleSlug/answers 기반 계산으로 교체
+const personaLabelStub: MyMedal = {
+  awardType: 'PERSONA_LABEL',
+  title: '균형 타입',
+  oneLiner: '양쪽 의견을 모두 이해하려 하는 타입',
+};
 
 /**
  * 그룹 결과 본문 (Redesign skeleton).
@@ -132,9 +141,8 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
     [displayResult, pairs]
   );
 
-  // pairs/awards는 Task 1에서 사용되지 않음 — 이후 태스크에서 Layer 1/2/3가 소비 예정
+  // pairs는 Task 1에서 사용되지 않음 — 이후 태스크에서 Layer 2/3가 소비 예정
   void pairs;
-  void awards;
 
   if (!result || !displayResult) {
     return null;
@@ -296,8 +304,17 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           </div>
         </div>
 
-        {/* Layer 1 — 이후 태스크에서 채움 */}
-        <section className={styles.layer1} aria-label="Layer 1" />
+        {/* Layer 1 */}
+        <section className={styles.layer1} aria-label="나의 결과">
+          {isMember && !singleMember && (
+            <MyMedalSection
+              myNickname={myMember?.displayName ?? myMember?.nickname ?? ''}
+              awards={awards}
+              currentUserId={currentUserId}
+              personaLabel={personaLabelStub}
+            />
+          )}
+        </section>
 
         {/* Layer 2 — 이후 태스크에서 채움 */}
         <section className={styles.layer2} aria-label="Layer 2" />
