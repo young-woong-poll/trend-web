@@ -24,6 +24,7 @@ import {
   type GroupSettings,
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
 import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
+import { CaptureButton } from '@/components/features/Compare/MyResultView/CaptureButton';
 import { MyExtremeAnswersSection } from '@/components/features/Compare/MyResultView/MyExtremeAnswersSection';
 import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMedalSection';
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
@@ -164,6 +165,9 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
         };
       });
   }, [displayResult, currentUserId, pairs]);
+
+  // TODO: Task 9에서 ShareCardCanvas의 renderShareCard 호출로 교체
+  const handleCaptureStub = async (): Promise<Blob | null> => null;
 
   if (!result || !displayResult) {
     return null;
@@ -344,6 +348,13 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           )}
           {isMember && !singleMember && (
             <MyExtremeAnswersSection result={displayResult} currentUserId={currentUserId} />
+          )}
+          {isMember && !singleMember && (
+            <CaptureButton
+              onCaptureRequest={handleCaptureStub}
+              shareTitle={`${result.bundleTitle ?? ''} 비교 결과`}
+              shareText="HotPick에서 내 결과를 확인해봤어요"
+            />
           )}
         </section>
 
