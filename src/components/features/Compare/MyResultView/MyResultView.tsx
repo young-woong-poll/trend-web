@@ -350,6 +350,56 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           </div>
         </div>
 
+        {/* 참여자 1명 — 안내 배너 + 잠긴 섹션 프리뷰 3종.
+            멤버/비멤버 모두 같은 레이아웃, 카피만 분기. */}
+        {singleMember &&
+          (() => {
+            const firstMember = members[0];
+            const singleMemberName = firstMember?.displayName ?? firstMember?.nickname ?? '참여자';
+            const hintTitle = `아직 ${singleMemberName}님 혼자예요`;
+            const hintText = isMember
+              ? '친구가 참여하면 재미난 비교 결과를 볼 수 있어요'
+              : '참여해서 비교하면 재미난 결과를 볼 수 있어요';
+            return (
+              <>
+                <div className={grStyles.singleMemberHint} role="status">
+                  <p className={grStyles.singleMemberTitle}>{hintTitle}</p>
+                  <p className={grStyles.singleMemberText}>{hintText}</p>
+                  {isMember && (
+                    <button
+                      type="button"
+                      className={grStyles.singleMemberEditProfile}
+                      onClick={() => {
+                        setShowEditProfileModal(true);
+                      }}
+                    >
+                      참여 프로필 수정
+                    </button>
+                  )}
+                </div>
+                <LockedSectionPreview
+                  title="나의 훈장"
+                  desc={isMember ? '친구가 참여하면 훈장이 열려요' : '참여하면 나의 훈장이 열려요'}
+                  sketchType="my-medal"
+                />
+                <LockedSectionPreview
+                  title="나의 위치"
+                  desc={
+                    isMember
+                      ? '친구가 참여하면 궤도가 펼쳐져요'
+                      : '참여하면 궤도에서 나의 자리가 펼쳐져요'
+                  }
+                  sketchType="orbit-map"
+                />
+                <LockedSectionPreview
+                  title="혼자만 다르게 고른 답"
+                  desc="친구가 참여해야 소수답 비교가 가능해요"
+                  sketchType="my-extreme"
+                />
+              </>
+            );
+          })()}
+
         {/* Layer 1 */}
         <section className={styles.layer1} aria-label="나의 결과">
           {isMember && !singleMember && (
