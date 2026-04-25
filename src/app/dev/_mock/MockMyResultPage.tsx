@@ -31,6 +31,18 @@ export function MockMyResultPage({ options }: MockMyResultPageProps) {
   }, [options]);
 
   useEffect(() => {
+    // mock 토큰에 한해 React Query refetch를 차단해야 setQueryData로 주입한 mock이
+    // mount 직후 BE 호출로 덮어써지는 것을 막을 수 있다.
+    const lockOptions = {
+      staleTime: Infinity,
+      gcTime: Infinity,
+      retry: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    };
+    qc.setQueryDefaults(compareKeys.groupResult(options.token), lockOptions);
+    qc.setQueryDefaults(compareKeys.link(options.token), lockOptions);
     qc.setQueryData(compareKeys.groupResult(options.token), mock.result);
     qc.setQueryData(compareKeys.link(options.token), mock.link);
     setReady(true);

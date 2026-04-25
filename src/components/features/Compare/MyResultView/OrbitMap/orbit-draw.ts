@@ -1,7 +1,10 @@
+import { getProfileColor } from '@/constants/profileColors';
+
 export interface OrbitMember {
   userId: string;
   nickname: string;
   matchRate: number;
+  /** BE enum 키(예: 'FLAME') 또는 hex/rgba 문자열 */
   profileColor?: string;
 }
 
@@ -44,8 +47,13 @@ export function getOrbitRadius(width: number, height: number, n: 1 | 2 | 3): num
 }
 
 export function getNodeColor(tier: OrbitTier, profileColor?: string): string {
+  // profileColor는 BE enum 키(예: 'FLAME', 'CORAL')이므로 PROFILE_COLORS에서 hex로 매핑.
+  // hex(#)이나 rgba(...)로 직접 들어온 경우(레거시/테스트)는 그대로 사용.
   if (profileColor) {
-    return profileColor;
+    if (profileColor.startsWith('#') || profileColor.startsWith('rgb')) {
+      return profileColor;
+    }
+    return getProfileColor(profileColor).start;
   }
   switch (tier) {
     case 'satellite':
