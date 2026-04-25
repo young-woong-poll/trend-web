@@ -24,6 +24,7 @@ import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwar
 import grStyles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
 import { LockedSectionPreview } from '@/components/features/Compare/GroupResult/LockedSectionPreview';
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
+import { PopularitySpectrum } from '@/components/features/Compare/GroupResult/PopularitySpectrum';
 import {
   GroupSettingsModal,
   type GroupSettings,
@@ -37,6 +38,7 @@ import styles from '@/components/features/Compare/MyResultView/MyResultView.modu
 import type { OrbitMember } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
 import { OrbitMap } from '@/components/features/Compare/MyResultView/OrbitMap/OrbitMap';
 import { renderShareCard } from '@/components/features/Compare/MyResultView/ShareCardCanvas';
+import { PopularityBarGraph } from '@/components/features/Compare/PopularityBarGraph/PopularityBarGraph';
 import { getPersonaLabel } from '@/constants/bundle-persona-labels';
 import {
   calcAllPairChemistry,
@@ -456,6 +458,8 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
                 excludeCurrentUserAwards={isMember}
               />
               <PickASide result={displayResult} currentUserId={currentUserId} />
+              <PopularitySpectrum result={displayResult} currentUserId={currentUserId} />
+              <PopularityBarGraph questionStats={displayResult.questionStats ?? []} />
               {displayResult.showGenderContent && (
                 <>
                   <CrossGenderChemistry

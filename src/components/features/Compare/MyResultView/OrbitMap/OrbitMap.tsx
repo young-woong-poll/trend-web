@@ -109,23 +109,49 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
       };
     };
 
-    let dragging = false;
+    // 드래그 정책 (touch-action: pan-y pinch-zoom과 협력):
+    //  - 마우스/펜: pointerdown 즉시 자유 드래그(수평+수직).
+    //  - 터치: 첫 이동량 8px 누적 시점에 의도 판단 — 수평 우세면 pan 잠금,
+    //    수직 우세면 페이지 스크롤로 양보(pan 영구 비활성).
+    //  - 두 손가락 핀치는 onTouchStart에서 pan 모드 무효화.
+    const PAN_INTENT_THRESHOLD = 8;
+    const TAP_THRESHOLD = 6;
+
+    let pointerStart: { x: number; y: number } | null = null;
     let lastX = 0;
     let lastY = 0;
-    let pointerStart: { x: number; y: number } | null = null;
+    let panActive = false;
+    let panLocked: 'pending' | 'pan' | 'rejected' = 'pending';
 
     const onPointerDown = (e: PointerEvent) => {
-      dragging = true;
+      pointerStart = { x: e.clientX, y: e.clientY };
       lastX = e.clientX;
       lastY = e.clientY;
-      pointerStart = { x: e.clientX, y: e.clientY };
+      panActive = true;
+      // 마우스/펜은 의도가 분명하므로 임계값 없이 즉시 pan 시작.
+      panLocked = e.pointerType === 'touch' ? 'pending' : 'pan';
       canvas.setPointerCapture(e.pointerId);
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!dragging) {
+      if (!panActive || !pointerStart) {
         return;
       }
+      const dx = e.clientX - pointerStart.x;
+      const dy = e.clientY - pointerStart.y;
+
+      if (panLocked === 'pending') {
+        if (Math.hypot(dx, dy) < PAN_INTENT_THRESHOLD) {
+          return;
+        }
+        // 수평 우세 = orbit pan, 수직 우세 = 페이지 스크롤 양보.
+        panLocked = Math.abs(dx) > Math.abs(dy) ? 'pan' : 'rejected';
+        if (panLocked === 'rejected') {
+          panActive = false;
+          return;
+        }
+      }
+
       camRef.current = {
         ...camRef.current,
         x: camRef.current.x + (e.clientX - lastX) * dpr,
@@ -136,8 +162,16 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
     };
 
     const onPointerUp = (e: PointerEvent) => {
-      dragging = false;
-      if (pointerStart && Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y) < 6) {
+      const wasPanning = panLocked === 'pan';
+      panActive = false;
+      panLocked = 'pending';
+
+      // 거의 움직이지 않았으면 탭으로 간주 — 노드 히트 테스트.
+      if (
+        !wasPanning &&
+        pointerStart &&
+        Math.hypot(e.clientX - pointerStart.x, e.clientY - pointerStart.y) < TAP_THRESHOLD
+      ) {
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX - rect.left) * dpr;
         const y = (e.clientY - rect.top) * dpr;
@@ -161,10 +195,11 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        // 두 번째 손가락이 들어오면 드래그 모드를 즉시 종료해 pinch 줌 동안
-        // pointermove가 cam 팬을 동시에 적용해 jitter가 생기지 않게 한다.
-        dragging = false;
+        // 핀치 시작 시 단일 포인터 pan/탭 후보를 모두 무효화해 두 손가락 줌 동안
+        // pointermove cam 팬이 동시에 적용돼 jitter가 생기지 않게 한다.
         pointerStart = null;
+        panActive = false;
+        panLocked = 'pending';
         pinchStart = {
           dist: pinchDist(e.touches),
           scale: camRef.current.scale,
@@ -193,6 +228,10 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
     };
 
     const onWheel = (e: WheelEvent) => {
+      // 지도/캔버스 UX 표준: Ctrl/⌘ + wheel만 줌, 평소 wheel은 페이지 스크롤로 양보.
+      if (!e.ctrlKey && !e.metaKey) {
+        return;
+      }
       e.preventDefault();
       zoomAtScreenCenter(e.deltaY < 0 ? 1.08 : 0.92);
     };
@@ -200,6 +239,7 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerUp);
     canvas.addEventListener('touchstart', onTouchStart);
     canvas.addEventListener('touchmove', onTouchMove, { passive: false });
     canvas.addEventListener('touchend', onTouchEnd);
@@ -209,6 +249,7 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('pointercancel', onPointerUp);
       canvas.removeEventListener('touchstart', onTouchStart);
       canvas.removeEventListener('touchmove', onTouchMove);
       canvas.removeEventListener('touchend', onTouchEnd);
