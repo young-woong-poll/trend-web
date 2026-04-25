@@ -29,6 +29,7 @@ import {
 } from '@/components/features/Compare/GroupSettingsModal/GroupSettingsModal';
 import { MyCompareLinksSheet } from '@/components/features/Compare/MyCompareLinksSheet/MyCompareLinksSheet';
 import { CaptureButton } from '@/components/features/Compare/MyResultView/CaptureButton';
+import { MemberMoreSection } from '@/components/features/Compare/MyResultView/MemberMoreSection';
 import { MyExtremeAnswersSection } from '@/components/features/Compare/MyResultView/MyExtremeAnswersSection';
 import { MyMedalSection } from '@/components/features/Compare/MyResultView/MyMedalSection';
 import styles from '@/components/features/Compare/MyResultView/MyResultView.module.scss';
@@ -402,8 +403,17 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           )}
         </section>
 
-        {/* Layer 3 — 이후 태스크에서 채움 */}
-        <section className={styles.layer3} aria-label="Layer 3" />
+        {/* Layer 3 — 펼침 */}
+        <section className={styles.layer3} aria-label="모든 멤버">
+          {!singleMember && (
+            <MemberMoreSection
+              currentUserId={currentUserId}
+              members={displayResult.members}
+              pairs={pairs}
+              onMemberTap={handleMemberCompare}
+            />
+          )}
+        </section>
 
         {isMember && (
           <div className={grStyles.ctaSection}>
