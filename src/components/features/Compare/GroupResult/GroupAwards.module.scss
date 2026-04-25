@@ -74,6 +74,11 @@
   }
 }
 
+.awardImageFallback {
+  background: linear-gradient(135deg, rgba(255, 0, 255, 0.25), rgba(255, 69, 0, 0.25));
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
 .awardTextGroup {
   flex: 1;
   min-width: 0;

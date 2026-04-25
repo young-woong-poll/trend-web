@@ -14,6 +14,10 @@ import type { GroupAward, GroupAwardType } from '@/types/group-compare';
 interface GroupAwardsProps {
   awards: GroupAward[];
   currentUserId: string;
+  /** 내가 수상한 어워드를 렌더 목록에서 제거 — MyResultView에서 훈장 중복 방지 */
+  excludeCurrentUserAwards?: boolean;
+  /** 표시할 어워드 타입 override. 미지정 시 기본 VISIBLE_AWARDS 사용. */
+  visibleAwards?: readonly GroupAwardType[];
 }
 
 /** 표시할 어워드만 필터 */
@@ -97,8 +101,20 @@ const WinnerNames: FC<{
   );
 };
 
-export const GroupAwards: FC<GroupAwardsProps> = ({ awards, currentUserId }) => {
-  const filtered = useMemo(() => awards.filter((a) => VISIBLE_AWARDS.includes(a.type)), [awards]);
+export const GroupAwards: FC<GroupAwardsProps> = ({
+  awards,
+  currentUserId,
+  excludeCurrentUserAwards = false,
+  visibleAwards,
+}) => {
+  const allowed = visibleAwards ?? VISIBLE_AWARDS;
+  const filtered = useMemo(() => {
+    const base = awards.filter((a) => allowed.includes(a.type));
+    if (!excludeCurrentUserAwards) {
+      return base;
+    }
+    return base.filter((a) => !a.winners.includes(currentUserId));
+  }, [awards, allowed, currentUserId, excludeCurrentUserAwards]);
 
   if (filtered.length === 0) {
     return null;
@@ -114,13 +130,17 @@ export const GroupAwards: FC<GroupAwardsProps> = ({ awards, currentUserId }) => 
       <div className={styles.awardList}>
         {filtered.map((award) => (
           <div key={award.type} className={styles.awardCard}>
-            <Image
-              src={AWARD_IMAGES[award.type]}
-              alt={award.title}
-              width={56}
-              height={56}
-              className={`${styles.awardImage} ${award.type === 'PEOPLES_CHAMPION' ? styles.zoomIn : ''}`}
-            />
+            {AWARD_IMAGES[award.type] ? (
+              <Image
+                src={AWARD_IMAGES[award.type]}
+                alt={award.title}
+                width={56}
+                height={56}
+                className={`${styles.awardImage} ${award.type === 'PEOPLES_CHAMPION' ? styles.zoomIn : ''}`}
+              />
+            ) : (
+              <div className={`${styles.awardImage} ${styles.awardImageFallback}`} aria-hidden />
+            )}
             <div className={styles.awardTextGroup}>
               <span className={styles.awardTitle}>{award.title}</span>
               <WinnerNames

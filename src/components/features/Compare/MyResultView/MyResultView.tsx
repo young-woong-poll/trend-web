@@ -18,7 +18,11 @@ import { BundleBackground } from '@/components/features/Bundle/BundleBackground/
 import { CreateCompareLink } from '@/components/features/Bundle/BundleResult/CreateCompareLink';
 import { MemberDetailSheet } from '@/components/features/Compare/CompareResult/MemberDetailSheet';
 import { DisplayNameModal } from '@/components/features/Compare/DisplayNameModal/DisplayNameModal';
+import { CrossGenderChemistry } from '@/components/features/Compare/GroupResult/CrossGenderChemistry';
+import { GenderBattle } from '@/components/features/Compare/GroupResult/GenderBattle';
+import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwards';
 import grStyles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
+import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import {
   GroupSettingsModal,
   type GroupSettings,
@@ -374,8 +378,29 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
           )}
         </section>
 
-        {/* Layer 2 — 이후 태스크에서 채움 */}
-        <section className={styles.layer2} aria-label="Layer 2" />
+        {/* Layer 2 — 멤버/비멤버 모두 공개 */}
+        <section className={styles.layer2} aria-label="나머지 지표">
+          {!singleMember && (
+            <>
+              <GroupAwards
+                awards={awards}
+                currentUserId={currentUserId}
+                excludeCurrentUserAwards={isMember}
+              />
+              <PickASide result={displayResult} currentUserId={currentUserId} />
+              {displayResult.showGenderContent && (
+                <>
+                  <CrossGenderChemistry
+                    currentUserId={currentUserId}
+                    members={displayResult.members}
+                    pairs={pairs}
+                  />
+                  <GenderBattle result={displayResult} />
+                </>
+              )}
+            </>
+          )}
+        </section>
 
         {/* Layer 3 — 이후 태스크에서 채움 */}
         <section className={styles.layer3} aria-label="Layer 3" />
