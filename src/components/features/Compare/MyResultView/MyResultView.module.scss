@@ -1,19 +1,29 @@
 @use '@/styles/variables' as *;
 
+// 부모 .container가 align-items: center이므로 명시적으로 width: 100%를 잡아야
+// 내부 자식(특히 가로 스와이프 PickASide)이 화면 좌측으로 줄어들지 않는다.
 .layer1 {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: $spacing-24;
   margin-bottom: $spacing-32;
+  // 가로 스와이프 자식(orbit canvas 등)을 위해 부모의 align-items: stretch를 활용하되
+  // padding은 자식 컴포넌트가 스스로 결정 (PickASide 등이 자체 padding 보유).
+  padding: 0 $spacing-16;
 }
 
 .layer2 {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: $spacing-24;
   margin-bottom: $spacing-32;
+  // PickASide / GroupAwards 등은 자체적으로 padding 처리하므로 외곽은 0.
 }
 
 .layer3 {
+  width: 100%;
   margin-bottom: $spacing-32;
+  padding: 0 $spacing-16;
 }
