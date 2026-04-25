@@ -9,6 +9,14 @@ HotPick의 재사용 가능한 컴포넌트·패턴을 결(Designer)이 점진�
 - **의도 기록**: "왜 신규인지", "왜 기존을 확장하지 않았는지" 같은 결정 근거 요약을 남긴다.
 - 항목이 쓸모 없어지면 삭제 (코드가 SSoT).
 
+## 보류·재평가 메모
+
+- **2026-04-26, Phase 1 결과 페이지 재설계 작업 (MyResultView 일체 + 관련 패턴: 나 중심 정보 위계, 그룹 단어 제거, Canvas 시각화)** — Phase 1 즉시 보류 결정에 따라 작업 브랜치 분기.
+  - **현재 브랜치 `feature/h3`**: Phase 1 코드·스펙 없음. H3 검증 전용.
+  - **보존 브랜치 `feature/renewal-6`**: MyResultView 컴포넌트 일체(`src/components/features/Compare/MyResultView/`) + 스펙(`docs/superpowers/specs/2026-04-24-bundle-result-redesign-design.md`) + 플랜(`docs/superpowers/plans/2026-04-24-bundle-result-redesign.md`) 보존. 마지막 커מ "결과 개선중 보류" (`039d472`).
+  - **재평가 시점**: H3 1차 검증 회고(2026-05-27 전후) 이후. 채택 시 `feature/renewal-6` 자료 재활용 또는 cherry-pick. 폐기 시 본 메모만 유지하고 브랜치는 그대로 보존.
+  - **결정 맥락**: [docs/strategy/retro-2026-04-25-bundle-essence.md](../strategy/retro-2026-04-25-bundle-essence.md), [docs/strategy/2026-04-25-h3-friend-evaluation.md](../strategy/2026-04-25-h3-friend-evaluation.md).
+
 ---
 
 ## ChemSubFilter
