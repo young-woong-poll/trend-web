@@ -31,6 +31,7 @@ import styles from '@/components/features/Compare/MyResultView/MyResultView.modu
 import type { OrbitMember } from '@/components/features/Compare/MyResultView/OrbitMap/orbit-draw';
 import { OrbitMap } from '@/components/features/Compare/MyResultView/OrbitMap/OrbitMap';
 import { renderShareCard } from '@/components/features/Compare/MyResultView/ShareCardCanvas';
+import { getPersonaLabel } from '@/constants/bundle-persona-labels';
 import {
   calcAllPairChemistry,
   calcGroupAwards,
@@ -54,13 +55,6 @@ import { trackGroupResult } from '@/lib/analytics';
 interface MyResultViewProps {
   token: string;
 }
-
-// TODO: Task 10에서 bundleSlug/answers 기반 계산으로 교체
-const personaLabelStub: MyMedal = {
-  awardType: 'PERSONA_LABEL',
-  title: '균형 타입',
-  oneLiner: '양쪽 의견을 모두 이해하려 하는 타입',
-};
 
 /**
  * 그룹 결과 본문 (Redesign skeleton).
@@ -167,6 +161,16 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
       });
   }, [displayResult, currentUserId, pairs]);
 
+  const myMemberAnswers = useMemo(
+    () => result?.members?.find((m) => m.userId === currentUserId)?.answers ?? [],
+    [result, currentUserId]
+  );
+
+  const personaLabel = useMemo<MyMedal>(
+    () => getPersonaLabel(result?.bundleSlug ?? undefined, currentUserId, myMemberAnswers),
+    [result?.bundleSlug, currentUserId, myMemberAnswers]
+  );
+
   if (!result || !displayResult) {
     return null;
   }
@@ -174,7 +178,7 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
   const myMember = (result.members ?? []).find((m) => m.userId === currentUserId);
 
   const handleCapture = async (): Promise<Blob | null> => {
-    const medals = getMyMedals(awards, currentUserId, personaLabelStub);
+    const medals = getMyMedals(awards, currentUserId, personaLabel);
     return renderShareCard({
       members: orbitMembers,
       myNickname: myMember?.displayName ?? myMember?.nickname ?? '나',
@@ -347,7 +351,7 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               myNickname={myMember?.displayName ?? myMember?.nickname ?? ''}
               awards={awards}
               currentUserId={currentUserId}
-              personaLabel={personaLabelStub}
+              personaLabel={personaLabel}
             />
           )}
           {!singleMember && (
