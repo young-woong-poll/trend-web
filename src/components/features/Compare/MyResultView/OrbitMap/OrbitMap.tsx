@@ -144,6 +144,9 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
         for (const [userId, box] of nodeHitBoxesRef.current) {
           if (Math.hypot(x - box.x, y - box.y) < box.r + 6 * dpr) {
             selectedRef.current = userId;
+            // 자연스러운 첫 인터랙션을 첫방문 hint dismiss로 인정.
+            dismissOrbitHint();
+            setHintVisible(false);
             onMemberTap?.(userId);
             return;
           }
@@ -158,6 +161,10 @@ export const OrbitMap: FC<OrbitMapProps> = ({ members, myNickname, isMember, onM
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
+        // 두 번째 손가락이 들어오면 드래그 모드를 즉시 종료해 pinch 줌 동안
+        // pointermove가 cam 팬을 동시에 적용해 jitter가 생기지 않게 한다.
+        dragging = false;
+        pointerStart = null;
         pinchStart = {
           dist: pinchDist(e.touches),
           scale: camRef.current.scale,

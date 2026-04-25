@@ -9,12 +9,19 @@ import { createPortal } from 'react-dom';
 import kingOfViralImg from '@/assets/img/characters/king-of-viral.png';
 import troubleMakerImg from '@/assets/img/characters/trouble-maker.png';
 import styles from '@/components/features/Compare/GroupResult/GroupAwards.module.scss';
+import { TOP_PRIORITY } from '@/constants/my-medals';
 import type { GroupAward, GroupAwardType } from '@/types/group-compare';
 
 interface GroupAwardsProps {
   awards: GroupAward[];
   currentUserId: string;
-  /** 내가 수상한 어워드를 렌더 목록에서 제거 — MyResultView에서 훈장 중복 방지 */
+  /**
+   * MyResultView Layer 1 훈장과 중복되는 본인 수상만 제거.
+   * TOP_PRIORITY 타입(SOUL_CONNECTION/PEOPLES_CHAMPION/GROUP_LEADER/POLAR_OPPOSITES)
+   * 중 본인이 수상한 것만 필터에서 빠진다.
+   * CONTROVERSY_MAKER/GROUP_OUTSIDER 같은 부정 뉘앙스 어워드는 Layer 1에 안 나오므로
+   * 본인이 수상해도 Layer 2 GroupAwards에서는 그대로 노출된다.
+   */
   excludeCurrentUserAwards?: boolean;
   /** 표시할 어워드 타입 override. 미지정 시 기본 VISIBLE_AWARDS 사용. */
   visibleAwards?: readonly GroupAwardType[];
@@ -113,7 +120,11 @@ export const GroupAwards: FC<GroupAwardsProps> = ({
     if (!excludeCurrentUserAwards) {
       return base;
     }
-    return base.filter((a) => !a.winners.includes(currentUserId));
+    // Layer 1 훈장과 겹치는 TOP_PRIORITY 본인 수상만 제거.
+    // 그 외 본인 수상(CONTROVERSY_MAKER 등)은 그대로 둔다.
+    return base.filter(
+      (a) => !(TOP_PRIORITY.includes(a.type) && a.winners.includes(currentUserId))
+    );
   }, [awards, allowed, currentUserId, excludeCurrentUserAwards]);
 
   if (filtered.length === 0) {

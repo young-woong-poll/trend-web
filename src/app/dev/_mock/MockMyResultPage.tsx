@@ -9,21 +9,18 @@ import {
   buildMockGroupResult,
   type MockGroupOptions,
 } from '@/app/dev/_mock/groupMock';
-import { FullGroupResultView } from '@/components/features/Compare/GroupResult/FullGroupResultView';
+import { MyResultView } from '@/components/features/Compare/MyResultView/MyResultView';
 import { compareKeys } from '@/hooks/api/useCompare';
 
-interface MockGroupResultPageProps {
+interface MockMyResultPageProps {
   options: MockGroupOptions;
 }
 
 /**
- * React Query 캐시에 mock을 직접 주입해 **레거시 FullGroupResultView**를 렌더.
- * MSW 핸들러 우회 — BE 응답 형태 그대로 확인용.
- *
- * 신규 MyResultView(2026-04-25 스펙) 프리뷰는 `MockMyResultPage`를 사용한다.
- * 본 mock은 레거시 비교/회귀 디버깅 목적으로만 유지된다.
+ * React Query 캐시에 mock을 직접 주입해 신규 MyResultView를 렌더.
+ * 레거시 MockGroupResultPage는 FullGroupResultView 프리뷰용으로 그대로 유지된다.
  */
-export function MockGroupResultPage({ options }: MockGroupResultPageProps) {
+export function MockMyResultPage({ options }: MockMyResultPageProps) {
   const qc = useQueryClient();
   const [ready, setReady] = useState(false);
 
@@ -43,5 +40,5 @@ export function MockGroupResultPage({ options }: MockGroupResultPageProps) {
     return null;
   }
 
-  return <FullGroupResultView token={options.token} />;
+  return <MyResultView token={options.token} />;
 }

@@ -428,6 +428,8 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               shareText="HotPick에서 내 결과를 확인해봤어요"
             />
           )}
+          {/* 비멤버: OrbitMap은 위에서 그대로 보이되 중앙 "나" 자리만 실루엣.
+              훈장/소수답만 잠금 프리뷰로 가린다. CaptureButton은 비멤버 미노출. */}
           {!singleMember && !isMember && (
             <>
               <LockedSectionPreview
@@ -436,16 +438,10 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
                 sketchType="my-medal"
               />
               <LockedSectionPreview
-                title="나의 위치"
-                desc="여기에 당신이 들어올 수 있어요"
-                sketchType="orbit-map"
-              />
-              <LockedSectionPreview
                 title="혼자만 다르게 고른 답"
                 desc="참여하면 소수 의견 TOP 3가 공개돼요"
                 sketchType="my-extreme"
               />
-              {/* CaptureButton은 비멤버에 노출하지 않음 — 공유할 자기 결과 없음 */}
             </>
           )}
         </section>

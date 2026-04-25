@@ -7,13 +7,16 @@ import type { GroupAward, GroupAwardType } from '@/types/group-compare';
  * 중립-긍정 뉘앙스 어워드만 노출 — 공유 거부 방지.
  * CONTROVERSY_MAKER(트러블 메이커), GROUP_OUTSIDER(그룹 이단아)는 부정 뉘앙스로 제외.
  * 제외된 어워드는 Layer 2 GroupAwards에서만 노출된다.
+ *
+ * Layer 2(`GroupAwards`)에서 "내 Layer 1 훈장과 중복 노출" 방지 시 이 리스트를 import해
+ * 본인 수상 중 TOP_PRIORITY에 속하는 것만 필터링한다.
  */
-const TOP_PRIORITY: GroupAwardType[] = [
+export const TOP_PRIORITY: readonly GroupAwardType[] = [
   'SOUL_CONNECTION',
   'PEOPLES_CHAMPION',
   'GROUP_LEADER',
   'POLAR_OPPOSITES',
-];
+] as const;
 
 /**
  * TOP 수상 후보에서 영구 제외되는 어워드 타입.
