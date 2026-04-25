@@ -22,6 +22,7 @@ import { CrossGenderChemistry } from '@/components/features/Compare/GroupResult/
 import { GenderBattle } from '@/components/features/Compare/GroupResult/GenderBattle';
 import { GroupAwards } from '@/components/features/Compare/GroupResult/GroupAwards';
 import grStyles from '@/components/features/Compare/GroupResult/GroupResult.module.scss';
+import { LockedSectionPreview } from '@/components/features/Compare/GroupResult/LockedSectionPreview';
 import { PickASide } from '@/components/features/Compare/GroupResult/PickASide';
 import {
   GroupSettingsModal,
@@ -376,6 +377,26 @@ export const MyResultView: FC<MyResultViewProps> = ({ token }) => {
               shareTitle={`${result.bundleTitle ?? ''} 비교 결과`}
               shareText="HotPick에서 내 결과를 확인해봤어요"
             />
+          )}
+          {!singleMember && !isMember && (
+            <>
+              <LockedSectionPreview
+                title="나의 훈장"
+                desc="참여하면 나만의 훈장 3단이 열려요"
+                sketchType="my-medal"
+              />
+              <LockedSectionPreview
+                title="나의 위치"
+                desc="여기에 당신이 들어올 수 있어요"
+                sketchType="orbit-map"
+              />
+              <LockedSectionPreview
+                title="혼자만 다르게 고른 답"
+                desc="참여하면 소수 의견 TOP 3가 공개돼요"
+                sketchType="my-extreme"
+              />
+              {/* CaptureButton은 비멤버에 노출하지 않음 — 공유할 자기 결과 없음 */}
+            </>
           )}
         </section>
 

@@ -4,7 +4,13 @@ import { type FC } from 'react';
 
 import styles from '@/components/features/Compare/GroupResult/LockedSectionPreview.module.scss';
 
-type SketchType = 'chemistry-network' | 'pick-a-side' | 'group-awards';
+type SketchType =
+  | 'chemistry-network'
+  | 'pick-a-side'
+  | 'group-awards'
+  | 'orbit-map'
+  | 'my-medal'
+  | 'my-extreme';
 
 interface LockedSectionPreviewProps {
   /** 섹션 제목 (예: "케미 네트워크") */
@@ -32,6 +38,9 @@ export const LockedSectionPreview: FC<LockedSectionPreviewProps> = ({
         {sketchType === 'chemistry-network' && <ChemistrySketch />}
         {sketchType === 'pick-a-side' && <PickASideSketch />}
         {sketchType === 'group-awards' && <GroupAwardsSketch />}
+        {sketchType === 'orbit-map' && <OrbitMapSketch />}
+        {sketchType === 'my-medal' && <MyMedalSketch />}
+        {sketchType === 'my-extreme' && <MyExtremeSketch />}
       </div>
       <div className={styles.vignette} aria-hidden="true" />
       <div className={styles.overlay}>
@@ -185,6 +194,109 @@ function GroupAwardsSketch() {
           <rect x={x + 22} y={70} width={26} height={4} rx={2} fill="rgba(255, 255, 255, 0.4)" />
           <rect x={x + 14} y={88} width={42} height={5} rx={2.5} fill="rgba(255, 255, 255, 0.35)" />
           <rect x={x + 20} y={100} width={30} height={4} rx={2} fill="rgba(255, 255, 255, 0.22)" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function OrbitMapSketch() {
+  // 3겹 궤도 + 중앙 + 6개 행성 — 마이크로 미리보기
+  const placements = [
+    { angle: 0.3, ring: 1 },
+    { angle: 0.9, ring: 2 },
+    { angle: 1.6, ring: 2 },
+    { angle: 2.5, ring: 3 },
+    { angle: 4.2, ring: 1 },
+    { angle: 5.0, ring: 3 },
+  ];
+  const ringRadius = (n: number) => 30 * n;
+  return (
+    <svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet" role="presentation">
+      <defs>
+        <linearGradient id="orbitMapNodeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 0, 255, 0.75)" />
+          <stop offset="100%" stopColor="rgba(255, 69, 0, 0.75)" />
+        </linearGradient>
+      </defs>
+      <circle cx="150" cy="90" r="30" stroke="rgba(255,0,255,0.35)" strokeWidth="1" fill="none" />
+      <circle
+        cx="150"
+        cy="90"
+        r="60"
+        stroke="rgba(255,255,255,0.14)"
+        strokeWidth="1"
+        fill="none"
+        strokeDasharray="4 4"
+      />
+      <circle
+        cx="150"
+        cy="90"
+        r="85"
+        stroke="rgba(239,68,68,0.25)"
+        strokeWidth="1"
+        fill="none"
+        strokeDasharray="2 6"
+      />
+      <circle cx="150" cy="90" r="14" fill="url(#orbitMapNodeGrad)" />
+      {placements.map((p, i) => {
+        const r = ringRadius(p.ring);
+        return (
+          <circle
+            key={i}
+            cx={150 + Math.cos(p.angle) * r}
+            cy={90 + Math.sin(p.angle) * r}
+            r={6}
+            fill="rgba(255,110,199,0.6)"
+            stroke="rgba(255,255,255,0.4)"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function MyMedalSketch() {
+  // 훈장 3단 카드 골격
+  const cards = [24, 82, 140];
+  return (
+    <svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet" role="presentation">
+      {cards.map((y, i) => (
+        <g key={i}>
+          <rect
+            x={30}
+            y={y}
+            width={240}
+            height={40}
+            rx={10}
+            fill="rgba(30,30,30,0.55)"
+            stroke={i === 0 ? 'rgba(255,0,255,0.5)' : 'rgba(255,255,255,0.15)'}
+            strokeWidth={i === 0 ? 1.5 : 1}
+          />
+          <rect x={46} y={y + 14} width={100} height={6} rx={3} fill="rgba(255,255,255,0.45)" />
+          <rect x={46} y={y + 26} width={60} height={4} rx={2} fill="rgba(255,255,255,0.25)" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function MyExtremeSketch() {
+  // 소수답 3개 — 질문 라인 + 답 뱃지 + 캡션
+  const rows = [20, 70, 120];
+  return (
+    <svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid meet" role="presentation">
+      <defs>
+        <linearGradient id="extremeBadgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255, 0, 255, 0.75)" />
+          <stop offset="100%" stopColor="rgba(255, 69, 0, 0.75)" />
+        </linearGradient>
+      </defs>
+      {rows.map((y, i) => (
+        <g key={i}>
+          <rect x={30} y={y} width={240} height={10} rx={2} fill="rgba(255,255,255,0.22)" />
+          <rect x={30} y={y + 18} width={80} height={18} rx={9} fill="url(#extremeBadgeGrad)" />
+          <rect x={118} y={y + 22} width={100} height={5} rx={2} fill="rgba(223,255,0,0.45)" />
         </g>
       ))}
     </svg>
