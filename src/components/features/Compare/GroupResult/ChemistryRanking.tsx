@@ -447,7 +447,7 @@ export const ChemistryRanking: FC<ChemistryRankingProps> = ({
       {isMyView && onEditProfile && (
         <div className={styles.comparePanel}>
           <div className={styles.comparePanelText}>
-            <span className={styles.comparePanelNames}>내 프로필</span>
+            <span className={styles.comparePanelNames}>참여 프로필</span>
             <span className={styles.comparePanelTitle}>표시 이름 · 프로필 색상</span>
           </div>
           <button type="button" className={styles.comparePanelBtn} onClick={onEditProfile}>

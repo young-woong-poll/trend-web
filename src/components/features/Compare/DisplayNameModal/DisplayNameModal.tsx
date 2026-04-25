@@ -65,7 +65,7 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton maxWidth={400}>
       <div className={styles.container} style={getCategoryThemeVars(categoryCode, categoryMeta)}>
-        <h2 className={styles.title}>이 그룹에서 사용할 이름</h2>
+        <h2 className={styles.title}>참여할 때 보여질 이름</h2>
 
         <div className={styles.options}>
           <button
@@ -96,7 +96,7 @@ export const DisplayNameModal: FC<DisplayNameModalProps> = ({
           <div className={styles.customSection}>
             <input
               className={styles.input}
-              placeholder="이 그룹에서 사용할 이름"
+              placeholder="참여할 때 보여질 이름"
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={20}

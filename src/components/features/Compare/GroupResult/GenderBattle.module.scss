@@ -190,12 +190,30 @@
 }
 
 // ─── Bar ───
+// 트랙 자체에 옅은 배경을 깔아 "과반 아닌 쪽"을 표현.
+// 내부 바는 과반인 방향(왼쪽/오른쪽)으로 붙여 채움.
 .barTrack {
   display: flex;
   flex: 1;
   height: 6px;
   border-radius: $border-rounded;
   overflow: hidden;
+}
+
+.barTrackMale {
+  background: rgba(#4fc3f7, 0.12);
+}
+
+.barTrackFemale {
+  background: rgba(#ec4899, 0.12);
+}
+
+.barTrackLeft {
+  justify-content: flex-start;
+}
+
+.barTrackRight {
+  justify-content: flex-end;
 }
 
 .barMaleA {
@@ -207,7 +225,7 @@
 
 .barMaleB {
   height: 100%;
-  background: rgba(#4fc3f7, 0.12);
+  background: linear-gradient(90deg, #00bcd4, #4fc3f7);
   border-radius: 0 $border-rounded $border-rounded 0;
   transition: width 0.4s ease;
 }
@@ -221,7 +239,7 @@
 
 .barFemaleB {
   height: 100%;
-  background: rgba(#ec4899, 0.12);
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
   border-radius: 0 $border-rounded $border-rounded 0;
   transition: width 0.4s ease;
 }

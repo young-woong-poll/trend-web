@@ -50,6 +50,28 @@
   word-break: keep-all;
 }
 
+.singleMemberEditProfile {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: $text-secondary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: $white;
+  }
+}
+
 // ─── 프리뷰 배너 (deprecated — 구 fake 결과 안내 잔존) ───
 .previewBanner {
   @include flex-column;

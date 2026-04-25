@@ -47,9 +47,13 @@ const GenderCard: FC<{ q: GenderQuestionStat }> = ({ q }) => (
         >
           {Math.round(q.maleRatioA)}%
         </span>
-        <div className={styles.barTrack}>
-          <div className={styles.barMaleA} style={{ width: `${q.maleRatioA}%` }} />
-          <div className={styles.barMaleB} style={{ width: `${q.maleRatioB}%` }} />
+        <div
+          className={`${styles.barTrack} ${styles.barTrackMale} ${q.maleRatioA >= 50 ? styles.barTrackLeft : styles.barTrackRight}`}
+        >
+          <div
+            className={q.maleRatioA >= 50 ? styles.barMaleA : styles.barMaleB}
+            style={{ width: `${q.maleRatioA >= 50 ? q.maleRatioA : q.maleRatioB}%` }}
+          />
         </div>
         <span
           className={`${styles.percent} ${styles.percentRight} ${q.maleRatioB >= 50 ? styles.percentWinMale : styles.percentLose}`}
@@ -65,9 +69,13 @@ const GenderCard: FC<{ q: GenderQuestionStat }> = ({ q }) => (
         >
           {Math.round(q.femaleRatioA)}%
         </span>
-        <div className={styles.barTrack}>
-          <div className={styles.barFemaleA} style={{ width: `${q.femaleRatioA}%` }} />
-          <div className={styles.barFemaleB} style={{ width: `${q.femaleRatioB}%` }} />
+        <div
+          className={`${styles.barTrack} ${styles.barTrackFemale} ${q.femaleRatioA >= 50 ? styles.barTrackLeft : styles.barTrackRight}`}
+        >
+          <div
+            className={q.femaleRatioA >= 50 ? styles.barFemaleA : styles.barFemaleB}
+            style={{ width: `${q.femaleRatioA >= 50 ? q.femaleRatioA : q.femaleRatioB}%` }}
+          />
         </div>
         <span
           className={`${styles.percent} ${styles.percentRight} ${q.femaleRatioB >= 50 ? styles.percentWinFemale : styles.percentLose}`}
