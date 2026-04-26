@@ -14,7 +14,6 @@ import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
-import { useToast } from '@/hooks/useToast';
 import type {
   FriendTetoEgenMetaResponse,
   TetoEgenAnswer,
@@ -32,7 +31,6 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const router = useRouter();
   const scenario = useScenario();
   const { isLoggedIn, requireLogin } = useAuth();
-  const { toast, showToast } = useToast();
   const { alertState, showAlert, handleConfirm } = useAlert();
 
   const submit = useSubmitFriendVote(token, scenario);
@@ -92,11 +90,18 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
           if (status === 409 && body?.data?.myVote) {
             showAlert('이미 참여했습니다', {
               confirmText: '확인',
+              showCloseButton: false,
+              onConfirm: () => window.location.reload(),
             });
             setSubmittedVote(body.data.myVote);
             return;
           }
-          showToast('일시적인 에러가 발생했어요. 다시 시도해주세요');
+          showAlert('일시적인 에러가 발생했어요', {
+            message: '다시 시도해주세요',
+            confirmText: '확인',
+            showCloseButton: false,
+            onConfirm: () => window.location.reload(),
+          });
         },
       }
     );
@@ -138,13 +143,14 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
             </div>
           </div>
         </TetoEgenLayout>
-        {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}
         <Alert
           isOpen={alertState.isOpen}
           title={alertState.title}
           message={alertState.message}
           confirmText={alertState.confirmText}
           onConfirm={handleConfirm}
+          showCloseButton={alertState.showCloseButton ?? true}
+          closeOnDimmedClick={alertState.showCloseButton ?? true}
         />
       </>
     );
@@ -171,7 +177,6 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
           disabled={submit.isPending}
         />
       </TetoEgenLayout>
-      {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}
       <Alert
         isOpen={alertState.isOpen}
         title={alertState.title}

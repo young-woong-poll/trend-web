@@ -4,6 +4,7 @@ import { type FC, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { Alert } from '@/components/common/Alert/Alert';
 import BinaryChoiceCard from '@/components/features/TetoEgen/BinaryChoiceCard';
 import LinkGenerateForm from '@/components/features/TetoEgen/LinkGenerateForm';
 import LinkShareCard from '@/components/features/TetoEgen/LinkShareCard';
@@ -11,6 +12,7 @@ import styles from '@/components/features/TetoEgen/PrimaryFlow.module.scss';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCreateTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
+import { useAlert } from '@/hooks/useAlert';
 import { useToast } from '@/hooks/useToast';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
@@ -29,6 +31,7 @@ const PrimaryFlow: FC = () => {
   const router = useRouter();
   const { user } = useAuth();
   const { toast, showToast } = useToast();
+  const { alertState, showAlert, handleConfirm } = useAlert();
 
   const [step, setStep] = useState<Step>('q1');
   const [selfAnswer, setSelfAnswer] = useState<TetoEgenAnswer | null>(null);
@@ -78,11 +81,19 @@ const PrimaryFlow: FC = () => {
             err as { response?: { data?: { code?: string; data?: { shareUrl?: string } } } }
           ).response?.data;
           if (status === 409 && body?.data?.shareUrl) {
-            // 이미 있는 링크 → 결과 화면으로
-            router.replace('/ask/teto-egen/my');
+            showAlert('이미 링크가 존재합니다', {
+              confirmText: '확인',
+              showCloseButton: false,
+              onConfirm: () => window.location.reload(),
+            });
             return;
           }
-          showToast('일시적인 에러가 발생했어요. 다시 시도해주세요');
+          showAlert('일시적인 에러가 발생했어요', {
+            message: '다시 시도해주세요',
+            confirmText: '확인',
+            showCloseButton: false,
+            onConfirm: () => window.location.reload(),
+          });
         },
       }
     );
@@ -149,6 +160,15 @@ const PrimaryFlow: FC = () => {
       </TetoEgenLayout>
 
       {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}
+      <Alert
+        isOpen={alertState.isOpen}
+        title={alertState.title}
+        message={alertState.message}
+        confirmText={alertState.confirmText}
+        onConfirm={handleConfirm}
+        showCloseButton={alertState.showCloseButton ?? true}
+        closeOnDimmedClick={alertState.showCloseButton ?? true}
+      />
     </>
   );
 };
