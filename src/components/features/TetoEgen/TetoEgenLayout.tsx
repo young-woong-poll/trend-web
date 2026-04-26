@@ -43,6 +43,8 @@ const TetoEgenLayout: FC<TetoEgenLayoutProps> = ({
     }
   }, [onClose, router]);
 
+  const hasHeaderButton = showBack || showClose;
+
   return (
     <div className={styles.root}>
       <header className={styles.header}>
@@ -71,7 +73,9 @@ const TetoEgenLayout: FC<TetoEgenLayoutProps> = ({
           )}
         </div>
       </header>
-      <main className={styles.body}>{children}</main>
+      <main className={`${styles.body} ${!hasHeaderButton ? styles.bodyCompact : ''}`}>
+        {children}
+      </main>
       {footer && <footer className={styles.footer}>{footer}</footer>}
     </div>
   );

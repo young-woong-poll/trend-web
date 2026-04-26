@@ -1,4 +1,15 @@
-@import '@/styles/variables';
+@use '@/styles/variables' as *;
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
 
 .loading {
   display: flex;
@@ -16,24 +27,12 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: $z-index-tooltip;
-  padding: $spacing-16 $spacing-24;
-  background: rgba(30, 30, 30, 0.96);
-  border: 1px solid #333;
+  padding: 10px $spacing-16;
+  background: rgba(0, 0, 0, 0.85);
   border-radius: $border-rounded;
   color: $white;
   font-size: $font-size-14;
   white-space: nowrap;
-  box-shadow: $shadow-lg;
-  animation: toast-in 0.2s ease;
-}
-
-@keyframes toast-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 8px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: toastIn 0.2s ease;
 }

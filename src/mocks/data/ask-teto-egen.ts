@@ -105,8 +105,21 @@ export const getFriendVotesByScenario = (
 
 // /me 응답 빌더
 export const buildMyLinkResponse = (scenario: MockScenario): MyTetoEgenLinkResponse | null => {
+  // mock 시나리오(?mock=hit|miss|empty|tie)로 결과 화면을 직접 진입할 때는
+  // POST /links 없이도 시드 응답을 반환해 디자인 점검이 가능하도록 처리.
   if (!myLink) {
-    return null;
+    if (scenario === 'default') {
+      return null;
+    }
+    const seedSelfAnswer: TetoEgenAnswer = 'TETO';
+    return {
+      token: 'mock-token',
+      shareUrl: `${SHARE_BASE_URL}/mock-token`,
+      displayName: '웅일',
+      selfAnswer: seedSelfAnswer,
+      selfPrediction: 'EGEN',
+      friendVotes: getFriendVotesByScenario(scenario, seedSelfAnswer),
+    };
   }
   return {
     token: myLink.token,

@@ -1,4 +1,35 @@
-@import '@/styles/variables';
+@use '@/styles/variables' as *;
+
+@keyframes resultFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
 
 .loading {
   display: flex;
@@ -10,62 +41,96 @@
   font-size: $font-size-14;
 }
 
-.body {
+.stack {
   display: flex;
   flex-direction: column;
-  gap: $spacing-24;
-  padding-top: $spacing-16;
+  gap: $spacing-32;
+  width: 100%;
+}
+
+.friendsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .shareArea {
   display: flex;
   flex-direction: column;
   gap: $spacing-16;
-  padding-top: $spacing-16;
+  padding-top: $spacing-24;
+  border-top: 1px solid rgba($white, 0.04);
+  animation: resultFadeUp 0.5s ease-out 0.3s both;
 }
 
 .linkBox {
   width: 100%;
-  padding: $spacing-16;
-  background: $bg-tertiary;
-  border: 1px solid #3a3a3a;
-  border-radius: $border-radius-md;
-  text-align: center;
+  padding: 14px $spacing-16;
+  background: rgba($bg-secondary, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($white, 0.06);
+  border-radius: $border-radius-lg;
+  text-align: left;
 }
 
 .linkText {
-  font-size: $font-size-14;
-  color: $white;
+  font-size: 13px;
+  color: $text-secondary;
   word-break: break-all;
+  letter-spacing: -0.1px;
+  font-variant-numeric: tabular-nums;
 }
 
 .cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: $spacing-8;
   width: 100%;
-  padding: $spacing-16;
-  background: $primary-gradient;
+  padding: 16px;
+  background: var(--primary-gradient);
   border: none;
-  border-radius: $border-rounded;
+  border-radius: $border-radius-lg;
   color: $white;
   font-size: $font-size-18;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.4px;
   cursor: pointer;
+  overflow: hidden;
   transition:
     transform 0.15s ease,
     opacity 0.15s ease;
 
+  &:hover {
+    opacity: 0.92;
+  }
+
   &:active {
     transform: scale(0.98);
-    opacity: 0.92;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 2.5s ease-in-out infinite;
+    pointer-events: none;
   }
 }
 
 .copyIcon {
+  position: relative;
+  z-index: 1;
   width: 18px;
   height: 18px;
+}
+
+.ctaLabel {
+  position: relative;
+  z-index: 1;
 }
 
 .toast {
@@ -74,12 +139,29 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: $z-index-tooltip;
-  padding: $spacing-16 $spacing-24;
-  background: rgba(30, 30, 30, 0.96);
-  border: 1px solid #333;
+  padding: 10px $spacing-16;
+  background: rgba(0, 0, 0, 0.85);
   border-radius: $border-rounded;
   color: $white;
   font-size: $font-size-14;
   white-space: nowrap;
-  box-shadow: $shadow-lg;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  animation: toastIn 0.2s ease;
+}
+
+.secondaryAction {
+  align-self: center;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: $text-tertiary;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  letter-spacing: -0.2px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $text-secondary;
+  }
 }

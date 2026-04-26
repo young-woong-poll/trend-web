@@ -180,10 +180,9 @@ H3 검증 사이클 1차 콘텐츠. 사용자가 자기 자신을 테토/에겐 
 }
 ```
 
-**Response 404:** 본인이 아직 링크를 만들지 않음. FE는 자기 평가 시작 화면으로 분기.
-
 **FE 처리:**
 
+- null 응답 → 아직 본인 링크를 만들지 않음
 - `friendVotes.total === 0` → S5-엠프티 ("아직 친구가 평가하지 않았어요")
 - `friendVotes.total >= 1` → S5 토스 톤 결과 화면
   - 다수파 계산: `tetoCount > egenCount ? 'TETO' : 'EGEN'` (동률은 사용자 자기 답과 일치 시 적중 처리 권장 — 결정 필요)
@@ -208,13 +207,14 @@ H3 검증 사이클 1차 콘텐츠. 사용자가 자기 자신을 테토/에겐 
 {
   token: string;
   displayName: string; // "{이름}님은 테토인가요?" 카피용
-  ownerUserId: string; // FE에서 자기 토큰 검증용 (선택 — BE에서 검증할거면 불필요)
+  isOwn: boolean; // 자신의 투표인지 확인
 }
 ```
 
 **보안 메모:**
 
-- `ownerUserId`를 응답에 넣을지 BE가 결정. 넣지 않으면 자기 토큰 진입 차단은 평가 제출(POST) 시점에서만 검증되고, GET 응답으로는 본인 토큰 여부를 모름. 결의 권장: **GET에는 안 넣고, POST에서 차단**. 이렇게 하면 사용자가 자기 링크 클릭 시 평가 화면은 보이지만 제출 시 모달 차단. 또는 GET에 `isOwn: boolean` 추가해서 친구 평가 카드를 비활성화 표시.
+- 사용자가 자기 링크 클릭 시 평가 화면은 보이지만 제출 시 모달 차단.
+- 또는 isOwn 활용해서 자신의 투표시 비활성화? or FE 에서 차단
 - `selfAnswer`/`selfPrediction`은 절대 응답에 포함 금지 — 친구가 보기 전에 정답 노출되면 안 됨.
 
 **Response 404:** 토큰 없음 (잘못된 링크 / 폐기된 링크). FE는 "링크가 더 이상 유효하지 않아요" 안내.
@@ -298,33 +298,15 @@ H3 검증 사이클 1차 콘텐츠. 사용자가 자기 자신을 테토/에겐 
 
 ---
 
-## 운영 메모
-
-- **삭제·폐기 정책**: H3 검증 실패 시 `ask_teto_egen_*` 테이블 통째로 drop 가능하도록 설계. 다른 도메인 의존 없음.
-- **분석 이벤트** (FE에서 GA4 박는 항목 — BE 작업 아님, 참고용):
-  - `ask_teto_egen_landing_view`
-  - `ask_teto_egen_self_answer_submit`
-  - `ask_teto_egen_link_create`
-  - `ask_teto_egen_link_copy`
-  - `ask_teto_egen_friend_view`
-  - `ask_teto_egen_friend_vote_submit`
-  - `ask_teto_egen_friend_relay_next` (F1 [다음] 버튼)
-  - `ask_teto_egen_owner_revisit` (1차 공유자 재진입)
-
----
-
 ## 결정 필요 (BE 동료에게)
 
 1. **`token` 길이/포맷**: 짧은 슬러그(8-12자) vs UUID? 결의 추천: 짧은 영숫자 슬러그(예: `nanoid(10)`) — 공유 시 짧고 외우기 쉬움.
-2. **GET friend `ownerUserId` 노출 여부**: 위 4번 보안 메모 참조. 결의 추천: `isOwn: boolean`만 응답 (`ownerUserId` 노출 X).
-3. **3번 응답 동률 처리**: `tetoCount === egenCount` 일 때 적중 판정 어떻게 할지. 결의 추천: FE에서 처리 — `selfAnswer`와 일치하면 적중, 아니면 의외 (사용자에게 유리한 쪽). 또는 동률은 별도 카피 ("절반은 테토, 절반은 에겐으로 봤어요") — UX 디자인에 의존.
-4. **카운트 정의**: 1번 카운트는 (a) 링크 생성자 + 친구 평가자 unique 합 / (b) 친구 평가 총 수 / (c) 링크 생성자 수 중 어느 것? 결의 추천: (a) — "참여" 의미를 가장 넓게.
+2. **카운트 정의**: 1번 카운트는 (a) 링크 생성자 + 친구 평가자 unique 합 "참여" 의미를 가장 넓게.
 
 ---
 
 ## FE-BE 인수인계 체크리스트
 
-- [ ] 위 4개 결정 항목 합의
 - [ ] 데이터 모델 마이그레이션 작성
 - [ ] 5개 엔드포인트 구현
 - [ ] FE에서 MSW mock 작성 (BE 구현 전 병렬 개발용)

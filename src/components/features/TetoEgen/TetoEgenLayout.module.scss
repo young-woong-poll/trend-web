@@ -1,6 +1,7 @@
-@import '@/styles/variables';
+@use '@/styles/variables' as *;
 
 .root {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -8,16 +9,20 @@
   color: $white;
 }
 
+// X 버튼은 fixed로 떠 있게 — 헤더 영역이 콘텐츠 위쪽 공간을 차지하지 않음
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: $z-index-sticky;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  max-width: 480px;
   padding: $spacing-8 $spacing-16;
-  min-height: 56px;
-  background: $bg-primary;
+  pointer-events: none; // 빈 공간은 클릭 통과
 }
 
 .leadingSlot,
@@ -33,6 +38,7 @@
 }
 
 .iconButton {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -61,14 +67,20 @@
   height: 24px;
 }
 
+// body는 화면 전체 차지. padding-top은 X/back 버튼 영역(약 60px)만 회피.
 .body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: $spacing-16 $spacing-24 $spacing-32;
+  padding: 60px $spacing-24 $spacing-24;
   max-width: 480px;
   width: 100%;
   margin: 0 auto;
+}
+
+// X/back 둘 다 없는 화면(예: 결과 화면)은 위쪽 여백을 자연스러운 값으로 줄임
+.bodyCompact {
+  padding-top: $spacing-24;
 }
 
 .footer {

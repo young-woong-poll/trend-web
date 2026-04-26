@@ -2,6 +2,7 @@
 
 import { type FC } from 'react';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
 import CopyIcon from '@/assets/icon/CopyIcon';
 import styles from '@/components/features/TetoEgen/LinkShareCard.module.scss';
 
@@ -15,13 +16,14 @@ type LinkShareCardProps = {
 const LinkShareCard: FC<LinkShareCardProps> = ({
   shareUrl,
   onCopy,
-  headline = '투표 링크가 생성되었어요!',
-  sub = '친구들에게 공유하고 결과를 확인하세요',
+  headline = '공유 링크가 준비됐어요',
+  sub = '친구들에게 보내고 결과를 받아보세요',
 }) => (
   <div className={styles.root}>
     <div className={styles.header}>
-      <span className={styles.emoji} aria-hidden>
-        👏
+      <span className={styles.indicator}>
+        <CheckIcon width={14} height={14} />
+        <span>생성 완료</span>
       </span>
       <h2 className={styles.headline}>{headline}</h2>
       <p className={styles.sub}>{sub}</p>
@@ -33,7 +35,7 @@ const LinkShareCard: FC<LinkShareCardProps> = ({
 
     <button type="button" className={styles.cta} onClick={onCopy}>
       <CopyIcon className={styles.copyIcon} />
-      <span>링크 복사하기</span>
+      <span className={styles.ctaLabel}>링크 복사하기</span>
     </button>
   </div>
 );

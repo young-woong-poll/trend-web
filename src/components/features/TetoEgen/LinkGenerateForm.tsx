@@ -6,6 +6,8 @@ import styles from '@/components/features/TetoEgen/LinkGenerateForm.module.scss'
 import SelfPredictionRow from '@/components/features/TetoEgen/SelfPredictionRow';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
+const NAME_MAX_LENGTH = 10;
+
 type LinkGenerateFormProps = {
   defaultName: string;
   selfAnswer: TetoEgenAnswer;
@@ -21,29 +23,35 @@ const LinkGenerateForm: FC<LinkGenerateFormProps> = ({
   onSubmit,
   isSubmitting,
 }) => {
-  const [name, setName] = useState(defaultName);
+  // defaultName이 새 제한을 초과할 경우 잘라서 시작
+  const [name, setName] = useState(defaultName.slice(0, NAME_MAX_LENGTH));
 
   const trimmed = name.trim();
-  const isValid = trimmed.length > 0 && trimmed.length <= 12;
+  const isValid = trimmed.length > 0 && trimmed.length <= NAME_MAX_LENGTH;
 
   return (
     <div className={styles.root}>
       <SelfPredictionRow selfAnswer={selfAnswer} selfPrediction={selfPrediction} />
 
       <div className={styles.titleArea}>
-        <h2 className={styles.title}>친구들에게 한 번 물어볼까요?</h2>
-        <p className={styles.helper}>어떤 이름으로 물어볼까요?</p>
+        <h2 className={styles.title}>친구들에게 어떤 이름으로 물어볼까요?</h2>
+        <p className={styles.helper}>친구들에게 보일 이름이에요</p>
       </div>
 
-      <input
-        className={styles.input}
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="이름을 입력해주세요"
-        maxLength={12}
-        aria-label="친구들에게 보일 이름"
-      />
+      <div className={styles.inputWrapper}>
+        <input
+          className={styles.input}
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="이름을 입력해주세요"
+          maxLength={NAME_MAX_LENGTH}
+          aria-label="친구들에게 보일 이름"
+        />
+        <span className={styles.counter} aria-live="polite">
+          {name.length}/{NAME_MAX_LENGTH}
+        </span>
+      </div>
 
       <button
         type="button"

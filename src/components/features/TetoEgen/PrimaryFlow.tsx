@@ -1,54 +1,41 @@
 'use client';
 
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
 import BinaryChoiceCard from '@/components/features/TetoEgen/BinaryChoiceCard';
-import LandingHero from '@/components/features/TetoEgen/LandingHero';
 import LinkGenerateForm from '@/components/features/TetoEgen/LinkGenerateForm';
 import LinkShareCard from '@/components/features/TetoEgen/LinkShareCard';
 import styles from '@/components/features/TetoEgen/PrimaryFlow.module.scss';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
-import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCreateTetoEgenLink, useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
+import { useCreateTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useToast } from '@/hooks/useToast';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
-type Step = 'landing' | 'q1' | 'q2' | 'form' | 'share';
+type Step = 'q1' | 'q2' | 'form' | 'share';
 
 const labelOf = (a: TetoEgenAnswer) => (a === 'TETO' ? '테토' : '에겐');
 
+// 한글 마지막 글자 받침 유무로 '이라고' / '라고' 분기
+const withRago = (label: string) => {
+  const last = label.charCodeAt(label.length - 1);
+  const hasFinal = (last - 0xac00) % 28 !== 0;
+  return `${label}${hasFinal ? '이라고' : '라고'}`;
+};
+
 const PrimaryFlow: FC = () => {
   const router = useRouter();
-  const scenario = useScenario();
-  const { isLoggedIn, isLoading: isAuthLoading, requireLogin, user } = useAuth();
+  const { user } = useAuth();
   const { toast, showToast } = useToast();
 
-  const [step, setStep] = useState<Step>('landing');
+  const [step, setStep] = useState<Step>('q1');
   const [selfAnswer, setSelfAnswer] = useState<TetoEgenAnswer | null>(null);
   const [selfPrediction, setSelfPrediction] = useState<TetoEgenPrediction | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
 
-  // 로그인된 사용자: 이미 링크가 있는지 확인 → 있으면 /my 로 자동 이동
-  const { data: myLink } = useMyTetoEgenLink(scenario, isLoggedIn);
-
-  useEffect(() => {
-    if (myLink) {
-      router.replace(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
-    }
-  }, [myLink, router, scenario]);
-
   const createLink = useCreateTetoEgenLink();
-
-  const handleStart = () => {
-    if (!isLoggedIn) {
-      requireLogin('default');
-      return;
-    }
-    setStep('q1');
-  };
 
   const handleQ1 = (value: TetoEgenAnswer) => {
     setSelfAnswer(value);
@@ -92,7 +79,7 @@ const PrimaryFlow: FC = () => {
           ).response?.data;
           if (status === 409 && body?.data?.shareUrl) {
             // 이미 있는 링크 → 결과 화면으로
-            router.replace(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
+            router.replace('/ask/teto-egen/my');
             return;
           }
           showToast('일시적인 에러가 발생했어요. 다시 시도해주세요');
@@ -113,19 +100,10 @@ const PrimaryFlow: FC = () => {
     }
   };
 
-  // 인증 로딩 중
-  if (isAuthLoading) {
-    return (
-      <TetoEgenLayout showClose>
-        <div className={styles.loading}>잠시만요...</div>
-      </TetoEgenLayout>
-    );
-  }
-
   return (
     <>
       <TetoEgenLayout
-        showBack={step !== 'landing' && step !== 'share'}
+        showBack={step !== 'share'}
         showClose
         onBack={() => {
           if (step === 'q2') {
@@ -133,12 +111,11 @@ const PrimaryFlow: FC = () => {
           } else if (step === 'form') {
             setStep('q2');
           } else {
-            setStep('landing');
+            // q1에서 뒤로 → 랜딩
+            router.push('/ask/teto-egen');
           }
         }}
       >
-        {step === 'landing' && <LandingHero onStart={handleStart} />}
-
         {step === 'q1' && (
           <BinaryChoiceCard
             question="당신은 테토인가요? 에겐인가요?"
@@ -150,7 +127,8 @@ const PrimaryFlow: FC = () => {
 
         {step === 'q2' && selfAnswer && (
           <BinaryChoiceCard
-            question={`친구들도 ${labelOf(selfAnswer)}라고 생각할까요?`}
+            question={`친구들도 ${user?.nickname ? `${user.nickname}님을 ` : ''}${withRago(labelOf(selfAnswer))} 생각할까요?`}
+            helper="다음 단계에서 친구들이 직접 답할 거예요"
             left={{ value: 'NO', label: '아니다' }}
             right={{ value: 'YES', label: '그렇다' }}
             onSelect={(v) => handleQ2(v as 'YES' | 'NO')}

@@ -54,7 +54,7 @@ const MyResultView: FC = () => {
 
   if (isAuthLoading || isLoading || !data) {
     return (
-      <TetoEgenLayout showClose>
+      <TetoEgenLayout>
         <div className={styles.loading}>결과를 불러오는 중...</div>
       </TetoEgenLayout>
     );
@@ -88,20 +88,21 @@ const MyResultView: FC = () => {
 
   return (
     <>
-      <TetoEgenLayout showClose>
-        <ResultHeroCard
-          variant={variant}
-          majorityAnswer={majorityAnswer}
-          majorityPercent={majorityPercent}
-          totalFriends={total}
-          majorityCount={majorityCount}
-          displayName={data.displayName}
-        />
+      <TetoEgenLayout>
+        <div className={styles.stack}>
+          <ResultHeroCard
+            variant={variant}
+            majorityAnswer={majorityAnswer}
+            majorityPercent={majorityPercent}
+            totalFriends={total}
+            majorityCount={majorityCount}
+            displayName={data.displayName}
+          />
 
-        <div className={styles.body}>
-          <SelfPredictionRow selfAnswer={data.selfAnswer} selfPrediction={data.selfPrediction} />
-
-          <FriendAnswersCollapse friendVotes={data.friendVotes} />
+          <div className={styles.friendsGroup}>
+            <SelfPredictionRow selfAnswer={data.selfAnswer} selfPrediction={data.selfPrediction} />
+            <FriendAnswersCollapse friendVotes={data.friendVotes} />
+          </div>
 
           <div className={styles.shareArea}>
             <div className={styles.linkBox}>
@@ -109,7 +110,14 @@ const MyResultView: FC = () => {
             </div>
             <button type="button" className={styles.cta} onClick={handleCopy}>
               <CopyIcon className={styles.copyIcon} />
-              <span>링크 복사하기</span>
+              <span className={styles.ctaLabel}>링크 복사하기</span>
+            </button>
+            <button
+              type="button"
+              className={styles.secondaryAction}
+              onClick={() => router.push('/')}
+            >
+              홈으로 돌아가기
             </button>
           </div>
         </div>

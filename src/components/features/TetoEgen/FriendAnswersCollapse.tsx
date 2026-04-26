@@ -25,6 +25,8 @@ const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
   const egenPercent = 100 - tetoPercent;
   const tetoVoters = friendVotes.voters.filter((v) => v.vote === 'TETO');
   const egenVoters = friendVotes.voters.filter((v) => v.vote === 'EGEN');
+  const isMajorTeto = friendVotes.tetoCount > friendVotes.egenCount;
+  const isMajorEgen = friendVotes.egenCount > friendVotes.tetoCount;
 
   return (
     <section className={styles.root}>
@@ -48,7 +50,10 @@ const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
               </span>
             </div>
             <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: `${tetoPercent}%` }} />
+              <div
+                className={`${styles.barFill} ${isMajorTeto ? styles.barFillMajor : ''}`}
+                style={{ width: `${tetoPercent}%` }}
+              />
             </div>
             <ul className={styles.chips}>
               {tetoVoters.map((v) => (
@@ -75,7 +80,10 @@ const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
               </span>
             </div>
             <div className={styles.barTrack}>
-              <div className={styles.barFill} style={{ width: `${egenPercent}%` }} />
+              <div
+                className={`${styles.barFill} ${isMajorEgen ? styles.barFillMajor : ''}`}
+                style={{ width: `${egenPercent}%` }}
+              />
             </div>
             <ul className={styles.chips}>
               {egenVoters.map((v) => (

@@ -1,9 +1,20 @@
-@import '@/styles/variables';
+@use '@/styles/variables' as *;
+
+@keyframes choiceFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .root {
   display: flex;
   flex-direction: column;
-  gap: $spacing-24;
+  gap: $spacing-32;
   padding-top: $spacing-32;
 }
 
@@ -12,22 +23,30 @@
   font-size: $font-size-24;
   font-weight: $font-weight-bold;
   color: $white;
-  line-height: 1.4;
-  text-align: center;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  text-align: left;
+  word-break: keep-all;
+  animation: choiceFadeUp 0.4s ease-out both;
 }
 
 .helper {
-  margin: 0;
+  margin: -20px 0 0;
   font-size: $font-size-14;
-  color: $text-tertiary;
-  text-align: center;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+  text-align: left;
+  word-break: keep-all;
+  animation: choiceFadeUp 0.45s ease-out 0.05s both;
 }
 
 .choices {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-16;
-  margin-top: $spacing-16;
+  gap: 12px;
+  animation: choiceFadeUp 0.5s ease-out 0.1s both;
 }
 
 .card {
@@ -37,22 +56,24 @@
   min-height: 160px;
   padding: $spacing-24;
   background: $bg-secondary;
-  border: 1px solid #333;
+  border: 1px solid rgba($white, 0.08);
   border-radius: $border-radius-lg;
-  color: $white;
+  color: $text-secondary;
   cursor: pointer;
   transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: $bg-tertiary;
-    border-color: $border-placeholder;
+    border-color: rgba($white, 0.2);
+    color: $white;
   }
 
   &:active:not(:disabled) {
-    transform: scale(0.98);
+    transform: scale(0.96);
   }
 
   &:disabled {
@@ -62,13 +83,15 @@
 }
 
 .activated {
-  background: $primary-gradient !important;
-  border-color: transparent !important;
-  transform: scale(0.98);
+  border-color: var(--primary-start);
+  background: rgba(var(--primary-start-rgb), 0.08);
+  color: $white;
+  box-shadow: 0 0 24px rgba(var(--primary-start-rgb), 0.1);
+  transform: scale(1.03);
 }
 
 .label {
   font-size: $font-size-28;
   font-weight: $font-weight-bold;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.6px;
 }
