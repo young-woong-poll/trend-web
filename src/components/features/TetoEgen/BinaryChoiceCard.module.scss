@@ -28,6 +28,18 @@
   text-align: left;
   word-break: keep-all;
   animation: choiceFadeUp 0.4s ease-out both;
+
+  strong {
+    font-weight: $font-weight-bold;
+
+    @supports (-webkit-background-clip: text) or (background-clip: text) {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
 }
 
 .helper {

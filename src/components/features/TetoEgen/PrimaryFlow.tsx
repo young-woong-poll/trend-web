@@ -138,7 +138,17 @@ const PrimaryFlow: FC = () => {
 
         {step === 'q2' && selfAnswer && (
           <BinaryChoiceCard
-            question={`친구들도 ${user?.nickname ? `${user.nickname}님을 ` : ''}${withRago(labelOf(selfAnswer))} 생각할까요?`}
+            question={
+              <>
+                친구들도{' '}
+                {user?.nickname && (
+                  <>
+                    <strong>{user.nickname}</strong>님을{' '}
+                  </>
+                )}
+                {withRago(labelOf(selfAnswer))} 생각할까요?
+              </>
+            }
             helper="다음 단계에서 친구들이 직접 답할 거예요"
             left={{ value: 'NO', label: '아니다' }}
             right={{ value: 'YES', label: '그렇다' }}

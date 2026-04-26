@@ -158,17 +158,15 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   return (
     <>
       <TetoEgenLayout showClose>
-        <div className={styles.intro}>
-          <h1 className={styles.title}>
-            <strong className={styles.name}>{meta.displayName}</strong>님은
-            <br />
-            테토인가요? 에겐인가요?
-          </h1>
-          <p className={styles.helper}>답하면 {meta.displayName}님 + 친구들의 답변이 공개됩니다</p>
-        </div>
-
         <BinaryChoiceCard
-          question=""
+          question={
+            <>
+              <strong>{meta.displayName}</strong>님은
+              <br />
+              테토인가요? 에겐인가요?
+            </>
+          }
+          helper={`답하면 ${meta.displayName}님 + 친구들의 답변이 공개됩니다`}
           left={{ value: 'TETO', label: '테토' }}
           right={{ value: 'EGEN', label: '에겐' }}
           onSelect={(v) => handleSelect(v as TetoEgenAnswer)}

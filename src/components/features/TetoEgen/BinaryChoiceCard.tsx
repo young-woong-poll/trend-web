@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC, useState } from 'react';
+import { type FC, type ReactNode, useState } from 'react';
 
 import styles from '@/components/features/TetoEgen/BinaryChoiceCard.module.scss';
 
@@ -10,7 +10,8 @@ type Option<T extends string> = {
 };
 
 type BinaryChoiceCardProps<T extends string> = {
-  question: string;
+  // <strong> 등 inline 강조용 JSX 허용 — 닉네임/답 강조 일관성 위해
+  question: ReactNode;
   helper?: string;
   left: Option<T>;
   right: Option<T>;
