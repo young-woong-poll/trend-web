@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import MyResultView from '@/components/features/TetoEgen/MyResultView';
 import PrimaryFlow from '@/components/features/TetoEgen/PrimaryFlow';
 import TetoEgenLoading from '@/components/features/TetoEgen/TetoEgenLoading';
-import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 
@@ -17,9 +16,8 @@ type Decision = 'pending' | 'has-link' | 'no-link';
 
 export default function AskTetoEgenMyPage() {
   const router = useRouter();
-  const scenario = useScenario();
   const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
-  const { data: myLink, isFetched: myLinkFetched } = useMyTetoEgenLink(scenario, isLoggedIn);
+  const { data: myLink, isFetched: myLinkFetched } = useMyTetoEgenLink(isLoggedIn);
 
   const [decision, setDecision] = useState<Decision>('pending');
 

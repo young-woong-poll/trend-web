@@ -10,35 +10,33 @@ import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersC
 import styles from '@/components/features/TetoEgen/MyResultView.module.scss';
 import ResultHeroCard from '@/components/features/TetoEgen/ResultHeroCard';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
-import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useToast } from '@/hooks/useToast';
 
 const MyResultView: FC = () => {
   const router = useRouter();
-  const scenario = useScenario();
   const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
   const { toast, showToast } = useToast();
 
   // 비로그인 → 랜딩 + 로그인 모달
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
-      router.replace(scenario ? `/ask/teto-egen?mock=${scenario}` : '/ask/teto-egen');
+      router.replace('/ask/teto-egen');
       // 다음 렌더에서 requireLogin
       window.setTimeout(() => requireLogin('default'), 100);
     }
-  }, [isAuthLoading, isLoggedIn, requireLogin, router, scenario]);
+  }, [isAuthLoading, isLoggedIn, requireLogin, router]);
 
-  const { data, isLoading, error } = useMyTetoEgenLink(scenario, isLoggedIn);
+  const { data, isLoading, error } = useMyTetoEgenLink(isLoggedIn);
 
   // 본인 링크 없음 → 랜딩으로
   useEffect(() => {
     const status = (error as { response?: { status?: number } } | null)?.response?.status;
     if (status === 404) {
-      router.replace(scenario ? `/ask/teto-egen?mock=${scenario}` : '/ask/teto-egen');
+      router.replace('/ask/teto-egen');
     }
-  }, [error, router, scenario]);
+  }, [error, router]);
 
   const handleCopy = async () => {
     if (!data) {

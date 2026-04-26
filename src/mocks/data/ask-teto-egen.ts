@@ -1,7 +1,6 @@
 // src/mocks/data/ask-teto-egen.ts
 //
-// H3 "테토/에겐" mock 데이터 + 시나리오 분기 헬퍼.
-// URL 쿼리 ?mock=empty|hit|miss|tie 로 결과 시나리오 전환.
+// H3 "테토/에겐" mock 데이터.
 
 import type {
   TetoEgenAnswer,
@@ -9,8 +8,6 @@ import type {
   TetoEgenVoter,
   MyTetoEgenLinkResponse,
 } from '@/types/ask-teto-egen';
-
-export type MockScenario = 'default' | 'empty' | 'hit' | 'miss' | 'tie';
 
 export const SHARE_BASE_URL = 'https://hotpick.votebox.kr/ask/teto-egen/friend';
 
@@ -36,7 +33,7 @@ export const tetoEgenStore = {
   },
 };
 
-// 친구 N명 mock 닉네임 (가로 스크롤 테스트용으로 풀을 30명까지 확장)
+// 친구 N명 mock 닉네임
 const friendPool = [
   { userId: 'u-2001', displayName: '다림' },
   { userId: 'u-2002', displayName: '지영' },
@@ -103,45 +100,13 @@ const buildFriendVotes = (tetoCount: number, egenCount: number): TetoEgenFriendV
   voters: buildVoters(tetoCount, egenCount),
 });
 
-// 시나리오별 친구 평가 집계 (가로 스크롤 테스트용으로 친구 수를 풍성하게)
-export const getFriendVotesByScenario = (
-  scenario: MockScenario,
-  selfAnswer: TetoEgenAnswer
-): TetoEgenFriendVotes => {
-  switch (scenario) {
-    case 'empty':
-      return buildFriendVotes(0, 0);
-    case 'hit':
-      // 자기 평가와 다수파 일치
-      return selfAnswer === 'TETO' ? buildFriendVotes(18, 7) : buildFriendVotes(7, 18);
-    case 'miss':
-      // 자기 평가와 다수파 불일치
-      return selfAnswer === 'TETO' ? buildFriendVotes(5, 20) : buildFriendVotes(20, 5);
-    case 'tie':
-      return buildFriendVotes(12, 12);
-    case 'default':
-    default:
-      return buildFriendVotes(15, 9);
-  }
-};
+// 기본 친구 평가 집계 — TETO 15 / EGEN 9 (테스트 친화)
+export const getDefaultFriendVotes = (): TetoEgenFriendVotes => buildFriendVotes(15, 9);
 
-// /me 응답 빌더
-export const buildMyLinkResponse = (scenario: MockScenario): MyTetoEgenLinkResponse | null => {
-  // mock 시나리오(?mock=hit|miss|empty|tie)로 결과 화면을 직접 진입할 때는
-  // POST /links 없이도 시드 응답을 반환해 디자인 점검이 가능하도록 처리.
+// /me 응답 빌더 — myLink 없으면 null (404), 있으면 그 데이터 + 기본 친구 집계
+export const buildMyLinkResponse = (): MyTetoEgenLinkResponse | null => {
   if (!myLink) {
-    if (scenario === 'default') {
-      return null;
-    }
-    const seedSelfAnswer: TetoEgenAnswer = 'TETO';
-    return {
-      token: 'mock-token',
-      shareUrl: `${SHARE_BASE_URL}/mock-token`,
-      displayName: '웅일',
-      selfAnswer: seedSelfAnswer,
-      selfPrediction: 'EGEN',
-      friendVotes: getFriendVotesByScenario(scenario, seedSelfAnswer),
-    };
+    return null;
   }
   return {
     token: myLink.token,
@@ -149,23 +114,12 @@ export const buildMyLinkResponse = (scenario: MockScenario): MyTetoEgenLinkRespo
     displayName: myLink.displayName,
     selfAnswer: myLink.selfAnswer,
     selfPrediction: myLink.selfPrediction,
-    friendVotes: getFriendVotesByScenario(scenario, myLink.selfAnswer),
+    friendVotes: getDefaultFriendVotes(),
   };
 };
 
-// 카운트 시나리오
-export const getCountByScenario = (scenario: MockScenario): number => {
-  switch (scenario) {
-    case 'empty':
-      return 0;
-    case 'hit':
-    case 'miss':
-    case 'tie':
-      return 12_900;
-    default:
-      return 12_847;
-  }
-};
+// 카운트 (mock 고정값)
+export const getCountByScenario = (): number => 12_847;
 
 // /friend/{token} mock — 토큰별 표시이름
 const friendOwnerByToken: Record<string, { ownerUserId: number; displayName: string }> = {
@@ -193,7 +147,7 @@ export const getFriendMeta = (
   return null;
 };
 
-// 친구 평가 제출 store (시나리오별 응답에 본인 답을 합쳐서 반환)
+// 친구 평가 제출 store
 const submittedVotes: Record<string, Record<number, TetoEgenAnswer>> = {};
 
 export const recordFriendVote = (token: string, userId: number, vote: TetoEgenAnswer): void => {
@@ -213,12 +167,9 @@ export const getOwnerSelfAnswer = (token: string): TetoEgenAnswer =>
 
 export const buildFriendVoteResultResponse = (
   token: string,
-  myVote: TetoEgenAnswer,
-  scenario: MockScenario
+  myVote: TetoEgenAnswer
 ): TetoEgenFriendVotes => {
-  // 본인 답을 시나리오 기반 집계에 더함
-  const ownerSelfAnswer = myLink && myLink.token === token ? myLink.selfAnswer : 'TETO';
-  const base = getFriendVotesByScenario(scenario, ownerSelfAnswer);
+  const base = getDefaultFriendVotes();
   // myVote 본인 칩이 voters 맨 위에 오게
   const myVoter: TetoEgenVoter = {
     userId: 'me',

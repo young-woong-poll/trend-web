@@ -7,7 +7,6 @@ import Image from 'next/image';
 import egenImg from '@/assets/img/egen.png';
 import tetoImg from '@/assets/img/teto.png';
 import styles from '@/components/features/TetoEgen/LandingHero.module.scss';
-import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useTetoEgenCount } from '@/hooks/api/useAskTetoEgen';
 
 type LandingHeroProps = {
@@ -15,8 +14,7 @@ type LandingHeroProps = {
 };
 
 const LandingHero: FC<LandingHeroProps> = ({ onStart }) => {
-  const scenario = useScenario();
-  const { data, isLoading } = useTetoEgenCount(scenario);
+  const { data, isLoading } = useTetoEgenCount();
 
   return (
     <section className={styles.root}>

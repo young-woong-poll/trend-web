@@ -10,7 +10,6 @@ import BinaryChoiceCard from '@/components/features/TetoEgen/BinaryChoiceCard';
 import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersCollapse';
 import styles from '@/components/features/TetoEgen/FriendFlow.module.scss';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
-import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
@@ -29,11 +28,10 @@ const labelOf = (a: TetoEgenAnswer) => (a === 'TETO' ? '테토' : '에겐');
 
 const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const router = useRouter();
-  const scenario = useScenario();
   const { isLoggedIn, requireLogin } = useAuth();
   const { alertState, showAlert, handleConfirm } = useAlert();
 
-  const submit = useSubmitFriendVote(token, scenario);
+  const submit = useSubmitFriendVote(token);
 
   // 이미 참여한 사용자면 meta에 myVote/friendVotes/ownerSelfAnswer가 동봉되므로 초기 state로 채움 → 즉시 결과 화면.
   const [submittedVote, setSubmittedVote] = useState<TetoEgenAnswer | null>(meta.myVote ?? null);
@@ -56,7 +54,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
       showAlert('자신에게 투표할 수 없습니다', {
         confirmText: '내 결과 보기',
         onConfirm: () => {
-          router.replace(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
+          router.replace('/ask/teto-egen/my');
         },
       });
       return;
@@ -108,7 +106,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   };
 
   const handleNext = () => {
-    router.push(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
+    router.push('/ask/teto-egen/my');
   };
 
   // 결과 화면 (vote 직후 또는 이미 참여한 사용자)

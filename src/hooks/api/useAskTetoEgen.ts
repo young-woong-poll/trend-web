@@ -15,23 +15,23 @@ import type { CreateTetoEgenLinkRequest, SubmitFriendVoteRequest } from '@/types
 
 const keys = {
   count: ['askTetoEgen', 'count'] as const,
-  myLink: (scenario?: string | null) => ['askTetoEgen', 'myLink', scenario ?? 'default'] as const,
+  myLink: ['askTetoEgen', 'myLink'] as const,
   friendMeta: (token: string) => ['askTetoEgen', 'friendMeta', token] as const,
 };
 
-export const useTetoEgenCount = (scenario?: string | null) =>
+export const useTetoEgenCount = () =>
   useQuery({
-    queryKey: [...keys.count, scenario ?? 'default'],
-    queryFn: () => getTetoEgenCount(scenario),
+    queryKey: keys.count,
+    queryFn: getTetoEgenCount,
     staleTime: 60 * 1000,
   });
 
 // 링크 생성 후 다시 my 페이지로 진입했을 때 항상 최신 데이터를 보장하기 위해
 // staleTime: 0 + refetchOnMount: 'always' 적용.
-export const useMyTetoEgenLink = (scenario?: string | null, enabled = true) =>
+export const useMyTetoEgenLink = (enabled = true) =>
   useQuery({
-    queryKey: keys.myLink(scenario),
-    queryFn: () => getMyTetoEgenLink(scenario),
+    queryKey: keys.myLink,
+    queryFn: getMyTetoEgenLink,
     enabled,
     staleTime: 0,
     refetchOnMount: 'always',
@@ -68,7 +68,7 @@ export const useFriendTetoEgenMeta = (token: string, enabled = true) =>
     },
   });
 
-export const useSubmitFriendVote = (token: string, scenario?: string | null) =>
+export const useSubmitFriendVote = (token: string) =>
   useMutation({
-    mutationFn: (body: SubmitFriendVoteRequest) => submitFriendVote(token, body, scenario),
+    mutationFn: (body: SubmitFriendVoteRequest) => submitFriendVote(token, body),
   });

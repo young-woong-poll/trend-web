@@ -16,15 +16,8 @@ import type {
 
 const path = (suffix: string) => `/api/v1/ask/teto-egen${suffix}`;
 
-const scenarioHeader = (scenario?: string | null) =>
-  scenario ? { 'X-Mock-Scenario': scenario } : undefined;
-
-export const getTetoEgenCount = async (
-  scenario?: string | null
-): Promise<TetoEgenCountResponse> => {
-  const { data } = await axiosInstance.get<TetoEgenCountResponse>(path('/count'), {
-    headers: scenarioHeader(scenario),
-  });
+export const getTetoEgenCount = async (): Promise<TetoEgenCountResponse> => {
+  const { data } = await axiosInstance.get<TetoEgenCountResponse>(path('/count'));
   return data;
 };
 
@@ -35,12 +28,8 @@ export const createTetoEgenLink = async (
   return data;
 };
 
-export const getMyTetoEgenLink = async (
-  scenario?: string | null
-): Promise<MyTetoEgenLinkResponse> => {
-  const { data } = await axiosInstance.get<MyTetoEgenLinkResponse>(path('/links/me'), {
-    headers: scenarioHeader(scenario),
-  });
+export const getMyTetoEgenLink = async (): Promise<MyTetoEgenLinkResponse> => {
+  const { data } = await axiosInstance.get<MyTetoEgenLinkResponse>(path('/links/me'));
   return data;
 };
 
@@ -53,13 +42,11 @@ export const getFriendTetoEgenMeta = async (token: string): Promise<FriendTetoEg
 
 export const submitFriendVote = async (
   token: string,
-  body: SubmitFriendVoteRequest,
-  scenario?: string | null
+  body: SubmitFriendVoteRequest
 ): Promise<SubmitFriendVoteResponse> => {
   const { data } = await axiosInstance.post<SubmitFriendVoteResponse>(
     path(`/friend/${encodeURIComponent(token)}/vote`),
-    body,
-    { headers: scenarioHeader(scenario) }
+    body
   );
   return data;
 };

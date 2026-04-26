@@ -1,12 +1,10 @@
 // src/mocks/handlers/ask-teto-egen.ts
 //
 // MSW 핸들러 — H3 "테토/에겐" 5개 엔드포인트.
-// URL 쿼리 ?mock=empty|hit|miss|tie 시나리오는 X-Mock-Scenario 헤더로 전달받는다.
 
 import { http, HttpResponse } from 'msw';
 
 import {
-  type MockScenario,
   buildFriendVoteResultResponse,
   buildMyLinkResponse,
   getCountByScenario,
@@ -29,20 +27,6 @@ const wrapError = (code: string, message: string, data: unknown = null) => ({
   data,
 });
 
-const parseScenario = (request: Request): MockScenario => {
-  const value = request.headers.get('x-mock-scenario');
-  if (
-    value === 'empty' ||
-    value === 'hit' ||
-    value === 'miss' ||
-    value === 'tie' ||
-    value === 'default'
-  ) {
-    return value;
-  }
-  return 'default';
-};
-
 // MSW 환경에서 현재 로그인 사용자 (handlers.ts의 mockUser와 별도 — 결합 시 props로 받게)
 // 단순화를 위해 카카오 mock 로그인 후 ID 1001로 가정.
 const MOCK_OWNER_USER_ID = 1001;
@@ -58,10 +42,9 @@ const generateToken = () => {
 
 export const askTetoEgenHandlers = [
   // 1. GET /api/v1/ask/teto-egen/count
-  http.get(`${baseURL}/api/v1/ask/teto-egen/count`, ({ request }) => {
-    const scenario = parseScenario(request);
-    return HttpResponse.json(wrapResponse({ count: getCountByScenario(scenario) }));
-  }),
+  http.get(`${baseURL}/api/v1/ask/teto-egen/count`, () =>
+    HttpResponse.json(wrapResponse({ count: getCountByScenario() }))
+  ),
 
   // 2. POST /api/v1/ask/teto-egen/links
   http.post(`${baseURL}/api/v1/ask/teto-egen/links`, async ({ request }) => {
@@ -110,9 +93,8 @@ export const askTetoEgenHandlers = [
   }),
 
   // 3. GET /api/v1/ask/teto-egen/links/me
-  http.get(`${baseURL}/api/v1/ask/teto-egen/links/me`, ({ request }) => {
-    const scenario = parseScenario(request);
-    const data = buildMyLinkResponse(scenario);
+  http.get(`${baseURL}/api/v1/ask/teto-egen/links/me`, () => {
+    const data = buildMyLinkResponse();
     if (!data) {
       return HttpResponse.json(wrapError('LINK_NOT_FOUND', '링크가 없습니다.'), { status: 404 });
     }
@@ -120,7 +102,7 @@ export const askTetoEgenHandlers = [
   }),
 
   // 4. GET /api/v1/ask/teto-egen/friend/{token}
-  http.get(`${baseURL}/api/v1/ask/teto-egen/friend/:token`, ({ request, params }) => {
+  http.get(`${baseURL}/api/v1/ask/teto-egen/friend/:token`, ({ params }) => {
     const token = params.token as string;
     const meta = getFriendMeta(token, MOCK_OWNER_USER_ID);
     if (!meta) {
@@ -132,7 +114,6 @@ export const askTetoEgenHandlers = [
     // 로그인 사용자가 이미 참여한 경우: 결과 데이터 함께 반환 (자기 토큰은 제외)
     const previous = !meta.isOwn ? hasFriendVoted(token, MOCK_OWNER_USER_ID) : null;
     if (previous) {
-      const scenario = parseScenario(request);
       return HttpResponse.json(
         wrapResponse({
           token,
@@ -140,7 +121,7 @@ export const askTetoEgenHandlers = [
           isOwn: meta.isOwn,
           myVote: previous,
           ownerSelfAnswer: getOwnerSelfAnswer(token),
-          friendVotes: buildFriendVoteResultResponse(token, previous, scenario),
+          friendVotes: buildFriendVoteResultResponse(token, previous),
         })
       );
     }
@@ -157,7 +138,6 @@ export const askTetoEgenHandlers = [
   // 5. POST /api/v1/ask/teto-egen/friend/{token}/vote
   http.post(`${baseURL}/api/v1/ask/teto-egen/friend/:token/vote`, async ({ params, request }) => {
     const token = params.token as string;
-    const scenario = parseScenario(request);
     const body = (await request.json()) as SubmitFriendVoteRequest;
 
     const meta = getFriendMeta(token, MOCK_OWNER_USER_ID);
@@ -191,7 +171,7 @@ export const askTetoEgenHandlers = [
         myVote: body.vote,
         ownerDisplayName: meta.displayName,
         ownerSelfAnswer: getOwnerSelfAnswer(token),
-        friendVotes: buildFriendVoteResultResponse(token, body.vote, scenario),
+        friendVotes: buildFriendVoteResultResponse(token, body.vote),
       }),
       { status: 201 }
     );
