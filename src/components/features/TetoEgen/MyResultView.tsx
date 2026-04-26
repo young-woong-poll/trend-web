@@ -5,10 +5,10 @@ import { type FC, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import CopyIcon from '@/assets/icon/CopyIcon';
+import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersCollapse';
 import styles from '@/components/features/TetoEgen/MyResultView.module.scss';
 import ResultHeroCard from '@/components/features/TetoEgen/ResultHeroCard';
-import SelfPredictionRow from '@/components/features/TetoEgen/SelfPredictionRow';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
@@ -100,7 +100,16 @@ const MyResultView: FC = () => {
           />
 
           <div className={styles.friendsGroup}>
-            <SelfPredictionRow selfAnswer={data.selfAnswer} selfPrediction={data.selfPrediction} />
+            <AnswerPairRow
+              left={{
+                label: '내 선택',
+                value: data.selfAnswer === 'TETO' ? '테토' : '에겐',
+              }}
+              right={{
+                label: '친구들 예상',
+                value: data.selfPrediction === 'TETO' ? '테토' : '에겐',
+              }}
+            />
             <FriendAnswersCollapse friendVotes={data.friendVotes} />
           </div>
 

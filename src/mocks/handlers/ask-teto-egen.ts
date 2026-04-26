@@ -11,6 +11,7 @@ import {
   buildMyLinkResponse,
   getCountByScenario,
   getFriendMeta,
+  getOwnerSelfAnswer,
   hasFriendVoted,
   recordFriendVote,
   SHARE_BASE_URL,
@@ -119,7 +120,7 @@ export const askTetoEgenHandlers = [
   }),
 
   // 4. GET /api/v1/ask/teto-egen/friend/{token}
-  http.get(`${baseURL}/api/v1/ask/teto-egen/friend/:token`, ({ params }) => {
+  http.get(`${baseURL}/api/v1/ask/teto-egen/friend/:token`, ({ request, params }) => {
     const token = params.token as string;
     const meta = getFriendMeta(token, MOCK_OWNER_USER_ID);
     if (!meta) {
@@ -127,6 +128,23 @@ export const askTetoEgenHandlers = [
         status: 404,
       });
     }
+
+    // 로그인 사용자가 이미 참여한 경우: 결과 데이터 함께 반환 (자기 토큰은 제외)
+    const previous = !meta.isOwn ? hasFriendVoted(token, MOCK_OWNER_USER_ID) : null;
+    if (previous) {
+      const scenario = parseScenario(request);
+      return HttpResponse.json(
+        wrapResponse({
+          token,
+          displayName: meta.displayName,
+          isOwn: meta.isOwn,
+          myVote: previous,
+          ownerSelfAnswer: getOwnerSelfAnswer(token),
+          friendVotes: buildFriendVoteResultResponse(token, previous, scenario),
+        })
+      );
+    }
+
     return HttpResponse.json(
       wrapResponse({
         token,
@@ -172,6 +190,7 @@ export const askTetoEgenHandlers = [
       wrapResponse({
         myVote: body.vote,
         ownerDisplayName: meta.displayName,
+        ownerSelfAnswer: getOwnerSelfAnswer(token),
         friendVotes: buildFriendVoteResultResponse(token, body.vote, scenario),
       }),
       { status: 201 }

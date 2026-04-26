@@ -206,16 +206,36 @@ H3 검증 사이클 1차 콘텐츠. 사용자가 자기 자신을 테토/에겐 
 ```typescript
 {
   token: string;
-  displayName: string; // "{이름}님은 테토인가요?" 카피용
+  ownerDisplayName: string; // "{이름}님은 테토인가요?" 카피용
   isOwn: boolean; // 자신의 투표인지 확인
+  // 로그인 사용자가 이미 평가한 경우(요청자가 owner 아님 + 이전 vote 기록 존재)에만 함께 반환.
+  // 그 외(비로그인 / 미참여 / isOwn=true)에는 셋 다 생략.
+  myVote?: 'TETO' | 'EGEN';
+  ownerSelfAnswer?: 'TETO' | 'EGEN'; // 결과 화면에서 owner 본인의 자기 평가 노출용
+  friendVotes?: {
+    total: number;
+    tetoCount: number;
+    egenCount: number;
+    voters: Array<{
+      userId: string;
+      displayName: string;
+      vote: 'TETO' | 'EGEN';
+      votedAt: string;
+    }>;
+  };
 }
 ```
+
+**FE 처리 (이미 참여 시):**
+
+- 응답에 `myVote`/`ownerSelfAnswer`/`friendVotes`가 동봉되면 평가 화면을 건너뛰고 즉시 결과 화면 노출 (POST 후 409 우회 대신).
 
 **보안 메모:**
 
 - 사용자가 자기 링크 클릭 시 평가 화면은 보이지만 제출 시 모달 차단.
 - 또는 isOwn 활용해서 자신의 투표시 비활성화? or FE 에서 차단
-- `selfAnswer`/`selfPrediction`은 절대 응답에 포함 금지 — 친구가 보기 전에 정답 노출되면 안 됨.
+- 평가 *전*의 응답(myVote 미포함 케이스)에는 `ownerSelfAnswer`/`selfPrediction` 절대 포함 금지 — 친구가 답하기 전에 정답이 노출되면 게임이 깨짐.
+- `ownerSelfAnswer`는 *친구가 이미 vote 제출한 경우*에만 응답에 포함. (= 5번 POST와 동일한 노출 시점)
 
 **Response 404:** 토큰 없음 (잘못된 링크 / 폐기된 링크). FE는 "링크가 더 이상 유효하지 않아요" 안내.
 
@@ -245,6 +265,7 @@ H3 검증 사이클 1차 콘텐츠. 사용자가 자기 자신을 테토/에겐 
 {
   myVote: 'TETO' | 'EGEN';
   ownerDisplayName: string;
+  ownerSelfAnswer: 'TETO' | 'EGEN'; // 결과 화면에서 "{owner}님 본인은 X로 답했어요" 노출용
   friendVotes: {
     // 결과 화면용 집계 (3번 응답과 동일 구조)
     total: number;

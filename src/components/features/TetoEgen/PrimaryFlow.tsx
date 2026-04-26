@@ -112,7 +112,7 @@ const PrimaryFlow: FC = () => {
             setStep('q2');
           } else {
             // q1에서 뒤로 → 랜딩
-            router.push('/ask/teto-egen');
+            router.back();
           }
         }}
       >

@@ -4,10 +4,9 @@ import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import styles from '@/app/ask/teto-egen/my/page.module.scss';
 import MyResultView from '@/components/features/TetoEgen/MyResultView';
 import PrimaryFlow from '@/components/features/TetoEgen/PrimaryFlow';
-import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
+import TetoEgenLoading from '@/components/features/TetoEgen/TetoEgenLoading';
 import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
@@ -43,18 +42,7 @@ export default function AskTetoEgenMyPage() {
   }, [decision, isAuthLoading, isLoggedIn, myLinkFetched, myLink, requireLogin, router]);
 
   if (decision === 'pending') {
-    return (
-      <TetoEgenLayout>
-        <div className={styles.loadingWrap} role="status" aria-live="polite">
-          <div className={styles.spinner} aria-hidden>
-            <span />
-            <span />
-            <span />
-          </div>
-          <span className={styles.srOnly}>불러오는 중</span>
-        </div>
-      </TetoEgenLayout>
-    );
+    return <TetoEgenLoading />;
   }
 
   if (decision === 'has-link') {

@@ -2,8 +2,8 @@
 
 import { type FC, useState } from 'react';
 
+import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import styles from '@/components/features/TetoEgen/LinkGenerateForm.module.scss';
-import SelfPredictionRow from '@/components/features/TetoEgen/SelfPredictionRow';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
 const NAME_MAX_LENGTH = 10;
@@ -31,7 +31,10 @@ const LinkGenerateForm: FC<LinkGenerateFormProps> = ({
 
   return (
     <div className={styles.root}>
-      <SelfPredictionRow selfAnswer={selfAnswer} selfPrediction={selfPrediction} />
+      <AnswerPairRow
+        left={{ label: '내 선택', value: selfAnswer === 'TETO' ? '테토' : '에겐' }}
+        right={{ label: '친구들 예상', value: selfPrediction === 'TETO' ? '테토' : '에겐' }}
+      />
 
       <div className={styles.titleArea}>
         <h2 className={styles.title}>친구들에게 어떤 이름으로 물어볼까요?</h2>

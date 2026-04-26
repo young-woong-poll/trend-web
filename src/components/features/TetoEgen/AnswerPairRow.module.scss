@@ -1,6 +1,6 @@
 @use '@/styles/variables' as *;
 
-@keyframes selfPredictionFadeUp {
+@keyframes answerPairFadeUp {
   from {
     opacity: 0;
     transform: translateY(16px);
@@ -20,7 +20,7 @@
   backdrop-filter: blur(16px);
   border: 1px solid rgba($white, 0.06);
   border-radius: $border-radius-lg;
-  animation: selfPredictionFadeUp 0.5s ease-out 0.15s both;
+  animation: answerPairFadeUp 0.5s ease-out 0.15s both;
 }
 
 .cell {
@@ -43,7 +43,7 @@
   letter-spacing: -0.1px;
 }
 
-.chip {
+.value {
   display: inline-flex;
   align-items: center;
   font-size: $font-size-18;

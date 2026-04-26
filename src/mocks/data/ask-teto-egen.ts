@@ -36,7 +36,7 @@ export const tetoEgenStore = {
   },
 };
 
-// 친구 N명 mock 닉네임
+// 친구 N명 mock 닉네임 (가로 스크롤 테스트용으로 풀을 30명까지 확장)
 const friendPool = [
   { userId: 'u-2001', displayName: '다림' },
   { userId: 'u-2002', displayName: '지영' },
@@ -46,6 +46,28 @@ const friendPool = [
   { userId: 'u-2006', displayName: '지원' },
   { userId: 'u-2007', displayName: '영훈' },
   { userId: 'u-2008', displayName: '태규' },
+  { userId: 'u-2009', displayName: '하늘' },
+  { userId: 'u-2010', displayName: '시우' },
+  { userId: 'u-2011', displayName: '은채' },
+  { userId: 'u-2012', displayName: '도현' },
+  { userId: 'u-2013', displayName: '서윤' },
+  { userId: 'u-2014', displayName: '재민' },
+  { userId: 'u-2015', displayName: '예린' },
+  { userId: 'u-2016', displayName: '현서' },
+  { userId: 'u-2017', displayName: '주안' },
+  { userId: 'u-2018', displayName: '나윤' },
+  { userId: 'u-2019', displayName: '강민' },
+  { userId: 'u-2020', displayName: '소율' },
+  { userId: 'u-2021', displayName: '지호' },
+  { userId: 'u-2022', displayName: '아인' },
+  { userId: 'u-2023', displayName: '준영' },
+  { userId: 'u-2024', displayName: '윤서' },
+  { userId: 'u-2025', displayName: '하준' },
+  { userId: 'u-2026', displayName: '예준' },
+  { userId: 'u-2027', displayName: '리아' },
+  { userId: 'u-2028', displayName: '이준' },
+  { userId: 'u-2029', displayName: '채원' },
+  { userId: 'u-2030', displayName: '동현' },
 ];
 
 const baseVotedAt = (idx: number) =>
@@ -81,7 +103,7 @@ const buildFriendVotes = (tetoCount: number, egenCount: number): TetoEgenFriendV
   voters: buildVoters(tetoCount, egenCount),
 });
 
-// 시나리오별 친구 평가 집계
+// 시나리오별 친구 평가 집계 (가로 스크롤 테스트용으로 친구 수를 풍성하게)
 export const getFriendVotesByScenario = (
   scenario: MockScenario,
   selfAnswer: TetoEgenAnswer
@@ -91,15 +113,15 @@ export const getFriendVotesByScenario = (
       return buildFriendVotes(0, 0);
     case 'hit':
       // 자기 평가와 다수파 일치
-      return selfAnswer === 'TETO' ? buildFriendVotes(5, 3) : buildFriendVotes(3, 5);
+      return selfAnswer === 'TETO' ? buildFriendVotes(18, 7) : buildFriendVotes(7, 18);
     case 'miss':
       // 자기 평가와 다수파 불일치
-      return selfAnswer === 'TETO' ? buildFriendVotes(2, 6) : buildFriendVotes(6, 2);
+      return selfAnswer === 'TETO' ? buildFriendVotes(5, 20) : buildFriendVotes(20, 5);
     case 'tie':
-      return buildFriendVotes(4, 4);
+      return buildFriendVotes(12, 12);
     case 'default':
     default:
-      return buildFriendVotes(5, 3);
+      return buildFriendVotes(15, 9);
   }
 };
 
@@ -183,6 +205,11 @@ export const recordFriendVote = (token: string, userId: number, vote: TetoEgenAn
 
 export const hasFriendVoted = (token: string, userId: number): TetoEgenAnswer | null =>
   submittedVotes[token]?.[userId] ?? null;
+
+// owner(공유자)의 자기 평가 selfAnswer. 친구 평가 응답에 포함된다.
+// myLink가 있고 토큰이 일치하면 해당 selfAnswer, 외부 시드(demo-friend 등)는 'TETO' 기본값.
+export const getOwnerSelfAnswer = (token: string): TetoEgenAnswer =>
+  myLink && myLink.token === token ? myLink.selfAnswer : 'TETO';
 
 export const buildFriendVoteResultResponse = (
   token: string,

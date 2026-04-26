@@ -58,6 +58,7 @@ export const useFriendTetoEgenMeta = (token: string, enabled = true) =>
     queryFn: () => getFriendTetoEgenMeta(token),
     enabled: enabled && !!token,
     staleTime: 60 * 1000,
+    refetchOnMount: true,
     retry: (failureCount, error) => {
       const status = (error as { response?: { status?: number } }).response?.status;
       if (status === 404) {

@@ -1,123 +1,154 @@
-@import '@/styles/variables';
+@use '@/styles/variables' as *;
 
-.loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  padding: $spacing-48;
-  color: $text-tertiary;
-  font-size: $font-size-14;
+@keyframes friendFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// ─── 평가 진입 화면 ───
 .intro {
   display: flex;
   flex-direction: column;
-  gap: $spacing-16;
-  align-items: center;
-  text-align: center;
-  padding: $spacing-32 0 $spacing-16;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: $spacing-32;
+  padding-bottom: $spacing-32;
+  text-align: left;
+  animation: friendFadeUp 0.4s ease-out both;
 }
 
 .title {
   margin: 0;
   font-size: $font-size-24;
   font-weight: $font-weight-bold;
-  line-height: 1.4;
   color: $white;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  word-break: keep-all;
 }
 
 .name {
-  color: $attention;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
   font-weight: $font-weight-bold;
 }
 
 .helper {
   margin: 0;
   font-size: $font-size-14;
-  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+  word-break: keep-all;
 }
 
+// ─── 결과 화면 ───
 .resultBody {
   display: flex;
   flex-direction: column;
-  gap: $spacing-24;
+  gap: $spacing-32;
   padding-top: $spacing-32;
 }
 
-.resultHeader {
+// owner 답 + 내 답 묶음 (my page의 friendsGroup 패턴과 동일)
+.answersGroup {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
-  align-items: center;
-  text-align: center;
-}
-
-.label {
-  margin: 0;
-  font-size: $font-size-14;
-  color: $text-tertiary;
-}
-
-.note {
-  margin: 0;
-  font-size: $font-size-22;
-  color: $white;
-
-  strong {
-    background: $primary-gradient;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    font-weight: $font-weight-bold;
-  }
+  gap: 12px;
 }
 
 .collapseWrapper {
-  margin-top: $spacing-16;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// 다음 영역 (my page의 shareArea 패턴 — border-top 디바이더로 액션 영역 구분)
+.nextArea {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  padding-top: $spacing-24;
+  border-top: 1px solid rgba($white, 0.04);
+  animation: friendFadeUp 0.5s ease-out 0.15s both;
 }
 
 .nextCta {
+  position: relative;
   width: 100%;
-  margin-top: $spacing-32;
-  padding: $spacing-16;
-  background: $primary-gradient;
+  padding: 16px;
+  background: var(--primary-gradient);
   border: none;
-  border-radius: $border-rounded;
+  border-radius: $border-radius-lg;
   color: $white;
   font-size: $font-size-18;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.4px;
   cursor: pointer;
+  overflow: hidden;
   transition:
     transform 0.15s ease,
     opacity 0.15s ease;
 
+  &:hover {
+    opacity: 0.92;
+  }
+
   &:active {
     transform: scale(0.98);
-    opacity: 0.92;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 2.5s ease-in-out infinite;
+    pointer-events: none;
   }
 }
 
 .nextHint {
-  margin: $spacing-8 0 0;
+  margin: 0;
   text-align: center;
   font-size: $font-size-14;
+  font-weight: $font-weight-medium;
   color: $text-tertiary;
+  letter-spacing: -0.2px;
 }
 
+// ─── toast (my page와 동일 패턴) ───
 .toast {
   position: fixed;
   bottom: calc(#{$spacing-48} + env(safe-area-inset-bottom, 0));
   left: 50%;
   transform: translateX(-50%);
   z-index: $z-index-tooltip;
-  padding: $spacing-16 $spacing-24;
-  background: rgba(30, 30, 30, 0.96);
-  border: 1px solid #333;
+  padding: 10px $spacing-16;
+  background: rgba(0, 0, 0, 0.85);
   border-radius: $border-rounded;
   color: $white;
   font-size: $font-size-14;
   white-space: nowrap;
-  box-shadow: $shadow-lg;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }

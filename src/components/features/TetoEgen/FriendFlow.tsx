@@ -1,71 +1,66 @@
 'use client';
 
-import { type FC, useEffect, useState } from 'react';
+import { type FC, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
 import { Alert } from '@/components/common/Alert/Alert';
+import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import BinaryChoiceCard from '@/components/features/TetoEgen/BinaryChoiceCard';
 import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersCollapse';
 import styles from '@/components/features/TetoEgen/FriendFlow.module.scss';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useScenario } from '@/components/features/TetoEgen/useScenario';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFriendTetoEgenMeta, useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
+import { useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
 import { useToast } from '@/hooks/useToast';
-import type { TetoEgenAnswer, TetoEgenFriendVotes } from '@/types/ask-teto-egen';
+import type {
+  FriendTetoEgenMetaResponse,
+  TetoEgenAnswer,
+  TetoEgenFriendVotes,
+} from '@/types/ask-teto-egen';
 
 type FriendFlowProps = {
   token: string;
+  meta: FriendTetoEgenMetaResponse;
 };
 
 const labelOf = (a: TetoEgenAnswer) => (a === 'TETO' ? '테토' : '에겐');
 
-const FriendFlow: FC<FriendFlowProps> = ({ token }) => {
+const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const router = useRouter();
   const scenario = useScenario();
-  const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
+  const { isLoggedIn, requireLogin } = useAuth();
   const { toast, showToast } = useToast();
   const { alertState, showAlert, handleConfirm } = useAlert();
 
-  const { data: meta, isLoading: isMetaLoading, error: metaError } = useFriendTetoEgenMeta(token);
-
   const submit = useSubmitFriendVote(token, scenario);
 
-  const [submittedVote, setSubmittedVote] = useState<TetoEgenAnswer | null>(null);
-  const [friendVotes, setFriendVotes] = useState<TetoEgenFriendVotes | null>(null);
-  const [ownerDisplayName, setOwnerDisplayName] = useState<string>('');
-
-  // 자기 토큰 진입 차단
-  useEffect(() => {
-    if (meta?.isOwn) {
-      showAlert('자신에게 투표할 수 없습니다', {
-        confirmText: '내 결과 보기',
-        onConfirm: () => {
-          router.replace(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
-        },
-      });
-    }
-  }, [meta?.isOwn, router, scenario, showAlert]);
-
-  // 잘못된 토큰
-  useEffect(() => {
-    const status = (metaError as { response?: { status?: number } } | null)?.response?.status;
-    if (status === 404) {
-      showAlert('이 테스트 링크가 더 이상 유효하지 않아요', {
-        confirmText: '나도 만들어보기',
-        onConfirm: () => router.replace('/ask/teto-egen'),
-      });
-    }
-  }, [metaError, router, showAlert]);
+  // 이미 참여한 사용자면 meta에 myVote/friendVotes/ownerSelfAnswer가 동봉되므로 초기 state로 채움 → 즉시 결과 화면.
+  const [submittedVote, setSubmittedVote] = useState<TetoEgenAnswer | null>(meta.myVote ?? null);
+  const [friendVotes, setFriendVotes] = useState<TetoEgenFriendVotes | null>(
+    meta.friendVotes ?? null
+  );
+  const [ownerDisplayName, setOwnerDisplayName] = useState<string>(meta.displayName);
+  const [ownerSelfAnswer, setOwnerSelfAnswer] = useState<TetoEgenAnswer | null>(
+    meta.ownerSelfAnswer ?? null
+  );
 
   const handleSelect = (vote: TetoEgenAnswer) => {
     if (!isLoggedIn) {
       requireLogin('default');
       return;
     }
-    if (meta?.isOwn) {
+
+    if (meta.isOwn) {
+      // 자기 토큰: 평가 화면은 보여주되 투표 시점에 차단
+      showAlert('자신에게 투표할 수 없습니다', {
+        confirmText: '내 결과 보기',
+        onConfirm: () => {
+          router.replace(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
+        },
+      });
       return;
     }
 
@@ -76,6 +71,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token }) => {
           setSubmittedVote(data.myVote);
           setFriendVotes(data.friendVotes);
           setOwnerDisplayName(data.ownerDisplayName);
+          setOwnerSelfAnswer(data.ownerSelfAnswer);
         },
         onError: (err: unknown) => {
           const status = (
@@ -107,38 +103,39 @@ const FriendFlow: FC<FriendFlowProps> = ({ token }) => {
   };
 
   const handleNext = () => {
-    router.push(scenario ? `/ask/teto-egen?mock=${scenario}` : '/ask/teto-egen');
+    router.push(scenario ? `/ask/teto-egen/my?mock=${scenario}` : '/ask/teto-egen/my');
   };
 
-  if (isAuthLoading || isMetaLoading || !meta) {
-    return (
-      <TetoEgenLayout showClose>
-        <div className={styles.loading}>잠시만요...</div>
-      </TetoEgenLayout>
-    );
-  }
-
-  // 결과 화면
+  // 결과 화면 (vote 직후 또는 이미 참여한 사용자)
   if (submittedVote && friendVotes) {
+    const ownerName = ownerDisplayName || meta.displayName;
     return (
       <>
         <TetoEgenLayout showClose>
           <div className={styles.resultBody}>
-            <div className={styles.resultHeader}>
-              <p className={styles.label}>{ownerDisplayName || meta.displayName}님의 선택</p>
-              <p className={styles.note}>
-                나는 <strong>{labelOf(submittedVote)}</strong>로 봤어요
-              </p>
+            <div className={styles.answersGroup}>
+              <AnswerPairRow
+                left={{
+                  label: `${ownerName}님 본인의 답`,
+                  value: ownerSelfAnswer ? labelOf(ownerSelfAnswer) : '-',
+                }}
+                right={{
+                  label: '내 답',
+                  value: labelOf(submittedVote),
+                }}
+              />
+
+              <div className={styles.collapseWrapper}>
+                <FriendAnswersCollapse friendVotes={friendVotes} highlightSelfId="me" />
+              </div>
             </div>
 
-            <div className={styles.collapseWrapper}>
-              <FriendAnswersCollapse friendVotes={friendVotes} highlightSelfId="me" />
+            <div className={styles.nextArea}>
+              <button type="button" className={styles.nextCta} onClick={handleNext}>
+                다음
+              </button>
+              <p className={styles.nextHint}>당신은 어떤 사람일까요?</p>
             </div>
-
-            <button type="button" className={styles.nextCta} onClick={handleNext}>
-              다음
-            </button>
-            <p className={styles.nextHint}>당신은 어떤 사람일까요?</p>
           </div>
         </TetoEgenLayout>
         {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}
@@ -171,7 +168,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token }) => {
           left={{ value: 'TETO', label: '테토' }}
           right={{ value: 'EGEN', label: '에겐' }}
           onSelect={(v) => handleSelect(v as TetoEgenAnswer)}
-          disabled={submit.isPending || meta.isOwn}
+          disabled={submit.isPending}
         />
       </TetoEgenLayout>
       {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}

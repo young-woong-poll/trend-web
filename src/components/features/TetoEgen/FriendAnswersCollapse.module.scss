@@ -142,18 +142,48 @@
   box-shadow: 0 0 12px rgba(var(--primary-start-rgb), 0.18);
 }
 
+// 가로 스크롤 — 친구 수 많아져도 영역 높이 일정. 인스타 스토리 동일 (native scroll, 라이브러리 X).
+// fade 영역(--fade-l/r)은 JS에서 scroll position 감지해 fadeLeft/fadeRight 클래스로 토글.
+// 끝에 도달했을 때는 해당 변수가 0이라 mask가 사실상 비활성.
 .chips {
   list-style: none;
   margin: $spacing-8 0 0;
-  padding: 0;
+  padding: 4px 0;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+  --fade-l: 0px;
+  --fade-r: 0px;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black var(--fade-l),
+    black calc(100% - var(--fade-r)),
+    transparent 100%
+  );
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.fadeLeft {
+  --fade-l: 24px;
+}
+
+.fadeRight {
+  --fade-r: 24px;
 }
 
 .chip {
   display: inline-flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 6px;
   padding: 4px 10px;
   background: rgba($white, 0.06);
@@ -171,14 +201,4 @@
   color: $white;
   font-weight: $font-weight-bold;
   box-shadow: 0 4px 12px rgba(var(--primary-start-rgb), 0.25);
-}
-
-.mineBadge {
-  font-size: 10px;
-  padding: 2px 6px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: $border-rounded;
-  font-weight: $font-weight-bold;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
 }

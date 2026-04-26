@@ -1,14 +1,110 @@
 'use client';
 
-import { type FC, useState } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 
 import ChevronDownIcon from '@/assets/icon/ChevronDownIcon';
 import styles from '@/components/features/TetoEgen/FriendAnswersCollapse.module.scss';
-import type { TetoEgenFriendVotes } from '@/types/ask-teto-egen';
+import type { TetoEgenFriendVotes, TetoEgenVoter } from '@/types/ask-teto-egen';
 
 type FriendAnswersCollapseProps = {
   friendVotes: TetoEgenFriendVotes;
   highlightSelfId?: string | null;
+};
+
+// 가로 스크롤 칩 리스트 — scroll position에 따라 좌/우 fade를 동적으로 토글.
+// 모바일은 native touch scroll, PC는 마우스 drag로 동일한 UX 구현 (라이브러리 X).
+const ChipScroller: FC<{ voters: TetoEgenVoter[]; highlightSelfId?: string | null }> = ({
+  voters,
+  highlightSelfId,
+}) => {
+  const ref = useRef<HTMLUListElement>(null);
+  const dragState = useRef({ isDragging: false, startX: 0, startScroll: 0, moved: false });
+  const [fadeLeft, setFadeLeft] = useState(false);
+  const [fadeRight, setFadeRight] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    const update = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setFadeLeft(scrollLeft > 4);
+      setFadeRight(scrollLeft + clientWidth < scrollWidth - 4);
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, [voters.length]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    dragState.current = {
+      isDragging: true,
+      startX: e.pageX,
+      startScroll: el.scrollLeft,
+      moved: false,
+    };
+    el.style.cursor = 'grabbing';
+    el.style.userSelect = 'none';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragState.current.isDragging) {
+      return;
+    }
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    const dx = e.pageX - dragState.current.startX;
+    if (Math.abs(dx) > 4) {
+      dragState.current.moved = true;
+    }
+    e.preventDefault();
+    el.scrollLeft = dragState.current.startScroll - dx;
+  };
+
+  const endDrag = () => {
+    if (!dragState.current.isDragging) {
+      return;
+    }
+    dragState.current.isDragging = false;
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+    el.style.cursor = '';
+    el.style.userSelect = '';
+  };
+
+  return (
+    <ul
+      ref={ref}
+      className={`${styles.chips} ${fadeLeft ? styles.fadeLeft : ''} ${fadeRight ? styles.fadeRight : ''}`}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={endDrag}
+      onMouseLeave={endDrag}
+    >
+      {voters.map((v) => (
+        <li
+          key={v.userId}
+          className={`${styles.chip} ${v.userId === highlightSelfId ? styles.chipMine : ''}`}
+        >
+          {v.displayName}
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
@@ -55,21 +151,7 @@ const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
                 style={{ width: `${tetoPercent}%` }}
               />
             </div>
-            <ul className={styles.chips}>
-              {tetoVoters.map((v) => (
-                <li
-                  key={v.userId}
-                  className={`${styles.chip} ${
-                    v.userId === highlightSelfId ? styles.chipMine : ''
-                  }`}
-                >
-                  {v.displayName}
-                  {v.userId === highlightSelfId && (
-                    <span className={styles.mineBadge}>내 선택</span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <ChipScroller voters={tetoVoters} highlightSelfId={highlightSelfId} />
           </div>
 
           <div className={styles.group}>
@@ -85,21 +167,7 @@ const FriendAnswersCollapse: FC<FriendAnswersCollapseProps> = ({
                 style={{ width: `${egenPercent}%` }}
               />
             </div>
-            <ul className={styles.chips}>
-              {egenVoters.map((v) => (
-                <li
-                  key={v.userId}
-                  className={`${styles.chip} ${
-                    v.userId === highlightSelfId ? styles.chipMine : ''
-                  }`}
-                >
-                  {v.displayName}
-                  {v.userId === highlightSelfId && (
-                    <span className={styles.mineBadge}>내 선택</span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <ChipScroller voters={egenVoters} highlightSelfId={highlightSelfId} />
           </div>
         </div>
       )}
