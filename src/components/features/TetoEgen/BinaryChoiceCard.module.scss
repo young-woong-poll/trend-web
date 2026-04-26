@@ -1,0 +1,74 @@
+@import '@/styles/variables';
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  padding-top: $spacing-32;
+}
+
+.question {
+  margin: 0;
+  font-size: $font-size-24;
+  font-weight: $font-weight-bold;
+  color: $white;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.helper {
+  margin: 0;
+  font-size: $font-size-14;
+  color: $text-tertiary;
+  text-align: center;
+}
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-16;
+  margin-top: $spacing-16;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: $spacing-24;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-radius: $border-radius-lg;
+  color: $white;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: $bg-tertiary;
+    border-color: $border-placeholder;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.activated {
+  background: $primary-gradient !important;
+  border-color: transparent !important;
+  transform: scale(0.98);
+}
+
+.label {
+  font-size: $font-size-28;
+  font-weight: $font-weight-bold;
+  letter-spacing: -0.02em;
+}

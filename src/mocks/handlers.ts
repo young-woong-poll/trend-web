@@ -39,6 +39,7 @@ import {
   getLikeState,
   initLikeCount,
 } from '@/mocks/data/singleVotes';
+import { askTetoEgenHandlers } from '@/mocks/handlers/ask-teto-egen';
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
@@ -1465,4 +1466,9 @@ export const handlers = [
    * POST /api/v1/suggestions
    */
   http.post(`${baseURL}/api/v1/suggestions`, () => HttpResponse.json(wrapResponse(null))),
+
+  // ──────────────────────────────────────────────────────────
+  // H3 "테토/에겐" (ask) API — 도메인별 분리 (src/mocks/handlers/ask-teto-egen.ts)
+  // ──────────────────────────────────────────────────────────
+  ...askTetoEgenHandlers,
 ];
