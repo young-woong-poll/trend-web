@@ -149,8 +149,8 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
           message={alertState.message}
           confirmText={alertState.confirmText}
           onConfirm={handleConfirm}
-          showCloseButton={alertState.showCloseButton ?? true}
-          closeOnDimmedClick={alertState.showCloseButton ?? true}
+          showCloseButton={alertState.showCloseButton}
+          closeOnDimmedClick={alertState.showCloseButton}
         />
       </>
     );
