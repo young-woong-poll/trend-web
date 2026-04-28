@@ -50,4 +50,12 @@
   font-weight: $font-weight-bold;
   color: $white;
   letter-spacing: -0.4px;
+
+  @supports (-webkit-background-clip: text) or (background-clip: text) {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
 }

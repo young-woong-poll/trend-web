@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC } from 'react';
+import { type FC, useEffect } from 'react';
 
 import Image from 'next/image';
 
@@ -8,6 +8,7 @@ import egenImg from '@/assets/img/egen.png';
 import tetoImg from '@/assets/img/teto.png';
 import styles from '@/components/features/TetoEgen/LandingHero.module.scss';
 import { useTetoEgenCount } from '@/hooks/api/useAskTetoEgen';
+import { trackAskView } from '@/lib/analytics';
 
 type LandingHeroProps = {
   onStart: () => void;
@@ -16,13 +17,21 @@ type LandingHeroProps = {
 const LandingHero: FC<LandingHeroProps> = ({ onStart }) => {
   const { data, isLoading } = useTetoEgenCount();
 
+  useEffect(() => {
+    const isInternal =
+      typeof document !== 'undefined' &&
+      !!document.referrer &&
+      document.referrer.includes(window.location.host);
+    trackAskView('teto-egen', isInternal ? 'relay' : 'direct');
+  }, []);
+
   return (
     <section className={styles.root}>
       <div className={styles.titleArea}>
         <h1 className={styles.title}>
-          나는 테토일까,
+          나는 <strong>테토</strong>일까,
           <br />
-          에겐일까?
+          <strong>에겐</strong>일까?
         </h1>
         <p className={styles.subtitle}>
           내 생각과 친구들 생각이 얼마나 같은지 1분 만에 확인해볼게요

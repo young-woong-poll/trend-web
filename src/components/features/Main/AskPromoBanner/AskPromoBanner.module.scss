@@ -1,0 +1,132 @@
+@use '@/styles/variables' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 480px;
+  margin: $spacing-8 auto 0;
+  padding: 12px $spacing-16;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--primary-start-rgb), 0.14) 0%,
+    rgba(var(--primary-end-rgb), 0.08) 55%,
+    rgba($bg-secondary, 0.65) 100%
+  );
+  border: 1px solid rgba(var(--primary-start-rgb), 0.2);
+  border-radius: $border-radius-lg;
+  text-decoration: none;
+  color: $white;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, rgba(var(--primary-end-rgb), 0.18) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &:hover {
+    border-color: rgba(var(--primary-start-rgb), 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.characters {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.character {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+
+  @media (min-width: $breakpoint-mobile) {
+    width: 44px;
+    height: 44px;
+  }
+
+  & + & {
+    margin-left: -10px; // 두 캐릭터 살짝 겹치게
+  }
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: 2px 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.22) 0%,
+    rgba(var(--primary-end-rgb), 0.22) 100%
+  );
+  border: 1px solid rgba(var(--primary-start-rgb), 0.32);
+  border-radius: $border-rounded;
+  color: $white;
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  word-break: keep-all;
+
+  strong {
+    font-weight: $font-weight-bold;
+    color: $white;
+
+    @supports (-webkit-background-clip: text) or (background-clip: text) {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
+}
+
+.chevron {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  color: $text-tertiary;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC } from 'react';
+import { type FC, type ReactNode } from 'react';
 
 import CheckIcon from '@/assets/icon/CheckIcon';
 import CopyIcon from '@/assets/icon/CopyIcon';
@@ -9,14 +9,18 @@ import styles from '@/components/features/TetoEgen/LinkShareCard.module.scss';
 type LinkShareCardProps = {
   shareUrl: string;
   onCopy: () => void;
-  headline?: string;
+  headline?: ReactNode;
   sub?: string;
 };
 
 const LinkShareCard: FC<LinkShareCardProps> = ({
   shareUrl,
   onCopy,
-  headline = '공유 링크가 준비됐어요',
+  headline = (
+    <>
+      <strong>공유 링크</strong>가 준비됐어요
+    </>
+  ),
   sub = '친구들에게 보내고 결과를 받아보세요',
 }) => (
   <div className={styles.root}>
