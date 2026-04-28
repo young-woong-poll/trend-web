@@ -99,7 +99,7 @@ export const CreateCompareLink: FC<CreateCompareLinkProps> = ({
         groupName: name.trim(),
         showGenderContent: isGenderCategory(categoryCode),
       });
-      trackCompareCreate(slug, 'GROUP', source);
+      trackCompareCreate(slug, source);
       onClose();
       router.push(`/compare/group/${result.token}`);
     } catch {

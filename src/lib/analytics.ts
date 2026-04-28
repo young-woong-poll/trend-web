@@ -187,29 +187,9 @@ export function trackBundleResultView(slug: string) {
   track('bundle_result_view', { slug });
 }
 
-/** 비교 링크 생성 */
-export function trackCompareCreate(slug: string, type: 'ONE_TO_ONE' | 'GROUP', source: string) {
-  track('compare_create', { slug, compare_type: type, source });
-}
-
-/** 비교 링크 공유 */
-export function trackCompareShare(
-  slug: string,
-  method: 'kakao' | 'copy',
-  type: 'ONE_TO_ONE' | 'GROUP',
-  source: string
-) {
-  track('compare_share', { slug, method, compare_type: type, source });
-}
-
-/** 비교 랜딩 페이지 조회 */
-export function trackCompareLanding(bundleSlug: string, type: 'ONE_TO_ONE' | 'GROUP') {
-  track('compare_landing', { bundle_slug: bundleSlug, compare_type: type });
-}
-
-/** 1:1 비교 결과 조회 */
-export function trackCompareResult(bundleSlug: string) {
-  track('compare_result', { bundle_slug: bundleSlug });
+/** 비교 링크 생성 (그룹 전용 — 1:1은 2026-04 폐기) */
+export function trackCompareCreate(slug: string, source: string) {
+  track('compare_create', { slug, source });
 }
 
 /** 그룹 비교 결과 조회 */
