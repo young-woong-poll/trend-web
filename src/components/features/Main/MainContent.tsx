@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 
 import { FlexibleLayout } from '@/components/common/FlexibleLayout/FlexibleLayout';
-import AskPromoBanner from '@/components/features/Main/AskPromoBanner/AskPromoBanner';
 import styles from '@/components/features/Main/MainContent.module.scss';
 import { MainHeader } from '@/components/features/Main/MainHeader/MainHeader';
 import { MainView } from '@/components/features/Main/MainView';
@@ -15,7 +14,6 @@ type TMainContentProps = {
 export const MainContent: FC<TMainContentProps> = ({ data }) => (
   <div className={styles.pageWrapper}>
     <MainHeader />
-    <AskPromoBanner />
     <FlexibleLayout>
       <MainView>
         {/* 서버에서 렌더링되는 정적 HTML (SEO 최적화) */}
