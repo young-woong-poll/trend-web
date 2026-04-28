@@ -120,7 +120,7 @@ export const ChemistryNetwork: FC<ChemistryNetworkProps> = ({
     return [members[myIdx], ...members.slice(0, myIdx), ...members.slice(myIdx + 1)];
   }, [members, currentUserId]);
 
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(currentUserId);
   const [showGradeInfo, setShowGradeInfo] = useState(false);
   const gradeInfoRef = useRef<HTMLDivElement>(null);
   const gradeBtnRef = useRef<HTMLButtonElement>(null);
