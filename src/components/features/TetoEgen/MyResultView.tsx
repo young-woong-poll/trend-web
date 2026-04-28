@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC, useEffect } from 'react';
+import { type FC, useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -13,6 +13,7 @@ import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useToast } from '@/hooks/useToast';
+import { trackAskOwnerResultView } from '@/lib/analytics';
 
 const MyResultView: FC = () => {
   const router = useRouter();
@@ -37,6 +38,29 @@ const MyResultView: FC = () => {
       router.replace('/ask/teto-egen');
     }
   }, [error, router]);
+
+  const trackedRef = useRef(false);
+  useEffect(() => {
+    if (trackedRef.current) {
+      return;
+    }
+    if (!data) {
+      return;
+    }
+    const { tetoCount, egenCount, total } = data.friendVotes;
+    let isMajorityMatch = false;
+    if (total > 0) {
+      if (tetoCount === egenCount) {
+        isMajorityMatch = true; // 동률 시 자기 답과 일치 처리 (기존 variant 로직과 동일)
+      } else if (tetoCount > egenCount) {
+        isMajorityMatch = data.selfAnswer === 'TETO';
+      } else {
+        isMajorityMatch = data.selfAnswer === 'EGEN';
+      }
+    }
+    trackAskOwnerResultView('teto-egen', total, isMajorityMatch);
+    trackedRef.current = true;
+  }, [data]);
 
   const handleCopy = async () => {
     if (!data) {

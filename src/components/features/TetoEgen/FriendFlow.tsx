@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC, useState } from 'react';
+import { type FC, useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -13,6 +13,7 @@ import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
+import { trackAskFriendLanding, trackAskFriendVote } from '@/lib/analytics';
 import type {
   FriendTetoEgenMetaResponse,
   TetoEgenAnswer,
@@ -32,6 +33,10 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const { alertState, showAlert, handleConfirm } = useAlert();
 
   const submit = useSubmitFriendVote(token);
+
+  useEffect(() => {
+    trackAskFriendLanding('teto-egen', meta.isOwn);
+  }, [meta.isOwn]);
 
   // 이미 참여한 사용자면 meta에 myVote/friendVotes/ownerSelfAnswer가 동봉되므로 초기 state로 채움 → 즉시 결과 화면.
   const [submittedVote, setSubmittedVote] = useState<TetoEgenAnswer | null>(meta.myVote ?? null);
@@ -68,6 +73,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
           setFriendVotes(data.friendVotes);
           setOwnerDisplayName(data.ownerDisplayName);
           setOwnerSelfAnswer(data.ownerSelfAnswer);
+          trackAskFriendVote('teto-egen', data.myVote, data.myVote === data.ownerSelfAnswer);
         },
         onError: (err: unknown) => {
           const status = (

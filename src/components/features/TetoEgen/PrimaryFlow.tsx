@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCreateTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
 import { useToast } from '@/hooks/useToast';
+import { trackAskLinkCreate, trackAskSelfAnswer, trackAskShareLink } from '@/lib/analytics';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
 type Step = 'q1' | 'q2' | 'form' | 'share';
@@ -53,7 +54,9 @@ const PrimaryFlow: FC = () => {
     // "그렇다" = 친구들도 내가 본 것과 같이 봄 → selfAnswer 그대로
     // "아니다" = 친구들은 반대로 봄 → 반대 값
     const opposite: TetoEgenAnswer = selfAnswer === 'TETO' ? 'EGEN' : 'TETO';
-    setSelfPrediction(value === 'YES' ? selfAnswer : opposite);
+    const prediction: TetoEgenAnswer = value === 'YES' ? selfAnswer : opposite;
+    setSelfPrediction(prediction);
+    trackAskSelfAnswer('teto-egen', selfAnswer, prediction);
     setStep('form');
   };
 
@@ -66,6 +69,7 @@ const PrimaryFlow: FC = () => {
       {
         onSuccess: (data) => {
           setShareUrl(data.shareUrl);
+          trackAskLinkCreate('teto-egen', selfAnswer, selfPrediction);
           setStep('share');
         },
         onError: (err: unknown) => {
@@ -105,6 +109,7 @@ const PrimaryFlow: FC = () => {
     }
     try {
       await navigator.clipboard.writeText(shareUrl);
+      trackAskShareLink('teto-egen', 'copy');
       showToast('링크가 복사됐어요');
     } catch {
       showToast('복사에 실패했어요');
