@@ -2,7 +2,8 @@
 
 > 유저 이탈률·진입점·재방문율을 데이터로 파악하고, 이를 기반으로 개발 방향을 정하기 위한 전사 GA4 트래킹 설계 문서.
 >
-> - GA4 속성: `G-CBJFPV9C95`
+> - GA4 속성: Real/Beta 분리 — `NEXT_PUBLIC_GA_ID` 환경변수로 분기 ([2026-04-28 GA 정비 플랜](../superpowers/plans/2026-04-28-ga-environment-split.md))
+> - 환경별 ID는 운영자 보안상 본 문서에 직접 명시하지 않음 — Vercel Project Settings 참조
 > - 초기 구현: `@next/third-parties/google` + `src/lib/analytics.ts`
 > - 운영 가이드(번들·비교): [docs/ga4-guide.md](../ga4-guide.md)
 > - 최종 수정일: 2026-04-21
@@ -11,17 +12,18 @@
 
 ## 0. 현황 요약
 
-| 영역                                   | 상태                           | 위치                                                                                    |
-| -------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
-| GA4 스크립트 로드                      | 완료                           | `src/app/layout.tsx:55`                                                                 |
-| 커스텀 이벤트 유틸                     | 완료 (일부)                    | `src/lib/analytics.ts`                                                                  |
-| User ID 연동                           | 완료                           | `src/providers/AuthProvider.tsx`                                                        |
-| 번들 퍼널 5종                          | 완료                           | `bundle_view`, `bundle_start`, `bundle_answer`, `bundle_complete`, `bundle_result_view` |
-| 비교 5종                               | 완료                           | `compare_create`, `compare_share`, `compare_landing`, `compare_result`, `group_result`  |
-| **싱글 투표 트래킹**                   | **미구현**                     | ―                                                                                       |
-| **인증/회원가입 트래킹**               | **미구현**                     | ―                                                                                       |
-| **공유·댓글·좋아요·검색·탭/카드 클릭** | **미구현**                     | ―                                                                                       |
-| 맞춤 측정기준 등록                     | 번들·비교 파라미터만 부분 등록 | GA4 Admin                                                                               |
+| 영역                                   | 상태                                        | 위치                                                                                                                                                                                               |
+| -------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GA4 스크립트 로드                      | 완료 (환경별 ID 분리)                       | `src/app/layout.tsx:55-57`                                                                                                                                                                         |
+| 커스텀 이벤트 유틸                     | 완료 (일부)                                 | `src/lib/analytics.ts`                                                                                                                                                                             |
+| User ID 연동                           | 완료                                        | `src/providers/AuthProvider.tsx`                                                                                                                                                                   |
+| 번들 퍼널 5종                          | 완료                                        | `bundle_view`, `bundle_start`, `bundle_answer`, `bundle_complete`, `bundle_result_view`                                                                                                            |
+| 비교 2종                               | 완료 (1:1 폐기로 share/landing/result 제거) | `compare_create`, `group_result`                                                                                                                                                                   |
+| **싱글 투표 트래킹**                   | **미구현**                                  | ―                                                                                                                                                                                                  |
+| **인증/회원가입 트래킹**               | **미구현**                                  | ―                                                                                                                                                                                                  |
+| **공유·댓글·좋아요·검색·탭/카드 클릭** | **미구현**                                  | ―                                                                                                                                                                                                  |
+| 맞춤 측정기준 등록                     | 번들·비교 파라미터만 부분 등록              | GA4 Admin                                                                                                                                                                                          |
+| Ask H3 (테토/에겐) 7종                 | 완료                                        | `ask_view`, `ask_self_answer`, `ask_link_create`, `ask_share_link`, `ask_friend_landing`, `ask_friend_vote`, `ask_owner_result_view` ([src/lib/analytics.ts](../../src/lib/analytics.ts) Ask 섹션) |
 
 전체 인터랙션 약 134개 중 약 15%만 트래킹 중. 현 상태로는 **싱글 투표 전환율·회원가입 퍼널·리텐션을 분석할 수 없음.**
 
@@ -170,6 +172,22 @@
 | `comment_like`                    | `alias`, `comment_id` |
 | `comment_load_more`               | `alias`, `page`       |
 
+### 2-10. Ask H3 (`/ask/teto-egen`)
+
+H3 친구 평가 (테토/에겐) 검증 사이클 1차 콘텐츠. 4주 검증 (2026-04-25 ~ 2026-05-23) 동안 자발적 릴레이(K-factor) 측정.
+
+| 이벤트                  | 파라미터                                     | 구현 위치                                  |
+| ----------------------- | -------------------------------------------- | ------------------------------------------ |
+| `ask_view`              | `topic`, `entry_point`                       | `LandingHero.tsx` mount useEffect          |
+| `ask_self_answer`       | `topic`, `self_answer`, `self_prediction`    | `PrimaryFlow.tsx` `handleQ2`               |
+| `ask_link_create`       | `topic`, `self_answer`, `self_prediction`    | `PrimaryFlow.tsx` `handleSubmit.onSuccess` |
+| `ask_share_link`        | `topic`, `method`                            | `PrimaryFlow.tsx` `handleCopy`             |
+| `ask_friend_landing`    | `topic`, `is_own`                            | `FriendFlow.tsx` mount useEffect           |
+| `ask_friend_vote`       | `topic`, `vote`, `matches_owner_self_answer` | `FriendFlow.tsx` `submit.mutate.onSuccess` |
+| `ask_owner_result_view` | `topic`, `friend_count`, `is_majority_match` | `MyResultView.tsx` ref-guarded useEffect   |
+
+> 보고서 운영 매뉴얼: [docs/analytics/ask-teto-egen-report.md](./ask-teto-egen-report.md)
+
 ---
 
 ## 3. GA4 콘솔 세팅 (이 섹션을 따라 등록하세요)
@@ -215,7 +233,6 @@
 | 선택지              | `selected`       | 이벤트 (기존 등록됨) |
 | 번들 slug           | `slug`           | 이벤트 (기존 등록됨) |
 | 번들 slug(비교)     | `bundle_slug`    | 이벤트 (기존 등록됨) |
-| 비교 타입           | `compare_type`   | 이벤트 (기존 등록됨) |
 
 그 아래 **맞춤 측정항목 만들기**:
 
@@ -247,7 +264,6 @@
 - `single_vote_success`
 - `bundle_complete`
 - `compare_create`
-- `compare_share`
 - `auth_signup_success`
 - `comment_submit`
 
@@ -259,7 +275,7 @@ Admin → **잠재고객** → **잠재고객 만들기**:
 | ------------------- | ------------------------------------------------------ |
 | Activated Users     | `single_vote_success` ≥ 1 **or** `bundle_complete` ≥ 1 |
 | Bundle Finishers    | `bundle_complete` ≥ 1                                  |
-| Social Spreaders    | `compare_share` + `single_share_method` ≥ 1            |
+| Social Spreaders    | `single_share_method` ≥ 1                              |
 | Sign-up Completers  | `auth_signup_success` ≥ 1                              |
 | Re-visitors (7d)    | 7일 내 세션 2회 이상                                   |
 | One-voter Drop-offs | `single_vote_success` 1회 후 14일간 세션 0             |
@@ -292,7 +308,7 @@ Admin → **잠재고객** → **잠재고객 만들기**:
 
 **퍼널 C. 비교 바이럴 루프**
 
-1. `bundle_complete` → 2. `compare_create` → 3. `compare_share` → 4. `compare_landing` → 5. `compare_join_click`
+1. `bundle_complete` → 2. `compare_create` → 3. `compare_join_click` (1:1 폐기로 share/landing 단계 제거 — 그룹 공유 트래킹 복구 시 재구성)
 
 **퍼널 D. 회원가입**
 
@@ -397,7 +413,6 @@ Admin → **잠재고객** → **잠재고객 만들기**:
 | 싱글 투표 전환율   | `single_vote_success` / `page_view(single_detail)` | ≥ 40% |
 | 번들 완료율        | `bundle_complete` / `bundle_start`                 | ≥ 70% |
 | 비교 생성율        | `compare_create` / `bundle_result_view`            | ≥ 20% |
-| 공유→유입 전환율   | `compare_landing` / `compare_share`                | ≥ 30% |
 | 회원가입 전환율    | `auth_signup_success` / `auth_modal_open`          | ≥ 15% |
 | 7일 재방문율       | `Re-visitors (7d)` / 신규 유저                     | ≥ 25% |
 | 게스트→가입 전환율 | `auth_signup_success` / `Guest Voters`             | ≥ 10% |
