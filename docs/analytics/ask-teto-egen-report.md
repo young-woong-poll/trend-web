@@ -162,7 +162,57 @@ GA4 콘솔 → 보고서 → 라이브러리에서 컬렉션 만들고 다음 �
 
 ---
 
-## 9. 트래킹 누락/이상 시 점검
+## 9. 로그인·회원가입 이탈 측정
+
+Ask는 로그인 강제 진입점이 3곳 (`/ask/teto-egen` 시작 / `/ask/teto-egen/my` 직접 진입 / `/ask/teto-egen/friend/{token}` 평가 제출). 인증 이벤트 자체는 이미 박혀 있어 별도 코드 추가는 거의 없다.
+
+### 9-1. 사전 작업 — Ask 컨텍스트 분리
+
+현재 Ask 진입점들은 `requireLogin('default')`로 호출되고 있어 GA에서 Ask context로만 필터하기 어렵다. 다음 한 가지를 적용:
+
+- `LoginTrigger` 타입에 `'ask'` 값 추가 ([src/contexts/AuthContext.tsx](../../src/contexts/AuthContext.tsx))
+- Ask 3개 호출 사이트(`page.tsx`, `FriendFlow.tsx`, `MyResultView.tsx`)에서 `requireLogin('ask')` 로 변경
+- `LoginModal.tsx`의 `TRIGGER_MESSAGES` 에 `ask` 케이스 추가 (메시지는 결의 카피로 결정)
+
+이러면 `auth_modal_open` 이벤트의 `trigger=ask` 차원으로 Ask 컨텍스트만 분리 가능.
+
+### 9-2. 퍼널 (이미 박혀 있는 이벤트만 사용)
+
+| 단계 | 이벤트                                 | 의미                           |
+| ---- | -------------------------------------- | ------------------------------ |
+| 1    | `auth_modal_open` (`trigger=ask`)      | 로그인 모달 노출               |
+| 2    | `auth_kakao_click`                     | 카카오 버튼 클릭               |
+| 3    | `auth_kakao_callback` (`success=true`) | 카카오 인증 성공 후 복귀       |
+| 4    | `auth_signup_view`                     | (신규 유저만) 가입 페이지 노출 |
+| 5    | `auth_signup_submit`                   | 가입 폼 제출                   |
+| 6    | `auth_signup_success`                  | 가입 완료                      |
+
+기존 유저는 3 → 6 사이가 0초로 통과 (`is_new_user=false`). 신규 유저만 4~6을 거친다. 분리해서 보려면 `auth_kakao_callback`의 `is_new_user` 차원으로 세그먼트.
+
+### 9-3. GA4 퍼널 보고서 만드는 법
+
+1. 탐색 → 퍼널 탐색
+2. 위 6단계 추가 (개방형 + 폐쇄형 한 쌍)
+3. 세그먼트 필터 — 1단계 이벤트의 `trigger = ask` 적용
+4. 신규 유저만 보려면 추가 필터 — `auth_kakao_callback`의 `is_new_user = true`
+
+### 9-4. 이탈 지점 해석
+
+| 이탈 구간 | 의미 / 점검                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| 1 → 2     | 모달 보고 카카오 누르지 않음. 카피·CTA 매력도 / 외부 알림 차단 의심                              |
+| 2 → 3     | 카카오 페이지에서 사용자 거부 또는 인증 실패. `auth_kakao_callback success=false` 비율 별도 확인 |
+| 3 → 4     | 신규 유저인데 가입 페이지 미도달. 라우팅 / 콜백 핸들링 버그 의심                                 |
+| 4 → 5     | 가입 폼에서 이탈. 닉네임 / 성별 / 출생연도 입력 마찰                                             |
+| 5 → 6     | 제출 후 서버 에러. `auth_signup_success` 누락 시 BE 로그 확인                                    |
+
+### 9-5. 모달 노출 자체의 누락 점검
+
+`auth_modal_open` 이벤트 자체가 안 잡히면 트래킹 가드 의심. [src/components/features/Auth/LoginModal.tsx](../../src/components/features/Auth/LoginModal.tsx) 의 `useEffect`가 `isOpen=true` 시 1회 발화하는 구조. DebugView로 모달 열기 시점의 발화 검증.
+
+---
+
+## 10. 트래킹 누락/이상 시 점검
 
 1. **이벤트가 안 보임** — Real 속성에 맞춤 측정기준 등록했는지 확인 (§2). 등록 안 했으면 파라미터(`topic`, `entry_point` 등) 차원이 안 보임.
 2. **K-factor가 비정상적으로 낮음** — 친구 평가 후 [다음] CTA 클릭 → `ask_view` `entry_point=relay` 발화 → 자기평가 진행 → `ask_link_create` 발화 흐름이 끊기는 지점 확인. DebugView로 한 사용자 세션 따라가며 검증.
