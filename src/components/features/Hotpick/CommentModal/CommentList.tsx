@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Hotpick/CommentModal/CommentList.module.scss';
+import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
+import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInfiniteComments } from '@/hooks/api';
 import { getTKUID } from '@/lib/tkuid';
@@ -32,12 +34,13 @@ export const CommentList: FC<CommentListProps> = ({
   const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ slug, electionId, sort, size: 20, tkuId });
 
-  // 정렬 변경 시 로딩 상태 (초기 로딩 제외, 무한스크롤 제외)
-  const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
+  // 댓글별 expand/form 토글 상태 (commentId set으로 관리)
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [openReplyForms, setOpenReplyForms] = useState<Set<string>>(new Set());
 
+  const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Intersection Observer로 무한스크롤 구현
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -47,12 +50,10 @@ export const CommentList: FC<CommentListProps> = ({
       },
       { threshold: 0.1 }
     );
-
     const currentTarget = observerTarget.current;
     if (currentTarget) {
       observer.observe(currentTarget);
     }
-
     return () => {
       if (currentTarget) {
         observer.unobserve(currentTarget);
@@ -60,7 +61,40 @@ export const CommentList: FC<CommentListProps> = ({
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 초기 로딩 또는 정렬 변경 시 Skeleton 표시
+  const toggleReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
+  const toggleReplyForm = (commentId: string) => {
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
+  const handleReplySuccess = (commentId: string) => {
+    // 답글 작성 성공 → 답글 폼 닫고 답글 목록 자동 펼침
+    setExpandedReplies((prev) => new Set(prev).add(commentId));
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  };
+
   if (isLoading || isSortChanging) {
     return (
       <div className={styles.commentList}>
@@ -69,7 +103,6 @@ export const CommentList: FC<CommentListProps> = ({
     );
   }
 
-  // 에러 상태
   if (isError) {
     return (
       <div className={styles.statusContainer}>
@@ -79,10 +112,8 @@ export const CommentList: FC<CommentListProps> = ({
     );
   }
 
-  // 댓글 데이터 추출
   const comments = data?.pages.flatMap((page) => page.comments ?? []) ?? [];
 
-  // 빈 목록
   if (comments.length === 0) {
     return (
       <div className={styles.emptyContainer}>
@@ -94,17 +125,44 @@ export const CommentList: FC<CommentListProps> = ({
 
   return (
     <div className={styles.commentList}>
-      {comments.map((comment) => (
-        <CommentItem
-          key={comment.id}
-          comment={comment}
-          onLikeClick={onLikeClick}
-          onEditClick={onEditRequest}
-          onDeleteClick={onDeleteRequest}
-        />
-      ))}
+      {comments.map((comment) => {
+        const id = comment.id ?? '';
+        const isExpanded = expandedReplies.has(id);
+        const isFormOpen = openReplyForms.has(id);
 
-      {/* 무한스크롤 트리거 */}
+        return (
+          <div key={id}>
+            <CommentItem
+              comment={comment}
+              repliesExpanded={isExpanded}
+              replyFormOpen={isFormOpen}
+              onLikeClick={onLikeClick}
+              onEditClick={onEditRequest}
+              onDeleteClick={onDeleteRequest}
+              onToggleReplies={() => toggleReplies(id)}
+              onReplyClick={() => toggleReplyForm(id)}
+            />
+
+            {isFormOpen && (
+              <ReplyForm
+                commentId={id}
+                onSuccess={() => handleReplySuccess(id)}
+                onCancel={() => toggleReplyForm(id)}
+              />
+            )}
+
+            {isExpanded && (
+              <RepliesList
+                parentCommentId={id}
+                onLikeClick={onLikeClick}
+                onEditRequest={onEditRequest}
+                onDeleteRequest={onDeleteRequest}
+              />
+            )}
+          </div>
+        );
+      })}
+
       <div ref={observerTarget} className={styles.observerTarget}>
         {isFetchingNextPage && <CommentItemSkeleton count={2} />}
       </div>
