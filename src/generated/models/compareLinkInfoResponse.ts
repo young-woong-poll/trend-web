@@ -25,4 +25,5 @@ export interface CompareLinkInfoResponse {
   myBundleCompleted?: boolean;
   questionCount?: number;
   participantCount?: number;
+  groupName?: string;
 }

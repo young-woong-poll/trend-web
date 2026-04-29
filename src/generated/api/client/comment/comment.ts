@@ -15,6 +15,7 @@ import type {
   CreateCommentRequest,
   DeleteCommentRequest,
   GetCommentsParams,
+  GetRepliesParams,
   UpdateCommentRequest,
   VerifyCommentRequest,
 } from '../../../models';
@@ -112,6 +113,37 @@ export const verifyComment = (
   );
 };
 /**
+ * @summary Get replies for a comment (대댓글 조회)
+ */
+export const getReplies = (
+  commentId: string,
+  params?: GetRepliesParams,
+  options?: SecondParameter<typeof customInstance<BaseResponseCommentListResponse>>
+) => {
+  return customInstance<BaseResponseCommentListResponse>(
+    { url: `/api/v1/comments/${commentId}/replies`, method: 'GET', params },
+    options
+  );
+};
+/**
+ * @summary Create a reply to a comment (대댓글 작성)
+ */
+export const createReply = (
+  commentId: string,
+  createCommentRequest: BodyType<CreateCommentRequest>,
+  options?: SecondParameter<typeof customInstance<BaseResponseCommentCreateResponse>>
+) => {
+  return customInstance<BaseResponseCommentCreateResponse>(
+    {
+      url: `/api/v1/comments/${commentId}/replies`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: createCommentRequest,
+    },
+    options
+  );
+};
+/**
  * @summary Like comment
  */
 export const likeComment = (
@@ -153,6 +185,8 @@ export type DeleteCommentResult = NonNullable<Awaited<ReturnType<typeof deleteCo
 export type GetCommentsResult = NonNullable<Awaited<ReturnType<typeof getComments>>>;
 export type CreateCommentResult = NonNullable<Awaited<ReturnType<typeof createComment>>>;
 export type VerifyCommentResult = NonNullable<Awaited<ReturnType<typeof verifyComment>>>;
+export type GetRepliesResult = NonNullable<Awaited<ReturnType<typeof getReplies>>>;
+export type CreateReplyResult = NonNullable<Awaited<ReturnType<typeof createReply>>>;
 export type LikeCommentResult = NonNullable<Awaited<ReturnType<typeof likeComment>>>;
 export type UnlikeCommentResult = NonNullable<Awaited<ReturnType<typeof unlikeComment>>>;
 export type CountCommentsResult = NonNullable<Awaited<ReturnType<typeof countComments>>>;

@@ -845,6 +845,63 @@ export interface BaseResponseCursorPageResponseMyCommentResponse {
   data?: CursorPageResponseMyCommentResponse;
 }
 
+export type NotificationItemType = (typeof NotificationItemType)[keyof typeof NotificationItemType];
+
+export const NotificationItemType = {
+  COMMENT_LIKE: 'COMMENT_LIKE',
+  COMMENT_REPLY: 'COMMENT_REPLY',
+  COMPARE_LINK_JOIN: 'COMPARE_LINK_JOIN',
+} as const;
+
+export interface NotificationItem {
+  id?: number;
+  type?: NotificationItemType;
+  actorNickname?: string;
+  actorProfileColor?: string;
+  contentPreview?: string;
+  targetUrl?: string;
+  read?: boolean;
+  createdAt?: string;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface NotificationListResponse {
+  notifications?: NotificationItem[];
+  nextCursor?: string;
+  hasMore?: boolean;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseNotificationListResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: NotificationListResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface UnreadCountResponse {
+  count?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseUnreadCountResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: UnreadCountResponse;
+}
+
 /**
  * 메인 노출 태그. main(sort)에서만 값이 내려가며 상세/연관 목록에서는 null일 수 있음
  */
@@ -933,6 +990,8 @@ export interface CommentItem {
   edited?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  electionItemId?: number;
+  replyCount?: number;
 }
 
 /**
@@ -1091,6 +1150,7 @@ export interface CompareLinkInfoResponse {
   myBundleCompleted?: boolean;
   questionCount?: number;
   participantCount?: number;
+  groupName?: string;
 }
 
 /**
@@ -1461,12 +1521,22 @@ export type GetCommentsParams = {
   size?: number;
 };
 
+export type GetRepliesParams = {
+  cursor?: string;
+  size?: number;
+};
+
 export type GetMyLikesParams = {
   cursor?: string;
   size?: number;
 };
 
 export type GetMyCommentsParams = {
+  cursor?: string;
+  size?: number;
+};
+
+export type GetNotificationsParams = {
   cursor?: string;
   size?: number;
 };
