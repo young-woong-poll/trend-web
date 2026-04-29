@@ -12,6 +12,7 @@ import UserIcon from '@/assets/icon/UserIcon';
 import mainLogo1x from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/Main/MainHeader/MainHeader.module.scss';
 import ProfileDropdown from '@/components/features/Main/MainHeader/ProfileDropdown';
+import { NotificationBell } from '@/components/features/Notification';
 import { SearchInitialView } from '@/components/features/Search/SearchInitialView';
 import { SearchResultList } from '@/components/features/Search/SearchResultList';
 import { useAuth } from '@/contexts/AuthContext';
@@ -124,7 +125,10 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
             <div className={styles.authSlot}>
               {!isLoading &&
                 (isLoggedIn ? (
-                  <ProfileDropdown />
+                  <>
+                    <NotificationBell enabled={isLoggedIn} />
+                    <ProfileDropdown />
+                  </>
                 ) : (
                   <button
                     type="button"
@@ -194,7 +198,10 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
               <div className={styles.authSlot}>
                 {!isLoading &&
                   (isLoggedIn ? (
-                    <ProfileDropdown />
+                    <>
+                      <NotificationBell enabled={isLoggedIn} />
+                      <ProfileDropdown />
+                    </>
                   ) : (
                     <button
                       type="button"
