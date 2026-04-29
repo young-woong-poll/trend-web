@@ -7,11 +7,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateReply } from '@/hooks/api';
 import { COMMENT_FORM_LIMITS } from '@/hooks/useCommentForm';
+import { sanitizeComment, validateNickname } from '@/lib/utils';
 
 interface ReplyFormProps {
   commentId: string;
   onSuccess: () => void;
   onCancel: () => void;
+}
+
+interface ReplyFormErrors {
+  content?: boolean;
+  nickname?: boolean;
+  password?: boolean;
 }
 
 export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }) => {
@@ -20,27 +27,54 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }
   const [content, setContent] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState({ content: false, nickname: false, password: false });
+  const [errors, setErrors] = useState<ReplyFormErrors>({});
 
   const { mutate: createReply, isPending } = useCreateReply();
 
   const handleSubmit = () => {
-    const nextErrors = {
-      content: content.trim().length === 0,
-      nickname: !isLoggedIn && nickname.trim().length === 0,
-      password: !isLoggedIn && password.trim().length < COMMENT_FORM_LIMITS.PASSWORD_MIN_LENGTH,
-    };
-    setErrors(nextErrors);
-    if (nextErrors.content || nextErrors.nickname || nextErrors.password) {
+    const trimmedContent = sanitizeComment(content);
+
+    if (!trimmedContent) {
+      setErrors({ content: true });
+      showToast('답글 내용을 입력해주세요');
       return;
+    }
+
+    let trimmedNickname: string | undefined;
+    let trimmedPassword: string | undefined;
+
+    if (!isLoggedIn) {
+      trimmedNickname = nickname.trim();
+      trimmedPassword = password.trim();
+
+      const nicknameValidation = validateNickname(trimmedNickname);
+      if (!nicknameValidation.isValid) {
+        setErrors({ nickname: true });
+        showToast(nicknameValidation.error || '닉네임을 입력해주세요');
+        return;
+      }
+
+      if (!trimmedPassword) {
+        setErrors({ password: true });
+        showToast('비밀번호를 입력해주세요');
+        return;
+      }
+
+      if (trimmedPassword.length < COMMENT_FORM_LIMITS.PASSWORD_MIN_LENGTH) {
+        setErrors({ password: true });
+        showToast(
+          `비밀번호는 최소 ${COMMENT_FORM_LIMITS.PASSWORD_MIN_LENGTH}자리 이상이어야 합니다`
+        );
+        return;
+      }
     }
 
     createReply(
       {
         commentId,
-        content: content.trim(),
-        nickname: isLoggedIn ? undefined : nickname.trim(),
-        password: isLoggedIn ? undefined : password.trim(),
+        content: trimmedContent,
+        nickname: isLoggedIn ? undefined : trimmedNickname,
+        password: isLoggedIn ? undefined : trimmedPassword,
         isLoggedIn,
       },
       {
@@ -48,9 +82,13 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }
           setContent('');
           setNickname('');
           setPassword('');
+          setErrors({});
           onSuccess();
         },
-        onError: () => showToast('답글 작성에 실패했습니다'),
+        onError: (error) => {
+          showToast('답글 작성에 실패했습니다');
+          console.error('Failed to create reply:', error);
+        },
       }
     );
   };
@@ -111,6 +149,7 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }
           className={styles.submitButton}
           onClick={handleSubmit}
           disabled={isPending}
+          aria-label="답글 작성"
         >
           답글
         </button>
