@@ -166,3 +166,62 @@
     transform: scale(0.95);
   }
 }
+
+// ── reply variant — 들여쓰기 + 폰트 살짝 작게 ──
+.commentItemReply {
+  font-size: $font-size-12;
+
+  .nickname {
+    font-size: $font-size-12;
+  }
+
+  .content {
+    font-size: 13px;
+  }
+}
+
+// ── 답글 달기 버튼 ──
+.replyButton {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: $border-radius-sm;
+  color: $text-secondary;
+  font-size: $font-size-12;
+  cursor: pointer;
+  margin-left: 8px;
+
+  &:hover {
+    color: $white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// ── 답글 N개 보기 토글 ──
+.toggleReplies {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 0;
+  background: transparent;
+  border: none;
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  align-self: flex-start;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.toggleArrow {
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+}

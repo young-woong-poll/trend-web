@@ -1,0 +1,41 @@
+@use '@/styles/variables' as *;
+
+.repliesList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0 8px 36px;
+  border-left: 1px solid #2a2a2a;
+  margin-left: 12px;
+}
+
+.empty,
+.loading {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  padding: 8px 0 8px 36px;
+}
+
+.loadMoreButton {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  height: 28px;
+  padding: 0 12px;
+  background: transparent;
+  border: 1px solid #333;
+  border-radius: $border-radius-sm;
+  color: $text-secondary;
+  font-size: $font-size-12;
+  cursor: pointer;
+
+  &:hover {
+    color: $white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

@@ -10,43 +10,51 @@ import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
   comment: CommentItemType;
+  /** 'comment' (기본): 일반 댓글, 'reply': 대댓글 (들여쓰기 + 답글 버튼 숨김) */
+  variant?: 'comment' | 'reply';
+  /** 답글 목록 펼친 상태 */
+  repliesExpanded?: boolean;
+  /** 답글 작성 폼 열린 상태 */
+  replyFormOpen?: boolean;
   onLikeClick: (commentId: string, liked: boolean) => void;
   onEditClick: (comment: CommentItemType) => void;
   onDeleteClick: (comment: CommentItemType) => void;
+  /** "답글 N개 보기" 토글 — 댓글이고 replyCount > 0일 때만 노출 */
+  onToggleReplies?: () => void;
+  /** "답글" 버튼 — 댓글일 때만 노출 (대댓글의 대댓글은 미지원) */
+  onReplyClick?: () => void;
 }
 
 export const CommentItem: FC<CommentItemProps> = ({
   comment,
+  variant = 'comment',
+  repliesExpanded = false,
+  replyFormOpen = false,
   onLikeClick,
   onEditClick,
   onDeleteClick,
+  onToggleReplies,
+  onReplyClick,
 }) => {
   const handleLikeClick = () => {
     onLikeClick(comment.id ?? '', comment.liked ?? false);
-  };
-
-  const handleEditClick = () => {
-    onEditClick(comment);
-  };
-
-  const handleDeleteClick = () => {
-    onDeleteClick(comment);
   };
 
   const formatLikeCount = (count: number | undefined): string =>
     (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
   const isRegisteredUser = !!comment.profileColor;
+  const replyCount = comment.replyCount ?? 0;
+  const isReply = variant === 'reply';
 
   return (
-    <div className={styles.commentItem}>
-      {/* 헤더: 프로필 아바타(로그인 유저) + 닉네임 + 시간 */}
+    <div className={`${styles.commentItem} ${isReply ? styles.commentItemReply : ''}`}>
       <div className={styles.header}>
         {isRegisteredUser && (
           <ProfileAvatar
             nickname={comment.nickname ?? null}
             profileColor={comment.profileColor ?? ''}
-            size={24}
+            size={isReply ? 20 : 24}
           />
         )}
         <span className={styles.nickname}>{comment.nickname}</span>
@@ -58,10 +66,8 @@ export const CommentItem: FC<CommentItemProps> = ({
         </span>
       </div>
 
-      {/* 댓글 내용 */}
       <p className={styles.content}>{sanitizeComment(comment.content ?? '')}</p>
 
-      {/* 하단: 좋아요, 수정/삭제 버튼 */}
       <div className={styles.footer}>
         <button
           type="button"
@@ -73,23 +79,31 @@ export const CommentItem: FC<CommentItemProps> = ({
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
-        {/* 비로그인 댓글: 누구나 비밀번호로 수정/삭제 시도 가능
-            로그인 댓글: 본인(isMine)만 수정/삭제 가능 */}
+        {!isReply && onReplyClick && (
+          <button
+            type="button"
+            className={styles.replyButton}
+            onClick={onReplyClick}
+            aria-expanded={replyFormOpen}
+          >
+            {replyFormOpen ? '닫기' : '답글'}
+          </button>
+        )}
+
         {(!isRegisteredUser || comment.isMine) && (
           <div className={styles.actionButtons}>
             <button
               type="button"
               className={styles.editButton}
-              onClick={handleEditClick}
+              onClick={() => onEditClick(comment)}
               aria-label="댓글 수정"
             >
               수정
             </button>
-
             <button
               type="button"
               className={styles.deleteButton}
-              onClick={handleDeleteClick}
+              onClick={() => onDeleteClick(comment)}
               aria-label="댓글 삭제"
             >
               삭제
@@ -97,6 +111,18 @@ export const CommentItem: FC<CommentItemProps> = ({
           </div>
         )}
       </div>
+
+      {!isReply && replyCount > 0 && onToggleReplies && (
+        <button
+          type="button"
+          className={styles.toggleReplies}
+          onClick={onToggleReplies}
+          aria-expanded={repliesExpanded}
+        >
+          <span className={styles.toggleArrow}>{repliesExpanded ? '▴' : '▾'}</span>
+          답글 {replyCount}개 {repliesExpanded ? '숨기기' : '보기'}
+        </button>
+      )}
     </div>
   );
 };
