@@ -1,0 +1,107 @@
+@use '@/styles/variables' as *;
+
+.replyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0 12px 36px;
+}
+
+.textareaWrapper {
+  position: relative;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 12px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-md;
+  color: $white;
+  font-size: $font-size-14;
+  resize: vertical;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $text-tertiary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+}
+
+.charCount {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  pointer-events: none;
+}
+
+.bottomRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.input {
+  height: 32px;
+  padding: 0 10px;
+  background: $bg-tertiary;
+  border: 1px solid #3a3a3a;
+  border-radius: $border-radius-sm;
+  color: $white;
+  font-size: $font-size-12;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+
+  &.error {
+    border-color: $error;
+  }
+}
+
+.nicknameInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.passwordInput {
+  width: 90px;
+}
+
+.submitButton {
+  height: 32px;
+  padding: 0 14px;
+  background: $bg-tertiary;
+  color: $white;
+  border: 1px solid $border-placeholder;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelButton {
+  height: 32px;
+  padding: 0 10px;
+  background: transparent;
+  color: $text-secondary;
+  border: 1px solid #333;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-12;
+  cursor: pointer;
+}
