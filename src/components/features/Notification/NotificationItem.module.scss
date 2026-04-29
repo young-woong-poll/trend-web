@@ -1,0 +1,83 @@
+@use '@/styles/variables' as *;
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #2a2a2a;
+  cursor: pointer;
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.unread {
+    background: rgba(255, 0, 255, 0.06);
+  }
+}
+
+.iconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: $bg-tertiary;
+  color: $white;
+  font-size: $font-size-14;
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.text {
+  font-size: $font-size-14;
+  color: $white;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actor {
+  font-weight: $font-weight-bold;
+}
+
+.preview {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.time {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: $primary-500;
+  flex-shrink: 0;
+  align-self: center;
+}
