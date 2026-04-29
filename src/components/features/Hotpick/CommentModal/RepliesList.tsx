@@ -38,7 +38,6 @@ export const RepliesList: FC<RepliesListProps> = ({
     return <div className={styles.empty}>아직 답글이 없습니다.</div>;
   }
 
-  // 누적 로드된 개수 — "더 보기"는 정확한 잔여 개수가 아니라 단순 표시
   return (
     <div className={styles.repliesList}>
       {replies.map((reply) => (
@@ -58,7 +57,7 @@ export const RepliesList: FC<RepliesListProps> = ({
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
-          {isFetchingNextPage ? '불러오는 중...' : '답글 더 보기'}
+          {isFetchingNextPage ? '불러오는 중...' : '답글 더보기'}
         </button>
       )}
     </div>
