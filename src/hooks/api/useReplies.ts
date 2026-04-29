@@ -65,9 +65,28 @@ export const useCreateReply = () => {
       });
     },
     onSuccess: (_data, variables) => {
+      // 답글 목록 invalidate
       void queryClient.invalidateQueries({ queryKey: replyKeys.list(variables.commentId) });
-      // 부모 댓글 목록의 replyCount 갱신을 위해 lists 전체 invalidate
-      void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+
+      // 부모 댓글의 replyCount를 모든 sort 캐시에서 +1 (낙관적 패치)
+      const lists = queryClient.getQueriesData<{ pages: CommentListResponse[] }>({
+        queryKey: commentKeys.lists(),
+      });
+
+      lists.forEach(([key, oldData]) => {
+        if (!oldData) {
+          return;
+        }
+        queryClient.setQueryData(key, {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            comments: (page.comments ?? []).map((c) =>
+              c.id === variables.commentId ? { ...c, replyCount: (c.replyCount ?? 0) + 1 } : c
+            ),
+          })),
+        });
+      });
     },
   });
 };
