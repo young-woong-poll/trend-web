@@ -12,7 +12,7 @@ interface NotificationDropdownProps {
 }
 
 export const NotificationDropdown: FC<NotificationDropdownProps> = ({ unreadCount, onClose }) => {
-  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteNotifications({ size: 20 });
   const { mutate: markAll, isPending: isMarking } = useMarkAllNotificationsRead();
 
@@ -58,6 +58,8 @@ export const NotificationDropdown: FC<NotificationDropdownProps> = ({ unreadCoun
       <div className={styles.scrollArea}>
         {isLoading ? (
           <div className={styles.loading}>불러오는 중...</div>
+        ) : isError ? (
+          <div className={styles.empty}>알림을 불러오는데 실패했습니다.</div>
         ) : notifications.length === 0 ? (
           <div className={styles.empty}>아직 알림이 없습니다.</div>
         ) : (
