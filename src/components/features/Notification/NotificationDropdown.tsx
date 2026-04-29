@@ -1,0 +1,76 @@
+'use client';
+
+import { useEffect, useRef, type FC } from 'react';
+
+import styles from '@/components/features/Notification/NotificationDropdown.module.scss';
+import { NotificationItem } from '@/components/features/Notification/NotificationItem';
+import { useInfiniteNotifications, useMarkAllNotificationsRead } from '@/hooks/api';
+
+interface NotificationDropdownProps {
+  unreadCount: number;
+  onClose: () => void;
+}
+
+export const NotificationDropdown: FC<NotificationDropdownProps> = ({ unreadCount, onClose }) => {
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteNotifications({ size: 20 });
+  const { mutate: markAll, isPending: isMarking } = useMarkAllNotificationsRead();
+
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    const target = observerTarget.current;
+    if (target) {
+      observer.observe(target);
+    }
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const notifications = data?.pages.flatMap((page) => page.notifications ?? []) ?? [];
+  const handleMarkAll = () => markAll();
+
+  return (
+    <div className={styles.dropdown} role="dialog" aria-label="알림">
+      <div className={styles.header}>
+        <h2 className={styles.title}>알림</h2>
+        <button
+          type="button"
+          className={styles.markAllButton}
+          onClick={handleMarkAll}
+          disabled={unreadCount === 0 || isMarking}
+        >
+          전체 읽음
+        </button>
+      </div>
+
+      <div className={styles.scrollArea}>
+        {isLoading ? (
+          <div className={styles.loading}>불러오는 중...</div>
+        ) : notifications.length === 0 ? (
+          <div className={styles.empty}>아직 알림이 없습니다.</div>
+        ) : (
+          <>
+            {notifications.map((n) => (
+              <NotificationItem key={n.id} notification={n} onNavigate={onClose} />
+            ))}
+            <div ref={observerTarget} className={styles.observerTarget}>
+              {isFetchingNextPage && <div className={styles.loadMore}>불러오는 중...</div>}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
