@@ -48,3 +48,11 @@ export { useCreateSuggestion } from '@/hooks/api/useSuggestion';
 
 // Reply Hooks
 export { replyKeys, useInfiniteReplies, useCreateReply } from '@/hooks/api/useReplies';
+
+// Notification Hooks
+export {
+  notificationKeys,
+  useInfiniteNotifications,
+  useUnreadNotificationCount,
+  useMarkAllNotificationsRead,
+} from '@/hooks/api/useNotifications';
