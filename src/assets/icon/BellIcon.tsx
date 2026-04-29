@@ -14,7 +14,7 @@ const BellIcon: FC<BellIconProps> = ({ filled = false, ...props }) => (
     {...props}
   >
     <path
-      d="M18 16V11C18 7.13401 14.866 4 11 4H13C16.866 4 20 7.13401 20 11V16L21 17V18H3V17L4 16V11C4 7.68629 6.68629 5 10 5"
+      d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9z"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -22,7 +22,7 @@ const BellIcon: FC<BellIconProps> = ({ filled = false, ...props }) => (
       fill={filled ? 'currentColor' : 'none'}
     />
     <path
-      d="M10 21H14"
+      d="M10.3 21a1.94 1.94 0 0 0 3.4 0"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
