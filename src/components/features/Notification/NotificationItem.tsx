@@ -36,27 +36,28 @@ export const NotificationItem: FC<NotificationItemProps> = ({ notification, onNa
   const verb = typeInfo?.verb ?? '새 알림';
   const emoji = typeInfo?.emoji ?? '·';
   const isUnread = notification.read === false;
+  const actorLabel = notification.actorNickname ?? '익명';
 
   return (
     <button
       type="button"
       className={`${styles.item} ${isUnread ? styles.unread : ''}`}
       onClick={handleClick}
-      aria-label={`${notification.actorNickname ?? '알 수 없는 유저'}: ${verb}`}
+      aria-label={`${isUnread ? '(안 읽음) ' : ''}${actorLabel}: ${verb}`}
     >
       <span className={styles.iconBadge} aria-hidden>
         {emoji}
       </span>
       <div className={styles.body}>
         <span className={styles.text}>
-          <span className={styles.actor}>{notification.actorNickname ?? '익명'}</span>님이 {verb}
+          <span className={styles.actor}>{actorLabel}</span>님이 {verb}
         </span>
         {notification.contentPreview && (
           <span className={styles.preview}>{notification.contentPreview}</span>
         )}
         <span className={styles.time}>{getRelativeTime(notification.createdAt ?? '')}</span>
       </div>
-      {isUnread && <span className={styles.unreadDot} aria-label="안 읽음" />}
+      {isUnread && <span className={styles.unreadDot} aria-hidden />}
     </button>
   );
 };
