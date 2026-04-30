@@ -2,6 +2,7 @@
 
 import { type FC } from 'react';
 
+import ChevronDownIcon from '@/assets/icon/ChevronDownIcon';
 import LikeIcon from '@/assets/icon/LikeIcon';
 import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
@@ -120,10 +121,11 @@ export const CommentItem: FC<CommentItemProps> = ({
           onClick={onToggleReplies}
           aria-expanded={repliesExpanded}
         >
-          <span className={styles.toggleLine} aria-hidden />
-          <span className={styles.toggleText}>
-            {repliesExpanded ? '답글 숨기기' : `답글 ${replyCount}개 보기`}
-          </span>
+          <ChevronDownIcon
+            className={`${styles.toggleChevron} ${repliesExpanded ? styles.expanded : ''}`}
+            aria-hidden
+          />
+          {repliesExpanded ? '답글 숨기기' : `답글 ${replyCount}개`}
         </button>
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import { type FC } from 'react';
 
+import ChevronDownIcon from '@/assets/icon/ChevronDownIcon';
 import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import styles from '@/components/features/Hotpick/CommentModal/RepliesList.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
@@ -57,6 +58,7 @@ export const RepliesList: FC<RepliesListProps> = ({
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
+          <ChevronDownIcon className={styles.loadMoreChevron} aria-hidden />
           {isFetchingNextPage ? '불러오는 중...' : '답글 더보기'}
         </button>
       )}

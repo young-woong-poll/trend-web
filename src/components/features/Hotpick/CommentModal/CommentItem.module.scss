@@ -167,17 +167,10 @@
   }
 }
 
-// ── reply variant — 들여쓰기 + 폰트 살짝 작게 ──
+// ── reply variant ──
 .commentItemReply {
-  font-size: $font-size-12;
-
-  .nickname {
-    font-size: $font-size-12;
-  }
-
-  .content {
-    font-size: 13px;
-  }
+  // 답글도 부모 댓글과 동일한 폰트 사이즈 사용 (YouTube 패턴)
+  // 시각적 구분은 아바타 사이즈(24→20) + RepliesList의 들여쓰기로만 표현
 }
 
 // ── 답글 달기 버튼 (수정/삭제 버튼과 동일한 plain text 스타일) ──
@@ -202,33 +195,39 @@
   }
 }
 
-// ── 답글 N개 보기 토글 (YouTube 스타일: 라인 + 텍스트) ──
+// ── 답글 N개 토글 (YouTube 다크모드 패턴: chevron + 텍스트) ──
 .toggleReplies {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   margin-top: 8px;
-  padding: 6px 0;
+  padding: 6px 10px;
   background: transparent;
   border: none;
-  color: $primary-start;
+  border-radius: 4px;
+  color: $white;
   font-size: 13px;
-  font-weight: $font-weight-bold;
+  font-weight: $font-weight-semibold;
   cursor: pointer;
   align-self: flex-start;
+  transition: background-color 0.2s;
 
   &:hover {
-    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 }
 
-.toggleLine {
-  display: inline-block;
-  width: 24px;
-  height: 1px;
-  background: $primary-start;
-}
+.toggleChevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
 
-.toggleText {
-  letter-spacing: -0.01em;
+  &.expanded {
+    transform: rotate(180deg);
+  }
 }
