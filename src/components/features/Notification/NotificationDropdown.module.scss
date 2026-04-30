@@ -22,8 +22,9 @@
     left: 0;
     right: 0;
     width: auto;
-    max-height: calc(100vh - 56px);
+    max-height: min(calc(100dvh - 56px), 600px);
     border-radius: 0;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
