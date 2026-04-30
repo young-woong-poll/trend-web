@@ -109,7 +109,7 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
                   href="/about"
                   className={`${styles.navLink} ${pathname === '/about' ? styles.navLinkActive : ''}`}
                 >
-                  핫픽이란?
+                  About
                 </Link>
                 <Link
                   href="/suggest"
