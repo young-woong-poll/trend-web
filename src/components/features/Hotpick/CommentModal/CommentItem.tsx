@@ -79,37 +79,38 @@ export const CommentItem: FC<CommentItemProps> = ({
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
-        {!isReply && onReplyClick && (
-          <button
-            type="button"
-            className={styles.replyButton}
-            onClick={onReplyClick}
-            aria-expanded={replyFormOpen}
-          >
-            {replyFormOpen ? '닫기' : '답글'}
-          </button>
-        )}
-
-        {(!isRegisteredUser || comment.isMine) && (
-          <div className={styles.actionButtons}>
+        <div className={styles.actionButtons}>
+          {!isReply && onReplyClick && (
             <button
               type="button"
-              className={styles.editButton}
-              onClick={() => onEditClick(comment)}
-              aria-label="댓글 수정"
+              className={styles.replyButton}
+              onClick={onReplyClick}
+              aria-expanded={replyFormOpen}
             >
-              수정
+              {replyFormOpen ? '닫기' : '답글'}
             </button>
-            <button
-              type="button"
-              className={styles.deleteButton}
-              onClick={() => onDeleteClick(comment)}
-              aria-label="댓글 삭제"
-            >
-              삭제
-            </button>
-          </div>
-        )}
+          )}
+          {(!isRegisteredUser || comment.isMine) && (
+            <>
+              <button
+                type="button"
+                className={styles.editButton}
+                onClick={() => onEditClick(comment)}
+                aria-label="댓글 수정"
+              >
+                수정
+              </button>
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={() => onDeleteClick(comment)}
+                aria-label="댓글 삭제"
+              >
+                삭제
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {!isReply && replyCount > 0 && onToggleReplies && (
@@ -119,8 +120,10 @@ export const CommentItem: FC<CommentItemProps> = ({
           onClick={onToggleReplies}
           aria-expanded={repliesExpanded}
         >
-          <span className={styles.toggleArrow}>{repliesExpanded ? '▴' : '▾'}</span>
-          답글 {replyCount}개 {repliesExpanded ? '숨기기' : '보기'}
+          <span className={styles.toggleLine} aria-hidden />
+          <span className={styles.toggleText}>
+            {repliesExpanded ? '답글 숨기기' : `답글 ${replyCount}개 보기`}
+          </span>
         </button>
       )}
     </div>
