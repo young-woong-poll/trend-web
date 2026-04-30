@@ -10,6 +10,7 @@ import { CommentItem as CommentItemComponent } from '@/components/features/Hotpi
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
 import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
+import { RepliesToggle } from '@/components/features/Hotpick/CommentModal/RepliesToggle';
 import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
 import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
@@ -131,12 +132,10 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
             <div key={id}>
               <CommentItemComponent
                 comment={comment}
-                repliesExpanded={isExpanded}
                 replyFormOpen={isFormOpen}
                 onLikeClick={handleLikeClick}
                 onEditClick={handleEditRequest}
                 onDeleteClick={handleDeleteRequest}
-                onToggleReplies={() => toggleReplies(id)}
                 onReplyClick={() => toggleReplyForm(id)}
               />
 
@@ -145,6 +144,14 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
                   commentId={id}
                   onSuccess={() => handleReplySuccess(id)}
                   onCancel={() => toggleReplyForm(id)}
+                />
+              )}
+
+              {(comment.replyCount ?? 0) > 0 && (
+                <RepliesToggle
+                  replyCount={comment.replyCount ?? 0}
+                  expanded={isExpanded}
+                  onClick={() => toggleReplies(id)}
                 />
               )}
 

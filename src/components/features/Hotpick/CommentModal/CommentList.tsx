@@ -6,6 +6,7 @@ import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentI
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Hotpick/CommentModal/CommentList.module.scss';
 import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
+import { RepliesToggle } from '@/components/features/Hotpick/CommentModal/RepliesToggle';
 import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInfiniteComments } from '@/hooks/api';
@@ -134,12 +135,10 @@ export const CommentList: FC<CommentListProps> = ({
           <div key={id}>
             <CommentItem
               comment={comment}
-              repliesExpanded={isExpanded}
               replyFormOpen={isFormOpen}
               onLikeClick={onLikeClick}
               onEditClick={onEditRequest}
               onDeleteClick={onDeleteRequest}
-              onToggleReplies={() => toggleReplies(id)}
               onReplyClick={() => toggleReplyForm(id)}
             />
 
@@ -148,6 +147,14 @@ export const CommentList: FC<CommentListProps> = ({
                 commentId={id}
                 onSuccess={() => handleReplySuccess(id)}
                 onCancel={() => toggleReplyForm(id)}
+              />
+            )}
+
+            {(comment.replyCount ?? 0) > 0 && (
+              <RepliesToggle
+                replyCount={comment.replyCount ?? 0}
+                expanded={isExpanded}
+                onClick={() => toggleReplies(id)}
               />
             )}
 

@@ -2,7 +2,6 @@
 
 import { type FC } from 'react';
 
-import ChevronDownIcon from '@/assets/icon/ChevronDownIcon';
 import LikeIcon from '@/assets/icon/LikeIcon';
 import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
@@ -13,15 +12,11 @@ interface CommentItemProps {
   comment: CommentItemType;
   /** 'comment' (기본): 일반 댓글, 'reply': 대댓글 (들여쓰기 + 답글 버튼 숨김) */
   variant?: 'comment' | 'reply';
-  /** 답글 목록 펼친 상태 */
-  repliesExpanded?: boolean;
   /** 답글 작성 폼 열린 상태 */
   replyFormOpen?: boolean;
   onLikeClick: (commentId: string, liked: boolean) => void;
   onEditClick: (comment: CommentItemType) => void;
   onDeleteClick: (comment: CommentItemType) => void;
-  /** "답글 N개 보기" 토글 — 댓글이고 replyCount > 0일 때만 노출 */
-  onToggleReplies?: () => void;
   /** "답글" 버튼 — 댓글일 때만 노출 (대댓글의 대댓글은 미지원) */
   onReplyClick?: () => void;
 }
@@ -29,12 +24,10 @@ interface CommentItemProps {
 export const CommentItem: FC<CommentItemProps> = ({
   comment,
   variant = 'comment',
-  repliesExpanded = false,
   replyFormOpen = false,
   onLikeClick,
   onEditClick,
   onDeleteClick,
-  onToggleReplies,
   onReplyClick,
 }) => {
   const handleLikeClick = () => {
@@ -45,7 +38,6 @@ export const CommentItem: FC<CommentItemProps> = ({
     (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
   const isRegisteredUser = !!comment.profileColor;
-  const replyCount = comment.replyCount ?? 0;
   const isReply = variant === 'reply';
 
   return (
@@ -113,21 +105,6 @@ export const CommentItem: FC<CommentItemProps> = ({
           )}
         </div>
       </div>
-
-      {!isReply && replyCount > 0 && onToggleReplies && (
-        <button
-          type="button"
-          className={styles.toggleReplies}
-          onClick={onToggleReplies}
-          aria-expanded={repliesExpanded}
-        >
-          <ChevronDownIcon
-            className={`${styles.toggleChevron} ${repliesExpanded ? styles.expanded : ''}`}
-            aria-hidden
-          />
-          {repliesExpanded ? '답글 숨기기' : `답글 ${replyCount}개`}
-        </button>
-      )}
     </div>
   );
 };
