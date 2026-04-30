@@ -9,6 +9,8 @@ import { CommentEditModal } from '@/components/features/Hotpick/CommentModal/Com
 import { CommentItem as CommentItemComponent } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
+import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
+import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
 import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailView/InlineCommentForm';
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,6 +36,42 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   commentCount,
 }) => {
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [openReplyForms, setOpenReplyForms] = useState<Set<string>>(new Set());
+
+  const toggleReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
+  const toggleReplyForm = (commentId: string) => {
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+      }
+      return next;
+    });
+  };
+
+  const handleReplySuccess = (commentId: string) => {
+    setExpandedReplies((prev) => new Set(prev).add(commentId));
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  };
+
   const canViewComments = voted || isClosed;
 
   const { isLoggedIn } = useAuth();
@@ -84,15 +122,43 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
     return (
       <>
-        {comments.map((comment) => (
-          <CommentItemComponent
-            key={comment.id}
-            comment={comment}
-            onLikeClick={handleLikeClick}
-            onEditClick={handleEditRequest}
-            onDeleteClick={handleDeleteRequest}
-          />
-        ))}
+        {comments.map((comment) => {
+          const id = comment.id ?? '';
+          const isExpanded = expandedReplies.has(id);
+          const isFormOpen = openReplyForms.has(id);
+
+          return (
+            <div key={id}>
+              <CommentItemComponent
+                comment={comment}
+                repliesExpanded={isExpanded}
+                replyFormOpen={isFormOpen}
+                onLikeClick={handleLikeClick}
+                onEditClick={handleEditRequest}
+                onDeleteClick={handleDeleteRequest}
+                onToggleReplies={() => toggleReplies(id)}
+                onReplyClick={() => toggleReplyForm(id)}
+              />
+
+              {isFormOpen && (
+                <ReplyForm
+                  commentId={id}
+                  onSuccess={() => handleReplySuccess(id)}
+                  onCancel={() => toggleReplyForm(id)}
+                />
+              )}
+
+              {isExpanded && (
+                <RepliesList
+                  parentCommentId={id}
+                  onLikeClick={handleLikeClick}
+                  onEditRequest={handleEditRequest}
+                  onDeleteRequest={handleDeleteRequest}
+                />
+              )}
+            </div>
+          );
+        })}
         {hasNextPage && (
           <button
             type="button"
