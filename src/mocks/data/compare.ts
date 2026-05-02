@@ -519,7 +519,7 @@ export function getCompareLink(token: string, currentUserId: string): CompareLin
     myBundleCompleted: myCompleted,
     questionCount: detail?.questionCount ?? 5,
     participantCount: detail?.participantCount ?? 0,
-    groupName: link.groupName,
+    groupName: link.groupName ?? undefined,
     memberCount: link.groupMembers.length,
     isClosed: link.isClosed,
   };

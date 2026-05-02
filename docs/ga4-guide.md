@@ -1,7 +1,16 @@
 # GA4 번들 퍼널 분석 가이드
 
 > HotPick 번들 기능의 유저 진입/이탈/전환 분석을 위한 실전 가이드.
-> GA4 속성: `G-CBJFPV9C95`
+>
+> **환경별 GA4 속성:**
+>
+> | 환경              | 측정 ID                           | 비고           |
+> | ----------------- | --------------------------------- | -------------- |
+> | Real (Production) | (Vercel `NEXT_PUBLIC_GA_ID` 참고) | 분석 기준      |
+> | Beta (Preview)    | `G-CBJFPV9C95`                    | QA/검증용      |
+> | Local             | 미설정                            | gtag.js 미로드 |
+>
+> 보고서/맞춤 측정기준은 두 속성에 각각 등록.
 
 ---
 
@@ -17,22 +26,20 @@
 | 4   | `bundle_complete`    | `slug`, `question_count`             | 전체 답변 제출 완료     |
 | 5   | `bundle_result_view` | `slug`                               | 내 결과 페이지 조회     |
 
-### 비교 퍼널
+### 비교 퍼널 (그룹 전용 — 1:1은 2026-04 폐기)
 
-| #   | 이벤트명          | 파라미터                                   | 설명                                |
-| --- | ----------------- | ------------------------------------------ | ----------------------------------- |
-| 6   | `compare_create`  | `slug`, `compare_type`, `source`           | 비교 링크 생성 성공                 |
-| 7   | `compare_share`   | `slug`, `method`, `compare_type`, `source` | 공유 (kakao/copy)                   |
-| 8   | `compare_landing` | `bundle_slug`, `compare_type`              | 비교 링크 랜딩 페이지 (수신자 기준) |
-| 9   | `compare_result`  | `bundle_slug`                              | 1:1 비교 결과 조회                  |
-| 10  | `group_result`    | `bundle_slug`, `member_count`              | 그룹 비교 결과 조회                 |
+| #   | 이벤트명         | 파라미터                      | 설명                     |
+| --- | ---------------- | ----------------------------- | ------------------------ |
+| 6   | `compare_create` | `slug`, `source`              | 그룹 비교 링크 생성 성공 |
+| 7   | `group_result`   | `bundle_slug`, `member_count` | 그룹 비교 결과 조회      |
+
+> 1:1 비교 폐기 이전 데이터는 GA4 콘솔에 남아있음 — 새 분석에는 포함 금지.
 
 ### 파라미터 값 참고
 
 | 파라미터         | 가능한 값                                         | 의미                          |
 | ---------------- | ------------------------------------------------- | ----------------------------- |
 | `entry_point`    | `direct`, `compare_link`                          | 직접 진입 vs 비교 링크로 진입 |
-| `compare_type`   | `ONE_TO_ONE`, `GROUP`                             | 1:1 vs 그룹                   |
 | `source`         | `bundle_result`, `compare_result`, `group_result` | 어디서 링크를 생성했는지      |
 | `method`         | `kakao`, `copy`                                   | 공유 방법                     |
 | `question_index` | 0, 1, 2, 3, 4                                     | 몇 번째 질문 (0부터)          |
@@ -69,7 +76,6 @@ GA4는 자동 수집 이벤트 외에 커스텀 이벤트의 파라미터를 보
 | ---------------- | ---------------- | ------ |
 | 번들 slug        | `slug`           | 이벤트 |
 | 진입점           | `entry_point`    | 이벤트 |
-| 비교 타입        | `compare_type`   | 이벤트 |
 | 출처             | `source`         | 이벤트 |
 | 공유 방법        | `method`         | 이벤트 |
 | 질문 번호        | `question_index` | 이벤트 |
@@ -104,7 +110,6 @@ GA4는 자동 수집 이벤트 외에 커스텀 이벤트의 파라미터를 보
 | 3    | `bundle_complete`    |
 | 4    | `bundle_result_view` |
 | 5    | `compare_create`     |
-| 6    | `compare_share`      |
 
 4. **설정**:
    - "세그먼트 비교" 에서 기기별/기간별 비교 가능
@@ -139,60 +144,30 @@ question_index 4: 480회
 
 ### 3-3. 비교 링크 전환 분석 (공유가 실제 유입으로 이어지나?)
 
-**목적:** 링크 생성 → 공유 → 상대방 진입 → 결과 확인 전환 추적
-
-1. GA4 콘솔 > **탐색** > **퍼널 탐색**
-2. **단계**:
-
-| 단계 | 이벤트                               |
-| ---- | ------------------------------------ |
-| 1    | `compare_create`                     |
-| 2    | `compare_share`                      |
-| 3    | `compare_landing`                    |
-| 4    | `compare_result` 또는 `group_result` |
-
-> 주의: 3~4단계는 **다른 유저**가 수행함. GA4 퍼널에서는 같은 유저 기준이므로,
-> 이 퍼널은 "전체 이벤트 수 기준"으로 봐야 합니다.
-> 정확한 링크→유입 전환은 아래 3-5 방식으로 확인.
+현재 측정 안 됨 (1:1 폐기로 `compare_share`/`compare_landing`/`compare_result` 제거). 향후 그룹 공유 트래킹 복구 시 재개.
 
 ### 3-4. 비교 링크 출처별 생성량 (어디서 많이 만드나?)
 
-**목적:** 번들결과 vs 1:1결과 vs 그룹결과 중 어디서 비교 링크가 많이 만들어지는지
+**목적:** 번들결과 vs 그룹결과 중 어디서 비교 링크가 많이 만들어지는지
 
 1. GA4 콘솔 > **탐색** > **자유형식**
 2. **행**: `source` (맞춤 측정기준)
-3. **열**: `compare_type` (맞춤 측정기준)
-4. **값**: `이벤트 수`
-5. **필터**: 이벤트 이름 = `compare_create`
+3. **값**: `이벤트 수`
+4. **필터**: 이벤트 이름 = `compare_create`
 
 결과 예시:
 
-| source         | ONE_TO_ONE | GROUP |
-| -------------- | ---------- | ----- |
-| bundle_result  | 120        | 45    |
-| compare_result | 30         | 10    |
-| group_result   | 15         | 25    |
+| source         | 이벤트 수 |
+| -------------- | --------- |
+| bundle_result  | 165       |
+| compare_result | 40        |
+| group_result   | 40        |
 
 → 번들 결과에서 가장 많이 생성되면 정상, 비교 결과에서도 활발하면 바이럴 루프가 잘 도는 것.
 
 ### 3-5. 공유→유입 전환 (링크 공유가 실제 방문으로 이어지나?)
 
-**목적:** compare_share 대비 compare_landing 비율 확인
-
-1. GA4 콘솔 > **보고서** > **참여도** > **이벤트**
-2. `compare_share` 이벤트 수와 `compare_landing` 이벤트 수를 비교
-
-```
-compare_share: 200회 (링크 공유)
-compare_landing: 80회 (실제 유입)
-→ 공유→유입 전환율: 40%
-```
-
-전환율이 낮으면:
-
-- 카카오 메시지 미리보기가 매력적이지 않음
-- 링크를 복사만 하고 실제 전달을 안 함
-- 전달했지만 수신자가 클릭하지 않음
+현재 측정 안 됨 (그룹 공유 트래킹 복구 후 재개).
 
 ### 3-6. 번들별 성과 비교
 
@@ -224,22 +199,17 @@ compare_landing: 80회 (실제 유입)
 
 ### 주간 확인 (탐색 보고서)
 
-| 지표        | 계산                                              | 목표  |
-| ----------- | ------------------------------------------------- | ----- |
-| 시작 전환율 | bundle_start / bundle_view                        | > 50% |
-| 완료율      | bundle_complete / bundle_start                    | > 70% |
-| 비교 생성율 | compare_create / bundle_result_view               | > 20% |
-| 공유율      | compare_share / compare_create                    | > 60% |
-| 유입 전환율 | compare_landing / compare_share                   | > 30% |
-| 결과 도달율 | (compare_result + group_result) / compare_landing | > 50% |
+| 지표        | 계산                                | 목표  |
+| ----------- | ----------------------------------- | ----- |
+| 시작 전환율 | bundle_start / bundle_view          | > 50% |
+| 완료율      | bundle_complete / bundle_start      | > 70% |
+| 비교 생성율 | compare_create / bundle_result_view | > 20% |
 
 ### 보고 시 주의 포인트
 
 - **시작 전환율이 낮으면**: 인트로 페이지 CTA/설명 개선
 - **완료율이 낮으면**: 질문별 이탈 분석 (3-2) → 문제 질문 교체/수정
 - **비교 생성율이 낮으면**: 결과 페이지 CTA 강화, 비교의 재미 어필
-- **공유율이 낮으면**: 공유 UI 개선, 카카오 메시지 프리뷰 매력도 향상
-- **유입 전환율이 낮으면**: 카카오 미리보기/링크 메시지 개선
 
 ---
 
@@ -283,7 +253,7 @@ compare_landing: 80회 (실제 유입)
 ## 7. 이벤트가 안 보일 때 체크리스트
 
 1. **AdBlocker 꺼져있는지** — uBlock 등이 gtag.js를 차단할 수 있음
-2. **GA4 속성 ID 맞는지** — `G-CBJFPV9C95` 확인
+2. **GA4 속성 ID 맞는지** — DevTools Network에서 `gtag/js?id=G-...` 호출의 ID가 현재 환경(Real/Beta) 기대값과 일치하는지 확인
 3. **이벤트 이름 오타** — GA4 > 이벤트에서 이름 확인
 4. **맞춤 정의 등록했는지** — 파라미터가 보고서에 안 뜨면 2-2 단계 확인
 5. **24~48시간 대기** — 맞춤 정의 등록 후 데이터 반영 시간 필요

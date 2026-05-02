@@ -408,6 +408,12 @@
   line-height: 1.4;
 }
 
+// 탈퇴 유저
+.topCommentNicknameWithdrawn {
+  font-weight: $font-weight-medium;
+  font-style: italic;
+}
+
 .topCommentText {
   font-size: $font-size-12;
   color: $text-secondary;

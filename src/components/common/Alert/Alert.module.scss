@@ -3,8 +3,8 @@
 
 .container {
   @include flex-column;
-  gap: 24px;
-  padding: 56px 20px 20px;
+  gap: 32px;
+  padding: 48px 20px 20px;
 }
 
 .content {

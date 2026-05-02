@@ -10,46 +10,50 @@ import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
   comment: CommentItemType;
+  /** 'comment' (기본): 일반 댓글, 'reply': 대댓글 (들여쓰기 + 답글 버튼 숨김) */
+  variant?: 'comment' | 'reply';
+  /** 답글 작성 폼 열린 상태 */
+  replyFormOpen?: boolean;
   onLikeClick: (commentId: string, liked: boolean) => void;
   onEditClick: (comment: CommentItemType) => void;
   onDeleteClick: (comment: CommentItemType) => void;
+  /** "답글" 버튼 — 댓글일 때만 노출 (대댓글의 대댓글은 미지원) */
+  onReplyClick?: () => void;
 }
 
 export const CommentItem: FC<CommentItemProps> = ({
   comment,
+  variant = 'comment',
+  replyFormOpen = false,
   onLikeClick,
   onEditClick,
   onDeleteClick,
+  onReplyClick,
 }) => {
   const handleLikeClick = () => {
     onLikeClick(comment.id ?? '', comment.liked ?? false);
-  };
-
-  const handleEditClick = () => {
-    onEditClick(comment);
-  };
-
-  const handleDeleteClick = () => {
-    onDeleteClick(comment);
   };
 
   const formatLikeCount = (count: number | undefined): string =>
     (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
   const isRegisteredUser = !!comment.profileColor;
+  const isReply = variant === 'reply';
+  const isWithdrawnUser = !comment.nickname;
 
   return (
-    <div className={styles.commentItem}>
-      {/* 헤더: 프로필 아바타(로그인 유저) + 닉네임 + 시간 */}
+    <div className={`${styles.commentItem} ${isReply ? styles.commentItemReply : ''}`}>
       <div className={styles.header}>
         {isRegisteredUser && (
           <ProfileAvatar
             nickname={comment.nickname ?? null}
             profileColor={comment.profileColor ?? ''}
-            size={24}
+            size={isReply ? 20 : 24}
           />
         )}
-        <span className={styles.nickname}>{comment.nickname}</span>
+        <span className={`${styles.nickname} ${isWithdrawnUser ? styles.nicknameWithdrawn : ''}`}>
+          {comment.nickname ?? '알수없음'}
+        </span>
         <span className={styles.time}>
           {getRelativeTime(comment.createdAt ?? '')}
           {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
@@ -58,10 +62,8 @@ export const CommentItem: FC<CommentItemProps> = ({
         </span>
       </div>
 
-      {/* 댓글 내용 */}
       <p className={styles.content}>{sanitizeComment(comment.content ?? '')}</p>
 
-      {/* 하단: 좋아요, 수정/삭제 버튼 */}
       <div className={styles.footer}>
         <button
           type="button"
@@ -73,29 +75,38 @@ export const CommentItem: FC<CommentItemProps> = ({
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
-        {/* 비로그인 댓글: 누구나 비밀번호로 수정/삭제 시도 가능
-            로그인 댓글: 본인(isMine)만 수정/삭제 가능 */}
-        {(!isRegisteredUser || comment.isMine) && (
-          <div className={styles.actionButtons}>
+        <div className={styles.actionButtons}>
+          {!isReply && onReplyClick && (
             <button
               type="button"
-              className={styles.editButton}
-              onClick={handleEditClick}
-              aria-label="댓글 수정"
+              className={styles.replyButton}
+              onClick={onReplyClick}
+              aria-expanded={replyFormOpen}
             >
-              수정
+              {replyFormOpen ? '닫기' : '답글'}
             </button>
-
-            <button
-              type="button"
-              className={styles.deleteButton}
-              onClick={handleDeleteClick}
-              aria-label="댓글 삭제"
-            >
-              삭제
-            </button>
-          </div>
-        )}
+          )}
+          {(!isRegisteredUser || comment.isMine) && (
+            <>
+              <button
+                type="button"
+                className={styles.editButton}
+                onClick={() => onEditClick(comment)}
+                aria-label="댓글 수정"
+              >
+                수정
+              </button>
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={() => onDeleteClick(comment)}
+                aria-label="댓글 삭제"
+              >
+                삭제
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

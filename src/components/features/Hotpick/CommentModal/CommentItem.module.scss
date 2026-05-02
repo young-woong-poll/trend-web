@@ -3,11 +3,6 @@
 
 .commentItem {
   padding: 16px 0;
-  border-bottom: 1px solid $border-placeholder;
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 // 헤더
@@ -22,6 +17,13 @@
   font-size: 14px;
   font-weight: $font-weight-semibold;
   color: $white;
+}
+
+// 탈퇴 유저 (닉네임 null) — 일반 유저와 시각적으로 구분되는 회색
+.nicknameWithdrawn {
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+  font-style: italic;
 }
 
 .time {
@@ -147,6 +149,34 @@
 
 // 삭제 버튼 (수정보다 밝은 회색)
 .deleteButton {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: $bg-tertiary;
+    color: $text-secondary;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+// ── reply variant ──
+.commentItemReply {
+  // 답글도 부모 댓글과 동일한 폰트 사이즈 사용 (YouTube 패턴)
+  // 시각적 구분은 아바타 사이즈(24→20) + RepliesList의 들여쓰기로만 표현
+}
+
+// ── 답글 달기 버튼 (수정/삭제 버튼과 동일한 plain text 스타일) ──
+.replyButton {
   background: none;
   border: none;
   padding: 4px 8px;

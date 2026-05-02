@@ -1,0 +1,220 @@
+# Ask H3 (테토/에겐) 전파·K-factor 보고서
+
+> 4주 검증 사이클(2026-04-25 ~ 2026-05-23)의 GA4 운영 매뉴얼.
+> 관련: [전략 PRD](../strategy/2026-04-25-h3-friend-evaluation.md) · [API 스펙](../api/ask-teto-egen-api-spec.md) · [디자인 스펙](../superpowers/specs/2026-04-26-h3-friend-evaluation-design.md)
+> 트래킹 구현: [src/lib/analytics.ts](../../src/lib/analytics.ts) Ask 섹션
+> GA4 속성: Real (Production)에서 측정. Beta는 QA용 — 보고서에서 제외.
+
+---
+
+## 1. 핵심 가설과 측정 차원
+
+전략 PRD 핵심 가설: **"핫한 주제(공유 동기) × H3 구조(평가 행위) = 곱셈 관계."**
+
+GA로 측정 가능한 정량 시그널:
+
+| 전략 시그널           | GA 측정 차원                                                                | 1차 사이클 목표 |
+| --------------------- | --------------------------------------------------------------------------- | --------------- |
+| (1) 자발적 릴레이     | **K-factor** = 친구 평가 후 본인 링크 생성 비율                             | ≥ 0.6           |
+| (2) 평균 친구 평가 수 | owner 1명당 `ask_friend_vote` 평균                                          | ≥ 3             |
+| (4) 자발적 2차 사용   | `entry_point=direct`인 신규 owner 중 운영자가 안 뿌린 비율 (정성 보강 필요) | ≥ 1건           |
+
+(3) 운영팸 회자는 정성 채널 — GA 보고서 범위 외.
+
+---
+
+## 2. 사전 작업 — GA4 맞춤 측정기준 등록 (Real 속성에서 1회)
+
+본 보고서가 작동하려면 GA4 콘솔 → 관리 → 데이터 표시 → 맞춤 정의에서 다음을 등록해야 한다. **신규 Real 속성과 기존 Beta 속성 각각 등록 필요.**
+
+맞춤 측정기준 (이벤트 범위):
+
+| 측정기준 이름  | 이벤트 매개변수             |
+| -------------- | --------------------------- |
+| Ask 주제       | `topic`                     |
+| 진입점         | `entry_point`               |
+| 자기 평가      | `self_answer`               |
+| 자기 예상      | `self_prediction`           |
+| 친구 답변      | `vote`                      |
+| 다수파 일치    | `is_majority_match`         |
+| owner 답 일치  | `matches_owner_self_answer` |
+| 자기 토큰 진입 | `is_own`                    |
+| 공유 방법      | `method`                    |
+
+맞춤 측정항목 (이벤트 범위, 표준 단위):
+
+| 측정항목 이름 | 이벤트 매개변수 |
+| ------------- | --------------- |
+| 친구 답변 수  | `friend_count`  |
+
+> 등록 후 데이터 반영 24~48시간. DebugView/실시간은 즉시.
+
+---
+
+## 3. K-factor 보고서 (자발적 릴레이)
+
+K-factor = (친구 평가를 한 친구 중, 4주 내 본인 링크를 생성한 비율).
+
+**GA4에서 만드는 법 — 탐색 / 자유형식 (User-Scoped):**
+
+1. GA4 콘솔 → 탐색 → 자유형식
+2. 세그먼트 2개 만들기:
+   - 세그먼트 A: `ask_friend_vote` 이벤트가 1회 이상 발생한 사용자 (= 친구 평가자 모집단)
+   - 세그먼트 B: 세그먼트 A AND `ask_link_create` 이벤트가 1회 이상 발생한 사용자 (= 친구 평가 후 본인 링크 생성자)
+3. 측정항목: `총 사용자` (User-scoped)
+4. K-factor = 세그먼트 B / 세그먼트 A
+
+> User ID 기반 세그먼트 정확도를 위해 `ask_friend_vote`와 `ask_link_create` 둘 다 로그인 후 발화하므로 동일 user_id로 합산됨.
+
+**읽는 법:**
+
+- K ≥ 0.6 → 가설 강하게 지지. 핫한 주제 × H3 구조 결합 효과 검증.
+- 0.3 ≤ K < 0.6 → 부분 지지. 주제 효과 비중 검증을 위해 2차 사이클(다른 핫한 주제) 진입.
+- K < 0.3 → 가설 약화. H1(긁는 질문) 검증으로 전환 검토.
+
+---
+
+## 4. 평균 친구 평가 수 보고서
+
+**GA4에서 만드는 법 — 탐색 / 자유형식 (Event-Scoped):**
+
+1. 행: 없음 (전체 합계)
+2. 측정항목 1: `이벤트 수` (필터: `event_name = ask_link_create`) → owner 수
+3. 측정항목 2: `이벤트 수` (필터: `event_name = ask_friend_vote`) → 친구 평가 총수
+4. 평균 친구 평가 수 = 측정항목 2 / 측정항목 1
+
+**분포 보강 — `ask_owner_result_view`의 `friend_count` 평균/중앙값/분포:**
+
+1. 행: `friend_count` (맞춤 측정기준)
+2. 측정항목: `이벤트 수`
+3. 필터: `event_name = ask_owner_result_view`
+
+히스토그램 형태로 시각화 → "친구 평가 0건 owner / 1-2건 / 3-5건 / 6+건" 분포 확인. **0건 비율이 높으면 공유 단계의 마찰 점검.**
+
+---
+
+## 5. 진입 경로 분리 (자발적 2차 사용 시그널)
+
+`ask_view` 이벤트의 `entry_point` 차원 분포로 본다.
+
+- `direct` — URL 직접 / 메인 → 진입. 운영자 노출 없는 경로.
+- `relay` — 친구 평가 후 [다음] 버튼으로 본인 흐름 진입. **자발적 릴레이의 강한 시그널.**
+- `share_link` — (현재 트래킹은 `direct`로 잡힘. 친구 진입 페이지는 `ask_friend_landing`로 별도 측정.)
+
+**GA4에서 만드는 법:**
+
+1. 탐색 / 자유형식
+2. 행: `entry_point`
+3. 측정항목: `이벤트 수`
+4. 필터: `event_name = ask_view`
+
+**읽는 법:**
+
+- `relay` 비중 > 30% → 친구 평가 → 본인 흐름의 자연스러운 발판이 작동.
+- `direct` 신규 owner 중 운영자 노출 없는 사용자 → 자발적 2차 사용 후보. user_id 단위로 owner 명단 추출 후 정성 검증(누가 만들었는지) 필요.
+
+---
+
+## 6. 적중/빗나감 분포 (콘텐츠 품질 시그널)
+
+`ask_owner_result_view`의 `is_majority_match` 분포로 본다.
+
+- true 비율 = "친구가 자기 자신을 보는 시선과 일치한 owner 비율".
+- 너무 높으면(>80%) 콘텐츠가 뻔함 → 흥미 저하.
+- 너무 낮으면(<20%) 자기 객관화 실패가 흔함 → 흥미 시그널이지만 너무 잦으면 실망감.
+
+**GA4에서 만드는 법:**
+
+1. 탐색 / 자유형식
+2. 행: `is_majority_match`
+3. 측정항목: `이벤트 수`
+4. 필터: `event_name = ask_owner_result_view AND friend_count >= 1`
+
+> `friend_count = 0`인 결과 조회는 majority 계산 의미 없음 → 필터로 제외.
+
+---
+
+## 7. 일별 모니터링 대시보드 (4주 검증 기간)
+
+GA4 콘솔 → 보고서 → 라이브러리에서 컬렉션 만들고 다음 카드 4개 고정:
+
+| 카드            | 이벤트              | 차원                 | 목적                                |
+| --------------- | ------------------- | -------------------- | ----------------------------------- |
+| 일별 진입       | `ask_view`          | 일자 × `entry_point` | 운영자 푸시 효과 + 자발적 진입 추적 |
+| 일별 owner 생성 | `ask_link_create`   | 일자                 | 콘텐츠 진입 강도                    |
+| 일별 친구 평가  | `ask_friend_vote`   | 일자                 | 1차 공유 효과                       |
+| K-factor 일별   | 위 §3 세그먼트 비율 | 일자                 | 릴레이 강도 변화                    |
+
+---
+
+## 8. 4주 종료 시 회고 데이터 패키지
+
+종료일(2026-05-23)에 다음을 GA4에서 추출해 회고 입력:
+
+- K-factor 최종값 (4주 누적)
+- owner 수 / 친구 평가 총 수 / 평균 친구 평가 수
+- `entry_point` 분포 (direct / relay)
+- `is_majority_match` true:false 비율
+- owner 명단 (user_id 단위) — 운영자가 뿌린 명단과 대조해 자발적 2차 사용 후보 산출
+- 일별 K-factor 추이 그래프 (스크린샷)
+
+이 패키지를 다음 회고 문서의 "1차 사이클 결과" 섹션 데이터 출처로 사용.
+
+---
+
+## 9. 로그인·회원가입 이탈 측정
+
+Ask는 로그인 강제 진입점이 3곳 (`/ask/teto-egen` 시작 / `/ask/teto-egen/my` 직접 진입 / `/ask/teto-egen/friend/{token}` 평가 제출). 인증 이벤트 자체는 이미 박혀 있어 별도 코드 추가는 거의 없다.
+
+### 9-1. 사전 작업 — Ask 컨텍스트 분리
+
+현재 Ask 진입점들은 `requireLogin('default')`로 호출되고 있어 GA에서 Ask context로만 필터하기 어렵다. 다음 한 가지를 적용:
+
+- `LoginTrigger` 타입에 `'ask'` 값 추가 ([src/contexts/AuthContext.tsx](../../src/contexts/AuthContext.tsx))
+- Ask 3개 호출 사이트(`page.tsx`, `FriendFlow.tsx`, `MyResultView.tsx`)에서 `requireLogin('ask')` 로 변경
+- `LoginModal.tsx`의 `TRIGGER_MESSAGES` 에 `ask` 케이스 추가 (메시지는 결의 카피로 결정)
+
+이러면 `auth_modal_open` 이벤트의 `trigger=ask` 차원으로 Ask 컨텍스트만 분리 가능.
+
+### 9-2. 퍼널 (이미 박혀 있는 이벤트만 사용)
+
+| 단계 | 이벤트                                 | 의미                           |
+| ---- | -------------------------------------- | ------------------------------ |
+| 1    | `auth_modal_open` (`trigger=ask`)      | 로그인 모달 노출               |
+| 2    | `auth_kakao_click`                     | 카카오 버튼 클릭               |
+| 3    | `auth_kakao_callback` (`success=true`) | 카카오 인증 성공 후 복귀       |
+| 4    | `auth_signup_view`                     | (신규 유저만) 가입 페이지 노출 |
+| 5    | `auth_signup_submit`                   | 가입 폼 제출                   |
+| 6    | `auth_signup_success`                  | 가입 완료                      |
+
+기존 유저는 3 → 6 사이가 0초로 통과 (`is_new_user=false`). 신규 유저만 4~6을 거친다. 분리해서 보려면 `auth_kakao_callback`의 `is_new_user` 차원으로 세그먼트.
+
+### 9-3. GA4 퍼널 보고서 만드는 법
+
+1. 탐색 → 퍼널 탐색
+2. 위 6단계 추가 (개방형 + 폐쇄형 한 쌍)
+3. 세그먼트 필터 — 1단계 이벤트의 `trigger = ask` 적용
+4. 신규 유저만 보려면 추가 필터 — `auth_kakao_callback`의 `is_new_user = true`
+
+### 9-4. 이탈 지점 해석
+
+| 이탈 구간 | 의미 / 점검                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| 1 → 2     | 모달 보고 카카오 누르지 않음. 카피·CTA 매력도 / 외부 알림 차단 의심                              |
+| 2 → 3     | 카카오 페이지에서 사용자 거부 또는 인증 실패. `auth_kakao_callback success=false` 비율 별도 확인 |
+| 3 → 4     | 신규 유저인데 가입 페이지 미도달. 라우팅 / 콜백 핸들링 버그 의심                                 |
+| 4 → 5     | 가입 폼에서 이탈. 닉네임 / 성별 / 출생연도 입력 마찰                                             |
+| 5 → 6     | 제출 후 서버 에러. `auth_signup_success` 누락 시 BE 로그 확인                                    |
+
+### 9-5. 모달 노출 자체의 누락 점검
+
+`auth_modal_open` 이벤트 자체가 안 잡히면 트래킹 가드 의심. [src/components/features/Auth/LoginModal.tsx](../../src/components/features/Auth/LoginModal.tsx) 의 `useEffect`가 `isOpen=true` 시 1회 발화하는 구조. DebugView로 모달 열기 시점의 발화 검증.
+
+---
+
+## 10. 트래킹 누락/이상 시 점검
+
+1. **이벤트가 안 보임** — Real 속성에 맞춤 측정기준 등록했는지 확인 (§2). 등록 안 했으면 파라미터(`topic`, `entry_point` 등) 차원이 안 보임.
+2. **K-factor가 비정상적으로 낮음** — 친구 평가 후 [다음] CTA 클릭 → `ask_view` `entry_point=relay` 발화 → 자기평가 진행 → `ask_link_create` 발화 흐름이 끊기는 지점 확인. DebugView로 한 사용자 세션 따라가며 검증.
+3. **`ask_friend_landing`은 있는데 `ask_friend_vote`가 적음** — 친구 평가 진입 → 답변 제출 사이 이탈. 평가 화면 마찰 점검.
+4. **`ask_owner_result_view` `friend_count` 분포가 0에 몰림** — 공유 후 친구 도달 안 됨. 카카오 메시지 미리보기 / 링크 매력도 점검.

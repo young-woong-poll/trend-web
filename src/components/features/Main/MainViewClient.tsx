@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { LazyMotion, domAnimation } from 'framer-motion';
 
+import AskPromoBanner from '@/components/features/Main/AskPromoBanner/AskPromoBanner';
 import { CardList } from '@/components/features/Main/CardList/CardList';
 import { ChemSubFilter } from '@/components/features/Main/ChemSubFilter/ChemSubFilter';
 import { ContentTabs } from '@/components/features/Main/ContentTabs';
@@ -376,6 +377,7 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
       <div
         className={`${styles.container} ${isTopTab || isChemTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}
       >
+        {isNewTab || selectedTab.kind === 'category' ? <AskPromoBanner /> : null}
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
             {isTopTab ? (

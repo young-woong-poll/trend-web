@@ -1,0 +1,99 @@
+@use '@/styles/variables' as *;
+
+@keyframes friendFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// 평가 진입 화면은 BinaryChoiceCard로 흡수 (.intro / .title / .name / .helper 제거됨)
+
+// ─── 결과 화면 ───
+.resultBody {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-32;
+  padding-top: $spacing-32;
+}
+
+// owner 답 + 내 답 묶음 (my page의 friendsGroup 패턴과 동일)
+.answersGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.collapseWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// 다음 영역 (my page의 shareArea 패턴 — border-top 디바이더로 액션 영역 구분)
+.nextArea {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  padding-top: $spacing-24;
+  border-top: 1px solid rgba($white, 0.04);
+  animation: friendFadeUp 0.5s ease-out 0.15s both;
+}
+
+.nextCta {
+  position: relative;
+  width: 100%;
+  padding: 16px;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: $border-radius-lg;
+  color: $white;
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+.nextHint {
+  margin: 0;
+  text-align: center;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  letter-spacing: -0.2px;
+}

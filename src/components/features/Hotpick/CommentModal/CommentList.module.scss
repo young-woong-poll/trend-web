@@ -5,6 +5,30 @@
   flex-direction: column;
 }
 
+// 댓글 + (답글 폼/토글/답글 목록) 묶음
+.commentGroup {
+  // 그룹 간 구분선 없음 — 답글 영역의 ㄴ자 라인이 시각적 경계 역할
+}
+
+// 답글 영역(폼/토글/답글 목록) — 부모 댓글 최하단부터 시작.
+// 좌측에 ㄴ자 연결 라인 (수직 + 좌하단 radius로 부드럽게 끊음).
+.replyArea {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 0;
+    bottom: 12px;
+    width: 12px;
+    border-left: 1px solid $border-placeholder;
+    border-bottom: 1px solid $border-placeholder;
+    border-bottom-left-radius: 12px;
+    pointer-events: none;
+  }
+}
+
 // 상태 메시지 공통 스타일
 .statusContainer,
 .emptyContainer {

@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { likeComment, unlikeComment } from '@/generated/api/client/comment/comment';
 import type { CommentItem, CommentLikeResponse, CommentListResponse } from '@/generated/models';
 import { commentKeys } from '@/hooks/api/useComment';
+import { replyKeys } from '@/hooks/api/useReplies';
 import { getTKUID } from '@/lib/tkuid';
 
 interface UseCommentLikeOptions {
@@ -27,11 +28,12 @@ export const useCommentLike = (
   const queryClient = useQueryClient();
   const allSorts: Array<'latest' | 'popular'> = ['latest', 'popular'];
 
-  /** 모든 sort 캐시에 대해 댓글 좋아요 상태를 업데이트 */
+  /** 모든 sort 캐시 + 답글 캐시에 대해 댓글 좋아요 상태를 업데이트 */
   const updateAllSortCaches = (
     commentId: string,
     updater: (comment: CommentItem) => CommentItem
   ) => {
+    // 1) 댓글 목록 캐시 (sort별)
     for (const s of allSorts) {
       const key = commentKeys.list(slug, electionId, s);
       queryClient.setQueryData(key, (old: { pages: CommentListResponse[] } | undefined) => {
@@ -49,15 +51,41 @@ export const useCommentLike = (
         };
       });
     }
+
+    // 2) 답글 목록 캐시 (모든 부모별)
+    const replyCaches = queryClient.getQueriesData<{ pages: CommentListResponse[] }>({
+      queryKey: replyKeys.all,
+    });
+    replyCaches.forEach(([key, oldData]) => {
+      if (!oldData) {
+        return;
+      }
+      queryClient.setQueryData(key, {
+        ...oldData,
+        pages: oldData.pages.map((page) => ({
+          ...page,
+          comments: (page.comments ?? []).map((comment: CommentItem) =>
+            comment.id === commentId ? updater(comment) : comment
+          ),
+        })),
+      });
+    });
   };
 
   const handleLikeClick = useCallback(
     async (commentId: string, currentLiked: boolean) => {
-      // 롤백용 스냅샷 (모든 sort)
-      const snapshots = allSorts.map((s) => ({
-        key: commentKeys.list(slug, electionId, s),
-        data: queryClient.getQueryData(commentKeys.list(slug, electionId, s)),
-      }));
+      // 롤백용 스냅샷 (모든 sort + 답글 캐시)
+      const replyCacheSnapshots = queryClient
+        .getQueriesData<{ pages: CommentListResponse[] }>({ queryKey: replyKeys.all })
+        .map(([key, data]) => ({ key, data }));
+
+      const snapshots = [
+        ...allSorts.map((s) => ({
+          key: commentKeys.list(slug, electionId, s),
+          data: queryClient.getQueryData(commentKeys.list(slug, electionId, s)),
+        })),
+        ...replyCacheSnapshots,
+      ];
 
       // 낙관적 업데이트 — 모든 sort 캐시 반영
       updateAllSortCaches(commentId, (comment) => ({

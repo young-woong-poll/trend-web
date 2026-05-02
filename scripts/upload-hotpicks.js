@@ -98,14 +98,20 @@ async function main() {
     try {
       const result = await postJson(`${API_BASE}/admin/api/v1/hotpicks`, body);
       if (result.code === 'T0000') {
-        console.log(`[${i + 1}/${items.length}] OK id:${item.id} → hotpick:${result.data.id} "${item.title}"`);
+        console.log(
+          `[${i + 1}/${items.length}] OK id:${item.id} → hotpick:${result.data.id} "${item.title}"`
+        );
         successCount++;
       } else {
-        console.error(`[${i + 1}/${items.length}] FAIL id:${item.id} "${item.title}" → ${result.message}`);
+        console.error(
+          `[${i + 1}/${items.length}] FAIL id:${item.id} "${item.title}" → ${result.message}`
+        );
         failCount++;
       }
     } catch (err) {
-      console.error(`[${i + 1}/${items.length}] ERROR id:${item.id} "${item.title}" → ${err.message}`);
+      console.error(
+        `[${i + 1}/${items.length}] ERROR id:${item.id} "${item.title}" → ${err.message}`
+      );
       failCount++;
     }
 
