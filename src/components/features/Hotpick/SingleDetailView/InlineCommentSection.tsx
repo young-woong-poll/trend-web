@@ -128,8 +128,11 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
           const isExpanded = expandedReplies.has(id);
           const isFormOpen = openReplyForms.has(id);
 
+          const replyCount = comment.replyCount ?? 0;
+          const groupClass = `${styles.commentGroup} ${isExpanded ? styles.commentGroupExpanded : ''}`;
+
           return (
-            <div key={id}>
+            <div key={id} className={groupClass}>
               <CommentItemComponent
                 comment={comment}
                 replyFormOpen={isFormOpen}
@@ -139,29 +142,30 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
                 onReplyClick={() => toggleReplyForm(id)}
               />
 
-              {isFormOpen && (
-                <ReplyForm
-                  commentId={id}
-                  onSuccess={() => handleReplySuccess(id)}
-                  onCancel={() => toggleReplyForm(id)}
-                />
-              )}
+              {isFormOpen && <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />}
 
-              {(comment.replyCount ?? 0) > 0 && (
+              {replyCount > 0 && !isExpanded && (
                 <RepliesToggle
-                  replyCount={comment.replyCount ?? 0}
-                  expanded={isExpanded}
+                  replyCount={replyCount}
+                  expanded={false}
                   onClick={() => toggleReplies(id)}
                 />
               )}
 
               {isExpanded && (
-                <RepliesList
-                  parentCommentId={id}
-                  onLikeClick={handleLikeClick}
-                  onEditRequest={handleEditRequest}
-                  onDeleteRequest={handleDeleteRequest}
-                />
+                <>
+                  <RepliesList
+                    parentCommentId={id}
+                    onLikeClick={handleLikeClick}
+                    onEditRequest={handleEditRequest}
+                    onDeleteRequest={handleDeleteRequest}
+                  />
+                  <RepliesToggle
+                    replyCount={replyCount}
+                    expanded
+                    onClick={() => toggleReplies(id)}
+                  />
+                </>
               )}
             </div>
           );

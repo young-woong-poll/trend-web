@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px 0 12px 36px;
+  padding: 8px 0 12px 44px;
 }
 
 .textareaWrapper {
@@ -20,7 +20,7 @@
   border-radius: $border-radius-md;
   color: $white;
   font-size: $font-size-14;
-  resize: vertical;
+  resize: none;
 
   &::placeholder {
     color: $text-tertiary;
@@ -93,15 +93,4 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
-}
-
-.cancelButton {
-  height: 32px;
-  padding: 0 10px;
-  background: transparent;
-  color: $text-secondary;
-  border: 1px solid #333;
-  border-radius: $border-radius-sm;
-  font-size: $font-size-12;
-  cursor: pointer;
 }

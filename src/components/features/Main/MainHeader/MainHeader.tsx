@@ -209,7 +209,7 @@ export const MainHeader: FC<MainHeaderProps> = ({ showSearch = true, minimal = f
                       onClick={() => requireLogin('header')}
                     >
                       <span className={styles.loginText}>로그인</span>
-                      <UserIcon className={styles.loginIcon} width={20} height={20} />
+                      <UserIcon className={styles.loginIcon} width={22} height={22} />
                     </button>
                   ))}
               </div>

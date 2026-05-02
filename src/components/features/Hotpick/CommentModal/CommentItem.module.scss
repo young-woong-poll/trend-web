@@ -3,11 +3,6 @@
 
 .commentItem {
   padding: 16px 0;
-  border-bottom: 1px solid $border-placeholder;
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 // 헤더

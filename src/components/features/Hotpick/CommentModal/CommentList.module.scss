@@ -5,6 +5,28 @@
   flex-direction: column;
 }
 
+// 댓글 + (답글 폼/토글/답글 목록) 묶음 — border-bottom을 그룹 단위에 적용
+.commentGroup {
+  position: relative;
+  border-bottom: 1px solid $border-placeholder;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// 답글 펼친 상태에서 부모 댓글 ↔ 답글 사이 연결 라인 (YouTube 패턴)
+.commentGroupExpanded::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 36px;
+  bottom: 16px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
 // 상태 메시지 공통 스타일
 .statusContainer,
 .emptyContainer {

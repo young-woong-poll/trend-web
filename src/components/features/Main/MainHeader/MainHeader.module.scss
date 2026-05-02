@@ -19,11 +19,9 @@
   height: 100%;
   margin: 0 auto;
   padding: 0 $spacing-16;
-  gap: $spacing-4;
 
   @media (min-width: $breakpoint-tablet) {
     padding: 0 $spacing-24;
-    gap: $spacing-4;
   }
 }
 
@@ -223,33 +221,36 @@
   }
 }
 
-// ─── Auth 슬롯 (CLS 방지: 로그인 상태와 무관하게 고정 크기) ───
-// 가장 넓은 케이스(알림벨 36 + gap 4 + 프로필 36 = 76px)에 맞춰 고정.
-// 비로그인 상태의 로그인 버튼도 같은 슬롯을 채우도록 width: 100% 처리.
+// ─── Auth 슬롯 ───
+// 로그인 상태에 따라 자식 요소만큼만 차지(자연 폭).
+// 로그인: 알림벨(36) + gap(4) + 프로필(36) = 76px
+// 비로그인: 로그인 버튼만 (PC 텍스트형, Mobile 아이콘 36px)
 .authSlot {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: $spacing-4;
   flex-shrink: 0;
-  width: 76px;
   height: 36px;
 }
 
 // ─── 로그인 버튼 (PC: 텍스트, Mobile: 아이콘) ───
 .loginButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #ff00ff, #ff4500);
   border: none;
   border-radius: 8px;
-  width: 100%;
-  height: 100%;
-  padding: 0;
+  height: 36px;
+  padding: 0 14px;
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.2s;
+  margin-left: 8px;
 
   &:hover {
     opacity: 0.9;
@@ -257,6 +258,7 @@
 
   // Mobile: 아이콘만 표시
   @media (max-width: $breakpoint-tablet - 1) {
+    margin-left: 0px;
     width: 36px;
     height: 36px;
     padding: 0;

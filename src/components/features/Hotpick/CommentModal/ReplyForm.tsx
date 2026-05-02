@@ -12,7 +12,6 @@ import { sanitizeComment, validateNickname } from '@/lib/utils';
 interface ReplyFormProps {
   commentId: string;
   onSuccess: () => void;
-  onCancel: () => void;
 }
 
 interface ReplyFormErrors {
@@ -21,7 +20,7 @@ interface ReplyFormErrors {
   password?: boolean;
 }
 
-export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }) => {
+export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess }) => {
   const { isLoggedIn } = useAuth();
   const { showToast } = useModal();
   const [content, setContent] = useState('');
@@ -136,14 +135,6 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }
             />
           </>
         )}
-        <button
-          type="button"
-          className={styles.cancelButton}
-          onClick={onCancel}
-          disabled={isPending}
-        >
-          취소
-        </button>
         <button
           type="button"
           className={styles.submitButton}
