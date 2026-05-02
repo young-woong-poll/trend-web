@@ -18,12 +18,12 @@
 
   @media (max-width: 480px) {
     position: fixed;
-    top: 56px;
-    left: 0;
-    right: 0;
+    top: calc(56px + 8px);
+    left: 16px;
+    right: 16px;
     width: auto;
-    max-height: min(calc(100dvh - 56px), 600px);
-    border-radius: 0;
+    max-height: min(calc(100dvh - 56px - 24px), 600px);
+    border-radius: $border-radius-lg;
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
