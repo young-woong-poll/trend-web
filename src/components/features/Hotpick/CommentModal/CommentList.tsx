@@ -131,10 +131,10 @@ export const CommentList: FC<CommentListProps> = ({
         const isExpanded = expandedReplies.has(id);
         const isFormOpen = openReplyForms.has(id);
         const replyCount = comment.replyCount ?? 0;
-        const groupClass = `${styles.commentGroup} ${isExpanded ? styles.commentGroupExpanded : ''}`;
+        const hasReplyArea = isFormOpen || replyCount > 0;
 
         return (
-          <div key={id} className={groupClass}>
+          <div key={id} className={styles.commentGroup}>
             <CommentItem
               comment={comment}
               replyFormOpen={isFormOpen}
@@ -144,26 +144,36 @@ export const CommentList: FC<CommentListProps> = ({
               onReplyClick={() => toggleReplyForm(id)}
             />
 
-            {isFormOpen && <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />}
+            {hasReplyArea && (
+              <div className={styles.replyArea}>
+                {isFormOpen && (
+                  <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
+                )}
 
-            {replyCount > 0 && !isExpanded && (
-              <RepliesToggle
-                replyCount={replyCount}
-                expanded={false}
-                onClick={() => toggleReplies(id)}
-              />
-            )}
+                {replyCount > 0 && !isExpanded && (
+                  <RepliesToggle
+                    replyCount={replyCount}
+                    expanded={false}
+                    onClick={() => toggleReplies(id)}
+                  />
+                )}
 
-            {isExpanded && (
-              <>
-                <RepliesList
-                  parentCommentId={id}
-                  onLikeClick={onLikeClick}
-                  onEditRequest={onEditRequest}
-                  onDeleteRequest={onDeleteRequest}
-                />
-                <RepliesToggle replyCount={replyCount} expanded onClick={() => toggleReplies(id)} />
-              </>
+                {isExpanded && (
+                  <>
+                    <RepliesList
+                      parentCommentId={id}
+                      onLikeClick={onLikeClick}
+                      onEditRequest={onEditRequest}
+                      onDeleteRequest={onDeleteRequest}
+                    />
+                    <RepliesToggle
+                      replyCount={replyCount}
+                      expanded
+                      onClick={() => toggleReplies(id)}
+                    />
+                  </>
+                )}
+              </div>
             )}
           </div>
         );

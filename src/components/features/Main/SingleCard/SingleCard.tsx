@@ -305,7 +305,11 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
             actions.openComment(slug, vote.electionId);
           }}
         >
-          <span className={styles.topCommentNickname}>{topComment.nickname}</span>
+          <span
+            className={`${styles.topCommentNickname} ${!topComment.nickname ? styles.topCommentNicknameWithdrawn : ''}`}
+          >
+            {topComment.nickname ?? '알수없음'}
+          </span>
           <span className={styles.topCommentText}>{topComment.content}</span>
         </button>
       )}

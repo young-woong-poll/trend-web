@@ -39,6 +39,7 @@ export const CommentItem: FC<CommentItemProps> = ({
 
   const isRegisteredUser = !!comment.profileColor;
   const isReply = variant === 'reply';
+  const isWithdrawnUser = !comment.nickname;
 
   return (
     <div className={`${styles.commentItem} ${isReply ? styles.commentItemReply : ''}`}>
@@ -50,7 +51,9 @@ export const CommentItem: FC<CommentItemProps> = ({
             size={isReply ? 20 : 24}
           />
         )}
-        <span className={styles.nickname}>{comment.nickname}</span>
+        <span className={`${styles.nickname} ${isWithdrawnUser ? styles.nicknameWithdrawn : ''}`}>
+          {comment.nickname ?? '알수없음'}
+        </span>
         <span className={styles.time}>
           {getRelativeTime(comment.createdAt ?? '')}
           {comment.updatedAt && comment.updatedAt !== comment.createdAt && (

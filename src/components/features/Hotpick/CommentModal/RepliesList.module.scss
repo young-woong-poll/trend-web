@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 8px 0 8px 44px;
+  padding: 8px 0 8px 32px;
   // YouTube 패턴: 들여쓰기는 padding-left만, 좌측 세로 라인 없음
 }
 
@@ -12,7 +12,7 @@
 .loading {
   font-size: 13px;
   color: $text-tertiary;
-  padding: 8px 0 8px 44px;
+  padding: 8px 0 8px 32px;
 }
 
 .loadMoreButton {
