@@ -492,6 +492,120 @@ export interface BaseResponseKakaoLoginResponse {
   data?: KakaoLoginResponse;
 }
 
+export type CreateAskLinkRequestSelfAnswer =
+  (typeof CreateAskLinkRequestSelfAnswer)[keyof typeof CreateAskLinkRequestSelfAnswer];
+
+export const CreateAskLinkRequestSelfAnswer = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type CreateAskLinkRequestSelfPrediction =
+  (typeof CreateAskLinkRequestSelfPrediction)[keyof typeof CreateAskLinkRequestSelfPrediction];
+
+export const CreateAskLinkRequestSelfPrediction = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export interface CreateAskLinkRequest {
+  /**
+   * @minLength 1
+   * @maxLength 12
+   */
+  displayName: string;
+  selfAnswer: CreateAskLinkRequestSelfAnswer;
+  selfPrediction: CreateAskLinkRequestSelfPrediction;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface AskCreateLinkResponse {
+  token?: string;
+  shareUrl?: string;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAskCreateLinkResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AskCreateLinkResponse;
+}
+
+export type AskVoteRequestVote = (typeof AskVoteRequestVote)[keyof typeof AskVoteRequestVote];
+
+export const AskVoteRequestVote = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export interface AskVoteRequest {
+  vote: AskVoteRequestVote;
+}
+
+export type AskVoterPayloadVote = (typeof AskVoterPayloadVote)[keyof typeof AskVoterPayloadVote];
+
+export const AskVoterPayloadVote = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export interface AskVoterPayload {
+  userId?: string;
+  displayName?: string;
+  vote?: AskVoterPayloadVote;
+  votedAt?: string;
+}
+
+export interface AskFriendVotesPayload {
+  total?: number;
+  tetoCount?: number;
+  egenCount?: number;
+  voters?: AskVoterPayload[];
+}
+
+export type AskVoteResponseMyVote =
+  (typeof AskVoteResponseMyVote)[keyof typeof AskVoteResponseMyVote];
+
+export const AskVoteResponseMyVote = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type AskVoteResponseOwnerSelfAnswer =
+  (typeof AskVoteResponseOwnerSelfAnswer)[keyof typeof AskVoteResponseOwnerSelfAnswer];
+
+export const AskVoteResponseOwnerSelfAnswer = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface AskVoteResponse {
+  myVote?: AskVoteResponseMyVote;
+  ownerDisplayName?: string;
+  ownerSelfAnswer?: AskVoteResponseOwnerSelfAnswer;
+  friendVotes?: AskFriendVotesPayload;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAskVoteResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AskVoteResponse;
+}
+
 export interface ReviewSuggestionRequest {
   adminMemo?: string;
 }
@@ -851,6 +965,7 @@ export const NotificationItemType = {
   COMMENT_LIKE: 'COMMENT_LIKE',
   COMMENT_REPLY: 'COMMENT_REPLY',
   COMPARE_LINK_JOIN: 'COMPARE_LINK_JOIN',
+  ASK_TETO_EGEN_VOTE: 'ASK_TETO_EGEN_VOTE',
 } as const;
 
 export interface NotificationItem {
@@ -1433,6 +1548,102 @@ export interface BaseResponseUserResponse {
   /** 응답 메시지 */
   message?: string;
   data?: UserResponse;
+}
+
+export type AskMyLinkResponseSelfAnswer =
+  (typeof AskMyLinkResponseSelfAnswer)[keyof typeof AskMyLinkResponseSelfAnswer];
+
+export const AskMyLinkResponseSelfAnswer = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type AskMyLinkResponseSelfPrediction =
+  (typeof AskMyLinkResponseSelfPrediction)[keyof typeof AskMyLinkResponseSelfPrediction];
+
+export const AskMyLinkResponseSelfPrediction = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface AskMyLinkResponse {
+  token?: string;
+  shareUrl?: string;
+  displayName?: string;
+  selfAnswer?: AskMyLinkResponseSelfAnswer;
+  selfPrediction?: AskMyLinkResponseSelfPrediction;
+  friendVotes?: AskFriendVotesPayload;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAskMyLinkResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AskMyLinkResponse;
+}
+
+export type AskFriendMetaResponseMyVote =
+  (typeof AskFriendMetaResponseMyVote)[keyof typeof AskFriendMetaResponseMyVote];
+
+export const AskFriendMetaResponseMyVote = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type AskFriendMetaResponseOwnerSelfAnswer =
+  (typeof AskFriendMetaResponseOwnerSelfAnswer)[keyof typeof AskFriendMetaResponseOwnerSelfAnswer];
+
+export const AskFriendMetaResponseOwnerSelfAnswer = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+/**
+ * 응답 데이터
+ */
+export interface AskFriendMetaResponse {
+  token?: string;
+  ownerDisplayName?: string;
+  isOwn?: boolean;
+  myVote?: AskFriendMetaResponseMyVote;
+  ownerSelfAnswer?: AskFriendMetaResponseOwnerSelfAnswer;
+  friendVotes?: AskFriendVotesPayload;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAskFriendMetaResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AskFriendMetaResponse;
+}
+
+/**
+ * 응답 데이터
+ */
+export interface AskCountResponse {
+  count?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseAskCountResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: AskCountResponse;
 }
 
 /**

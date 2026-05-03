@@ -6,6 +6,27 @@
  */
 
 export * from './answer';
+export * from './askCountResponse';
+export * from './askCreateLinkResponse';
+export * from './askFriendMetaResponse';
+export * from './askFriendMetaResponseMyVote';
+export * from './askFriendMetaResponseOwnerSelfAnswer';
+export * from './askFriendVotesPayload';
+export * from './askMyLinkResponse';
+export * from './askMyLinkResponseSelfAnswer';
+export * from './askMyLinkResponseSelfPrediction';
+export * from './askVoteRequest';
+export * from './askVoteRequestVote';
+export * from './askVoteResponse';
+export * from './askVoteResponseMyVote';
+export * from './askVoteResponseOwnerSelfAnswer';
+export * from './askVoterPayload';
+export * from './askVoterPayloadVote';
+export * from './baseResponseAskCountResponse';
+export * from './baseResponseAskCreateLinkResponse';
+export * from './baseResponseAskFriendMetaResponse';
+export * from './baseResponseAskMyLinkResponse';
+export * from './baseResponseAskVoteResponse';
 export * from './baseResponseBundleAnswerSubmitResponse';
 export * from './baseResponseBundleMyResultResponse';
 export * from './baseResponseBundleSummaryResponse';
@@ -78,6 +99,9 @@ export * from './compareLinkInfoResponse';
 export * from './compareLinkInfoResponseType';
 export * from './compareLinkItem';
 export * from './compareLinkStats';
+export * from './createAskLinkRequest';
+export * from './createAskLinkRequestSelfAnswer';
+export * from './createAskLinkRequestSelfPrediction';
 export * from './createCategoryRequest';
 export * from './createCommentRequest';
 export * from './createCompareLinkRequest';
