@@ -54,7 +54,7 @@ export type MyTetoEgenLinkResponse = {
 // 클라이언트가 평가 화면을 건너뛰고 즉시 결과 화면을 그릴 수 있도록 한다.
 export type FriendTetoEgenMetaResponse = {
   token: string;
-  displayName: string;
+  ownerDisplayName: string;
   isOwn: boolean;
   myVote?: TetoEgenAnswer;
   ownerSelfAnswer?: TetoEgenAnswer;

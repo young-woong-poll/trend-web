@@ -43,7 +43,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const [friendVotes, setFriendVotes] = useState<TetoEgenFriendVotes | null>(
     meta.friendVotes ?? null
   );
-  const [ownerDisplayName, setOwnerDisplayName] = useState<string>(meta.displayName);
+  const [ownerDisplayName, setOwnerDisplayName] = useState<string>(meta.ownerDisplayName);
   const [ownerSelfAnswer, setOwnerSelfAnswer] = useState<TetoEgenAnswer | null>(
     meta.ownerSelfAnswer ?? null
   );
@@ -117,7 +117,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
 
   // 결과 화면 (vote 직후 또는 이미 참여한 사용자)
   if (submittedVote && friendVotes) {
-    const ownerName = ownerDisplayName || meta.displayName;
+    const ownerName = ownerDisplayName || meta.ownerDisplayName;
     return (
       <>
         <TetoEgenLayout showClose>
@@ -167,12 +167,12 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
         <BinaryChoiceCard
           question={
             <>
-              <strong>{meta.displayName}</strong>님은
+              <strong>{meta.ownerDisplayName}</strong>님은
               <br />
               테토인가요? 에겐인가요?
             </>
           }
-          helper={`답하면 ${meta.displayName}님 + 친구들의 답변이 공개됩니다`}
+          helper={`답하면 ${meta.ownerDisplayName}님 + 친구들의 답변이 공개됩니다`}
           left={{ value: 'TETO', label: '테토' }}
           right={{ value: 'EGEN', label: '에겐' }}
           onSelect={(v) => handleSelect(v as TetoEgenAnswer)}
