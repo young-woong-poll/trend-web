@@ -18,7 +18,11 @@ import { TopRankingList } from '@/components/features/Main/TopRankingList/TopRan
 import { TopSubFilter } from '@/components/features/Main/TopSubFilter/TopSubFilter';
 import LikedHotpickList from '@/components/features/MyPage/LikedHotpickList';
 import MyCommentList from '@/components/features/MyPage/MyCommentList';
-import { VISIBLE_CATEGORY_SLUGS, type CategoryFilterItem } from '@/constants/category';
+import {
+  CATEGORY_FILTERS,
+  VISIBLE_CATEGORY_SLUGS,
+  type CategoryFilterItem,
+} from '@/constants/category';
 import {
   DEFAULT_TOP_PERIOD,
   DEFAULT_CHEM_SORT,
@@ -227,15 +231,16 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   } = useBundleList(isNewTab || isChemTab);
   const { data: myBundles } = useMyBundles(isMyTab && isLoggedIn && mySubTab === 'compare');
 
-  const dynamicCategories: CategoryFilterItem[] | undefined = Array.isArray(apiCategories)
+  // API 응답 우선, 비어있거나 실패 시 CATEGORY_FILTERS 폴백 사용 (mobile MSW timing + production resilience)
+  const apiCategoriesNormalized: CategoryFilterItem[] = Array.isArray(apiCategories)
     ? apiCategories
         .filter((c) => c.categoryCode !== 'all') // "전체" 카테고리 제외 (NEW 탭이 대체)
-        .filter((c) => VISIBLE_CATEGORY_SLUGS.includes(c.categoryCode ?? ''))
-        .map((c) => ({
-          label: c.category ?? '',
-          slug: c.categoryCode ?? '',
-        }))
-    : undefined;
+        .map((c) => ({ label: c.category ?? '', slug: c.categoryCode ?? '' }))
+    : CATEGORY_FILTERS;
+
+  const dynamicCategories: CategoryFilterItem[] = apiCategoriesNormalized.filter((c) =>
+    VISIBLE_CATEGORY_SLUGS.includes(c.slug)
+  );
 
   const queryParams = useMemo(
     () => buildQueryParams(selectedTab, topPeriod, topCategory),
