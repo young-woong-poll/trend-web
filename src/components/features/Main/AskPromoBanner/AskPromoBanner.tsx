@@ -17,9 +17,8 @@ const AskPromoBanner: FC = () => (
     </div>
 
     <div className={styles.copy}>
-      <span className={styles.eyebrow}>NEW</span>
       <p className={styles.title}>
-        테토? 에겐? <strong>친구들이 보는 나</strong> 알아보기
+        테토? 에겐? <br /> <strong>친구들이 보는 나</strong> 알아보기
       </p>
     </div>
 

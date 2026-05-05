@@ -11,6 +11,7 @@ import styles from '@/components/features/Auth/SignupForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { submitSignup } from '@/hooks/api/useAuthApi';
+import { useMigrationStatus } from '@/hooks/api/useMigrationStatus';
 import { checkNicknameAvailability } from '@/hooks/api/useNickname';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import {
@@ -293,6 +294,11 @@ const SignupForm = () => {
     void doSignup(pendingFormData, false);
   };
 
+  const hasTkuid = typeof window !== 'undefined' && hasTKUID();
+  const { data: migrationStatus, isFetched: migrationStatusFetched } = useMigrationStatus(
+    isAuthorized && hasTkuid
+  );
+
   const onSubmit = (data: SignupFormValues) => {
     // 중복확인 안 된 상태면 에러 메시지로 안내
     if (nicknameChecked !== 'available') {
@@ -301,11 +307,27 @@ const SignupForm = () => {
       return;
     }
 
-    if (hasTKUID()) {
+    // TKUID 없음 → 마이그레이션 prompt 자체 불필요 (즉시 가입)
+    if (!hasTkuid) {
+      void doSignup(data);
+      return;
+    }
+
+    // TKUID는 있는데 응답 아직 안 옴(드물게 발생) → 보수적으로 prompt 노출.
+    // 사용자가 [건너뛰기]를 누르면 그냥 가입되어 데이터 손실 없음.
+    // false negative(연결 기회 영구 손실)를 막기 위함.
+    if (!migrationStatusFetched) {
       setPendingFormData(data);
       setShowMigration(true);
       return;
     }
+
+    if (migrationStatus?.hasMigratableData) {
+      setPendingFormData(data);
+      setShowMigration(true);
+      return;
+    }
+
     void doSignup(data);
   };
 
