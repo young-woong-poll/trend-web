@@ -22,7 +22,7 @@
     left: 16px;
     right: 16px;
     width: auto;
-    max-height: min(calc(100dvh - 56px - 24px), 600px);
+    max-height: min(60dvh, 420px);
     border-radius: $border-radius-lg;
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -65,9 +65,25 @@
 }
 
 .scrollArea {
-  flex: 1;
+  flex: 1 1 auto;
   overflow-y: auto;
+  overscroll-behavior: contain;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 999px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 .empty,
