@@ -48,6 +48,47 @@
   width: 100%;
 }
 
+// "내 결과" 페이지 식별 헤더 — shareTitle과 동일 톤으로 가벼운 라벨 역할만.
+// 친구 화면에서 넘어온 경우(fromFriend) 좌측에 인라인 back 버튼 노출.
+.identityHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -#{$spacing-16}; // ResultHeroCard와 묶여 보이도록 stack gap 절반 상쇄
+}
+
+.identityBackButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -4px; // 좌측 정렬을 ResultHeroCard와 시각적으로 맞추기 위한 광학 보정
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: $white;
+  cursor: pointer;
+  line-height: 0;
+
+  &:hover {
+    color: $text-secondary;
+  }
+}
+
+.identityBackIcon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+.identityTitle {
+  margin: 0;
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  letter-spacing: -0.3px;
+}
+
 .friendsGroup {
   display: flex;
   flex-direction: column;
@@ -61,6 +102,29 @@
   padding-top: $spacing-24;
   border-top: 1px solid rgba($white, 0.04);
   animation: resultFadeUp 0.5s ease-out 0.3s both;
+}
+
+// 친구 답변이 1명 이상 있을 때만 노출 — 결과 영역과 공유 영역의 의미를 분리해주는 미니 헤더.
+.shareHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shareTitle {
+  margin: 0;
+  font-size: $font-size-16;
+  font-weight: $font-weight-semibold;
+  color: $white;
+  letter-spacing: -0.3px;
+}
+
+.shareHelper {
+  margin: 0;
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  color: $text-tertiary;
+  letter-spacing: -0.1px;
 }
 
 .linkBox {
@@ -79,6 +143,18 @@
   word-break: break-all;
   letter-spacing: -0.1px;
   font-variant-numeric: tabular-nums;
+}
+
+@keyframes copiedSpring {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .cta {
@@ -100,7 +176,9 @@
   overflow: hidden;
   transition:
     transform 0.15s ease,
-    opacity 0.15s ease;
+    opacity 0.15s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 
   &:hover {
     opacity: 0.92;
@@ -118,6 +196,26 @@
     transform: translateX(-100%);
     animation: shimmer 2.5s ease-in-out infinite;
     pointer-events: none;
+  }
+}
+
+// 복사 성공 직후의 morphing 상태 — saturation 강조 + glow + spring, shimmer 정지.
+.ctaCopied {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.95) 0%,
+    rgba(var(--primary-end-rgb), 0.95) 100%
+  );
+  box-shadow: 0 6px 18px rgba(var(--primary-end-rgb), 0.32);
+  animation: copiedSpring 0.4s ease-out;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::after {
+    animation: none;
+    background: none;
   }
 }
 

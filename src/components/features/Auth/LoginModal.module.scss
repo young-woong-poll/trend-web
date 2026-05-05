@@ -70,6 +70,7 @@
   color: #fff;
   text-align: left;
   margin-bottom: 24px;
+  white-space: pre-line; // '\n'으로 강제 개행 허용 (ask trigger의 헤드라인 2줄 분리 등)
 }
 
 .benefitList {

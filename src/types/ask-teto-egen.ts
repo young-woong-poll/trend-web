@@ -80,3 +80,12 @@ export type TetoEgenErrorCode =
   | 'ALREADY_VOTED'
   | 'LINK_NOT_FOUND'
   | 'NOT_LOGGED_IN';
+
+// BE의 shareUrl(절대 URL) 대신 FE에서 현재 도메인 + token으로 직접 친구 공유 URL을 조립.
+// SSR 단계에서는 location 접근 불가 → 빈 문자열 반환. 컴포넌트는 client mount 이후에 호출.
+export const buildFriendShareUrl = (token: string): string => {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+  return `${window.location.origin}/ask/teto-egen/friend/${token}`;
+};

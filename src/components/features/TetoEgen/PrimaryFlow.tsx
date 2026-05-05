@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC, useState } from 'react';
+import { type FC, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -15,7 +15,11 @@ import { useCreateTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
 import { useToast } from '@/hooks/useToast';
 import { trackAskLinkCreate, trackAskSelfAnswer, trackAskShareLink } from '@/lib/analytics';
-import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
+import {
+  buildFriendShareUrl,
+  type TetoEgenAnswer,
+  type TetoEgenPrediction,
+} from '@/types/ask-teto-egen';
 
 type Step = 'q1' | 'q2' | 'form' | 'share';
 
@@ -38,6 +42,17 @@ const PrimaryFlow: FC = () => {
   const [selfAnswer, setSelfAnswer] = useState<TetoEgenAnswer | null>(null);
   const [selfPrediction, setSelfPrediction] = useState<TetoEgenPrediction | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  // 복사 직후 1.8초간 버튼이 "복사됐어요!" 상태로 morphing.
+  const [isCopied, setIsCopied] = useState(false);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flashCopied = () => {
+    setIsCopied(true);
+    if (copiedTimerRef.current) {
+      clearTimeout(copiedTimerRef.current);
+    }
+    copiedTimerRef.current = setTimeout(() => setIsCopied(false), 1800);
+  };
 
   const createLink = useCreateTetoEgenLink();
 
@@ -67,24 +82,34 @@ const PrimaryFlow: FC = () => {
     createLink.mutate(
       { displayName, selfAnswer, selfPrediction },
       {
-        onSuccess: (data) => {
-          setShareUrl(data.shareUrl);
+        onSuccess: async (data) => {
+          // BE의 shareUrl 무시, token + 현재 도메인으로 직접 조립.
+          const url = buildFriendShareUrl(data.token);
+          setShareUrl(url);
           trackAskLinkCreate('teto-egen', selfAnswer, selfPrediction);
           setStep('share');
+          // share 화면 진입 시점에 자동 복사. 링크 생성 직후라 user gesture 체인이 살아있음.
+          try {
+            await navigator.clipboard.writeText(url);
+            trackAskShareLink('teto-egen', 'copy');
+            flashCopied();
+          } catch {
+            // 자동 복사 실패는 silent — 사용자가 [링크 복사하기] 버튼으로 다시 시도 가능.
+          }
         },
         onError: (err: unknown) => {
           const status = (
             err as {
               response?: {
                 status?: number;
-                data?: { code?: string; data?: { shareUrl?: string } };
+                data?: { code?: string; data?: { token?: string } };
               };
             }
           ).response?.status;
           const body = (
-            err as { response?: { data?: { code?: string; data?: { shareUrl?: string } } } }
+            err as { response?: { data?: { code?: string; data?: { token?: string } } } }
           ).response?.data;
-          if (status === 409 && body?.data?.shareUrl) {
+          if (status === 409 && body?.data?.token) {
             showAlert('이미 링크가 존재합니다', {
               confirmText: '확인',
               showCloseButton: false,
@@ -110,7 +135,7 @@ const PrimaryFlow: FC = () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       trackAskShareLink('teto-egen', 'copy');
-      showToast('링크가 복사됐어요');
+      flashCopied();
     } catch {
       showToast('복사에 실패했어요');
     }
@@ -171,7 +196,9 @@ const PrimaryFlow: FC = () => {
           />
         )}
 
-        {step === 'share' && shareUrl && <LinkShareCard shareUrl={shareUrl} onCopy={handleCopy} />}
+        {step === 'share' && shareUrl && (
+          <LinkShareCard shareUrl={shareUrl} onCopy={handleCopy} isCopied={isCopied} />
+        )}
       </TetoEgenLayout>
 
       {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}

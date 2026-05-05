@@ -15,7 +15,7 @@ export interface LoginResponse {
   signupToken?: string;
 }
 
-export type LoginTrigger = 'header' | 'bundle' | 'my' | 'compare' | 'default';
+export type LoginTrigger = 'header' | 'bundle' | 'my' | 'compare' | 'ask' | 'default';
 
 export interface AuthContextValue {
   user: User | null;

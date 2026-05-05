@@ -139,6 +139,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes copiedSpring {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .cta {
   position: relative;
   display: inline-flex;
@@ -158,7 +170,9 @@
   overflow: hidden;
   transition:
     transform 0.15s ease,
-    opacity 0.15s ease;
+    opacity 0.15s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
   animation: shareFadeUp 0.55s ease-out 0.15s both;
 
   &:hover {
@@ -177,6 +191,28 @@
     transform: translateX(-100%);
     animation: shimmer 2.5s ease-in-out infinite;
     pointer-events: none;
+  }
+}
+
+// 복사 성공 직후의 morphing 상태 — 그라디언트는 유지, shimmer 멈춤, 살짝 saturation 보정 + spring.
+.ctaCopied {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.95) 0%,
+    rgba(var(--primary-end-rgb), 0.95) 100%
+  );
+  box-shadow: 0 6px 18px rgba(var(--primary-end-rgb), 0.32);
+  animation:
+    shareFadeUp 0.55s ease-out 0.15s both,
+    copiedSpring 0.4s ease-out;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::after {
+    animation: none; // shimmer 정지 — 변화가 명확히 인지되도록
+    background: none;
   }
 }
 
