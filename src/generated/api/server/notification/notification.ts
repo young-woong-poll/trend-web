@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseNotificationListResponse,
+  BaseResponseNotificationReadResponse,
   BaseResponseObject,
   BaseResponseUnreadCountResponse,
   BaseResponseVoid,
@@ -13,6 +14,57 @@ import type {
 } from '../openAPIDefinition.schemas';
 
 import { serverFetchInstance } from '../../../../lib/server-fetch-mutator';
+
+/**
+ * 이미 읽음 상태여도 200 + 현재 unreadCount 반환. 다른 유저 알림은 403, 존재하지 않으면 404.
+ * @summary 단건 읽음 처리 (idempotent)
+ */
+export type markReadResponse200 = {
+  data: BaseResponseNotificationReadResponse;
+  status: 200;
+};
+
+export type markReadResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type markReadResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type markReadResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type markReadResponseSuccess = markReadResponse200 & {
+  headers: Headers;
+};
+export type markReadResponseError = (
+  | markReadResponse409
+  | markReadResponse429
+  | markReadResponse500
+) & {
+  headers: Headers;
+};
+
+export type markReadResponse = markReadResponseSuccess | markReadResponseError;
+
+export const getMarkReadUrl = (notificationId: number) => {
+  return `/api/v1/notifications/${notificationId}/read`;
+};
+
+export const markRead = async (
+  notificationId: number,
+  options?: RequestInit
+): Promise<markReadResponse> => {
+  return serverFetchInstance<markReadResponse>(getMarkReadUrl(notificationId), {
+    ...options,
+    method: 'POST',
+  });
+};
 
 /**
  * @summary 전체 읽음 처리

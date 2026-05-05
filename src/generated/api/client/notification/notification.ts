@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseNotificationListResponse,
+  BaseResponseNotificationReadResponse,
   BaseResponseUnreadCountResponse,
   BaseResponseVoid,
   GetNotificationsParams,
@@ -15,6 +16,19 @@ import { customInstance } from '../../../../lib/axios-mutator';
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * 이미 읽음 상태여도 200 + 현재 unreadCount 반환. 다른 유저 알림은 403, 존재하지 않으면 404.
+ * @summary 단건 읽음 처리 (idempotent)
+ */
+export const markRead = (
+  notificationId: number,
+  options?: SecondParameter<typeof customInstance<BaseResponseNotificationReadResponse>>
+) => {
+  return customInstance<BaseResponseNotificationReadResponse>(
+    { url: `/api/v1/notifications/${notificationId}/read`, method: 'POST' },
+    options
+  );
+};
 /**
  * @summary 전체 읽음 처리
  */
@@ -47,6 +61,7 @@ export const getUnreadCount = (
     options
   );
 };
+export type MarkReadResult = NonNullable<Awaited<ReturnType<typeof markRead>>>;
 export type MarkAllReadResult = NonNullable<Awaited<ReturnType<typeof markAllRead>>>;
 export type GetNotificationsResult = NonNullable<Awaited<ReturnType<typeof getNotifications>>>;
 export type GetUnreadCountResult = NonNullable<Awaited<ReturnType<typeof getUnreadCount>>>;

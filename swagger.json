@@ -656,6 +656,67 @@
         }
       }
     },
+    "/api/v1/notifications/{notificationId}/read": {
+      "post": {
+        "tags": ["Notification"],
+        "summary": "단건 읽음 처리 (idempotent)",
+        "description": "이미 읽음 상태여도 200 + 현재 unreadCount 반환. 다른 유저 알림은 403, 존재하지 않으면 404.",
+        "operationId": "markRead",
+        "parameters": [
+          {
+            "name": "notificationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseNotificationReadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/notifications/read-all": {
       "post": {
         "tags": ["Notification"],
@@ -6034,6 +6095,35 @@
             }
           }
         }
+      },
+      "BaseResponseNotificationReadResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NotificationReadResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "NotificationReadResponse": {
+        "type": "object",
+        "properties": {
+          "unreadCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
       },
       "CreateVoteRequest": {
         "required": ["electionItemId"],
