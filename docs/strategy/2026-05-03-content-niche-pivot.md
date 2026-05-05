@@ -93,10 +93,10 @@ FE 상수로 노출 카테고리 통제. 운영 DB나 BE 응답이 어떻든, �
 
 ```ts
 // src/constants/category.ts
-export const VISIBLE_CATEGORY_SLUGS: readonly string[] = ['dating'];
+export const VISIBLE_CATEGORY_SLUGS: readonly string[] = ['dating', 'nuisance'];
 ```
 
-- 6주 후 회고에서 다른 카테고리 노출 결정 시 화이트리스트에 슬러그 추가만 하면 됨 (예: `['dating', '민폐']`)
+- 2026-05-05 갱신: Steel-man 시나리오 3의 "70% 핏 안 맞을 때 민폐 추가" 옵션을 선제 적용 — `nuisance` (민폐 논란) 슬러그를 함께 노출하기로 결정. 1차 페르소나 민지(통념 검증러)와 결이 맞고 콘텐츠 바이럴 후보로 검증된 영역.
 - 정책 폐기 시 화이트리스트 비우거나 기존 7개 슬러그로 되돌리면 즉시 원복
 
 ### 카테고리 마스터 변경 (운영 DB)

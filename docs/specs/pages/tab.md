@@ -13,10 +13,10 @@
 ### 레이아웃
 
 ```
-[ 💘 소개팅  │  ✦ NEW   🔥 TOP   ☑ 가치관 비교   ☑ MY ]
+[ 💘 소개팅   ❓ 민폐 논란  │  ✦ NEW   🔥 TOP   ☑ 가치관 비교   ☑ MY ]
 ```
 
-- 카테고리탭(소개팅) + 구분자(│) + 필터탭(NEW/TOP/가치관 비교/MY)이 하나의 `<nav>` 안에 배치
+- 카테고리탭(소개팅 / 민폐 논란) + 구분자(│) + 필터탭(NEW/TOP/가치관 비교/MY)이 하나의 `<nav>` 안에 배치
 - 카테고리 탭이 필터 탭 앞에 위치
 - 가로 스크롤, 스크롤바 숨김
 - `position: fixed`, `top: 56px` (헤더 아래 고정)
@@ -94,26 +94,27 @@ MainContent
 - **1순위**: `GET /api/v1/hotpicks/categories` API 응답 (`CategoryTabResponse[]`)
 - **폴백**: `src/constants/category.ts`의 `CATEGORY_FILTERS` 상수
 - API 응답에서 `slug: 'all'`인 "전체" 카테고리는 제외 (NEW 탭이 대체)
-- **노출 화이트리스트**: `src/constants/category.ts`의 `VISIBLE_CATEGORY_SLUGS` 상수에 포함된 슬러그만 탭에 표시 (현재 `['dating']`). 직접 URL 진입(`/?category=love` 등)은 차단하지 않으므로 SEO·롱테일 검색 유입은 보존됨.
+- **노출 화이트리스트**: `src/constants/category.ts`의 `VISIBLE_CATEGORY_SLUGS` 상수에 포함된 슬러그만 탭에 표시 (현재 `['dating', 'nuisance']`). 직접 URL 진입(`/?category=love` 등)은 차단하지 않으므로 SEO·롱테일 검색 유입은 보존됨.
 
 ### 카테고리 목록 (폴백)
 
-| 라벨   | slug         |
-| ------ | ------------ |
-| 소개팅 | dating       |
-| 연애   | love         |
-| 결혼   | marriage     |
-| 관계   | relationship |
-| 재테크 | finance      |
-| 직장   | work         |
-| 라이프 | life         |
-| 트렌드 | trend        |
+| 라벨      | slug         |
+| --------- | ------------ |
+| 소개팅    | dating       |
+| 민폐 논란 | nuisance     |
+| 연애      | love         |
+| 결혼      | marriage     |
+| 관계      | relationship |
+| 재테크    | finance      |
+| 직장      | work         |
+| 라이프    | life         |
+| 트렌드    | trend        |
 
 ### 노출 화이트리스트 정책
 
 탭에 노출할 카테고리는 `VISIBLE_CATEGORY_SLUGS` 상수로 통제한다. 운영 DB나 API 응답이 어떻든, 화이트리스트에 있는 슬러그만 탭에 표시된다.
 
-- 현재 화이트리스트: `['dating']`
+- 현재 화이트리스트: `['dating', 'nuisance']`
 - 정책 변경 이력은 [전략 PRD](../../strategy/2026-05-03-content-niche-pivot.md) 참조
 - 화이트리스트에 없는 슬러그도 직접 URL 진입은 정상 동작 — 라우팅·API·카드 로드는 그대로
 
@@ -258,5 +259,6 @@ type TabSelection =
 
 ## Changelog
 
+- 2026-05-05: 화이트리스트에 `nuisance` ("민폐 논란") 추가 — 소개팅 옆에 노출, HelpCircleIcon 표시. 전략 PRD Steel-man 시나리오 3의 "70% 핏 안 맞을 때 민폐 추가" 옵션을 선제 적용
 - 2026-05-03: 카테고리 정책 c' — 화이트리스트(`VISIBLE_CATEGORY_SLUGS`)로 노출 통제, 디폴트 탭을 "소개팅" 카테고리로 변경, 카테고리 탭을 필터탭 앞으로 이동 (전략 PRD: docs/strategy/2026-05-03-content-niche-pivot.md)
 - 2026-03-22: 초기 작성 — Polymarket 스타일 단일 탭 바 리디자인

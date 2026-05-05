@@ -30,10 +30,10 @@ MainContent (pageWrapper: padding-top 98px)
 Polymarket 스타일 단일 탭 바. 카테고리탭과 필터탭을 하나의 가로 스크롤 바에 통합.
 
 ```
-[ 💘 소개팅  │  ✦ NEW   🔥 TOP   ☑ 가치관 비교   ☑ MY ]
+[ 💘 소개팅   ❓ 민폐 논란  │  ✦ NEW   🔥 TOP   ☑ 가치관 비교   ☑ MY ]
 ```
 
-- 카테고리탭(소개팅) + 구분자(│) + 필터탭(NEW/TOP/가치관 비교/MY)이 하나의 `<nav>` 안에 배치
+- 카테고리탭(소개팅 / 민폐 논란) + 구분자(│) + 필터탭(NEW/TOP/가치관 비교/MY)이 하나의 `<nav>` 안에 배치
 - 카테고리 탭이 필터 탭 앞에 위치
 - `position: fixed`, `top: 56px`, 가로 스크롤, 스크롤바 숨김
 - 상호 배타적 선택, 기본값: 소개팅 (카테고리 슬러그 `dating`)
@@ -45,7 +45,7 @@ Polymarket 스타일 단일 탭 바. 카테고리탭과 필터탭을 하나의 �
   - 카테고리: `category={slug}&sort=popular` (카테고리별 인기순)
 - 카테고리 데이터: `GET /api/v1/hotpicks/categories` API 동적 로드 (폴백: 하드코딩 상수)
 - API 응답의 "전체"(`slug: 'all'`) 카테고리는 제외 (NEW 탭이 대체)
-- 추가로 `src/constants/category.ts`의 `VISIBLE_CATEGORY_SLUGS` 화이트리스트로 필터링 — 현재 `['dating']`만 노출. 직접 URL 진입(`/?category=love` 등)은 차단하지 않음 (SEO 보존)
+- 추가로 `src/constants/category.ts`의 `VISIBLE_CATEGORY_SLUGS` 화이트리스트로 필터링 — 현재 `['dating', 'nuisance']` 노출. 직접 URL 진입(`/?category=love` 등)은 차단하지 않음 (SEO 보존)
 
 ### 탭별 빈 상태
 
