@@ -16,8 +16,13 @@ test.describe('탭 바 구조', () => {
     await tab.goto();
   });
 
-  test('페이지 진입 시 NEW 탭이 기본 선택되어 있다', async () => {
-    await expect(tab.newTab).toHaveAttribute('aria-selected', 'true');
+  test('페이지 진입 시 소개팅 카테고리 탭이 기본 선택되어 있다', async () => {
+    // 카테고리 API 로딩 대기
+    await tab.page.waitForTimeout(2_000);
+    const datingTab = tab.categoryTab('dating');
+    await expect(datingTab).toHaveAttribute('aria-selected', 'true');
+    // NEW 탭은 활성이 아니어야 함
+    await expect(tab.newTab).toHaveAttribute('aria-selected', 'false');
   });
 
   test('탭은 상호 배타적으로 동작한다 (하나만 활성화 가능)', async () => {
@@ -34,17 +39,17 @@ test.describe('탭 바 구조', () => {
     await expect(tab.newTab).toHaveAttribute('aria-selected', 'false');
   });
 
-  test('필터탭(NEW/HOT/MY)과 카테고리탭이 하나의 탭 바에 표시된다', async () => {
+  test('필터탭(NEW/TOP/MY)과 소개팅 카테고리탭이 하나의 탭 바에 표시된다', async () => {
     await expect(tab.newTab).toBeVisible();
     await expect(tab.hotTab).toBeVisible();
     await expect(tab.myTab).toBeVisible();
-
     // 카테고리 API 로딩 대기
     await tab.page.waitForTimeout(2_000);
-
-    // 카테고리탭도 같은 탭 바 안에 존재
-    const allTabs = await tab.allTabs.count();
-    expect(allTabs).toBeGreaterThanOrEqual(3); // NEW + HOT + MY + (카테고리들)
+    // 화이트리스트 정책으로 소개팅 카테고리 1개만 노출
+    await expect(tab.categoryTab('dating')).toBeVisible();
+    // 기존 카테고리(연애·결혼·관계 등)는 화이트리스트로 숨김 — 탭에 보이지 않아야 함
+    await expect(tab.categoryTab('love')).toHaveCount(0);
+    await expect(tab.categoryTab('marriage')).toHaveCount(0);
   });
 
   test('탭 바가 <nav role="tablist"> 요소로 렌더링된다', async () => {
@@ -194,6 +199,9 @@ test.describe('탭 시각 스타일', () => {
   });
 
   test('활성 탭은 흰색 텍스트와 bold 폰트로 표시된다', async () => {
+    // 기본 탭이 소개팅(카테고리)이므로, NEW 탭을 클릭하여 활성화
+    await tab.clickTab(tab.newTab);
+
     const color = await tab.newTab.evaluate((el) => getComputedStyle(el).color);
     const fontWeight = await tab.newTab.evaluate((el) => getComputedStyle(el).fontWeight);
 
@@ -237,6 +245,10 @@ test.describe('탭 전환 동작', () => {
   });
 
   test('탭 전환 시 스크롤이 최상단으로 초기화된다', async () => {
+    // 기본 탭이 소개팅(카테고리)이므로, 콘텐츠가 있는 NEW 탭으로 이동하여 스크롤 가능한 상태 만들기
+    await tab.clickTab(tab.newTab);
+    await tab.page.waitForTimeout(500);
+
     // 스크롤 내리기
     await tab.page.evaluate(() => window.scrollTo(0, 500));
     await tab.page.waitForTimeout(300);

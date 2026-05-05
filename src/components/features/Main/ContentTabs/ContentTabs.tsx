@@ -70,7 +70,29 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
       data-testid="content-tabs"
     >
       <div ref={containerRef} className={styles.tabList}>
-        {/* 필터 탭: NEW, TOP, MY */}
+        {/* 카테고리 탭 (소개팅이 첫 위치) */}
+        {categories?.map((cat) => {
+          const isActive = isTabActive(selectedTab, 'category', cat.slug);
+          return (
+            <button
+              key={cat.slug}
+              role="tab"
+              type="button"
+              aria-selected={isActive}
+              data-testid={`content-tab-category-${cat.slug}`}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+              onClick={(e) => handleCategoryClick(cat, e)}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+
+        {/* 구분자 (카테고리와 필터탭 사이) */}
+        {categories && categories.length > 0 && (
+          <div className={styles.divider} aria-hidden="true" />
+        )}
+
         {FILTER_TABS.map((tab) => {
           const isActive = isTabActive(selectedTab, 'filter', tab.type);
 
@@ -86,29 +108,6 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
             >
               {TAB_ICONS[tab.type]}
               {tab.label}
-            </button>
-          );
-        })}
-
-        {/* 구분자 */}
-        {categories && categories.length > 0 && (
-          <div className={styles.divider} aria-hidden="true" />
-        )}
-
-        {/* 카테고리 탭 */}
-        {categories?.map((cat) => {
-          const isActive = isTabActive(selectedTab, 'category', cat.slug);
-          return (
-            <button
-              key={cat.slug}
-              role="tab"
-              type="button"
-              aria-selected={isActive}
-              data-testid={`content-tab-category-${cat.slug}`}
-              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-              onClick={(e) => handleCategoryClick(cat, e)}
-            >
-              {cat.label}
             </button>
           );
         })}
