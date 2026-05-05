@@ -9,7 +9,7 @@ import {
   NotificationItemType,
   type NotificationItem as NotificationItemModel,
 } from '@/generated/models';
-import { useMarkNotificationReadLocally } from '@/hooks/api/useNotifications';
+import { useMarkNotificationRead } from '@/hooks/api/useNotifications';
 import { getRelativeTime } from '@/lib/utils';
 
 interface NotificationItemProps {
@@ -43,11 +43,11 @@ const formatPreview = (notification: NotificationItemModel): string | null | und
 
 export const NotificationItem: FC<NotificationItemProps> = ({ notification, onNavigate }) => {
   const router = useRouter();
-  const markReadLocally = useMarkNotificationReadLocally();
+  const { mutate: markRead } = useMarkNotificationRead();
 
   const handleClick = () => {
     if (notification.id !== undefined && notification.read === false) {
-      markReadLocally(notification.id);
+      markRead(notification.id);
     }
 
     const fallbackUrl = notification.type ? FALLBACK_URL_BY_TYPE[notification.type] : undefined;

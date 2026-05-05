@@ -55,6 +55,7 @@ export {
   useInfiniteNotifications,
   useUnreadNotificationCount,
   useMarkAllNotificationsRead,
+  useMarkNotificationRead,
 } from '@/hooks/api/useNotifications';
 
 // Migration Status Hook
