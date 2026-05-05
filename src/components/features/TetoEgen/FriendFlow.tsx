@@ -154,15 +154,16 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
                 <h2 className={styles.verdictHeadline}>
                   {verdict === 'hit' ? (
                     <>
-                      <strong>맞췄어요!</strong>
+                      <strong>{ownerName}님의 생각과 같아요!</strong>
                       <br />
-                      {ownerName}님 본인의 답과 같아요
+                      본인도 {labelOf(ownerSelfAnswer!)}
+                      {ownerSelfAnswer === 'EGEN' ? '이라고' : '라고'} 봤어요
                     </>
                   ) : (
                     <>
-                      <strong>틀렸어요</strong>
+                      <strong>{ownerName}님의 생각과 달라요</strong>
                       <br />
-                      {ownerName}님은 본인을 {labelOf(ownerSelfAnswer!)}
+                      본인을 {labelOf(ownerSelfAnswer!)}
                       {ownerSelfAnswer === 'EGEN' ? '이라고' : '라고'} 봤어요
                     </>
                   )}
