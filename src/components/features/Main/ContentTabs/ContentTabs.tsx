@@ -3,6 +3,7 @@
 import { useRef, type FC, type ReactNode } from 'react';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
+import HeartIcon from '@/assets/icon/HeartIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
@@ -15,6 +16,10 @@ const TAB_ICONS: Record<FilterTabType, ReactNode> = {
   top: <TrophyIcon className={styles.tabIcon} />,
   chem: <CompareGroupIcon className={styles.tabIcon} width={13} height={13} />,
   my: <UserCheckIcon className={styles.tabIcon} />,
+};
+
+const CATEGORY_ICONS: Record<string, ReactNode> = {
+  dating: <HeartIcon className={styles.tabIcon} />,
 };
 
 interface ContentTabsProps {
@@ -83,6 +88,7 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
               className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
               onClick={(e) => handleCategoryClick(cat, e)}
             >
+              {CATEGORY_ICONS[cat.slug]}
               {cat.label}
             </button>
           );
