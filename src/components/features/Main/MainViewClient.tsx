@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, type FC, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type FC, type ReactNode } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -37,11 +37,13 @@ import {
 } from '@/constants/contentTab';
 import { useAuth } from '@/contexts/AuthContext';
 import { CardActionsProvider } from '@/contexts/CardActionsContext';
+import { MainTabProvider } from '@/contexts/MainTabContext';
 import type { CategoryTabResponse, HotpickCardResponse } from '@/generated/models';
 import { useInfiniteMainDisplay, useCategories } from '@/hooks/api';
 import { useBundleList } from '@/hooks/api/useBundle';
 import { useMyBundles } from '@/hooks/api/useMyBundles';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
+import { trackMainView, trackMainTabChange } from '@/lib/analytics';
 import { toCardModel, toBundleCardModelFromSummary } from '@/lib/mappers/cardMapper';
 import { mergeBundlesIntoFeed } from '@/lib/mergeFeed';
 import type { CardModel } from '@/types/card';
@@ -218,6 +220,14 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
         : DEFAULT_MY_SUB_TAB_GUEST;
   }, [searchParams, isAuthLoading, isLoggedIn]);
 
+  useEffect(() => {
+    trackMainView({
+      tabKind: selectedTab.kind,
+      tabValue: selectedTab.kind === 'filter' ? selectedTab.type : selectedTab.slug,
+      mySubTab: selectedTab.kind === 'filter' && selectedTab.type === 'my' ? mySubTab : undefined,
+    });
+  }, [selectedTab, mySubTab]);
+
   const isTopTab = selectedTab.kind === 'filter' && selectedTab.type === 'top';
   const isMyTab = selectedTab.kind === 'filter' && selectedTab.type === 'my';
   const isNewTab = selectedTab.kind === 'filter' && selectedTab.type === 'new';
@@ -275,10 +285,16 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
   // 탭 변경 시 URL 업데이트 (replace로 히스토리 오염 방지)
   const handleTabChange = useCallback(
     (tab: TabSelection) => {
+      trackMainTabChange({
+        fromKind: selectedTab.kind,
+        fromValue: selectedTab.kind === 'filter' ? selectedTab.type : selectedTab.slug,
+        toKind: tab.kind,
+        toValue: tab.kind === 'filter' ? tab.type : tab.slug,
+      });
       router.replace(buildUrlParams(tab));
       window.scrollTo({ top: 0 });
     },
-    [router]
+    [router, selectedTab]
   );
 
   // 페이지 데이터 병합 (hotpickId 기준 중복 제거)
@@ -390,69 +406,81 @@ export const MainViewClient: FC<TMainViewClientProps> = ({ children }) => {
       <div
         className={`${styles.container} ${isTopTab || isChemTab ? styles.containerWithSubFilter : ''} ${isMyTab ? styles.containerWithMySubTabs : ''}`}
       >
-        {isNewTab || selectedTab.kind === 'category' ? <AskPromoBanner /> : null}
+        {isNewTab || selectedTab.kind === 'category' ? (
+          <AskPromoBanner
+            placement={isNewTab ? 'main_new' : 'main_category'}
+            tabValue={selectedTab.kind === 'filter' ? selectedTab.type : selectedTab.slug}
+          />
+        ) : null}
         <LazyMotion features={domAnimation}>
           <CardActionsProvider>
-            {isTopTab ? (
-              <TopRankingList
-                cards={cards}
-                isLoading={isLoading}
-                isError={isError}
-                isFetching={isFetching}
-                emptyState={emptyState}
-              />
-            ) : isChemTab ? (
-              <CardList
-                cards={chemCards}
-                isLoading={isBundleListLoading}
-                isError={isBundleListError}
-                isFetching={isBundleListFetching}
-                isFetchingNextPage={false}
-                hasNextPage={false}
-                error={null}
-                observerTarget={observerTarget}
-                onRetry={() => {
-                  void refetchBundleList();
-                }}
-                emptyState={chemEmptyState}
-                bundleCtaLabel="자세히 보기"
-              />
-            ) : isMyTab && mySubTab !== 'vote' ? (
-              // My 탭: 인증 로딩 중이면 빈 상태 (로그인 프롬프트 깜빡임 방지)
-              isAuthLoading ? null : mySubTab === 'compare' ? (
-                isLoggedIn ? (
-                  <MyBundleList bundles={myBundles ?? []} />
-                ) : (
-                  <MyLoginPrompt tab="compare" />
-                )
-              ) : mySubTab === 'comments' ? (
-                isLoggedIn ? (
-                  <MyCommentList />
-                ) : (
-                  <MyLoginPrompt tab="comments" />
-                )
-              ) : mySubTab === 'likes' ? (
-                isLoggedIn ? (
-                  <LikedHotpickList />
-                ) : (
-                  <MyLoginPrompt tab="likes" />
-                )
-              ) : null
-            ) : (
-              // NEW/카테고리/My+투표 탭: 기존 CardList
-              <CardList
-                cards={mergedCards}
-                isLoading={isLoading}
-                isError={isError}
-                isFetching={isFetching}
-                isFetchingNextPage={isFetchingNextPage}
-                hasNextPage={hasNextPage}
-                error={error}
-                observerTarget={observerTarget}
-                onRetry={() => fetchNextPage()}
-                emptyState={emptyState}
-              />
-            )}
+            <MainTabProvider
+              value={{
+                tabKind: selectedTab.kind,
+                tabValue: selectedTab.kind === 'filter' ? selectedTab.type : selectedTab.slug,
+              }}
+            >
+              {isTopTab ? (
+                <TopRankingList
+                  cards={cards}
+                  isLoading={isLoading}
+                  isError={isError}
+                  isFetching={isFetching}
+                  emptyState={emptyState}
+                />
+              ) : isChemTab ? (
+                <CardList
+                  cards={chemCards}
+                  isLoading={isBundleListLoading}
+                  isError={isBundleListError}
+                  isFetching={isBundleListFetching}
+                  isFetchingNextPage={false}
+                  hasNextPage={false}
+                  error={null}
+                  observerTarget={observerTarget}
+                  onRetry={() => {
+                    void refetchBundleList();
+                  }}
+                  emptyState={chemEmptyState}
+                  bundleCtaLabel="자세히 보기"
+                />
+              ) : isMyTab && mySubTab !== 'vote' ? (
+                // My 탭: 인증 로딩 중이면 빈 상태 (로그인 프롬프트 깜빡임 방지)
+                isAuthLoading ? null : mySubTab === 'compare' ? (
+                  isLoggedIn ? (
+                    <MyBundleList bundles={myBundles ?? []} />
+                  ) : (
+                    <MyLoginPrompt tab="compare" />
+                  )
+                ) : mySubTab === 'comments' ? (
+                  isLoggedIn ? (
+                    <MyCommentList />
+                  ) : (
+                    <MyLoginPrompt tab="comments" />
+                  )
+                ) : mySubTab === 'likes' ? (
+                  isLoggedIn ? (
+                    <LikedHotpickList />
+                  ) : (
+                    <MyLoginPrompt tab="likes" />
+                  )
+                ) : null
+              ) : (
+                // NEW/카테고리/My+투표 탭: 기존 CardList
+                <CardList
+                  cards={mergedCards}
+                  isLoading={isLoading}
+                  isError={isError}
+                  isFetching={isFetching}
+                  isFetchingNextPage={isFetchingNextPage}
+                  hasNextPage={hasNextPage}
+                  error={error}
+                  observerTarget={observerTarget}
+                  onRetry={() => fetchNextPage()}
+                  emptyState={emptyState}
+                />
+              )}
+            </MainTabProvider>
           </CardActionsProvider>
         </LazyMotion>
       </div>
