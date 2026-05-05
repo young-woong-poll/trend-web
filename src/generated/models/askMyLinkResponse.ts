@@ -13,7 +13,6 @@ import type { AskMyLinkResponseSelfPrediction } from './askMyLinkResponseSelfPre
  */
 export interface AskMyLinkResponse {
   token?: string;
-  shareUrl?: string;
   displayName?: string;
   selfAnswer?: AskMyLinkResponseSelfAnswer;
   selfPrediction?: AskMyLinkResponseSelfPrediction;

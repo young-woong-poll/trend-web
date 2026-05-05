@@ -523,7 +523,6 @@ export interface CreateAskLinkRequest {
  */
 export interface AskCreateLinkResponse {
   token?: string;
-  shareUrl?: string;
 }
 
 /**
@@ -1540,6 +1539,27 @@ export interface BaseResponseNicknameCheckResponse {
 }
 
 /**
+ * 응답 데이터
+ */
+export interface MigrationStatusResponse {
+  hasMigratableData?: boolean;
+  voteCount?: number;
+  likeCount?: number;
+  commentCount?: number;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseMigrationStatusResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: MigrationStatusResponse;
+}
+
+/**
  * 공통 응답 포맷
  */
 export interface BaseResponseUserResponse {
@@ -1571,7 +1591,6 @@ export const AskMyLinkResponseSelfPrediction = {
  */
 export interface AskMyLinkResponse {
   token?: string;
-  shareUrl?: string;
   displayName?: string;
   selfAnswer?: AskMyLinkResponseSelfAnswer;
   selfPrediction?: AskMyLinkResponseSelfPrediction;
