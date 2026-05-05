@@ -81,16 +81,17 @@ function generateRandomNickname(): string {
  */
 const mockCategories = [
   { id: 1, category: '소개팅', categoryCode: 'dating' },
-  { id: 2, category: '연애', categoryCode: 'love' },
-  { id: 3, category: '결혼', categoryCode: 'marriage' },
-  { id: 4, category: '재테크', categoryCode: 'finance' },
-  { id: 5, category: '직장', categoryCode: 'work' },
-  { id: 6, category: '스포츠', categoryCode: 'sports' },
-  { id: 7, category: '음식', categoryCode: 'food' },
-  { id: 8, category: '게임', categoryCode: 'game' },
-  { id: 9, category: '자동차', categoryCode: 'car' },
-  { id: 10, category: '건강', categoryCode: 'health' },
-  { id: 11, category: '트렌드', categoryCode: 'trend' },
+  { id: 2, category: '민폐 논란', categoryCode: 'nuisance' },
+  { id: 3, category: '연애', categoryCode: 'love' },
+  { id: 4, category: '결혼', categoryCode: 'marriage' },
+  { id: 5, category: '재테크', categoryCode: 'finance' },
+  { id: 6, category: '직장', categoryCode: 'work' },
+  { id: 7, category: '스포츠', categoryCode: 'sports' },
+  { id: 8, category: '음식', categoryCode: 'food' },
+  { id: 9, category: '게임', categoryCode: 'game' },
+  { id: 10, category: '자동차', categoryCode: 'car' },
+  { id: 11, category: '건강', categoryCode: 'health' },
+  { id: 12, category: '트렌드', categoryCode: 'trend' },
 ];
 /**
  * BaseResponse 형식으로 응답 래핑

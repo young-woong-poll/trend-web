@@ -10,11 +10,12 @@ export interface CategoryFilterItem {
  *
  * 정책 변경 이력은 docs/strategy/2026-05-03-content-niche-pivot.md 참조.
  */
-export const VISIBLE_CATEGORY_SLUGS: readonly string[] = ['dating'];
+export const VISIBLE_CATEGORY_SLUGS: readonly string[] = ['dating', 'nuisance'];
 
 /** 카테고리 폴백 목록 (API 응답 전 또는 실패 시 사용) */
 export const CATEGORY_FILTERS: CategoryFilterItem[] = [
   { label: '소개팅', slug: 'dating' },
+  { label: '민폐 논란', slug: 'nuisance' },
   { label: '연애', slug: 'love' },
   { label: '결혼', slug: 'marriage' },
   { label: '관계', slug: 'relationship' },

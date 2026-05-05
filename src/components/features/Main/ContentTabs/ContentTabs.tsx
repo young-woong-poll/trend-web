@@ -4,6 +4,7 @@ import { useRef, type FC, type ReactNode } from 'react';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import HeartIcon from '@/assets/icon/HeartIcon';
+import HelpCircleIcon from '@/assets/icon/HelpCircleIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
@@ -20,6 +21,7 @@ const TAB_ICONS: Record<FilterTabType, ReactNode> = {
 
 const CATEGORY_ICONS: Record<string, ReactNode> = {
   dating: <HeartIcon className={styles.tabIcon} />,
+  nuisance: <HelpCircleIcon className={styles.tabIcon} width={13} height={13} />,
 };
 
 interface ContentTabsProps {
