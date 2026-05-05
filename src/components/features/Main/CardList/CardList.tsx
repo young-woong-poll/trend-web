@@ -68,10 +68,14 @@ export const CardList = memo<CardListProps>(
     const columnCount = useColumnCount();
 
     // 카드를 행 우선 순서로 열에 분배 (0→col0, 1→col1, 2→col2, 3→col0, ...)
+    // position: 카드의 원본(렌더 전체) 인덱스 — GA card_click 이벤트 파라미터로 사용.
     const columns = useMemo(() => {
-      const cols: CardModel[][] = Array.from({ length: columnCount }, () => []);
+      const cols: { card: CardModel; position: number }[][] = Array.from(
+        { length: columnCount },
+        () => []
+      );
       cards.forEach((card, i) => {
-        cols[i % columnCount].push(card);
+        cols[i % columnCount].push({ card, position: i });
       });
       return cols;
     }, [cards, columnCount]);
@@ -113,14 +117,14 @@ export const CardList = memo<CardListProps>(
         <div className={styles.cardGrid}>
           {columns.map((colCards, colIndex) => (
             <div key={colIndex} className={styles.cardColumn}>
-              {colCards.map((card) =>
+              {colCards.map(({ card, position }) =>
                 card.type === 'SINGLE' ? (
                   <div key={card.data.slug} id={card.data.slug} className={styles.cardWrapper}>
-                    <SingleCard data={card.data} />
+                    <SingleCard data={card.data} position={position} />
                   </div>
                 ) : (
                   <div key={card.data.slug} id={card.data.slug} className={styles.cardWrapper}>
-                    <BundleCard data={card.data} ctaLabel={bundleCtaLabel} />
+                    <BundleCard data={card.data} position={position} ctaLabel={bundleCtaLabel} />
                   </div>
                 )
               )}

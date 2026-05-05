@@ -18,11 +18,21 @@ const LandingHero: FC<LandingHeroProps> = ({ onStart }) => {
   const { data, isLoading } = useTetoEgenCount();
 
   useEffect(() => {
-    const isInternal =
-      typeof document !== 'undefined' &&
-      !!document.referrer &&
-      document.referrer.includes(window.location.host);
-    trackAskView('teto-egen', isInternal ? 'relay' : 'direct');
+    // 1순위: querystring `?src=...` (메인 banner / 공유 링크가 명시적으로 박는 값)
+    const params = new URLSearchParams(window.location.search);
+    const src = params.get('src');
+    let entryPoint: 'direct' | 'relay' | 'share_link' | 'main_banner' = 'direct';
+    if (src === 'main_banner' || src === 'share_link' || src === 'relay' || src === 'direct') {
+      entryPoint = src;
+    } else {
+      // 2순위: referrer가 동일 호스트면 relay, 아니면 direct
+      const isInternal =
+        typeof document !== 'undefined' &&
+        !!document.referrer &&
+        document.referrer.includes(window.location.host);
+      entryPoint = isInternal ? 'relay' : 'direct';
+    }
+    trackAskView('teto-egen', entryPoint);
   }, []);
 
   return (

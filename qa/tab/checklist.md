@@ -109,3 +109,14 @@
 ### Critical
 
 - [ ] 스크롤 시 헤더와 탭 바가 화면 상단에 고정되어 있다 (fixed)
+
+---
+
+## GA4 이벤트 발화 (DebugView 또는 dev console)
+
+- [ ] 탭 변경 시 `main_tab_change` 1회 발화, `from_*`/`to_*` 정확
+- [ ] 디폴트 진입(소개팅) 후 첫 NEW 클릭: `from_kind: 'category', from_value: 'dating', to_kind: 'filter', to_value: 'new'`
+- [ ] 카테고리 → 카테고리(소개팅 → 민폐): 두 to/from 모두 `category`
+- [ ] 필터 → 카테고리(NEW → 소개팅)
+- [ ] 탭 변경 직후 `main_view` 1회 발화 (총 2개 이벤트)
+- [ ] URL 직접 진입(`/?category=nuisance`)은 `main_tab_change` 0건, `main_view` 1건만

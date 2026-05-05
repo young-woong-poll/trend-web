@@ -307,14 +307,70 @@ export function trackAuthWithdraw() {
 }
 
 // ──────────────────────────────────────────────────────────
+// 메인 페이지 이벤트 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export type MainTabKind = 'filter' | 'category';
+
+export function trackMainView(params: {
+  tabKind: MainTabKind;
+  tabValue: string;
+  mySubTab?: string;
+}) {
+  track('main_view', {
+    tab_kind: params.tabKind,
+    tab_value: params.tabValue,
+    my_sub_tab: params.mySubTab,
+    page_type: 'main',
+  });
+}
+
+export function trackMainTabChange(params: {
+  fromKind: MainTabKind;
+  fromValue: string;
+  toKind: MainTabKind;
+  toValue: string;
+}) {
+  track('main_tab_change', {
+    from_kind: params.fromKind,
+    from_value: params.fromValue,
+    to_kind: params.toKind,
+    to_value: params.toValue,
+  });
+}
+
+export type CardClickType = 'single' | 'bundle' | 'poll';
+
+export function trackCardClick(params: {
+  cardType: CardClickType;
+  contentId: string;
+  position: number;
+  tabKind: MainTabKind;
+  tabValue: string;
+  categorySlug?: string;
+}) {
+  track('card_click', {
+    card_type: params.cardType,
+    content_id: params.contentId,
+    position: params.position,
+    tab_kind: params.tabKind,
+    tab_value: params.tabValue,
+    category_slug: params.categorySlug,
+  });
+}
+
+// ──────────────────────────────────────────────────────────
 // Ask H3 (테토/에겐) 이벤트 헬퍼
 // ──────────────────────────────────────────────────────────
 
 export type AskTopic = 'teto-egen';
 export type AskAnswer = 'TETO' | 'EGEN';
 
-/** 랜딩 진입 */
-export function trackAskView(topic: AskTopic, entryPoint: 'direct' | 'share_link' | 'relay') {
+/** 랜딩 진입. entry_point는 querystring `src` 파라미터(있을 시) > referrer 검사 순. */
+export function trackAskView(
+  topic: AskTopic,
+  entryPoint: 'direct' | 'relay' | 'share_link' | 'main_banner'
+) {
   track('ask_view', { topic, entry_point: entryPoint });
 }
 
@@ -378,6 +434,18 @@ export function trackAskOwnerResultView(
     friend_count: friendCount,
     is_majority_match: isMajorityMatch,
   });
+}
+
+export type AskBannerPlacement = 'main_new' | 'main_category';
+
+/** 메인 ask promo banner 노출 (mount 시 1회). */
+export function trackAskPromoBannerView(placement: AskBannerPlacement, tabValue?: string) {
+  track('ask_promo_banner_view', { placement, tab_value: tabValue });
+}
+
+/** 메인 ask promo banner 클릭 (Link 클릭 시). */
+export function trackAskPromoBannerClick(placement: AskBannerPlacement, tabValue?: string) {
+  track('ask_promo_banner_click', { placement, tab_value: tabValue });
 }
 
 // ──────────────────────────────────────────────────────────

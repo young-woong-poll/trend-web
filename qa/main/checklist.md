@@ -133,3 +133,17 @@
 
 - [ ] 불러오는 과정에서 에러가 발생한 경우 "핫픽을 불러오는데 실패했습니다." 문구가 노출
 - [ ] 카테고리 별로 핫픽이 하나도 없는 경우 "아직 진행중인 핫픽이 없어요" 문구가 노출
+
+---
+
+## GA4 이벤트 발화 (DebugView 또는 dev console)
+
+- [ ] 메인 진입 시 `main_view` 1회 발화, `tab_kind`/`tab_value` 정확
+- [ ] MY 탭 진입 시 `main_view`에 `my_sub_tab` 포함
+- [ ] MY 서브탭(투표/내 테스트/댓글/좋아요) 변경 시 `main_view` 추가 발화
+- [ ] 카드 클릭 시 `card_click` 1회 발화 (`card_type`, `content_id`, `position`, `category_slug`)
+- [ ] 소개팅 탭 진입 시 `ask_promo_banner_view {placement: 'main_category', tab_value: 'dating'}`
+- [ ] 민폐 탭 진입 시 `placement: 'main_category', tab_value: 'nuisance'`
+- [ ] NEW 탭 진입 시 `placement: 'main_new', tab_value: 'new'`
+- [ ] AskPromoBanner 클릭 시 `ask_promo_banner_click` + 이동 후 `ask_view {entry_point: 'main_banner'}`
+- [ ] TOP/가치관 비교 탭 진입 시 banner 미노출 → banner 이벤트 0건

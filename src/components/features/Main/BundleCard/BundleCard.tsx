@@ -11,6 +11,8 @@ import { DeadlineBadge } from '@/components/common/DeadlineBadge';
 import styles from '@/components/features/Main/BundleCard/BundleCard.module.scss';
 import { getCategoryThemeVars } from '@/constants/categoryTheme';
 import { useCardActions } from '@/contexts/CardActionsContext';
+import { useMainTabContext } from '@/contexts/MainTabContext';
+import { trackCardClick } from '@/lib/analytics';
 import { formatCount } from '@/lib/utils';
 import type { BundleCardModel } from '@/types/card';
 
@@ -20,10 +22,12 @@ interface BundleCardProps {
   data: BundleCardModel;
   /** 미참여 상태 CTA 라벨 오버라이드. 기본값 '시작하기'. 참여 완료 상태는 항상 '결과 보기'. */
   ctaLabel?: string;
+  /** 렌더 전체에서의 0-base 인덱스. GA card_click 이벤트 파라미터. */
+  position?: number;
 }
 
 // eslint-disable-next-line react/display-name
-export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel }) => {
+export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel, position }) => {
   const {
     slug,
     title,
@@ -41,6 +45,7 @@ export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel }) => {
   const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
   const actions = useCardActions();
+  const tabContext = useMainTabContext();
 
   const isClosed = status === 'CLOSED';
   const themeVars = getCategoryThemeVars(categoryCode, categoryMeta);
@@ -49,6 +54,14 @@ export const BundleCard = memo<BundleCardProps>(({ data, ctaLabel }) => {
     if (isClosed) {
       return;
     }
+    trackCardClick({
+      cardType: 'bundle',
+      contentId: slug,
+      position: position ?? 0,
+      tabKind: tabContext.tabKind,
+      tabValue: tabContext.tabValue,
+      categorySlug: categories[0],
+    });
     setIsNavigating(true);
     router.push(participated ? `/bundle/${slug}/result` : `/bundle/${slug}`);
   };

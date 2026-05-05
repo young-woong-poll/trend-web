@@ -20,6 +20,8 @@ import {
   fadeInVariants,
 } from '@/components/features/Main/SingleCard/voteAnimations';
 import { useCardActions } from '@/contexts/CardActionsContext';
+import { useMainTabContext } from '@/contexts/MainTabContext';
+import { trackCardClick } from '@/lib/analytics';
 import { formatCount } from '@/lib/utils';
 import type { SingleCardModel } from '@/types/card';
 import { calcPercentage, OPTION_LABELS } from '@/types/singleVote';
@@ -28,10 +30,12 @@ const EMPTY_CATEGORIES: string[] = [];
 
 interface SingleCardProps {
   data: SingleCardModel;
+  /** 렌더 전체에서의 0-base 인덱스. GA card_click 이벤트 파라미터. */
+  position?: number;
 }
 
 // eslint-disable-next-line react/display-name
-export const SingleCard = memo<SingleCardProps>(({ data }) => {
+export const SingleCard = memo<SingleCardProps>(({ data, position }) => {
   const {
     slug,
     title,
@@ -49,7 +53,19 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
   } = data;
 
   const actions = useCardActions();
+  const tabContext = useMainTabContext();
   const [viewerImage, setViewerImage] = useState<string | null>(null);
+
+  const handleCardClick = () => {
+    trackCardClick({
+      cardType: 'single',
+      contentId: slug,
+      position: position ?? 0,
+      tabKind: tabContext.tabKind,
+      tabValue: tabContext.tabValue,
+      categorySlug: categories[0],
+    });
+  };
 
   const isClosed = status === 'CLOSED';
   const { voted, myChoiceId, options, totalVotes } = vote;
@@ -99,7 +115,7 @@ export const SingleCard = memo<SingleCardProps>(({ data }) => {
       </div>
 
       {/* 질문: 로고 이미지 + 텍스트 */}
-      <Link href={`/hotpick/${slug}`} className={styles.questionRow}>
+      <Link href={`/hotpick/${slug}`} className={styles.questionRow} onClick={handleCardClick}>
         {logoUrl && (
           <span
             role="button"
