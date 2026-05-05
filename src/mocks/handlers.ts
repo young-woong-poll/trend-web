@@ -81,7 +81,7 @@ function generateRandomNickname(): string {
  */
 const mockCategories = [
   { id: 1, category: '소개팅', categoryCode: 'dating' },
-  { id: 2, category: '민폐 논란', categoryCode: 'nuisance' },
+  { id: 2, category: '민폐논란', categoryCode: 'nuisance' },
   { id: 3, category: '연애', categoryCode: 'love' },
   { id: 4, category: '결혼', categoryCode: 'marriage' },
   { id: 5, category: '재테크', categoryCode: 'finance' },

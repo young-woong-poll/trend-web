@@ -1,10 +1,9 @@
 'use client';
 
-import { useRef, type FC, type ReactNode } from 'react';
+import { useEffect, useRef, type FC, type ReactNode } from 'react';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
 import HeartIcon from '@/assets/icon/HeartIcon';
-import NuisanceIcon from '@/assets/icon/NuisanceIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
@@ -21,7 +20,6 @@ const TAB_ICONS: Record<FilterTabType, ReactNode> = {
 
 const CATEGORY_ICONS: Record<string, ReactNode> = {
   dating: <HeartIcon className={styles.tabIcon} />,
-  nuisance: <NuisanceIcon className={styles.tabIcon} />,
 };
 
 interface ContentTabsProps {
@@ -42,31 +40,35 @@ function isTabActive(selected: TabSelection, kind: 'filter' | 'category', key: s
 
 export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categories }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const activeTabRef = useRef<HTMLButtonElement | null>(null);
 
-  const scrollToButton = (button: HTMLButtonElement) => {
+  useEffect(() => {
+    const button = activeTabRef.current;
     const container = containerRef.current;
-    if (!container) {
+    if (!button || !container) {
       return;
     }
-
     const containerRect = container.getBoundingClientRect();
     const buttonRect = button.getBoundingClientRect();
-
     if (buttonRect.right > containerRect.right) {
-      container.scrollBy({ left: buttonRect.right - containerRect.right + 8, behavior: 'smooth' });
+      container.scrollBy({
+        left: buttonRect.right - containerRect.right + 8,
+        behavior: 'smooth',
+      });
     } else if (buttonRect.left < containerRect.left) {
-      container.scrollBy({ left: buttonRect.left - containerRect.left - 8, behavior: 'smooth' });
+      container.scrollBy({
+        left: buttonRect.left - containerRect.left - 8,
+        behavior: 'smooth',
+      });
     }
-  };
+  }, [selectedTab]);
 
-  const handleFilterClick = (type: string, e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleFilterClick = (type: string) => {
     onChange({ kind: 'filter', type: type as FilterTabType });
-    scrollToButton(e.currentTarget);
   };
 
-  const handleCategoryClick = (cat: CategoryFilterItem, e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCategoryClick = (cat: CategoryFilterItem) => {
     onChange({ kind: 'category', slug: cat.slug, label: cat.label });
-    scrollToButton(e.currentTarget);
   };
 
   return (
@@ -83,12 +85,13 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
           return (
             <button
               key={cat.slug}
+              ref={isActive ? activeTabRef : undefined}
               role="tab"
               type="button"
               aria-selected={isActive}
               data-testid={`content-tab-category-${cat.slug}`}
               className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-              onClick={(e) => handleCategoryClick(cat, e)}
+              onClick={() => handleCategoryClick(cat)}
             >
               {CATEGORY_ICONS[cat.slug]}
               {cat.label}
@@ -107,12 +110,13 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
           return (
             <button
               key={tab.type}
+              ref={isActive ? activeTabRef : undefined}
               role="tab"
               type="button"
               aria-selected={isActive}
               data-testid={`content-tab-${tab.type}`}
               className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-              onClick={(e) => handleFilterClick(tab.type, e)}
+              onClick={() => handleFilterClick(tab.type)}
             >
               {TAB_ICONS[tab.type]}
               {tab.label}
