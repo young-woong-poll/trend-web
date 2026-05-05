@@ -58,8 +58,6 @@ function parseTabFromQuery(
   const filter = searchParams.get('filter');
   const category = searchParams.get('category');
 
-  console.log('categories : ', categories);
-
   // 카테고리 탭이 지정되었으면 우선 적용
   if (category) {
     const label = categories?.find((c) => c.categoryCode === category)?.category ?? category;
