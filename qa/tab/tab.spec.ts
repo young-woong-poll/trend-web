@@ -47,7 +47,7 @@ test.describe('탭 바 구조', () => {
     await expect(tab.newTab).toHaveAttribute('aria-selected', 'false');
   });
 
-  test('필터탭(NEW/TOP/MY)과 소개팅 카테고리탭이 하나의 탭 바에 표시된다', async ({
+  test('필터탭(NEW/TOP/MY)과 화이트리스트 카테고리탭이 하나의 탭 바에 표시된다', async ({
     page,
     isMobile,
   }) => {
@@ -62,8 +62,10 @@ test.describe('탭 바 구조', () => {
         { timeout: 15_000 }
       )
       .catch(() => undefined);
+    // 화이트리스트(`['dating', 'nuisance']`) 카테고리만 노출
     await expect(tab.categoryTab('dating')).toBeVisible({ timeout: 10_000 });
-    // 기존 카테고리(연애·결혼·관계 등)는 화이트리스트로 숨김 — 탭에 보이지 않아야 함
+    await expect(tab.categoryTab('nuisance')).toBeVisible({ timeout: 10_000 });
+    // 화이트리스트 외 카테고리(연애·결혼 등)는 탭에 보이지 않아야 함
     await expect(tab.categoryTab('love')).toHaveCount(0);
     await expect(tab.categoryTab('marriage')).toHaveCount(0);
   });
@@ -193,11 +195,14 @@ test.describe('카테고리탭', () => {
     }
   });
 
-  test('소개팅 카테고리탭에 HeartIcon이 표시된다', async () => {
+  test('소개팅·민폐 카테고리탭에 SVG 아이콘이 표시된다', async () => {
     const datingTab = tab.categoryTab('dating');
     await expect(datingTab).toBeVisible({ timeout: 10_000 });
-    const svgCount = await datingTab.locator('svg').count();
-    expect(svgCount).toBe(1);
+    expect(await datingTab.locator('svg').count()).toBe(1);
+
+    const nuisanceTab = tab.categoryTab('nuisance');
+    await expect(nuisanceTab).toBeVisible({ timeout: 10_000 });
+    expect(await nuisanceTab.locator('svg').count()).toBe(1);
   });
 });
 
