@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseKakaoLoginResponse,
+  BaseResponseMigrationStatusResponse,
   BaseResponseNicknameCheckResponse,
   BaseResponseObject,
   BaseResponseSignupResponse,
@@ -382,6 +383,58 @@ export const checkNickname = async (
   options?: RequestInit
 ): Promise<checkNicknameResponse> => {
   return serverFetchInstance<checkNicknameResponse>(getCheckNicknameUrl(params), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+/**
+ * 회원가입 prompt 분기용. x-tku-id 헤더가 비어있으면 hasMigratableData=false.
+ * @summary TKUID에 묶인 마이그레이션 가능한 익명 데이터 존재 여부 조회
+ */
+export type getMigrationStatusResponse200 = {
+  data: BaseResponseMigrationStatusResponse;
+  status: 200;
+};
+
+export type getMigrationStatusResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getMigrationStatusResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getMigrationStatusResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getMigrationStatusResponseSuccess = getMigrationStatusResponse200 & {
+  headers: Headers;
+};
+export type getMigrationStatusResponseError = (
+  | getMigrationStatusResponse409
+  | getMigrationStatusResponse429
+  | getMigrationStatusResponse500
+) & {
+  headers: Headers;
+};
+
+export type getMigrationStatusResponse =
+  | getMigrationStatusResponseSuccess
+  | getMigrationStatusResponseError;
+
+export const getGetMigrationStatusUrl = () => {
+  return `/api/v1/auth/migration-status`;
+};
+
+export const getMigrationStatus = async (
+  options?: RequestInit
+): Promise<getMigrationStatusResponse> => {
+  return serverFetchInstance<getMigrationStatusResponse>(getGetMigrationStatusUrl(), {
     ...options,
     method: 'GET',
   });

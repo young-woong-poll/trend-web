@@ -12,7 +12,7 @@ export default function AskTetoEgenPage() {
 
   const handleStart = () => {
     if (!isLoggedIn) {
-      requireLogin('default');
+      requireLogin('ask');
       return;
     }
     router.push('/ask/teto-egen/my');

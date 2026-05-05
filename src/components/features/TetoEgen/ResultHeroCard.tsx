@@ -45,6 +45,8 @@ const ResultHeroCard: FC<ResultHeroCardProps> = ({
 
   const isHit = variant === 'hit';
   const subject = displayName ? `${displayName}님` : '나';
+  // 받침 따라 조사 분기: 테토(받침 X) → "로", 에겐(받침 ㄴ) → "으로"
+  const particleRo = majorityAnswer === 'EGEN' ? '으로' : '로';
 
   return (
     <section className={styles.root}>
@@ -59,7 +61,8 @@ const ResultHeroCard: FC<ResultHeroCardProps> = ({
       <h1 className={styles.headline}>
         친구들은 {subject}을
         <br />
-        <strong>{labelOf(majorityAnswer)}</strong>로 봤어요
+        <strong>{labelOf(majorityAnswer)}</strong>
+        {particleRo} 봤어요
       </h1>
       <p className={styles.summary}>
         총 {totalFriends}명 중 {majorityCount}명이 같은 답을 골랐어요

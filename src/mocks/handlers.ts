@@ -39,7 +39,6 @@ import {
   getLikeState,
   initLikeCount,
 } from '@/mocks/data/singleVotes';
-import { askTetoEgenHandlers } from '@/mocks/handlers/ask-teto-egen';
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://hotpick-api.votebox.kr';
 
 /**
@@ -81,16 +80,18 @@ function generateRandomNickname(): string {
  * Mock 카테고리 데이터
  */
 const mockCategories = [
-  { id: 1, category: '연애', categoryCode: 'LOVE' },
-  { id: 2, category: '결혼', categoryCode: 'MARRIAGE' },
-  { id: 3, category: '재테크', categoryCode: 'FINANCE' },
-  { id: 4, category: '직장', categoryCode: 'WORK' },
-  { id: 5, category: '스포츠', categoryCode: 'SPORTS' },
-  { id: 6, category: '음식', categoryCode: 'FOOD' },
-  { id: 7, category: '게임', categoryCode: 'GAME' },
-  { id: 8, category: '자동차', categoryCode: 'CAR' },
-  { id: 9, category: '건강', categoryCode: 'HEALTH' },
-  { id: 10, category: '트렌드', categoryCode: 'TREND' },
+  { id: 1, category: '소개팅', categoryCode: 'dating' },
+  { id: 2, category: '민폐 논란', categoryCode: 'nuisance' },
+  { id: 3, category: '연애', categoryCode: 'love' },
+  { id: 4, category: '결혼', categoryCode: 'marriage' },
+  { id: 5, category: '재테크', categoryCode: 'finance' },
+  { id: 6, category: '직장', categoryCode: 'work' },
+  { id: 7, category: '스포츠', categoryCode: 'sports' },
+  { id: 8, category: '음식', categoryCode: 'food' },
+  { id: 9, category: '게임', categoryCode: 'game' },
+  { id: 10, category: '자동차', categoryCode: 'car' },
+  { id: 11, category: '건강', categoryCode: 'health' },
+  { id: 12, category: '트렌드', categoryCode: 'trend' },
 ];
 /**
  * BaseResponse 형식으로 응답 래핑
@@ -1466,9 +1467,4 @@ export const handlers = [
    * POST /api/v1/suggestions
    */
   http.post(`${baseURL}/api/v1/suggestions`, () => HttpResponse.json(wrapResponse(null))),
-
-  // ──────────────────────────────────────────────────────────
-  // H3 "테토/에겐" (ask) API — 도메인별 분리 (src/mocks/handlers/ask-teto-egen.ts)
-  // ──────────────────────────────────────────────────────────
-  ...askTetoEgenHandlers,
 ];

@@ -3,6 +3,8 @@
 import { useRef, type FC, type ReactNode } from 'react';
 
 import CompareGroupIcon from '@/assets/icon/CompareGroupIcon';
+import HeartIcon from '@/assets/icon/HeartIcon';
+import NuisanceIcon from '@/assets/icon/NuisanceIcon';
 import SparkleIcon from '@/assets/icon/SparkleIcon';
 import TrophyIcon from '@/assets/icon/TrophyIcon';
 import UserCheckIcon from '@/assets/icon/UserCheckIcon';
@@ -15,6 +17,11 @@ const TAB_ICONS: Record<FilterTabType, ReactNode> = {
   top: <TrophyIcon className={styles.tabIcon} />,
   chem: <CompareGroupIcon className={styles.tabIcon} width={13} height={13} />,
   my: <UserCheckIcon className={styles.tabIcon} />,
+};
+
+const CATEGORY_ICONS: Record<string, ReactNode> = {
+  dating: <HeartIcon className={styles.tabIcon} />,
+  nuisance: <NuisanceIcon className={styles.tabIcon} />,
 };
 
 interface ContentTabsProps {
@@ -70,7 +77,30 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
       data-testid="content-tabs"
     >
       <div ref={containerRef} className={styles.tabList}>
-        {/* 필터 탭: NEW, TOP, MY */}
+        {/* 카테고리 탭 (소개팅이 첫 위치) */}
+        {categories?.map((cat) => {
+          const isActive = isTabActive(selectedTab, 'category', cat.slug);
+          return (
+            <button
+              key={cat.slug}
+              role="tab"
+              type="button"
+              aria-selected={isActive}
+              data-testid={`content-tab-category-${cat.slug}`}
+              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
+              onClick={(e) => handleCategoryClick(cat, e)}
+            >
+              {CATEGORY_ICONS[cat.slug]}
+              {cat.label}
+            </button>
+          );
+        })}
+
+        {/* 구분자 (카테고리와 필터탭 사이) */}
+        {categories && categories.length > 0 && (
+          <div className={styles.divider} aria-hidden="true" />
+        )}
+
         {FILTER_TABS.map((tab) => {
           const isActive = isTabActive(selectedTab, 'filter', tab.type);
 
@@ -86,29 +116,6 @@ export const ContentTabs: FC<ContentTabsProps> = ({ selectedTab, onChange, categ
             >
               {TAB_ICONS[tab.type]}
               {tab.label}
-            </button>
-          );
-        })}
-
-        {/* 구분자 */}
-        {categories && categories.length > 0 && (
-          <div className={styles.divider} aria-hidden="true" />
-        )}
-
-        {/* 카테고리 탭 */}
-        {categories?.map((cat) => {
-          const isActive = isTabActive(selectedTab, 'category', cat.slug);
-          return (
-            <button
-              key={cat.slug}
-              role="tab"
-              type="button"
-              aria-selected={isActive}
-              data-testid={`content-tab-category-${cat.slug}`}
-              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-              onClick={(e) => handleCategoryClick(cat, e)}
-            >
-              {cat.label}
             </button>
           );
         })}

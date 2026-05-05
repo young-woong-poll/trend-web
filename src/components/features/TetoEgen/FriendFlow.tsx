@@ -4,6 +4,8 @@ import { type FC, useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import CheckIcon from '@/assets/icon/CheckIcon';
+import SparkleIcon from '@/assets/icon/SparkleIcon';
 import { Alert } from '@/components/common/Alert/Alert';
 import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import BinaryChoiceCard from '@/components/features/TetoEgen/BinaryChoiceCard';
@@ -11,7 +13,7 @@ import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersC
 import styles from '@/components/features/TetoEgen/FriendFlow.module.scss';
 import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
+import { useMyTetoEgenLink, useSubmitFriendVote } from '@/hooks/api/useAskTetoEgen';
 import { useAlert } from '@/hooks/useAlert';
 import { trackAskFriendLanding, trackAskFriendVote } from '@/lib/analytics';
 import type {
@@ -34,6 +36,12 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
 
   const submit = useSubmitFriendVote(token);
 
+  // 친구 결과 화면에 진입한 시점에 본인 링크 보유 여부를 조회 → CTA 카피 분기.
+  // - 데이터 있음(200) → "내 결과 보러 가기"
+  // - 404 → "나도 투표 받아보기"
+  // 비로그인이거나 아직 투표 전이면 fetch 안 함.
+  const myLink = useMyTetoEgenLink(isLoggedIn);
+
   useEffect(() => {
     trackAskFriendLanding('teto-egen', meta.isOwn);
   }, [meta.isOwn]);
@@ -43,14 +51,14 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   const [friendVotes, setFriendVotes] = useState<TetoEgenFriendVotes | null>(
     meta.friendVotes ?? null
   );
-  const [ownerDisplayName, setOwnerDisplayName] = useState<string>(meta.displayName);
+  const [ownerDisplayName, setOwnerDisplayName] = useState<string>(meta.ownerDisplayName);
   const [ownerSelfAnswer, setOwnerSelfAnswer] = useState<TetoEgenAnswer | null>(
     meta.ownerSelfAnswer ?? null
   );
 
   const handleSelect = (vote: TetoEgenAnswer) => {
     if (!isLoggedIn) {
-      requireLogin('default');
+      requireLogin('ask');
       return;
     }
 
@@ -112,16 +120,56 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   };
 
   const handleNext = () => {
-    router.push('/ask/teto-egen/my');
+    // from=friend 쿼리로 친구 화면에서 넘어왔음을 표시 → /my에서 뒤로가기 버튼 노출 트리거.
+    router.push('/ask/teto-egen/my?from=friend');
   };
 
   // 결과 화면 (vote 직후 또는 이미 참여한 사용자)
   if (submittedVote && friendVotes) {
-    const ownerName = ownerDisplayName || meta.displayName;
+    const ownerName = ownerDisplayName || meta.ownerDisplayName;
+    // 친구의 답이 owner 본인의 자기평가와 일치하는지 — owner 자기평가가 없으면 verdict 미노출.
+    const verdict: 'hit' | 'miss' | null = ownerSelfAnswer
+      ? submittedVote === ownerSelfAnswer
+        ? 'hit'
+        : 'miss'
+      : null;
     return (
       <>
         <TetoEgenLayout showClose>
           <div className={styles.resultBody}>
+            {verdict && (
+              <section
+                className={`${styles.verdictHero} ${verdict === 'hit' ? styles.verdictHit : styles.verdictMiss}`}
+              >
+                <span
+                  className={`${styles.verdictBadge} ${verdict === 'hit' ? styles.verdictBadgeHit : ''}`}
+                >
+                  {verdict === 'hit' ? (
+                    <CheckIcon width={14} height={14} />
+                  ) : (
+                    <SparkleIcon className={styles.verdictBadgeIcon} />
+                  )}
+                  <span>{verdict === 'hit' ? '적중' : '의외'}</span>
+                </span>
+                <h2 className={styles.verdictHeadline}>
+                  {verdict === 'hit' ? (
+                    <>
+                      <strong>맞췄어요!</strong>
+                      <br />
+                      {ownerName}님 본인의 답과 같아요
+                    </>
+                  ) : (
+                    <>
+                      <strong>틀렸어요</strong>
+                      <br />
+                      {ownerName}님은 본인을 {labelOf(ownerSelfAnswer!)}
+                      {ownerSelfAnswer === 'EGEN' ? '이라고' : '라고'} 봤어요
+                    </>
+                  )}
+                </h2>
+              </section>
+            )}
+
             <div className={styles.answersGroup}>
               <AnswerPairRow
                 left={{
@@ -141,9 +189,12 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
 
             <div className={styles.nextArea}>
               <button type="button" className={styles.nextCta} onClick={handleNext}>
-                다음
+                {myLink.isLoading
+                  ? '내 결과로 가기'
+                  : myLink.data
+                    ? '내 결과 보러 가기'
+                    : '나도 투표 받아보기'}
               </button>
-              <p className={styles.nextHint}>당신은 어떤 사람일까요?</p>
             </div>
           </div>
         </TetoEgenLayout>
@@ -167,12 +218,12 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
         <BinaryChoiceCard
           question={
             <>
-              <strong>{meta.displayName}</strong>님은
+              <strong>{meta.ownerDisplayName}</strong>님은
               <br />
               테토인가요? 에겐인가요?
             </>
           }
-          helper={`답하면 ${meta.displayName}님 + 친구들의 답변이 공개됩니다`}
+          helper={`답하면 ${meta.ownerDisplayName}님 + 친구들의 답변이 공개됩니다`}
           left={{ value: 'TETO', label: '테토' }}
           right={{ value: 'EGEN', label: '에겐' }}
           onSelect={(v) => handleSelect(v as TetoEgenAnswer)}

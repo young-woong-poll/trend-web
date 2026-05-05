@@ -56,3 +56,6 @@ export {
   useUnreadNotificationCount,
   useMarkAllNotificationsRead,
 } from '@/hooks/api/useNotifications';
+
+// Migration Status Hook
+export { migrationStatusKeys, useMigrationStatus } from '@/hooks/api/useMigrationStatus';

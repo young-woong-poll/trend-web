@@ -45,6 +45,10 @@
       "description": "번들(가치관 테스트) API"
     },
     {
+      "name": "Ask Teto/Egen",
+      "description": "H3 친구 평가 (테토/에겐)"
+    },
+    {
       "name": "CompareLink",
       "description": "비교 링크 API"
     },
@@ -1874,6 +1878,134 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/BaseResponseKakaoLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ask/teto-egen/links": {
+      "post": {
+        "tags": ["Ask Teto/Egen"],
+        "summary": "본인 링크 생성 (API 2, 로그인 필수)",
+        "operationId": "createLink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAskLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAskCreateLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ask/teto-egen/friend/{token}/vote": {
+      "post": {
+        "tags": ["Ask Teto/Egen"],
+        "summary": "친구 평가 제출 (API 5, 로그인 필수)",
+        "operationId": "submitVote",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskVoteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAskVoteResponse"
                 }
               }
             }
@@ -4885,6 +5017,223 @@
         }
       }
     },
+    "/api/v1/auth/migration-status": {
+      "get": {
+        "tags": ["auth-controller"],
+        "summary": "TKUID에 묶인 마이그레이션 가능한 익명 데이터 존재 여부 조회",
+        "description": "회원가입 prompt 분기용. x-tku-id 헤더가 비어있으면 hasMigratableData=false.",
+        "operationId": "getMigrationStatus",
+        "parameters": [
+          {
+            "name": "x-tku-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseMigrationStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ask/teto-egen/links/me": {
+      "get": {
+        "tags": ["Ask Teto/Egen"],
+        "summary": "본인 링크 + 결과 조회 (API 3, 로그인 필수)",
+        "operationId": "getMyLink",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAskMyLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ask/teto-egen/friend/{token}": {
+      "get": {
+        "tags": ["Ask Teto/Egen"],
+        "summary": "친구 평가 진입 메타 (API 4, 비로그인 OK)",
+        "operationId": "getFriendMeta",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAskFriendMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ask/teto-egen/count": {
+      "get": {
+        "tags": ["Ask Teto/Egen"],
+        "summary": "참여자 수 조회 (API 1, 비로그인 OK)",
+        "operationId": "getCount",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAskCountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/api/v1/suggestions": {
       "get": {
         "tags": ["Admin Suggestion"],
@@ -6263,6 +6612,144 @@
         },
         "description": "응답 데이터"
       },
+      "CreateAskLinkRequest": {
+        "required": ["displayName", "selfAnswer", "selfPrediction"],
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "maxLength": 12,
+            "minLength": 1,
+            "type": "string"
+          },
+          "selfAnswer": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "selfPrediction": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          }
+        }
+      },
+      "AskCreateLinkResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAskCreateLinkResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskCreateLinkResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "AskVoteRequest": {
+        "required": ["vote"],
+        "type": "object",
+        "properties": {
+          "vote": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          }
+        }
+      },
+      "AskFriendVotesPayload": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tetoCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "egenCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "voters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AskVoterPayload"
+            }
+          }
+        }
+      },
+      "AskVoteResponse": {
+        "type": "object",
+        "properties": {
+          "myVote": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "ownerDisplayName": {
+            "type": "string"
+          },
+          "ownerSelfAnswer": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "friendVotes": {
+            "$ref": "#/components/schemas/AskFriendVotesPayload"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "AskVoterPayload": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "vote": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "votedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BaseResponseAskVoteResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskVoteResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
       "ReviewSuggestionRequest": {
         "type": "object",
         "properties": {
@@ -7024,7 +7511,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["COMMENT_LIKE", "COMMENT_REPLY", "COMPARE_LINK_JOIN"]
+            "enum": ["COMMENT_LIKE", "COMMENT_REPLY", "COMPARE_LINK_JOIN", "ASK_TETO_EGEN_VOTE"]
           },
           "actorNickname": {
             "type": "string"
@@ -8172,6 +8659,46 @@
         },
         "description": "응답 데이터"
       },
+      "BaseResponseMigrationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MigrationStatusResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "MigrationStatusResponse": {
+        "type": "object",
+        "properties": {
+          "hasMigratableData": {
+            "type": "boolean"
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "likeCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "commentCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
       "BaseResponseUserResponse": {
         "type": "object",
         "properties": {
@@ -8187,6 +8714,122 @@
           },
           "data": {
             "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "AskMyLinkResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "selfAnswer": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "selfPrediction": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "friendVotes": {
+            "$ref": "#/components/schemas/AskFriendVotesPayload"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAskMyLinkResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskMyLinkResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "AskFriendMetaResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "ownerDisplayName": {
+            "type": "string"
+          },
+          "isOwn": {
+            "type": "boolean"
+          },
+          "myVote": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "ownerSelfAnswer": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "friendVotes": {
+            "$ref": "#/components/schemas/AskFriendVotesPayload"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAskFriendMetaResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskFriendMetaResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "AskCountResponse": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAskCountResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AskCountResponse"
           }
         },
         "description": "공통 응답 포맷"

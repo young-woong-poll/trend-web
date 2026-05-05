@@ -10,6 +10,7 @@
 }
 
 // X 버튼은 fixed로 떠 있게 — 헤더 영역이 콘텐츠 위쪽 공간을 차지하지 않음
+// MainHeader와 동일한 max-width로 PC에서도 끝까지 늘어나게.
 .header {
   position: fixed;
   top: 0;
@@ -20,9 +21,13 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 480px;
+  max-width: 1350px;
   padding: $spacing-8 $spacing-16;
   pointer-events: none; // 빈 공간은 클릭 통과
+
+  @media (min-width: $breakpoint-tablet) {
+    padding: $spacing-8 $spacing-24;
+  }
 }
 
 .leadingSlot,

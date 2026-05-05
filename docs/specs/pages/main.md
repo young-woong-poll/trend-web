@@ -27,15 +27,16 @@ MainContent (pageWrapper: padding-top 98px)
 
 > 상세 스펙: [tab.md](tab.md)
 
-Polymarket 스타일 단일 탭 바. 필터탭과 카테고리탭을 하나의 가로 스크롤 바에 통합.
+Polymarket 스타일 단일 탭 바. 카테고리탭과 필터탭을 하나의 가로 스크롤 바에 통합.
 
 ```
-[ ✦ NEW   🔥 HOT   ☑ MY  │  연애  결혼  관계  재테크  직장  라이프  트렌드 ]
+[ 💘 소개팅   ❓ 민폐 논란  │  ✦ NEW   🔥 TOP   ☑ 가치관 비교   ☑ MY ]
 ```
 
-- 필터탭(NEW/HOT/MY) + 구분자(│) + 카테고리탭이 하나의 `<nav>` 안에 배치
+- 카테고리탭(소개팅 / 민폐 논란) + 구분자(│) + 필터탭(NEW/TOP/가치관 비교/MY)이 하나의 `<nav>` 안에 배치
+- 카테고리 탭이 필터 탭 앞에 위치
 - `position: fixed`, `top: 56px`, 가로 스크롤, 스크롤바 숨김
-- 상호 배타적 선택, 기본값: NEW
+- 상호 배타적 선택, 기본값: 소개팅 (카테고리 슬러그 `dating`)
 - 탭 전환 시 스크롤 최상단 초기화 + 새 데이터 fetch
 - API 파라미터 매핑:
   - NEW: `sort=latest` (최신순)
@@ -44,6 +45,7 @@ Polymarket 스타일 단일 탭 바. 필터탭과 카테고리탭을 하나의 �
   - 카테고리: `category={slug}&sort=popular` (카테고리별 인기순)
 - 카테고리 데이터: `GET /api/v1/hotpicks/categories` API 동적 로드 (폴백: 하드코딩 상수)
 - API 응답의 "전체"(`slug: 'all'`) 카테고리는 제외 (NEW 탭이 대체)
+- 추가로 `src/constants/category.ts`의 `VISIBLE_CATEGORY_SLUGS` 화이트리스트로 필터링 — 현재 `['dating', 'nuisance']` 노출. 직접 URL 진입(`/?category=love` 등)은 차단하지 않음 (SEO 보존)
 
 ### 탭별 빈 상태
 
@@ -210,6 +212,7 @@ Polymarket 스타일 단일 탭 바. 필터탭과 카테고리탭을 하나의 �
 
 ## Changelog
 
+- 2026-05-03: 카테고리 정책 c' — 화이트리스트로 "소개팅" 단일 노출, 디폴트 탭을 소개팅 카테고리로 변경, 카테고리 탭을 필터탭 앞으로 이동 (전략 PRD: docs/strategy/2026-05-03-content-niche-pivot.md)
 - 2026-03-22: 탭 리디자인 — Polymarket 스타일 단일 탭 바 (전체/HOT/내투표/마감 → NEW/HOT/MY + 카테고리), FilterBar/PeriodSelector/CategoryFilter 삭제, 헤더 fixed 전환
 - 2026-03-21: 반응형 Masonry 레이아웃 추가 (섹션 6), 페이지 사이즈 20→18 변경
 - 2026-03-01: 초기 작성 (00-overview.md에서 분리)

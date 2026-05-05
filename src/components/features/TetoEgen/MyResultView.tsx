@@ -1,9 +1,11 @@
 'use client';
 
-import { type FC, useEffect, useRef } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
+import BackIcon from '@/assets/icon/BackIcon';
+import CheckIcon from '@/assets/icon/CheckIcon';
 import CopyIcon from '@/assets/icon/CopyIcon';
 import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersCollapse';
@@ -14,9 +16,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useToast } from '@/hooks/useToast';
 import { trackAskOwnerResultView } from '@/lib/analytics';
+import { buildFriendShareUrl } from '@/types/ask-teto-egen';
 
 const MyResultView: FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // 친구 결과 화면에서 [내 결과 보러 가기]/[나도 투표 받아보기]로 넘어온 경우에만 back 버튼 노출.
+  const fromFriend = searchParams.get('from') === 'friend';
   const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
   const { toast, showToast } = useToast();
 
@@ -25,7 +31,7 @@ const MyResultView: FC = () => {
     if (!isAuthLoading && !isLoggedIn) {
       router.replace('/ask/teto-egen');
       // 다음 렌더에서 requireLogin
-      window.setTimeout(() => requireLogin('default'), 100);
+      window.setTimeout(() => requireLogin('ask'), 100);
     }
   }, [isAuthLoading, isLoggedIn, requireLogin, router]);
 
@@ -62,13 +68,21 @@ const MyResultView: FC = () => {
     trackedRef.current = true;
   }, [data]);
 
+  // 복사 직후 1.8초간 [링크 복사하기] 버튼이 [✓ 복사됐어요!] 상태로 morphing.
+  const [isCopied, setIsCopied] = useState(false);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleCopy = async () => {
     if (!data) {
       return;
     }
     try {
-      await navigator.clipboard.writeText(data.shareUrl);
-      showToast('링크가 복사됐어요');
+      await navigator.clipboard.writeText(buildFriendShareUrl(data.token));
+      setIsCopied(true);
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+      copiedTimerRef.current = setTimeout(() => setIsCopied(false), 1800);
     } catch {
       showToast('복사에 실패했어요');
     }
@@ -112,6 +126,20 @@ const MyResultView: FC = () => {
     <>
       <TetoEgenLayout>
         <div className={styles.stack}>
+          <header className={styles.identityHeader}>
+            {fromFriend && (
+              <button
+                type="button"
+                className={styles.identityBackButton}
+                onClick={() => router.back()}
+                aria-label="이전 화면으로"
+              >
+                <BackIcon width={20} height={20} className={styles.identityBackIcon} />
+              </button>
+            )}
+            <h3 className={styles.identityTitle}>내 결과</h3>
+          </header>
+
           <ResultHeroCard
             variant={variant}
             majorityAnswer={majorityAnswer}
@@ -136,12 +164,26 @@ const MyResultView: FC = () => {
           </div>
 
           <div className={styles.shareArea}>
-            <div className={styles.linkBox}>
-              <span className={styles.linkText}>{data.shareUrl}</span>
+            <div className={styles.shareHeader}>
+              <h3 className={styles.shareTitle}>
+                {isEmpty ? '친구에게 공유하기' : '더 많은 친구들에게 투표받기'}
+              </h3>
             </div>
-            <button type="button" className={styles.cta} onClick={handleCopy}>
-              <CopyIcon className={styles.copyIcon} />
-              <span className={styles.ctaLabel}>링크 복사하기</span>
+            <div className={styles.linkBox}>
+              <span className={styles.linkText}>{buildFriendShareUrl(data.token)}</span>
+            </div>
+            <button
+              type="button"
+              className={`${styles.cta} ${isCopied ? styles.ctaCopied : ''}`}
+              onClick={handleCopy}
+              aria-live="polite"
+            >
+              {isCopied ? (
+                <CheckIcon width={18} height={18} />
+              ) : (
+                <CopyIcon className={styles.copyIcon} />
+              )}
+              <span className={styles.ctaLabel}>{isCopied ? '복사완료!' : '링크 복사하기'}</span>
             </button>
             <button
               type="button"

@@ -9,6 +9,9 @@ import styles from '@/components/features/TetoEgen/LinkShareCard.module.scss';
 type LinkShareCardProps = {
   shareUrl: string;
   onCopy: () => void;
+  // 복사 성공 직후 잠시 true → 버튼이 "복사됐어요!" 상태로 morphing.
+  // 부모가 토글/타이머 관리.
+  isCopied?: boolean;
   headline?: ReactNode;
   sub?: string;
 };
@@ -16,6 +19,7 @@ type LinkShareCardProps = {
 const LinkShareCard: FC<LinkShareCardProps> = ({
   shareUrl,
   onCopy,
+  isCopied = false,
   headline = (
     <>
       <strong>공유 링크</strong>가 준비됐어요
@@ -37,9 +41,14 @@ const LinkShareCard: FC<LinkShareCardProps> = ({
       <span className={styles.linkText}>{shareUrl}</span>
     </div>
 
-    <button type="button" className={styles.cta} onClick={onCopy}>
-      <CopyIcon className={styles.copyIcon} />
-      <span className={styles.ctaLabel}>링크 복사하기</span>
+    <button
+      type="button"
+      className={`${styles.cta} ${isCopied ? styles.ctaCopied : ''}`}
+      onClick={onCopy}
+      aria-live="polite"
+    >
+      {isCopied ? <CheckIcon width={18} height={18} /> : <CopyIcon className={styles.copyIcon} />}
+      <span className={styles.ctaLabel}>{isCopied ? '복사됐어요!' : '링크 복사하기'}</span>
     </button>
   </div>
 );

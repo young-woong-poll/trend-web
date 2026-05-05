@@ -12,13 +12,13 @@ type LayoutProps = {
 
 type FriendMetaApiResponse = {
   data?: {
-    displayName?: string;
+    ownerDisplayName?: string;
   };
 };
 
 /**
- * 토큰으로 BE에 displayName을 조회한다.
- * - 서버 컴포넌트에서 호출 → 인증 쿠키 미전달이 정상. friend meta 엔드포인트는 displayName을 비인증으로도 반환한다.
+ * 토큰으로 BE에 ownerDisplayName을 조회한다.
+ * - 서버 컴포넌트에서 호출 → 인증 쿠키 미전달이 정상. friend meta 엔드포인트는 ownerDisplayName을 비인증으로도 반환한다.
  * - 64초 단위로 revalidate. 만료된 토큰일 경우 fallback name으로 처리.
  */
 async function fetchDisplayName(token: string): Promise<string> {
@@ -31,7 +31,7 @@ async function fetchDisplayName(token: string): Promise<string> {
       return FALLBACK_NAME;
     }
     const json = (await res.json()) as FriendMetaApiResponse;
-    return json.data?.displayName ?? FALLBACK_NAME;
+    return json.data?.ownerDisplayName ?? FALLBACK_NAME;
   } catch {
     return FALLBACK_NAME;
   }

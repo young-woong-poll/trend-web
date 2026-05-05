@@ -78,3 +78,45 @@ export const useMarkAllNotificationsRead = () => {
     },
   });
 };
+
+/**
+ * 단일 알림 클릭 시의 낙관 read 처리.
+ * BE에 per-item read 엔드포인트가 없으므로 캐시만 패치 — 다음 refetch 때 서버 상태로 되돌아갈 수 있음.
+ * 그래도 클릭 시점의 시각적 피드백을 위해 사용한다.
+ */
+export const useMarkNotificationReadLocally = () => {
+  const queryClient = useQueryClient();
+
+  return (id: number) => {
+    queryClient.setQueryData<{ pages: NotificationListResponse[] }>(
+      notificationKeys.list(),
+      (old) => {
+        if (!old) {
+          return old;
+        }
+        let didMark = false;
+        const next = {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            notifications: (page.notifications ?? []).map((n) => {
+              if (n.id === id && n.read === false) {
+                didMark = true;
+                return { ...n, read: true };
+              }
+              return n;
+            }),
+          })),
+        };
+        if (!didMark) {
+          return old;
+        }
+        // unread count도 1 감소
+        queryClient.setQueryData<UnreadCountResponse>(notificationKeys.unreadCount(), (prev) => ({
+          count: Math.max(0, (prev?.count ?? 1) - 1),
+        }));
+        return next;
+      }
+    );
+  };
+};

@@ -30,7 +30,7 @@ export default function AskTetoEgenMyPage() {
     }
     if (!isLoggedIn) {
       router.replace('/ask/teto-egen');
-      window.setTimeout(() => requireLogin('default'), 100);
+      window.setTimeout(() => requireLogin('ask'), 100);
       return;
     }
     if (!myLinkFetched) {
