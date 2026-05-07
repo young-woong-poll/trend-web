@@ -3,8 +3,8 @@
 .repliesList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px 0 8px 32px;
+  gap: 0;
+  padding: 0 0 0 32px;
   // YouTube 패턴: 들여쓰기는 padding-left만, 좌측 세로 라인 없음
 }
 
@@ -12,10 +12,10 @@
 .loading {
   font-size: 13px;
   color: $text-tertiary;
-  padding: 8px 0 8px 32px;
+  padding: 4px 0 4px 32px;
 }
 
-.loadMoreButton {
+.toggleButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -44,8 +44,13 @@
   }
 }
 
-.loadMoreChevron {
+.toggleChevron {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+  transition: transform 0.2s;
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
 }

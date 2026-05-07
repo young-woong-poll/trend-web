@@ -5,19 +5,20 @@ import { type FC } from 'react';
 import LikeIcon from '@/assets/icon/LikeIcon';
 import ProfileAvatar from '@/components/common/ProfileAvatar/ProfileAvatar';
 import styles from '@/components/features/Hotpick/CommentModal/CommentItem.module.scss';
+import { CommentMenu } from '@/components/features/Hotpick/CommentModal/CommentMenu';
 import { getRelativeTime, sanitizeComment } from '@/lib/utils';
 import type { CommentItem as CommentItemType } from '@/types/comment';
 
 interface CommentItemProps {
   comment: CommentItemType;
-  /** 'comment' (기본): 일반 댓글, 'reply': 대댓글 (들여쓰기 + 답글 버튼 숨김) */
+  /** 'comment' (기본): 일반 댓글, 'reply': 대댓글 (들여쓰기) */
   variant?: 'comment' | 'reply';
   /** 답글 작성 폼 열린 상태 */
   replyFormOpen?: boolean;
   onLikeClick: (commentId: string, liked: boolean) => void;
   onEditClick: (comment: CommentItemType) => void;
   onDeleteClick: (comment: CommentItemType) => void;
-  /** "답글" 버튼 — 댓글일 때만 노출 (대댓글의 대댓글은 미지원) */
+  /** "답글" 버튼 — 댓글/답글 모두 노출 가능. 클릭 시 부모 commentId의 답글 폼 토글 */
   onReplyClick?: () => void;
 }
 
@@ -40,6 +41,8 @@ export const CommentItem: FC<CommentItemProps> = ({
   const isRegisteredUser = !!comment.profileColor;
   const isReply = variant === 'reply';
   const isWithdrawnUser = !comment.nickname;
+  // TODO: 백엔드에서 isMine 필드 지원되면 (!isRegisteredUser || comment.isMine)으로 복구
+  const canManage = !isRegisteredUser;
 
   return (
     <div className={`${styles.commentItem} ${isReply ? styles.commentItemReply : ''}`}>
@@ -60,6 +63,12 @@ export const CommentItem: FC<CommentItemProps> = ({
             <span className={styles.edited}> (수정됨)</span>
           )}
         </span>
+        {canManage && (
+          <CommentMenu
+            onEdit={() => onEditClick(comment)}
+            onDelete={() => onDeleteClick(comment)}
+          />
+        )}
       </div>
 
       <p className={styles.content}>{sanitizeComment(comment.content ?? '')}</p>
@@ -75,38 +84,16 @@ export const CommentItem: FC<CommentItemProps> = ({
           <span className={styles.likeCount}>{formatLikeCount(comment.likeCount)}</span>
         </button>
 
-        <div className={styles.actionButtons}>
-          {!isReply && onReplyClick && (
-            <button
-              type="button"
-              className={styles.replyButton}
-              onClick={onReplyClick}
-              aria-expanded={replyFormOpen}
-            >
-              {replyFormOpen ? '닫기' : '답글'}
-            </button>
-          )}
-          {(!isRegisteredUser || comment.isMine) && (
-            <>
-              <button
-                type="button"
-                className={styles.editButton}
-                onClick={() => onEditClick(comment)}
-                aria-label="댓글 수정"
-              >
-                수정
-              </button>
-              <button
-                type="button"
-                className={styles.deleteButton}
-                onClick={() => onDeleteClick(comment)}
-                aria-label="댓글 삭제"
-              >
-                삭제
-              </button>
-            </>
-          )}
-        </div>
+        {onReplyClick && (
+          <button
+            type="button"
+            className={styles.replyButton}
+            onClick={onReplyClick}
+            aria-expanded={replyFormOpen}
+          >
+            {replyFormOpen ? '닫기' : '답글'}
+          </button>
+        )}
       </div>
     </div>
   );

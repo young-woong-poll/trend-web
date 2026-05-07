@@ -40,32 +40,42 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
   const [openReplyForms, setOpenReplyForms] = useState<Set<string>>(new Set());
 
-  const toggleReplies = (commentId: string) => {
+  const expandReplies = (commentId: string) => {
     setExpandedReplies((prev) => {
-      const next = new Set(prev);
-      if (next.has(commentId)) {
-        next.delete(commentId);
-      } else {
-        next.add(commentId);
+      if (prev.has(commentId)) {
+        return prev;
       }
+      const next = new Set(prev);
+      next.add(commentId);
       return next;
     });
   };
 
-  const toggleReplyForm = (commentId: string) => {
+  const collapseReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  };
+
+  const toggleReplyForm = (commentId: string, replyCount: number) => {
     setOpenReplyForms((prev) => {
       const next = new Set(prev);
       if (next.has(commentId)) {
         next.delete(commentId);
       } else {
         next.add(commentId);
+        if (replyCount > 0) {
+          expandReplies(commentId);
+        }
       }
       return next;
     });
   };
 
   const handleReplySuccess = (commentId: string) => {
-    setExpandedReplies((prev) => new Set(prev).add(commentId));
+    expandReplies(commentId);
     setOpenReplyForms((prev) => {
       const next = new Set(prev);
       next.delete(commentId);
@@ -77,10 +87,8 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
   const { isLoggedIn } = useAuth();
   const tkuId = getTKUID({ isLoggedIn });
-  const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ slug, electionId, sort, size: 5, tkuId });
-
-  const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
 
   const { showToast } = useModal();
   const { handleLikeClick } = useCommentLike(slug, electionId, sort, {
@@ -107,7 +115,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
 
   // ── 댓글 목록 렌더링 ──
   const renderCommentList = () => {
-    if (isLoading || isSortChanging) {
+    if (isLoading) {
       return <CommentItemSkeleton count={3} />;
     }
 
@@ -125,11 +133,11 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
       <>
         {comments.map((comment) => {
           const id = comment.id ?? '';
+          const replyCount = comment.replyCount ?? 0;
           const isExpanded = expandedReplies.has(id);
           const isFormOpen = openReplyForms.has(id);
-
-          const replyCount = comment.replyCount ?? 0;
           const hasReplyArea = isFormOpen || replyCount > 0;
+          const showAddReplyTrigger = isExpanded && replyCount > 0 && !isFormOpen;
 
           return (
             <div key={id} className={styles.commentGroup}>
@@ -139,37 +147,44 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
                 onLikeClick={handleLikeClick}
                 onEditClick={handleEditRequest}
                 onDeleteClick={handleDeleteRequest}
-                onReplyClick={() => toggleReplyForm(id)}
+                onReplyClick={() => toggleReplyForm(id, replyCount)}
               />
 
               {hasReplyArea && (
                 <div className={styles.replyArea}>
-                  {isFormOpen && (
-                    <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
-                  )}
-
+                  {/* 접힌 상태: "답글 N개" 토글 */}
                   {replyCount > 0 && !isExpanded && (
                     <RepliesToggle
                       replyCount={replyCount}
                       expanded={false}
-                      onClick={() => toggleReplies(id)}
+                      onClick={() => expandReplies(id)}
                     />
                   )}
 
-                  {isExpanded && (
-                    <>
-                      <RepliesList
-                        parentCommentId={id}
-                        onLikeClick={handleLikeClick}
-                        onEditRequest={handleEditRequest}
-                        onDeleteRequest={handleDeleteRequest}
-                      />
-                      <RepliesToggle
-                        replyCount={replyCount}
-                        expanded
-                        onClick={() => toggleReplies(id)}
-                      />
-                    </>
+                  {/* 답글 리스트 위: 폼 또는 "답글 달기" 트리거 */}
+                  {isFormOpen ? (
+                    <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
+                  ) : (
+                    showAddReplyTrigger && (
+                      <button
+                        type="button"
+                        className={styles.addReplyButton}
+                        onClick={() => toggleReplyForm(id, replyCount)}
+                      >
+                        답글 달기
+                      </button>
+                    )
+                  )}
+
+                  {/* 답글 리스트 + 끝의 답글 더보기/숨기기 (RepliesList 내부) */}
+                  {isExpanded && replyCount > 0 && (
+                    <RepliesList
+                      parentCommentId={id}
+                      onLikeClick={handleLikeClick}
+                      onEditRequest={handleEditRequest}
+                      onDeleteRequest={handleDeleteRequest}
+                      onCollapse={() => collapseReplies(id)}
+                    />
                   )}
                 </div>
               )}
