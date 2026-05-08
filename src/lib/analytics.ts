@@ -187,29 +187,9 @@ export function trackBundleResultView(slug: string) {
   track('bundle_result_view', { slug });
 }
 
-/** 비교 링크 생성 */
-export function trackCompareCreate(slug: string, type: 'ONE_TO_ONE' | 'GROUP', source: string) {
-  track('compare_create', { slug, compare_type: type, source });
-}
-
-/** 비교 링크 공유 */
-export function trackCompareShare(
-  slug: string,
-  method: 'kakao' | 'copy',
-  type: 'ONE_TO_ONE' | 'GROUP',
-  source: string
-) {
-  track('compare_share', { slug, method, compare_type: type, source });
-}
-
-/** 비교 랜딩 페이지 조회 */
-export function trackCompareLanding(bundleSlug: string, type: 'ONE_TO_ONE' | 'GROUP') {
-  track('compare_landing', { bundle_slug: bundleSlug, compare_type: type });
-}
-
-/** 1:1 비교 결과 조회 */
-export function trackCompareResult(bundleSlug: string) {
-  track('compare_result', { bundle_slug: bundleSlug });
+/** 비교 링크 생성 (그룹 전용 — 1:1은 2026-04 폐기) */
+export function trackCompareCreate(slug: string, source: string) {
+  track('compare_create', { slug, source });
 }
 
 /** 그룹 비교 결과 조회 */
@@ -324,6 +304,148 @@ export function trackAuthLogout() {
 
 export function trackAuthWithdraw() {
   track('auth_withdraw');
+}
+
+// ──────────────────────────────────────────────────────────
+// 메인 페이지 이벤트 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export type MainTabKind = 'filter' | 'category';
+
+export function trackMainView(params: {
+  tabKind: MainTabKind;
+  tabValue: string;
+  mySubTab?: string;
+}) {
+  track('main_view', {
+    tab_kind: params.tabKind,
+    tab_value: params.tabValue,
+    my_sub_tab: params.mySubTab,
+    page_type: 'main',
+  });
+}
+
+export function trackMainTabChange(params: {
+  fromKind: MainTabKind;
+  fromValue: string;
+  toKind: MainTabKind;
+  toValue: string;
+}) {
+  track('main_tab_change', {
+    from_kind: params.fromKind,
+    from_value: params.fromValue,
+    to_kind: params.toKind,
+    to_value: params.toValue,
+  });
+}
+
+export type CardClickType = 'single' | 'bundle' | 'poll';
+
+export function trackCardClick(params: {
+  cardType: CardClickType;
+  contentId: string;
+  position: number;
+  tabKind: MainTabKind;
+  tabValue: string;
+  categorySlug?: string;
+}) {
+  track('card_click', {
+    card_type: params.cardType,
+    content_id: params.contentId,
+    position: params.position,
+    tab_kind: params.tabKind,
+    tab_value: params.tabValue,
+    category_slug: params.categorySlug,
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// Ask H3 (테토/에겐) 이벤트 헬퍼
+// ──────────────────────────────────────────────────────────
+
+export type AskTopic = 'teto-egen';
+export type AskAnswer = 'TETO' | 'EGEN';
+
+/** 랜딩 진입. entry_point는 querystring `src` 파라미터(있을 시) > referrer 검사 순. */
+export function trackAskView(
+  topic: AskTopic,
+  entryPoint: 'direct' | 'relay' | 'share_link' | 'main_banner'
+) {
+  track('ask_view', { topic, entry_point: entryPoint });
+}
+
+/** 자기 평가 2개 질문 모두 완료 (link create 직전) */
+export function trackAskSelfAnswer(
+  topic: AskTopic,
+  selfAnswer: AskAnswer,
+  selfPrediction: AskAnswer
+) {
+  track('ask_self_answer', {
+    topic,
+    self_answer: selfAnswer,
+    self_prediction: selfPrediction,
+  });
+}
+
+/** 본인 링크 생성 성공 */
+export function trackAskLinkCreate(
+  topic: AskTopic,
+  selfAnswer: AskAnswer,
+  selfPrediction: AskAnswer
+) {
+  track('ask_link_create', {
+    topic,
+    self_answer: selfAnswer,
+    self_prediction: selfPrediction,
+  });
+}
+
+/** 본인 링크 공유 트리거 */
+export function trackAskShareLink(topic: AskTopic, method: 'copy' | 'kakao') {
+  track('ask_share_link', { topic, method });
+}
+
+/** 친구 평가 페이지 진입 — is_own=true면 자기 링크 진입(평가 차단됨) */
+export function trackAskFriendLanding(topic: AskTopic, isOwn: boolean) {
+  track('ask_friend_landing', { topic, is_own: isOwn });
+}
+
+/** 친구 평가 제출 성공 */
+export function trackAskFriendVote(
+  topic: AskTopic,
+  vote: AskAnswer,
+  matchesOwnerSelfAnswer: boolean
+) {
+  track('ask_friend_vote', {
+    topic,
+    vote,
+    matches_owner_self_answer: matchesOwnerSelfAnswer,
+  });
+}
+
+/** 본인 결과 화면 조회 (직접 진입 + 폴링 갱신 + 친구 평가 후 재진입) */
+export function trackAskOwnerResultView(
+  topic: AskTopic,
+  friendCount: number,
+  isMajorityMatch: boolean
+) {
+  track('ask_owner_result_view', {
+    topic,
+    friend_count: friendCount,
+    is_majority_match: isMajorityMatch,
+  });
+}
+
+export type AskBannerPlacement = 'main_new' | 'main_category';
+
+/** 메인 ask promo banner 노출 (mount 시 1회). */
+export function trackAskPromoBannerView(placement: AskBannerPlacement, tabValue?: string) {
+  track('ask_promo_banner_view', { placement, tab_value: tabValue });
+}
+
+/** 메인 ask promo banner 클릭 (Link 클릭 시). */
+export function trackAskPromoBannerClick(placement: AskBannerPlacement, tabValue?: string) {
+  track('ask_promo_banner_click', { placement, tab_value: tabValue });
 }
 
 // ──────────────────────────────────────────────────────────

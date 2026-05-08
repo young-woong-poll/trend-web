@@ -35,14 +35,30 @@ const TRIGGER_MESSAGES: Record<LoginTrigger, string> = {
   bundle: '번들을 풀려면 로그인이 필요해요',
   my: '로그인하고 내 활동을 확인해보세요',
   compare: '', // compare는 별도 UI 사용
+  ask: '정확한 테토/에겐 판별을 위해 \n 로그인이 필요해요 😭',
   default: '로그인하고 더 많은 기능을 이용해보세요',
 };
 
-const BENEFITS = [
+const DEFAULT_BENEFITS = [
   '내 활동이 저장돼요',
   '내 투표 기록을 한눈에 볼 수 있어요',
   '친구와 가치관 비교 가능해요!',
 ];
+
+// 테토/에겐(ask) 전용 — 친구 평가에서 닉네임 식별·중복 차단으로 결과 신뢰도가 올라간다는 점을 강조.
+const ASK_BENEFITS = [
+  '친구 입장에서 누가 답했는지 알 수 있어요',
+  '한 사람이 한 번만 답할 수 있어요',
+  '내 테스트도 만들 수 있어요!',
+];
+
+const BENEFITS_BY_TRIGGER: Partial<Record<LoginTrigger, string[]>> = {
+  ask: ASK_BENEFITS,
+};
+
+const CTA_BY_TRIGGER: Partial<Record<LoginTrigger, string>> = {
+  ask: '카카오로 3초만에 로그인해주시면 감사..',
+};
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -118,7 +134,7 @@ const LoginModalContent = ({
       <p className={styles.triggerMessage}>{TRIGGER_MESSAGES[trigger]}</p>
 
       <ul className={styles.benefitList}>
-        {BENEFITS.map((text) => (
+        {(BENEFITS_BY_TRIGGER[trigger] ?? DEFAULT_BENEFITS).map((text) => (
           <li key={text} className={styles.benefitItem}>
             {text}
           </li>
@@ -127,7 +143,7 @@ const LoginModalContent = ({
 
       <button type="button" className={styles.kakaoButton} onClick={handleKakaoLogin}>
         <KakaoIcon />
-        카카오로 시작하기
+        {CTA_BY_TRIGGER[trigger] ?? '카카오로 시작하기'}
       </button>
 
       {/* <p className={styles.subText}>비로그인으로 투표는 가능해요</p> */}

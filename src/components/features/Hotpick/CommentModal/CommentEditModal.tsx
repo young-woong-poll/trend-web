@@ -128,7 +128,7 @@ export const CommentEditModal: FC<CommentEditModalProps> = ({
           {/* 닉네임 표시 (수정 불가) */}
           <div className={styles.nicknameRow}>
             <span className={styles.nicknameLabel}>작성자:</span>
-            <span className={styles.nickname}>{comment.nickname}</span>
+            <span className={styles.nickname}>{comment.nickname ?? '알수없음'}</span>
           </div>
 
           {/* 댓글 내용 수정 */}

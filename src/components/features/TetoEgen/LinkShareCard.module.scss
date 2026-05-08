@@ -1,0 +1,229 @@
+@use '@/styles/variables' as *;
+
+@keyframes shareFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  padding-top: $spacing-32;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 32px $spacing-24 $spacing-24;
+  border-radius: 20px;
+  background: linear-gradient(
+    160deg,
+    rgba(var(--primary-start-rgb), 0.12) 0%,
+    rgba(var(--primary-end-rgb), 0.08) 55%,
+    rgba($bg-secondary, 0.65) 100%
+  );
+  border: 1px solid rgba(var(--primary-start-rgb), 0.22);
+  overflow: hidden;
+  animation: shareFadeUp 0.4s ease-out both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -40px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(var(--primary-end-rgb), 0.18) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+.indicator {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: $border-rounded;
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.2) 0%,
+    rgba(var(--primary-end-rgb), 0.2) 100%
+  );
+  border: 1px solid rgba(var(--primary-start-rgb), 0.32);
+  color: $white;
+  font-size: 11px;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.headline {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: $font-size-24;
+  font-weight: $font-weight-bold;
+  color: $white;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+  word-break: keep-all;
+  text-align: left;
+
+  strong {
+    font-weight: $font-weight-bold;
+
+    @supports (-webkit-background-clip: text) or (background-clip: text) {
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
+}
+
+.sub {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: $font-size-14;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  line-height: 1.55;
+  letter-spacing: -0.2px;
+  word-break: keep-all;
+  text-align: left;
+}
+
+.linkBox {
+  width: 100%;
+  padding: 14px $spacing-16;
+  background: rgba($bg-secondary, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba($white, 0.06);
+  border-radius: $border-radius-lg;
+  text-align: left;
+  animation: shareFadeUp 0.5s ease-out 0.1s both;
+}
+
+.linkText {
+  display: inline-block;
+  max-width: 100%;
+  font-size: 13px;
+  color: $text-secondary;
+  word-break: break-all;
+  letter-spacing: -0.1px;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes copiedSpring {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  width: 100%;
+  padding: 16px;
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: $border-radius-lg;
+  color: $white;
+  font-size: $font-size-18;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
+  animation: shareFadeUp 0.55s ease-out 0.15s both;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba($white, 0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: shimmer 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+// 복사 성공 직후의 morphing 상태 — 그라디언트는 유지, shimmer 멈춤, 살짝 saturation 보정 + spring.
+.ctaCopied {
+  background: linear-gradient(
+    90deg,
+    rgba(var(--primary-start-rgb), 0.95) 0%,
+    rgba(var(--primary-end-rgb), 0.95) 100%
+  );
+  box-shadow: 0 6px 18px rgba(var(--primary-end-rgb), 0.32);
+  animation:
+    shareFadeUp 0.55s ease-out 0.15s both,
+    copiedSpring 0.4s ease-out;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &::after {
+    animation: none; // shimmer 정지 — 변화가 명확히 인지되도록
+    background: none;
+  }
+}
+
+.copyIcon {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+}
+
+.ctaLabel {
+  position: relative;
+  z-index: 1;
+}

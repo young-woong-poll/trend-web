@@ -1,0 +1,355 @@
+@use '@/styles/variables' as *;
+
+// scroll-snap container = .frame
+.frame {
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background:
+    radial-gradient(
+      circle at 80% 8%,
+      var(--ambient-primary, rgba(77, 139, 255, 0.34)),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 15% 32%,
+      var(--ambient-secondary, rgba(0, 194, 255, 0.18)),
+      transparent 30%
+    ),
+    radial-gradient(circle at 85% 60%, rgba(77, 139, 255, 0.06), transparent 40%), $bg-primary;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// ── Section 1: Hero ──
+.hero {
+  position: relative;
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding: 28px 28px 90px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.backButton {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.backIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.contextChip {
+  position: absolute;
+  top: 22px;
+  right: 16px;
+  z-index: 2;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-secondary;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 12px;
+  border-radius: $border-rounded;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.heroMid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pre {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  font-weight: $font-weight-medium;
+  margin: 0 0 14px;
+
+  strong {
+    color: $white;
+    font-weight: $font-weight-bold;
+  }
+}
+
+.modifier {
+  font-size: $font-size-20;
+  font-weight: $font-weight-semibold;
+  line-height: 1.3;
+  margin: 0 0 4px;
+  color: $text-secondary;
+}
+
+.bigword {
+  font-size: 96px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -3px;
+  margin: 0 0 28px;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.bigwordEmpty {
+  font-size: 30px;
+  font-weight: $font-weight-bold;
+  line-height: 1.3;
+  color: $white;
+  margin: 0 0 28px;
+}
+
+.tag {
+  font-size: 13px;
+  color: $text-tertiary;
+  margin: 0 0 18px;
+
+  strong {
+    color: $white;
+    font-weight: $font-weight-bold;
+  }
+}
+
+.meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.metaLabel {
+  font-size: 11px;
+  color: $text-tertiary;
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
+.metaVal {
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: $white;
+  margin: 0;
+}
+
+.metaDivider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+// sparse(1~2명) 케이스 — 누가 어떻게 답했는지 inline 노출.
+.sparseVoters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sparseVoter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: $border-rounded;
+  font-size: 13px;
+}
+
+.sparseVoterName {
+  color: $white;
+  font-weight: $font-weight-semibold;
+}
+
+.sparseVoterVote {
+  font-size: 11px;
+  font-weight: $font-weight-bold;
+  padding: 2px 8px;
+  border-radius: $border-rounded;
+}
+
+.sparseVoterVoteTeto {
+  background: $teto-blue-dim;
+  color: $teto-blue;
+}
+
+.sparseVoterVoteEgen {
+  background: $egen-red-dim;
+  color: $egen-red;
+}
+
+.heroShare {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.heroShareHint {
+  font-size: 13px;
+  color: $text-secondary;
+  margin: 0 0 12px;
+}
+
+.scrollHint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: $text-tertiary;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.5px;
+  animation: bob 1.8s ease-in-out infinite;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollHint {
+    animation: none;
+  }
+}
+
+// ── Section 2: Detail ──
+.detail {
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding: 48px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  font-size: $font-size-20;
+  font-weight: 800;
+  margin: 0 0 16px;
+  line-height: 1.3;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+
+  .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
+.sectionCount {
+  font-size: 13px;
+  color: $text-tertiary;
+  font-weight: $font-weight-semibold;
+
+  strong {
+    color: $white;
+    font-weight: $font-weight-bold;
+  }
+}
+
+.detailCta {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.ctaPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  background: $primary-gradient;
+  color: $white;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 80px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: $white;
+  padding: 12px 20px;
+  border-radius: $border-rounded;
+  font-size: $font-size-14;
+  z-index: $z-index-tooltip;
+  pointer-events: none;
+}

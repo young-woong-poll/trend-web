@@ -252,7 +252,7 @@ git commit -m "feat(hp-designer): add ux-checklist reference (5-question gate)"
 
 참고: 기존 스펙 스타일을 따름 — [docs/superpowers/specs/2026-04-15-bundle-recommend-section-design.md](../../../../docs/superpowers/specs/2026-04-15-bundle-recommend-section-design.md).
 
-`````markdown
+````markdown
 # 스펙 문서 템플릿
 
 결(Designer)이 스펙 모드에서 새 디자인 스펙 문서를 작성할 때 따르는 템플릿.
@@ -354,7 +354,7 @@ git commit -m "feat(hp-designer): add ux-checklist reference (5-question gate)"
 
 <v2 이후에 할 수 있는 것들. 현재는 하지 않는다는 선언.>
 ```
-`````
+````
 
 ## 사용 방법
 
@@ -491,7 +491,7 @@ git commit -m "feat(hp-designer): add design-inspirations seed (Toss, Polymarket
 
 - [ ] **Step 1: 파일 작성**
 
-`````markdown
+````markdown
 # Workflows — 루틴 B/C + 방향성 결정 & Mock 생성 플레이북
 
 결(Designer)이 모든 모드에서 공통으로 따르는 운영 루틴. 루틴 A는 `knowledge-sources.md` 참조.
@@ -574,7 +574,7 @@ Y / N:
 - **SCSS 파일**: `src/components/<컴포넌트명>.module.scss`
 - **관련 스펙**: `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
 ```
-`````
+````
 
 4. 추가 후에는 간단 요약만 출력 — 전체 파일 내용 재인쇄 금지.
 

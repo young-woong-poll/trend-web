@@ -11,15 +11,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  border-radius: 50%;
-  @include transition(opacity, 0.2s, ease);
+  border-radius: 999px;
+  @include transition(background, 0.15s, ease);
 
   &:hover {
-    opacity: 0.85;
+    background: rgba(255, 255, 255, 0.05);
   }
 }
 

@@ -52,7 +52,7 @@ export default function RootLayout({
             </ModalProvider>
           </QueryProvider>
         </ClientProviders>
-        <GoogleAnalytics gaId="G-CBJFPV9C95" />
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
         <KakaoScript />
       </body>
     </html>

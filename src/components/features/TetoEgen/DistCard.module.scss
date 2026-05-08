@@ -1,0 +1,87 @@
+@use '@/styles/variables' as *;
+
+.root {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.bars {
+  display: flex;
+  gap: 6px;
+  height: 48px;
+  margin-bottom: 14px;
+}
+
+.bar {
+  border-radius: $border-radius-md;
+  position: relative;
+  overflow: hidden;
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+  width: 0;
+}
+
+.barTeto {
+  background: $teto-blue;
+}
+
+.barEgen {
+  background: $egen-red;
+}
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 2.5s ease-in-out infinite 1s;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(200%);
+  }
+}
+
+.legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-14;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name {
+  font-weight: $font-weight-bold;
+  color: $white;
+}
+
+.nameTeto {
+  color: $teto-blue;
+}
+
+.nameEgen {
+  color: $egen-red;
+}
+
+.cnt {
+  color: $text-tertiary;
+  font-size: $font-size-12;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transition: none;
+  }
+  .shimmer {
+    animation: none;
+    display: none;
+  }
+}

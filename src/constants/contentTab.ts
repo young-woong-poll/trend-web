@@ -45,8 +45,12 @@ export const FILTER_TABS: FilterTabItem[] = [
   { type: 'my', label: 'MY' },
 ];
 
-/** 기본 탭 선택 */
-export const DEFAULT_TAB: TabSelection = { kind: 'filter', type: 'new' };
+/** 기본 탭 선택 — 소개팅 카테고리 (2026-05-03 콘텐츠 니치 피벗) */
+export const DEFAULT_TAB = {
+  kind: 'category',
+  slug: 'dating',
+  label: '소개팅',
+} as const;
 
 /** My 탭 하위 탭 */
 export type MySubTabType = 'vote' | 'compare' | 'comments' | 'likes';

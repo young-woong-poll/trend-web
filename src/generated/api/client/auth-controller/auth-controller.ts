@@ -6,6 +6,7 @@
  */
 import type {
   BaseResponseKakaoLoginResponse,
+  BaseResponseMigrationStatusResponse,
   BaseResponseNicknameCheckResponse,
   BaseResponseSignupResponse,
   BaseResponseUserResponse,
@@ -89,6 +90,18 @@ export const checkNickname = (
     options
   );
 };
+/**
+ * 회원가입 prompt 분기용. x-tku-id 헤더가 비어있으면 hasMigratableData=false.
+ * @summary TKUID에 묶인 마이그레이션 가능한 익명 데이터 존재 여부 조회
+ */
+export const getMigrationStatus = (
+  options?: SecondParameter<typeof customInstance<BaseResponseMigrationStatusResponse>>
+) => {
+  return customInstance<BaseResponseMigrationStatusResponse>(
+    { url: `/api/v1/auth/migration-status`, method: 'GET' },
+    options
+  );
+};
 export type SignupResult = NonNullable<Awaited<ReturnType<typeof signup>>>;
 export type RefreshResult = NonNullable<Awaited<ReturnType<typeof refresh>>>;
 export type LogoutResult = NonNullable<Awaited<ReturnType<typeof logout>>>;
@@ -97,3 +110,4 @@ export type GetMeResult = NonNullable<Awaited<ReturnType<typeof getMe>>>;
 export type DeleteMeResult = NonNullable<Awaited<ReturnType<typeof deleteMe>>>;
 export type UpdateProfileResult = NonNullable<Awaited<ReturnType<typeof updateProfile>>>;
 export type CheckNicknameResult = NonNullable<Awaited<ReturnType<typeof checkNickname>>>;
+export type GetMigrationStatusResult = NonNullable<Awaited<ReturnType<typeof getMigrationStatus>>>;

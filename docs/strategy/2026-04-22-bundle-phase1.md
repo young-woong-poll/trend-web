@@ -2,10 +2,12 @@
 
 작성일: 2026-04-22
 작성자: 웅일 + 병훈(hp-ceo)
-상태: 확정 / 실행 중
+상태: 보류 (2026-04-25, H3 검증으로 자원 전환)
 관련 문서:
 
 - 첫 번들 인터뷰: [docs/feedback/260422.md](../feedback/260422.md)
+- 중간 회고 (본질 재정의): [retro-2026-04-25-bundle-essence.md](./retro-2026-04-25-bundle-essence.md)
+- 후속 전략(자원 이동): [2026-04-25-h3-friend-evaluation.md](./2026-04-25-h3-friend-evaluation.md)
 - 번들 학습 메모리: `.claude/projects/-Users-kimwoongil-Desktop-woongs-trend-web/memory/project_hotpick_bundle_learnings.md`
 - 사업 전략 베이스라인: `.claude/projects/-Users-kimwoongil-Desktop-woongs-trend-web/memory/project_hotpick_strategic_state.md`
 
@@ -170,3 +172,5 @@
 ## 변경 이력
 
 - 2026-04-22: 초안 작성. Phase 1 확정.
+- 2026-04-25: 중간 회고([retro-2026-04-25-bundle-essence.md](./retro-2026-04-25-bundle-essence.md))로 본질 가설 재정의. 같은 날 H3 PRD([2026-04-25-h3-friend-evaluation.md](./2026-04-25-h3-friend-evaluation.md)) 확정. Phase 1은 옵션 3(즉시 보류)으로 결정 — H3 검증으로 FE/콘텐츠 자원 전환. 디자인(결)·BE 동료 진행분은 웅일이 직접 보류 메시지 전달. H3 결과(2026-05-27 회고) 후 재검토.
+- 2026-04-26: Phase 1 작업물 브랜치 격리 — `feature/renewal-6` 브랜치에 MyResultView 컴포넌트 일체 + 본 결정 문서가 가리키는 스펙·플랜 보존. 마지막 커밋 `039d472` ("결과 개선중 보류"). 새 작업 브랜치 `feature/h3`로 체크아웃하여 H3 트랙 시작. 재활용 시 cherry-pick 또는 브랜치 머지로 복원 가능.

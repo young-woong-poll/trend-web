@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>Teto-Egen 결과 — C4 채택 mock</title>
+    <style>
+      :root {
+        --primary-start: #ff00ff;
+        --primary-end: #ff4500;
+        --primary-start-rgb: 255, 0, 255;
+        --primary-end-rgb: 255, 69, 0;
+        --attention: #dfff00;
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #2c2c2c;
+        --white: #ffffff;
+        --text-secondary: #d1d1d1;
+        --text-tertiary: #8a8a8a;
+        --border-placeholder: #3a3a3a;
+        --teto: #4d8bff;
+        --teto-dim: rgba(77, 139, 255, 0.18);
+        --egen: #ff4d6d;
+        --egen-dim: rgba(255, 77, 109, 0.18);
+        --hit: #28d164;
+        --miss: #ffb547;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #050505;
+        color: var(--white);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto,
+          sans-serif;
+        letter-spacing: -0.2px;
+        scroll-behavior: smooth;
+      }
+
+      /* ── 모바일 frame = scroll snap container (패턴 A) ── */
+      .frame {
+        max-width: 420px;
+        height: 100dvh;
+        margin: 0 auto;
+        background: var(--bg-primary);
+        position: relative;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .frame::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* ── 공통: 스크롤 reveal ── */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-delay-1 {
+        transition-delay: 0.08s;
+      }
+      .reveal-delay-2 {
+        transition-delay: 0.18s;
+      }
+      .reveal-delay-3 {
+        transition-delay: 0.32s;
+      }
+
+      /* ╔══════════════════════════════════════════════════════╗
+         ║ 페이지 전체 — hero에서 시작한 배경 톤이 끝까지 자연스럽게 이어짐  ║
+         ╚══════════════════════════════════════════════════════╝ */
+
+      .page-bg {
+        background:
+          radial-gradient(
+            circle at 80% 8%,
+            rgba(77, 139, 255, 0.34),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 15% 32%,
+            rgba(0, 194, 255, 0.18),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 85% 60%,
+            rgba(77, 139, 255, 0.06),
+            transparent 40%
+          ),
+          var(--bg-primary);
+      }
+
+      /* ╔══════════════════════════════════════════════════════╗
+         ║ Section 1 — Hero (C4 패턴 그대로)                        ║
+         ╚══════════════════════════════════════════════════════╝ */
+
+      .hero {
+        position: relative;
+        height: 100dvh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        padding: 28px 28px 90px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .hero-mid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-pre {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 14px;
+      }
+      .hero-pre strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+
+      .hero-modifier {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-bottom: 6px;
+        color: var(--white);
+      }
+
+      .hero-bigword {
+        font-size: 96px;
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -3px;
+        background: linear-gradient(135deg, #4d8bff 10%, #00c2ff 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 28px;
+        text-shadow: 0 8px 40px rgba(77, 139, 255, 0.4);
+      }
+
+      /* — 메타 1줄: 10명 중 7명 동의 — */
+      .hero-tag {
+        font-size: 13px;
+        color: var(--text-tertiary);
+        margin-bottom: 18px;
+      }
+      .hero-tag strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+
+      /* — 메타 가로 배치: 내 예상 · 실제 · 예상 빗나감 — */
+      .hero-meta {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 18px;
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+      .hero-meta-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
+      .hero-meta-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        letter-spacing: 0.3px;
+      }
+      .hero-meta-val {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--white);
+      }
+      .hero-meta-divider {
+        width: 1px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .hero-scroll-hint {
+        position: absolute;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--text-tertiary);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        animation: bob 1.8s ease-in-out infinite;
+      }
+      .hero-scroll-hint svg {
+        width: 16px;
+        height: 16px;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translate(-50%, 0);
+        }
+        50% {
+          transform: translate(-50%, 6px);
+        }
+      }
+
+      /* hero 진입 모션 — 위→아래 순차 등장 (페이지 로드 시 1회) */
+      .hero-bigword-anim {
+        opacity: 0;
+        transform: scale(0.85) translateY(8px);
+        animation: heroPop 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+      }
+      @keyframes heroPop {
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .hero-fade-in {
+        opacity: 0;
+        animation: fadeIn 0.7s ease-out 0s forwards;
+      }
+      .hero-fade-in.d2 {
+        animation-delay: 0.6s;
+      }
+      .hero-fade-in.d3 {
+        animation-delay: 0.6s;
+      }
+      .hero-fade-in.d4 {
+        animation-delay: 0.9s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ╔══════════════════════════════════════════════════════╗
+         ║ Section 2 — Detail (톤 통일, 분포 + 친구 리스트만)         ║
+         ╚══════════════════════════════════════════════════════╝ */
+
+      .detail {
+        height: 100dvh;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        padding: 48px 24px 24px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .section-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 16px;
+        line-height: 1.3;
+      }
+      .section-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        flex-shrink: 0;
+      }
+      .section-head .section-title {
+        margin-bottom: 0;
+      }
+      .section-count {
+        font-size: 13px;
+        color: var(--text-tertiary);
+        font-weight: 600;
+      }
+      .section-count strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+
+      /* — 분포 카드 — */
+      .dist-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        padding: 16px 18px;
+        margin-bottom: 24px;
+        flex-shrink: 0;
+      }
+      .dist-bars {
+        display: flex;
+        gap: 6px;
+        height: 48px;
+        margin-bottom: 14px;
+      }
+      .dist-bar {
+        background: var(--teto);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+        transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+        width: 0;
+      }
+      .dist-bar.e {
+        background: var(--egen);
+      }
+      .reveal.in .dist-bar.t {
+        width: 70%;
+      }
+      .reveal.in .dist-bar.e {
+        width: 30%;
+      }
+      .dist-bar-shimmer {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transform: translateX(-100%);
+        animation: shimmer 2.5s ease-in-out infinite 1s;
+      }
+      @keyframes shimmer {
+        to {
+          transform: translateX(200%);
+        }
+      }
+      .dist-legend {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+      }
+      .dist-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dist-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .dist-dot.t {
+        background: var(--teto);
+      }
+      .dist-dot.e {
+        background: var(--egen);
+      }
+      .dist-name {
+        font-weight: 700;
+        color: var(--white);
+      }
+      .dist-name.t {
+        color: var(--teto);
+      }
+      .dist-name.e {
+        color: var(--egen);
+      }
+      .dist-cnt {
+        color: var(--text-tertiary);
+        font-size: 12px;
+      }
+
+      /* — 친구 리스트 (적정 높이 + inner scroll, CTA와 여백 확보) — */
+      .voter-list {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 14px;
+        padding: 4px 16px;
+        flex: 0 1 auto;
+        max-height: 320px;
+        overflow-y: auto;
+        position: relative;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+        overscroll-behavior: contain;
+      }
+      .voter-list::-webkit-scrollbar {
+        width: 4px;
+      }
+      .voter-list::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .voter-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 2px;
+      }
+      .voter-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .voter-row:last-child {
+        border-bottom: none;
+      }
+      .voter-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          rgba(var(--primary-start-rgb), 0.5),
+          rgba(var(--primary-end-rgb), 0.5)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .voter-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .voter-vote {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+      }
+      .voter-vote.t {
+        background: var(--teto-dim);
+        color: var(--teto);
+      }
+      .voter-vote.e {
+        background: var(--egen-dim);
+        color: var(--egen);
+      }
+      .voter-time {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        width: 56px;
+        text-align: right;
+      }
+
+      /* ── Detail 하단 CTA — voter-list와 여백 확보 ── */
+      .detail-cta {
+        flex-shrink: 0;
+        margin-top: auto;
+        padding-top: 24px;
+      }
+      .cta-primary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-start),
+          var(--primary-end)
+        );
+        color: var(--white);
+        border: none;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      /* ── 데스크톱 frame: viewport-bound snap container ── */
+      @media (min-width: 768px) {
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100dvh;
+        }
+        body::before {
+          content: '모바일 뷰포트 미리보기 · 패턴 A: scroll-snap';
+          position: fixed;
+          top: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 11px;
+          color: var(--text-tertiary);
+          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 999px;
+          z-index: 100;
+        }
+        .frame {
+          height: min(844px, calc(100dvh - 80px));
+          border-radius: 32px;
+          overflow-y: auto;
+          overflow-x: hidden;
+          box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.05),
+            0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .hero,
+        .detail {
+          height: min(844px, calc(100dvh - 80px));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame page-bg">
+      <!-- ╔══════════════════════════════════════════════════════╗
+           ║ Section 1 — HERO (C4 — 필수 정보만)                      ║
+           ╚══════════════════════════════════════════════════════╝ -->
+
+      <section class="hero">
+        <div class="hero-mid">
+          <p class="hero-pre hero-fade-in">
+            <strong>지영</strong>님은 친구들이 보기에
+          </p>
+          <h1 class="hero-bigword hero-bigword-anim">쌉테토</h1>
+          <p class="hero-tag hero-fade-in d3">
+            <strong>10명</strong> 중 <strong>7명</strong> 동의
+          </p>
+          <div class="hero-meta hero-fade-in d4">
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">내 예측</span>
+              <span class="hero-meta-val">에겐</span>
+            </div>
+            <div class="hero-meta-divider"></div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">실제</span>
+              <span class="hero-meta-val">테토</span>
+            </div>
+            <div class="hero-meta-divider"></div>
+            <div class="hero-meta-item">
+              <span class="hero-meta-label">예상</span>
+              <span class="hero-meta-val">빗나감</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-scroll-hint">
+          <span>SCROLL</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- ╔══════════════════════════════════════════════════════╗
+           ║ Section 2 — DETAIL (분포 + 친구 리스트 + CTA 통합)       ║
+           ╚══════════════════════════════════════════════════════╝ -->
+
+      <section class="detail">
+        <div class="reveal" style="flex-shrink: 0">
+          <h2 class="section-title">친구들의 답 분포</h2>
+        </div>
+
+        <div class="dist-card reveal reveal-delay-1">
+          <div class="dist-bars">
+            <div class="dist-bar t">
+              <div class="dist-bar-shimmer"></div>
+            </div>
+            <div class="dist-bar e">
+              <div class="dist-bar-shimmer"></div>
+            </div>
+          </div>
+          <div class="dist-legend">
+            <div class="dist-legend-item">
+              <span class="dist-name t">테토</span>
+              <span class="dist-cnt">7명 · 70%</span>
+            </div>
+            <div class="dist-legend-item">
+              <span class="dist-cnt">3명 · 30%</span>
+              <span class="dist-name e">에겐</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-2">
+          <div class="section-head">
+            <h2 class="section-title">친구들 답</h2>
+            <span class="section-count"><strong>10</strong>명</span>
+          </div>
+        </div>
+
+        <div class="voter-list reveal reveal-delay-3">
+          <div class="voter-row">
+            <div class="voter-avatar">민</div>
+            <span class="voter-name">김민수</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">방금</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">예</div>
+            <span class="voter-name">송예린</span>
+            <span class="voter-vote e">에겐</span>
+            <span class="voter-time">3분 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">지</div>
+            <span class="voter-name">이지은</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">12분 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">서</div>
+            <span class="voter-name">박서연</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">25분 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">우</div>
+            <span class="voter-name">최우진</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">42분 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">주</div>
+            <span class="voter-name">임주원</span>
+            <span class="voter-vote e">에겐</span>
+            <span class="voter-time">1시간 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">하</div>
+            <span class="voter-name">정하늘</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">2시간 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">유</div>
+            <span class="voter-name">강유진</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">3시간 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">소</div>
+            <span class="voter-name">윤소희</span>
+            <span class="voter-vote e">에겐</span>
+            <span class="voter-time">5시간 전</span>
+          </div>
+          <div class="voter-row">
+            <div class="voter-avatar">도</div>
+            <span class="voter-name">한도윤</span>
+            <span class="voter-vote t">테토</span>
+            <span class="voter-time">어제</span>
+          </div>
+        </div>
+
+        <div class="detail-cta reveal">
+          <button class="cta-primary">투표 링크 복사하기</button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // scroll-snap container = .frame. IntersectionObserver root도 .frame.
+      // once 처리: 한 번 in 되면 unobserve → snap으로 hero ↔ detail 왔다갔다해도 모션 재생 X
+      const frame = document.querySelector('.frame');
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in');
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { root: frame, threshold: 0.15 }
+      );
+
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>

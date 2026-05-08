@@ -1,13 +1,7 @@
-@use 'sass:color';
 @use '@/styles/variables' as *;
 
 .commentItem {
   padding: 16px 0;
-  border-bottom: 1px solid $border-placeholder;
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 // 헤더
@@ -22,6 +16,13 @@
   font-size: 14px;
   font-weight: $font-weight-semibold;
   color: $white;
+}
+
+// 탈퇴 유저 (닉네임 null) — 일반 유저와 시각적으로 구분되는 회색
+.nicknameWithdrawn {
+  color: $text-tertiary;
+  font-weight: $font-weight-medium;
+  font-style: italic;
 }
 
 .time {
@@ -39,7 +40,7 @@
   font-size: 14px;
   line-height: 1.5;
   color: $text-secondary;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -48,25 +49,28 @@
 .footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
 }
 
-// 좋아요 버튼
+// 좋아요 버튼 (YouTube 스타일 — 배경 없이 아이콘+숫자만)
 .likeButton {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: $bg-tertiary;
-  border: 1px solid transparent;
-  padding: 6px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s;
+  gap: 4px;
+  margin-left: -6px;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
   color: $text-tertiary;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
-    background-color: color.adjust($bg-tertiary, $lightness: 5%);
-    border-color: $border-placeholder;
+    background-color: rgba($white, 0.06);
+    color: $text-secondary;
   }
 
   &:active {
@@ -74,10 +78,6 @@
   }
 
   &.liked {
-    background:
-      linear-gradient($bg-tertiary, $bg-tertiary) padding-box,
-      linear-gradient(135deg, $primary-start, $primary-end) border-box;
-    border: 1px solid transparent;
     color: $white;
 
     .likeIcon {
@@ -95,16 +95,13 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  transition:
-    color 0.2s,
-    transform 0.2s;
 }
 
 .likeCount {
   font-size: 13px;
   font-weight: $font-weight-medium;
-  color: $text-tertiary;
-  transition: color 0.2s;
+  color: inherit;
+  transition: color 0.15s ease;
 }
 
 @keyframes bounce {
@@ -117,26 +114,22 @@
   }
 }
 
-// 수정/삭제 버튼 그룹
-.actionButtons {
-  display: flex;
-  gap: 4px;
-}
-
-// 수정 버튼
-.editButton {
+// 답글 달기 버튼 (인라인 텍스트)
+.replyButton {
   background: none;
   border: none;
-  padding: 4px 8px;
+  padding: 6px 8px;
   font-size: 13px;
   font-weight: $font-weight-medium;
   color: $text-tertiary;
   cursor: pointer;
   border-radius: 4px;
-  transition: all 0.2s;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 
   &:hover {
-    background-color: $bg-tertiary;
+    background-color: rgba($white, 0.06);
     color: $text-secondary;
   }
 
@@ -145,24 +138,16 @@
   }
 }
 
-// 삭제 버튼 (수정보다 밝은 회색)
-.deleteButton {
-  background: none;
-  border: none;
-  padding: 4px 8px;
-  font-size: 13px;
-  font-weight: $font-weight-medium;
-  color: $text-tertiary;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s;
+// ── reply variant ──
+.commentItem.commentItemReply {
+  // 답글은 위아래 패딩을 줄여 컴팩트하게 (RepliesList gap=0과 함께 자연스러운 리듬)
+  padding: 8px 0;
 
-  &:hover {
-    background-color: $bg-tertiary;
-    color: $text-secondary;
+  .header {
+    margin-bottom: 6px;
   }
 
-  &:active {
-    transform: scale(0.95);
+  .content {
+    margin: 0 0 6px;
   }
 }

@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react';
 
 export interface User {
-  id: number;
+  id: string;
   nickname: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;
@@ -15,7 +15,7 @@ export interface LoginResponse {
   signupToken?: string;
 }
 
-export type LoginTrigger = 'header' | 'bundle' | 'my' | 'compare' | 'default';
+export type LoginTrigger = 'header' | 'bundle' | 'my' | 'compare' | 'ask' | 'default';
 
 export interface AuthContextValue {
   user: User | null;

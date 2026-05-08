@@ -23,7 +23,7 @@ export const Alert: FC<AlertProps> = ({
   confirmText = '확인',
   onConfirm,
   closeOnDimmedClick = false,
-  showCloseButton = true,
+  showCloseButton = false,
 }) => (
   <Modal
     isOpen={isOpen}

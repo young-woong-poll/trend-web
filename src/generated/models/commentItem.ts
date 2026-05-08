@@ -15,4 +15,6 @@ export interface CommentItem {
   edited?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  electionItemId?: number;
+  replyCount?: number;
 }

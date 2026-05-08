@@ -1,0 +1,124 @@
+@use '@/styles/variables' as *;
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: $bg-primary;
+  color: $white;
+}
+
+// X 버튼은 fixed로 떠 있게 — 헤더 영역이 콘텐츠 위쪽 공간을 차지하지 않음
+// MainHeader와 동일한 max-width로 PC에서도 끝까지 늘어나게.
+.header {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: $z-index-sticky;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1350px;
+  padding: $spacing-8 $spacing-16;
+  pointer-events: none; // 빈 공간은 클릭 통과
+
+  @media (min-width: $breakpoint-tablet) {
+    padding: $spacing-8 $spacing-24;
+  }
+}
+
+.leadingSlot,
+.trailingSlot {
+  display: flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.trailingSlot {
+  justify-content: flex-end;
+}
+
+.logoLink {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 $spacing-8;
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.logoImg {
+  height: 24px;
+  width: auto;
+}
+
+.iconButton {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  cursor: pointer;
+  border-radius: $border-radius-md;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: $white;
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+// body는 화면 전체 차지. padding-top은 X/back 버튼 영역(약 60px)만 회피.
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 60px $spacing-24 $spacing-24;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+// X/back 둘 다 없는 화면(예: 결과 화면)은 위쪽 여백을 자연스러운 값으로 줄임
+.bodyCompact {
+  padding-top: $spacing-24;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  padding: $spacing-16 $spacing-24 calc(#{$spacing-24} + env(safe-area-inset-bottom, 0));
+  background: linear-gradient(
+    180deg,
+    rgba(18, 18, 18, 0) 0%,
+    rgba(18, 18, 18, 0.85) 30%,
+    $bg-primary 100%
+  );
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}

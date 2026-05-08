@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useRef, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import { CommentItem } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import styles from '@/components/features/Hotpick/CommentModal/CommentList.module.scss';
+import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
+import { RepliesToggle } from '@/components/features/Hotpick/CommentModal/RepliesToggle';
+import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useInfiniteComments } from '@/hooks/api';
 import { getTKUID } from '@/lib/tkuid';
@@ -29,15 +32,15 @@ export const CommentList: FC<CommentListProps> = ({
 }) => {
   const { isLoggedIn } = useAuth();
   const tkuId = getTKUID({ isLoggedIn });
-  const { data, isLoading, isFetching, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, isLoading, isError, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteComments({ slug, electionId, sort, size: 20, tkuId });
 
-  // 정렬 변경 시 로딩 상태 (초기 로딩 제외, 무한스크롤 제외)
-  const isSortChanging = isFetching && !isLoading && !isFetchingNextPage;
+  // 댓글별 expand/form 토글 상태 (commentId set으로 관리)
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [openReplyForms, setOpenReplyForms] = useState<Set<string>>(new Set());
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Intersection Observer로 무한스크롤 구현
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -47,12 +50,10 @@ export const CommentList: FC<CommentListProps> = ({
       },
       { threshold: 0.1 }
     );
-
     const currentTarget = observerTarget.current;
     if (currentTarget) {
       observer.observe(currentTarget);
     }
-
     return () => {
       if (currentTarget) {
         observer.unobserve(currentTarget);
@@ -60,8 +61,52 @@ export const CommentList: FC<CommentListProps> = ({
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 초기 로딩 또는 정렬 변경 시 Skeleton 표시
-  if (isLoading || isSortChanging) {
+  const collapseReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  };
+
+  const expandReplies = (commentId: string) => {
+    setExpandedReplies((prev) => {
+      if (prev.has(commentId)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(commentId);
+      return next;
+    });
+  };
+
+  const toggleReplyForm = (commentId: string, replyCount: number) => {
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      if (next.has(commentId)) {
+        next.delete(commentId);
+      } else {
+        next.add(commentId);
+        // 폼 열릴 때 답글이 있으면 답글 리스트도 자동 펼침 (폼이 리스트 끝에 위치하도록)
+        if (replyCount > 0) {
+          expandReplies(commentId);
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleReplySuccess = (commentId: string) => {
+    // 답글 작성 성공 → 답글 폼 닫고 답글 목록 자동 펼침
+    expandReplies(commentId);
+    setOpenReplyForms((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  };
+
+  if (isLoading) {
     return (
       <div className={styles.commentList}>
         <CommentItemSkeleton count={5} />
@@ -69,7 +114,6 @@ export const CommentList: FC<CommentListProps> = ({
     );
   }
 
-  // 에러 상태
   if (isError) {
     return (
       <div className={styles.statusContainer}>
@@ -79,10 +123,8 @@ export const CommentList: FC<CommentListProps> = ({
     );
   }
 
-  // 댓글 데이터 추출
   const comments = data?.pages.flatMap((page) => page.comments ?? []) ?? [];
 
-  // 빈 목록
   if (comments.length === 0) {
     return (
       <div className={styles.emptyContainer}>
@@ -94,17 +136,67 @@ export const CommentList: FC<CommentListProps> = ({
 
   return (
     <div className={styles.commentList}>
-      {comments.map((comment) => (
-        <CommentItem
-          key={comment.id}
-          comment={comment}
-          onLikeClick={onLikeClick}
-          onEditClick={onEditRequest}
-          onDeleteClick={onDeleteRequest}
-        />
-      ))}
+      {comments.map((comment) => {
+        const id = comment.id ?? '';
+        const replyCount = comment.replyCount ?? 0;
+        const isExpanded = expandedReplies.has(id);
+        const isFormOpen = openReplyForms.has(id);
+        const hasReplyArea = isFormOpen || replyCount > 0;
+        const showAddReplyTrigger = isExpanded && replyCount > 0 && !isFormOpen;
 
-      {/* 무한스크롤 트리거 */}
+        return (
+          <div key={id} className={styles.commentGroup}>
+            <CommentItem
+              comment={comment}
+              replyFormOpen={isFormOpen}
+              onLikeClick={onLikeClick}
+              onEditClick={onEditRequest}
+              onDeleteClick={onDeleteRequest}
+              onReplyClick={() => toggleReplyForm(id, replyCount)}
+            />
+
+            {hasReplyArea && (
+              <div className={styles.replyArea}>
+                {/* 접힌 상태: "답글 N개" 토글 */}
+                {replyCount > 0 && !isExpanded && (
+                  <RepliesToggle
+                    replyCount={replyCount}
+                    expanded={false}
+                    onClick={() => expandReplies(id)}
+                  />
+                )}
+
+                {/* 답글 리스트 위: 폼 또는 "답글 달기" 트리거 */}
+                {isFormOpen ? (
+                  <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
+                ) : (
+                  showAddReplyTrigger && (
+                    <button
+                      type="button"
+                      className={styles.addReplyButton}
+                      onClick={() => toggleReplyForm(id, replyCount)}
+                    >
+                      답글 달기
+                    </button>
+                  )
+                )}
+
+                {/* 답글 리스트 + 끝의 답글 더보기/숨기기 (RepliesList 내부) */}
+                {isExpanded && replyCount > 0 && (
+                  <RepliesList
+                    parentCommentId={id}
+                    onLikeClick={onLikeClick}
+                    onEditRequest={onEditRequest}
+                    onDeleteRequest={onDeleteRequest}
+                    onCollapse={() => collapseReplies(id)}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+
       <div ref={observerTarget} className={styles.observerTarget}>
         {isFetchingNextPage && <CommentItemSkeleton count={2} />}
       </div>

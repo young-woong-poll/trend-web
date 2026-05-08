@@ -1,0 +1,132 @@
+@use '@/styles/variables' as *;
+
+.list {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  padding: 4px 16px;
+  flex: 0 1 auto;
+  max-height: 320px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+  }
+
+  // 터치 디바이스에선 네이티브 스크롤바 숨김 (4px는 터치 타겟 미달).
+  @media (pointer: coarse) {
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// FriendResult에서 자기 자신 행 강조 — 정/오답 색상 X, 흰색 미세 highlight만.
+.rowMe {
+  &::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    right: -16px;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 0, 255, 0.5), rgba(255, 69, 0, 0.5));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-12;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+  position: relative;
+  color: $white;
+}
+
+.rowMe .avatar {
+  background: linear-gradient(135deg, $teto-blue, #00c2ff);
+  box-shadow: 0 0 12px rgba(77, 139, 255, 0.5);
+}
+
+.name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: $font-weight-semibold;
+  position: relative;
+  color: $white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rowMe .name {
+  font-weight: $font-weight-bold;
+}
+
+.tag {
+  font-size: 10px;
+  color: $text-secondary;
+  font-weight: $font-weight-bold;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: $border-rounded;
+}
+
+.vote {
+  font-size: 11px;
+  font-weight: $font-weight-bold;
+  padding: 3px 10px;
+  border-radius: $border-rounded;
+  position: relative;
+}
+
+.voteTeto {
+  background: $teto-blue-dim;
+  color: $teto-blue;
+}
+
+.voteEgen {
+  background: $egen-red-dim;
+  color: $egen-red;
+}
+
+.time {
+  font-size: 11px;
+  color: $text-tertiary;
+  width: 56px;
+  text-align: right;
+  position: relative;
+}

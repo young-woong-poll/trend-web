@@ -16,6 +16,7 @@ import type {
   CreateCommentRequest,
   DeleteCommentRequest,
   GetCommentsParams,
+  GetRepliesParams,
   UpdateCommentRequest,
   VerifyCommentRequest,
 } from '../openAPIDefinition.schemas';
@@ -296,6 +297,122 @@ export const verifyComment = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(verifyCommentRequest),
+  });
+};
+
+/**
+ * @summary Get replies for a comment (대댓글 조회)
+ */
+export type getRepliesResponse200 = {
+  data: BaseResponseCommentListResponse;
+  status: 200;
+};
+
+export type getRepliesResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getRepliesResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getRepliesResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getRepliesResponseSuccess = getRepliesResponse200 & {
+  headers: Headers;
+};
+export type getRepliesResponseError = (
+  | getRepliesResponse409
+  | getRepliesResponse429
+  | getRepliesResponse500
+) & {
+  headers: Headers;
+};
+
+export type getRepliesResponse = getRepliesResponseSuccess | getRepliesResponseError;
+
+export const getGetRepliesUrl = (commentId: string, params?: GetRepliesParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/v1/comments/${commentId}/replies?${stringifiedParams}`
+    : `/api/v1/comments/${commentId}/replies`;
+};
+
+export const getReplies = async (
+  commentId: string,
+  params?: GetRepliesParams,
+  options?: RequestInit
+): Promise<getRepliesResponse> => {
+  return serverFetchInstance<getRepliesResponse>(getGetRepliesUrl(commentId, params), {
+    ...options,
+    method: 'GET',
+  });
+};
+
+/**
+ * @summary Create a reply to a comment (대댓글 작성)
+ */
+export type createReplyResponse200 = {
+  data: BaseResponseCommentCreateResponse;
+  status: 200;
+};
+
+export type createReplyResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type createReplyResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type createReplyResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type createReplyResponseSuccess = createReplyResponse200 & {
+  headers: Headers;
+};
+export type createReplyResponseError = (
+  | createReplyResponse409
+  | createReplyResponse429
+  | createReplyResponse500
+) & {
+  headers: Headers;
+};
+
+export type createReplyResponse = createReplyResponseSuccess | createReplyResponseError;
+
+export const getCreateReplyUrl = (commentId: string) => {
+  return `/api/v1/comments/${commentId}/replies`;
+};
+
+export const createReply = async (
+  commentId: string,
+  createCommentRequest: CreateCommentRequest,
+  options?: RequestInit
+): Promise<createReplyResponse> => {
+  return serverFetchInstance<createReplyResponse>(getCreateReplyUrl(commentId), {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createCommentRequest),
   });
 };
 
