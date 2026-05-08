@@ -17,8 +17,9 @@ type PageProps = {
 // 마운트 직후 GET /friend/{token} 결과 1회 평가:
 // - pending: spinner
 // - invalid: 404 alert → 랜딩으로
+// - self: 자기 토큰 → /my로 즉시 replace
 // - resolved: FriendFlow에 meta 넘겨 평가/결과 화면 분기
-type Decision = 'pending' | 'invalid' | 'resolved';
+type Decision = 'pending' | 'invalid' | 'self' | 'resolved';
 
 export default function AskTetoEgenFriendPage({ params }: PageProps) {
   const { token } = use(params);
@@ -46,8 +47,13 @@ export default function AskTetoEgenFriendPage({ params }: PageProps) {
       });
       return;
     }
+    if (meta?.isOwn) {
+      setDecision('self');
+      router.replace('/ask/teto-egen/my');
+      return;
+    }
     setDecision('resolved');
-  }, [decision, isFetched, error, router, showAlert]);
+  }, [decision, isFetched, error, meta, router, showAlert]);
 
   if (decision !== 'resolved' || !meta) {
     return (
