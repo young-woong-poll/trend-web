@@ -3,7 +3,7 @@
 import { createContext, useContext } from 'react';
 
 export interface User {
-  id: number;
+  id: string;
   nickname: string | null;
   profileColor: string;
   lastNicknameChangedAt: string | null;

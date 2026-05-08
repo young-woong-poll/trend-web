@@ -2,7 +2,6 @@
 
 import { type FC, useState } from 'react';
 
-import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
 import styles from '@/components/features/TetoEgen/LinkGenerateForm.module.scss';
 import type { TetoEgenAnswer, TetoEgenPrediction } from '@/types/ask-teto-egen';
 
@@ -10,6 +9,8 @@ const NAME_MAX_LENGTH = 10;
 
 type LinkGenerateFormProps = {
   defaultName: string;
+  // 현재 화면에서 표시는 안 하지만 caller(PrimaryFlow)와의 계약 호환성을 위해 유지.
+  // 추후 AnswerPairRow 복구 시 다시 사용 예정.
   selfAnswer: TetoEgenAnswer;
   selfPrediction: TetoEgenPrediction;
   onSubmit: (displayName: string) => void;
@@ -18,8 +19,8 @@ type LinkGenerateFormProps = {
 
 const LinkGenerateForm: FC<LinkGenerateFormProps> = ({
   defaultName,
-  selfAnswer,
-  selfPrediction,
+  selfAnswer: _selfAnswer,
+  selfPrediction: _selfPrediction,
   onSubmit,
   isSubmitting,
 }) => {
@@ -31,14 +32,14 @@ const LinkGenerateForm: FC<LinkGenerateFormProps> = ({
 
   return (
     <div className={styles.root}>
-      <AnswerPairRow
+      {/* <AnswerPairRow
         left={{ label: '내 선택', value: selfAnswer === 'TETO' ? '테토' : '에겐' }}
         right={{ label: '친구들 예상', value: selfPrediction === 'TETO' ? '테토' : '에겐' }}
-      />
+      /> */}
 
       <div className={styles.titleArea}>
         <h2 className={styles.title}>친구들에게 어떤 이름으로 물어볼까요?</h2>
-        <p className={styles.helper}>친구들에게 보일 이름이에요</p>
+        <p className={styles.helper}>친구들에게 보여지는 이름이에요</p>
       </div>
 
       <div className={styles.inputWrapper}>

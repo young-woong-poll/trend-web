@@ -1,0 +1,2443 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teto-Egen 결과 리디자인 — 레퍼런스 15개 비교</title>
+    <style>
+      :root {
+        --primary-start: #ff00ff;
+        --primary-end: #ff4500;
+        --primary-start-rgb: 255, 0, 255;
+        --primary-end-rgb: 255, 69, 0;
+        --attention: #dfff00;
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #2c2c2c;
+        --white: #ffffff;
+        --text-secondary: #d1d1d1;
+        --text-tertiary: #8a8a8a;
+        --teto: #ff4d6d;
+        --egen: #4d8bff;
+        --hit: #28d164;
+        --miss: #ffb547;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg-primary);
+        color: var(--white);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto,
+          sans-serif;
+        letter-spacing: -0.2px;
+      }
+
+      .page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 56px 28px 120px;
+      }
+
+      .page-title {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.8px;
+        margin: 0 0 8px;
+        background: linear-gradient(
+          90deg,
+          var(--primary-start),
+          var(--primary-end)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .page-sub {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin: 0 0 12px;
+        line-height: 1.6;
+      }
+
+      .page-meta {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin: 0 0 40px;
+      }
+
+      .page-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .page-meta strong {
+        color: var(--text-secondary);
+      }
+
+      .axis-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 56px 0 4px;
+        color: var(--white);
+      }
+
+      .axis-title:first-of-type {
+        margin-top: 32px;
+      }
+
+      .axis-sub {
+        font-size: 13px;
+        color: var(--text-tertiary);
+        margin: 0 0 24px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .card.recommended {
+        border-color: rgba(var(--primary-start-rgb), 0.5);
+        box-shadow: 0 0 0 1px rgba(var(--primary-start-rgb), 0.1);
+      }
+
+      .card.recommended::before {
+        content: '결의 1차 추천';
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 5;
+        padding: 5px 10px;
+        background: linear-gradient(
+          90deg,
+          rgba(var(--primary-start-rgb), 0.95),
+          rgba(var(--primary-end-rgb), 0.95)
+        );
+        border-radius: 9999px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: var(--white);
+      }
+
+      /* ── 모바일 mock 스테이지 ── */
+      .stage {
+        position: relative;
+        height: 520px;
+        background: var(--bg-primary);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        overflow: hidden;
+        padding: 24px 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── 메타 패널 ── */
+      .meta {
+        padding: 18px 20px 22px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .meta-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 8px;
+      }
+
+      .meta-id {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-tertiary);
+        letter-spacing: 0.4px;
+      }
+
+      .meta-name {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .meta-source {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin: 0 0 12px;
+      }
+
+      .meta-pattern {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: 0 0 14px;
+      }
+
+      .meta-checks {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin: 0 0 12px;
+      }
+
+      .check {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 0;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 6px;
+      }
+
+      .check-key {
+        font-size: 9px;
+        color: var(--text-tertiary);
+        font-weight: 700;
+      }
+
+      .check-val {
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      .check-val.strong {
+        color: var(--hit);
+      }
+      .check-val.mid {
+        color: var(--miss);
+      }
+      .check-val.weak {
+        color: var(--text-tertiary);
+      }
+
+      .meta-applied {
+        font-size: 11px;
+        color: var(--attention);
+        line-height: 1.5;
+        margin: 0;
+        padding: 10px 12px;
+        background: rgba(223, 255, 0, 0.04);
+        border-left: 2px solid var(--attention);
+        border-radius: 4px;
+      }
+
+      .meta-applied strong {
+        color: var(--attention);
+      }
+
+      /* ====================================================== */
+      /* A1. Spotify Wrapped 형                                    */
+      /* ====================================================== */
+      .mock-a1 {
+        background: radial-gradient(
+            ellipse at top left,
+            rgba(255, 0, 255, 0.4),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse at bottom right,
+            rgba(255, 69, 0, 0.5),
+            transparent 60%
+          ),
+          #1a0a1a;
+        justify-content: space-between;
+      }
+      .a1-tag {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--attention);
+        letter-spacing: 1.5px;
+      }
+      .a1-mid {
+        text-align: center;
+      }
+      .a1-bigword {
+        font-size: 88px;
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -3px;
+        margin: 0 0 12px;
+        text-shadow: 0 4px 30px rgba(255, 0, 255, 0.5);
+      }
+      .a1-modifier {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--white);
+        margin: 0 0 4px;
+      }
+      .a1-sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+      .a1-foot {
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-tertiary);
+        letter-spacing: 1px;
+      }
+
+      /* ====================================================== */
+      /* A2. Apple Music Replay 형                                 */
+      /* ====================================================== */
+      .mock-a2 {
+        background: linear-gradient(180deg, #2a1f3d, #121212);
+      }
+      .a2-head {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        letter-spacing: 1.2px;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+      .a2-card {
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 12px;
+      }
+      .a2-rank {
+        font-size: 56px;
+        font-weight: 900;
+        line-height: 1;
+        background: linear-gradient(135deg, #ff4d6d, #ff8095);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 6px;
+      }
+      .a2-card-title {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .a2-card-sub {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+      .a2-list {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 2;
+      }
+      .a2-list-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      /* ====================================================== */
+      /* A3. Toss 월간 리포트 형                                   */
+      /* ====================================================== */
+      .mock-a3 {
+        background: var(--bg-primary);
+        gap: 20px;
+      }
+      .a3-insight {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-top: 8px;
+      }
+      .a3-insight em {
+        background: linear-gradient(
+          180deg,
+          transparent 50%,
+          rgba(255, 77, 109, 0.3) 50%
+        );
+        font-style: normal;
+      }
+      .a3-bigrow {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .a3-bignum {
+        font-size: 64px;
+        font-weight: 800;
+        letter-spacing: -2px;
+        line-height: 1;
+      }
+      .a3-bigunit {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-secondary);
+      }
+      .a3-arrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--hit);
+        background: rgba(40, 209, 100, 0.1);
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+      .a3-bar {
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.06);
+        margin-top: 4px;
+      }
+      .a3-bar-fill {
+        height: 100%;
+        width: 70%;
+        background: linear-gradient(90deg, var(--teto), #ff8095);
+        border-radius: 4px;
+      }
+      .a3-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 6px;
+      }
+
+      /* ====================================================== */
+      /* A4. Strava 영웅형                                          */
+      /* ====================================================== */
+      .mock-a4 {
+        background:
+          linear-gradient(180deg, rgba(255, 69, 0, 0.15), transparent 50%),
+          var(--bg-primary);
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        gap: 20px;
+      }
+      .a4-medal {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ffb547, #ff7a00);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        box-shadow: 0 8px 30px rgba(255, 122, 0, 0.4);
+      }
+      .a4-headline {
+        font-size: 22px;
+        font-weight: 800;
+        line-height: 1.3;
+      }
+      .a4-headline em {
+        font-style: normal;
+        color: #ffb547;
+      }
+      .a4-bignum {
+        font-size: 56px;
+        font-weight: 900;
+        line-height: 1;
+        margin: -8px 0;
+      }
+      .a4-sub {
+        font-size: 13px;
+        color: var(--text-secondary);
+      }
+
+      /* ====================================================== */
+      /* A5. Notion Stats 형                                       */
+      /* ====================================================== */
+      .mock-a5 {
+        background: var(--bg-primary);
+        gap: 12px;
+      }
+      .a5-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+      }
+      .a5-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .a5-card {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 10px;
+        padding: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .a5-card-label {
+        font-size: 10px;
+        color: var(--text-tertiary);
+        margin-bottom: 6px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      .a5-card-num {
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .a5-card-unit {
+        font-size: 14px;
+        color: var(--text-tertiary);
+        font-weight: 600;
+        margin-left: 2px;
+      }
+
+      /* ====================================================== */
+      /* B1. Polis 산점도 형                                        */
+      /* ====================================================== */
+      .mock-b1 {
+        background: var(--bg-primary);
+        gap: 16px;
+      }
+      .b1-title {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .b1-scatter {
+        position: relative;
+        flex: 1;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .b1-axis {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .b1-dot {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .b1-dot.t {
+        background: var(--teto);
+        box-shadow: 0 0 10px rgba(255, 77, 109, 0.4);
+      }
+      .b1-dot.e {
+        background: var(--egen);
+        box-shadow: 0 0 10px rgba(77, 139, 255, 0.4);
+      }
+      .b1-dot.me {
+        width: 18px;
+        height: 18px;
+        border: 3px solid var(--white);
+        z-index: 2;
+      }
+      .b1-axis-label {
+        position: absolute;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-tertiary);
+      }
+      .b1-axis-label.l {
+        left: 8px;
+        top: 8px;
+      }
+      .b1-axis-label.r {
+        right: 8px;
+        top: 8px;
+      }
+      .b1-legend {
+        display: flex;
+        gap: 16px;
+        font-size: 11px;
+        color: var(--text-tertiary);
+      }
+
+      /* ====================================================== */
+      /* B2. Polymarket 양분 형                                    */
+      /* ====================================================== */
+      .mock-b2 {
+        background: var(--bg-primary);
+        gap: 14px;
+      }
+      .b2-q {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+      .b2-split {
+        display: flex;
+        gap: 10px;
+      }
+      .b2-side {
+        flex: 1;
+        padding: 14px;
+        border-radius: 10px;
+        text-align: center;
+      }
+      .b2-side.win {
+        background: rgba(255, 77, 109, 0.15);
+        border: 1px solid rgba(255, 77, 109, 0.4);
+      }
+      .b2-side.lose {
+        background: rgba(77, 139, 255, 0.06);
+        border: 1px solid rgba(77, 139, 255, 0.15);
+      }
+      .b2-side-label {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+      }
+      .b2-side-percent {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .b2-side.win .b2-side-percent {
+        color: var(--teto);
+      }
+      .b2-side.lose .b2-side-percent {
+        color: var(--egen);
+      }
+      .b2-side-cnt {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 4px;
+      }
+      .b2-timeline {
+        flex: 1;
+        margin-top: 4px;
+      }
+      .b2-timeline-head {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .b2-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+      }
+      .b2-row-name {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .b2-row-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .b2-row-dot.t {
+        background: var(--teto);
+      }
+      .b2-row-dot.e {
+        background: var(--egen);
+      }
+      .b2-row-time {
+        font-size: 10px;
+        color: var(--text-tertiary);
+      }
+
+      /* ====================================================== */
+      /* B3. NYT Connections 그리드 형                              */
+      /* ====================================================== */
+      .mock-b3 {
+        background: var(--bg-primary);
+        align-items: center;
+        gap: 16px;
+      }
+      .b3-head {
+        font-size: 14px;
+        color: var(--text-secondary);
+        text-align: center;
+      }
+      .b3-head strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+      .b3-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+        width: 100%;
+        max-width: 240px;
+      }
+      .b3-cell {
+        aspect-ratio: 1;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: var(--white);
+        font-weight: 600;
+      }
+      .b3-cell.t {
+        background: var(--teto);
+      }
+      .b3-cell.e {
+        background: var(--egen);
+      }
+      .b3-cell.me {
+        background: var(--teto);
+        border: 3px solid var(--white);
+      }
+      .b3-foot {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+
+      /* ====================================================== */
+      /* B4. GitHub Octoverse 시간축                                */
+      /* ====================================================== */
+      .mock-b4 {
+        background: var(--bg-primary);
+        gap: 14px;
+      }
+      .b4-title {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .b4-line {
+        flex: 1;
+        position: relative;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .b4-axis {
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        bottom: 30px;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .b4-tick {
+        position: absolute;
+        bottom: 24px;
+        font-size: 9px;
+        color: var(--text-tertiary);
+      }
+      .b4-event {
+        position: absolute;
+        bottom: 30px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        transform: translateX(-50%);
+      }
+      .b4-event.t {
+        background: var(--teto);
+        box-shadow: 0 0 8px rgba(255, 77, 109, 0.5);
+      }
+      .b4-event.e {
+        background: var(--egen);
+        box-shadow: 0 0 8px rgba(77, 139, 255, 0.5);
+      }
+      .b4-event-label {
+        position: absolute;
+        font-size: 9px;
+        color: var(--text-secondary);
+        transform: translateX(-50%) rotate(-45deg);
+        transform-origin: top left;
+        white-space: nowrap;
+      }
+      .b4-stats {
+        display: flex;
+        gap: 12px;
+        font-size: 11px;
+        color: var(--text-secondary);
+      }
+      .b4-stat {
+        flex: 1;
+        text-align: center;
+        padding: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+      }
+      .b4-stat-num {
+        font-size: 20px;
+        font-weight: 800;
+        display: block;
+      }
+
+      /* ====================================================== */
+      /* B5. Wordle 텍스트 그리드                                   */
+      /* ====================================================== */
+      .mock-b5 {
+        background: var(--bg-primary);
+        gap: 18px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      .b5-share-mock {
+        background: #2a2f3a;
+        border-radius: 16px;
+        padding: 20px 24px;
+        max-width: 280px;
+        text-align: left;
+      }
+      .b5-share-mock-head {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 8px;
+      }
+      .b5-share-text {
+        font-size: 13px;
+        font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+        color: var(--white);
+        line-height: 1.6;
+        white-space: pre;
+      }
+      .b5-cta {
+        background: var(--white);
+        color: var(--bg-primary);
+        font-weight: 700;
+        font-size: 13px;
+        padding: 12px 24px;
+        border-radius: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ====================================================== */
+      /* C1. 16Personalities 캐릭터형                               */
+      /* ====================================================== */
+      .mock-c1 {
+        background: linear-gradient(180deg, #2c1a3d 0%, #121212 100%);
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+      }
+      .c1-char {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 30% 30%,
+          var(--teto),
+          #c93156 70%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        font-weight: 900;
+        color: var(--white);
+        box-shadow:
+          0 12px 40px rgba(255, 77, 109, 0.4),
+          inset 0 -8px 20px rgba(0, 0, 0, 0.2);
+        margin-bottom: 8px;
+      }
+      .c1-code {
+        font-size: 13px;
+        color: var(--attention);
+        font-weight: 700;
+        letter-spacing: 2px;
+      }
+      .c1-name {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      .c1-tag {
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+      .c1-stats {
+        display: flex;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+
+      /* ====================================================== */
+      /* C2. BuzzFeed 공유 압도형                                   */
+      /* ====================================================== */
+      .mock-c2 {
+        background: var(--bg-primary);
+        gap: 12px;
+      }
+      .c2-header {
+        font-size: 12px;
+        color: var(--text-tertiary);
+      }
+      .c2-result {
+        background: linear-gradient(135deg, #ff4d6d, #ff7a00);
+        border-radius: 14px;
+        padding: 24px;
+        text-align: center;
+      }
+      .c2-result-pre {
+        font-size: 12px;
+        font-weight: 600;
+        opacity: 0.9;
+        margin-bottom: 4px;
+      }
+      .c2-result-name {
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 8px;
+      }
+      .c2-result-desc {
+        font-size: 13px;
+        line-height: 1.5;
+        opacity: 0.95;
+      }
+      .c2-share-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .c2-share-btn {
+        flex: 1;
+        padding: 14px;
+        background: var(--bg-tertiary);
+        border-radius: 10px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .c2-share-btn.primary {
+        background: var(--white);
+        color: var(--bg-primary);
+        border: none;
+      }
+
+      /* ====================================================== */
+      /* C3. 카카오 같이가치형                                      */
+      /* ====================================================== */
+      .mock-c3 {
+        background: linear-gradient(180deg, #2a3a52 0%, #121212 60%);
+        align-items: center;
+        text-align: center;
+        gap: 16px;
+      }
+      .c3-illust {
+        width: 120px;
+        height: 120px;
+        background: #ffe066;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 56px;
+        position: relative;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+      .c3-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+      .c3-headline {
+        font-size: 20px;
+        font-weight: 800;
+        line-height: 1.4;
+      }
+      .c3-headline em {
+        font-style: normal;
+        color: #ffe066;
+      }
+      .c3-stats {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 10px 16px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+
+      /* ====================================================== */
+      /* C4. MBTI 수식어형                                          */
+      /* ====================================================== */
+      .mock-c4 {
+        background:
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(255, 77, 109, 0.3),
+            transparent 50%
+          ),
+          var(--bg-primary);
+        gap: 20px;
+        justify-content: center;
+      }
+      .c4-pre {
+        font-size: 14px;
+        color: var(--text-secondary);
+        text-align: center;
+      }
+      .c4-modifier {
+        font-size: 26px;
+        font-weight: 700;
+        text-align: center;
+        line-height: 1.3;
+      }
+      .c4-bigword {
+        font-size: 76px;
+        font-weight: 900;
+        text-align: center;
+        line-height: 0.95;
+        letter-spacing: -2px;
+        background: linear-gradient(135deg, #ff4d6d, #ff8095);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .c4-tag {
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin-top: 8px;
+      }
+      .c4-meta {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 12px;
+        font-size: 11px;
+        color: var(--text-tertiary);
+      }
+      .c4-meta strong {
+        color: var(--white);
+        font-weight: 700;
+      }
+
+      /* ====================================================== */
+      /* C5. Yes/No 빅워드형                                        */
+      /* ====================================================== */
+      .mock-c5 {
+        background: var(--teto);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .c5-pre {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+      }
+      .c5-bigword {
+        font-size: 120px;
+        font-weight: 900;
+        line-height: 0.9;
+        color: var(--white);
+        letter-spacing: -4px;
+        text-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      }
+      .c5-sub {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.85);
+        margin-top: 16px;
+      }
+
+      /* ── 현재 안 비교 카드 ── */
+      .baseline {
+        margin-top: 56px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+      }
+      .baseline-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 4px;
+      }
+      .baseline-sub {
+        font-size: 12px;
+        color: var(--text-tertiary);
+        margin: 0 0 20px;
+      }
+      .baseline-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .mock-current {
+        background: var(--bg-primary);
+        height: 520px;
+        padding: 20px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        font-size: 13px;
+      }
+      .cur-h {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .cur-hero {
+        background: rgba(255, 77, 109, 0.06);
+        border: 1px solid rgba(255, 77, 109, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+      }
+      .cur-badge {
+        display: inline-block;
+        font-size: 10px;
+        background: rgba(40, 209, 100, 0.15);
+        color: var(--hit);
+        padding: 3px 8px;
+        border-radius: 999px;
+        margin-bottom: 8px;
+      }
+      .cur-headline {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 8px;
+      }
+      .cur-bignum {
+        font-size: 36px;
+        font-weight: 800;
+      }
+      .cur-pair {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .cur-pair-cell {
+        text-align: center;
+      }
+      .cur-pair-label {
+        font-size: 10px;
+        color: var(--text-tertiary);
+      }
+      .cur-pair-val {
+        font-size: 14px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+      .cur-collapse {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 13px;
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-secondary);
+      }
+      .cur-share {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 11px;
+        color: var(--text-tertiary);
+      }
+
+      .legend {
+        margin-top: 40px;
+        padding: 20px 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+      }
+      .legend-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 12px;
+      }
+      .legend-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .legend-row code {
+        font-weight: 700;
+        color: var(--text-tertiary);
+        margin-right: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <h1 class="page-title">Teto-Egen 결과 리디자인 — 레퍼런스 비교</h1>
+      <p class="page-sub">
+        15개 외부 패턴을 동일한 가상 데이터로 재현. 동일 데이터 위에서 시각
+        패턴만 달라지므로 디자인 차이를 직접 비교 가능.
+      </p>
+      <p class="page-meta">
+        <span><strong>가상 데이터 ·</strong> 지영, 자기평가 = 테토</span>
+        <span><strong>친구 답 ·</strong> 10명 중 7명 테토 / 3명 에겐</span>
+        <span><strong>Variant ·</strong> 적중 (자기평가와 다수표 일치)</span>
+        <span
+          ><strong>본인 예상 ·</strong> 에겐 (예상은 빗나감 — 흥미 angle)</span
+        >
+      </p>
+
+      <section class="legend">
+        <h3 class="legend-title">체크리스트 7항목 범례</h3>
+        <div class="legend-row">
+          <span><code>F</code>First fold composition</span>
+          <span><code>H</code>Hero element</span>
+          <span><code>I</code>Information hierarchy</span>
+          <span><code>S</code>Share-readiness</span>
+          <span><code>C</code>Copy tone</span>
+          <span><code>M</code>Motion</span>
+          <span><code>D</code>Darkmode 적용 가능성</span>
+        </div>
+        <p
+          style="
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin: 12px 0 0;
+          "
+        >
+          평가 — <span style="color: var(--hit)">●</span> 강함 ·
+          <span style="color: var(--miss)">◐</span> 보통 · ○ 약함
+        </p>
+      </section>
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║ 축 A — 임팩트 카드형                                   ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+
+      <h2 class="axis-title">축 A — 임팩트 카드형</h2>
+      <p class="axis-sub">
+        한 장으로 결과를 압도적으로 보여주려면? Spotify Wrapped류 풀블리드 카드
+        영감.
+      </p>
+
+      <div class="grid">
+        <!-- ── A1. Spotify Wrapped 형 ── -->
+        <article class="card recommended">
+          <div class="stage mock-a1">
+            <div class="a1-tag">FRIENDS THINK YOU ARE</div>
+            <div class="a1-mid">
+              <div class="a1-bigword">테토</div>
+              <div class="a1-modifier">10명 중 7명이 같은 답을 골랐어요</div>
+              <div class="a1-sub">예상은 빗나갔지만 결과는 적중!</div>
+            </div>
+            <div class="a1-foot">2026 · TETO-EGEN WEEK</div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">A1</span>
+              <h3 class="meta-name">Spotify Wrapped 형</h3>
+            </div>
+            <p class="meta-source">출처: Spotify Wrapped 2024</p>
+            <p class="meta-pattern">
+              풀블리드 그라데이션 + 빅 타이포 한 단어 + 짧은 서브 카피. 슬라이드
+              전환으로 "한 장 = 한 메시지" 구조.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 풀블리드 + 빅타이포로 "친구들이 본
+              지영님은 테토예요" 1장 완성. selfPrediction 활용해 "예상 적중!"
+              메달 추가 가능.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── A2. Apple Music Replay 형 ── -->
+        <article class="card">
+          <div class="stage mock-a2">
+            <div class="a2-head">FRIENDS' TOP CHOICE</div>
+            <div class="a2-card">
+              <div class="a2-rank">#1</div>
+              <div class="a2-card-title">테토</div>
+              <div class="a2-card-sub">7 votes · 70%</div>
+            </div>
+            <div class="a2-list">
+              <div class="a2-list-row">
+                <span>#2 에겐</span><span>3 · 30%</span>
+              </div>
+            </div>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 12px;
+                color: var(--text-tertiary);
+                text-align: center;
+              "
+            >
+              총 10명 답함
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">A2</span>
+              <h3 class="meta-name">Apple Music Replay 형</h3>
+            </div>
+            <p class="meta-source">출처: Apple Music Replay</p>
+            <p class="meta-pattern">
+              아트워크 + 순위 칩 + 빅 숫자 (#1). 1위 컨텐츠 카드를 영웅적
+              포지셔닝. 보조 정보는 list로.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> "친구들의 답 #1" 카드 — 다수 답을
+              1위처럼 표시. 카피 약함이 단점.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── A3. Toss 월간 리포트 형 ── -->
+        <article class="card">
+          <div class="stage mock-a3">
+            <div
+              style="
+                font-size: 11px;
+                color: var(--text-tertiary);
+                font-weight: 700;
+                letter-spacing: 1px;
+              "
+            >
+              지영님의 테토에겐 결과
+            </div>
+            <div class="a3-insight">
+              친구 10명 중 <em>7명이 테토</em>라고<br />봤어요
+            </div>
+            <div class="a3-bigrow">
+              <span class="a3-bignum">70</span>
+              <span class="a3-bigunit">%</span>
+              <span class="a3-arrow">↑ 본인 예상보다 +40%p</span>
+            </div>
+            <div>
+              <div class="a3-bar"><div class="a3-bar-fill"></div></div>
+              <div class="a3-bar-label"><span>테토 7명</span><span>에겐 3명</span></div>
+            </div>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 12px;
+                color: var(--text-secondary);
+                line-height: 1.5;
+              "
+            >
+              본인은 <strong>에겐</strong>이라고 예상했는데<br />친구들은 다르게
+              봤네요
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">A3</span>
+              <h3 class="meta-name">Toss 월간 리포트 형</h3>
+            </div>
+            <p class="meta-source">출처: 토스 월간 리포트</p>
+            <p class="meta-pattern">
+              빅 숫자 + "지난달 대비" 화살표 + 인사이트 카피. 한국 유저에게 가장
+              친숙한 hierarchy.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val mid">◐</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> "본인 예상보다 +40%p" 처럼
+              selfPrediction을 narrative의 중심으로. 데이터 인사이트 카피 차용.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── A4. Strava 영웅형 ── -->
+        <article class="card">
+          <div class="stage mock-a4">
+            <div class="a4-medal">🏅</div>
+            <div class="a4-headline">
+              <em>상위 30%</em>의<br />뚜렷한 테토
+            </div>
+            <div class="a4-bignum">70%</div>
+            <div class="a4-sub">
+              친구 10명 중 7명이<br />같은 답을 골랐어요
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">A4</span>
+              <h3 class="meta-name">Strava 영웅형</h3>
+            </div>
+            <p class="meta-source">출처: Strava Year in Sport</p>
+            <p class="meta-pattern">
+              활동 히트맵 + "Top X percentile" 뱃지 + 빅 숫자. "당신은 상위 X%"
+              영웅적 카피.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> "상위 X%" 비교형 — 다른 유저
+              데이터와의 상대 위치 표시. 백분위 산출 로직 필요.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── A5. Notion Stats 형 ── -->
+        <article class="card">
+          <div class="stage mock-a5">
+            <div class="a5-title">지영님의 결과</div>
+            <div class="a5-row">
+              <div class="a5-card">
+                <div class="a5-card-label">친구 답</div>
+                <div>
+                  <span class="a5-card-num">7</span
+                  ><span class="a5-card-unit">/10</span>
+                </div>
+              </div>
+              <div class="a5-card">
+                <div class="a5-card-label">테토 비율</div>
+                <div>
+                  <span class="a5-card-num">70</span
+                  ><span class="a5-card-unit">%</span>
+                </div>
+              </div>
+            </div>
+            <div class="a5-row">
+              <div class="a5-card">
+                <div class="a5-card-label">내 예상</div>
+                <div style="font-size: 22px; font-weight: 700">에겐</div>
+              </div>
+              <div class="a5-card">
+                <div class="a5-card-label">실제</div>
+                <div style="font-size: 22px; font-weight: 700; color: var(--teto)">
+                  테토
+                </div>
+              </div>
+            </div>
+            <div class="a5-row">
+              <div class="a5-card" style="grid-column: span 2">
+                <div class="a5-card-label">예상 적중</div>
+                <div style="font-size: 16px; font-weight: 700; color: var(--miss)">
+                  ✗ 빗나감
+                </div>
+              </div>
+            </div>
+            <div
+              style="
+                margin-top: auto;
+                font-size: 11px;
+                color: var(--text-tertiary);
+              "
+            >
+              데이터 카드 시리즈
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">A5</span>
+              <h3 class="meta-name">Notion Stats 형</h3>
+            </div>
+            <p class="meta-source">출처: Notion Personal Stats</p>
+            <p class="meta-pattern">
+              미니멀 카드 시리즈, 데이터 1개 / 카드. 분산형 hierarchy.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val mid">◐</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 보조 데이터(시간축, 친구별)를 카드
+              시리즈로. 메인 히어로의 보완재로만.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║ 축 B — 데이터 시각화형                                  ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+
+      <h2 class="axis-title">축 B — 데이터 시각화형</h2>
+      <p class="axis-sub">
+        분포·인원·적중률을 한눈에 보여주려면? 폴리마켓·Polis류 인포그래픽 영감.
+      </p>
+
+      <div class="grid">
+        <!-- ── B1. Polis 산점도 형 ── -->
+        <article class="card">
+          <div class="stage mock-b1">
+            <div class="b1-title">친구들의 시선</div>
+            <div class="b1-scatter">
+              <div class="b1-axis"></div>
+              <div class="b1-axis-label l">테토</div>
+              <div class="b1-axis-label r">에겐</div>
+              <div class="b1-dot t" style="left: 18%; top: 30%"></div>
+              <div class="b1-dot t" style="left: 25%; top: 60%"></div>
+              <div class="b1-dot t" style="left: 32%; top: 45%"></div>
+              <div class="b1-dot t" style="left: 22%; top: 75%"></div>
+              <div class="b1-dot t" style="left: 38%; top: 25%"></div>
+              <div class="b1-dot t" style="left: 30%; top: 70%"></div>
+              <div class="b1-dot me" style="left: 28%; top: 50%"></div>
+              <div class="b1-dot t" style="left: 42%; top: 55%"></div>
+              <div class="b1-dot e" style="left: 65%; top: 35%"></div>
+              <div class="b1-dot e" style="left: 75%; top: 65%"></div>
+              <div class="b1-dot e" style="left: 70%; top: 80%"></div>
+            </div>
+            <div class="b1-legend">
+              <span style="display: flex; align-items: center; gap: 4px"
+                ><span
+                  class="b1-dot t"
+                  style="position: static; width: 8px; height: 8px"
+                ></span
+                >테토 (7)</span
+              >
+              <span style="display: flex; align-items: center; gap: 4px"
+                ><span
+                  class="b1-dot e"
+                  style="position: static; width: 8px; height: 8px"
+                ></span
+                >에겐 (3)</span
+              >
+              <span
+                style="display: flex; align-items: center; gap: 4px; margin-left: auto"
+                ><span
+                  class="b1-dot me"
+                  style="position: static; width: 10px; height: 10px"
+                ></span
+                >나</span
+              >
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">B1</span>
+              <h3 class="meta-name">Polis 산점도 형</h3>
+            </div>
+            <p class="meta-source">출처: Polis (pol.is)</p>
+            <p class="meta-pattern">
+              친구별 dot을 클러스터로 표시. 학술적이지만 명료한 의견 분포 시각화.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val mid">◐</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 친구 dot 분포로 시각적 차별화. selfAnswer
+              dot을 흰 테두리로 강조.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── B2. Polymarket 양분 형 ── -->
+        <article class="card recommended">
+          <div class="stage mock-b2">
+            <div class="b2-q">친구들이 본 지영님은?</div>
+            <div class="b2-split">
+              <div class="b2-side win">
+                <div class="b2-side-label">테토</div>
+                <div class="b2-side-percent">70%</div>
+                <div class="b2-side-cnt">7명</div>
+              </div>
+              <div class="b2-side lose">
+                <div class="b2-side-label">에겐</div>
+                <div class="b2-side-percent">30%</div>
+                <div class="b2-side-cnt">3명</div>
+              </div>
+            </div>
+            <div class="b2-timeline">
+              <div class="b2-timeline-head">최근 답한 친구</div>
+              <div class="b2-row">
+                <span class="b2-row-name"
+                  ><span class="b2-row-dot t"></span>김민수</span
+                ><span class="b2-row-time">방금</span>
+              </div>
+              <div class="b2-row">
+                <span class="b2-row-name"
+                  ><span class="b2-row-dot e"></span>송예린</span
+                ><span class="b2-row-time">3분 전</span>
+              </div>
+              <div class="b2-row">
+                <span class="b2-row-name"
+                  ><span class="b2-row-dot t"></span>이지은</span
+                ><span class="b2-row-time">12분 전</span>
+              </div>
+              <div class="b2-row">
+                <span class="b2-row-name"
+                  ><span class="b2-row-dot t"></span>박서연</span
+                ><span class="b2-row-time">25분 전</span>
+              </div>
+              <div class="b2-row">
+                <span class="b2-row-name"
+                  ><span class="b2-row-dot e"></span>임주원</span
+                ><span class="b2-row-time">1시간 전</span>
+              </div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">B2</span>
+              <h3 class="meta-name">Polymarket 양분 형</h3>
+            </div>
+            <p class="meta-source">출처: Polymarket 결과 페이지</p>
+            <p class="meta-pattern">
+              YES/NO 확률 빅 퍼센트 + 시간축 그래프 + 베터 리스트. 양분 구조에
+              가장 직접 매칭.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 테토/에겐 양분 % + 시간순 voter
+              리스트(votedAt 활용). 데이터 충실도 최고. 캡처 임팩트는 다소 부족.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── B3. NYT Connections 그리드 형 ── -->
+        <article class="card">
+          <div class="stage mock-b3">
+            <div class="b3-head">
+              친구 10명이 본 <strong>지영님</strong>은
+            </div>
+            <div class="b3-grid">
+              <div class="b3-cell t">민수</div>
+              <div class="b3-cell t">지은</div>
+              <div class="b3-cell t">서연</div>
+              <div class="b3-cell t">우진</div>
+              <div class="b3-cell t">하늘</div>
+              <div class="b3-cell t">유진</div>
+              <div class="b3-cell t">도윤</div>
+              <div class="b3-cell e">예린</div>
+              <div class="b3-cell e">주원</div>
+              <div class="b3-cell e">소희</div>
+            </div>
+            <div class="b3-foot">
+              <span style="color: var(--teto); font-weight: 700">■ 테토 7</span>
+              ·
+              <span style="color: var(--egen); font-weight: 700">■ 에겐 3</span>
+            </div>
+            <div
+              style="
+                margin-top: 8px;
+                padding: 10px 14px;
+                background: rgba(255, 77, 109, 0.1);
+                border-radius: 8px;
+                font-size: 12px;
+                color: var(--text-secondary);
+              "
+            >
+              내 답: <strong style="color: var(--teto)">테토</strong> · 친구
+              생각과 일치
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">B3</span>
+              <h3 class="meta-name">NYT Connections 그리드 형</h3>
+            </div>
+            <p class="meta-source">출처: NYT Connections / Wordle</p>
+            <p class="meta-pattern">
+              친구별 dot/셀 그리드. 누가 어느 쪽인지 한눈에 보임. 캡처 친화적.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 친구별 답을 grid로 노출 → 현재
+              Collapse 토글 뒤에 숨겨진 핵심 데이터를 first fold로 끌어올림.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── B4. GitHub Octoverse 시간축 ── -->
+        <article class="card">
+          <div class="stage mock-b4">
+            <div class="b4-title">참여 흐름</div>
+            <div class="b4-line">
+              <div class="b4-axis"></div>
+              <div class="b4-event t" style="left: 12%"></div>
+              <div class="b4-event t" style="left: 22%"></div>
+              <div class="b4-event e" style="left: 30%"></div>
+              <div class="b4-event t" style="left: 40%"></div>
+              <div class="b4-event t" style="left: 50%"></div>
+              <div class="b4-event e" style="left: 58%"></div>
+              <div class="b4-event t" style="left: 65%"></div>
+              <div class="b4-event t" style="left: 75%"></div>
+              <div class="b4-event e" style="left: 85%"></div>
+              <div class="b4-event t" style="left: 92%"></div>
+              <div class="b4-tick" style="left: 12%">3일전</div>
+              <div class="b4-tick" style="left: 50%">어제</div>
+              <div class="b4-tick" style="left: 92%">방금</div>
+            </div>
+            <div class="b4-stats">
+              <div class="b4-stat">
+                <span class="b4-stat-num" style="color: var(--teto)">7</span>
+                <span style="font-size: 11px; color: var(--text-tertiary)"
+                  >테토</span
+                >
+              </div>
+              <div class="b4-stat">
+                <span class="b4-stat-num" style="color: var(--egen)">3</span>
+                <span style="font-size: 11px; color: var(--text-tertiary)"
+                  >에겐</span
+                >
+              </div>
+              <div class="b4-stat">
+                <span class="b4-stat-num">3일</span>
+                <span style="font-size: 11px; color: var(--text-tertiary)"
+                  >동안</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">B4</span>
+              <h3 class="meta-name">GitHub Octoverse 시간축</h3>
+            </div>
+            <p class="meta-source">출처: GitHub Octoverse / Wrapped</p>
+            <p class="meta-pattern">
+              활동 히트맵 + 빅 숫자 + 카테고리별 칩. 시간축 라인으로 "참여 흐름"
+              연출.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> votedAt 활용해 시간축으로 친구별 답을
+              노출. "응답이 들어오는 라이브감" 연출 가능.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── B5. Wordle 텍스트 그리드 ── -->
+        <article class="card">
+          <div class="stage mock-b5">
+            <div style="font-size: 13px; color: var(--text-secondary)">
+              단톡방에 그대로 붙여넣기
+            </div>
+            <div class="b5-share-mock">
+              <div class="b5-share-mock-head">📱 카카오톡 미리보기</div>
+              <div class="b5-share-text">테토에겐 #3 · 지영
+🟥🟥🟥🟦🟥
+🟥🟥🟦🟥🟦
+👤 7/10 테토 (적중!)
+hotpick.kr/ask</div>
+            </div>
+            <div class="b5-cta">📋 텍스트 복사</div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">B5</span>
+              <h3 class="meta-name">Wordle 텍스트 그리드</h3>
+            </div>
+            <p class="meta-source">출처: Wordle 공유 그리드</p>
+            <p class="meta-pattern">
+              이모지 텍스트로 카톡 직접 붙여넣기 가능. SNS 바이럴의 정석.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 결과를 emoji 텍스트로 변환 — 단톡방
+              직접 복붙용 보조 공유 채널. 메인 안 + 추가 옵션으로 활용.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║ 축 C — 공유/캐릭터형                                    ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+
+      <h2 class="axis-title">축 C — 공유/캐릭터형</h2>
+      <p class="axis-sub">
+        캡처해서 인스타·카톡에 올리고 싶게 하려면? MBTI·BuzzFeed류 캐릭터 결과
+        영감.
+      </p>
+
+      <div class="grid">
+        <!-- ── C1. 16Personalities 캐릭터형 ── -->
+        <article class="card">
+          <div class="stage mock-c1">
+            <div class="c1-char">T</div>
+            <div class="c1-code">TETO · 다정형</div>
+            <div class="c1-name">다정한 테토</div>
+            <div class="c1-tag">친구들이 본 지영님</div>
+            <div class="c1-stats">
+              <span>👥 7/10</span>
+              <span>🎯 적중</span>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">C1</span>
+              <h3 class="meta-name">16Personalities 캐릭터형</h3>
+            </div>
+            <p class="meta-source">출처: 16Personalities</p>
+            <p class="meta-pattern">
+              캐릭터 일러스트 + 4글자 코드 + 별명 ("The Mediator"). 캐릭터가 정체성.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> TETO/EGEN 컬러 토템 + 별명 카드.
+              일러스트 자산 또는 컬러 토템 디자인 공수 필요.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── C2. BuzzFeed 공유 압도형 ── -->
+        <article class="card">
+          <div class="stage mock-c2">
+            <div class="c2-header">친구들이 본 당신은…</div>
+            <div class="c2-result">
+              <div class="c2-result-pre">YOU GOT</div>
+              <div class="c2-result-name">테토!</div>
+              <div class="c2-result-desc">
+                10명 중 7명이 같은 답!<br />당신은 친구들에게 분명한 테토예요.
+              </div>
+            </div>
+            <div
+              style="font-size: 12px; color: var(--text-secondary); text-align: center"
+            >
+              결과 공유하기
+            </div>
+            <div class="c2-share-row">
+              <div class="c2-share-btn">📷 인스타</div>
+              <div class="c2-share-btn">💬 카톡</div>
+              <div class="c2-share-btn">🔗 링크</div>
+            </div>
+            <div class="c2-share-btn primary" style="margin-top: 4px">
+              📥 결과 카드 다운로드
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">C2</span>
+              <h3 class="meta-name">BuzzFeed 공유 압도형</h3>
+            </div>
+            <p class="meta-source">출처: BuzzFeed Quiz</p>
+            <p class="meta-pattern">
+              결과 이미지 카드 + 짧은 정체성 카피 + "Share" 버튼 압도적 노출.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val mid">◐</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 결과 직후 즉시 공유 CTA를 압도적으로
+              노출. 카톡·인스타·링크 3채널 + 카드 다운로드.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── C3. 카카오 같이가치 형 ── -->
+        <article class="card">
+          <div class="stage mock-c3">
+            <div class="c3-illust">🌸</div>
+            <div class="c3-label">친구들이 본 지영님은</div>
+            <div class="c3-headline">
+              <em>다정하고 따뜻한</em><br />테토예요
+            </div>
+            <div class="c3-stats">친구 10명 중 7명 테토</div>
+            <div
+              style="
+                margin-top: 12px;
+                font-size: 11px;
+                color: var(--text-tertiary);
+                text-align: center;
+                line-height: 1.6;
+              "
+            >
+              "재밌고 적극적이에요"<br />— 김민수님 외 6명
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">C3</span>
+              <h3 class="meta-name">카카오 같이가치형</h3>
+            </div>
+            <p class="meta-source">출처: 카카오 같이가치</p>
+            <p class="meta-pattern">
+              한국형 결과 페이지. 큰 일러스트 + 정체성 라벨. 카톡 공유 최적화.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val mid">◐</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 한국형 카피 톤 차용. 일러스트는 SVG로
+              경량 처리. 친구 코멘트가 없으면 활용 어려움.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── C4. MBTI 수식어형 ── -->
+        <article class="card recommended">
+          <div class="stage mock-c4">
+            <div class="c4-pre">친구들이 본 지영님</div>
+            <div class="c4-modifier">다정한</div>
+            <div class="c4-bigword">테토</div>
+            <div class="c4-tag">10명 중 7명 동의 · 적중</div>
+            <div class="c4-meta">
+              <span>내 예상 <strong>에겐</strong></span>
+              <span>실제 <strong>테토</strong></span>
+              <span>예상 <strong style="color: var(--miss)">빗나감</strong></span>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">C4</span>
+              <h3 class="meta-name">MBTI 수식어형</h3>
+            </div>
+            <p class="meta-source">출처: MBTI 결과 카드 (한국형)</p>
+            <p class="meta-pattern">
+              짧고 강한 수식어 + MBTI 코드. "감성 폭발 INFP" 식 즉각 임팩트.
+              단톡방 캡처의 표준.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val weak">○</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 수식어 라이브러리 필요 (다정한·시크한
+              ·츤데레 등). 비율 기반 자동 매핑. 가장 한국형 바이럴 친화.
+            </p>
+          </div>
+        </article>
+
+        <!-- ── C5. Yes/No 빅워드형 ── -->
+        <article class="card">
+          <div class="stage mock-c5">
+            <div class="c5-pre">FRIENDS SAY</div>
+            <div class="c5-bigword">테토</div>
+            <div class="c5-sub">10명 중 7명이 같은 답</div>
+          </div>
+          <div class="meta">
+            <div class="meta-head">
+              <span class="meta-id">C5</span>
+              <h3 class="meta-name">Yes/No 빅워드형</h3>
+            </div>
+            <p class="meta-source">출처: Yes/No Wheel 결과</p>
+            <p class="meta-pattern">
+              거대한 단어 + 강한 컬러. 풀스크린 진입 모션 → 디테일 펼침.
+            </p>
+            <div class="meta-checks">
+              <div class="check">
+                <span class="check-key">F</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">H</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">I</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">S</span
+                ><span class="check-val mid">◐</span>
+              </div>
+              <div class="check">
+                <span class="check-key">C</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">M</span
+                ><span class="check-val strong">●</span>
+              </div>
+              <div class="check">
+                <span class="check-key">D</span
+                ><span class="check-val strong">●</span>
+              </div>
+            </div>
+            <p class="meta-applied">
+              <strong>HotPick 적용:</strong> 풀스크린 진입 모션 → 디테일 펼침.
+              Spotify Wrapped (A1)와 결합 가능. 정보량 거의 없음이 단점.
+            </p>
+          </div>
+        </article>
+      </div>
+
+      <!-- ╔══════════════════════════════════════════════════════╗ -->
+      <!-- ║ 현재 안 비교                                            ║ -->
+      <!-- ╚══════════════════════════════════════════════════════╝ -->
+
+      <section class="baseline">
+        <h2 class="baseline-title">참고 — 현재 안 (MyResultView)</h2>
+        <p class="baseline-sub">
+          비교 기준선. 6개 블록이 동일 weight로 수직 나열되어 시선 hierarchy가
+          약함.
+        </p>
+        <div class="baseline-grid">
+          <div class="mock-current">
+            <div class="cur-h">내 결과</div>
+            <div class="cur-hero">
+              <span class="cur-badge">✓ 적중</span>
+              <div class="cur-headline">
+                친구들은 지영님을<br /><strong style="color: var(--teto)"
+                  >테토</strong
+                >로 봤어요
+              </div>
+              <div
+                style="
+                  font-size: 12px;
+                  color: var(--text-tertiary);
+                  margin-bottom: 6px;
+                "
+              >
+                총 10명 중 7명이 같은 답을 골랐어요
+              </div>
+              <span class="cur-bignum">70</span
+              ><span style="font-size: 18px; color: var(--text-secondary)"
+                >% · 테토</span
+              >
+            </div>
+            <div class="cur-pair">
+              <div class="cur-pair-cell">
+                <div class="cur-pair-label">내 선택</div>
+                <div class="cur-pair-val">테토</div>
+              </div>
+              <div class="cur-pair-cell">
+                <div class="cur-pair-label">친구들 예상</div>
+                <div class="cur-pair-val">에겐</div>
+              </div>
+            </div>
+            <div class="cur-collapse">
+              <span>친구 10명 답변 보기</span><span>▾</span>
+            </div>
+            <div class="cur-share">더 많은 친구들에게 투표받기 ▶</div>
+          </div>
+          <div
+            style="
+              font-size: 13px;
+              color: var(--text-secondary);
+              line-height: 1.7;
+              padding: 16px 0;
+            "
+          >
+            <p style="margin: 0 0 12px"><strong>관찰</strong></p>
+            <ul
+              style="margin: 0 0 16px; padding-left: 20px; color: var(--text-secondary)"
+            >
+              <li>6개 블록(헤더·히어로·비교카드·토글·공유·보조 버튼)이 모두
+                동일 weight로 나열</li>
+              <li>친구 분포(가장 흥미로운 데이터)가 <strong>토글 뒤에 숨김</strong></li>
+              <li>적중/의외 뱃지가 작은 텍스트 라벨 1줄</li>
+              <li>selfPrediction(예상)이 보조 정보로만 노출되어 narrative 부재</li>
+              <li>캡처해서 단톡방에 던질 한 컷이 없음</li>
+            </ul>
+            <p style="margin: 0 0 6px"><strong>15개 후보 중 결의 1차 추천 3개</strong></p>
+            <p
+              style="
+                margin: 0;
+                font-size: 12px;
+                color: var(--text-tertiary);
+                line-height: 1.7;
+              "
+            >
+              <strong style="color: var(--white)">A1 Spotify Wrapped 형</strong>
+              — 임팩트 카드 / 선언형 정체성<br />
+              <strong style="color: var(--white)">B2 Polymarket 양분 형</strong>
+              — 데이터 충실도 + 시간축<br />
+              <strong style="color: var(--white)">C4 MBTI 수식어형</strong> —
+              한국형 바이럴 + 캡처 친화
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -17,25 +17,24 @@ export const NotificationDropdown: FC<NotificationDropdownProps> = ({ unreadCoun
   const { mutate: markAll, isPending: isMarking } = useMarkAllNotificationsRead();
 
   const observerTarget = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const target = observerTarget.current;
+    const root = scrollAreaRef.current;
+    if (!target || !root) {
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           void fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { root, threshold: 0.1 }
     );
-    const target = observerTarget.current;
-    if (target) {
-      observer.observe(target);
-    }
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
+    observer.observe(target);
+    return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const notifications = data?.pages.flatMap((page) => page.notifications ?? []) ?? [];
@@ -55,7 +54,7 @@ export const NotificationDropdown: FC<NotificationDropdownProps> = ({ unreadCoun
         </button>
       </div>
 
-      <div className={styles.scrollArea}>
+      <div className={styles.scrollArea} ref={scrollAreaRef}>
         {isLoading ? (
           <div className={styles.loading}>불러오는 중...</div>
         ) : isError ? (

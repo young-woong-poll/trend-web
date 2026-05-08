@@ -54,6 +54,13 @@ $text-secondary: #d1d1d1;
 $text-tertiary: #8a8a8a;
 $disabled: #474a4f;
 
+// Teto-Egen 도메인 컬러 (H3 검증 사이클 1차 콘텐츠)
+// TODO: 다른 H3 콘텐츠 도입 시 네임스페이스 검토 필요
+$teto-blue: #4d8bff;
+$teto-blue-dim: rgba(77, 139, 255, 0.18);
+$egen-red: #ff4d6d;
+$egen-red-dim: rgba(255, 77, 109, 0.18);
+
 // Breakpoints
 $breakpoint-se: 375px;
 $breakpoint-mobile: 480px;

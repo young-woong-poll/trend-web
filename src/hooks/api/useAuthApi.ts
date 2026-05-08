@@ -16,7 +16,7 @@ import { getSignupToken } from '@/lib/signupToken';
 
 /** BE UserResponse → FE User 변환 */
 const toUser = (res: UserResponse): User => ({
-  id: Number(res.id),
+  id: res.id,
   nickname: res.nickname ?? null,
   profileColor: res.profileColor ?? 'purple',
   lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
@@ -75,8 +75,13 @@ export const submitSignup = async (data: SignupRequest): Promise<SignupResponse>
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })) as GeneratedSignupResponse;
 
+  if (!res.user) {
+    // signup 성공 응답이라면 user는 항상 포함되어야 함. 없으면 BE 계약 위반.
+    throw new Error('회원가입 응답에 user 정보가 없습니다');
+  }
+
   return {
-    user: res.user ? toUser(res.user) : toUser({ nickname: data.nickname, profileColor: 'purple' }),
+    user: toUser(res.user),
     linked: res.linked
       ? {
           votes: res.linked.votes ?? 0,

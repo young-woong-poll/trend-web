@@ -14,6 +14,8 @@ interface RepliesListProps {
   onLikeClick: (commentId: string, liked: boolean) => void;
   onEditRequest: (comment: CommentItemType) => void;
   onDeleteRequest: (comment: CommentItemType) => void;
+  /** 답글 리스트 접기 — `hasNextPage`가 false일 때 노출되는 "답글 숨기기" 핸들러 */
+  onCollapse: () => void;
 }
 
 export const RepliesList: FC<RepliesListProps> = ({
@@ -21,6 +23,7 @@ export const RepliesList: FC<RepliesListProps> = ({
   onLikeClick,
   onEditRequest,
   onDeleteRequest,
+  onCollapse,
 }) => {
   const { isLoggedIn } = useAuth();
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteReplies({
@@ -36,7 +39,7 @@ export const RepliesList: FC<RepliesListProps> = ({
   const replies = data?.pages.flatMap((page) => page.comments ?? []) ?? [];
 
   if (replies.length === 0) {
-    return <div className={styles.empty}>아직 답글이 없습니다.</div>;
+    return null;
   }
 
   return (
@@ -51,15 +54,20 @@ export const RepliesList: FC<RepliesListProps> = ({
           onDeleteClick={onDeleteRequest}
         />
       ))}
-      {hasNextPage && (
+      {hasNextPage ? (
         <button
           type="button"
-          className={styles.loadMoreButton}
+          className={styles.toggleButton}
           onClick={() => fetchNextPage()}
           disabled={isFetchingNextPage}
         >
-          <ChevronDownIcon className={styles.loadMoreChevron} aria-hidden />
+          <ChevronDownIcon className={styles.toggleChevron} aria-hidden />
           {isFetchingNextPage ? '불러오는 중...' : '답글 더보기'}
+        </button>
+      ) : (
+        <button type="button" className={styles.toggleButton} onClick={onCollapse}>
+          <ChevronDownIcon className={`${styles.toggleChevron} ${styles.expanded}`} aria-hidden />
+          답글 숨기기
         </button>
       )}
     </div>

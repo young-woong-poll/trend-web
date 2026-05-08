@@ -157,6 +157,7 @@ export const useUpdateComment = () => {
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: ['replies'] });
       void queryClient.invalidateQueries({
         queryKey: commentKeys.count(variables.slug, variables.electionId),
       });
@@ -197,6 +198,7 @@ export const useDeleteComment = () => {
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: commentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: ['replies'] });
       void queryClient.invalidateQueries({
         queryKey: commentKeys.count(variables.slug, variables.electionId),
       });
