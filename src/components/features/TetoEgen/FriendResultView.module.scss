@@ -171,38 +171,73 @@
 
 .scrollHint {
   position: absolute;
-  bottom: 28px;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: $text-tertiary;
+  gap: 4px;
+  color: $white;
+  font-size: $font-size-14;
   font-weight: $font-weight-semibold;
-  letter-spacing: 0.5px;
-  animation: bob 1.8s ease-in-out infinite;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
+  letter-spacing: -0.2px;
+  // 진폭 12px + opacity 0.55 ↔ 1.0로 "살아있는 신호".
+  animation: scrollHintBob 1.6s ease-in-out infinite;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
-@keyframes bob {
+.scrollHintLabel {
+  line-height: 1;
+}
+
+.scrollHintIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+// 4초 무반응 시 추가되는 1회성 강조 펄스. bob과 합성되며 끝나면 다시 bob만 남음.
+// pill 배경이 없으므로 화살표/카피 자체에 살짝 텍스트 글로우로 강조.
+.scrollHintPulse {
+  animation:
+    scrollHintBob 1.6s ease-in-out infinite,
+    scrollHintTextPulse 0.9s ease-out 1;
+}
+
+@keyframes scrollHintBob {
   0%,
   100% {
     transform: translate(-50%, 0);
+    opacity: 0.55;
   }
   50% {
-    transform: translate(-50%, 6px);
+    transform: translate(-50%, 12px);
+    opacity: 1;
+  }
+}
+
+@keyframes scrollHintTextPulse {
+  0% {
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  }
+  40% {
+    text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+  }
+  100% {
+    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrollHint {
+  .scrollHint,
+  .scrollHintPulse {
     animation: none;
+    opacity: 1;
   }
 }
 
@@ -210,7 +245,8 @@
   height: 100dvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  padding: 48px 24px 24px;
+  // CTA 버튼이 바닥에 너무 붙어 보이는 이슈 → bottom padding을 48px로 올려 CTA 위치를 24px 더 위로.
+  padding: 48px 24px;
   display: flex;
   flex-direction: column;
   overflow: hidden;

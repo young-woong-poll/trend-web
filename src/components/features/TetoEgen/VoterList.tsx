@@ -38,7 +38,7 @@ const VoterList: FC<VoterListProps> = ({ voters, highlightSelfId = null }) => {
               {isMe ? '나' : initial}
             </div>
             <span className={styles.name}>
-              {isMe ? '나' : v.displayName}
+              {v.displayName}
               {isMe && <span className={styles.tag}>내 답</span>}
             </span>
             <span

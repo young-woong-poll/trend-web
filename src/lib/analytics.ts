@@ -436,6 +436,43 @@ export function trackAskOwnerResultView(
   });
 }
 
+export type AskFriendResultCtaLabel = 'create_my' | 'home';
+
+/** 친구 평가 후 결과 화면 mount (1회) */
+export function trackAskFriendResultView(topic: AskTopic, hasMyLink: boolean, voteMatch: boolean) {
+  track('ask_friend_result_view', {
+    topic,
+    has_my_link: hasMyLink,
+    vote_match: voteMatch,
+  });
+}
+
+/** 결과 화면 하단 CTA가 뷰포트 50% 이상 노출된 첫 시점 (스크롤 도달률) */
+export function trackAskFriendResultCtaVisible(topic: AskTopic, hasMyLink: boolean) {
+  track('ask_friend_result_cta_visible', {
+    topic,
+    has_my_link: hasMyLink,
+  });
+}
+
+/** 결과 화면 하단 CTA 클릭 ("나도 평가 받아보기" / "홈으로 가기") */
+export function trackAskFriendResultCtaClick(
+  topic: AskTopic,
+  ctaLabel: AskFriendResultCtaLabel,
+  hasMyLink: boolean
+) {
+  track('ask_friend_result_cta_click', {
+    topic,
+    cta_label: ctaLabel,
+    has_my_link: hasMyLink,
+  });
+}
+
+/** 결과 화면 상단 BackIcon 클릭 (홈으로 빠져나감) */
+export function trackAskFriendResultBack(topic: AskTopic) {
+  track('ask_friend_result_back', { topic });
+}
+
 export type AskBannerPlacement = 'main_new' | 'main_category';
 
 /** 메인 ask promo banner 노출 (mount 시 1회). */
