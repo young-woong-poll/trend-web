@@ -6,7 +6,7 @@
  */
 
 export interface UserResponse {
-  id?: string;
+  id: string;
   nickname?: string;
   profileColor?: string;
   lastNicknameChangedAt?: string;

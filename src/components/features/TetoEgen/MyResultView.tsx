@@ -2,35 +2,38 @@
 
 import { type FC, useEffect, useRef, useState } from 'react';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+
+import { motion, useReducedMotion } from 'framer-motion';
 
 import BackIcon from '@/assets/icon/BackIcon';
-import CheckIcon from '@/assets/icon/CheckIcon';
-import CopyIcon from '@/assets/icon/CopyIcon';
-import AnswerPairRow from '@/components/features/TetoEgen/AnswerPairRow';
-import FriendAnswersCollapse from '@/components/features/TetoEgen/FriendAnswersCollapse';
+import DistCard from '@/components/features/TetoEgen/DistCard';
 import styles from '@/components/features/TetoEgen/MyResultView.module.scss';
-import ResultHeroCard from '@/components/features/TetoEgen/ResultHeroCard';
-import TetoEgenLayout from '@/components/features/TetoEgen/TetoEgenLayout';
+import TetoEgenLoading from '@/components/features/TetoEgen/TetoEgenLoading';
+import VoterList from '@/components/features/TetoEgen/VoterList';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyTetoEgenLink } from '@/hooks/api/useAskTetoEgen';
 import { useToast } from '@/hooks/useToast';
 import { trackAskOwnerResultView } from '@/lib/analytics';
-import { buildFriendShareUrl } from '@/types/ask-teto-egen';
+import { getBigword, getResultAdjective } from '@/lib/tetoEgenAdjective';
+import { getResultColorTokens } from '@/lib/tetoEgenColor';
+import { buildFriendShareUrl, type TetoEgenAnswer } from '@/types/ask-teto-egen';
+
+const SPARSE_THRESHOLD = 2;
+const COPY_FEEDBACK_MS = 1800;
+
+const labelOf = (a: TetoEgenAnswer) => (a === 'TETO' ? '테토' : '에겐');
 
 const MyResultView: FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // 친구 결과 화면에서 [내 결과 보러 가기]/[나도 투표 받아보기]로 넘어온 경우에만 back 버튼 노출.
-  const fromFriend = searchParams.get('from') === 'friend';
   const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
   const { toast, showToast } = useToast();
+  const shouldReduceMotion = useReducedMotion();
 
   // 비로그인 → 랜딩 + 로그인 모달
   useEffect(() => {
     if (!isAuthLoading && !isLoggedIn) {
       router.replace('/ask/teto-egen');
-      // 다음 렌더에서 requireLogin
       window.setTimeout(() => requireLogin('ask'), 100);
     }
   }, [isAuthLoading, isLoggedIn, requireLogin, router]);
@@ -45,19 +48,17 @@ const MyResultView: FC = () => {
     }
   }, [error, router]);
 
+  // GA 트래킹 (1회)
   const trackedRef = useRef(false);
   useEffect(() => {
-    if (trackedRef.current) {
-      return;
-    }
-    if (!data) {
+    if (trackedRef.current || !data) {
       return;
     }
     const { tetoCount, egenCount, total } = data.friendVotes;
     let isMajorityMatch = false;
     if (total > 0) {
       if (tetoCount === egenCount) {
-        isMajorityMatch = true; // 동률 시 자기 답과 일치 처리 (기존 variant 로직과 동일)
+        isMajorityMatch = true;
       } else if (tetoCount > egenCount) {
         isMajorityMatch = data.selfAnswer === 'TETO';
       } else {
@@ -68,7 +69,7 @@ const MyResultView: FC = () => {
     trackedRef.current = true;
   }, [data]);
 
-  // 복사 직후 1.8초간 [링크 복사하기] 버튼이 [✓ 복사됐어요!] 상태로 morphing.
+  // 복사 morphing + 실패 toast (기존 패턴 유지)
   const [isCopied, setIsCopied] = useState(false);
   const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,119 +83,243 @@ const MyResultView: FC = () => {
       if (copiedTimerRef.current) {
         clearTimeout(copiedTimerRef.current);
       }
-      copiedTimerRef.current = setTimeout(() => setIsCopied(false), 1800);
+      copiedTimerRef.current = setTimeout(() => setIsCopied(false), COPY_FEEDBACK_MS);
     } catch {
       showToast('복사에 실패했어요');
     }
   };
 
+  useEffect(
+    () => () => {
+      if (copiedTimerRef.current) {
+        clearTimeout(copiedTimerRef.current);
+      }
+    },
+    []
+  );
+
   if (isAuthLoading || isLoading || !data) {
-    return (
-      <TetoEgenLayout>
-        <div className={styles.loading}>결과를 불러오는 중...</div>
-      </TetoEgenLayout>
-    );
+    return <TetoEgenLoading />;
   }
 
   const total = data.friendVotes.total;
   const isEmpty = total === 0;
+  const isSparse = total > 0 && total <= SPARSE_THRESHOLD;
+  const adj = getResultAdjective(
+    data.friendVotes.tetoCount,
+    data.friendVotes.egenCount,
+    data.selfAnswer
+  );
+  const colors = getResultColorTokens(adj.result);
 
-  let variant: 'hit' | 'miss' | 'empty' = 'empty';
-  let majorityAnswer: 'TETO' | 'EGEN' | undefined;
-  let majorityCount = 0;
-  let majorityPercent = 0;
+  const bigword = getBigword(adj);
+  const isPredictionHit = data.selfPrediction === adj.result;
 
-  if (!isEmpty) {
-    if (data.friendVotes.tetoCount === data.friendVotes.egenCount) {
-      // 동률 → 사용자 자기 답과 일치 시 적중 처리
-      majorityAnswer = data.selfAnswer;
-      majorityCount = data.friendVotes.tetoCount;
-      variant = 'hit';
-    } else if (data.friendVotes.tetoCount > data.friendVotes.egenCount) {
-      majorityAnswer = 'TETO';
-      majorityCount = data.friendVotes.tetoCount;
-      variant = data.selfAnswer === 'TETO' ? 'hit' : 'miss';
-    } else {
-      majorityAnswer = 'EGEN';
-      majorityCount = data.friendVotes.egenCount;
-      variant = data.selfAnswer === 'EGEN' ? 'hit' : 'miss';
-    }
-    majorityPercent = Math.round((majorityCount / total) * 100);
-  }
+  // 진입 모션 — 위→아래 순차 등장. reduce-motion 시 즉시 표시.
+  const heroPreMotion = shouldReduceMotion
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
+
+  const heroBigwordMotion = shouldReduceMotion
+    ? { initial: { opacity: 1, scale: 1, y: 0 }, animate: { opacity: 1, scale: 1, y: 0 } }
+    : {
+        initial: { opacity: 0, scale: 0.85, y: 8 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+      };
+
+  const heroLateMotion = shouldReduceMotion
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
+
+  const baseTransition = { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const };
 
   return (
     <>
-      <TetoEgenLayout>
-        <div className={styles.stack}>
-          <header className={styles.identityHeader}>
-            {fromFriend && (
+      <div
+        className={styles.frame}
+        style={{
+          // 결과 색상에 따라 페이지 배경 ambient를 동적으로 설정.
+          ['--ambient-primary' as string]: colors.ambient.primary,
+          ['--ambient-secondary' as string]: colors.ambient.secondary,
+        }}
+      >
+        <section className={styles.hero}>
+          <button
+            type="button"
+            className={styles.backButton}
+            onClick={() => router.back()}
+            aria-label="뒤로"
+          >
+            <BackIcon className={styles.backIcon} />
+          </button>
+          <span className={styles.contextChip}>내 결과</span>
+
+          <div className={styles.heroMid}>
+            <motion.p className={styles.pre} {...heroPreMotion} transition={baseTransition}>
+              <strong>{data.displayName}</strong>님은 친구들이 보기에
+            </motion.p>
+
+            {isEmpty ? (
+              <motion.h1
+                className={styles.bigwordEmpty}
+                {...heroBigwordMotion}
+                transition={{ ...baseTransition, duration: 0.9, delay: 0.3 }}
+              >
+                아직 친구가
+                <br />
+                평가하지 않았어요
+              </motion.h1>
+            ) : (
+              <>
+                {adj.display === 'spaced' && adj.modifier && (
+                  <motion.p
+                    className={styles.modifier}
+                    {...heroLateMotion}
+                    transition={{ ...baseTransition, delay: 0.3 }}
+                  >
+                    {adj.modifier}
+                  </motion.p>
+                )}
+                <motion.h1
+                  className={styles.bigword}
+                  style={{
+                    backgroundImage: colors.gradient,
+                    textShadow: `0 8px 40px ${colors.glow}`,
+                  }}
+                  {...heroBigwordMotion}
+                  transition={{ ...baseTransition, duration: 0.9, delay: 0.3 }}
+                >
+                  {bigword}
+                </motion.h1>
+                <motion.p
+                  className={styles.tag}
+                  {...heroLateMotion}
+                  transition={{ ...baseTransition, delay: 0.6 }}
+                >
+                  {isSparse ? (
+                    <>
+                      <strong>{total}명</strong>만 답함
+                    </>
+                  ) : (
+                    <>
+                      <strong>{total}명</strong> 중{' '}
+                      <strong>
+                        {adj.result === 'TETO'
+                          ? data.friendVotes.tetoCount
+                          : data.friendVotes.egenCount}
+                        명
+                      </strong>{' '}
+                      동의
+                    </>
+                  )}
+                </motion.p>
+                {!isSparse && (
+                  <motion.dl
+                    className={styles.meta}
+                    aria-label="예측 결과 비교"
+                    {...heroLateMotion}
+                    transition={{ ...baseTransition, delay: 0.9 }}
+                  >
+                    <div className={styles.metaItem}>
+                      <dt className={styles.metaLabel}>내 예측</dt>
+                      <dd className={styles.metaVal}>{labelOf(data.selfPrediction)}</dd>
+                    </div>
+                    <span className={styles.metaDivider} aria-hidden />
+                    <div className={styles.metaItem}>
+                      <dt className={styles.metaLabel}>실제</dt>
+                      <dd className={styles.metaVal}>{labelOf(adj.result)}</dd>
+                    </div>
+                    <span className={styles.metaDivider} aria-hidden />
+                    <div className={styles.metaItem}>
+                      <dt className={styles.metaLabel}>예상</dt>
+                      <dd className={styles.metaVal}>{isPredictionHit ? '적중' : '빗나감'}</dd>
+                    </div>
+                  </motion.dl>
+                )}
+                {isSparse && (
+                  <motion.ul
+                    className={styles.sparseVoters}
+                    aria-label="답한 친구"
+                    {...heroLateMotion}
+                    transition={{ ...baseTransition, delay: 0.9 }}
+                  >
+                    {data.friendVotes.voters.map((v) => (
+                      <li key={v.userId} className={styles.sparseVoter}>
+                        <span className={styles.sparseVoterName}>{v.displayName}</span>
+                        <span
+                          className={`${styles.sparseVoterVote} ${
+                            v.vote === 'TETO'
+                              ? styles.sparseVoterVoteTeto
+                              : styles.sparseVoterVoteEgen
+                          }`}
+                        >
+                          {labelOf(v.vote)}
+                        </span>
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* sparse/empty 케이스: Hero 자체에서 공유 유도 (snap 이동 없이) */}
+          {(isEmpty || isSparse) && (
+            <div className={styles.heroShare}>
+              <p className={styles.heroShareHint}>
+                {isEmpty
+                  ? '친구들에게 공유하고 결과를 받아보세요'
+                  : '아직 초기 결과예요 — 더 물어보세요'}
+              </p>
               <button
                 type="button"
-                className={styles.identityBackButton}
-                onClick={() => router.back()}
-                aria-label="이전 화면으로"
+                className={styles.ctaPrimary}
+                onClick={handleCopy}
+                aria-live="polite"
               >
-                <BackIcon width={20} height={20} className={styles.identityBackIcon} />
+                {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
               </button>
-            )}
-            <h3 className={styles.identityTitle}>내 결과</h3>
-          </header>
+            </div>
+          )}
 
-          <ResultHeroCard
-            variant={variant}
-            majorityAnswer={majorityAnswer}
-            majorityPercent={majorityPercent}
-            totalFriends={total}
-            majorityCount={majorityCount}
-            displayName={data.displayName}
-          />
+          {!isEmpty && !isSparse && (
+            <div className={styles.scrollHint} aria-hidden>
+              <span>SCROLL</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          )}
+        </section>
 
-          <div className={styles.friendsGroup}>
-            <AnswerPairRow
-              left={{
-                label: '내 선택',
-                value: data.selfAnswer === 'TETO' ? '테토' : '에겐',
-              }}
-              right={{
-                label: '친구들 예상',
-                value: data.selfPrediction === 'TETO' ? '테토' : '에겐',
-              }}
+        {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
+        {!isEmpty && !isSparse && (
+          <section className={styles.detail}>
+            <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
+            <DistCard
+              tetoCount={data.friendVotes.tetoCount}
+              egenCount={data.friendVotes.egenCount}
             />
-            <FriendAnswersCollapse friendVotes={data.friendVotes} />
-          </div>
-
-          <div className={styles.shareArea}>
-            <div className={styles.shareHeader}>
-              <h3 className={styles.shareTitle}>
-                {isEmpty ? '친구에게 공유하기' : '더 많은 친구들에게 투표받기'}
-              </h3>
+            <div className={styles.sectionHead}>
+              <h2 className={styles.sectionTitle}>친구들 답</h2>
+              <span className={styles.sectionCount}>
+                <strong>{total}</strong>명
+              </span>
             </div>
-            <div className={styles.linkBox}>
-              <span className={styles.linkText}>{buildFriendShareUrl(data.token)}</span>
+            <VoterList voters={data.friendVotes.voters} />
+            <div className={styles.detailCta}>
+              <button
+                type="button"
+                className={styles.ctaPrimary}
+                onClick={handleCopy}
+                aria-live="polite"
+              >
+                {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
+              </button>
             </div>
-            <button
-              type="button"
-              className={`${styles.cta} ${isCopied ? styles.ctaCopied : ''}`}
-              onClick={handleCopy}
-              aria-live="polite"
-            >
-              {isCopied ? (
-                <CheckIcon width={18} height={18} />
-              ) : (
-                <CopyIcon className={styles.copyIcon} />
-              )}
-              <span className={styles.ctaLabel}>{isCopied ? '복사완료!' : '링크 복사하기'}</span>
-            </button>
-            <button
-              type="button"
-              className={styles.secondaryAction}
-              onClick={() => router.push('/')}
-            >
-              홈으로 돌아가기
-            </button>
-          </div>
-        </div>
-      </TetoEgenLayout>
+          </section>
+        )}
+      </div>
 
       {toast.isVisible && <div className={styles.toast}>{toast.message}</div>}
     </>

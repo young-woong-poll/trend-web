@@ -1,6 +1,5 @@
 @use '@/styles/variables' as *;
 
-// scroll-snap container = .frame
 .frame {
   height: 100dvh;
   overflow-y: auto;
@@ -27,7 +26,6 @@
   }
 }
 
-// ── Section 1: Hero ──
 .hero {
   position: relative;
   height: 100dvh;
@@ -110,7 +108,7 @@
 }
 
 .bigword {
-  font-size: 96px;
+  font-size: 92px;
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: -3px;
@@ -121,22 +119,15 @@
   color: transparent;
 }
 
-.bigwordEmpty {
-  font-size: 30px;
-  font-weight: $font-weight-bold;
-  line-height: 1.3;
+.verdictSub {
+  font-size: $font-size-16;
   color: $white;
+  font-weight: $font-weight-semibold;
+  line-height: 1.5;
   margin: 0 0 28px;
-}
-
-.tag {
-  font-size: 13px;
-  color: $text-tertiary;
-  margin: 0 0 18px;
 
   strong {
-    color: $white;
-    font-weight: $font-weight-bold;
+    font-weight: 800;
   }
 }
 
@@ -178,61 +169,6 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-// sparse(1~2명) 케이스 — 누가 어떻게 답했는지 inline 노출.
-.sparseVoters {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.sparseVoter {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: $border-rounded;
-  font-size: 13px;
-}
-
-.sparseVoterName {
-  color: $white;
-  font-weight: $font-weight-semibold;
-}
-
-.sparseVoterVote {
-  font-size: 11px;
-  font-weight: $font-weight-bold;
-  padding: 2px 8px;
-  border-radius: $border-rounded;
-}
-
-.sparseVoterVoteTeto {
-  background: $teto-blue-dim;
-  color: $teto-blue;
-}
-
-.sparseVoterVoteEgen {
-  background: $egen-red-dim;
-  color: $egen-red;
-}
-
-.heroShare {
-  text-align: center;
-  margin-top: 24px;
-}
-
-.heroShareHint {
-  font-size: 13px;
-  color: $text-secondary;
-  margin: 0 0 12px;
-}
-
 .scrollHint {
   position: absolute;
   bottom: 28px;
@@ -270,7 +206,6 @@
   }
 }
 
-// ── Section 2: Detail ──
 .detail {
   height: 100dvh;
   scroll-snap-align: start;
@@ -319,6 +254,14 @@
   padding-top: 24px;
 }
 
+.ctaHook {
+  font-size: $font-size-14;
+  color: $text-secondary;
+  text-align: center;
+  margin: 0 0 10px;
+  font-weight: $font-weight-semibold;
+}
+
 .ctaPrimary {
   display: flex;
   align-items: center;
@@ -338,18 +281,4 @@
   &:active {
     transform: scale(0.98);
   }
-}
-
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 80px;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.85);
-  color: $white;
-  padding: 12px 20px;
-  border-radius: $border-rounded;
-  font-size: $font-size-14;
-  z-index: $z-index-tooltip;
-  pointer-events: none;
 }

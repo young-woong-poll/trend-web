@@ -404,6 +404,18 @@ export function buildFileName(file: File, options?: UploadImageOptions): string 
 }
 
 /**
+ * Normalize ISO 8601 string to ensure UTC timezone designator.
+ * BE가 timezone 없이 ISO 8601을 보낼 때 브라우저가 로컬 타임존으로 잘못 해석하는 것을 방지.
+ * 예: "2026-05-08T10:30:00" → "2026-05-08T10:30:00Z" (Z 또는 +/- 오프셋이 이미 있으면 그대로).
+ */
+export function ensureUtcIsoString(iso: string): string {
+  if (/[Zz]$|[+-]\d{2}:?\d{2}$/.test(iso)) {
+    return iso;
+  }
+  return `${iso}Z`;
+}
+
+/**
  * Get relative time string (YouTube style)
  * Examples: "방금 전", "5분전", "3시간전", "2일전", "1주전", "3개월전", "1년전"
  */

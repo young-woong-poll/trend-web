@@ -2,7 +2,7 @@
 //
 // H3 "테토/에겐" React Query 훅.
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   createTetoEgenLink,
@@ -11,7 +11,11 @@ import {
   getTetoEgenCount,
   submitFriendVote,
 } from '@/api/ask-teto-egen';
-import type { CreateTetoEgenLinkRequest, SubmitFriendVoteRequest } from '@/types/ask-teto-egen';
+import type {
+  CreateTetoEgenLinkRequest,
+  FriendTetoEgenMetaResponse,
+  SubmitFriendVoteRequest,
+} from '@/types/ask-teto-egen';
 
 const keys = {
   count: ['askTetoEgen', 'count'] as const,
@@ -68,7 +72,25 @@ export const useFriendTetoEgenMeta = (token: string, enabled = true) =>
     },
   });
 
-export const useSubmitFriendVote = (token: string) =>
-  useMutation({
+export const useSubmitFriendVote = (token: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: (body: SubmitFriendVoteRequest) => submitFriendVote(token, body),
+    // vote 제출 직후 friendMeta 캐시를 결과 화면 상태로 동기화.
+    // 사용자가 /my 등으로 이동했다가 뒤로가기로 돌아왔을 때, stale 캐시(myVote 없음)로 인해
+    // 평가 화면이 잠깐 깜빡 노출되는 문제 방지.
+    onSuccess: (data) => {
+      queryClient.setQueryData<FriendTetoEgenMetaResponse | undefined>(
+        keys.friendMeta(token),
+        (old) => ({
+          token,
+          ownerDisplayName: data.ownerDisplayName,
+          isOwn: old?.isOwn ?? false,
+          myVote: data.myVote,
+          ownerSelfAnswer: data.ownerSelfAnswer,
+          friendVotes: data.friendVotes,
+        })
+      );
+    },
   });
+};

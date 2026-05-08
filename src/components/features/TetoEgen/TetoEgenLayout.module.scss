@@ -42,6 +42,26 @@
   justify-content: flex-end;
 }
 
+.logoLink {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 $spacing-8;
+  text-decoration: none;
+  border-radius: $border-radius-md;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.logoImg {
+  height: 24px;
+  width: auto;
+}
+
 .iconButton {
   pointer-events: auto;
   display: inline-flex;

@@ -19,7 +19,7 @@ export default function AskTetoEgenPage() {
   };
 
   return (
-    <TetoEgenLayout showClose>
+    <TetoEgenLayout showLogo showClose>
       <LandingHero onStart={handleStart} />
     </TetoEgenLayout>
   );

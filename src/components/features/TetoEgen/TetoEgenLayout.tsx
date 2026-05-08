@@ -2,10 +2,13 @@
 
 import { type FC, type ReactNode, useCallback } from 'react';
 
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import CloseIcon from '@/assets/icon/CloseIcon';
+import mainLogo from '@/assets/img/main-logo@1x.png';
 import styles from '@/components/features/TetoEgen/TetoEgenLayout.module.scss';
 
 type TetoEgenLayoutProps = {
@@ -13,6 +16,8 @@ type TetoEgenLayoutProps = {
   onBack?: () => void;
   showClose?: boolean;
   onClose?: () => void;
+  // 좌상단에 HotPick 로고 노출 + 클릭 시 홈으로. showBack과 동시 사용 시 showBack 우선.
+  showLogo?: boolean;
   children: ReactNode;
   footer?: ReactNode;
 };
@@ -22,6 +27,7 @@ const TetoEgenLayout: FC<TetoEgenLayoutProps> = ({
   onBack,
   showClose = false,
   onClose,
+  showLogo = false,
   children,
   footer,
 }) => {
@@ -43,13 +49,13 @@ const TetoEgenLayout: FC<TetoEgenLayoutProps> = ({
     }
   }, [onClose, router]);
 
-  const hasHeaderButton = showBack || showClose;
+  const hasHeaderButton = showBack || showClose || showLogo;
 
   return (
     <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.leadingSlot}>
-          {showBack && (
+          {showBack ? (
             <button
               type="button"
               className={styles.iconButton}
@@ -58,7 +64,11 @@ const TetoEgenLayout: FC<TetoEgenLayoutProps> = ({
             >
               <BackIcon className={styles.icon} />
             </button>
-          )}
+          ) : showLogo ? (
+            <Link href="/" className={styles.logoLink} aria-label="HotPick 메인으로 이동">
+              <Image src={mainLogo} alt="HotPick" priority height={24} className={styles.logoImg} />
+            </Link>
+          ) : null}
         </div>
         <div className={styles.trailingSlot}>
           {showClose && (
