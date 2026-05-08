@@ -4,7 +4,8 @@ import type { Metadata, Viewport } from 'next';
 
 const TITLE = '나는 테토일까, 에겐일까?';
 const DESCRIPTION = '친구들한테 물어보자';
-const OG_IMAGE = `${SITE_URL}/api/og/teto-egen?variant=landing`;
+const OG_IMAGE =
+  'https://trend-image.votebox.kr/uploads/2026/05/08/170ad70a2e5e412fa9e92c129e8f13a4.png';
 const PAGE_URL = `${SITE_URL}/ask/teto-egen`;
 
 export const metadata: Metadata = {

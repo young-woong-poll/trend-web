@@ -2,7 +2,8 @@ import { SITE_NAME, SITE_URL } from '@/lib/seo/constants';
 
 import type { Metadata } from 'next';
 
-const OG_IMAGE = `${SITE_URL}/api/og/teto-egen?variant=friend`;
+const OG_IMAGE =
+  'https://trend-image.votebox.kr/uploads/2026/05/08/3ab9c6adcc6b421a8da4bfea56444935.png';
 const FALLBACK_NAME = '친구';
 
 type LayoutProps = {
