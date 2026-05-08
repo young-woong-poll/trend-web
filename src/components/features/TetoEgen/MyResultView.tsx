@@ -98,6 +98,37 @@ const MyResultView: FC = () => {
     []
   );
 
+  // 4초 무반응 시 scrollHint 펄스 — FriendResultView와 동일 패턴.
+  // 한 번이라도 스크롤하면 즉시 해제, 다시 트리거되지 않음.
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [shouldPulse, setShouldPulse] = useState(false);
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      return;
+    }
+    const el = frameRef.current;
+    if (!el) {
+      return;
+    }
+    let scrolled = false;
+    const onScroll = () => {
+      if (el.scrollTop > 4) {
+        scrolled = true;
+        setShouldPulse(false);
+      }
+    };
+    const timer = window.setTimeout(() => {
+      if (!scrolled) {
+        setShouldPulse(true);
+      }
+    }, 4000);
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      el.removeEventListener('scroll', onScroll);
+    };
+  }, [shouldReduceMotion]);
+
   if (isAuthLoading || isLoading || !data) {
     return <TetoEgenLoading />;
   }
@@ -136,6 +167,7 @@ const MyResultView: FC = () => {
   return (
     <>
       <div
+        ref={frameRef}
         className={styles.frame}
         style={{
           // 결과 색상에 따라 페이지 배경 ambient를 동적으로 설정.
@@ -283,10 +315,20 @@ const MyResultView: FC = () => {
           )}
 
           {!isEmpty && !isSparse && (
-            <div className={styles.scrollHint} aria-hidden>
-              <span>SCROLL</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            <div
+              className={`${styles.scrollHint} ${shouldPulse ? styles.scrollHintPulse : ''}`}
+              aria-hidden
+            >
+              <span className={styles.scrollHintLabel}>친구들 답 보기</span>
+              <svg
+                className={styles.scrollHintIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path d="M6 6l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           )}

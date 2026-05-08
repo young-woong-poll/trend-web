@@ -121,21 +121,25 @@
 | 7   | `auth_logout`         | (없음)                                                                        | 로그아웃 ([`AuthProvider.tsx:227`](../../src/providers/AuthProvider.tsx))                                      |
 | 8   | `auth_withdraw`       | (없음)                                                                        | 회원 탈퇴 ([`MyPageView.tsx:63`](../../src/components/features/MyPage/MyPageView.tsx))                         |
 
-### 3-6. Ask H3 (9종)
+### 3-6. Ask H3 (13종)
 
 > 메인 promo banner 2종(`ask_promo_banner_view` / `ask_promo_banner_click`)은 §3-1 메인 표 cross-reference. Ask 흐름의 진입점이라서 entry_point 분석에서 함께 본다.
 
-| #   | 이벤트                   | 파라미터                                                                                | 발화 시점                                                                                                                                      |
-| --- | ------------------------ | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `ask_view`               | `topic` (`teto-egen`), `entry_point` ∈ {`direct`, `relay`, `share_link`, `main_banner`} | 랜딩 mount ([`LandingHero.tsx:35`](../../src/components/features/TetoEgen/LandingHero.tsx)) — querystring `?src=` 우선, fallback referrer 검사 |
-| 2   | `ask_self_answer`        | `topic`, `self_answer` (`TETO`\|`EGEN`), `self_prediction`                              | Q2 응답 완료 ([`PrimaryFlow.tsx:74`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                                  |
-| 3   | `ask_link_create`        | `topic`, `self_answer`, `self_prediction`                                               | 링크 생성 성공 ([`PrimaryFlow.tsx:89`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                                |
-| 4   | `ask_share_link`         | `topic`, `method` (`copy`\|`kakao`)                                                     | 공유 트리거 ([`PrimaryFlow.tsx:94,137`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                               |
-| 5   | `ask_friend_landing`     | `topic`, `is_own` (true면 자기 링크 진입 — 평가 차단)                                   | 친구 평가 페이지 mount ([`FriendFlow.tsx:46`](../../src/components/features/TetoEgen/FriendFlow.tsx))                                          |
-| 6   | `ask_friend_vote`        | `topic`, `vote`, `matches_owner_self_answer`                                            | 친구 평가 제출 성공 ([`FriendFlow.tsx:84`](../../src/components/features/TetoEgen/FriendFlow.tsx))                                             |
-| 7   | `ask_owner_result_view`  | `topic`, `friend_count`, `is_majority_match`                                            | 본인 결과 진입/폴링/재진입 ([`MyResultView.tsx:67`](../../src/components/features/TetoEgen/MyResultView.tsx))                                  |
-| 8   | `ask_promo_banner_view`  | (§3-1 #4 참조)                                                                          | (§3-1 #4 참조)                                                                                                                                 |
-| 9   | `ask_promo_banner_click` | (§3-1 #5 참조)                                                                          | (§3-1 #5 참조)                                                                                                                                 |
+| #   | 이벤트                          | 파라미터                                                                                | 발화 시점                                                                                                                                                   |
+| --- | ------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `ask_view`                      | `topic` (`teto-egen`), `entry_point` ∈ {`direct`, `relay`, `share_link`, `main_banner`} | 랜딩 mount ([`LandingHero.tsx:35`](../../src/components/features/TetoEgen/LandingHero.tsx)) — querystring `?src=` 우선, fallback referrer 검사              |
+| 2   | `ask_self_answer`               | `topic`, `self_answer` (`TETO`\|`EGEN`), `self_prediction`                              | Q2 응답 완료 ([`PrimaryFlow.tsx:74`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                                               |
+| 3   | `ask_link_create`               | `topic`, `self_answer`, `self_prediction`                                               | 링크 생성 성공 ([`PrimaryFlow.tsx:89`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                                             |
+| 4   | `ask_share_link`                | `topic`, `method` (`copy`\|`kakao`)                                                     | 공유 트리거 ([`PrimaryFlow.tsx:94,137`](../../src/components/features/TetoEgen/PrimaryFlow.tsx))                                                            |
+| 5   | `ask_friend_landing`            | `topic`, `is_own` (true면 자기 링크 진입 — 평가 차단)                                   | 친구 평가 페이지 mount ([`FriendFlow.tsx:46`](../../src/components/features/TetoEgen/FriendFlow.tsx))                                                       |
+| 6   | `ask_friend_vote`               | `topic`, `vote`, `matches_owner_self_answer`                                            | 친구 평가 제출 성공 ([`FriendFlow.tsx:84`](../../src/components/features/TetoEgen/FriendFlow.tsx))                                                          |
+| 7   | `ask_friend_result_view`        | `topic`, `has_my_link` (bool), `vote_match` (bool)                                      | 친구 결과 화면 mount 1회 (myLink 로드 완료 후) ([`FriendResultView.tsx`](../../src/components/features/TetoEgen/FriendResultView.tsx))                      |
+| 8   | `ask_friend_result_cta_visible` | `topic`, `has_my_link`                                                                  | `.detailCta` 영역 IntersectionObserver 50% 노출 1회 — 스크롤 도달률 ([`FriendResultView.tsx`](../../src/components/features/TetoEgen/FriendResultView.tsx)) |
+| 9   | `ask_friend_result_cta_click`   | `topic`, `cta_label` (`create_my`\|`home`), `has_my_link`                               | 결과 화면 하단 primary CTA 클릭 ([`FriendResultView.tsx`](../../src/components/features/TetoEgen/FriendResultView.tsx))                                     |
+| 10  | `ask_friend_result_back`        | `topic`                                                                                 | 결과 화면 상단 BackIcon 클릭 ([`FriendResultView.tsx`](../../src/components/features/TetoEgen/FriendResultView.tsx))                                        |
+| 11  | `ask_owner_result_view`         | `topic`, `friend_count`, `is_majority_match`                                            | 본인 결과 진입/폴링/재진입 ([`MyResultView.tsx:67`](../../src/components/features/TetoEgen/MyResultView.tsx))                                               |
+| 12  | `ask_promo_banner_view`         | (§3-1 #4 참조)                                                                          | (§3-1 #4 참조)                                                                                                                                              |
+| 13  | `ask_promo_banner_click`        | (§3-1 #5 참조)                                                                          | (§3-1 #5 참조)                                                                                                                                              |
 
 `ask_view.entry_point` enum 의미:
 
@@ -239,6 +243,18 @@ GA4 콘솔 → 관리(좌측 하단) → 데이터 표시 → 맞춤 정의 → 
 
 > 등록 누락 의심 시: DebugView에서 새 파라미터(예: `tab_kind`)가 보이지 않으면 해당 차원 등록을 다시 확인.
 
+### 4-3-2. 맞춤 측정기준 — 신규 등록 (2026-05-09, 친구 결과 화면 K-factor 보강, 3개)
+
+운영자가 GA4 콘솔에 수동 등록 필요. `cta_label`·`vote_match`·`has_my_link` 모두 이벤트 범위. 등록 후 §3-6 #7~#10 신규 4개 이벤트의 파라미터가 보고서에서 차원으로 잡힌다. 등록 절차는 §4와 동일 (관리 → 데이터 표시 → 맞춤 정의 → 맞춤 측정기준 만들기).
+
+| 이름(한글)     | 영문 키       | 범위   | 매개변수(이벤트 파라미터 키) | 비고                                                                                                  |
+| -------------- | ------------- | ------ | ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 본인 링크 보유 | `has_my_link` | 이벤트 | `has_my_link`                | bool. `ask_friend_result_view` / `ask_friend_result_cta_visible` / `ask_friend_result_cta_click` 발화 |
+| 답변 일치      | `vote_match`  | 이벤트 | `vote_match`                 | bool. `ask_friend_result_view`에서 발화 (`myVote === ownerSelfAnswer`)                                |
+| CTA 라벨       | `cta_label`   | 이벤트 | `cta_label`                  | enum: `create_my` \| `home`. `ask_friend_result_cta_click`에서 발화                                   |
+
+> 기존 등록된 `topic`(§4-1)은 그대로 재사용 — 별도 등록 불필요.
+
 ### 4-4. 핵심 이벤트 토글 권장
 
 GA4 관리 → 이벤트 메뉴에서 아래 이벤트의 **"핵심 이벤트로 표시"** 토글을 켠다 (KPI 대시보드 자동 집계). GA4는 발화 1회 이상 후에만 토글 가능하므로 신규 이벤트는 첫 발화 다음날 작업.
@@ -248,6 +264,8 @@ GA4 관리 → 이벤트 메뉴에서 아래 이벤트의 **"핵심 이벤트로
 - `auth_signup_success`
 - `card_click`
 - `ask_promo_banner_click`
+- `ask_friend_result_cta_click` (K-factor 핵심 — 친구 평가자 → 본인 링크 생성 직전 단계)
+- `ask_link_create` (K-factor 도착 단계)
 
 ### 4-5. 잠재고객 사전 정의 (선택)
 
@@ -672,6 +690,7 @@ NEXT_PUBLIC_GA_ID=G-DUMMY pnpm start
 
 ## 7. 변경 이력 (Changelog)
 
+- **2026-05-09**: 친구 결과 화면 K-factor 사각지대 보강. 신규 4개 이벤트(`ask_friend_result_view`, `ask_friend_result_cta_visible`, `ask_friend_result_cta_click`, `ask_friend_result_back`) + 신규 3개 이벤트 범위 차원(`has_my_link`, `vote_match`, `cta_label`) 추가. §3-6 Ask 표 13종으로 확장, §4-3-2에 콘솔 등록 가이드 신설, §4-4 핵심 이벤트 토글에 `ask_friend_result_cta_click` / `ask_link_create` 추가. 트래킹 위치는 [`FriendResultView.tsx`](../../src/components/features/TetoEgen/FriendResultView.tsx) — mount 1회, `.detailCta` IntersectionObserver 50% 1회, `handleNext` / `handleBack` 클릭. `LoginTrigger`의 `'ask'`는 이미 적용 완료 — Ask 3개 진입점(`page.tsx`, `FriendFlow.tsx`, `MyResultView.tsx`) 모두 `requireLogin('ask')` 호출 중.
 - **2026-05-05**: §5-1에 UTM 워크플로우 보강. §5-7 회원가입 퍼널 / §5-8 번들 풀기 퍼널 / §5-9 코호트 리텐션 신설.
 - **2026-05-05**: 단일 마스터 플랜 통합. `docs/ga4.md`(환경 분리/인프라/디버깅) + `docs/ga4-guide.md`(번들 분석 매뉴얼) + `docs/superpowers/plans/2026-05-05-ga4-ask-and-category-tabs.md`(메인·banner 신규 6종) 흡수. **신규 11개 차원** (`tab_kind`/`tab_value`/`my_sub_tab`/`category_slug`/`placement`/`from_kind`/`from_value`/`to_kind`/`to_value`/`card_type`/`position`) + 6개 이벤트(`main_view`, `main_tab_change`, `card_click`, `ask_promo_banner_view`, `ask_promo_banner_click`, `ask_view` entry_point 확장) 반영. §5에 콘텐츠 니치 피벗 6주 검증 KPI 추가.
 - 2026-04-29: GA4 콘솔에 35개 이벤트 범위 차원 + 6개 사용자 범위 + 4개 측정항목 일괄 등록 (`event.md` 스냅샷).
