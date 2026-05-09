@@ -193,7 +193,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         <button type="button" className={styles.backButton} onClick={handleBack} aria-label="뒤로">
           <BackIcon className={styles.backIcon} />
         </button>
-        <span className={styles.contextChip}>친구 평가</span>
+        <span className={styles.contextChip}>{ownerDisplayName}님의 결과</span>
 
         <div className={styles.heroMid}>
           <motion.p className={styles.pre} {...heroPreMotion} transition={baseTransition}>
