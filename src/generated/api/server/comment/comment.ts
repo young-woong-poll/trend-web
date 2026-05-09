@@ -7,6 +7,7 @@
 import type {
   BaseResponseCommentCountResponse,
   BaseResponseCommentCreateResponse,
+  BaseResponseCommentDetailResponse,
   BaseResponseCommentLikeResponse,
   BaseResponseCommentListResponse,
   BaseResponseCommentUpdateResponse,
@@ -22,6 +23,58 @@ import type {
 } from '../openAPIDefinition.schemas';
 
 import { serverFetchInstance } from '../../../../lib/server-fetch-mutator';
+
+/**
+ * @summary 단건 댓글 조회 (핀 영역용; comment + parent 응답)
+ */
+export type getCommentDetailResponse200 = {
+  data: BaseResponseCommentDetailResponse;
+  status: 200;
+};
+
+export type getCommentDetailResponse409 = {
+  data: BaseResponseObject;
+  status: 409;
+};
+
+export type getCommentDetailResponse429 = {
+  data: BaseResponseVoid;
+  status: 429;
+};
+
+export type getCommentDetailResponse500 = {
+  data: BaseResponseVoid;
+  status: 500;
+};
+
+export type getCommentDetailResponseSuccess = getCommentDetailResponse200 & {
+  headers: Headers;
+};
+export type getCommentDetailResponseError = (
+  | getCommentDetailResponse409
+  | getCommentDetailResponse429
+  | getCommentDetailResponse500
+) & {
+  headers: Headers;
+};
+
+export type getCommentDetailResponse =
+  | getCommentDetailResponseSuccess
+  | getCommentDetailResponseError;
+
+export const getGetCommentDetailUrl = (commentId: string) => {
+  return `/api/v1/comments/${commentId}`;
+};
+
+export const getCommentDetail = async (
+  commentId: string,
+  options?: RequestInit
+): Promise<getCommentDetailResponse> => {
+  return serverFetchInstance<getCommentDetailResponse>(getGetCommentDetailUrl(commentId), {
+    ...options,
+    method: 'GET',
+  });
+};
 
 /**
  * @summary Update comment

@@ -12,7 +12,7 @@ export interface SignupRequest {
    * @maxLength 20
    */
   nickname: string;
-  gender: SignupRequestGender;
-  birthYear: number;
+  gender?: SignupRequestGender;
+  birthYear?: number;
   tkuId?: string;
 }

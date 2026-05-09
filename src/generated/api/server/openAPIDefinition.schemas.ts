@@ -448,8 +448,8 @@ export interface SignupRequest {
    * @maxLength 20
    */
   nickname: string;
-  gender: SignupRequestGender;
-  birthYear: number;
+  gender?: SignupRequestGender;
+  birthYear?: number;
   tkuId?: string;
 }
 
@@ -565,6 +565,38 @@ export interface AskVoteRequest {
   vote: AskVoteRequestVote;
 }
 
+export type AskVoterPayloadProfileColor =
+  (typeof AskVoterPayloadProfileColor)[keyof typeof AskVoterPayloadProfileColor];
+
+export const AskVoterPayloadProfileColor = {
+  PURPLE: 'PURPLE',
+  BLUE: 'BLUE',
+  CYAN: 'CYAN',
+  GREEN: 'GREEN',
+  YELLOW: 'YELLOW',
+  ORANGE: 'ORANGE',
+  PINK: 'PINK',
+  RED: 'RED',
+  AMBER: 'AMBER',
+  INDIGO: 'INDIGO',
+  MAGENTA: 'MAGENTA',
+  SKY: 'SKY',
+  GOLD: 'GOLD',
+  TEAL: 'TEAL',
+  GRAPE: 'GRAPE',
+  SUNSET: 'SUNSET',
+  OCEAN: 'OCEAN',
+  LIME: 'LIME',
+  CORAL: 'CORAL',
+  LAVENDER: 'LAVENDER',
+  MINT: 'MINT',
+  PEACH: 'PEACH',
+  SAPPHIRE: 'SAPPHIRE',
+  ROSE: 'ROSE',
+  FOREST: 'FOREST',
+  FLAME: 'FLAME',
+} as const;
+
 export type AskVoterPayloadVote = (typeof AskVoterPayloadVote)[keyof typeof AskVoterPayloadVote];
 
 export const AskVoterPayloadVote = {
@@ -575,6 +607,8 @@ export const AskVoterPayloadVote = {
 export interface AskVoterPayload {
   userId?: string;
   displayName?: string;
+  profileColor?: AskVoterPayloadProfileColor;
+  tetoEgenToken?: string;
   vote?: AskVoterPayloadVote;
   votedAt?: string;
 }
@@ -992,6 +1026,10 @@ export interface NotificationItem {
   actorProfileColor?: string;
   contentPreview?: string;
   targetUrl?: string;
+  hotpickSlug?: string;
+  electionId?: number;
+  commentId?: string;
+  parentCommentId?: string;
   read?: boolean;
   createdAt?: string;
 }
@@ -1394,6 +1432,25 @@ export interface BaseResponseGroupCompareResultResponse {
   data?: GroupCompareResultResponse;
 }
 
+/**
+ * 응답 데이터
+ */
+export interface CommentDetailResponse {
+  comment?: CommentItem;
+  parent?: CommentItem;
+}
+
+/**
+ * 공통 응답 포맷
+ */
+export interface BaseResponseCommentDetailResponse {
+  /** 응답 코드 */
+  code?: string;
+  /** 응답 메시지 */
+  message?: string;
+  data?: CommentDetailResponse;
+}
+
 export type BundleSummaryResponseStatus =
   (typeof BundleSummaryResponseStatus)[keyof typeof BundleSummaryResponseStatus];
 
@@ -1757,6 +1814,70 @@ export interface ParticipationStats {
   totalParticipants?: number;
   completionRate?: number;
   dailyStats?: DailyStat[];
+}
+
+export interface GroupCounts {
+  linkCount?: number;
+  selfTeto?: number;
+  selfEgen?: number;
+}
+
+export type DemographicsByGender = { [key: string]: GroupCounts };
+
+export type DemographicsByAgeGroup = { [key: string]: GroupCounts };
+
+export interface Demographics {
+  byGender?: DemographicsByGender;
+  byAgeGroup?: DemographicsByAgeGroup;
+}
+
+export interface Engagement {
+  avgVotesPerLink?: number;
+  linksWithAnyVoteCount?: number;
+  zeroVoteLinkCount?: number;
+  avgTimeToFirstVoteHours?: number;
+}
+
+export interface HourlyStat {
+  hour?: number;
+  linksCreated?: number;
+  votesCast?: number;
+}
+
+export interface Viral {
+  voterToCreatorRate?: number;
+  avgVotesPerVoter?: number;
+}
+
+export type LinkItemOwnerSelfAnswer =
+  (typeof LinkItemOwnerSelfAnswer)[keyof typeof LinkItemOwnerSelfAnswer];
+
+export const LinkItemOwnerSelfAnswer = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type LinkItemOwnerSelfPrediction =
+  (typeof LinkItemOwnerSelfPrediction)[keyof typeof LinkItemOwnerSelfPrediction];
+
+export const LinkItemOwnerSelfPrediction = {
+  TETO: 'TETO',
+  EGEN: 'EGEN',
+} as const;
+
+export type LinkItemVoteDistribution = { [key: string]: number };
+
+export interface LinkItem {
+  linkId?: number;
+  token?: string;
+  displayName?: string;
+  ownerNickname?: string;
+  ownerSelfAnswer?: LinkItemOwnerSelfAnswer;
+  ownerSelfPrediction?: LinkItemOwnerSelfPrediction;
+  voteCount?: number;
+  voteDistribution?: LinkItemVoteDistribution;
+  selfMatch?: boolean;
+  createdAt?: string;
 }
 
 export interface DeleteCommentRequest {

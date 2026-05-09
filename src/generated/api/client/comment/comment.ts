@@ -7,6 +7,7 @@
 import type {
   BaseResponseCommentCountResponse,
   BaseResponseCommentCreateResponse,
+  BaseResponseCommentDetailResponse,
   BaseResponseCommentLikeResponse,
   BaseResponseCommentListResponse,
   BaseResponseCommentUpdateResponse,
@@ -25,6 +26,18 @@ import type { BodyType } from '../../../../lib/axios-mutator';
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+/**
+ * @summary 단건 댓글 조회 (핀 영역용; comment + parent 응답)
+ */
+export const getCommentDetail = (
+  commentId: string,
+  options?: SecondParameter<typeof customInstance<BaseResponseCommentDetailResponse>>
+) => {
+  return customInstance<BaseResponseCommentDetailResponse>(
+    { url: `/api/v1/comments/${commentId}`, method: 'GET' },
+    options
+  );
+};
 /**
  * @summary Update comment
  */
@@ -180,6 +193,7 @@ export const countComments = (
     options
   );
 };
+export type GetCommentDetailResult = NonNullable<Awaited<ReturnType<typeof getCommentDetail>>>;
 export type UpdateCommentResult = NonNullable<Awaited<ReturnType<typeof updateComment>>>;
 export type DeleteCommentResult = NonNullable<Awaited<ReturnType<typeof deleteComment>>>;
 export type GetCommentsResult = NonNullable<Awaited<ReturnType<typeof getComments>>>;
