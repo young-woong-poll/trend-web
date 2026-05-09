@@ -68,6 +68,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
 
   // 4초 무반응 시 scrollHint 펄스용 ref도 같이 사용 — 선언을 위로 올려 effect들이 참조 가능하게.
   const frameRef = useRef<HTMLDivElement | null>(null);
+  const detailRef = useRef<HTMLElement | null>(null);
   const [shouldPulse, setShouldPulse] = useState(false);
 
   const handleBack = () => {
@@ -78,6 +79,11 @@ const FriendResultView: FC<FriendResultViewProps> = ({
   const handleNext = () => {
     trackAskFriendResultCtaClick('teto-egen', 'create_my', false);
     router.push('/ask/teto-egen/my?from=friend');
+  };
+
+  const handleScrollHintClick = () => {
+    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setShouldPulse(false);
   };
 
   // mount 1회: myLink.isLoading이 끝난 직후 첫 1회만 발화.
@@ -246,9 +252,11 @@ const FriendResultView: FC<FriendResultViewProps> = ({
           )}
         </div>
 
-        <div
+        <button
+          type="button"
           className={`${styles.scrollHint} ${shouldPulse ? styles.scrollHintPulse : ''}`}
-          aria-hidden
+          onClick={handleScrollHintClick}
+          aria-label="친구들 답 보기"
         >
           <span className={styles.scrollHintLabel}>친구들 답 보기</span>
           <svg
@@ -257,14 +265,15 @@ const FriendResultView: FC<FriendResultViewProps> = ({
             fill="none"
             stroke="currentColor"
             strokeWidth={2.5}
+            aria-hidden
           >
             <path d="M6 6l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </div>
+        </button>
       </section>
 
-      <section className={styles.detail}>
+      <section ref={detailRef} className={styles.detail}>
         <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
         <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
         <div className={styles.sectionHead}>

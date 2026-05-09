@@ -46,8 +46,6 @@ export const postLogout = async (): Promise<void> => {
 /** 회원가입 요청/응답 타입 */
 export interface SignupRequest {
   nickname: string;
-  gender: 'MALE' | 'FEMALE';
-  birthYear: number;
   tkuId?: string;
 }
 
@@ -65,12 +63,12 @@ export interface SignupResponse {
 /** 회원가입 완료 */
 export const submitSignup = async (data: SignupRequest): Promise<SignupResponse> => {
   const token = getSignupToken();
-  const body: GeneratedSignupRequest = {
+  // BE가 gender/birthYear를 optional(nullable)로 받도록 변경하기로 합의됨.
+  // orval 재생성 전이라 generated 타입에는 필수로 남아있어 단언으로 우회.
+  const body = {
     nickname: data.nickname,
-    gender: data.gender,
-    birthYear: data.birthYear,
     ...(data.tkuId ? { tkuId: data.tkuId } : {}),
-  };
+  } as GeneratedSignupRequest;
   const res = (await signupApi(body, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })) as GeneratedSignupResponse;

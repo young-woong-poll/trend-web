@@ -184,8 +184,17 @@
   letter-spacing: -0.2px;
   // 진폭 12px + opacity 0.55 ↔ 1.0로 "살아있는 신호".
   animation: scrollHintBob 1.6s ease-in-out infinite;
-  pointer-events: none;
   white-space: nowrap;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+
+  &:active {
+    opacity: 0.7;
+  }
 }
 
 .scrollHintLabel {

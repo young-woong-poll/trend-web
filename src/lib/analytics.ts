@@ -271,30 +271,20 @@ export function trackAuthSignupView() {
   track('auth_signup_view', { page_type: 'auth_signup' });
 }
 
-export function trackAuthSignupSubmit(params: {
-  gender: 'male' | 'female';
-  has_migration: boolean;
-}) {
+export function trackAuthSignupSubmit(params: { has_migration: boolean }) {
   track('auth_signup_submit', {
-    gender: params.gender,
     has_migration: params.has_migration,
     page_type: 'auth_signup',
   });
 }
 
-export function trackAuthSignupSuccess(params: {
-  gender: 'male' | 'female';
-  birth_year_bucket: string;
-}) {
+export function trackAuthSignupSuccess() {
   track('auth_signup_success', {
-    gender: params.gender,
-    birth_year_bucket: params.birth_year_bucket,
     signup_method: 'kakao',
     page_type: 'auth_signup',
   });
   setUserProperties({
     signup_method: 'kakao',
-    gender: params.gender,
   });
 }
 
