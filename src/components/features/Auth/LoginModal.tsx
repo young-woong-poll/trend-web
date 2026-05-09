@@ -35,7 +35,7 @@ const TRIGGER_MESSAGES: Record<LoginTrigger, string> = {
   bundle: '번들을 풀려면 로그인이 필요해요',
   my: '로그인하고 내 활동을 확인해보세요',
   compare: '', // compare는 별도 UI 사용
-  ask: '정확한 테토/에겐 판별을 위해 \n 로그인이 필요해요 😭',
+  ask: '정확한 결과를 위해 로그인 부탁드려요 ❤️',
   default: '로그인하고 더 많은 기능을 이용해보세요',
 };
 
@@ -47,7 +47,7 @@ const DEFAULT_BENEFITS = [
 
 // 테토/에겐(ask) 전용 — 친구 평가에서 닉네임 식별·중복 차단으로 결과 신뢰도가 올라간다는 점을 강조.
 const ASK_BENEFITS = [
-  '친구 입장에서 누가 답했는지 알 수 있어요',
+  '로그인 해야 누가 답했는지 알 수 있어요',
   '한 사람이 한 번만 답할 수 있어요',
   '내 테스트도 만들 수 있어요!',
 ];
@@ -57,7 +57,7 @@ const BENEFITS_BY_TRIGGER: Partial<Record<LoginTrigger, string[]>> = {
 };
 
 const CTA_BY_TRIGGER: Partial<Record<LoginTrigger, string>> = {
-  ask: '카카오로 3초만에 로그인해주시면 감사..',
+  ask: '카카오 2.5초 로그인',
 };
 
 interface LoginModalProps {
