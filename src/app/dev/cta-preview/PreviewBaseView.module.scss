@@ -3,7 +3,9 @@
 .wrap {
   position: relative;
   width: 100%;
-  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100%;
 }
 
 .frame {
@@ -167,100 +169,10 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-// ── Sticky CTA: Hero 단계에서 화면 하단에 통통 펄스로 노출, Detail 진입 시 fade-out.
-.stickyWrap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  // 하단 inline CTA(detail 섹션)와 동일한 시각 높이로 맞추기 위해 48px + safe-area 보정.
-  padding: 16px 24px;
-  padding-bottom: max(48px, env(safe-area-inset-bottom) + 32px);
-  z-index: 10;
-  pointer-events: none;
-}
-
-.stickyCta {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  height: 56px;
-  border-radius: 14px;
-  background: rgba(20, 20, 20, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: $white;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 15px;
-  font-weight: $font-weight-bold;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  transform-origin: center center;
-  will-change: transform, box-shadow;
-}
-
-// 통통 튀는 펄스 — Hero 단계에서만, 사용자가 한 번 스크롤하면 정지.
-// 본체 translateY(-8px) + 글로우 펄스 + 화살표 별도 펄스(아래 방향 강조).
-.stickyCtaPulse {
-  animation: stickyCtaBounce 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.stickyCtaPulse .stickyArrow {
-  animation: stickyArrowBounce 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-.stickyArrow {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  transform-origin: center center;
-}
-
-@keyframes stickyCtaBounce {
-  0%,
-  100% {
-    transform: translateY(0);
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.35),
-      0 0 0 0 rgba(255, 255, 255, 0);
-  }
-  40% {
-    transform: translateY(-8px);
-    box-shadow:
-      0 14px 32px rgba(0, 0, 0, 0.45),
-      0 0 24px 4px rgba(255, 255, 255, 0.12);
-  }
-  60% {
-    transform: translateY(-6px);
-  }
-}
-
-// 화살표는 본체보다 살짝 늦게 통통 — "아래로 내려가라"는 신호 강조.
-@keyframes stickyArrowBounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(4px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .stickyCtaPulse,
-  .stickyCtaPulse .stickyArrow {
-    animation: none;
-  }
-}
-
 .detail {
   height: 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  // CTA 버튼이 바닥에 너무 붙어 보이는 이슈 → bottom padding을 48px로 올려 CTA 위치를 24px 더 위로.
   padding: 48px 24px;
   display: flex;
   flex-direction: column;
@@ -303,33 +215,4 @@
   flex-shrink: 0;
   margin-top: auto;
   padding-top: 24px;
-}
-
-.ctaHook {
-  font-size: $font-size-14;
-  color: $text-secondary;
-  text-align: center;
-  margin: 0 0 10px;
-  font-weight: $font-weight-semibold;
-}
-
-.ctaPrimary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 16px;
-  background: $primary-gradient;
-  color: $white;
-  border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: $font-weight-bold;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
 }

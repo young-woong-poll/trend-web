@@ -4,7 +4,7 @@ import { type FC, useEffect, useRef, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import BackIcon from '@/assets/icon/BackIcon';
 import DistCard from '@/components/features/TetoEgen/DistCard';
@@ -98,36 +98,50 @@ const MyResultView: FC = () => {
     []
   );
 
-  // 4초 무반응 시 scrollHint 펄스 — FriendResultView와 동일 패턴.
-  // 한 번이라도 스크롤하면 즉시 해제, 다시 트리거되지 않음.
+  // sticky CTA 동작용 ref/state — 정상 케이스(!isEmpty && !isSparse)에서만 효력.
+  // sparse/empty는 Hero 안에서 공유가 완결되므로 sticky 노출 안 함.
   const frameRef = useRef<HTMLDivElement | null>(null);
-  const [shouldPulse, setShouldPulse] = useState(false);
+  const detailRef = useRef<HTMLElement | null>(null);
+  const [inDetail, setInDetail] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  const handleStickyScroll = () => {
+    detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // 사용자가 한 번이라도 스크롤하면 sticky 통통 펄스 정지.
   useEffect(() => {
-    if (shouldReduceMotion) {
-      return;
-    }
     const el = frameRef.current;
     if (!el) {
       return;
     }
-    let scrolled = false;
     const onScroll = () => {
       if (el.scrollTop > 4) {
-        scrolled = true;
-        setShouldPulse(false);
+        setHasScrolled(true);
       }
     };
-    const timer = window.setTimeout(() => {
-      if (!scrolled) {
-        setShouldPulse(true);
-      }
-    }, 4000);
     el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      window.clearTimeout(timer);
-      el.removeEventListener('scroll', onScroll);
-    };
-  }, [shouldReduceMotion]);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // detail 50% 노출 시 sticky → inline 전환.
+  useEffect(() => {
+    const root = frameRef.current;
+    const target = detailRef.current;
+    if (!root || !target || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          setInDetail(entry.intersectionRatio >= 0.5);
+        }
+      },
+      { root, threshold: [0, 0.5, 1] }
+    );
+    obs.observe(target);
+    return () => obs.disconnect();
+  }, []);
 
   if (isAuthLoading || isLoading || !data) {
     return <TetoEgenLoading />;
@@ -147,10 +161,6 @@ const MyResultView: FC = () => {
   const isPredictionHit = data.selfPrediction === adj.result;
 
   // 진입 모션 — 위→아래 순차 등장. reduce-motion 시 즉시 표시.
-  const heroPreMotion = shouldReduceMotion
-    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
-    : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
-
   const heroBigwordMotion = shouldReduceMotion
     ? { initial: { opacity: 1, scale: 1, y: 0 }, animate: { opacity: 1, scale: 1, y: 0 } }
     : {
@@ -166,200 +176,226 @@ const MyResultView: FC = () => {
 
   return (
     <>
-      <div
-        ref={frameRef}
-        className={styles.frame}
-        style={{
-          // 결과 색상에 따라 페이지 배경 ambient를 동적으로 설정.
-          ['--ambient-primary' as string]: colors.ambient.primary,
-          ['--ambient-secondary' as string]: colors.ambient.secondary,
-        }}
-      >
-        <section className={styles.hero}>
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={() => router.back()}
-            aria-label="뒤로"
-          >
-            <BackIcon className={styles.backIcon} />
-          </button>
-          <span className={styles.contextChip}>내 결과</span>
+      <div className={styles.wrap}>
+        <div
+          ref={frameRef}
+          className={styles.frame}
+          style={{
+            // 결과 색상에 따라 페이지 배경 ambient를 동적으로 설정.
+            ['--ambient-primary' as string]: colors.ambient.primary,
+            ['--ambient-secondary' as string]: colors.ambient.secondary,
+          }}
+        >
+          <section className={styles.hero}>
+            <button
+              type="button"
+              className={styles.backButton}
+              onClick={() => router.back()}
+              aria-label="뒤로"
+            >
+              <BackIcon className={styles.backIcon} />
+            </button>
+            <span className={styles.contextChip}>나의 현재 결과</span>
 
-          <div className={styles.heroMid}>
-            <motion.p className={styles.pre} {...heroPreMotion} transition={baseTransition}>
-              <strong>{data.displayName}</strong>님은 친구들이 보기에
-            </motion.p>
-
-            {isEmpty ? (
-              <motion.h1
-                className={styles.bigwordEmpty}
-                {...heroBigwordMotion}
-                transition={{ ...baseTransition, duration: 0.9, delay: 0.3 }}
-              >
-                아직 친구가
-                <br />
-                평가하지 않았어요
-              </motion.h1>
-            ) : (
-              <>
-                {adj.display === 'spaced' && adj.modifier && (
-                  <motion.p
-                    className={styles.modifier}
-                    {...heroLateMotion}
-                    transition={{ ...baseTransition, delay: 0.3 }}
-                  >
-                    {adj.modifier}
-                  </motion.p>
-                )}
+            <div className={styles.heroMid}>
+              {isEmpty ? (
                 <motion.h1
-                  className={styles.bigword}
-                  style={{
-                    backgroundImage: colors.gradient,
-                    textShadow: `0 8px 40px ${colors.glow}`,
-                  }}
+                  className={styles.bigwordEmpty}
                   {...heroBigwordMotion}
                   transition={{ ...baseTransition, duration: 0.9, delay: 0.3 }}
                 >
-                  {bigword}
+                  아직 친구가
+                  <br />
+                  평가하지 않았어요
                 </motion.h1>
-                <motion.p
-                  className={styles.tag}
-                  {...heroLateMotion}
-                  transition={{ ...baseTransition, delay: 0.6 }}
-                >
-                  {isSparse ? (
-                    <>
-                      <strong>{total}명</strong>만 답함
-                    </>
-                  ) : (
-                    <>
-                      <strong>{total}명</strong> 중{' '}
-                      <strong>
-                        {adj.result === 'TETO'
-                          ? data.friendVotes.tetoCount
-                          : data.friendVotes.egenCount}
-                        명
-                      </strong>{' '}
-                      동의
-                    </>
+              ) : (
+                <>
+                  {adj.display === 'spaced' && adj.modifier && (
+                    <motion.p
+                      className={styles.modifier}
+                      {...heroLateMotion}
+                      transition={{ ...baseTransition, delay: 0.3 }}
+                    >
+                      {adj.modifier}
+                    </motion.p>
                   )}
-                </motion.p>
-                {!isSparse && (
-                  <motion.dl
-                    className={styles.meta}
-                    aria-label="예측 결과 비교"
-                    {...heroLateMotion}
-                    transition={{ ...baseTransition, delay: 0.9 }}
+                  <motion.h1
+                    className={styles.bigword}
+                    style={{
+                      backgroundImage: colors.gradient,
+                      textShadow: `0 8px 40px ${colors.glow}`,
+                    }}
+                    {...heroBigwordMotion}
+                    transition={{ ...baseTransition, duration: 0.9, delay: 0.3 }}
                   >
-                    <div className={styles.metaItem}>
-                      <dt className={styles.metaLabel}>내 예측</dt>
-                      <dd className={styles.metaVal}>{labelOf(data.selfPrediction)}</dd>
-                    </div>
-                    <span className={styles.metaDivider} aria-hidden />
-                    <div className={styles.metaItem}>
-                      <dt className={styles.metaLabel}>실제</dt>
-                      <dd className={styles.metaVal}>{labelOf(adj.result)}</dd>
-                    </div>
-                    <span className={styles.metaDivider} aria-hidden />
-                    <div className={styles.metaItem}>
-                      <dt className={styles.metaLabel}>예상</dt>
-                      <dd className={styles.metaVal}>{isPredictionHit ? '적중' : '빗나감'}</dd>
-                    </div>
-                  </motion.dl>
-                )}
-                {isSparse && (
-                  <motion.ul
-                    className={styles.sparseVoters}
-                    aria-label="답한 친구"
+                    {bigword}
+                  </motion.h1>
+                  <motion.p
+                    className={styles.tag}
                     {...heroLateMotion}
-                    transition={{ ...baseTransition, delay: 0.9 }}
+                    transition={{ ...baseTransition, delay: 0.6 }}
                   >
-                    {data.friendVotes.voters.map((v) => (
-                      <li key={v.userId} className={styles.sparseVoter}>
-                        <span className={styles.sparseVoterName}>{v.displayName}</span>
-                        <span
-                          className={`${styles.sparseVoterVote} ${
-                            v.vote === 'TETO'
-                              ? styles.sparseVoterVoteTeto
-                              : styles.sparseVoterVoteEgen
-                          }`}
-                        >
-                          {labelOf(v.vote)}
-                        </span>
-                      </li>
-                    ))}
-                  </motion.ul>
-                )}
-              </>
+                    {isSparse ? (
+                      <>
+                        <strong>{total}명</strong>만 답함
+                      </>
+                    ) : (
+                      <>
+                        <strong>{total}명</strong> 중{' '}
+                        <strong>
+                          {adj.result === 'TETO'
+                            ? data.friendVotes.tetoCount
+                            : data.friendVotes.egenCount}
+                          명
+                        </strong>{' '}
+                        동의
+                      </>
+                    )}
+                  </motion.p>
+                  {!isSparse && (
+                    <motion.dl
+                      className={styles.meta}
+                      aria-label="예측 결과 비교"
+                      {...heroLateMotion}
+                      transition={{ ...baseTransition, delay: 0.9 }}
+                    >
+                      <div className={styles.metaItem}>
+                        <dt className={styles.metaLabel}>내 예측</dt>
+                        <dd className={styles.metaVal}>{labelOf(data.selfPrediction)}</dd>
+                      </div>
+                      <span className={styles.metaDivider} aria-hidden />
+                      <div className={styles.metaItem}>
+                        <dt className={styles.metaLabel}>실제</dt>
+                        <dd className={styles.metaVal}>{labelOf(adj.result)}</dd>
+                      </div>
+                      <span className={styles.metaDivider} aria-hidden />
+                      <div className={styles.metaItem}>
+                        <dt className={styles.metaLabel}>예상</dt>
+                        <dd className={styles.metaVal}>{isPredictionHit ? '적중' : '빗나감'}</dd>
+                      </div>
+                    </motion.dl>
+                  )}
+                  {isSparse && (
+                    <motion.ul
+                      className={styles.sparseVoters}
+                      aria-label="답한 친구"
+                      {...heroLateMotion}
+                      transition={{ ...baseTransition, delay: 0.9 }}
+                    >
+                      {data.friendVotes.voters.map((v) => (
+                        <li key={v.userId} className={styles.sparseVoter}>
+                          <span className={styles.sparseVoterName}>{v.displayName}</span>
+                          <span
+                            className={`${styles.sparseVoterVote} ${
+                              v.vote === 'TETO'
+                                ? styles.sparseVoterVoteTeto
+                                : styles.sparseVoterVoteEgen
+                            }`}
+                          >
+                            {labelOf(v.vote)}
+                          </span>
+                        </li>
+                      ))}
+                    </motion.ul>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* sparse/empty 케이스: Hero 자체에서 공유 유도 (snap 이동 없이) */}
+            {(isEmpty || isSparse) && (
+              <div className={styles.heroShare}>
+                <p className={styles.heroShareHint}>
+                  {isEmpty
+                    ? '친구들에게 공유하고 결과를 받아보세요'
+                    : '아직 초기 결과예요 — 더 물어보세요'}
+                </p>
+                <button
+                  type="button"
+                  className={styles.ctaPrimary}
+                  onClick={handleCopy}
+                  aria-live="polite"
+                >
+                  {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
+                </button>
+              </div>
             )}
-          </div>
-
-          {/* sparse/empty 케이스: Hero 자체에서 공유 유도 (snap 이동 없이) */}
-          {(isEmpty || isSparse) && (
-            <div className={styles.heroShare}>
-              <p className={styles.heroShareHint}>
-                {isEmpty
-                  ? '친구들에게 공유하고 결과를 받아보세요'
-                  : '아직 초기 결과예요 — 더 물어보세요'}
-              </p>
-              <button
-                type="button"
-                className={styles.ctaPrimary}
-                onClick={handleCopy}
-                aria-live="polite"
-              >
-                {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
-              </button>
-            </div>
-          )}
-
-          {!isEmpty && !isSparse && (
-            <div
-              className={`${styles.scrollHint} ${shouldPulse ? styles.scrollHintPulse : ''}`}
-              aria-hidden
-            >
-              <span className={styles.scrollHintLabel}>친구들 답 보기</span>
-              <svg
-                className={styles.scrollHintIcon}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.5}
-              >
-                <path d="M6 6l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-          )}
-        </section>
-
-        {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
-        {!isEmpty && !isSparse && (
-          <section className={styles.detail}>
-            <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
-            <DistCard
-              tetoCount={data.friendVotes.tetoCount}
-              egenCount={data.friendVotes.egenCount}
-            />
-            <div className={styles.sectionHead}>
-              <h2 className={styles.sectionTitle}>친구들 답</h2>
-              <span className={styles.sectionCount}>
-                <strong>{total}</strong>명
-              </span>
-            </div>
-            <VoterList voters={data.friendVotes.voters} />
-            <div className={styles.detailCta}>
-              <button
-                type="button"
-                className={styles.ctaPrimary}
-                onClick={handleCopy}
-                aria-live="polite"
-              >
-                {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
-              </button>
-            </div>
           </section>
+
+          {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
+          {!isEmpty && !isSparse && (
+            <section ref={detailRef} className={styles.detail}>
+              <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
+              <DistCard
+                tetoCount={data.friendVotes.tetoCount}
+                egenCount={data.friendVotes.egenCount}
+              />
+              <div className={styles.sectionHead}>
+                <h2 className={styles.sectionTitle}>친구들 답</h2>
+                <span className={styles.sectionCount}>
+                  <strong>{total}</strong>명
+                </span>
+              </div>
+              <VoterList voters={data.friendVotes.voters} enableProfileLink />
+              <div className={styles.detailCta}>
+                <AnimatePresence>
+                  {inDetail && (
+                    <motion.div
+                      key="inline-cta"
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <button
+                        type="button"
+                        className={styles.ctaPrimary}
+                        onClick={handleCopy}
+                        aria-live="polite"
+                      >
+                        {isCopied ? '복사됐어요!' : '투표 링크 복사하기'}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* 정상 케이스만 sticky 노출. sparse/empty는 Hero에서 공유 완결되므로 sticky 불필요. */}
+        {!isEmpty && !isSparse && (
+          <AnimatePresence>
+            {!inDetail && (
+              <motion.div
+                key="sticky"
+                className={styles.stickyWrap}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.25 }}
+              >
+                <button
+                  type="button"
+                  className={`${styles.stickyCta} ${hasScrolled ? '' : styles.stickyCtaPulse}`}
+                  onClick={handleStickyScroll}
+                >
+                  <span>친구들 답 보기</span>
+                  <svg
+                    className={styles.stickyArrow}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    aria-hidden
+                  >
+                    <path d="M6 6l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         )}
       </div>
 
