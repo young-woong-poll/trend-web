@@ -14,13 +14,22 @@ import type {
 } from '@/generated/models';
 import { getSignupToken } from '@/lib/signupToken';
 
-/** BE UserResponse → FE User 변환 */
-const toUser = (res: UserResponse): User => ({
-  id: res.id,
-  nickname: res.nickname ?? null,
-  profileColor: res.profileColor ?? 'purple',
-  lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
-});
+/** BE UserResponse → FE User 변환.
+ * id는 BE 계약상 항상 존재해야 하지만 swagger에 required가 빠지면서 generated 타입이 optional로 바뀜.
+ * 잠복 회귀를 막기 위해 매퍼 진입 시점에 명시적 throw — 호출처가 즉시 실패를 인지하도록.
+ * 근본 수정: BE에서 UserResponse.id에 required 어노테이션 복구 필요.
+ */
+const toUser = (res: UserResponse): User => {
+  if (!res.id) {
+    throw new Error('UserResponse에 id가 없습니다 — BE 계약 위반');
+  }
+  return {
+    id: res.id,
+    nickname: res.nickname ?? null,
+    profileColor: res.profileColor ?? 'purple',
+    lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
+  };
+};
 
 /** 카카오 로그인 */
 export const postKakaoLogin = async (code: string, redirectUri: string): Promise<LoginResponse> => {
@@ -63,12 +72,10 @@ export interface SignupResponse {
 /** 회원가입 완료 */
 export const submitSignup = async (data: SignupRequest): Promise<SignupResponse> => {
   const token = getSignupToken();
-  // BE가 gender/birthYear를 optional(nullable)로 받도록 변경하기로 합의됨.
-  // orval 재생성 전이라 generated 타입에는 필수로 남아있어 단언으로 우회.
-  const body = {
+  const body: GeneratedSignupRequest = {
     nickname: data.nickname,
     ...(data.tkuId ? { tkuId: data.tkuId } : {}),
-  } as GeneratedSignupRequest;
+  };
   const res = (await signupApi(body, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })) as GeneratedSignupResponse;

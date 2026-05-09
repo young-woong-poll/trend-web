@@ -280,12 +280,19 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   flex-shrink: 0;
 
   .sectionTitle {
     margin-bottom: 0;
   }
+}
+
+.sectionHint {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 0 0 12px;
+  flex-shrink: 0;
 }
 
 .sectionCount {

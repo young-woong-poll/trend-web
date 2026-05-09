@@ -84,12 +84,21 @@
   z-index: 1;
 }
 
-.chevron {
+// 클릭 가능 여부와 무관하게 항상 동일 너비를 차지 — 행 간 세로 정렬 깨지지 않도록.
+.chevronSlot {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
-  color: $text-tertiary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: -4px;
+}
+
+.chevron {
+  width: 14px;
+  height: 14px;
+  color: $text-tertiary;
 }
 
 // FriendResult에서 자기 자신 행 강조 — 정/오답 색상 X, 흰색 미세 highlight만.

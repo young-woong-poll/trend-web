@@ -2,7 +2,7 @@
 
 import { type FC, useEffect, useRef, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
@@ -26,6 +26,7 @@ const labelOf = (a: TetoEgenAnswer) => (a === 'TETO' ? '테토' : '에겐');
 
 const MyResultView: FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isLoggedIn, isLoading: isAuthLoading, requireLogin } = useAuth();
   const { toast, showToast } = useToast();
   const shouldReduceMotion = useReducedMotion();
@@ -142,6 +143,36 @@ const MyResultView: FC = () => {
     obs.observe(target);
     return () => obs.disconnect();
   }, []);
+
+  // friend → my 뒤로가기 복원: ?section=detail이면 마운트 직후 detail 영역으로 즉시 scroll.
+  // 데이터 로딩 후에 detailRef가 마운트되므로 data + query 의존.
+  // scroll 후 query는 history.replaceState로 제거 → 새로고침/외부 진입 시 hero 복귀가 기본.
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current || !data) {
+      return;
+    }
+    if (searchParams.get('section') !== 'detail') {
+      return;
+    }
+    const target = detailRef.current;
+    if (!target) {
+      return;
+    }
+    restoredRef.current = true;
+    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', '/ask/teto-egen/my');
+    }
+  }, [data, searchParams]);
+
+  // 친구 클릭으로 friend 이동 직전 — 현재 url에 ?section=detail을 새겨두면
+  // friend에서 router.back() 시 history가 그대로 my?section=detail로 복귀.
+  const handleVoterLinkClick = () => {
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', '/ask/teto-egen/my?section=detail');
+    }
+  };
 
   if (isAuthLoading || isLoading || !data) {
     return <TetoEgenLoading />;
@@ -325,18 +356,23 @@ const MyResultView: FC = () => {
           {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
           {!isEmpty && !isSparse && (
             <section ref={detailRef} className={styles.detail}>
-              <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
+              <h2 className={styles.sectionTitle}>답 분포</h2>
               <DistCard
                 tetoCount={data.friendVotes.tetoCount}
                 egenCount={data.friendVotes.egenCount}
               />
               <div className={styles.sectionHead}>
-                <h2 className={styles.sectionTitle}>친구들 답</h2>
+                <h2 className={styles.sectionTitle}>참여한 친구들</h2>
                 <span className={styles.sectionCount}>
                   <strong>{total}</strong>명
                 </span>
               </div>
-              <VoterList voters={data.friendVotes.voters} enableProfileLink />
+              <p className={styles.sectionHint}>눌러서 다른 결과도 구경하기</p>
+              <VoterList
+                voters={data.friendVotes.voters}
+                enableProfileLink
+                onProfileLinkClick={handleVoterLinkClick}
+              />
               <div className={styles.detailCta}>
                 <AnimatePresence>
                   {inDetail && (

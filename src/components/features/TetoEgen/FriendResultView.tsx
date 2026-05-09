@@ -74,7 +74,13 @@ const FriendResultView: FC<FriendResultViewProps> = ({
 
   const handleBack = () => {
     trackAskFriendResultBack('teto-egen');
-    router.push('/');
+    // 같은 앱 내 진입(my → friend, friend → friend)이면 router.back()으로 자연스러운 복귀.
+    // 외부 링크/직접 진입은 history가 비어있어 back할 곳이 없으니 home으로 fallback.
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
   };
 
   const handleNext = () => {
@@ -257,14 +263,15 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
+          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>친구들 답</h2>
+            <h2 className={styles.sectionTitle}>참여한 친구들</h2>
             <span className={styles.sectionCount}>
               <strong>{friendVotes.total}</strong>명
             </span>
           </div>
+          <p className={styles.sectionHint}>눌러서 다른 결과도 구경하기</p>
           <VoterList voters={friendVotes.voters} highlightSelfId={user?.id} enableProfileLink />
           <div ref={ctaRef} className={styles.detailCta}>
             <AnimatePresence>

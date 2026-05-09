@@ -143,14 +143,15 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <h2 className={styles.sectionTitle}>친구들의 답 분포</h2>
+          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>친구들 답</h2>
+            <h2 className={styles.sectionTitle}>친구 목록</h2>
             <span className={styles.sectionCount}>
               <strong>{friendVotes.total}</strong>명
             </span>
           </div>
+          <p className={styles.sectionHint}>눌러서 다른 결과도 구경하기</p>
           <VoterList voters={friendVotes.voters} enableProfileLink />
           <div className={styles.detailCta}>{inlineCtaSlot}</div>
         </section>
