@@ -12,6 +12,7 @@ export {
   useUpdateComment,
   useVerifyComment,
   useDeleteComment,
+  useCommentDetail,
 } from '@/hooks/api/useComment';
 
 export { useCommentLike } from '@/hooks/api/useCommentLike';

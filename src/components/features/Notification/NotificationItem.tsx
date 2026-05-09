@@ -29,6 +29,39 @@ const FALLBACK_URL_BY_TYPE: Record<string, string> = {
   [NotificationItemType.ASK_TETO_EGEN_VOTE]: '/ask/teto-egen/my',
 };
 
+/**
+ * 신규 필드(hotpickSlug/commentId/parentCommentId/electionId) 우선,
+ * 없으면 targetUrl, 그것도 없으면 type별 fallback 순으로 라우팅 URL을 결정.
+ *
+ * commentId가 있으면 query로 함께 전달해 진입 페이지가 댓글 핀 영역에 활용.
+ * parentCommentId/electionId도 컨텍스트 보조용으로 같이 실어 보냄.
+ */
+const resolveNavTarget = (notification: NotificationItemModel): string | null => {
+  const { hotpickSlug, commentId, parentCommentId, electionId, targetUrl, type } = notification;
+
+  if (hotpickSlug) {
+    const params = new URLSearchParams();
+    if (commentId) {
+      params.set('commentId', commentId);
+    }
+    if (parentCommentId) {
+      params.set('parentCommentId', parentCommentId);
+    }
+    if (electionId !== undefined) {
+      params.set('electionId', String(electionId));
+    }
+    const qs = params.toString();
+    return qs ? `/hotpick/${hotpickSlug}?${qs}` : `/hotpick/${hotpickSlug}`;
+  }
+
+  if (targetUrl) {
+    return targetUrl;
+  }
+
+  const fallback = type ? FALLBACK_URL_BY_TYPE[type] : undefined;
+  return fallback ?? null;
+};
+
 const formatPreview = (notification: NotificationItemModel): string | null | undefined => {
   if (notification.type === NotificationItemType.ASK_TETO_EGEN_VOTE) {
     if (notification.contentPreview === 'TETO') {
@@ -50,8 +83,7 @@ export const NotificationItem: FC<NotificationItemProps> = ({ notification, onNa
       markRead(notification.id);
     }
 
-    const fallbackUrl = notification.type ? FALLBACK_URL_BY_TYPE[notification.type] : undefined;
-    const target = notification.targetUrl || fallbackUrl;
+    const target = resolveNavTarget(notification);
     if (target) {
       router.push(target);
     }

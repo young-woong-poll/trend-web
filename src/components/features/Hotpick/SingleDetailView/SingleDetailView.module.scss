@@ -551,6 +551,17 @@
 // 댓글 + (답글 폼/토글/답글 목록) 묶음
 .commentGroup {
   // 그룹 간 구분선 없음 — 답글 영역의 ㄴ자 라인이 시각적 경계 역할
+  position: relative;
+  border-radius: 8px;
+  transition: background 0.4s ease;
+}
+
+// 알림 핀 jump 시 1.8초간 적용되는 임시 강조 — 시선만 끌고 사라짐.
+// 답글에도 동일 효과를 주려면 RepliesList의 wrapper에도 같은 클래스를 토글하면 되지만,
+// 답글의 highlight는 별도 추적이 필요해 현재는 1차 댓글만 highlight + scroll로 처리.
+.commentHighlight {
+  background: rgba(255, 0, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 0, 255, 0.25);
 }
 
 // 답글 영역(폼/토글/답글 목록) — 부모 댓글 최하단부터 시작.
