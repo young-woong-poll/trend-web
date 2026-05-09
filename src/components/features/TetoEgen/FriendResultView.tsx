@@ -76,17 +76,8 @@ const FriendResultView: FC<FriendResultViewProps> = ({
   };
 
   const handleNext = () => {
-    if (hasMyLink) {
-      // 본인 링크 보유 — MyResult로 보내면 친구 결과 화면과 UI가 같아 컨텍스트 혼동.
-      // 단순히 홈으로 보내 다른 콘텐츠 탐색 유도.
-      trackAskFriendResultCtaClick('teto-egen', 'home', true);
-      router.push('/');
-    } else {
-      // 본인 링크 미보유 — 내 결과 만들기 플로우로 진입.
-      // from=friend 쿼리로 친구 화면에서 넘어왔음을 표시 → /my에서 백 버튼 노출 트리거.
-      trackAskFriendResultCtaClick('teto-egen', 'create_my', false);
-      router.push('/ask/teto-egen/my?from=friend');
-    }
+    trackAskFriendResultCtaClick('teto-egen', 'create_my', false);
+    router.push('/ask/teto-egen/my?from=friend');
   };
 
   // mount 1회: myLink.isLoading이 끝난 직후 첫 1회만 발화.
@@ -153,9 +144,6 @@ const FriendResultView: FC<FriendResultViewProps> = ({
   const heroLateMotion = shouldReduceMotion
     ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
     : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
-
-  // myLink.isLoading 중에는 미보유 케이스로 가정 (가장 흔함). data 도착 후 자동 갱신.
-  const ctaLabel = hasMyLink ? '홈으로 가기' : '나도 평가 받아보기';
 
   // 4초 무반응 시 scrollHint 펄스 — 사용자가 hero에 머물고 스크롤 가능을 모르는 케이스 환기.
   // 한 번이라도 스크롤하면 즉시 해제, 다시 트리거되지 않음.
@@ -287,9 +275,9 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         </div>
         <VoterList voters={friendVotes.voters} highlightSelfId={user?.id} />
         <div ref={ctaRef} className={styles.detailCta}>
-          {!hasMyLink && <p className={styles.ctaHook}>친구들은 나를 어떻게 볼까?</p>}
+          <p className={styles.ctaHook}>친구들은 나를 어떻게 볼까?</p>
           <button type="button" className={styles.ctaPrimary} onClick={handleNext}>
-            {ctaLabel}
+            나도 해보기
           </button>
         </div>
       </section>
