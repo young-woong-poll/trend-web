@@ -44,9 +44,14 @@ const proxy = httpProxy.createProxyServer({
 });
 
 // 백엔드(Next dev)가 아직 안 떴거나 일시 단절 시 깔끔한 에러 — 502로 닫기.
-proxy.on('error', (err, _req, res) => {
-  // res가 ServerResponse가 아닌 경우(WebSocket socket)도 들어오므로 안전 가드.
-  stderr.write(`proxy error: ${err.message}\n`);
+proxy.on('error', (err, req, res) => {
+  // 진단용: 어떤 요청에서 깨졌는지 함께 출력.
+  const method = req?.method ?? '-';
+  const url = req?.url ?? '-';
+  const upgrade = req?.headers?.upgrade ?? '';
+  const connection = req?.headers?.connection ?? '';
+  const reqLabel = upgrade ? `${method} ${url} [Upgrade: ${upgrade}; Connection: ${connection}]` : `${method} ${url}`;
+  stderr.write(`proxy error: ${err.message} | ${reqLabel}\n`);
   if (res && typeof res.writeHead === 'function' && !res.headersSent) {
     try {
       res.writeHead(502, { 'content-type': 'text/plain' });
