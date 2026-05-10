@@ -52,44 +52,69 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(20, 20, 20, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  border: none;
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
+  transition: opacity 0.15s ease;
 
   &:hover {
-    background: rgba(30, 30, 30, 0.7);
+    opacity: 0.7;
   }
 }
 
 .backIcon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
-.scrollUpButton {
+.scrollUpIndicator {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 2px;
+  padding: 6px 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: $border-rounded;
-  color: $text-tertiary;
-  font-size: $font-size-12;
-  font-weight: $font-weight-semibold;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
+  z-index: 20;
 
   &:hover {
     color: $white;
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.scrollUpIcon {
+  width: 18px;
+  height: 18px;
+  animation: scrollUpBob 1.6s ease-in-out infinite;
+}
+
+.scrollUpLabel {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.2px;
+  line-height: 1;
+}
+
+@keyframes scrollUpBob {
+  0%,
+  100% {
+    transform: translateY(2px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
   }
 }
 

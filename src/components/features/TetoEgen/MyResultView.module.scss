@@ -45,7 +45,6 @@
   overflow: hidden;
 }
 
-// Hero/Detail 무관 항상 노출되는 sticky back — wrap 기준 absolute, frame 위 z-index.
 .floatingBack {
   position: absolute;
   top: 16px;
@@ -53,50 +52,77 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(20, 20, 20, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  border: none;
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 20;
-  transition: background 0.15s ease;
+  transition: opacity 0.15s ease;
 
   &:hover {
-    background: rgba(30, 30, 30, 0.7);
+    opacity: 0.7;
   }
 }
 
 .backIcon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
-// Detail 상단 sectionHead 우측 — Hero로 smooth scroll
-.scrollUpButton {
+.scrollUpIndicator {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: 2px;
+  padding: 6px 14px;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: $border-rounded;
-  color: $text-tertiary;
-  font-size: $font-size-12;
-  font-weight: $font-weight-semibold;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
   cursor: pointer;
-  transition:
-    color 0.15s,
-    border-color 0.15s,
-    background 0.15s;
+  z-index: 20;
+  transition: color 0.15s ease;
 
   &:hover {
     color: $white;
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.scrollUpIcon {
+  width: 18px;
+  height: 18px;
+  animation: scrollUpBob 1.6s ease-in-out infinite;
+}
+
+.scrollUpLabel {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  letter-spacing: -0.2px;
+  line-height: 1;
+}
+
+@keyframes scrollUpBob {
+  0%,
+  100% {
+    transform: translateY(2px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollUpIcon {
+    animation: none;
+    opacity: 1;
   }
 }
 

@@ -198,6 +198,36 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         <BackIcon className={styles.backIcon} />
       </button>
 
+      {/* Detail 진입 시 상단 가운데에 fade-in되는 ↑ scroll-up indicator */}
+      <AnimatePresence>
+        {inDetail && (
+          <motion.button
+            key="scroll-up"
+            type="button"
+            className={styles.scrollUpIndicator}
+            onClick={handleScrollToHero}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+            aria-label="결과 위로"
+          >
+            <svg
+              className={styles.scrollUpIcon}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              aria-hidden
+            >
+              <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className={styles.scrollUpLabel}>위로</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <div
         ref={frameRef}
         className={styles.frame}
@@ -264,17 +294,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>답 분포</h2>
-            <button
-              type="button"
-              className={styles.scrollUpButton}
-              onClick={handleScrollToHero}
-              aria-label="결과 위로"
-            >
-              <span aria-hidden>↑</span> 위로
-            </button>
-          </div>
+          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>참여한 친구들</h2>

@@ -1,8 +1,8 @@
 'use client';
 
-import { type FC, type ReactNode, useEffect, useRef } from 'react';
+import { type FC, type ReactNode, useEffect, useRef, useState } from 'react';
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
 import styles from '@/app/dev/cta-preview/PreviewBaseView.module.scss';
 import BackIcon from '@/assets/icon/BackIcon';
@@ -52,6 +52,7 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
 
   const frameRef = useRef<HTMLDivElement | null>(null);
   const detailRef = useRef<HTMLDivElement | null>(null);
+  const [inDetail, setInDetail] = useState(false);
 
   useEffect(() => {
     onFrameMount?.(frameRef.current);
@@ -60,6 +61,25 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
   useEffect(() => {
     onDetailMount?.(detailRef.current);
   }, [onDetailMount]);
+
+  // 실제 컴포넌트와 동일한 시각 시뮬을 위해 자체적으로 inDetail 추적.
+  useEffect(() => {
+    const root = frameRef.current;
+    const target = detailRef.current;
+    if (!root || !target || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          setInDetail(entry.intersectionRatio >= 0.5);
+        }
+      },
+      { root, threshold: [0, 0.5, 1] }
+    );
+    obs.observe(target);
+    return () => obs.disconnect();
+  }, []);
 
   const baseTransition = { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const };
 
@@ -83,6 +103,35 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
       <button type="button" className={styles.floatingBack} aria-label="뒤로">
         <BackIcon className={styles.backIcon} />
       </button>
+
+      <AnimatePresence>
+        {inDetail && (
+          <motion.button
+            key="scroll-up"
+            type="button"
+            className={styles.scrollUpIndicator}
+            onClick={handleScrollToHero}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25 }}
+            aria-label="결과 위로"
+          >
+            <svg
+              className={styles.scrollUpIcon}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              aria-hidden
+            >
+              <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className={styles.scrollUpLabel}>위로</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <div
         ref={frameRef}
@@ -148,17 +197,7 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionTitle}>답 분포</h2>
-            <button
-              type="button"
-              className={styles.scrollUpButton}
-              onClick={handleScrollToHero}
-              aria-label="결과 위로"
-            >
-              <span aria-hidden>↑</span> 위로
-            </button>
-          </div>
+          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>친구 목록</h2>

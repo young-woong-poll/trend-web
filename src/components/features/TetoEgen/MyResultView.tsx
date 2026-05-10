@@ -209,6 +209,8 @@ const MyResultView: FC = () => {
 
   const baseTransition = { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const };
 
+  const showScrollUp = !isEmpty && !isSparse && inDetail;
+
   return (
     <>
       <div className={styles.wrap}>
@@ -221,6 +223,36 @@ const MyResultView: FC = () => {
         >
           <BackIcon className={styles.backIcon} />
         </button>
+
+        {/* Detail 진입 시 상단 가운데 fade-in되는 ↑ scroll-up indicator (정상 케이스만) */}
+        <AnimatePresence>
+          {showScrollUp && (
+            <motion.button
+              key="scroll-up"
+              type="button"
+              className={styles.scrollUpIndicator}
+              onClick={handleScrollToHero}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              aria-label="결과 위로"
+            >
+              <svg
+                className={styles.scrollUpIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                aria-hidden
+              >
+                <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className={styles.scrollUpLabel}>위로</span>
+            </motion.button>
+          )}
+        </AnimatePresence>
 
         <div
           ref={frameRef}
@@ -362,17 +394,7 @@ const MyResultView: FC = () => {
           {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
           {!isEmpty && !isSparse && (
             <section ref={detailRef} className={styles.detail}>
-              <div className={styles.sectionHead}>
-                <h2 className={styles.sectionTitle}>답 분포</h2>
-                <button
-                  type="button"
-                  className={styles.scrollUpButton}
-                  onClick={handleScrollToHero}
-                  aria-label="결과 위로"
-                >
-                  <span aria-hidden>↑</span> 위로
-                </button>
-              </div>
+              <h2 className={styles.sectionTitle}>답 분포</h2>
               <DistCard
                 tetoCount={data.friendVotes.tetoCount}
                 egenCount={data.friendVotes.egenCount}
