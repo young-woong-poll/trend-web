@@ -1,0 +1,4 @@
+# Orval로 자동 생성된 코드는 GitHub PR에서 자동 collapse + linguist 통계 제외.
+# diff는 기록되지만 리뷰 시 노이즈로 잡히지 않음.
+src/generated/** linguist-generated=true
+swagger.json linguist-generated=true

@@ -6825,6 +6825,7 @@
         "description": "응답 데이터"
       },
       "UserResponse": {
+        "required": ["id"],
         "type": "object",
         "properties": {
           "id": {
@@ -8111,6 +8112,12 @@
             "format": "int64"
           },
           "liked": {
+            "type": "boolean"
+          },
+          "mine": {
+            "type": "boolean"
+          },
+          "isUser": {
             "type": "boolean"
           },
           "edited": {
