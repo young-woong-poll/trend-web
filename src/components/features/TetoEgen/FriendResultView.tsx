@@ -206,15 +206,15 @@ const FriendResultView: FC<FriendResultViewProps> = ({
             type="button"
             className={styles.scrollUpIndicator}
             onClick={handleScrollToHero}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -6, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -6, x: '-50%' }}
             transition={{ duration: 0.25 }}
             aria-label="결과 위로"
           >
             <svg
               className={styles.scrollUpIcon}
-              viewBox="0 0 24 24"
+              viewBox="0 4 24 16"
               fill="none"
               stroke="currentColor"
               strokeWidth={2.5}

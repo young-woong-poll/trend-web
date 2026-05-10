@@ -119,7 +119,7 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
           >
             <svg
               className={styles.scrollUpIcon}
-              viewBox="0 0 24 24"
+              viewBox="0 4 24 16"
               fill="none"
               stroke="currentColor"
               strokeWidth={2.5}
