@@ -1,0 +1,109 @@
+@use '@/styles/variables' as *;
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  width: 100%;
+  margin: 0 0 $spacing-16;
+  padding: 14px $spacing-16;
+  background: $bg-secondary;
+  border: 1px solid #333;
+  border-left: 3px solid $primary-start;
+  border-radius: $border-radius-md;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+
+  &:hover {
+    background: #232323;
+  }
+
+  &:active {
+    background: $bg-tertiary;
+  }
+}
+
+.label {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $primary-start;
+  letter-spacing: 0.2px;
+}
+
+.parentPreview {
+  margin: 0;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.parentMark {
+  flex-shrink: 0;
+  color: $text-tertiary;
+}
+
+.body {
+  margin: 0;
+  font-size: $font-size-14;
+  color: $text-secondary;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.author {
+  font-weight: $font-weight-bold;
+  color: $white;
+  flex-shrink: 0;
+}
+
+.dot {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cta {
+  margin-top: 4px;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 $spacing-16;
+  padding: 14px $spacing-16;
+  background: $bg-secondary;
+  border: 1px dashed #333;
+  border-radius: $border-radius-md;
+}
+
+.emptyLabel {
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  color: $text-tertiary;
+  letter-spacing: 0.2px;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: $font-size-14;
+  color: $text-secondary;
+}

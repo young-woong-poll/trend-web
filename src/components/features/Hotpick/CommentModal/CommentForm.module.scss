@@ -6,6 +6,78 @@
   gap: 8px;
 }
 
+// 답글 모드 컨텍스트 칩 — "↳ 닉네임 본문... [✕]"
+// background-color, border-left-color는 inline style(profileColor)로 덮어씀.
+.replyChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 10px;
+  border-left: 2px solid $primary-start;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-12;
+  color: $text-secondary;
+  line-height: 1.4;
+}
+
+.replyChipMark {
+  flex-shrink: 0;
+}
+
+.replyChipText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  strong {
+    color: $white;
+    font-weight: $font-weight-bold;
+    flex-shrink: 0;
+  }
+}
+
+.replyChipPreview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $text-tertiary;
+}
+
+.replyChipClose {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-sm;
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s;
+
+  &:hover {
+    color: $white;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
 // 댓글 입력 영역
 .textareaWrapper {
   position: relative;

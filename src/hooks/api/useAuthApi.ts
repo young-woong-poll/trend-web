@@ -14,13 +14,22 @@ import type {
 } from '@/generated/models';
 import { getSignupToken } from '@/lib/signupToken';
 
-/** BE UserResponse → FE User 변환 */
-const toUser = (res: UserResponse): User => ({
-  id: res.id,
-  nickname: res.nickname ?? null,
-  profileColor: res.profileColor ?? 'purple',
-  lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
-});
+/** BE UserResponse → FE User 변환.
+ * id는 BE 계약상 항상 존재해야 하지만 swagger에 required가 빠지면서 generated 타입이 optional로 바뀜.
+ * 잠복 회귀를 막기 위해 매퍼 진입 시점에 명시적 throw — 호출처가 즉시 실패를 인지하도록.
+ * 근본 수정: BE에서 UserResponse.id에 required 어노테이션 복구 필요.
+ */
+const toUser = (res: UserResponse): User => {
+  if (!res.id) {
+    throw new Error('UserResponse에 id가 없습니다 — BE 계약 위반');
+  }
+  return {
+    id: res.id,
+    nickname: res.nickname ?? null,
+    profileColor: res.profileColor ?? 'purple',
+    lastNicknameChangedAt: res.lastNicknameChangedAt ?? null,
+  };
+};
 
 /** 카카오 로그인 */
 export const postKakaoLogin = async (code: string, redirectUri: string): Promise<LoginResponse> => {
@@ -46,8 +55,6 @@ export const postLogout = async (): Promise<void> => {
 /** 회원가입 요청/응답 타입 */
 export interface SignupRequest {
   nickname: string;
-  gender: 'MALE' | 'FEMALE';
-  birthYear: number;
   tkuId?: string;
 }
 
@@ -67,8 +74,6 @@ export const submitSignup = async (data: SignupRequest): Promise<SignupResponse>
   const token = getSignupToken();
   const body: GeneratedSignupRequest = {
     nickname: data.nickname,
-    gender: data.gender,
-    birthYear: data.birthYear,
     ...(data.tkuId ? { tkuId: data.tkuId } : {}),
   };
   const res = (await signupApi(body, {

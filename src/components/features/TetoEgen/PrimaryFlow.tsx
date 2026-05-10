@@ -170,16 +170,9 @@ const PrimaryFlow: FC = () => {
           <BinaryChoiceCard
             question={
               <>
-                친구들도{' '}
-                {user?.nickname && (
-                  <>
-                    <strong>{user.nickname}</strong>님을{' '}
-                  </>
-                )}
-                {withRago(labelOf(selfAnswer))} 생각할까요?
+                친구들도 당신을 <strong>{withRago(labelOf(selfAnswer))}</strong> 생각할까요?
               </>
             }
-            helper="다음 단계에서 친구들이 직접 답할 거예요"
             left={{ value: 'NO', label: '아니다' }}
             right={{ value: 'YES', label: '그렇다' }}
             onSelect={(v) => handleQ2(v as 'YES' | 'NO')}

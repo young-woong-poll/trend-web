@@ -34,6 +34,17 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
     trackAskFriendLanding('teto-egen', meta.isOwn);
   }, [meta.isOwn]);
 
+  // back 버튼 노출 여부 — mount 시점의 history.length로 판정.
+  // SPA 내부 이동(my→friend)도 pushState로 history.length가 증가하므로 1보다 크면 back 가능.
+  // 외부 링크/직접 URL/새 탭은 history.length=1.
+  // SSR mismatch 방지를 위해 mount 후 1회만 결정.
+  const [canGoBack, setCanGoBack] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      setCanGoBack(true);
+    }
+  }, []);
+
   // 이미 참여한 사용자면 meta에 myVote/friendVotes/ownerSelfAnswer가 동봉되므로 초기 state로 채움 → 즉시 결과 화면.
   const [submittedVote, setSubmittedVote] = useState<TetoEgenAnswer | null>(meta.myVote ?? null);
   const [friendVotes, setFriendVotes] = useState<TetoEgenFriendVotes | null>(
@@ -134,7 +145,7 @@ const FriendFlow: FC<FriendFlowProps> = ({ token, meta }) => {
   // 평가 진입 화면
   return (
     <>
-      <TetoEgenLayout showClose>
+      <TetoEgenLayout showBack={canGoBack} showClose>
         <BinaryChoiceCard
           question={
             <>

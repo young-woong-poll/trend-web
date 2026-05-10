@@ -38,11 +38,10 @@ export const CommentItem: FC<CommentItemProps> = ({
   const formatLikeCount = (count: number | undefined): string =>
     (count ?? 0) > 999 ? '999+' : (count ?? 0).toString();
 
-  const isRegisteredUser = !!comment.profileColor;
+  const isRegisteredUser = comment.isUser ?? false;
   const isReply = variant === 'reply';
   const isWithdrawnUser = !comment.nickname;
-  // TODO: 백엔드에서 isMine 필드 지원되면 (!isRegisteredUser || comment.isMine)으로 복구
-  const canManage = !isRegisteredUser;
+  const canManage = !isRegisteredUser || (comment.mine ?? false);
 
   return (
     <div className={`${styles.commentItem} ${isReply ? styles.commentItemReply : ''}`}>

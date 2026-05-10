@@ -5,6 +5,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
 import { useCreateComment } from '@/hooks/api/useComment';
+import { useCreateReply } from '@/hooks/api/useReplies';
 import {
   validateNickname,
   isValidNicknameCharacters,
@@ -21,6 +22,11 @@ interface UseCommentFormParams {
   slug: string;
   electionId: string;
   onSuccess: () => void;
+  /**
+   * 답글 모드 — 지정 시 createReply로 분기, 미지정 시 기존 createComment로 동작.
+   * commentId만 있으면 충분 (서버는 부모 댓글의 election/slug를 commentId로 추적).
+   */
+  replyToCommentId?: string | null;
 }
 
 interface CommentFormErrors {
@@ -36,7 +42,12 @@ export const COMMENT_FORM_LIMITS = {
   NICKNAME_MAX_LENGTH,
 } as const;
 
-export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormParams) {
+export function useCommentForm({
+  slug,
+  electionId,
+  onSuccess,
+  replyToCommentId,
+}: UseCommentFormParams) {
   const { isLoggedIn } = useAuth();
   const [nickname, setNickname] = useState(() => generateRandomNickname());
   const [password, setPassword] = useState('');
@@ -44,7 +55,10 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
   const [errors, setErrors] = useState<CommentFormErrors>({});
 
   const { showToast } = useModal();
-  const { mutate: createComment, isPending } = useCreateComment();
+  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
+  const { mutate: createReply, isPending: isCreatingReply } = useCreateReply();
+  const isReplyMode = Boolean(replyToCommentId);
+  const isPending = isCreatingComment || isCreatingReply;
 
   const resetForm = useCallback(() => {
     if (!isLoggedIn) {
@@ -128,50 +142,80 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
         return;
       }
 
-      createComment(
-        {
-          slug,
-          electionId,
-          nickname: trimmedNickname,
-          password: trimmedPassword,
-          content: trimmedContent,
-          isLoggedIn: false,
-        },
-        {
-          onSuccess: () => {
-            resetForm();
-            onSuccess();
-          },
-          onError: (error) => {
-            showToast('댓글 작성에 실패했습니다');
-            console.error('Failed to create comment:', error);
-          },
-        }
-      );
-      return;
-    }
-
-    // 로그인 유저: content만 전송
-    createComment(
-      {
-        slug,
-        electionId,
-        content: trimmedContent,
-        isLoggedIn: true,
-      },
-      {
+      const handlers = {
         onSuccess: () => {
           resetForm();
           onSuccess();
         },
-        onError: (error) => {
-          showToast('댓글 작성에 실패했습니다');
-          console.error('Failed to create comment:', error);
+        onError: (error: unknown) => {
+          showToast(isReplyMode ? '답글 작성에 실패했습니다' : '댓글 작성에 실패했습니다');
+          console.error('Failed to create comment/reply:', error);
         },
+      };
+
+      if (isReplyMode && replyToCommentId) {
+        createReply(
+          {
+            commentId: replyToCommentId,
+            nickname: trimmedNickname,
+            password: trimmedPassword,
+            content: trimmedContent,
+            isLoggedIn: false,
+          },
+          handlers
+        );
+      } else {
+        createComment(
+          {
+            slug,
+            electionId,
+            nickname: trimmedNickname,
+            password: trimmedPassword,
+            content: trimmedContent,
+            isLoggedIn: false,
+          },
+          handlers
+        );
       }
-    );
+      return;
+    }
+
+    // 로그인 유저: content만 전송
+    const handlers = {
+      onSuccess: () => {
+        resetForm();
+        onSuccess();
+      },
+      onError: (error: unknown) => {
+        showToast(isReplyMode ? '답글 작성에 실패했습니다' : '댓글 작성에 실패했습니다');
+        console.error('Failed to create comment/reply:', error);
+      },
+    };
+
+    if (isReplyMode && replyToCommentId) {
+      createReply(
+        {
+          commentId: replyToCommentId,
+          content: trimmedContent,
+          isLoggedIn: true,
+        },
+        handlers
+      );
+    } else {
+      createComment(
+        {
+          slug,
+          electionId,
+          content: trimmedContent,
+          isLoggedIn: true,
+        },
+        handlers
+      );
+    }
   }, [
     isLoggedIn,
+    isReplyMode,
+    replyToCommentId,
     nickname,
     password,
     content,
@@ -179,6 +223,7 @@ export function useCommentForm({ slug, electionId, onSuccess }: UseCommentFormPa
     electionId,
     showToast,
     createComment,
+    createReply,
     resetForm,
     onSuccess,
   ]);

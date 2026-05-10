@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
+
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import ClockIcon from '@/assets/icon/ClockIcon';
 import CommentIcon from '@/assets/icon/CommentIcon';
@@ -9,6 +11,7 @@ import { CommentEditModal } from '@/components/features/Hotpick/CommentModal/Com
 import { CommentItem as CommentItemComponent } from '@/components/features/Hotpick/CommentModal/CommentItem';
 import { CommentItemSkeleton } from '@/components/features/Hotpick/CommentModal/CommentItemSkeleton';
 import { CommentPasswordModal } from '@/components/features/Hotpick/CommentModal/CommentPasswordModal';
+import { PinnedCommentCard } from '@/components/features/Hotpick/CommentModal/PinnedCommentCard';
 import { RepliesList } from '@/components/features/Hotpick/CommentModal/RepliesList';
 import { RepliesToggle } from '@/components/features/Hotpick/CommentModal/RepliesToggle';
 import { ReplyForm } from '@/components/features/Hotpick/CommentModal/ReplyForm';
@@ -16,7 +19,7 @@ import { InlineCommentForm } from '@/components/features/Hotpick/SingleDetailVie
 import styles from '@/components/features/Hotpick/SingleDetailView/SingleDetailView.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
 import { useModal } from '@/contexts/ModalContext';
-import { useInfiniteComments } from '@/hooks/api';
+import { useCommentDetail, useInfiniteComments } from '@/hooks/api';
 import { useCommentLike } from '@/hooks/api/useCommentLike';
 import { useCommentActions } from '@/hooks/useCommentActions';
 import { getTKUID } from '@/lib/tkuid';
@@ -39,6 +42,100 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
   const [openReplyForms, setOpenReplyForms] = useState<Set<string>>(new Set());
+
+  // ── 알림 진입 핀 영역 ──
+  // 알림에서 commentId가 query에 실려 오면 getCommentDetail로 핀 카드 표시.
+  // jump 시 무한 리스트의 해당 댓글로 scroll + 짧은 highlight.
+  // 부모가 있으면 답글 자동 펼침으로 컨텍스트 함께 보이게.
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const pinnedCommentId = searchParams.get('commentId');
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pinAutoExpandedRef = useRef(false);
+
+  const { data: pinnedDetail } = useCommentDetail(pinnedCommentId);
+
+  const handlePinJump = (targetId: string) => {
+    // 부모 댓글 펼침 — 답글이라면 부모 commentGroup 안에서 답글이 보이도록.
+    const parentId = pinnedDetail?.parent?.id;
+    if (parentId) {
+      setExpandedReplies((prev) => {
+        if (prev.has(parentId)) {
+          return prev;
+        }
+        const next = new Set(prev);
+        next.add(parentId);
+        return next;
+      });
+    }
+    // 다음 frame에 DOM이 그려진 뒤 scroll. 답글 expand로 새로 그려질 수도 있어 살짝 지연.
+    window.setTimeout(() => {
+      const node = sectionRef.current?.querySelector<HTMLElement>(
+        `[data-comment-id="${targetId}"]`
+      );
+      if (node) {
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      setHighlightedId(targetId);
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+      highlightTimerRef.current = setTimeout(() => setHighlightedId(null), 1800);
+    }, 80);
+  };
+
+  // 핀 데이터 로드 후 1회: 부모가 있으면 답글 자동 펼침. (사용자가 별도 jump 안 눌러도)
+  useEffect(() => {
+    if (pinAutoExpandedRef.current) {
+      return;
+    }
+    const parentId = pinnedDetail?.parent?.id;
+    if (!parentId) {
+      return;
+    }
+    pinAutoExpandedRef.current = true;
+    setExpandedReplies((prev) => {
+      if (prev.has(parentId)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.add(parentId);
+      return next;
+    });
+  }, [pinnedDetail]);
+
+  // 핀 query는 진입 1회 의미만 — 새로고침 시 깜빡임/중복 동작 방지를 위해 url에서 정리.
+  // detail 데이터 로드 또는 not-found 결과가 나온 직후 한 번만 replaceState.
+  const pinCleanedRef = useRef(false);
+  useEffect(() => {
+    if (pinCleanedRef.current || !pinnedCommentId) {
+      return;
+    }
+    if (pinnedDetail === undefined) {
+      return;
+    }
+    pinCleanedRef.current = true;
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('commentId');
+    params.delete('parentCommentId');
+    params.delete('electionId');
+    const qs = params.toString();
+    window.history.replaceState({}, '', qs ? `${pathname}?${qs}` : pathname);
+  }, [pinnedDetail, pinnedCommentId, pathname, searchParams]);
+
+  useEffect(
+    () => () => {
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+      }
+    },
+    []
+  );
 
   const expandReplies = (commentId: string) => {
     setExpandedReplies((prev) => {
@@ -137,10 +234,13 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
           const isExpanded = expandedReplies.has(id);
           const isFormOpen = openReplyForms.has(id);
           const hasReplyArea = isFormOpen || replyCount > 0;
-          const showAddReplyTrigger = isExpanded && replyCount > 0 && !isFormOpen;
 
           return (
-            <div key={id} className={styles.commentGroup}>
+            <div
+              key={id}
+              className={`${styles.commentGroup} ${highlightedId === id ? styles.commentHighlight : ''}`}
+              data-comment-id={id}
+            >
               <CommentItemComponent
                 comment={comment}
                 replyFormOpen={isFormOpen}
@@ -162,18 +262,19 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
                   )}
 
                   {/* 답글 리스트 위: 폼 또는 "답글 달기" 트리거 */}
-                  {isFormOpen ? (
-                    <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
-                  ) : (
-                    showAddReplyTrigger && (
-                      <button
-                        type="button"
-                        className={styles.addReplyButton}
-                        onClick={() => toggleReplyForm(id, replyCount)}
-                      >
-                        답글 달기
-                      </button>
-                    )
+                  {isFormOpen && (
+                    <ReplyForm
+                      commentId={id}
+                      onSuccess={() => handleReplySuccess(id)}
+                      onCancel={() =>
+                        setOpenReplyForms((prev) => {
+                          const next = new Set(prev);
+                          next.delete(id);
+                          return next;
+                        })
+                      }
+                      autoFocus
+                    />
                   )}
 
                   {/* 답글 리스트 + 끝의 답글 더보기/숨기기 (RepliesList 내부) */}
@@ -206,7 +307,16 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
   };
 
   return (
-    <div className={styles.commentSection} data-testid="comment-section">
+    <div ref={sectionRef} className={styles.commentSection} data-testid="comment-section">
+      {/* 알림 진입 핀 — query에 commentId가 있으면 노출 */}
+      {pinnedCommentId && (
+        <PinnedCommentCard
+          comment={pinnedDetail?.comment}
+          parent={pinnedDetail?.parent}
+          onJump={handlePinJump}
+        />
+      )}
+
       {/* 헤더 */}
       <div className={styles.commentHeader}>
         <h2 className={styles.commentTitle}>

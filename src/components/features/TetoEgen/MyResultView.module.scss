@@ -1,8 +1,14 @@
 @use '@/styles/variables' as *;
 
+.wrap {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+}
+
 // scroll-snap container = .frame
 .frame {
-  height: 100dvh;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
@@ -30,7 +36,7 @@
 // ── Section 1: Hero ──
 .hero {
   position: relative;
-  height: 100dvh;
+  height: 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   padding: 28px 28px 90px;
@@ -46,18 +52,12 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 2;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
 }
 
 .backIcon {
@@ -68,15 +68,13 @@
 .contextChip {
   position: absolute;
   top: 22px;
-  right: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 2;
-  font-size: $font-size-12;
+  font-size: $font-size-14;
   font-weight: $font-weight-semibold;
-  color: $text-secondary;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 6px 12px;
-  border-radius: $border-rounded;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  padding: 6px 0;
 }
 
 .heroMid {
@@ -233,80 +231,98 @@
   margin: 0 0 12px;
 }
 
-.scrollHint {
+// ── Sticky CTA: 정상 케이스(!isEmpty && !isSparse)에서 Hero 단계 발견성 강화.
+// Detail 진입 시 fade-out + detail 안 inline CTA가 fade-in으로 등장.
+.stickyWrap {
   position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: $white;
-  font-size: $font-size-14;
-  font-weight: $font-weight-semibold;
-  letter-spacing: -0.2px;
-  // 진폭 12px + opacity 0.55 ↔ 1.0로 "살아있는 신호".
-  animation: scrollHintBob 1.6s ease-in-out infinite;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  // 하단 inline CTA(detail 섹션)와 동일한 시각 높이로 맞추기 위해 48px + safe-area 보정.
+  padding: 16px 24px;
+  padding-bottom: max(48px, env(safe-area-inset-bottom) + 32px);
+  z-index: 10;
   pointer-events: none;
-  white-space: nowrap;
 }
 
-.scrollHintLabel {
-  line-height: 1;
+.stickyCta {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: $white;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 15px;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform-origin: center center;
+  will-change: transform, box-shadow;
 }
 
-.scrollHintIcon {
+// 통통 튀는 펄스 — Hero 단계에서만, 사용자가 한 번 스크롤하면 정지.
+.stickyCtaPulse {
+  animation: stickyCtaBounce 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.stickyCtaPulse .stickyArrow {
+  animation: stickyArrowBounce 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.stickyArrow {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+  transform-origin: center center;
 }
 
-// 4초 무반응 시 추가되는 1회성 강조 펄스. bob과 합성되며 끝나면 다시 bob만 남음.
-.scrollHintPulse {
-  animation:
-    scrollHintBob 1.6s ease-in-out infinite,
-    scrollHintTextPulse 0.9s ease-out 1;
-}
-
-@keyframes scrollHintBob {
+@keyframes stickyCtaBounce {
   0%,
   100% {
-    transform: translate(-50%, 0);
-    opacity: 0.55;
+    transform: translateY(0);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(255, 255, 255, 0);
   }
-  50% {
-    transform: translate(-50%, 12px);
-    opacity: 1;
+  40% {
+    transform: translateY(-8px);
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.45),
+      0 0 24px 4px rgba(255, 255, 255, 0.12);
+  }
+  60% {
+    transform: translateY(-6px);
   }
 }
 
-@keyframes scrollHintTextPulse {
-  0% {
-    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
-    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-  }
-  40% {
-    text-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-  }
+// 화살표는 본체보다 살짝 늦게 통통 — "아래로 내려가라"는 신호 강조.
+@keyframes stickyArrowBounce {
+  0%,
   100% {
-    text-shadow: 0 0 0 rgba(255, 255, 255, 0);
-    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrollHint,
-  .scrollHintPulse {
+  .stickyCtaPulse,
+  .stickyCtaPulse .stickyArrow {
     animation: none;
-    opacity: 1;
   }
 }
 
 // ── Section 2: Detail ──
 .detail {
-  height: 100dvh;
+  height: 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   // CTA 버튼이 바닥에 너무 붙어 보이는 이슈 → bottom padding을 48px로 올려 CTA 위치를 24px 더 위로.
@@ -329,12 +345,19 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   flex-shrink: 0;
 
   .sectionTitle {
     margin-bottom: 0;
   }
+}
+
+.sectionHint {
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  margin: 0 0 12px;
+  flex-shrink: 0;
 }
 
 .sectionCount {

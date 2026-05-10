@@ -14,7 +14,7 @@ interface UseCommentActionsParams {
  * 댓글 수정/삭제 상태 관리 및 핸들러를 통합 제공합니다.
  * CommentBottomSheet, InlineCommentSection에서 공통으로 사용됩니다.
  *
- * 로그인 유저의 자기 댓글(isMine): 비밀번호 검증 스킵 → 바로 수정/삭제
+ * 로그인 유저의 자기 댓글(mine): 비밀번호 검증 스킵 → 바로 수정/삭제
  * 비로그인 유저 댓글: 기존 비밀번호 검증 플로우 유지
  */
 export function useCommentActions({ slug, electionId }: UseCommentActionsParams) {
@@ -69,7 +69,7 @@ export function useCommentActions({ slug, electionId }: UseCommentActionsParams)
       setActionType('edit');
 
       // 로그인 유저 자기 댓글: 비밀번호 스킵 → 바로 수정 모달
-      if (isLoggedIn && comment.isMine) {
+      if (isLoggedIn && comment.mine) {
         setIsEditModalOpen(true);
         return;
       }
@@ -85,7 +85,7 @@ export function useCommentActions({ slug, electionId }: UseCommentActionsParams)
       setActionType('delete');
 
       // 로그인 유저 자기 댓글: 비밀번호 스킵 → 바로 삭제 확인
-      if (isLoggedIn && comment.isMine) {
+      if (isLoggedIn && comment.mine) {
         deleteOwnComment(comment);
         return;
       }
