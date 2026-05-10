@@ -273,6 +273,7 @@ export const InlineCommentSection: FC<InlineCommentSectionProps> = ({
                           return next;
                         })
                       }
+                      autoFocus
                     />
                   )}
 

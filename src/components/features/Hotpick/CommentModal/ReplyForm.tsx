@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import styles from '@/components/features/Hotpick/CommentModal/ReplyForm.module.scss';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,8 @@ interface ReplyFormProps {
   onSuccess: () => void;
   // 취소 버튼 — 로그인 사용자에게만 노출. 미지정이면 취소 버튼 숨김.
   onCancel?: () => void;
+  // mount 직후 textarea 자동 focus — 답글 클릭 → 즉시 작성 흐름.
+  autoFocus?: boolean;
 }
 
 interface ReplyFormErrors {
@@ -22,12 +24,26 @@ interface ReplyFormErrors {
   password?: boolean;
 }
 
-export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }) => {
+export const ReplyForm: FC<ReplyFormProps> = ({
+  commentId,
+  onSuccess,
+  onCancel,
+  autoFocus = false,
+}) => {
   const { isLoggedIn } = useAuth();
   const { showToast } = useModal();
   const [content, setContent] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // 마운트 시점에 자동 focus — 답글 버튼 클릭 → 즉시 입력 가능.
+  // commentId가 바뀌면(다른 답글로 전환) 다시 focus.
+  useEffect(() => {
+    if (autoFocus) {
+      textareaRef.current?.focus();
+    }
+  }, [autoFocus, commentId]);
   const [errors, setErrors] = useState<ReplyFormErrors>({});
 
   const { mutate: createReply, isPending } = useCreateReply();
@@ -98,6 +114,7 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }
     <div className={styles.replyForm}>
       <div className={styles.textareaWrapper}>
         <textarea
+          ref={textareaRef}
           className={`${styles.textarea} ${errors.content ? styles.error : ''}`}
           placeholder="답글을 입력하세요..."
           value={content}
