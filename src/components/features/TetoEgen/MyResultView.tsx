@@ -249,7 +249,6 @@ const MyResultView: FC = () => {
                 <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <span className={styles.scrollUpLabel}>위로</span>
             </motion.button>
           )}
         </AnimatePresence>
@@ -394,7 +393,6 @@ const MyResultView: FC = () => {
           {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
           {!isEmpty && !isSparse && (
             <section ref={detailRef} className={styles.detail}>
-              <h2 className={styles.sectionTitle}>답 분포</h2>
               <DistCard
                 tetoCount={data.friendVotes.tetoCount}
                 egenCount={data.friendVotes.egenCount}

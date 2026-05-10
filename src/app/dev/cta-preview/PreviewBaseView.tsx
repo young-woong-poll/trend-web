@@ -128,7 +128,6 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
               <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className={styles.scrollUpLabel}>위로</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -197,7 +196,6 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>친구 목록</h2>
