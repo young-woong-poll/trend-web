@@ -367,7 +367,7 @@ const MyResultView: FC = () => {
                   <strong>{total}</strong>명
                 </span>
               </div>
-              <p className={styles.sectionHint}>눌러서 다른 결과도 구경하기</p>
+              <p className={styles.sectionHint}>눌러서 친구 결과도 구경하기</p>
               <VoterList
                 voters={data.friendVotes.voters}
                 enableProfileLink

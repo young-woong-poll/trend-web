@@ -271,7 +271,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
               <strong>{friendVotes.total}</strong>명
             </span>
           </div>
-          <p className={styles.sectionHint}>눌러서 다른 결과도 구경하기</p>
+          <p className={styles.sectionHint}>눌러서 친구 결과도 구경하기</p>
           <VoterList voters={friendVotes.voters} highlightSelfId={user?.id} enableProfileLink />
           <div ref={ctaRef} className={styles.detailCta}>
             <AnimatePresence>
