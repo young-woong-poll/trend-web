@@ -92,6 +92,10 @@ const FriendResultView: FC<FriendResultViewProps> = ({
     detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleScrollToHero = () => {
+    frameRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // mount 1회: myLink.isLoading이 끝난 직후 첫 1회만 발화.
   // 로딩 중에는 has_my_link가 false로 잘못 잡히므로 결과 도착 후 발화.
   const viewSentRef = useRef(false);
@@ -189,6 +193,40 @@ const FriendResultView: FC<FriendResultViewProps> = ({
 
   return (
     <div className={styles.wrap}>
+      {/* frame 외부 sticky back — Hero/Detail 어느 위치에서도 항상 노출 */}
+      <button type="button" className={styles.floatingBack} onClick={handleBack} aria-label="뒤로">
+        <BackIcon className={styles.backIcon} />
+      </button>
+
+      {/* Detail 진입 시 상단 가운데에 fade-in되는 ↑ scroll-up indicator */}
+      <AnimatePresence>
+        {inDetail && (
+          <motion.button
+            key="scroll-up"
+            type="button"
+            className={styles.scrollUpIndicator}
+            onClick={handleScrollToHero}
+            initial={{ opacity: 0, y: -6, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: -6, x: '-50%' }}
+            transition={{ duration: 0.25 }}
+            aria-label="결과 위로"
+          >
+            <svg
+              className={styles.scrollUpIcon}
+              viewBox="0 4 24 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              aria-hidden
+            >
+              <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <div
         ref={frameRef}
         className={styles.frame}
@@ -198,15 +236,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         }}
       >
         <section className={styles.hero}>
-          <button
-            type="button"
-            className={styles.backButton}
-            onClick={handleBack}
-            aria-label="뒤로"
-          >
-            <BackIcon className={styles.backIcon} />
-          </button>
-          <span className={styles.contextChip}>{ownerDisplayName}님의 현재 결과</span>
+          <span className={styles.contextChip}>현재 {ownerDisplayName}님의 결과</span>
 
           <div className={styles.heroMid}>
             {adj.display === 'spaced' && adj.modifier && (
@@ -263,7 +293,6 @@ const FriendResultView: FC<FriendResultViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <h2 className={styles.sectionTitle}>답 분포</h2>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>참여한 친구들</h2>
@@ -285,7 +314,7 @@ const FriendResultView: FC<FriendResultViewProps> = ({
                 >
                   <p className={styles.ctaHook}>친구들은 나를 어떻게 볼까?</p>
                   <button type="button" className={styles.ctaPrimary} onClick={handleNext}>
-                    나도 해보기
+                    나도 투표 받아보기
                   </button>
                 </motion.div>
               )}

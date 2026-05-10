@@ -110,6 +110,10 @@ const MyResultView: FC = () => {
     detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleScrollToHero = () => {
+    frameRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 사용자가 한 번이라도 스크롤하면 sticky 통통 펄스 정지.
   useEffect(() => {
     const el = frameRef.current;
@@ -205,9 +209,50 @@ const MyResultView: FC = () => {
 
   const baseTransition = { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const };
 
+  const showScrollUp = !isEmpty && !isSparse && inDetail;
+
   return (
     <>
       <div className={styles.wrap}>
+        {/* frame 외부 sticky back — Hero/Detail 어느 위치에서도 항상 노출 */}
+        <button
+          type="button"
+          className={styles.floatingBack}
+          onClick={() => router.back()}
+          aria-label="뒤로"
+        >
+          <BackIcon className={styles.backIcon} />
+        </button>
+
+        {/* Detail 진입 시 상단 가운데 fade-in되는 ↑ scroll-up indicator (정상 케이스만) */}
+        <AnimatePresence>
+          {showScrollUp && (
+            <motion.button
+              key="scroll-up"
+              type="button"
+              className={styles.scrollUpIndicator}
+              onClick={handleScrollToHero}
+              initial={{ opacity: 0, y: -6, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: -6, x: '-50%' }}
+              transition={{ duration: 0.25 }}
+              aria-label="결과 위로"
+            >
+              <svg
+                className={styles.scrollUpIcon}
+                viewBox="0 4 24 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                aria-hidden
+              >
+                <path d="M6 11l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 18l6-6 6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         <div
           ref={frameRef}
           className={styles.frame}
@@ -218,15 +263,7 @@ const MyResultView: FC = () => {
           }}
         >
           <section className={styles.hero}>
-            <button
-              type="button"
-              className={styles.backButton}
-              onClick={() => router.back()}
-              aria-label="뒤로"
-            >
-              <BackIcon className={styles.backIcon} />
-            </button>
-            <span className={styles.contextChip}>나의 현재 결과</span>
+            <span className={styles.contextChip}>현재 나의 결과</span>
 
             <div className={styles.heroMid}>
               {isEmpty ? (
@@ -356,7 +393,6 @@ const MyResultView: FC = () => {
           {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
           {!isEmpty && !isSparse && (
             <section ref={detailRef} className={styles.detail}>
-              <h2 className={styles.sectionTitle}>답 분포</h2>
               <DistCard
                 tetoCount={data.friendVotes.tetoCount}
                 egenCount={data.friendVotes.egenCount}
