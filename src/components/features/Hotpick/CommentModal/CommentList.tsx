@@ -142,7 +142,6 @@ export const CommentList: FC<CommentListProps> = ({
         const isExpanded = expandedReplies.has(id);
         const isFormOpen = openReplyForms.has(id);
         const hasReplyArea = isFormOpen || replyCount > 0;
-        const showAddReplyTrigger = isExpanded && replyCount > 0 && !isFormOpen;
 
         return (
           <div key={id} className={styles.commentGroup}>
@@ -167,18 +166,18 @@ export const CommentList: FC<CommentListProps> = ({
                 )}
 
                 {/* 답글 리스트 위: 폼 또는 "답글 달기" 트리거 */}
-                {isFormOpen ? (
-                  <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
-                ) : (
-                  showAddReplyTrigger && (
-                    <button
-                      type="button"
-                      className={styles.addReplyButton}
-                      onClick={() => toggleReplyForm(id, replyCount)}
-                    >
-                      답글 달기
-                    </button>
-                  )
+                {isFormOpen && (
+                  <ReplyForm
+                    commentId={id}
+                    onSuccess={() => handleReplySuccess(id)}
+                    onCancel={() =>
+                      setOpenReplyForms((prev) => {
+                        const next = new Set(prev);
+                        next.delete(id);
+                        return next;
+                      })
+                    }
+                  />
                 )}
 
                 {/* 답글 리스트 + 끝의 답글 더보기/숨기기 (RepliesList 내부) */}

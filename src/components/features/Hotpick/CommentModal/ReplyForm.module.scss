@@ -95,3 +95,29 @@
     cursor: not-allowed;
   }
 }
+
+// 답글 취소 — ghost 스타일. submit 옆에서 시각 위계가 약하도록.
+.cancelButton {
+  height: 32px;
+  padding: 0 12px;
+  background: transparent;
+  color: $text-tertiary;
+  border: 1px solid transparent;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-12;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background 0.15s;
+
+  &:hover {
+    color: $text-secondary;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

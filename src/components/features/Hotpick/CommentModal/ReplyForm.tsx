@@ -12,6 +12,8 @@ import { sanitizeComment, validateNickname } from '@/lib/utils';
 interface ReplyFormProps {
   commentId: string;
   onSuccess: () => void;
+  // 취소 버튼 — 로그인 사용자에게만 노출. 미지정이면 취소 버튼 숨김.
+  onCancel?: () => void;
 }
 
 interface ReplyFormErrors {
@@ -20,7 +22,7 @@ interface ReplyFormErrors {
   password?: boolean;
 }
 
-export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess }) => {
+export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess, onCancel }) => {
   const { isLoggedIn } = useAuth();
   const { showToast } = useModal();
   const [content, setContent] = useState('');
@@ -134,6 +136,17 @@ export const ReplyForm: FC<ReplyFormProps> = ({ commentId, onSuccess }) => {
               data-lpignore="true"
             />
           </>
+        )}
+        {isLoggedIn && onCancel && (
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={onCancel}
+            disabled={isPending}
+            aria-label="답글 취소"
+          >
+            취소
+          </button>
         )}
         <button
           type="button"
