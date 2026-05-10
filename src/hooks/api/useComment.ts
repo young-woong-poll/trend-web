@@ -21,8 +21,11 @@ import {
   deleteComment,
   verifyComment,
   countComments,
+  getCommentDetail,
 } from '@/generated/api/client/comment/comment';
 import type {
+  BaseResponseCommentDetailResponse,
+  CommentDetailResponse,
   CommentItem,
   CommentListResponse,
   CommentVerifyResponse,
@@ -40,6 +43,7 @@ export const commentKeys = {
   lists: () => [...commentKeys.all, 'list'] as const,
   list: (slug: string, electionId: string, sort: string) =>
     [...commentKeys.lists(), slug, electionId, sort] as const,
+  detail: (commentId: string) => [...commentKeys.all, 'detail', commentId] as const,
 };
 
 /**
@@ -206,4 +210,26 @@ export const useDeleteComment = () => {
   });
 };
 
-export type { CommentItem, CommentVerifyResponse };
+/**
+ * 단건 댓글 상세 조회 (핀 영역용 — comment + parent).
+ *
+ * 알림에서 진입 시 commentId가 query에 실려 오는 케이스에 사용.
+ * 댓글이 삭제되었거나 권한이 없으면 BE 응답이 비어 있을 수 있어 caller에서 빈 처리.
+ */
+export const useCommentDetail = (commentId: string | null | undefined, enabled = true) =>
+  useQuery({
+    queryKey: commentId ? commentKeys.detail(commentId) : ['comment', 'detail', 'idle'],
+    queryFn: async (): Promise<CommentDetailResponse | null> => {
+      if (!commentId) {
+        return null;
+      }
+      const result = (await getCommentDetail(commentId)) as BaseResponseCommentDetailResponse;
+      return result.data ?? null;
+    },
+    enabled: Boolean(commentId) && enabled,
+    // 핀은 진입 1회 조회로 충분 — 정렬/페이지네이션과 무관하게 최신 한 번만.
+    staleTime: 60 * 1000,
+    retry: false,
+  });
+
+export type { CommentItem, CommentVerifyResponse, CommentDetailResponse };

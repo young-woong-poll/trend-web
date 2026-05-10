@@ -17,6 +17,10 @@
   ],
   "tags": [
     {
+      "name": "Admin Ask Teto/Egen",
+      "description": "테토/에겐 어드민 통계 API"
+    },
+    {
       "name": "Admin Search",
       "description": "MeiliSearch sync admin API"
     },
@@ -79,6 +83,63 @@
   ],
   "paths": {
     "/api/v1/comments/{commentId}": {
+      "get": {
+        "tags": ["Comment"],
+        "summary": "단건 댓글 조회 (핀 영역용; comment + parent 응답)",
+        "operationId": "getCommentDetail",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseCommentDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "put": {
         "tags": ["Comment"],
         "summary": "Update comment",
@@ -5593,6 +5654,131 @@
           }
         }
       }
+    },
+    "/admin/api/v1/ask-teto-egen/overview": {
+      "get": {
+        "tags": ["Admin Ask Teto/Egen"],
+        "summary": "테토/에겐 전체 통계",
+        "operationId": "getOverview",
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminAskTetoEgenOverviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/api/v1/ask-teto-egen/links": {
+      "get": {
+        "tags": ["Admin Ask Teto/Egen"],
+        "summary": "테토/에겐 링크 리스트 (cursor pagination)",
+        "operationId": "getLinks",
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseVoid"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseObject"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseResponseAdminAskTetoEgenLinkListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6569,7 +6755,7 @@
         "description": "응답 데이터"
       },
       "SignupRequest": {
-        "required": ["birthYear", "gender", "nickname"],
+        "required": ["nickname"],
         "type": "object",
         "properties": {
           "nickname": {
@@ -6639,6 +6825,7 @@
         "description": "응답 데이터"
       },
       "UserResponse": {
+        "required": ["id"],
         "type": "object",
         "properties": {
           "id": {
@@ -6809,6 +6996,40 @@
             "type": "string"
           },
           "displayName": {
+            "type": "string"
+          },
+          "profileColor": {
+            "type": "string",
+            "enum": [
+              "PURPLE",
+              "BLUE",
+              "CYAN",
+              "GREEN",
+              "YELLOW",
+              "ORANGE",
+              "PINK",
+              "RED",
+              "AMBER",
+              "INDIGO",
+              "MAGENTA",
+              "SKY",
+              "GOLD",
+              "TEAL",
+              "GRAPE",
+              "SUNSET",
+              "OCEAN",
+              "LIME",
+              "CORAL",
+              "LAVENDER",
+              "MINT",
+              "PEACH",
+              "SAPPHIRE",
+              "ROSE",
+              "FOREST",
+              "FLAME"
+            ]
+          },
+          "tetoEgenToken": {
             "type": "string"
           },
           "vote": {
@@ -7615,6 +7836,19 @@
           "targetUrl": {
             "type": "string"
           },
+          "hotpickSlug": {
+            "type": "string"
+          },
+          "electionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "commentId": {
+            "type": "string"
+          },
+          "parentCommentId": {
+            "type": "string"
+          },
           "read": {
             "type": "boolean"
           },
@@ -7878,6 +8112,12 @@
             "format": "int64"
           },
           "liked": {
+            "type": "boolean"
+          },
+          "mine": {
+            "type": "boolean"
+          },
+          "isUser": {
             "type": "boolean"
           },
           "edited": {
@@ -8457,6 +8697,37 @@
             }
           }
         }
+      },
+      "BaseResponseCommentDetailResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CommentDetailResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "CommentDetailResponse": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "$ref": "#/components/schemas/CommentItem"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/CommentItem"
+          }
+        },
+        "description": "응답 데이터"
       },
       "BaseResponseListBundleSummaryResponse": {
         "type": "object",
@@ -9252,6 +9523,259 @@
             "items": {
               "$ref": "#/components/schemas/DailyStat"
             }
+          }
+        }
+      },
+      "AdminAskTetoEgenOverviewResponse": {
+        "type": "object",
+        "properties": {
+          "totalLinkCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uniqueParticipantCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "selfAnswerDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "selfPredictionDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "voteDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "selfMatchRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "selfPredictionAccuracy": {
+            "type": "number",
+            "format": "double"
+          },
+          "engagement": {
+            "$ref": "#/components/schemas/Engagement"
+          },
+          "viral": {
+            "$ref": "#/components/schemas/Viral"
+          },
+          "demographics": {
+            "$ref": "#/components/schemas/Demographics"
+          },
+          "dailyStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyStat"
+            }
+          },
+          "hourlyActivity": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HourlyStat"
+            }
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAdminAskTetoEgenOverviewResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminAskTetoEgenOverviewResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "Demographics": {
+        "type": "object",
+        "properties": {
+          "byGender": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GroupCounts"
+            }
+          },
+          "byAgeGroup": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GroupCounts"
+            }
+          }
+        }
+      },
+      "Engagement": {
+        "type": "object",
+        "properties": {
+          "avgVotesPerLink": {
+            "type": "number",
+            "format": "double"
+          },
+          "linksWithAnyVoteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "zeroVoteLinkCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "avgTimeToFirstVoteHours": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "GroupCounts": {
+        "type": "object",
+        "properties": {
+          "linkCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "selfTeto": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "selfEgen": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "HourlyStat": {
+        "type": "object",
+        "properties": {
+          "hour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "linksCreated": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "votesCast": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Viral": {
+        "type": "object",
+        "properties": {
+          "voterToCreatorRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "avgVotesPerVoter": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "AdminAskTetoEgenLinkListResponse": {
+        "type": "object",
+        "properties": {
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkItem"
+            }
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "응답 데이터"
+      },
+      "BaseResponseAdminAskTetoEgenLinkListResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "응답 코드",
+            "example": "S0000"
+          },
+          "message": {
+            "type": "string",
+            "description": "응답 메시지",
+            "example": "성공"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AdminAskTetoEgenLinkListResponse"
+          }
+        },
+        "description": "공통 응답 포맷"
+      },
+      "LinkItem": {
+        "type": "object",
+        "properties": {
+          "linkId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "token": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "ownerNickname": {
+            "type": "string"
+          },
+          "ownerSelfAnswer": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "ownerSelfPrediction": {
+            "type": "string",
+            "enum": ["TETO", "EGEN"]
+          },
+          "voteCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "voteDistribution": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "selfMatch": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

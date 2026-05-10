@@ -20,6 +20,18 @@ interface CommentListProps {
   onEditRequest: (comment: CommentItemType) => void;
   onDeleteRequest: (comment: CommentItemType) => void;
   onLikeClick: (commentId: string, liked: boolean) => void;
+  /**
+   * 답글 클릭 처리 — 지정 시 외부(CommentBottomSheet)가 답글 폼을 모드 전환으로 처리.
+   * 미지정 시 기존 인라인 ReplyForm 토글 동작 (legacy / 다른 진입 케이스 대비).
+   * content는 답글 폼 컨텍스트 칩 미리보기, profileColor는 칩 배경/border tint에 사용.
+   */
+  onReplyClick?: (target: {
+    commentId: string;
+    nickname: string;
+    content: string;
+    profileColor?: string | null;
+    replyCount: number;
+  }) => void;
 }
 
 export const CommentList: FC<CommentListProps> = ({
@@ -29,6 +41,7 @@ export const CommentList: FC<CommentListProps> = ({
   onEditRequest,
   onDeleteRequest,
   onLikeClick,
+  onReplyClick,
 }) => {
   const { isLoggedIn } = useAuth();
   const tkuId = getTKUID({ isLoggedIn });
@@ -138,11 +151,22 @@ export const CommentList: FC<CommentListProps> = ({
     <div className={styles.commentList}>
       {comments.map((comment) => {
         const id = comment.id ?? '';
+        const nickname = comment.nickname ?? '익명';
+        const content = comment.content ?? '';
+        const profileColor = comment.profileColor;
         const replyCount = comment.replyCount ?? 0;
         const isExpanded = expandedReplies.has(id);
-        const isFormOpen = openReplyForms.has(id);
+        // onReplyClick이 외부에서 주어진 경우 — 외부가 답글 폼을 통합 관리하므로 내부 인라인 폼 비활성.
+        const isFormOpen = openReplyForms.has(id) && !onReplyClick;
         const hasReplyArea = isFormOpen || replyCount > 0;
-        const showAddReplyTrigger = isExpanded && replyCount > 0 && !isFormOpen;
+
+        const handleReplyTrigger = () => {
+          if (onReplyClick) {
+            onReplyClick({ commentId: id, nickname, content, profileColor, replyCount });
+          } else {
+            toggleReplyForm(id, replyCount);
+          }
+        };
 
         return (
           <div key={id} className={styles.commentGroup}>
@@ -152,7 +176,7 @@ export const CommentList: FC<CommentListProps> = ({
               onLikeClick={onLikeClick}
               onEditClick={onEditRequest}
               onDeleteClick={onDeleteRequest}
-              onReplyClick={() => toggleReplyForm(id, replyCount)}
+              onReplyClick={handleReplyTrigger}
             />
 
             {hasReplyArea && (
@@ -166,19 +190,19 @@ export const CommentList: FC<CommentListProps> = ({
                   />
                 )}
 
-                {/* 답글 리스트 위: 폼 또는 "답글 달기" 트리거 */}
-                {isFormOpen ? (
-                  <ReplyForm commentId={id} onSuccess={() => handleReplySuccess(id)} />
-                ) : (
-                  showAddReplyTrigger && (
-                    <button
-                      type="button"
-                      className={styles.addReplyButton}
-                      onClick={() => toggleReplyForm(id, replyCount)}
-                    >
-                      답글 달기
-                    </button>
-                  )
+                {/* 인라인 답글 폼 — onReplyClick 미지정 시(legacy)에만 노출 */}
+                {isFormOpen && (
+                  <ReplyForm
+                    commentId={id}
+                    onSuccess={() => handleReplySuccess(id)}
+                    onCancel={() =>
+                      setOpenReplyForms((prev) => {
+                        const next = new Set(prev);
+                        next.delete(id);
+                        return next;
+                      })
+                    }
+                  />
                 )}
 
                 {/* 답글 리스트 + 끝의 답글 더보기/숨기기 (RepliesList 내부) */}

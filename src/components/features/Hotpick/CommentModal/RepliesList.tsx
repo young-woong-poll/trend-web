@@ -45,14 +45,16 @@ export const RepliesList: FC<RepliesListProps> = ({
   return (
     <div className={styles.repliesList}>
       {replies.map((reply) => (
-        <CommentItem
-          key={reply.id}
-          comment={reply}
-          variant="reply"
-          onLikeClick={onLikeClick}
-          onEditClick={onEditRequest}
-          onDeleteClick={onDeleteRequest}
-        />
+        // data-comment-id: 알림 핀 영역에서 querySelector로 찾아 scroll/highlight 대상으로 사용.
+        <div key={reply.id} data-comment-id={reply.id ?? ''}>
+          <CommentItem
+            comment={reply}
+            variant="reply"
+            onLikeClick={onLikeClick}
+            onEditClick={onEditRequest}
+            onDeleteClick={onDeleteRequest}
+          />
+        </div>
       ))}
       {hasNextPage ? (
         <button

@@ -13,6 +13,11 @@ export type TetoEgenVoter = {
   displayName: string;
   vote: TetoEgenAnswer;
   votedAt: string;
+  // voter 프로필 색상. PROFILE_COLORS의 name과 호환 (대소문자 무시).
+  profileColor?: string | null;
+  // 해당 voter도 본인 링크를 만들었으면 tetoEgenToken 존재. 없으면 프로필 링크 비활성.
+  // BE 필드명과 일치 (AskVoterPayload.tetoEgenToken).
+  tetoEgenToken?: string | null;
 };
 
 export type TetoEgenFriendVotes = {

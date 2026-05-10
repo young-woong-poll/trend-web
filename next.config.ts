@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   output: 'standalone',
   reactStrictMode: true,
+  // 로컬에서 hosts 매핑된 도메인으로 dev server에 접근할 때 _next/webpack-hmr 등이
+  // cross-origin으로 차단되지 않도록 명시 허용. (Next 16 보안 기본값 보완)
+  allowedDevOrigins: ['local-hotpick.votebox.kr', 'local-console.votebox.kr'],
   sassOptions: {
     implementation: 'sass',
   },

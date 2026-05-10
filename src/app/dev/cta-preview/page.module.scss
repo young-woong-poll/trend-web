@@ -1,0 +1,41 @@
+@use '@/styles/variables' as *;
+
+.root {
+  height: 100dvh;
+  overflow: hidden;
+  background: $bg-primary;
+  display: flex;
+  flex-direction: column;
+}
+
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 16px;
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #333;
+}
+
+.label {
+  margin: 0 0 4px;
+  font-size: $font-size-14;
+  font-weight: $font-weight-bold;
+  color: $white;
+}
+
+.desc {
+  margin: 0;
+  font-size: $font-size-12;
+  color: $text-tertiary;
+  line-height: 1.4;
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}

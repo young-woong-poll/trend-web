@@ -165,31 +165,31 @@
 
 .updateButton {
   padding: 12px 24px;
-  background: linear-gradient(135deg, $btn-left 0%, $btn-right 100%);
+  background: $primary-gradient;
   color: $white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: $font-weight-semibold;
+  font-weight: $font-weight-bold;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(127, 85, 224, 0.3);
+  transition:
+    opacity 0.15s,
+    transform 0.15s;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(127, 85, 224, 0.4);
+    opacity: 0.9;
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: scale(0.96);
   }
 
   &:disabled {
-    background: $disabled;
+    background: $bg-tertiary;
     color: $text-tertiary;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
+    opacity: 1;
   }
 }
 

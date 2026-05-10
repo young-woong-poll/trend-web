@@ -8,6 +8,8 @@ export const PROFILE_COLORS: ProfileColor[] = [
   // 색상환 15도 간격 기준, start↔end 색상 거리 최소 60도 이상 확보
   { name: 'red', start: '#EF4444', end: '#FCA5A5' }, // 빨강 → 연분홍
   { name: 'flame', start: '#F97316', end: '#FBBF24' }, // 주황 → 노랑
+  { name: 'orange', start: '#F97316', end: '#FDBA74' }, // 오렌지 → 라이트오렌지
+  { name: 'yellow', start: '#EAB308', end: '#FDE68A' }, // 옐로우 → 크림
   { name: 'coral', start: '#FF6B6B', end: '#FFD93D' }, // 산호 → 골드
   { name: 'peach', start: '#FB923C', end: '#FDE68A' }, // 피치 → 크림
   { name: 'amber', start: '#D97706', end: '#84CC16' }, // 호박 → 연두

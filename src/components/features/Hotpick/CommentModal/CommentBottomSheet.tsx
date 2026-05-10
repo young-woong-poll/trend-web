@@ -35,6 +35,14 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
 }) => {
   const pathname = usePathname();
   const [sort, setSort] = useState<'popular' | 'latest'>('popular');
+  // 답글 모드 — 하단 폼 1개로 댓글/답글 통합 처리. null이면 댓글 모드.
+  // content는 칩 미리보기용. profileColor는 칩 배경/border tint용 (없으면 기본 핫핑크).
+  const [replyTarget, setReplyTarget] = useState<{
+    commentId: string;
+    nickname: string;
+    content: string;
+    profileColor?: string | null;
+  } | null>(null);
 
   const { data: commentCountData } = useCommentCount(slug, electionId);
   const commentCount = commentCountData?.count;
@@ -81,6 +89,11 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
   };
 
   const handleCommentSuccess = () => {
+    // 답글 작성 후에는 정렬 강제 변경/scroll-top 동작이 부적절 — 답글 모드일 땐 reply target만 해제.
+    if (replyTarget) {
+      setReplyTarget(null);
+      return;
+    }
     setSort('latest');
     if (containerRef.current) {
       containerRef.current.scrollTop = 0;
@@ -137,6 +150,9 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
                 onEditRequest={handleEditRequest}
                 onDeleteRequest={handleDeleteRequest}
                 onLikeClick={handleLikeClick}
+                onReplyClick={({ commentId, nickname, content, profileColor }) =>
+                  setReplyTarget({ commentId, nickname, content, profileColor })
+                }
               />
             </div>
 
@@ -147,9 +163,15 @@ export const CommentBottomSheet: FC<CommentBottomSheetProps> = ({
             />
           </div>
 
-          {/* 댓글 작성 폼 (고정 하단) */}
+          {/* 댓글 작성 폼 (고정 하단) — replyTarget 있으면 답글 모드로 전환 */}
           <div className={styles.commentFormContainer}>
-            <CommentForm slug={slug} electionId={electionId} onSuccess={handleCommentSuccess} />
+            <CommentForm
+              slug={slug}
+              electionId={electionId}
+              onSuccess={handleCommentSuccess}
+              replyTo={replyTarget}
+              onCancelReply={() => setReplyTarget(null)}
+            />
           </div>
         </div>
       </div>

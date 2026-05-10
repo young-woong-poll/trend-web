@@ -23,14 +23,8 @@ import { clearSignupToken, hasSignupToken } from '@/lib/signupToken';
 import { clearTKUID, getTKUID, hasTKUID } from '@/lib/tkuid';
 import { validateNickname } from '@/lib/utils';
 
-const computeBirthYearBucket = (year: number): string => `${Math.floor(year / 10) * 10}s`;
-
-type Gender = 'male' | 'female' | null;
-
 interface SignupFormValues {
   nickname: string;
-  birthYear: string;
-  agreeTerms: boolean;
 }
 
 const useIsMobile = () => {
@@ -134,7 +128,6 @@ const SignupForm = () => {
     trackAuthSignupView();
   }, [isAuthorized]);
 
-  const [gender, setGender] = useState<Gender>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingNickname, setIsCheckingNickname] = useState(false);
   const [nicknameChecked, setNicknameChecked] = useState<'idle' | 'available' | 'unavailable'>(
@@ -154,13 +147,10 @@ const SignupForm = () => {
     clearErrors,
     watch,
     setFocus,
-    setValue,
     formState: { errors },
   } = useForm<SignupFormValues>();
 
   const nicknameValue = watch('nickname');
-  const birthYearValue = watch('birthYear');
-  const agreeTermsValue = watch('agreeTerms');
 
   // 닉네임 값이 변경되면 중복확인 상태 초기화
   useEffect(() => {
@@ -209,7 +199,6 @@ const SignupForm = () => {
     }
 
     trackAuthSignupSubmit({
-      gender: gender === 'male' ? 'male' : 'female',
       has_migration: !!withMigration,
     });
 
@@ -231,15 +220,10 @@ const SignupForm = () => {
       const tkuId = withMigration ? getTKUID() : undefined;
       const result = await submitSignup({
         nickname: trimmed,
-        gender: gender === 'male' ? 'MALE' : 'FEMALE',
-        birthYear: Number(data.birthYear),
         ...(tkuId ? { tkuId } : {}),
       });
 
-      trackAuthSignupSuccess({
-        gender: gender === 'male' ? 'male' : 'female',
-        birth_year_bucket: computeBirthYearBucket(Number(data.birthYear)),
-      });
+      trackAuthSignupSuccess();
 
       setUser(result.user);
       showToast('핫픽 회원이 되신걸 환영합니다 🎉🎉');
@@ -352,15 +336,6 @@ const SignupForm = () => {
     if (nicknameChecked !== 'available') {
       return { label: '닉네임 중복확인', action: 'check', disabled: false };
     }
-    if (!gender) {
-      return { label: '성별을 선택해주세요', action: 'none', disabled: true };
-    }
-    if (!birthYearValue) {
-      return { label: '태어난 해를 선택해주세요', action: 'none', disabled: true };
-    }
-    if (!agreeTermsValue) {
-      return { label: '약관 동의하고 시작하기', action: 'submit', disabled: false };
-    }
     return { label: '핫픽 시작하기', action: 'submit', disabled: false };
   })();
 
@@ -368,9 +343,6 @@ const SignupForm = () => {
     if (ctaState.action === 'check') {
       void handleCheckNickname();
     } else if (ctaState.action === 'submit') {
-      if (!agreeTermsValue) {
-        setValue('agreeTerms', true, { shouldValidate: true });
-      }
       void handleSubmit(onSubmit)();
     }
   };
@@ -384,8 +356,7 @@ const SignupForm = () => {
           handleCtaClick();
         }}
       >
-        <h1 className={styles.title}>프로필 설정 🙂</h1>
-        <p className={styles.subtitle}>프로필만 설정하면 핫픽 회원이에요!</p>
+        <h1 className={styles.title}>어떤 이름으로 보일지 정해주세요</h1>
 
         {/* 닉네임 */}
         <div className={styles.fieldGroup}>
@@ -411,47 +382,7 @@ const SignupForm = () => {
           )}
         </div>
 
-        {/* 성별 */}
-        <div className={styles.fieldGroup}>
-          <label className={styles.label}>성별</label>
-          <div className={styles.genderGroup}>
-            <button
-              type="button"
-              className={`${styles.genderButton} ${gender === 'male' ? styles.selected : ''}`}
-              onClick={() => setGender('male')}
-            >
-              남성
-            </button>
-            <button
-              type="button"
-              className={`${styles.genderButton} ${gender === 'female' ? styles.selected : ''}`}
-              onClick={() => setGender('female')}
-            >
-              여성
-            </button>
-          </div>
-        </div>
-
-        {/* 태어난 년도 */}
-        <div className={styles.fieldGroup}>
-          <label className={styles.label}>태어난 년도</label>
-          <select
-            {...register('birthYear', { required: true })}
-            className={styles.selectInput}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              선택하세요
-            </option>
-            {Array.from({ length: 73 }, (_, i) => new Date().getFullYear() - 14 - i).map((year) => (
-              <option key={year} value={year}>
-                {year}년
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 약관 동의 */}
+        {/* 약관 동의 — 옵션 B(가입 = 동의 간주)로 전환. 기존 체크박스는 향후 복원 대비 주석 보존.
         <div className={styles.agreementGroup}>
           <label
             className={`${styles.agreementButton} ${watch('agreeTerms') ? styles.agreementChecked : ''}`}
@@ -488,6 +419,7 @@ const SignupForm = () => {
             </span>
           </label>
         </div>
+        */}
 
         <div className={styles.footer}>
           <button
@@ -498,6 +430,27 @@ const SignupForm = () => {
           >
             {ctaState.label}
           </button>
+          <p className={styles.legalNotice}>
+            핫픽{' '}
+            <a
+              href="https://kimsuky.notion.site/HotPick-33210e0b649280bf9d4ffb6899538643"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.legalLink}
+            >
+              이용약관
+            </a>
+            {' 및 '}
+            <a
+              href="https://kimsuky.notion.site/HotPick-33210e0b6492806f8992cef7ce933abf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.legalLink}
+            >
+              개인정보처리방침
+            </a>
+            에 동의합니다.
+          </p>
         </div>
       </form>
 
