@@ -43,24 +43,59 @@
   overflow: hidden;
 }
 
-.backButton {
+// Hero/Detail 무관 항상 노출되는 sticky back — wrap 기준 absolute, frame 위 z-index.
+.floatingBack {
   position: absolute;
   top: 16px;
   left: 16px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 2;
+  z-index: 20;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(30, 30, 30, 0.7);
+  }
 }
 
 .backIcon {
   width: 20px;
   height: 20px;
+}
+
+// Detail 상단 sectionHead 우측 — Hero로 smooth scroll
+.scrollUpButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: $border-rounded;
+  color: $text-tertiary;
+  font-size: $font-size-12;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+
+  &:hover {
+    color: $white;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 
 .contextChip {

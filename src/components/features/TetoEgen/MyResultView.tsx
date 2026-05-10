@@ -110,6 +110,10 @@ const MyResultView: FC = () => {
     detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const handleScrollToHero = () => {
+    frameRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 사용자가 한 번이라도 스크롤하면 sticky 통통 펄스 정지.
   useEffect(() => {
     const el = frameRef.current;
@@ -208,6 +212,16 @@ const MyResultView: FC = () => {
   return (
     <>
       <div className={styles.wrap}>
+        {/* frame 외부 sticky back — Hero/Detail 어느 위치에서도 항상 노출 */}
+        <button
+          type="button"
+          className={styles.floatingBack}
+          onClick={() => router.back()}
+          aria-label="뒤로"
+        >
+          <BackIcon className={styles.backIcon} />
+        </button>
+
         <div
           ref={frameRef}
           className={styles.frame}
@@ -218,15 +232,7 @@ const MyResultView: FC = () => {
           }}
         >
           <section className={styles.hero}>
-            <button
-              type="button"
-              className={styles.backButton}
-              onClick={() => router.back()}
-              aria-label="뒤로"
-            >
-              <BackIcon className={styles.backIcon} />
-            </button>
-            <span className={styles.contextChip}>나의 현재 결과</span>
+            <span className={styles.contextChip}>현재 나의 결과</span>
 
             <div className={styles.heroMid}>
               {isEmpty ? (
@@ -356,7 +362,17 @@ const MyResultView: FC = () => {
           {/* 정상 케이스만 Detail 노출. empty/sparse는 Hero 안에서 공유 완결. */}
           {!isEmpty && !isSparse && (
             <section ref={detailRef} className={styles.detail}>
-              <h2 className={styles.sectionTitle}>답 분포</h2>
+              <div className={styles.sectionHead}>
+                <h2 className={styles.sectionTitle}>답 분포</h2>
+                <button
+                  type="button"
+                  className={styles.scrollUpButton}
+                  onClick={handleScrollToHero}
+                  aria-label="결과 위로"
+                >
+                  <span aria-hidden>↑</span> 위로
+                </button>
+              </div>
               <DistCard
                 tetoCount={data.friendVotes.tetoCount}
                 egenCount={data.friendVotes.egenCount}

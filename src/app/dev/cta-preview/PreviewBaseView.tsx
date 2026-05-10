@@ -74,8 +74,16 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
     ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
     : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 } };
 
+  const handleScrollToHero = () => {
+    frameRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className={styles.wrap}>
+      <button type="button" className={styles.floatingBack} aria-label="뒤로">
+        <BackIcon className={styles.backIcon} />
+      </button>
+
       <div
         ref={frameRef}
         className={styles.frame}
@@ -85,10 +93,7 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
         }}
       >
         <section className={styles.hero}>
-          <button type="button" className={styles.backButton} aria-label="뒤로">
-            <BackIcon className={styles.backIcon} />
-          </button>
-          <span className={styles.contextChip}>{ownerDisplayName}님의 현재 결과</span>
+          <span className={styles.contextChip}>현재 {ownerDisplayName}님의 결과</span>
 
           <div className={styles.heroMid}>
             {adj.display === 'spaced' && adj.modifier && (
@@ -143,7 +148,17 @@ const PreviewBaseView: FC<PreviewBaseViewProps> = ({
         </section>
 
         <section ref={detailRef} className={styles.detail}>
-          <h2 className={styles.sectionTitle}>답 분포</h2>
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionTitle}>답 분포</h2>
+            <button
+              type="button"
+              className={styles.scrollUpButton}
+              onClick={handleScrollToHero}
+              aria-label="결과 위로"
+            >
+              <span aria-hidden>↑</span> 위로
+            </button>
+          </div>
           <DistCard tetoCount={friendVotes.tetoCount} egenCount={friendVotes.egenCount} />
           <div className={styles.sectionHead}>
             <h2 className={styles.sectionTitle}>친구 목록</h2>
