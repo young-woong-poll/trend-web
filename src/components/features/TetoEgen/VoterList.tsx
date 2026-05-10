@@ -1,6 +1,6 @@
 'use client';
 
-import { type FC, type ReactNode } from 'react';
+import { type FC, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import Link from 'next/link';
 
@@ -26,6 +26,31 @@ const VoterList: FC<VoterListProps> = ({
   enableProfileLink = false,
   onProfileLinkClick,
 }) => {
+  // 스크롤 가능 + 위/아래 여백이 남아있을 때 각각 fade 표시.
+  // 콜백 ref로 마운트/언마운트와 voters 변경 모두 커버 (resize도 함께 감지).
+  const [hasMoreAbove, setHasMoreAbove] = useState(false);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
+  const listRef = useRef<HTMLUListElement | null>(null);
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) {
+      return;
+    }
+    const update = () => {
+      const remaining = el.scrollHeight - el.clientHeight - el.scrollTop;
+      setHasMoreAbove(el.scrollTop > 4);
+      setHasMoreBelow(remaining > 4);
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro?.disconnect();
+    };
+  }, [voters]);
+
   if (voters.length === 0) {
     return null;
   }
@@ -39,73 +64,82 @@ const VoterList: FC<VoterListProps> = ({
   });
 
   return (
-    <ul className={styles.list} aria-label={`친구 답변 ${voters.length}명`}>
-      {sorted.map((v) => {
-        const isMe = highlightSelfId !== null && v.userId === highlightSelfId;
-        const initial = v.displayName.charAt(0);
-        const voteLabel = v.vote === 'TETO' ? '테토' : '에겐';
-        const utcVotedAt = ensureUtcIsoString(v.votedAt);
-        const isClickable = enableProfileLink && !isMe && Boolean(v.tetoEgenToken);
+    <div className={styles.listWrap}>
+      <ul ref={listRef} className={styles.list} aria-label={`친구 답변 ${voters.length}명`}>
+        {sorted.map((v) => {
+          const isMe = highlightSelfId !== null && v.userId === highlightSelfId;
+          const initial = v.displayName.charAt(0);
+          const voteLabel = v.vote === 'TETO' ? '테토' : '에겐';
+          const utcVotedAt = ensureUtcIsoString(v.votedAt);
+          const isClickable = enableProfileLink && !isMe && Boolean(v.tetoEgenToken);
 
-        // 본인 행은 기존 teto-blue 강조(rowMe avatar 스타일)를 유지하기 위해 gradient 미적용.
-        // 다른 voter는 BE가 내려준 profileColor(없으면 기본값 fallback)로 그라데이션.
-        const avatarStyle =
-          !isMe && v.profileColor ? { background: getProfileGradient(v.profileColor) } : undefined;
+          // 본인 행은 기존 teto-blue 강조(rowMe avatar 스타일)를 유지하기 위해 gradient 미적용.
+          // 다른 voter는 BE가 내려준 profileColor(없으면 기본값 fallback)로 그라데이션.
+          const avatarStyle =
+            !isMe && v.profileColor
+              ? { background: getProfileGradient(v.profileColor) }
+              : undefined;
 
-        const rowInner: ReactNode = (
-          <>
-            <div className={styles.avatar} style={avatarStyle} aria-hidden>
-              {isMe ? '나' : initial}
-            </div>
-            <span className={styles.name}>
-              {v.displayName}
-              {isMe && <span className={styles.tag}>내 답</span>}
-            </span>
-            <span
-              className={`${styles.vote} ${v.vote === 'TETO' ? styles.voteTeto : styles.voteEgen}`}
-            >
-              {voteLabel}
-            </span>
-            <time className={styles.time} dateTime={utcVotedAt}>
-              {getRelativeTime(utcVotedAt)}
-            </time>
-            {/* chevron 슬롯은 클릭 가능 여부와 무관하게 항상 자리 차지 — 행 간 세로 정렬 일관성. */}
-            <span className={styles.chevronSlot} aria-hidden>
-              {isClickable && (
-                <svg
-                  className={styles.chevron}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              )}
-            </span>
-          </>
-        );
-
-        const rowClass = `${styles.row} ${isMe ? styles.rowMe : ''} ${isClickable ? styles.rowClickable : ''}`;
-
-        return (
-          <li key={v.userId} className={rowClass}>
-            {isClickable ? (
-              <Link
-                href={`/ask/teto-egen/friend/${v.tetoEgenToken}`}
-                className={styles.rowLink}
-                aria-label={`${v.displayName}님의 결과 보기`}
-                onClick={onProfileLinkClick}
+          const rowInner: ReactNode = (
+            <>
+              <div className={styles.avatar} style={avatarStyle} aria-hidden>
+                {isMe ? '나' : initial}
+              </div>
+              <span className={styles.name}>
+                {v.displayName}
+                {isMe && <span className={styles.tag}>내 답</span>}
+              </span>
+              <span
+                className={`${styles.vote} ${v.vote === 'TETO' ? styles.voteTeto : styles.voteEgen}`}
               >
-                {rowInner}
-              </Link>
-            ) : (
-              rowInner
-            )}
-          </li>
-        );
-      })}
-    </ul>
+                {voteLabel}
+              </span>
+              <time className={styles.time} dateTime={utcVotedAt}>
+                {getRelativeTime(utcVotedAt)}
+              </time>
+              {/* chevron 슬롯은 클릭 가능 여부와 무관하게 항상 자리 차지 — 행 간 세로 정렬 일관성. */}
+              <span className={styles.chevronSlot} aria-hidden>
+                {isClickable && (
+                  <svg
+                    className={styles.chevron}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path d="M9 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+            </>
+          );
+
+          const rowClass = `${styles.row} ${isMe ? styles.rowMe : ''} ${isClickable ? styles.rowClickable : ''}`;
+
+          return (
+            <li key={v.userId} className={rowClass}>
+              {isClickable ? (
+                <Link
+                  href={`/ask/teto-egen/friend/${v.tetoEgenToken}`}
+                  className={styles.rowLink}
+                  aria-label={`${v.displayName}님의 결과 보기`}
+                  onClick={onProfileLinkClick}
+                >
+                  {rowInner}
+                </Link>
+              ) : (
+                rowInner
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <div className={`${styles.fadeTop} ${hasMoreAbove ? styles.fadeVisible : ''}`} aria-hidden />
+      <div
+        className={`${styles.fadeBottom} ${hasMoreBelow ? styles.fadeVisible : ''}`}
+        aria-hidden
+      />
+    </div>
   );
 };
 

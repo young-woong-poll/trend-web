@@ -45,24 +45,70 @@
   overflow: hidden;
 }
 
-.backButton {
+.floatingBack {
   position: absolute;
   top: 16px;
   left: 16px;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  background: transparent;
+  border: none;
   color: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 2;
+  z-index: 20;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .backIcon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+}
+
+.scrollUpIndicator {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  z-index: 20;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+.scrollUpIcon {
+  width: 24px;
+  height: 16px;
+  animation: scrollUpBob 1.6s ease-in-out infinite;
+}
+
+@keyframes scrollUpBob {
+  0%,
+  100% {
+    transform: translateY(2px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
 }
 
 .contextChip {
